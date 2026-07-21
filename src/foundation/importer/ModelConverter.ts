@@ -87,7 +87,7 @@ import type { RenderPass } from '../renderer/RenderPass';
 import type { Engine } from '../system/Engine';
 import { Sampler } from '../textures/Sampler';
 import { Texture } from '../textures/Texture';
-import { setupKhrStaticBoxColliders } from './KhrPhysicsImporter';
+import { setupKhrStaticColliders } from './KhrPhysicsImporter';
 import { RhodoniteImportExtension } from './RhodoniteImportExtension';
 
 declare let DracoDecoderModule: any;
@@ -254,7 +254,7 @@ export class ModelConverter {
     // Hierarchy
     this._setupHierarchy(gltfModel, rnEntities);
 
-    setupKhrStaticBoxColliders(gltfModel, rnEntities);
+    setupKhrStaticColliders(gltfModel, rnEntities);
 
     this.__setupNodeVisibility(gltfModel, rnEntities);
 
@@ -316,7 +316,7 @@ export class ModelConverter {
     // Hierarchy
     this._setupHierarchy(gltfModel, rnEntities);
 
-    setupKhrStaticBoxColliders(gltfModel, rnEntities);
+    setupKhrStaticColliders(gltfModel, rnEntities);
 
     this.__setupNodeVisibility(gltfModel, rnEntities);
 

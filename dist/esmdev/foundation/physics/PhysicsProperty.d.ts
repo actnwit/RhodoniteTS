@@ -1,9 +1,52 @@
 import type { PhysicsShapeTypeEnum } from '../definitions/PhysicsShapeType';
 import type { IVector3 } from '../math';
+import type { IQuaternion } from '../math/IQuaternion';
 export type PhysicsEngineType = 'oimo' | 'rapier';
+export type PhysicsBodyProperty = {
+    /** Whether the body is dynamic. False creates a fixed body. */
+    move: boolean;
+    /** Whether a moving body is position-based kinematic instead of dynamic. */
+    isKinematic?: boolean;
+    /** Density used to derive mass. */
+    density: number;
+};
+/** Properties shared by all colliders belonging to one rigid body. */
+export type PhysicsMotionProperty = {
+    /** Whether the simulation may move the body. False creates a fixed body. */
+    move: boolean;
+    /** Whether a moving body is position-based kinematic instead of dynamic. */
+    isKinematic?: boolean;
+    /** Explicit total mass in kilograms. Omit to derive mass from collider density. */
+    mass?: number;
+    /** Center of mass expressed in the entity's local space. */
+    centerOfMass?: IVector3;
+    /** Principal angular inertia values expressed in kg*m^2. Zero means infinite inertia on that axis. */
+    inertiaDiagonal?: IVector3;
+    /** Rotation from the principal inertia axes to the entity's local axes. */
+    inertiaOrientation?: IQuaternion;
+    /** Initial linear velocity expressed in the entity's local axes. */
+    linearVelocity?: IVector3;
+    /** Initial angular velocity expressed in the entity's local axes, in radians per second. */
+    angularVelocity?: IVector3;
+    /** Multiplier applied to the world's gravity for this body. */
+    gravityFactor?: number;
+};
+export type PhysicsColliderProperty = {
+    /** Surface friction coefficient. */
+    friction: number;
+    /** Surface restitution coefficient. */
+    restitution: number;
+    /** 16-bit collision-group membership mask. Defaults to all groups. */
+    collisionGroup?: number;
+    /** 16-bit mask of collision groups this collider may interact with. Defaults to all groups. */
+    collisionMask?: number;
+    /** Whether this collider detects overlap without generating contact response. */
+    isSensor?: boolean;
+};
 /**
  * Internal physics property configuration containing detailed shape physics parameters.
  * type defines complete set properties needed physics simulation.
+ * @deprecated Use ShapeComponent with PhysicsBodyProperty and PhysicsColliderProperty.
  */
 export type PhysicsPropertyInner = {
     /** The type of physics shape (box, sphere, capsule, etc.) */

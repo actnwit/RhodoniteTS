@@ -13,7 +13,6 @@ import { MutableQuaternion } from '../../math/MutableQuaternion';
 import type { MutableVector3 } from '../../math/MutableVector3';
 import { Quaternion } from '../../math/Quaternion';
 import { Transform3D } from '../../math/Transform3D';
-import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc';
 import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
@@ -166,7 +165,7 @@ export class TransformComponent extends Component {
   set localPosition(vec: IVector3) {
     this.__pose.position = vec;
     const sceneGraph = this.entity.tryToGetSceneGraph();
-    if (sceneGraph !== undefined && sceneGraph.entity.tryToGetPhysics() !== undefined) {
+    if (sceneGraph?._hasPhysicsComponentInSubtree) {
       const parent = sceneGraph.parent;
       if (parent !== undefined) {
         sceneGraph.setPositionToPhysics(parent.matrixInner.multiplyVector3(vec));
@@ -246,7 +245,7 @@ export class TransformComponent extends Component {
   set localEulerAngles(vec: IVector3) {
     this.__pose.eulerAngles = vec;
     const sceneGraph = this.entity.tryToGetSceneGraph();
-    if (sceneGraph !== undefined) {
+    if (sceneGraph?._hasPhysicsComponentInSubtree) {
       const sx = Math.sin(vec._v[0] * 0.5);
       const cx = Math.cos(vec._v[0] * 0.5);
       const sy = Math.sin(vec._v[1] * 0.5);
@@ -261,7 +260,7 @@ export class TransformComponent extends Component {
         cx * cy * cz + sx * sy * sz
       );
       const parent = sceneGraph.parent;
-      if (parent !== undefined && sceneGraph.entity.tryToGetPhysics() !== undefined) {
+      if (parent !== undefined) {
         sceneGraph.setRotationToPhysics(Quaternion.multiply(parent.rotation, rotation));
       } else {
         sceneGraph.setRotationToPhysics(rotation);
@@ -331,13 +330,11 @@ export class TransformComponent extends Component {
     this.__pose.scale = vec;
 
     const sceneGraph = this.entity.tryToGetSceneGraph();
-    if (sceneGraph !== undefined && sceneGraph.entity.tryToGetPhysics() !== undefined) {
+    if (sceneGraph?._hasPhysicsComponentInSubtree) {
       const parent = sceneGraph.parent;
-      if (parent !== undefined) {
-        sceneGraph.setScaleToPhysics(Vector3.multiplyVector(parent.matrixInner.getScale(), vec));
-      } else {
-        sceneGraph.setScaleToPhysics(vec);
-      }
+      const worldMatrix =
+        parent === undefined ? this.__pose.matrixInner : Matrix44.multiply(parent.matrixInner, this.__pose.matrixInner);
+      sceneGraph.setScaleToPhysics(sceneGraph._getPhysicsWorldScale(worldMatrix));
     }
     TransformComponent.__incrementUpdateCount(this.__engine);
   }
@@ -411,7 +408,7 @@ export class TransformComponent extends Component {
   set localRotation(quat: IQuaternion) {
     this.__pose.rotation = quat;
     const sceneGraph = this.entity.tryToGetSceneGraph();
-    if (sceneGraph !== undefined && sceneGraph.entity.tryToGetPhysics() !== undefined) {
+    if (sceneGraph?._hasPhysicsComponentInSubtree) {
       const parent = sceneGraph.parent;
       if (parent !== undefined) {
         sceneGraph.setRotationToPhysics(Quaternion.multiply(parent.rotationInner, quat));
@@ -491,7 +488,7 @@ export class TransformComponent extends Component {
   set localMatrix(mat: IMatrix44) {
     this.__pose.matrix = mat;
     const sceneGraph = this.entity.tryToGetSceneGraph();
-    if (sceneGraph !== undefined && sceneGraph.entity.tryToGetPhysics() !== undefined) {
+    if (sceneGraph?._hasPhysicsComponentInSubtree) {
       const parent = sceneGraph.parent;
       if (parent !== undefined) {
         sceneGraph.setMatrixToPhysics(Matrix44.multiply(parent.matrix, mat));

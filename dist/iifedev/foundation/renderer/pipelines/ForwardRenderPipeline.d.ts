@@ -89,6 +89,7 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __oRaymarchingExpression;
     private __oRaymarchingRenderPass;
     private __engine;
+    private __isMsaaEnabled;
     constructor(engine: Engine);
     /**
      * Destroys all allocated 3D API resources including frame buffers and textures.

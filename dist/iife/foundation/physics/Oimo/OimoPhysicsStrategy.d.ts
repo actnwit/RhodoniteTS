@@ -1,7 +1,8 @@
 import type { Config } from '../../core/Config';
+import type { ShapeInstance } from '../../geometry/Shape';
 import type { ISceneGraphEntity } from '../../helpers';
 import { type IVector3 } from '../../math';
-import type { PhysicsPropertyInner } from '../PhysicsProperty';
+import type { PhysicsBodyProperty, PhysicsColliderProperty, PhysicsMotionProperty, PhysicsPropertyInner } from '../PhysicsProperty';
 import type { PhysicsStrategy } from '../PhysicsStrategy';
 import type { PhysicsWorldProperty } from '../PhysicsWorldProperty';
 /**
@@ -36,6 +37,14 @@ export declare class OimoPhysicsStrategy implements PhysicsStrategy {
      * The original local scale of the physics shape before any transformations.
      */
     private __localScale;
+    private __shapeLocalPosition;
+    private __shapeLocalRotation;
+    private __resolvedShapeLocalRotation;
+    private __worldScale;
+    private __worldSignedScale;
+    private __usesShapeInstance;
+    private __shapeType?;
+    private __warnedScaleApproximation;
     /**
      * Creates a new OimoPhysicsStrategy instance.
      * Initializes the shared Oimo physics world if it doesn't exist yet.
@@ -49,6 +58,8 @@ export declare class OimoPhysicsStrategy implements PhysicsStrategy {
      * @param entity - The scene graph entity to associate with this physics body
      */
     setShape(prop: PhysicsPropertyInner, entity: ISceneGraphEntity): void;
+    setShapeInstance(shape: ShapeInstance, body: PhysicsBodyProperty, collider: PhysicsColliderProperty, entity: ISceneGraphEntity, worldScale?: IVector3, motion?: PhysicsMotionProperty): void;
+    clearShapeInstances(): void;
     /**
      * Updates the associated entity's transform based on the physics body's current state.
      * This method should be called each frame to synchronize the visual representation
@@ -77,6 +88,11 @@ export declare class OimoPhysicsStrategy implements PhysicsStrategy {
      * @param scale - The scale factors to apply to the physics body's dimensions
      */
     setScale(scale: IVector3): void;
+    private __canCreateBody;
+    private __removeBody;
+    private __resolveScaledShape;
+    private __createLegacyScaledSize;
+    private __toBodyPose;
     /**
      * Advances the physics simulation by one time step.
      * This static method should be called once per frame to update all physics bodies

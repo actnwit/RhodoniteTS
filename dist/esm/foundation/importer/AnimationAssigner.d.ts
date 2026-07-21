@@ -1,11 +1,37 @@
-import type { RnM2Vrma } from '../../types';
+import type { AnimationTrackName, RnM2Vrma } from '../../types';
 import type { RnM2 } from '../../types/RnM2';
 import type { VRM } from '../../types/VRM';
 import type { Vrm0x } from '../../types/VRM0x';
 import type { Vrm1 } from '../../types/VRM1';
+import type { CharacterAnimationMapping, CharacterAnimationSemantic } from '../components/CharacterController/CharacterAnimationController';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import type { Engine } from '../system/Engine';
 type RetargetMode = 'none' | 'global' | 'absolute';
+/** Controls how a VRMA's hips translation is handled during retargeting. */
+export type VrmaRootMotionPolicy = 'preserve' | 'ignoreHipsTranslation';
+/** Optional behavior for a single VRMA assignment. */
+export interface VrmaAnimationAssignmentOptions {
+    /**
+     * Whether translation channels that target the humanoid hips are retargeted.
+     * Defaults to `preserve` for compatibility with the existing VRMA assignment API.
+     */
+    rootMotion?: VrmaRootMotionPolicy;
+}
+/** VRMA files to assign to one or more character controller semantic motion states. */
+export type CharacterVrmaAnimationSet = Readonly<Partial<Record<CharacterAnimationSemantic, RnM2Vrma>>>;
+/** Optional behavior for assigning a character VRMA set. */
+export interface CharacterVrmaAnimationAssignmentOptions {
+    /**
+     * Defaults to `ignoreHipsTranslation` so the physics character controller remains
+     * the sole authority for the character's world position.
+     */
+    rootMotion?: VrmaRootMotionPolicy;
+}
+/** The controller mapping and concrete tracks created from a character VRMA set. */
+export interface CharacterVrmaAnimationAssignmentResult {
+    mapping: CharacterAnimationMapping;
+    trackNames: Readonly<Partial<Record<CharacterAnimationSemantic, readonly AnimationTrackName[]>>>;
+}
 export declare class AnimationAssigner {
     private readonly __engine;
     constructor(__engine: Engine);
@@ -28,9 +54,23 @@ export declare class AnimationAssigner {
      * @param rootEntity - The root entity of the model to which animation will be assigned
      * @param vrmaModel - The VRMA model containing animation data and humanoid bone mappings
      * @param postfixToTrackName - Optional postfix to append to animation track names for identification
+     * @param options - Optional root-motion behavior. Existing callers preserve hips translation by default.
      * @returns An array of animation track names that were created
      */
-    assignAnimationWithVrma(rootEntity: ISceneGraphEntity, vrmaModel: RnM2Vrma, postfixToTrackName?: string): string[];
+    assignAnimationWithVrma(rootEntity: ISceneGraphEntity, vrmaModel: RnM2Vrma, postfixToTrackName?: string, options?: VrmaAnimationAssignmentOptions): string[];
+    /**
+     * Retargets the supplied semantic character motions and returns a mapping that can be
+     * passed directly to {@link CharacterAnimationController}.
+     *
+     * Every source track receives a stable semantic suffix, so unnamed or identically named
+     * animations in separate VRMA files do not collide. The suffix is scoped to the target root
+     * entity so tracks from multiple characters also remain distinct. Each supplied semantic VRMA
+     * must create exactly one track; omitted semantics use `CharacterAnimationController` fallback
+     * behavior. The default root-motion policy keeps
+     * hips translation out of the target skeleton, leaving position and collision resolution to
+     * the physics character controller.
+     */
+    assignCharacterAnimationsWithVrma(rootEntity: ISceneGraphEntity, vrmaAnimations: CharacterVrmaAnimationSet, options?: CharacterVrmaAnimationAssignmentOptions): CharacterVrmaAnimationAssignmentResult;
     /**
      * Resets animation tracks and restores entities to their rest pose.
      * This method recursively processes all child entities.
@@ -62,6 +102,8 @@ export declare class AnimationAssigner {
      * @returns The corresponding entity in the target skeleton, or undefined if not found
      */
     private __getCorrespondingEntityWithVrma;
+    private __getVrmaHumanoidBoneNameMap;
+    private __validateCharacterVrmaAnimationSet;
     /**
      * Determines whether a given node represents the hips bone in the humanoid skeleton.
      * This is used for special handling of hip translation animations.

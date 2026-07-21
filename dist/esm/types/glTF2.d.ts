@@ -24,6 +24,7 @@ export type Gltf2 = {
     accessors?: Gltf2Accessor[];
     bufferViews?: Gltf2BufferView[];
     extensionsUsed?: string[];
+    extensionsRequired?: string[];
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };

@@ -26,15 +26,38 @@ export interface KHRPhysicsCollider extends KHRPhysicsRigidBodiesProperty {
   collisionFilter?: number;
 }
 
+export interface KHRPhysicsCollisionFilter extends KHRPhysicsRigidBodiesProperty {
+  collisionSystems?: string[];
+  collideWithSystems?: string[];
+  notCollideWithSystems?: string[];
+}
+
+export interface KHRPhysicsMotion extends KHRPhysicsRigidBodiesProperty {
+  isKinematic?: boolean;
+  mass?: number;
+  centerOfMass?: number[];
+  inertiaDiagonal?: number[];
+  inertiaOrientation?: number[];
+  linearVelocity?: number[];
+  angularVelocity?: number[];
+  gravityFactor?: number;
+}
+
+export interface KHRPhysicsTrigger extends KHRPhysicsRigidBodiesProperty {
+  geometry?: KHRPhysicsGeometry;
+  nodes?: number[];
+  collisionFilter?: number;
+}
+
 export interface KHRPhysicsRigidBodiesNode extends KHRPhysicsRigidBodiesProperty {
-  motion?: Gltf2AnyObject;
+  motion?: KHRPhysicsMotion;
   collider?: KHRPhysicsCollider;
-  trigger?: Gltf2AnyObject;
+  trigger?: KHRPhysicsTrigger;
   joint?: Gltf2AnyObject;
 }
 
 export interface KHRPhysicsRigidBodies extends KHRPhysicsRigidBodiesProperty {
   physicsMaterials?: KHRPhysicsMaterial[];
-  collisionFilters?: Gltf2AnyObject[];
+  collisionFilters?: KHRPhysicsCollisionFilter[];
   physicsJoints?: Gltf2AnyObject[];
 }

@@ -1,3 +1,5 @@
+import type { Engine } from '../system/Engine';
+
 /**
  * A utility class for managing time-related operations and measurements.
  * Provides functionality to track process timing, system uptime, and frame intervals.
@@ -12,12 +14,15 @@
  * ```
  */
 export class Time {
+  private static readonly __defaultProcessIntervalMilliseconds = 1000 / 60;
   private static __currentProcessBeginTime = 0;
   private static __lastProcessBeginTime = 0;
   private static __lastProcessEndTime = 0;
   private static __lastTickTimeInterval = 0;
   private static __systemStartTime = 0;
   private static __intervalProcessBegin = 0;
+  private static __lastProcessBeginTimeByEngine = new WeakMap<Engine, number>();
+  private static __intervalProcessBeginByEngine = new WeakMap<Engine, number>();
   /**
    * Marks the beginning of a process cycle and updates timing measurements.
    * This method should be called at the start of each frame or processing cycle.
@@ -27,9 +32,18 @@ export class Time {
    * This method updates the current process begin time, calculates the interval
    * since the last process began, and initializes the system start time if needed.
    */
-  static _processBegin() {
+  static _processBegin(engine?: Engine) {
     Time.__currentProcessBeginTime = performance.now();
     Time.__intervalProcessBegin = Time.__currentProcessBeginTime - Time.__lastProcessBeginTime;
+    if (engine != null) {
+      const lastProcessBeginTime = Time.__lastProcessBeginTimeByEngine.get(engine);
+      const interval =
+        lastProcessBeginTime == null
+          ? Time.__defaultProcessIntervalMilliseconds
+          : Math.max(Time.__currentProcessBeginTime - lastProcessBeginTime, 0);
+      Time.__lastProcessBeginTimeByEngine.set(engine, Time.__currentProcessBeginTime);
+      Time.__intervalProcessBeginByEngine.set(engine, interval);
+    }
     if (Time.__systemStartTime === 0) {
       Time.__systemStartTime = Time.__currentProcessBeginTime;
     }
@@ -107,6 +121,14 @@ export class Time {
    */
   static get intervalProcessBegin() {
     return Time.__intervalProcessBegin / 1000;
+  }
+
+  /**
+   * Gets the interval between consecutive process starts for one Engine.
+   * Returns a 60 Hz interval until the Engine has begun its first process cycle.
+   */
+  static getIntervalProcessBegin(engine: Engine): number {
+    return (Time.__intervalProcessBeginByEngine.get(engine) ?? Time.__defaultProcessIntervalMilliseconds) / 1000;
   }
 
   /**

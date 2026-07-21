@@ -1,10 +1,41 @@
 import type { Config } from '../core/Config';
+import type { ShapeInstance } from '../geometry/Shape';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import type { IQuaternion } from '../math/IQuaternion';
 import type { IVector3 } from '../math/IVector';
+import type { PhysicsBodyProperty, PhysicsColliderProperty, PhysicsMotionProperty } from './PhysicsProperty';
 import type { VRMSpring } from './VRMSpring/VRMSpring';
+
+export type PhysicsShapeInstanceBinding = {
+  bindingId?: number;
+  shape: ShapeInstance;
+  body: PhysicsBodyProperty;
+  collider: PhysicsColliderProperty;
+};
 
 export interface PhysicsStrategy {
   update(config: Config): void;
+
+  /** Configures a physical collider from a generic analytic shape. */
+  setShapeInstance?(
+    shape: ShapeInstance,
+    body: PhysicsBodyProperty,
+    collider: PhysicsColliderProperty,
+    entity: ISceneGraphEntity,
+    worldScale?: IVector3,
+    motion?: PhysicsMotionProperty
+  ): void;
+
+  /** Replaces the complete collider set attached to one physical body. */
+  setShapeInstances?(
+    bindings: readonly PhysicsShapeInstanceBinding[],
+    entity: ISceneGraphEntity,
+    worldScale?: IVector3,
+    motion?: PhysicsMotionProperty
+  ): void;
+
+  /** Removes the body and all generic analytic-shape colliders. */
+  clearShapeInstances?(): void;
 
   /**
    * Sets the world position of the physics body.

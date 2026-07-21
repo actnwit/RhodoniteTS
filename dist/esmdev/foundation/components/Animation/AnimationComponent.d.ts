@@ -285,10 +285,11 @@ export declare class AnimationComponent extends Component {
      * Sets up animation retargeting from a source entity to this entity.
      * @param retarget - The retargeting interface that defines how to map animations
      * @param postfixToTrackName - Optional postfix to append to track names
+     * @param excludedPathNames - Animation paths to omit while copying source tracks
      * @returns An array of created track names
      * @private
      */
-    _setRetarget(retarget: IAnimationRetarget, postfixToTrackName?: string): string[];
+    _setRetarget(retarget: IAnimationRetarget, postfixToTrackName?: string, excludedPathNames?: readonly AnimationPathName[]): string[];
     /**
      * Resets all animation tracks, clearing all animation data from this component.
      */

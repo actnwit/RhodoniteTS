@@ -1,3 +1,4 @@
+import type { Engine } from '../system/Engine';
 /**
  * A utility class for managing time-related operations and measurements.
  * Provides functionality to track process timing, system uptime, and frame intervals.
@@ -12,12 +13,15 @@
  * ```
  */
 export declare class Time {
+    private static readonly __defaultProcessIntervalMilliseconds;
     private static __currentProcessBeginTime;
     private static __lastProcessBeginTime;
     private static __lastProcessEndTime;
     private static __lastTickTimeInterval;
     private static __systemStartTime;
     private static __intervalProcessBegin;
+    private static __lastProcessBeginTimeByEngine;
+    private static __intervalProcessBeginByEngine;
     /**
      * Marks the beginning of a process cycle and updates timing measurements.
      * This method should be called at the start of each frame or processing cycle.
@@ -27,7 +31,7 @@ export declare class Time {
      * This method updates the current process begin time, calculates the interval
      * since the last process began, and initializes the system start time if needed.
      */
-    static _processBegin(): void;
+    static _processBegin(engine?: Engine): void;
     /**
      * Marks the end of a process cycle and calculates the processing duration.
      * This method should be called at the end of each frame or processing cycle.
@@ -82,6 +86,11 @@ export declare class Time {
      * cycles started, which can be useful for measuring frame rate consistency.
      */
     static get intervalProcessBegin(): number;
+    /**
+     * Gets the interval between consecutive process starts for one Engine.
+     * Returns a 60 Hz interval until the Engine has begun its first process cycle.
+     */
+    static getIntervalProcessBegin(engine: Engine): number;
     /**
      * Gets the duration of the last completed processing cycle in milliseconds.
      *

@@ -6,6 +6,7 @@ import type { IAnimationStateEntityMethods } from './AnimationState';
 import type { IBlendShapeEntityMethods } from './BlendShape/IBlendShapeEntity';
 import type { ICameraEntityMethods } from './Camera/ICameraEntity';
 import type { ICameraControllerEntityMethods } from './CameraController/ICameraControllerEntity';
+import type { ICharacterControllerEntityMethods } from './CharacterController/ICharacterControllerEntity';
 import type { IConstraintEntityMethods } from './Constraint/IConstraintEntity';
 import type { ILightEntityMethods } from './Light/ILightEntity';
 import type { IMeshEntityMethods } from './Mesh/IMeshEntity';
@@ -13,9 +14,11 @@ import type { IMeshRendererEntityMethods } from './MeshRenderer/IMeshRendererEnt
 import type { IPhysicsEntityMethods } from './Physics/IPhysicsEntity';
 import type { IRaymarchingEntityMethods } from './Raymarching/IRaymarchingEntity';
 import type { ISceneGraphEntityMethods } from './SceneGraph/ISceneGraphEntity';
+import type { IShapeEntityMethods } from './Shape/IShapeEntity';
 import type { ISkeletalEntityMethods } from './Skeletal/ISkeletalEntity';
 import type { ITransformEntityMethods } from './Transform/ITransformEntity';
 import type { TransformComponent } from './Transform/TransformComponent';
+import type { ITriggerEntityMethods } from './Trigger/ITriggerEntity';
 import type { IVrmEntityMethods } from './Vrm/IVrmEntity';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 
@@ -48,6 +51,9 @@ interface ComponentTIDToMethodsMap {
   [WellKnownComponentTIDs.VrmComponentTID]: IVrmEntityMethods;
   [WellKnownComponentTIDs.ConstraintComponentTID]: IConstraintEntityMethods;
   [WellKnownComponentTIDs.RaymarchingComponentTID]: IRaymarchingEntityMethods;
+  [WellKnownComponentTIDs.CharacterControllerComponentTID]: ICharacterControllerEntityMethods;
+  [WellKnownComponentTIDs.ShapeComponentTID]: IShapeEntityMethods;
+  [WellKnownComponentTIDs.TriggerComponentTID]: ITriggerEntityMethods;
 }
 
 /**

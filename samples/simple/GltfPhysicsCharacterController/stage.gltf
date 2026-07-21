@@ -1,0 +1,107 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "RhodoniteTS character controller sample"
+  },
+  "extensionsUsed": [
+    "KHR_implicit_shapes",
+    "KHR_physics_rigid_bodies"
+  ],
+  "extensions": {
+    "KHR_implicit_shapes": {
+      "shapes": [
+        { "name": "Floor", "type": "box", "box": { "size": [12, 0.2, 12] } },
+        { "name": "Step", "type": "box", "box": { "size": [2, 0.2, 0.5] } },
+        { "name": "Landing", "type": "box", "box": { "size": [3, 0.2, 3] } },
+        { "name": "CylinderObstacle", "type": "cylinder", "cylinder": { "height": 1.5, "radiusBottom": 0.4, "radiusTop": 0.4 } },
+        { "name": "CapsuleObstacle", "type": "capsule", "capsule": { "height": 1.0, "radiusBottom": 0.3, "radiusTop": 0.3 } },
+        { "name": "GatePost", "type": "box", "box": { "size": [0.3, 2, 0.4] } },
+        { "name": "GateTop", "type": "box", "box": { "size": [2.1, 0.2, 0.4] } },
+        { "name": "Checkpoint", "type": "box", "box": { "size": [2.5, 1.5, 0.8] } }
+      ]
+    }
+  },
+  "buffers": [],
+  "bufferViews": [],
+  "accessors": [],
+  "scene": 0,
+  "scenes": [{ "nodes": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 14] }],
+  "nodes": [
+    {
+      "name": "FloorCollider",
+      "translation": [0, -0.1, 0],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 0 } } } }
+    },
+    {
+      "name": "Step1Collider",
+      "translation": [0, 0.1, 1.5],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 1 } } } }
+    },
+    {
+      "name": "Step2Collider",
+      "translation": [0, 0.3, 1.0],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 1 } } } }
+    },
+    {
+      "name": "Step3Collider",
+      "translation": [0, 0.5, 0.5],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 1 } } } }
+    },
+    {
+      "name": "Step4Collider",
+      "translation": [0, 0.7, 0.0],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 1 } } } }
+    },
+    {
+      "name": "Step5Collider",
+      "translation": [0, 0.9, -0.5],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 1 } } } }
+    },
+    {
+      "name": "Step6Collider",
+      "translation": [0, 1.1, -1.0],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 1 } } } }
+    },
+    {
+      "name": "LandingCollider",
+      "translation": [0, 1.1, -2.75],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 2 } } } }
+    },
+    {
+      "name": "CylinderCollider",
+      "translation": [3, 0.75, 1],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 3 } } } }
+    },
+    {
+      "name": "CapsuleCollider",
+      "translation": [-3, 0.8, 1],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 4 } } } }
+    },
+    {
+      "name": "GateBody",
+      "translation": [0, 1.2, -3.5],
+      "children": [11, 12, 13],
+      "extensions": { "KHR_physics_rigid_bodies": { "motion": { "isKinematic": true } } }
+    },
+    {
+      "name": "GateLeftPostCollider",
+      "translation": [-0.9, 1, 0],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 5 } } } }
+    },
+    {
+      "name": "GateRightPostCollider",
+      "translation": [0.9, 1, 0],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 5 } } } }
+    },
+    {
+      "name": "GateTopCollider",
+      "translation": [0, 2.1, 0],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 6 } } } }
+    },
+    {
+      "name": "CheckpointTrigger",
+      "translation": [0, 1.75, -1.8],
+      "extensions": { "KHR_physics_rigid_bodies": { "trigger": { "geometry": { "shape": 7 } } } }
+    }
+  ]
+}

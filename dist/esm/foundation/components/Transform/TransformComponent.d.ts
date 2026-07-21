@@ -9,7 +9,6 @@ import type { MutableMatrix44 } from '../../math/MutableMatrix44';
 import type { MutableVector3 } from '../../math/MutableVector3';
 import { Quaternion } from '../../math/Quaternion';
 import { Transform3D } from '../../math/Transform3D';
-import { Vector3 } from '../../math/Vector3';
 import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 /**
@@ -145,7 +144,7 @@ export declare class TransformComponent extends Component {
      * Gets the internal mutable local Euler angles vector.
      * @returns The internal mutable Euler angles vector
      */
-    get localEulerAnglesInner(): Vector3;
+    get localEulerAnglesInner(): import("../..").Vector3;
     /**
      * Sets the local Euler angles as rest pose.
      * @param vec - The Euler angles vector to set as rest (XYZ order)
@@ -160,7 +159,7 @@ export declare class TransformComponent extends Component {
      * Gets the internal mutable local Euler angles rest vector.
      * @returns The internal mutable rest Euler angles vector
      */
-    get localEulerAnglesRestInner(): Vector3;
+    get localEulerAnglesRestInner(): import("../..").Vector3;
     /**
      * Sets the local scale and updates physics if applicable.
      * @param vec - The new scale vector

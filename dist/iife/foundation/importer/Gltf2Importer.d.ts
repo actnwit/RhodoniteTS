@@ -114,6 +114,12 @@ export declare class Gltf2Importer {
      */
     static _loadInner(gltfJson: RnM2, files: GltfFileBuffers, options: GltfLoadOption, uint8arrayOfGlb?: Uint8Array, basePath?: string, callback?: RnPromiseCallback): RnPromise<any[]>;
     /**
+     * Normalizes optional glTF collection properties for the internal RnM2
+     * processing pipeline. A valid glTF document may omit every collection that
+     * it does not use, including buffers for collision-only scenes.
+     */
+    static _normalizeOptionalArrays(gltfJson: RnM2): void;
+    /**
      * Processes the glTF JSON content by resolving all internal dependencies.
      * Sets up object references between scenes, nodes, meshes, materials, textures, etc.
      *

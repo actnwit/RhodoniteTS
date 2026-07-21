@@ -45,6 +45,7 @@ export class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
   private __children: SceneGraphComponent[] = [];
   private __gizmoChildren: SceneGraphComponent[] = [];
+  private __physicsComponentCountInSubtree = 0;
   private _worldMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _worldMatrixRest: MutableMatrix44 = MutableMatrix44.identity();
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
@@ -72,6 +73,9 @@ export class SceneGraphComponent extends Component {
   public jointIndex = -1;
   _isCulled = false;
   private static readonly __originVector3 = Vector3.zero();
+  private static readonly __axisX = Vector3.fromCopy3(1, 0, 0);
+  private static readonly __axisY = Vector3.fromCopy3(0, 1, 0);
+  private static readonly __axisZ = Vector3.fromCopy3(0, 0, 1);
   private static returnVector3 = MutableVector3.zero();
   private static __sceneGraphs: WeakRef<SceneGraphComponent>[] = [];
   private static invertedMatrix44 = MutableMatrix44.fromCopyArray16ColumnMajor([
@@ -493,6 +497,7 @@ export class SceneGraphComponent extends Component {
     }
     sg.__parent = this;
     this.__children.push(sg);
+    this.__adjustPhysicsComponentCountInSubtree(sg.__physicsComponentCountInSubtree);
 
     if (keepPoseInWorldSpace) {
       if (Is.exist(worldMatrixBeforeReparent)) {
@@ -510,7 +515,12 @@ export class SceneGraphComponent extends Component {
   public removeChild(sg: SceneGraphComponent): void {
     const index = this.__children.indexOf(sg);
     if (index >= 0) {
+      this.__adjustPhysicsComponentCountInSubtree(-sg.__physicsComponentCountInSubtree);
       this.__children.splice(index, 1);
+    }
+    const gizmoIndex = this.__gizmoChildren.indexOf(sg);
+    if (gizmoIndex >= 0) {
+      this.__gizmoChildren.splice(gizmoIndex, 1);
     }
     sg.__parent = undefined;
   }
@@ -584,22 +594,97 @@ export class SceneGraphComponent extends Component {
   }
 
   setMatrixToPhysics(matrix: IMatrix44) {
+    this.__setMatrixToOwnPhysics(matrix, true, true, true);
+    this.__syncDescendantPhysicsTransforms(true, true, true);
+  }
+
+  private __setMatrixToOwnPhysics(
+    matrix: IMatrix44,
+    updatePosition: boolean,
+    updateRotation: boolean,
+    updateScale: boolean
+  ) {
     const physicsComponent = this.entity.tryToGetPhysics();
     if (physicsComponent !== undefined) {
       if (physicsComponent.strategy !== undefined) {
         const strategy = physicsComponent.strategy;
-        if (strategy.setRotation != null) {
-          strategy.setRotation(Quaternion.fromMatrix(matrix));
-        } else if (strategy.setEulerAngle != null) {
-          strategy.setEulerAngle(Quaternion.fromMatrix(matrix).toEulerAngles());
+        if (updateRotation) {
+          const worldRotation = this.getQuaternionRecursively();
+          if (strategy.setRotation != null) {
+            strategy.setRotation(worldRotation);
+          } else if (strategy.setEulerAngle != null) {
+            strategy.setEulerAngle(worldRotation.toEulerAngles());
+          }
         }
-        if (strategy.setPosition != null) {
+        if (updatePosition && strategy.setPosition != null) {
           strategy.setPosition(matrix.getTranslate());
         }
-        if (strategy.setScale != null) {
-          strategy.setScale(matrix.getScale());
+        if (updateScale && strategy.setScale != null) {
+          strategy.setScale(this._getPhysicsWorldScale(matrix));
         }
       }
+    }
+  }
+
+  private __syncDescendantPhysicsTransforms(updatePosition: boolean, updateRotation: boolean, updateScale: boolean) {
+    const ownPhysicsComponentCount = this.entity.tryToGetPhysics() === undefined ? 0 : 1;
+    if (this.__physicsComponentCountInSubtree === ownPhysicsComponentCount) {
+      return;
+    }
+
+    // TransformComponent dirties matrices during its logic stage. Materialize the
+    // current cache first so dirty propagation reaches every descendant now.
+    this.matrixInner;
+    this.setWorldMatrixDirty();
+    for (const child of this.__children) {
+      if (!child.toMakeWorldMatrixTheSameAsLocalMatrix && child.__physicsComponentCountInSubtree > 0) {
+        child.__syncPhysicsTransformRecursively(updatePosition, updateRotation, updateScale);
+      }
+    }
+  }
+
+  private __syncPhysicsTransformRecursively(updatePosition: boolean, updateRotation: boolean, updateScale: boolean) {
+    if (this.__physicsComponentCountInSubtree === 0) {
+      return;
+    }
+    this.__setMatrixToOwnPhysics(this.matrixInner, updatePosition, updateRotation, updateScale);
+    for (const child of this.__children) {
+      if (!child.toMakeWorldMatrixTheSameAsLocalMatrix && child.__physicsComponentCountInSubtree > 0) {
+        child.__syncPhysicsTransformRecursively(updatePosition, updateRotation, updateScale);
+      }
+    }
+  }
+
+  /**
+   * Records that this entity acquired a PhysicsComponent.
+   * @internal
+   */
+  _onPhysicsComponentAdded(): void {
+    this.__adjustPhysicsComponentCountInSubtree(1);
+  }
+
+  /**
+   * Records that this entity lost its PhysicsComponent.
+   * @internal
+   */
+  _onPhysicsComponentRemoved(): void {
+    this.__adjustPhysicsComponentCountInSubtree(-1);
+  }
+
+  /**
+   * Returns whether this node or one of its descendants has a PhysicsComponent.
+   * @internal
+   */
+  get _hasPhysicsComponentInSubtree(): boolean {
+    return this.__physicsComponentCountInSubtree > 0;
+  }
+
+  private __adjustPhysicsComponentCountInSubtree(delta: number): void {
+    this.__physicsComponentCountInSubtree += delta;
+
+    const parent = this.__parent;
+    if (parent?.__children.includes(this)) {
+      parent.__adjustPhysicsComponentCountInSubtree(delta);
     }
   }
 
@@ -1126,6 +1211,7 @@ export class SceneGraphComponent extends Component {
         physicsComponent.strategy.setPosition?.(vec);
       }
     }
+    this.__syncDescendantPhysicsTransforms(true, false, false);
   }
 
   /**
@@ -1195,6 +1281,7 @@ export class SceneGraphComponent extends Component {
         }
       }
     }
+    this.__syncPhysicsTransformsAfterRotation();
   }
 
   /**
@@ -1244,6 +1331,20 @@ export class SceneGraphComponent extends Component {
         }
       }
     }
+    this.__syncPhysicsTransformsAfterRotation();
+  }
+
+  private __syncPhysicsTransformsAfterRotation() {
+    const strategy = this.entity.tryToGetPhysics()?.strategy;
+    if (strategy?.setScale != null) {
+      // Transform setters update their pose before this call, while the cached
+      // world matrix is dirtied later in the logic stage. Materialize the old
+      // cache first so dirty propagation is not skipped, then resolve the new scale.
+      this.matrixInner;
+      this.setWorldMatrixDirty();
+      strategy.setScale(this._getPhysicsWorldScale(this.matrixInner));
+    }
+    this.__syncDescendantPhysicsTransforms(true, true, true);
   }
 
   /**
@@ -1352,6 +1453,7 @@ export class SceneGraphComponent extends Component {
         physicsComponent.strategy.setScale?.(vec);
       }
     }
+    this.__syncDescendantPhysicsTransforms(true, true, true);
   }
 
   /**
@@ -1360,6 +1462,27 @@ export class SceneGraphComponent extends Component {
    */
   get scale(): MutableVector3 {
     return this.matrixInner.getScale();
+  }
+
+  /**
+   * Resolves world-scale magnitudes with signs relative to the entity's proper world rotation.
+   * Physics bodies use that rotation separately, so reflected local offsets need these signs.
+   * @internal
+   */
+  _getPhysicsWorldScale(matrix: IMatrix44 = this.matrixInner): Vector3 {
+    const rotation = this.getQuaternionRecursively();
+    const axisX = rotation.transformVector3(SceneGraphComponent.__axisX);
+    const axisY = rotation.transformVector3(SceneGraphComponent.__axisY);
+    const axisZ = rotation.transformVector3(SceneGraphComponent.__axisZ);
+    const scale = matrix.getScale();
+    const projectionX = matrix.m00 * axisX.x + matrix.m10 * axisX.y + matrix.m20 * axisX.z;
+    const projectionY = matrix.m01 * axisY.x + matrix.m11 * axisY.y + matrix.m21 * axisY.z;
+    const projectionZ = matrix.m02 * axisZ.x + matrix.m12 * axisZ.y + matrix.m22 * axisZ.z;
+    return Vector3.fromCopy3(
+      projectionX < 0 ? -scale.x : scale.x,
+      projectionY < 0 ? -scale.y : scale.y,
+      projectionZ < 0 ? -scale.z : scale.z
+    );
   }
 
   /**
@@ -1382,9 +1505,11 @@ export class SceneGraphComponent extends Component {
 
     this.__parent = component.__parent;
     this.__children = [];
+    this.__physicsComponentCountInSubtree = 0;
     for (let i = 0; i < component.__children.length; i++) {
       const copyChild = this.__copyChild(component.__children[i]).getSceneGraph();
       this.__children.push(copyChild);
+      this.__adjustPhysicsComponentCountInSubtree(copyChild.__physicsComponentCountInSubtree);
     }
 
     this.__gizmoChildren = component.__gizmoChildren.concat();

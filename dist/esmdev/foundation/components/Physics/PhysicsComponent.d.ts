@@ -2,9 +2,17 @@ import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/Commo
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
 import { type EntityRepository } from '../../core/EntityRepository';
+import type { PhysicsBodyProperty, PhysicsColliderProperty, PhysicsMotionProperty } from '../../physics/PhysicsProperty';
 import type { PhysicsStrategy } from '../../physics/PhysicsStrategy';
 import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
+import type { ShapeComponent } from '../Shape/ShapeComponent';
+export type PhysicsShapeBinding = {
+    shapeComponent: ShapeComponent;
+    shapeIndex?: number;
+    body: PhysicsBodyProperty;
+    collider: PhysicsColliderProperty;
+};
 /**
  * PhysicsComponent is a component that manages the physics simulation for an entity.
  * It provides integration with physics engines through the strategy pattern and handles
@@ -12,6 +20,9 @@ import type { ComponentToComponentMethods } from '../ComponentTypes';
  */
 export declare class PhysicsComponent extends Component {
     private __strategy?;
+    private __shapeBindings;
+    private __nextShapeBindingId;
+    private __motion?;
     /**
      * Creates a new PhysicsComponent instance.
      * @param engine - The engine instance
@@ -42,6 +53,22 @@ export declare class PhysicsComponent extends Component {
      * @returns The physics strategy instance, or undefined if none is set
      */
     get strategy(): PhysicsStrategy | undefined;
+    /** Sets properties shared by the complete rigid body and rebuilds its colliders. */
+    setMotionProperty(motion: PhysicsMotionProperty): void;
+    get motionProperty(): PhysicsMotionProperty | undefined;
+    /** Adds one generic ShapeComponent instance to this physical body. */
+    bindShape(binding: PhysicsShapeBinding): number;
+    updateShapeBinding(bindingId: number, binding: PhysicsShapeBinding): void;
+    removeShapeBinding(bindingId: number): boolean;
+    clearShapeBindings(): void;
+    rebuildShapeBindings(): void;
+    get shapeBindingCount(): number;
+    private __applyShapeBindingsTransaction;
+    private __applyShapeBindings;
+    private __applyBackendUpdate;
+    private static __copyBinding;
+    private __unregisterSensorBindings;
+    private static __copyMotion;
     getVrmSpring(): import("../..").VRMSpring | undefined;
     /**
      * Common logic method that updates the global physics simulation.
