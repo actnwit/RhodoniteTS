@@ -113,10 +113,35 @@ function createAssignerFixture({ version = '1.0' }: { version?: string } = {}) {
 }
 
 function createExpressionAssignerFixture(availableExpressions = new Set(['happy', 'smirk'])) {
-  const setAnimation = vi.fn();
+  const animationChannels = new Map<AnimationPathName, any>();
+  const setAnimation = vi.fn((pathName: AnimationPathName, animatedValue: any) => {
+    const existingChannel = animationChannels.get(pathName);
+    if (existingChannel == null) {
+      animationChannels.set(pathName, {
+        animatedValue,
+        target: { pathName },
+      });
+      return;
+    }
+    for (const trackName of animatedValue.getAllTrackNames()) {
+      existingChannel.animatedValue.setAnimationSampler(trackName, animatedValue.getAnimationSampler(trackName));
+    }
+  });
   const rootAnimation = {
-    resetAnimationTracks: vi.fn(),
-    resetAnimationTrackByPostfix: vi.fn(),
+    getAnimation: (pathName: AnimationPathName) => animationChannels.get(pathName)?.animatedValue,
+    getAnimationChannelsOfTrack: () => animationChannels,
+    getAnimationTrackNames: () =>
+      Array.from(animationChannels.values()).flatMap(channel => channel.animatedValue.getAllTrackNames()),
+    resetAnimationTracks: vi.fn(() => animationChannels.clear()),
+    resetAnimationTrackByPostfix: vi.fn((postfix: string) => {
+      for (const channel of animationChannels.values()) {
+        for (const trackName of channel.animatedValue.getAllTrackNames()) {
+          if (trackName.endsWith(postfix)) {
+            channel.animatedValue.deleteAnimationSampler(trackName);
+          }
+        }
+      }
+    }),
     setAnimation,
   };
   const root = {
@@ -135,7 +160,7 @@ function createExpressionAssignerFixture(availableExpressions = new Set(['happy'
     deleteEntityRecursively: vi.fn(),
   };
   const assigner = new AnimationAssigner({ entityRepository } as any);
-  return { assigner, entityRepository, root, setAnimation };
+  return { assigner, entityRepository, root, rootAnimation, setAnimation };
 }
 
 function mockModelConversion() {
@@ -249,6 +274,31 @@ test.each([
   const sampler = setAnimation.mock.calls[0][1].getAnimationSampler('Face');
   expect(Array.from(sampler.output)).toEqual(Array.from(new Float32Array([-0.2, 1.2])));
   expect(sampler.interpolationMethod).toBe(expectedInterpolation);
+});
+
+test('fills missing expression channels with zero samplers across assigned VRMA tracks', () => {
+  mockModelConversion();
+  const { assigner, root, rootAnimation } = createExpressionAssignerFixture();
+  const happyVrma = createExpressionVrma();
+  happyVrma.animations[0].name = 'Happy';
+  happyVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const smirkVrma = createExpressionVrma();
+  smirkVrma.animations[0].name = 'Smirk';
+  smirkVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+
+  assigner.assignAnimationWithVrma(root, happyVrma, '__happy');
+  assigner.assignAnimationWithVrma(root, smirkVrma, '__smirk');
+
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  const smirkAnimation = rootAnimation.getAnimation('vrmExpression/smirk');
+  expect(happyAnimation.getAllTrackNames()).toEqual(['Happy__happy', 'Smirk__smirk']);
+  expect(smirkAnimation.getAllTrackNames()).toEqual(['Smirk__smirk', 'Happy__happy']);
+  expect(Array.from(happyAnimation.getAnimationSampler('Smirk__smirk').output)).toEqual(new Array(6).fill(0));
+  expect(Array.from(smirkAnimation.getAnimationSampler('Happy__happy').output)).toEqual(new Array(6).fill(0));
+
+  happyAnimation.setFirstActiveAnimationTrackName('Smirk__smirk');
+  happyAnimation.setTime(0.5);
+  expect(happyAnimation.x).toBe(0);
 });
 
 test('skips VRMA expressions that do not exist on the target model', () => {

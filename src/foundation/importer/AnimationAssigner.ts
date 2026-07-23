@@ -196,6 +196,7 @@ export class AnimationAssigner {
     try {
       this.__resetAnimationAndPose(rootEntity, postfixToTrackName);
       setRetarget(vrmaModel);
+      this.__fillMissingVrmaExpressionTracks(rootEntity);
     } finally {
       this.__engine.entityRepository.deleteEntityRecursively(entityVrma.entityUID);
     }
@@ -472,6 +473,65 @@ export class AnimationAssigner {
         new AnimatedScalar(animationSamplers, trackName)
       );
       trackNames.add(trackName);
+    }
+  }
+
+  /**
+   * Adds zero-valued samplers for expression paths that are absent from some assigned VRMA tracks.
+   *
+   * Animation track activation is switched across every channel at once. Without a sampler for the
+   * newly active track, AnimatedScalar keeps its previous sampler and the previous clip's expression
+   * can remain active.
+   */
+  private __fillMissingVrmaExpressionTracks(rootEntity: ISceneGraphEntity): void {
+    const samplersByTrackName = new Map<AnimationTrackName, AnimationSampler>();
+    // Humanoid animation samplers live on bone entities, so collect them recursively from the hierarchy.
+    const collectSamplers = (entity: ISceneGraphEntity) => {
+      const animationComponent = entity.tryToGetAnimation();
+      if (animationComponent != null) {
+        for (const [, channel] of animationComponent.getAnimationChannelsOfTrack()) {
+          for (const trackName of channel.animatedValue.getAllTrackNames()) {
+            if (!samplersByTrackName.has(trackName)) {
+              samplersByTrackName.set(trackName, channel.animatedValue.getAnimationSampler(trackName));
+            }
+          }
+        }
+      }
+      for (const child of entity.children) {
+        collectSamplers(child.entity);
+      }
+    };
+    collectSamplers(rootEntity);
+
+    const rootAnimation = rootEntity.tryToGetAnimation();
+    if (rootAnimation == null || samplersByTrackName.size === 0) {
+      return;
+    }
+
+    const expressionChannels = Array.from(rootAnimation.getAnimationChannelsOfTrack()).filter(([pathName]) =>
+      pathName.startsWith('vrmExpression/')
+    );
+    for (const [pathName, channel] of expressionChannels) {
+      const existingTrackNames = new Set(channel.animatedValue.getAllTrackNames());
+      for (const [trackName, sourceSampler] of samplersByTrackName) {
+        if (existingTrackNames.has(trackName)) {
+          continue;
+        }
+
+        // Keep the source timeline and interpolation so the zero expression stays synchronized with its clip.
+        const outputElementCount =
+          sourceSampler.interpolationMethod === AnimationInterpolation.CubicSpline
+            ? sourceSampler.input.length * 3
+            : sourceSampler.input.length;
+        const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
+        animationSamplers.set(trackName, {
+          input: sourceSampler.input,
+          output: new Float32Array(outputElementCount),
+          outputComponentN: 1,
+          interpolationMethod: sourceSampler.interpolationMethod,
+        });
+        rootAnimation.setAnimation(pathName, new AnimatedScalar(animationSamplers, trackName));
+      }
     }
   }
 
