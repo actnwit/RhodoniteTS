@@ -1,6 +1,6 @@
 import type { GltfLoadOption } from '../../types';
 import type { RnM2Vrma } from '../../types/RnM2Vrma';
-import type { HumanBoneNames, NodeId } from '../../types/VRMC_vrm_animation';
+import type { HumanBoneNames, NodeId, VrmaExpressionName } from '../../types/VRMC_vrm_animation';
 import { Is } from '../misc/Is';
 import { Gltf2Importer } from './Gltf2Importer';
 
@@ -97,9 +97,9 @@ export class VrmaImporter {
   }
 
   /**
-   * Creates a reverse mapping from VRMA expression nodes to expression names.
-   * Both preset and custom expressions are included, and multiple expressions may
-   * intentionally share the same animation node.
+   * Creates a reverse mapping from VRMA expression nodes to expression names and their group type.
+   * Both preset and custom expressions are included, and multiple expressions may intentionally
+   * share the same animation node.
    *
    * @param rnm - The imported VRMA data to augment
    */
@@ -109,10 +109,14 @@ export class VrmaImporter {
       return;
     }
 
-    const expressionNamesMap = new Map<NodeId, string[]>();
+    const expressionNamesMap = new Map<NodeId, VrmaExpressionName[]>();
     rnm.extensions.VRMC_vrm_animation.expressionNamesMap = expressionNamesMap;
 
-    for (const expressionGroup_ of [expressions.preset, expressions.custom]) {
+    const expressionGroups = [
+      { expressionGroup: expressions.preset, isPreset: true },
+      { expressionGroup: expressions.custom, isPreset: false },
+    ];
+    for (const { expressionGroup: expressionGroup_, isPreset } of expressionGroups) {
       if (Is.not.exist(expressionGroup_)) {
         continue;
       }
@@ -120,9 +124,7 @@ export class VrmaImporter {
       for (const expressionName in expressionGroup) {
         const nodeId = expressionGroup[expressionName].node;
         const expressionNames = expressionNamesMap.get(nodeId) ?? [];
-        if (!expressionNames.includes(expressionName)) {
-          expressionNames.push(expressionName);
-        }
+        expressionNames.push({ name: expressionName, isPreset });
         expressionNamesMap.set(nodeId, expressionNames);
       }
     }

@@ -64,9 +64,9 @@ export declare class VrmaImporter {
      */
     static readHumanoid(rnm: RnM2Vrma): void;
     /**
-     * Creates a reverse mapping from VRMA expression nodes to expression names.
-     * Both preset and custom expressions are included, and multiple expressions may
-     * intentionally share the same animation node.
+     * Creates a reverse mapping from VRMA expression nodes to expression names and their group type.
+     * Both preset and custom expressions are included, and multiple expressions may intentionally
+     * share the same animation node.
      *
      * @param rnm - The imported VRMA data to augment
      */

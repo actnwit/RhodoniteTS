@@ -4,7 +4,7 @@ import type { RnM2, RnM2Animation, RnM2AnimationChannel } from '../../types/RnM2
 import type { VRM } from '../../types/VRM';
 import type { Vrm0x } from '../../types/VRM0x';
 import type { Vrm1 } from '../../types/VRM1';
-import type { HumanBoneNames, NodeId } from '../../types/VRMC_vrm_animation';
+import type { HumanBoneNames, NodeId, VrmaExpressionName } from '../../types/VRMC_vrm_animation';
 import { AbsoluteAnimation, GlobalRetarget, type IAnimationRetarget } from '../components';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
@@ -444,7 +444,7 @@ export class AnimationAssigner {
     return humanoidBoneNameMap;
   }
 
-  private __getVrmaExpressionNamesMap(vrmaModel: RnM2Vrma): Map<NodeId, string[]> | undefined {
+  private __getVrmaExpressionNamesMap(vrmaModel: RnM2Vrma): Map<NodeId, VrmaExpressionName[]> | undefined {
     const vrmaExtension = vrmaModel.extensions?.VRMC_vrm_animation;
     if (vrmaExtension == null) {
       return void 0;
@@ -460,7 +460,7 @@ export class AnimationAssigner {
     rootEntity: ISceneGraphEntity,
     animation: RnM2Animation,
     channel: RnM2AnimationChannel,
-    expressionNames: readonly string[],
+    expressionNames: readonly VrmaExpressionName[],
     postfixToTrackName: string | undefined,
     trackNames: Set<AnimationTrackName>
   ): void {
@@ -479,9 +479,9 @@ export class AnimationAssigner {
     const rootVrm = rootEntity.tryToGetVrm()!;
     const trackName = `${animation.name ?? 'Untitled_Animation'}${postfixToTrackName ?? ''}`;
     let animationComponent = rootEntity.tryToGetAnimation();
-    for (const expressionName of expressionNames) {
+    for (const { name: expressionName, isPreset } of expressionNames) {
       const targetExpressionName =
-        rootVrm._version === '0.x' && Object.hasOwn(vrmaPresetNameToVrm0xPresetName, expressionName)
+        rootVrm._version === '0.x' && isPreset && Object.hasOwn(vrmaPresetNameToVrm0xPresetName, expressionName)
           ? vrmaPresetNameToVrm0xPresetName[expressionName]
           : expressionName;
       if (rootVrm.getExpressionWeight(targetExpressionName) == null) {

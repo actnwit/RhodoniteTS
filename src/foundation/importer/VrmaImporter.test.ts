@@ -3,7 +3,7 @@ import type { RnM2Vrma } from '../../types';
 import { VrmaImporter } from './VrmaImporter';
 
 describe('VrmaImporter expressions', () => {
-  test('maps preset and custom expression names by node without dropping shared nodes', () => {
+  test('maps expression names and their preset/custom origin by node without dropping shared nodes', () => {
     const vrma = {
       extensions: {
         VRMC_vrm_animation: {
@@ -14,6 +14,7 @@ describe('VrmaImporter expressions', () => {
               blink: { node: 5 },
             },
             custom: {
+              happy: { node: 4 },
               smirk: { node: 4 },
             },
           },
@@ -25,8 +26,15 @@ describe('VrmaImporter expressions', () => {
 
     expect(vrma.extensions.VRMC_vrm_animation.expressionNamesMap).toEqual(
       new Map([
-        [4, ['happy', 'smirk']],
-        [5, ['blink']],
+        [
+          4,
+          [
+            { name: 'happy', isPreset: true },
+            { name: 'happy', isPreset: false },
+            { name: 'smirk', isPreset: false },
+          ],
+        ],
+        [5, [{ name: 'blink', isPreset: true }]],
       ])
     );
   });

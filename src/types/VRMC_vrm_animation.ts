@@ -38,6 +38,12 @@ export type ExpressionPreset =
   | 'blinkLeft'
   | 'blinkRight'
   | 'neutral';
+
+export type VrmaExpressionName = {
+  name: string;
+  isPreset: boolean;
+};
+
 export interface VRMC_vrm_animation {
   specVersion: string;
   humanoid?: {
@@ -55,5 +61,5 @@ export interface VRMC_vrm_animation {
 
 export interface RnM2_VRMC_vrm_animation extends VRMC_vrm_animation {
   humanoidBoneNameMap?: Map<NodeId, HumanBoneNames>;
-  expressionNamesMap?: Map<NodeId, string[]>;
+  expressionNamesMap?: Map<NodeId, VrmaExpressionName[]>;
 }

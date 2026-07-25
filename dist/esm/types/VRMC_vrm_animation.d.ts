@@ -1,6 +1,10 @@
 export type HumanBoneNames = 'hips' | 'spine' | 'chest' | 'neck' | 'head' | 'leftUpperLeg' | 'leftLowerLeg' | 'leftFoot' | 'leftToes' | 'rightUpperLeg' | 'rightLowerLeg' | 'rightFoot' | 'rightToes' | 'leftShoulder' | 'leftUpperArm' | 'leftLowerArm' | 'leftHand' | 'rightShoulder' | 'rightUpperArm' | 'rightLowerArm' | 'rightHand';
 export type NodeId = number;
 export type ExpressionPreset = 'happy' | 'angry' | 'sad' | 'relaxed' | 'surprised' | 'aa' | 'ih' | 'ou' | 'ee' | 'oh' | 'blink' | 'blinkLeft' | 'blinkRight' | 'neutral';
+export type VrmaExpressionName = {
+    name: string;
+    isPreset: boolean;
+};
 export interface VRMC_vrm_animation {
     specVersion: string;
     humanoid?: {
@@ -23,5 +27,5 @@ export interface VRMC_vrm_animation {
 }
 export interface RnM2_VRMC_vrm_animation extends VRMC_vrm_animation {
     humanoidBoneNameMap?: Map<NodeId, HumanBoneNames>;
-    expressionNamesMap?: Map<NodeId, string[]>;
+    expressionNamesMap?: Map<NodeId, VrmaExpressionName[]>;
 }

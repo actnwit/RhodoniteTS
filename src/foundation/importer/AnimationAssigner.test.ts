@@ -258,7 +258,10 @@ test('assigns preset and custom VRMA expressions as scalar root tracks', () => {
     expect(sampler.outputComponentN).toBe(1);
     expect(sampler.interpolationMethod).toBe(AnimationInterpolation.CubicSpline);
   }
-  expect(vrma.extensions.VRMC_vrm_animation.expressionNamesMap?.get(2)).toEqual(['happy', 'smirk']);
+  expect(vrma.extensions.VRMC_vrm_animation.expressionNamesMap?.get(2)).toEqual([
+    { name: 'happy', isPreset: true },
+    { name: 'smirk', isPreset: false },
+  ]);
   expect(entityRepository.deleteEntityRecursively).toHaveBeenCalledWith(99);
 });
 
@@ -366,13 +369,33 @@ test('maps VRMA 1.0 preset names and preserves custom names for VRM 0.x', () => 
   ];
   const { assigner, root, setAnimation } = createExpressionAssignerFixture(new Set(vrm0xNames), '0.x');
   const vrma = createExpressionVrma();
-  vrma.extensions.VRMC_vrm_animation.expressionNamesMap = new Map([[2, vrmaNames]]);
+  vrma.extensions.VRMC_vrm_animation.expressionNamesMap = new Map([
+    [2, vrmaNames.map(name => ({ name, isPreset: name !== 'smirk' }))],
+  ]);
 
   assigner.assignAnimationWithVrma(root, vrma, '__vrm0');
 
   expect(setAnimation.mock.calls.map(([pathName]) => pathName)).toEqual(
     vrm0xNames.map(name => `vrmExpression/${name}`)
   );
+});
+
+test('keeps preset and custom VRMA expressions distinct when they share a name for VRM 0.x', () => {
+  mockModelConversion();
+  const { assigner, root, setAnimation } = createExpressionAssignerFixture(new Set(['happy', 'joy']), '0.x');
+  const vrma = createExpressionVrma();
+  vrma.extensions.VRMC_vrm_animation.expressions = {
+    preset: {
+      happy: { node: 2 },
+    },
+    custom: {
+      happy: { node: 2 },
+    },
+  };
+
+  assigner.assignAnimationWithVrma(root, vrma);
+
+  expect(setAnimation.mock.calls.map(([pathName]) => pathName)).toEqual(['vrmExpression/joy', 'vrmExpression/happy']);
 });
 
 test.each([
@@ -382,7 +405,7 @@ test.each([
   mockModelConversion();
   const { assigner, root, setAnimation } = createExpressionAssignerFixture(new Set([expressionName]), '0.x');
   const vrma = createExpressionVrma();
-  vrma.extensions.VRMC_vrm_animation.expressionNamesMap = new Map([[2, [expressionName]]]);
+  vrma.extensions.VRMC_vrm_animation.expressionNamesMap = new Map([[2, [{ name: expressionName, isPreset: false }]]]);
 
   assigner.assignAnimationWithVrma(root, vrma);
 
