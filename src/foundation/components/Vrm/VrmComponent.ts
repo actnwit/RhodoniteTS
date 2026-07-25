@@ -91,7 +91,7 @@ export class VrmComponent extends Component {
       return;
     }
     const clampedWeight = Math.min(1, Math.max(0, weight));
-    const appliedWeight = expression.isBinary ? (clampedWeight >= 0.5 ? 1 : 0) : clampedWeight;
+    const appliedWeight = expression.isBinary ? (clampedWeight > 0.5 ? 1 : 0) : clampedWeight;
     this.__weights.set(expressionName, appliedWeight);
 
     this.__applyExpressionWeightsToMorphTargets();

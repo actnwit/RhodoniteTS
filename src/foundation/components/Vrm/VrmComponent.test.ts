@@ -49,6 +49,10 @@ describe('VrmComponent expressions', () => {
     expect(setWeightByIndex).toHaveBeenLastCalledWith(3, 0);
 
     VrmComponent.prototype.setExpressionWeight.call(component as any, 'blink', 0.5);
+    expect(VrmComponent.prototype.getExpressionWeight.call(component as any, 'blink')).toBe(0);
+    expect(setWeightByIndex).toHaveBeenLastCalledWith(3, 0);
+
+    VrmComponent.prototype.setExpressionWeight.call(component as any, 'blink', 0.51);
     expect(VrmComponent.prototype.getExpressionWeight.call(component as any, 'blink')).toBe(1);
     expect(setWeightByIndex).toHaveBeenLastCalledWith(3, 0.7);
   });

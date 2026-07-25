@@ -326,7 +326,7 @@ test('resets expression weights before replacing unpostfixed VRMA tracks', () =>
   expect(rootAnimation.getAnimation('vrmExpression/happy')).toBeUndefined();
 });
 
-test('maps VRMA 1.0 preset names to VRM 0.x expression names', () => {
+test('maps VRMA 1.0 preset names and preserves custom names for VRM 0.x', () => {
   mockModelConversion();
   const vrmaNames = [
     'happy',
@@ -343,6 +343,7 @@ test('maps VRMA 1.0 preset names to VRM 0.x expression names', () => {
     'lookDown',
     'lookLeft',
     'lookRight',
+    'smirk',
   ];
   const vrm0xNames = [
     'joy',
@@ -359,6 +360,7 @@ test('maps VRMA 1.0 preset names to VRM 0.x expression names', () => {
     'lookdown',
     'lookleft',
     'lookright',
+    'smirk',
   ];
   const { assigner, root, setAnimation } = createExpressionAssignerFixture(new Set(vrm0xNames), '0.x');
   const vrma = createExpressionVrma();
