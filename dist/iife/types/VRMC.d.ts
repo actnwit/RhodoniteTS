@@ -37,6 +37,15 @@ export type Vrm1TextureTransformBind = {
     offset: [number, number];
 };
 export type Vrm1OverrideType = 'none' | 'block' | 'blend';
+export type Vrm1Expression = {
+    isBinary?: boolean;
+    morphTargetBinds?: Vrm1MorphTargetBind[];
+    materialColorBinds?: Vrm1MaterialColorBind[];
+    textureTransformBinds?: Vrm1TextureTransformBind[];
+    overrideBlink?: Vrm1OverrideType;
+    overrideLookAt?: Vrm1OverrideType;
+    overrideMouth?: Vrm1OverrideType;
+};
 export type Vrm1_NodeConstraint_Constraint = {
     specVersion: string;
     constraint: {
@@ -87,18 +96,9 @@ export interface VRMC {
     firstPerson: {
         meshAnnotations: Vrm1_MeshAnnotation[];
     };
-    expressions: {
-        preset: {
-            [key: string]: {
-                isBinary: boolean;
-                morphTargetBinds: Vrm1MorphTargetBind[];
-                materialColorBinds: Vrm1MaterialColorBind[];
-                textureTransformBinds: Vrm1TextureTransformBind[];
-                overrideBlink: Vrm1OverrideType;
-                overrideLookAt: Vrm1OverrideType;
-                overrideMouth: Vrm1OverrideType;
-            };
-        };
+    expressions?: {
+        preset?: Record<string, Vrm1Expression>;
+        custom?: Record<string, Vrm1Expression>;
     };
     lookAt: {
         type: 'bone' | 'expression';

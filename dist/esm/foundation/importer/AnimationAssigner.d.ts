@@ -49,7 +49,7 @@ export declare class AnimationAssigner {
     assignAnimation(rootEntity: ISceneGraphEntity, gltfModel: RnM2, vrmModel: VRM | Vrm1 | Vrm0x, isSameSkeleton: boolean, retargetMode: RetargetMode): ISceneGraphEntity;
     /**
      * Assigns animation data from a VRMA (VRM Animation) model to a root entity.
-     * This method specifically handles VRM animation format with humanoid bone mapping.
+     * This method handles humanoid retargeting and expression-weight animation.
      *
      * @param rootEntity - The root entity of the model to which animation will be assigned
      * @param vrmaModel - The VRMA model containing animation data and humanoid bone mappings
@@ -103,6 +103,16 @@ export declare class AnimationAssigner {
      */
     private __getCorrespondingEntityWithVrma;
     private __getVrmaHumanoidBoneNameMap;
+    private __getVrmaExpressionNamesMap;
+    private __setVrmaExpressionAnimation;
+    /**
+     * Adds zero-valued samplers for expression paths that are absent from some assigned VRMA tracks.
+     *
+     * Animation track activation is switched across every channel at once. Without a sampler for the
+     * newly active track, AnimatedScalar keeps its previous sampler and the previous clip's expression
+     * can remain active.
+     */
+    private __fillMissingVrmaExpressionTracks;
     private __validateCharacterVrmaAnimationSet;
     /**
      * Determines whether a given node represents the hips bone in the humanoid skeleton.

@@ -75,6 +75,7 @@ export declare class AnimationComponent extends Component {
     private __applyChannelAnimation;
     private __applyTransformAnimation;
     private __applyBlendShapeAnimation;
+    private __applyVrmExpressionAnimation;
     private __applyVisibilityAnimation;
     private __applyEffectiveVisibility;
     private __getLocalVisibility;

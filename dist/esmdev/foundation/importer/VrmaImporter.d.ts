@@ -3,14 +3,14 @@ import type { RnM2Vrma } from '../../types/RnM2Vrma';
  * A utility class for importing VRMA (VRM Animation) files.
  *
  * VRMA is an extension format for VRM that adds animation capabilities,
- * allowing for the import and processing of humanoid animation data.
+ * allowing for the import and processing of humanoid and expression animation data.
  * This class provides static methods to import VRMA files from various sources
- * and processes the humanoid bone mapping for efficient animation playback.
+ * and processes node mappings for efficient animation playback.
  *
  * @remarks
  * This class extends the functionality of Gltf2Importer to handle VRMA-specific
  * features, particularly the VRMC_vrm_animation extension that contains
- * humanoid bone definitions and animation data.
+ * humanoid bone and expression definitions.
  *
  * @example
  * ```typescript
@@ -63,4 +63,12 @@ export declare class VrmaImporter {
      * If no humanoid bones are found, the method returns early without processing.
      */
     static readHumanoid(rnm: RnM2Vrma): void;
+    /**
+     * Creates a reverse mapping from VRMA expression nodes to expression names.
+     * Both preset and custom expressions are included, and multiple expressions may
+     * intentionally share the same animation node.
+     *
+     * @param rnm - The imported VRMA data to augment
+     */
+    static readExpressions(rnm: RnM2Vrma): void;
 }

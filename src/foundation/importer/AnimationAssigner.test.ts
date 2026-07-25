@@ -112,8 +112,9 @@ function createAssignerFixture({ version = '1.0' }: { version?: string } = {}) {
   return { assigner, entityRepository, hipsRetarget, root, spineRetarget };
 }
 
-function createExpressionAssignerFixture(availableExpressions = new Set(['happy', 'smirk'])) {
+function createExpressionAssignerFixture(availableExpressions = new Set(['happy', 'smirk']), version = '1.0') {
   const animationChannels = new Map<AnimationPathName, any>();
+  const setExpressionWeight = vi.fn();
   const setAnimation = vi.fn((pathName: AnimationPathName, animatedValue: any) => {
     const existingChannel = animationChannels.get(pathName);
     if (existingChannel == null) {
@@ -144,12 +145,15 @@ function createExpressionAssignerFixture(availableExpressions = new Set(['happy'
     }),
     setAnimation,
   };
+  const rootVrm = {
+    _version: version,
+    getExpressionNames: () => Array.from(availableExpressions),
+    getExpressionWeight: (name: string) => (availableExpressions.has(name) ? 0 : undefined),
+    setExpressionWeight,
+  };
   const root = {
     entityUID: 42,
-    tryToGetVrm: () => ({
-      _version: '1.0',
-      getExpressionWeight: (name: string) => (availableExpressions.has(name) ? 0 : undefined),
-    }),
+    tryToGetVrm: () => rootVrm,
     tryToGetAnimationState: () => ({}),
     tryToGetAnimation: () => rootAnimation,
     getTransform: () => ({ _restoreTransformFromRest: vi.fn() }),
@@ -160,7 +164,7 @@ function createExpressionAssignerFixture(availableExpressions = new Set(['happy'
     deleteEntityRecursively: vi.fn(),
   };
   const assigner = new AnimationAssigner({ entityRepository } as any);
-  return { assigner, entityRepository, root, rootAnimation, setAnimation };
+  return { assigner, entityRepository, root, rootAnimation, setAnimation, setExpressionWeight };
 }
 
 function mockModelConversion() {
@@ -299,6 +303,72 @@ test('fills missing expression channels with zero samplers across assigned VRMA 
   happyAnimation.setFirstActiveAnimationTrackName('Smirk__smirk');
   happyAnimation.setTime(0.5);
   expect(happyAnimation.x).toBe(0);
+});
+
+test('resets expression weights before replacing unpostfixed VRMA tracks', () => {
+  mockModelConversion();
+  const { assigner, root, rootAnimation, setExpressionWeight } = createExpressionAssignerFixture();
+  const happyVrma = createExpressionVrma();
+  happyVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const smirkVrma = createExpressionVrma();
+  smirkVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+
+  assigner.assignAnimationWithVrma(root, happyVrma);
+  setExpressionWeight.mockClear();
+  rootAnimation.resetAnimationTracks.mockClear();
+
+  assigner.assignAnimationWithVrma(root, smirkVrma);
+
+  expect(setExpressionWeight).toHaveBeenCalledWith('happy', 0);
+  expect(setExpressionWeight.mock.invocationCallOrder[0]).toBeLessThan(
+    rootAnimation.resetAnimationTracks.mock.invocationCallOrder[0]
+  );
+  expect(rootAnimation.getAnimation('vrmExpression/happy')).toBeUndefined();
+});
+
+test('maps VRMA 1.0 preset names to VRM 0.x expression names', () => {
+  mockModelConversion();
+  const vrmaNames = [
+    'happy',
+    'sad',
+    'relaxed',
+    'aa',
+    'ih',
+    'ou',
+    'ee',
+    'oh',
+    'blinkLeft',
+    'blinkRight',
+    'lookUp',
+    'lookDown',
+    'lookLeft',
+    'lookRight',
+  ];
+  const vrm0xNames = [
+    'joy',
+    'sorrow',
+    'fun',
+    'a',
+    'i',
+    'u',
+    'e',
+    'o',
+    'blink_l',
+    'blink_r',
+    'lookup',
+    'lookdown',
+    'lookleft',
+    'lookright',
+  ];
+  const { assigner, root, setAnimation } = createExpressionAssignerFixture(new Set(vrm0xNames), '0.x');
+  const vrma = createExpressionVrma();
+  vrma.extensions.VRMC_vrm_animation.expressionNamesMap = new Map([[2, vrmaNames]]);
+
+  assigner.assignAnimationWithVrma(root, vrma, '__vrm0');
+
+  expect(setAnimation.mock.calls.map(([pathName]) => pathName)).toEqual(
+    vrm0xNames.map(name => `vrmExpression/${name}`)
+  );
 });
 
 test('skips VRMA expressions that do not exist on the target model', () => {

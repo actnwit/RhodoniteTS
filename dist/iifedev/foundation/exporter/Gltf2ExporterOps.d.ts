@@ -54,6 +54,8 @@ export declare function accumulateBufferViewByteLength(bufferViewByteLengthAccum
  * @throws Error if the path name is invalid
  */
 export declare function convertToGltfAnimationPathName(path: AnimationPathName): Gltf2AnimationPathName;
+/** Returns whether an animation path only has meaning inside Rhodonite at runtime. */
+export declare function isRuntimeOnlyAnimationPath(path: AnimationPathName): boolean;
 /**
  * Aligns accessor byte offset to 4-byte boundaries.
  *

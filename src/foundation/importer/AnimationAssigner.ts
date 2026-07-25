@@ -36,6 +36,23 @@ const characterAnimationSemantics: readonly CharacterAnimationSemantic[] = [
   'slide',
 ];
 
+const vrmaPresetNameToVrm0xPresetName: Readonly<Record<string, string>> = {
+  happy: 'joy',
+  sad: 'sorrow',
+  relaxed: 'fun',
+  aa: 'a',
+  ih: 'i',
+  ou: 'u',
+  ee: 'e',
+  oh: 'o',
+  blinkLeft: 'blink_l',
+  blinkRight: 'blink_r',
+  lookUp: 'lookup',
+  lookDown: 'lookdown',
+  lookLeft: 'lookleft',
+  lookRight: 'lookright',
+};
+
 /** Controls how a VRMA's hips translation is handled during retargeting. */
 export type VrmaRootMotionPolicy = 'preserve' | 'ignoreHipsTranslation';
 
@@ -263,6 +280,15 @@ export class AnimationAssigner {
    * @param postfixToTrackName - Optional postfix to identify specific animation tracks to reset
    */
   private __resetAnimationAndPose(rootEntity: ISceneGraphEntity, postfixToTrackName?: string) {
+    if (postfixToTrackName == null) {
+      const vrmComponent = rootEntity.tryToGetVrm();
+      if (vrmComponent != null) {
+        for (const expressionName of vrmComponent.getExpressionNames()) {
+          vrmComponent.setExpressionWeight(expressionName, 0);
+        }
+      }
+    }
+
     function resetAnimationAndPose(entity: ISceneGraphEntity, postfixToTrackName?: string) {
       const animationComponent = entity.tryToGetAnimation();
       if (animationComponent != null) {
@@ -452,7 +478,11 @@ export class AnimationAssigner {
     const trackName = `${animation.name ?? 'Untitled_Animation'}${postfixToTrackName ?? ''}`;
     let animationComponent = rootEntity.tryToGetAnimation();
     for (const expressionName of expressionNames) {
-      if (rootVrm.getExpressionWeight(expressionName) == null) {
+      const targetExpressionName =
+        rootVrm._version === '0.x'
+          ? (vrmaPresetNameToVrm0xPresetName[expressionName] ?? expressionName)
+          : expressionName;
+      if (rootVrm.getExpressionWeight(targetExpressionName) == null) {
         Logger.default.info(`VRMA expression '${expressionName}' is not available on the target VRM.`);
         continue;
       }
@@ -469,7 +499,7 @@ export class AnimationAssigner {
         interpolationMethod: AnimationInterpolation.fromString(samplerObject.interpolation ?? 'LINEAR'),
       });
       animationComponent.setAnimation(
-        `vrmExpression/${expressionName}`,
+        `vrmExpression/${targetExpressionName}`,
         new AnimatedScalar(animationSamplers, trackName)
       );
       trackNames.add(trackName);

@@ -2,7 +2,8 @@ import { describe, expect, test, vi } from 'vitest';
 import { AnimationComponent } from '../Animation/AnimationComponent';
 import { VrmComponent, type VrmExpression } from './VrmComponent';
 
-function createVrmComponentFixture(expression: VrmExpression) {
+function createVrmComponentFixture(expressionOrExpressions: VrmExpression | VrmExpression[]) {
+  const expressions = Array.isArray(expressionOrExpressions) ? expressionOrExpressions : [expressionOrExpressions];
   const setWeightByIndex = vi.fn();
   const component = {
     __engine: {
@@ -12,9 +13,10 @@ function createVrmComponentFixture(expression: VrmExpression) {
         }),
       },
     },
-    __expressions: new Map([[expression.name, expression]]),
-    __weights: new Map([[expression.name, 0]]),
+    __expressions: new Map(expressions.map(expression => [expression.name, expression])),
+    __weights: new Map(expressions.map(expression => [expression.name, 0])),
   };
+  Object.setPrototypeOf(component, VrmComponent.prototype);
   return { component, setWeightByIndex };
 }
 
@@ -42,13 +44,37 @@ describe('VrmComponent expressions', () => {
       binds: [{ entityIdx: 1, blendShapeIdx: 3, weight: 0.7 }],
     });
 
-    VrmComponent.prototype.setExpressionWeight.call(component as any, 'blink', 0.5);
+    VrmComponent.prototype.setExpressionWeight.call(component as any, 'blink', 0.49);
     expect(VrmComponent.prototype.getExpressionWeight.call(component as any, 'blink')).toBe(0);
     expect(setWeightByIndex).toHaveBeenLastCalledWith(3, 0);
 
-    VrmComponent.prototype.setExpressionWeight.call(component as any, 'blink', 0.6);
+    VrmComponent.prototype.setExpressionWeight.call(component as any, 'blink', 0.5);
     expect(VrmComponent.prototype.getExpressionWeight.call(component as any, 'blink')).toBe(1);
     expect(setWeightByIndex).toHaveBeenLastCalledWith(3, 0.7);
+  });
+
+  test('accumulates expression contributions that bind the same morph target', () => {
+    const happy: VrmExpression = {
+      name: 'happy',
+      isBinary: false,
+      binds: [{ entityIdx: 1, blendShapeIdx: 2, weight: 0.5 }],
+    };
+    const relaxed: VrmExpression = {
+      name: 'relaxed',
+      isBinary: false,
+      binds: [{ entityIdx: 1, blendShapeIdx: 2, weight: 0.5 }],
+    };
+
+    for (const expressions of [
+      [happy, relaxed],
+      [relaxed, happy],
+    ]) {
+      const { component, setWeightByIndex } = createVrmComponentFixture(expressions);
+      VrmComponent.prototype.setExpressionWeight.call(component as any, 'happy', 0.5);
+      VrmComponent.prototype.setExpressionWeight.call(component as any, 'relaxed', 0.25);
+
+      expect(setWeightByIndex).toHaveBeenLastCalledWith(2, 0.375);
+    }
   });
 
   test('applies VRM expression animation channels to the target VrmComponent', () => {

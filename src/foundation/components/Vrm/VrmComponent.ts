@@ -81,7 +81,7 @@ export class VrmComponent extends Component {
   /**
    * Sets the weight for a specific VRM expression.
    * This method clamps the input, applies binary-expression behavior, and updates
-   * all associated blend shape binds using their configured weights.
+   * all associated blend shape binds using the accumulated contribution from every expression.
    * @param expressionName - The name of the expression to modify
    * @param weight - The weight value to apply (typically between 0 and 1)
    */
@@ -91,13 +91,42 @@ export class VrmComponent extends Component {
       return;
     }
     const clampedWeight = Math.min(1, Math.max(0, weight));
-    const appliedWeight = expression.isBinary ? (clampedWeight > 0.5 ? 1 : 0) : clampedWeight;
+    const appliedWeight = expression.isBinary ? (clampedWeight >= 0.5 ? 1 : 0) : clampedWeight;
     this.__weights.set(expressionName, appliedWeight);
-    for (const bind of expression.binds) {
-      const entity = this.__engine.entityRepository.getEntity(bind.entityIdx);
+
+    this.__applyExpressionWeightsToMorphTargets();
+  }
+
+  /**
+   * Recomputes morph target weights from all expression contributions.
+   *
+   * Multiple VRM expressions may bind the same morph target. Applying each expression directly
+   * would make the result depend on map insertion order, so contributions are accumulated first.
+   */
+  private __applyExpressionWeightsToMorphTargets(): void {
+    const morphWeightsByEntity = new Map<Index, Map<Index, number>>();
+    for (const [expressionName, expression] of this.__expressions) {
+      const expressionWeight = this.__weights.get(expressionName) ?? 0;
+      for (const bind of expression.binds) {
+        let morphWeights = morphWeightsByEntity.get(bind.entityIdx);
+        if (Is.not.exist(morphWeights)) {
+          morphWeights = new Map();
+          morphWeightsByEntity.set(bind.entityIdx, morphWeights);
+        }
+        morphWeights.set(
+          bind.blendShapeIdx,
+          (morphWeights.get(bind.blendShapeIdx) ?? 0) + expressionWeight * bind.weight
+        );
+      }
+    }
+
+    for (const [entityIdx, morphWeights] of morphWeightsByEntity) {
+      const entity = this.__engine.entityRepository.getEntity(entityIdx);
       const blendShapeComponent = entity.tryToGetBlendShape();
       if (Is.exist(blendShapeComponent)) {
-        blendShapeComponent.setWeightByIndex(bind.blendShapeIdx, appliedWeight * bind.weight);
+        for (const [blendShapeIdx, weight] of morphWeights) {
+          blendShapeComponent.setWeightByIndex(blendShapeIdx, weight);
+        }
       }
     }
   }
