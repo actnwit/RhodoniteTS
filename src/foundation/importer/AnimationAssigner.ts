@@ -134,6 +134,8 @@ export class AnimationAssigner {
       throw new Error(`Unsupported VRM version '${rootVrm._version}' for VRMA animation assignment.`);
     }
 
+    const activeAnimationTrackName =
+      postfixToTrackName != null ? this.__getActiveAnimationTrackName(rootEntity) : undefined;
     const entityVrma = ModelConverter.convertToRhodoniteObjectSimple(this.__engine, vrmaModel);
     const rootMotion = options.rootMotion ?? 'preserve';
     const trackNames = new Set<AnimationTrackName>();
@@ -213,7 +215,7 @@ export class AnimationAssigner {
     try {
       this.__resetAnimationAndPose(rootEntity, postfixToTrackName);
       setRetarget(vrmaModel);
-      this.__fillMissingVrmaExpressionTracks(rootEntity);
+      this.__fillMissingVrmaExpressionTracks(rootEntity, activeAnimationTrackName);
     } finally {
       this.__engine.entityRepository.deleteEntityRecursively(entityVrma.entityUID);
     }
@@ -479,8 +481,8 @@ export class AnimationAssigner {
     let animationComponent = rootEntity.tryToGetAnimation();
     for (const expressionName of expressionNames) {
       const targetExpressionName =
-        rootVrm._version === '0.x'
-          ? (vrmaPresetNameToVrm0xPresetName[expressionName] ?? expressionName)
+        rootVrm._version === '0.x' && Object.hasOwn(vrmaPresetNameToVrm0xPresetName, expressionName)
+          ? vrmaPresetNameToVrm0xPresetName[expressionName]
           : expressionName;
       if (rootVrm.getExpressionWeight(targetExpressionName) == null) {
         Logger.default.info(`VRMA expression '${expressionName}' is not available on the target VRM.`);
@@ -513,7 +515,10 @@ export class AnimationAssigner {
    * newly active track, AnimatedScalar keeps its previous sampler and the previous clip's expression
    * can remain active.
    */
-  private __fillMissingVrmaExpressionTracks(rootEntity: ISceneGraphEntity): void {
+  private __fillMissingVrmaExpressionTracks(
+    rootEntity: ISceneGraphEntity,
+    activeAnimationTrackName: AnimationTrackName | undefined
+  ): void {
     const samplersByTrackName = new Map<AnimationTrackName, AnimationSampler>();
     // Humanoid animation samplers live on bone entities, so collect them recursively from the hierarchy.
     const collectSamplers = (entity: ISceneGraphEntity) => {
@@ -562,7 +567,32 @@ export class AnimationAssigner {
         });
         rootAnimation.setAnimation(pathName, new AnimatedScalar(animationSamplers, trackName));
       }
+
+      if (
+        activeAnimationTrackName != null &&
+        channel.animatedValue.getAllTrackNames().includes(activeAnimationTrackName)
+      ) {
+        channel.animatedValue.setFirstActiveAnimationTrackName(activeAnimationTrackName);
+      }
     }
+  }
+
+  private __getActiveAnimationTrackName(rootEntity: ISceneGraphEntity): AnimationTrackName | undefined {
+    const animationComponent = rootEntity.tryToGetAnimation();
+    if (animationComponent != null) {
+      for (const [, channel] of animationComponent.getAnimationChannelsOfTrack()) {
+        return channel.animatedValue.getFirstActiveAnimationTrackName();
+      }
+    }
+
+    for (const child of rootEntity.children) {
+      const activeAnimationTrackName = this.__getActiveAnimationTrackName(child.entity);
+      if (activeAnimationTrackName != null) {
+        return activeAnimationTrackName;
+      }
+    }
+
+    return undefined;
   }
 
   private __validateCharacterVrmaAnimationSet(

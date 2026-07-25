@@ -299,6 +299,8 @@ test('fills missing expression channels with zero samplers across assigned VRMA 
   expect(smirkAnimation.getAllTrackNames()).toEqual(['Smirk__smirk', 'Happy__happy']);
   expect(Array.from(happyAnimation.getAnimationSampler('Smirk__smirk').output)).toEqual(new Array(6).fill(0));
   expect(Array.from(smirkAnimation.getAnimationSampler('Happy__happy').output)).toEqual(new Array(6).fill(0));
+  expect(happyAnimation.getFirstActiveAnimationTrackName()).toBe('Happy__happy');
+  expect(smirkAnimation.getFirstActiveAnimationTrackName()).toBe('Happy__happy');
 
   happyAnimation.setFirstActiveAnimationTrackName('Smirk__smirk');
   happyAnimation.setTime(0.5);
@@ -371,6 +373,21 @@ test('maps VRMA 1.0 preset names and preserves custom names for VRM 0.x', () => 
   expect(setAnimation.mock.calls.map(([pathName]) => pathName)).toEqual(
     vrm0xNames.map(name => `vrmExpression/${name}`)
   );
+});
+
+test.each([
+  'constructor',
+  'toString',
+])('preserves the VRM 0.x custom expression name %s when it collides with Object.prototype', expressionName => {
+  mockModelConversion();
+  const { assigner, root, setAnimation } = createExpressionAssignerFixture(new Set([expressionName]), '0.x');
+  const vrma = createExpressionVrma();
+  vrma.extensions.VRMC_vrm_animation.expressionNamesMap = new Map([[2, [expressionName]]]);
+
+  assigner.assignAnimationWithVrma(root, vrma);
+
+  expect(setAnimation).toHaveBeenCalledTimes(1);
+  expect(setAnimation.mock.calls[0][0]).toBe(`vrmExpression/${expressionName}`);
 });
 
 test('skips VRMA expressions that do not exist on the target model', () => {
