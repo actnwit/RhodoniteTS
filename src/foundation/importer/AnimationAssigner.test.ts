@@ -1,5 +1,5 @@
 import { afterEach, expect, test, vi } from 'vitest';
-import type { AnimationPathName, AnimationSampler, RnM2Vrma } from '../../types';
+import type { AnimationPathName, AnimationSampler, RnM2, RnM2Vrma } from '../../types';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { AnimationInterpolation } from '../definitions/AnimationInterpolation';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
@@ -242,6 +242,18 @@ test('rejects unsupported target VRM versions before converting a VRMA', () => {
   expect(ModelConverter.convertToRhodoniteObjectSimple).not.toHaveBeenCalled();
 });
 
+test('preserves manually controlled VRM expressions when assigning a regular glTF animation', () => {
+  const { assigner, root, rootAnimation, setExpressionWeight } = createExpressionAssignerFixture();
+  const gltfModel = {
+    animations: [{ samplers: [], channels: [] }],
+  } as unknown as RnM2;
+
+  assigner.assignAnimation(root, gltfModel, {} as any, false, 'none');
+
+  expect(setExpressionWeight).not.toHaveBeenCalled();
+  expect(rootAnimation.resetAnimationTracks).toHaveBeenCalledTimes(1);
+});
+
 test('assigns preset and custom VRMA expressions as scalar root tracks', () => {
   mockModelConversion();
   const { assigner, entityRepository, root, setAnimation } = createExpressionAssignerFixture();
@@ -281,6 +293,30 @@ test.each([
   const sampler = setAnimation.mock.calls[0][1].getAnimationSampler('Face');
   expect(Array.from(sampler.output)).toEqual(Array.from(new Float32Array([-0.2, 1.2])));
   expect(sampler.interpolationMethod).toBe(expectedInterpolation);
+});
+
+test('uses the first track for every expression on the initial multi-animation VRMA assignment', () => {
+  mockModelConversion();
+  const { assigner, root, rootAnimation } = createExpressionAssignerFixture();
+  const vrma = createExpressionVrma();
+  vrma.animations[0].name = 'Happy';
+  const smirkAnimation = createExpressionVrma().animations[0];
+  smirkAnimation.name = 'Smirk';
+  smirkAnimation.channels[0].target!.node = 3;
+  vrma.animations.push(smirkAnimation);
+  vrma.extensions.VRMC_vrm_animation.expressions = {
+    preset: {
+      happy: { node: 2 },
+    },
+    custom: {
+      smirk: { node: 3 },
+    },
+  };
+
+  assigner.assignAnimationWithVrma(root, vrma);
+
+  expect(rootAnimation.getAnimation('vrmExpression/happy').getFirstActiveAnimationTrackName()).toBe('Happy');
+  expect(rootAnimation.getAnimation('vrmExpression/smirk').getFirstActiveAnimationTrackName()).toBe('Happy');
 });
 
 test('fills missing expression channels with zero samplers across assigned VRMA tracks', () => {
@@ -325,6 +361,7 @@ test('resets expression weights before replacing unpostfixed VRMA tracks', () =>
   assigner.assignAnimationWithVrma(root, smirkVrma);
 
   expect(setExpressionWeight).toHaveBeenCalledWith('happy', 0);
+  expect(setExpressionWeight).not.toHaveBeenCalledWith('smirk', 0);
   expect(setExpressionWeight.mock.invocationCallOrder[0]).toBeLessThan(
     rootAnimation.resetAnimationTracks.mock.invocationCallOrder[0]
   );

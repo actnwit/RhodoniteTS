@@ -215,7 +215,8 @@ export class AnimationAssigner {
     try {
       this.__resetAnimationAndPose(rootEntity, postfixToTrackName);
       setRetarget(vrmaModel);
-      this.__fillMissingVrmaExpressionTracks(rootEntity, activeAnimationTrackName);
+      const expressionActiveAnimationTrackName = activeAnimationTrackName ?? trackNames.values().next().value;
+      this.__fillMissingVrmaExpressionTracks(rootEntity, expressionActiveAnimationTrackName);
     } finally {
       this.__engine.entityRepository.deleteEntityRecursively(entityVrma.entityUID);
     }
@@ -284,9 +285,13 @@ export class AnimationAssigner {
   private __resetAnimationAndPose(rootEntity: ISceneGraphEntity, postfixToTrackName?: string) {
     if (postfixToTrackName == null) {
       const vrmComponent = rootEntity.tryToGetVrm();
-      if (vrmComponent != null) {
-        for (const expressionName of vrmComponent.getExpressionNames()) {
-          vrmComponent.setExpressionWeight(expressionName, 0);
+      const animationComponent = rootEntity.tryToGetAnimation();
+      if (vrmComponent != null && animationComponent != null) {
+        const expressionPathPrefix = 'vrmExpression/';
+        for (const [pathName] of animationComponent.getAnimationChannelsOfTrack()) {
+          if (pathName.startsWith(expressionPathPrefix)) {
+            vrmComponent.setExpressionWeight(pathName.slice(expressionPathPrefix.length), 0);
+          }
         }
       }
     }
