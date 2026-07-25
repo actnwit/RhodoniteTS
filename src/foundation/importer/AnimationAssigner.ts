@@ -218,8 +218,11 @@ export class AnimationAssigner {
       const expressionActiveAnimationTrackName =
         activeAnimationTrackName != null && this.__hasAnimationTrackName(rootEntity, activeAnimationTrackName)
           ? activeAnimationTrackName
-          : trackNames.values().next().value;
+          : (trackNames.values().next().value ?? this.__getFirstAnimationTrackName(rootEntity));
       this.__fillMissingVrmaExpressionTracks(rootEntity, expressionActiveAnimationTrackName);
+      if (expressionActiveAnimationTrackName != null) {
+        rootEntity.tryToGetAnimationState()?.setFirstActiveAnimationTrack(expressionActiveAnimationTrackName);
+      }
     } finally {
       this.__engine.entityRepository.deleteEntityRecursively(entityVrma.entityUID);
     }
@@ -286,15 +289,20 @@ export class AnimationAssigner {
    * @param postfixToTrackName - Optional postfix to identify specific animation tracks to reset
    */
   private __resetAnimationAndPose(rootEntity: ISceneGraphEntity, postfixToTrackName?: string) {
-    if (postfixToTrackName == null) {
-      const vrmComponent = rootEntity.tryToGetVrm();
-      const animationComponent = rootEntity.tryToGetAnimation();
-      if (vrmComponent != null && animationComponent != null) {
-        const expressionPathPrefix = 'vrmExpression/';
-        for (const [pathName] of animationComponent.getAnimationChannelsOfTrack()) {
-          if (pathName.startsWith(expressionPathPrefix)) {
-            vrmComponent.setExpressionWeight(pathName.slice(expressionPathPrefix.length), 0);
-          }
+    const vrmComponent = rootEntity.tryToGetVrm();
+    const animationComponent = rootEntity.tryToGetAnimation();
+    if (vrmComponent != null && animationComponent != null) {
+      const expressionPathPrefix = 'vrmExpression/';
+      for (const [pathName, channel] of animationComponent.getAnimationChannelsOfTrack()) {
+        if (!pathName.startsWith(expressionPathPrefix)) {
+          continue;
+        }
+        const trackNames = channel.animatedValue.getAllTrackNames();
+        const removesEverySampler =
+          postfixToTrackName == null ||
+          (trackNames.length > 0 && trackNames.every(trackName => trackName.endsWith(postfixToTrackName)));
+        if (removesEverySampler) {
+          vrmComponent.setExpressionWeight(pathName.slice(expressionPathPrefix.length), 0);
         }
       }
     }
@@ -547,14 +555,29 @@ export class AnimationAssigner {
     collectSamplers(rootEntity);
 
     const rootAnimation = rootEntity.tryToGetAnimation();
-    if (rootAnimation == null || samplersByTrackName.size === 0) {
+    if (rootAnimation == null) {
       return;
     }
 
-    const expressionChannels = Array.from(rootAnimation.getAnimationChannelsOfTrack()).filter(([pathName]) =>
+    const animationChannels = rootAnimation.getAnimationChannelsOfTrack();
+    const expressionChannels = Array.from(animationChannels).filter(([pathName]) =>
       pathName.startsWith('vrmExpression/')
     );
+    const availableExpressionChannels: typeof expressionChannels = [];
+    const rootVrm = rootEntity.tryToGetVrm();
     for (const [pathName, channel] of expressionChannels) {
+      if (channel.animatedValue.getAllTrackNames().length === 0) {
+        animationChannels.delete(pathName);
+        rootVrm?.setExpressionWeight(pathName.slice('vrmExpression/'.length), 0);
+      } else {
+        availableExpressionChannels.push([pathName, channel]);
+      }
+    }
+    if (samplersByTrackName.size === 0) {
+      return;
+    }
+
+    for (const [pathName, channel] of availableExpressionChannels) {
       const existingTrackNames = new Set(channel.animatedValue.getAllTrackNames());
       for (const [trackName, sourceSampler] of samplersByTrackName) {
         if (existingTrackNames.has(trackName)) {
@@ -597,6 +620,27 @@ export class AnimationAssigner {
       const activeAnimationTrackName = this.__getActiveAnimationTrackName(child.entity);
       if (activeAnimationTrackName != null) {
         return activeAnimationTrackName;
+      }
+    }
+
+    return undefined;
+  }
+
+  private __getFirstAnimationTrackName(rootEntity: ISceneGraphEntity): AnimationTrackName | undefined {
+    const animationComponent = rootEntity.tryToGetAnimation();
+    if (animationComponent != null) {
+      for (const [, channel] of animationComponent.getAnimationChannelsOfTrack()) {
+        const animationTrackName = channel.animatedValue.getAllTrackNames()[0];
+        if (animationTrackName != null) {
+          return animationTrackName;
+        }
+      }
+    }
+
+    for (const child of rootEntity.children) {
+      const animationTrackName = this.__getFirstAnimationTrackName(child.entity);
+      if (animationTrackName != null) {
+        return animationTrackName;
       }
     }
 

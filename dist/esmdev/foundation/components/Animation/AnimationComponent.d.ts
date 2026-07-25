@@ -252,6 +252,7 @@ export declare class AnimationComponent extends Component {
      * @returns The animation global info map for the engine
      */
     static getAnimationGlobalInfo(engine: Engine): Map<AnimationTrackName, AnimationInfo>;
+    private static __recalculateAnimationInfo;
     /**
      * Sets the animation state for the specified engine.
      * @param engine - The engine instance to set the animation state for
