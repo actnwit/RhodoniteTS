@@ -114,6 +114,7 @@ export declare class AnimationAssigner {
      */
     private __fillMissingVrmaExpressionTracks;
     private __getActiveAnimationTrackName;
+    private __hasAnimationTrackName;
     private __validateCharacterVrmaAnimationSet;
     /**
      * Determines whether a given node represents the hips bone in the humanoid skeleton.

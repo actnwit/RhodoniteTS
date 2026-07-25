@@ -346,6 +346,32 @@ test('fills missing expression channels with zero samplers across assigned VRMA 
   expect(happyAnimation.x).toBe(0);
 });
 
+test('falls back to the replacement track when an active postfix slot is assigned a differently named clip', () => {
+  mockModelConversion();
+  const { assigner, root, rootAnimation } = createExpressionAssignerFixture();
+  const oldVrma = createExpressionVrma({
+    interpolation: 'LINEAR',
+    output: new Float32Array([1, 9, 9, 1, 9, 9]),
+  });
+  oldVrma.animations[0].name = 'Old';
+  const newVrma = createExpressionVrma({
+    interpolation: 'LINEAR',
+    output: new Float32Array([0, 9, 9, 1, 9, 9]),
+  });
+  newVrma.animations[0].name = 'New';
+
+  assigner.assignAnimationWithVrma(root, oldVrma, '__slot');
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setFirstActiveAnimationTrackName('Old__slot');
+
+  assigner.assignAnimationWithVrma(root, newVrma, '__slot');
+
+  expect(happyAnimation.getAllTrackNames()).toEqual(['New__slot']);
+  expect(happyAnimation.getFirstActiveAnimationTrackName()).toBe('New__slot');
+  happyAnimation.setTime(0.5);
+  expect(happyAnimation.x).toBe(0.5);
+});
+
 test('resets expression weights before replacing unpostfixed VRMA tracks', () => {
   mockModelConversion();
   const { assigner, root, rootAnimation, setExpressionWeight } = createExpressionAssignerFixture();

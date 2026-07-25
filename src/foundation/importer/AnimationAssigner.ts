@@ -215,7 +215,10 @@ export class AnimationAssigner {
     try {
       this.__resetAnimationAndPose(rootEntity, postfixToTrackName);
       setRetarget(vrmaModel);
-      const expressionActiveAnimationTrackName = activeAnimationTrackName ?? trackNames.values().next().value;
+      const expressionActiveAnimationTrackName =
+        activeAnimationTrackName != null && this.__hasAnimationTrackName(rootEntity, activeAnimationTrackName)
+          ? activeAnimationTrackName
+          : trackNames.values().next().value;
       this.__fillMissingVrmaExpressionTracks(rootEntity, expressionActiveAnimationTrackName);
     } finally {
       this.__engine.entityRepository.deleteEntityRecursively(entityVrma.entityUID);
@@ -598,6 +601,25 @@ export class AnimationAssigner {
     }
 
     return undefined;
+  }
+
+  private __hasAnimationTrackName(rootEntity: ISceneGraphEntity, trackName: AnimationTrackName): boolean {
+    const animationComponent = rootEntity.tryToGetAnimation();
+    if (animationComponent != null) {
+      for (const [, channel] of animationComponent.getAnimationChannelsOfTrack()) {
+        if (channel.animatedValue.getAllTrackNames().includes(trackName)) {
+          return true;
+        }
+      }
+    }
+
+    for (const child of rootEntity.children) {
+      if (this.__hasAnimationTrackName(child.entity, trackName)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private __validateCharacterVrmaAnimationSet(
