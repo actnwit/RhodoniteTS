@@ -24,17 +24,24 @@ function createAnimationComponentFixture() {
     },
   } as unknown as Engine;
   engines.push(engine);
-  const animationTrack: AnimationTrack = new Map();
-  const component = {
-    __animationTrack: animationTrack,
-    __engine: engine,
-    __updateAnimationTrackFeatureHashes: vi.fn(),
-    entity: {
-      getTransform: () => ({ _backupTransformAsRest: vi.fn() }),
-    },
-  } as unknown as AnimationComponent;
-  components.push(component);
-  return { animationTrack, component, engine };
+  const createComponent = () => {
+    const animationTrack: AnimationTrack = new Map();
+    const backupTransformAsRest = vi.fn();
+    const component = {
+      __animationTrack: animationTrack,
+      __animationTrackFeatureHashes: new Map(),
+      __engine: engine,
+      __isAnimating: true,
+      __updateAnimationTrackFeatureHashes: vi.fn(),
+      getAnimationTrackNames: AnimationComponent.prototype.getAnimationTrackNames,
+      entity: {
+        getTransform: () => ({ _backupTransformAsRest: backupTransformAsRest }),
+      },
+    } as unknown as AnimationComponent;
+    components.push(component);
+    return { animationTrack, backupTransformAsRest, component };
+  };
+  return { ...createComponent(), components, createComponent, engine };
 }
 
 afterEach(() => {
@@ -100,5 +107,50 @@ test('recalculates the time range when an existing sampler is replaced', () => {
     name: trackName,
     minStartInputTime: 0,
     maxEndInputTime: 1,
+  });
+});
+
+test('does not back up the root transform when adding a VRM expression channel', () => {
+  const { backupTransformAsRest, component } = createAnimationComponentFixture();
+  const trackName = 'Face';
+
+  AnimationComponent.prototype.setAnimation.call(
+    component,
+    'vrmExpression/happy',
+    new AnimatedScalar(new Map([[trackName, createSampler([0, 1])]]), trackName)
+  );
+
+  expect(backupTransformAsRest).not.toHaveBeenCalled();
+
+  AnimationComponent.prototype.setAnimation.call(
+    component,
+    'translate' as AnimationPathName,
+    new AnimatedScalar(new Map([['Body', createSampler([0, 1])]]), 'Body')
+  );
+  expect(backupTransformAsRest).toHaveBeenCalledTimes(1);
+});
+
+test('does not reuse the time range of a destroyed animation component', () => {
+  const { component, components, createComponent, engine } = createAnimationComponentFixture();
+  const trackName = 'Clip';
+  AnimationComponent.prototype.setAnimation.call(
+    component,
+    'translate' as AnimationPathName,
+    new AnimatedScalar(new Map([[trackName, createSampler([-2, 0, 4])]]), trackName)
+  );
+
+  AnimationComponent.prototype._destroy.call(component);
+  components.splice(components.indexOf(component), 1);
+  const replacement = createComponent().component;
+  AnimationComponent.prototype.setAnimation.call(
+    replacement,
+    'translate' as AnimationPathName,
+    new AnimatedScalar(new Map([[trackName, createSampler([1, 2])]]), trackName)
+  );
+
+  expect(AnimationComponent.getAnimationInfo(engine).get(trackName)).toEqual({
+    name: trackName,
+    minStartInputTime: 1,
+    maxEndInputTime: 2,
   });
 });

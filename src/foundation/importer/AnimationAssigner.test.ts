@@ -154,6 +154,9 @@ function createExpressionAssignerFixture(availableExpressions = new Set(['happy'
   const animationState = {
     setFirstActiveAnimationTrack: vi.fn((trackName: string) => {
       rootAnimation.setActiveAnimationTrack(trackName);
+      for (const channel of animationChannels.values()) {
+        channel.animatedValue.blendingRatio = 0;
+      }
     }),
   };
   const rootVrm = {
@@ -357,6 +360,34 @@ test('fills missing expression channels with zero samplers across assigned VRMA 
   expect(happyAnimation.x).toBe(0);
 });
 
+test('preserves blending state when adding a postfix track without removing the active track', () => {
+  mockModelConversion();
+  const { animationState, assigner, root, rootAnimation } = createExpressionAssignerFixture(new Set(['happy']));
+  const existingVrma = createExpressionVrma();
+  existingVrma.animations[0].name = 'Existing';
+  existingVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const targetVrma = createExpressionVrma();
+  targetVrma.animations[0].name = 'Target';
+  targetVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const addedVrma = createExpressionVrma();
+  addedVrma.animations[0].name = 'Added';
+  addedVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+
+  assigner.assignAnimationWithVrma(root, existingVrma, '__existing');
+  assigner.assignAnimationWithVrma(root, targetVrma, '__target');
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setSecondActiveAnimationTrackName('Target__target');
+  happyAnimation.blendingRatio = 0.5;
+  animationState.setFirstActiveAnimationTrack.mockClear();
+
+  assigner.assignAnimationWithVrma(root, addedVrma, '__added');
+
+  expect(animationState.setFirstActiveAnimationTrack).not.toHaveBeenCalled();
+  expect(happyAnimation.getFirstActiveAnimationTrackName()).toBe('Existing__existing');
+  expect(happyAnimation.getSecondActiveAnimationTrackName()).toBe('Target__target');
+  expect(happyAnimation.blendingRatio).toBe(0.5);
+});
+
 test('falls back to the replacement track when an active postfix slot is assigned a differently named clip', () => {
   mockModelConversion();
   const { assigner, root, rootAnimation } = createExpressionAssignerFixture();
@@ -381,6 +412,23 @@ test('falls back to the replacement track when an active postfix slot is assigne
   expect(happyAnimation.getFirstActiveAnimationTrackName()).toBe('New__slot');
   happyAnimation.setTime(0.5);
   expect(happyAnimation.x).toBe(0.5);
+});
+
+test('refreshes the animation state when an active postfix slot keeps the same track name', () => {
+  mockModelConversion();
+  const { animationState, assigner, root } = createExpressionAssignerFixture(new Set(['happy']));
+  const oldVrma = createExpressionVrma();
+  oldVrma.animations[0].name = 'Same';
+  oldVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const replacementVrma = createExpressionVrma();
+  replacementVrma.animations[0].name = 'Same';
+  replacementVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+
+  assigner.assignAnimationWithVrma(root, oldVrma, '__slot');
+  animationState.setFirstActiveAnimationTrack.mockClear();
+  assigner.assignAnimationWithVrma(root, replacementVrma, '__slot');
+
+  expect(animationState.setFirstActiveAnimationTrack).toHaveBeenCalledWith('Same__slot');
 });
 
 test('applies a replacement fallback track to the animation state and bone channels', () => {

@@ -215,12 +215,20 @@ export class AnimationAssigner {
     try {
       this.__resetAnimationAndPose(rootEntity, postfixToTrackName);
       setRetarget(vrmaModel);
+      const activeAnimationTrackWasReset =
+        activeAnimationTrackName != null &&
+        postfixToTrackName != null &&
+        activeAnimationTrackName.endsWith(postfixToTrackName);
+      const activeAnimationTrackStillExists =
+        activeAnimationTrackName != null && this.__hasAnimationTrackName(rootEntity, activeAnimationTrackName);
+      const requiresActiveAnimationTrackFallback =
+        activeAnimationTrackName != null && (activeAnimationTrackWasReset || !activeAnimationTrackStillExists);
       const expressionActiveAnimationTrackName =
-        activeAnimationTrackName != null && this.__hasAnimationTrackName(rootEntity, activeAnimationTrackName)
+        activeAnimationTrackName != null && !requiresActiveAnimationTrackFallback
           ? activeAnimationTrackName
           : (trackNames.values().next().value ?? this.__getFirstAnimationTrackName(rootEntity));
       this.__fillMissingVrmaExpressionTracks(rootEntity, expressionActiveAnimationTrackName);
-      if (expressionActiveAnimationTrackName != null) {
+      if (requiresActiveAnimationTrackFallback && expressionActiveAnimationTrackName != null) {
         rootEntity.tryToGetAnimationState()?.setFirstActiveAnimationTrack(expressionActiveAnimationTrackName);
       }
     } finally {

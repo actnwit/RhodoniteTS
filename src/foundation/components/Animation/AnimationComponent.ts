@@ -517,8 +517,10 @@ export class AnimationComponent extends Component {
         infoMap: new Map(animationGlobalInfo),
       });
     }
-    // backup the current transform as rest pose
-    this.entity.getTransform()._backupTransformAsRest();
+    // Runtime-only VRM expression channels do not animate Transform and must not replace its rest pose.
+    if (!pathName.startsWith('vrmExpression/')) {
+      this.entity.getTransform()._backupTransformAsRest();
+    }
     this.__updateAnimationTrackFeatureHashes();
   }
 
@@ -1181,10 +1183,14 @@ export class AnimationComponent extends Component {
    * @override
    */
   _destroy(): void {
+    const trackNames = new Set(this.getAnimationTrackNames());
     super._destroy();
     this.__animationTrack.clear();
     this.__animationTrackFeatureHashes.clear();
     this.__isAnimating = false;
+    for (const trackName of trackNames) {
+      AnimationComponent.__recalculateAnimationInfo(this.__engine, trackName);
+    }
   }
 
   private __updateAnimationTrackFeatureHashes() {
