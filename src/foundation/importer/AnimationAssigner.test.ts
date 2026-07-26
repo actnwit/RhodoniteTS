@@ -3,6 +3,7 @@ import type { AnimationPathName, AnimationSampler, RnM2, RnM2Vrma } from '../../
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { AnimationInterpolation } from '../definitions/AnimationInterpolation';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { AnimatedScalar } from '../math/AnimatedScalar';
 import { AnimatedVector3 } from '../math/AnimatedVector3';
 import { Quaternion } from '../math/Quaternion';
 import { AnimationAssigner, type CharacterVrmaAnimationSet, type VrmaRootMotionPolicy } from './AnimationAssigner';
@@ -157,6 +158,9 @@ function createExpressionAssignerFixture(availableExpressions = new Set(['happy'
     }),
     setAnimation,
   };
+  const setSecondActiveAnimationTrack = vi.fn((trackName: string) => {
+    rootAnimation.setSecondActiveAnimationTrack(trackName);
+  });
   const animationState = {
     setFirstActiveAnimationTrack: vi.fn((trackName: string) => {
       rootAnimation.setActiveAnimationTrack(trackName);
@@ -164,8 +168,9 @@ function createExpressionAssignerFixture(availableExpressions = new Set(['happy'
         channel.animatedValue.blendingRatio = 0;
       }
     }),
-    setSecondActiveAnimationTrack: vi.fn((trackName: string) => {
-      rootAnimation.setSecondActiveAnimationTrack(trackName);
+    setSecondActiveAnimationTrack,
+    replaceSecondActiveAnimationTrack: vi.fn((_replacedTrackName: string, replacementTrackName: string) => {
+      setSecondActiveAnimationTrack(replacementTrackName);
     }),
   };
   const rootVrm = {
@@ -389,6 +394,40 @@ test('fills missing expression channels with zero samplers across assigned VRMA 
   expect(happyAnimation.x).toBe(0);
 });
 
+test('uses the full track time range for missing expression zero samplers', () => {
+  const { assigner, root, rootAnimation } = createExpressionAssignerFixture();
+  const shortBoneSampler: AnimationSampler = {
+    input: new Float32Array([0, 0.5]),
+    output: new Float32Array(6),
+    outputComponentN: 3,
+    interpolationMethod: AnimationInterpolation.Linear,
+  };
+  const faceSampler: AnimationSampler = {
+    input: new Float32Array([0, 2]),
+    output: new Float32Array([0, 1]),
+    outputComponentN: 1,
+    interpolationMethod: AnimationInterpolation.Linear,
+  };
+  const existingSmirkSampler: AnimationSampler = {
+    input: new Float32Array([0, 2]),
+    output: new Float32Array([0, 1]),
+    outputComponentN: 1,
+    interpolationMethod: AnimationInterpolation.Linear,
+  };
+  rootAnimation.setAnimation('translate', new AnimatedVector3(new Map([['Face', shortBoneSampler]]), 'Face'));
+  rootAnimation.setAnimation('vrmExpression/happy', new AnimatedScalar(new Map([['Face', faceSampler]]), 'Face'));
+  const smirkAnimation = new AnimatedScalar(new Map([['Existing', existingSmirkSampler]]), 'Existing');
+  rootAnimation.setAnimation('vrmExpression/smirk', smirkAnimation);
+
+  (assigner as any).__fillMissingVrmaExpressionTracks(root, 'Existing');
+
+  expect(Array.from(smirkAnimation.getAnimationSampler('Face').input)).toEqual([0, 2]);
+  smirkAnimation.setSecondActiveAnimationTrackName('Face');
+  smirkAnimation.blendingRatio = 0.5;
+  smirkAnimation.setTime(1.25);
+  expect(smirkAnimation.x).toBeCloseTo(0.3125);
+});
+
 test('preserves blending state when adding a postfix track without removing the active track', () => {
   mockModelConversion();
   const { animationState, assigner, root, rootAnimation } = createExpressionAssignerFixture(new Set(['happy']));
@@ -449,6 +488,10 @@ test('rebinds the second active track when its postfix slot is replaced', () => 
   assigner.assignAnimationWithVrma(root, newTargetVrma, '__target');
 
   expect(animationState.setSecondActiveAnimationTrack).toHaveBeenCalledWith('NewTarget__target');
+  expect(animationState.replaceSecondActiveAnimationTrack).toHaveBeenCalledWith(
+    'OldTarget__target',
+    'NewTarget__target'
+  );
   expect(happyAnimation.getSecondActiveAnimationTrackName()).toBe('NewTarget__target');
   expect(happyAnimation.blendingRatio).toBe(0.5);
   happyAnimation.setTime(0.5);

@@ -246,8 +246,12 @@ export class AnimationAssigner {
       if (requiresActiveAnimationTrackFallback && expressionActiveAnimationTrackName != null) {
         animationState?.setFirstActiveAnimationTrack(expressionActiveAnimationTrackName);
       }
-      if (requiresSecondActiveAnimationTrackFallback && fallbackAnimationTrackName != null) {
-        animationState?.setSecondActiveAnimationTrack(fallbackAnimationTrackName);
+      if (
+        requiresSecondActiveAnimationTrackFallback &&
+        secondActiveAnimationTrackName != null &&
+        fallbackAnimationTrackName != null
+      ) {
+        animationState?.replaceSecondActiveAnimationTrack(secondActiveAnimationTrackName, fallbackAnimationTrackName);
       }
     } finally {
       this.__engine.entityRepository.deleteEntityRecursively(entityVrma.entityUID);
@@ -561,15 +565,36 @@ export class AnimationAssigner {
     rootEntity: ISceneGraphEntity,
     activeAnimationTrackName: AnimationTrackName | undefined
   ): void {
-    const samplersByTrackName = new Map<AnimationTrackName, AnimationSampler>();
+    const trackTimeRanges = new Map<
+      AnimationTrackName,
+      {
+        minStartInputTime: number;
+        maxEndInputTime: number;
+        interpolationMethod: AnimationSampler['interpolationMethod'];
+      }
+    >();
     // Humanoid animation samplers live on bone entities, so collect them recursively from the hierarchy.
     const collectSamplers = (entity: ISceneGraphEntity) => {
       const animationComponent = entity.tryToGetAnimation();
       if (animationComponent != null) {
         for (const [, channel] of animationComponent.getAnimationChannelsOfTrack()) {
           for (const trackName of channel.animatedValue.getAllTrackNames()) {
-            if (!samplersByTrackName.has(trackName)) {
-              samplersByTrackName.set(trackName, channel.animatedValue.getAnimationSampler(trackName));
+            const sampler = channel.animatedValue.getAnimationSampler(trackName);
+            if (sampler.input.length === 0) {
+              continue;
+            }
+            const startInputTime = sampler.input[0];
+            const endInputTime = sampler.input[sampler.input.length - 1];
+            const existingRange = trackTimeRanges.get(trackName);
+            if (existingRange == null) {
+              trackTimeRanges.set(trackName, {
+                minStartInputTime: startInputTime,
+                maxEndInputTime: endInputTime,
+                interpolationMethod: sampler.interpolationMethod,
+              });
+            } else {
+              existingRange.minStartInputTime = Math.min(existingRange.minStartInputTime, startInputTime);
+              existingRange.maxEndInputTime = Math.max(existingRange.maxEndInputTime, endInputTime);
             }
           }
         }
@@ -599,28 +624,29 @@ export class AnimationAssigner {
         availableExpressionChannels.push([pathName, channel]);
       }
     }
-    if (samplersByTrackName.size === 0) {
+    if (trackTimeRanges.size === 0) {
       return;
     }
 
     for (const [pathName, channel] of availableExpressionChannels) {
       const existingTrackNames = new Set(channel.animatedValue.getAllTrackNames());
-      for (const [trackName, sourceSampler] of samplersByTrackName) {
+      for (const [trackName, trackTimeRange] of trackTimeRanges) {
         if (existingTrackNames.has(trackName)) {
           continue;
         }
 
-        // Keep the source timeline and interpolation so the zero expression stays synchronized with its clip.
+        const input =
+          trackTimeRange.minStartInputTime === trackTimeRange.maxEndInputTime
+            ? new Float32Array([trackTimeRange.minStartInputTime])
+            : new Float32Array([trackTimeRange.minStartInputTime, trackTimeRange.maxEndInputTime]);
         const outputElementCount =
-          sourceSampler.interpolationMethod === AnimationInterpolation.CubicSpline
-            ? sourceSampler.input.length * 3
-            : sourceSampler.input.length;
+          trackTimeRange.interpolationMethod === AnimationInterpolation.CubicSpline ? input.length * 3 : input.length;
         const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
         animationSamplers.set(trackName, {
-          input: sourceSampler.input,
+          input,
           output: new Float32Array(outputElementCount),
           outputComponentN: 1,
-          interpolationMethod: sourceSampler.interpolationMethod,
+          interpolationMethod: trackTimeRange.interpolationMethod,
         });
         rootAnimation.setAnimation(pathName, new AnimatedScalar(animationSamplers, trackName));
       }

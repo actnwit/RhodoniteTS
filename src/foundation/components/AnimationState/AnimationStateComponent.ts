@@ -143,7 +143,6 @@ export class AnimationStateComponent extends Component {
    * @param animationTrackName - The name of the animation track to set as the second active track
    */
   setSecondActiveAnimationTrack(animationTrackName: AnimationTrackName) {
-    this.__activeAnimationTrack = animationTrackName;
     function processRecursively(entity: ISceneGraphEntity) {
       const anim = entity.tryToGetAnimation();
       if (anim != null) {
@@ -154,6 +153,22 @@ export class AnimationStateComponent extends Component {
       }
     }
     processRecursively(this.entity);
+  }
+
+  /**
+   * Rebinds a replaced second animation track without restarting the current blend.
+   * The logical current track is updated only when it referred to the replaced track.
+   * @param replacedAnimationTrackName - The name of the second track that was replaced
+   * @param replacementAnimationTrackName - The name of the replacement second track
+   */
+  replaceSecondActiveAnimationTrack(
+    replacedAnimationTrackName: AnimationTrackName,
+    replacementAnimationTrackName: AnimationTrackName
+  ) {
+    this.setSecondActiveAnimationTrack(replacementAnimationTrackName);
+    if (this.__activeAnimationTrack === replacedAnimationTrackName) {
+      this.__activeAnimationTrack = replacementAnimationTrackName;
+    }
   }
 
   /**

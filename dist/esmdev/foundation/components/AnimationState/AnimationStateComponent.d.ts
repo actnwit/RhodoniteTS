@@ -75,6 +75,13 @@ export declare class AnimationStateComponent extends Component {
      */
     setSecondActiveAnimationTrack(animationTrackName: AnimationTrackName): void;
     /**
+     * Rebinds a replaced second animation track without restarting the current blend.
+     * The logical current track is updated only when it referred to the replaced track.
+     * @param replacedAnimationTrackName - The name of the second track that was replaced
+     * @param replacementAnimationTrackName - The name of the replacement second track
+     */
+    replaceSecondActiveAnimationTrack(replacedAnimationTrackName: AnimationTrackName, replacementAnimationTrackName: AnimationTrackName): void;
+    /**
      * Sets whether animations should use global time for synchronization.
      * Applies the setting recursively to this entity and all its children.
      * @param flg - True to use global time, false to use local time
