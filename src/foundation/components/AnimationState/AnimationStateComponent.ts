@@ -143,6 +143,7 @@ export class AnimationStateComponent extends Component {
    * @param animationTrackName - The name of the animation track to set as the second active track
    */
   setSecondActiveAnimationTrack(animationTrackName: AnimationTrackName) {
+    this.__activeAnimationTrack = animationTrackName;
     function processRecursively(entity: ISceneGraphEntity) {
       const anim = entity.tryToGetAnimation();
       if (anim != null) {

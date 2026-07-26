@@ -136,6 +136,8 @@ export class AnimationAssigner {
 
     const activeAnimationTrackName =
       postfixToTrackName != null ? this.__getActiveAnimationTrackName(rootEntity) : undefined;
+    const secondActiveAnimationTrackName =
+      postfixToTrackName != null ? this.__getSecondActiveAnimationTrackName(rootEntity) : undefined;
     const entityVrma = ModelConverter.convertToRhodoniteObjectSimple(this.__engine, vrmaModel);
     const rootMotion = options.rootMotion ?? 'preserve';
     const trackNames = new Set<AnimationTrackName>();
@@ -223,13 +225,29 @@ export class AnimationAssigner {
         activeAnimationTrackName != null && this.__hasAnimationTrackName(rootEntity, activeAnimationTrackName);
       const requiresActiveAnimationTrackFallback =
         activeAnimationTrackName != null && (activeAnimationTrackWasReset || !activeAnimationTrackStillExists);
+      const secondActiveAnimationTrackWasReset =
+        secondActiveAnimationTrackName != null &&
+        postfixToTrackName != null &&
+        secondActiveAnimationTrackName.endsWith(postfixToTrackName);
+      const secondActiveAnimationTrackStillExists =
+        secondActiveAnimationTrackName != null &&
+        this.__hasAnimationTrackName(rootEntity, secondActiveAnimationTrackName);
+      const requiresSecondActiveAnimationTrackFallback =
+        secondActiveAnimationTrackName != null &&
+        (secondActiveAnimationTrackWasReset || !secondActiveAnimationTrackStillExists);
+      const fallbackAnimationTrackName =
+        trackNames.values().next().value ?? this.__getFirstAnimationTrackName(rootEntity);
       const expressionActiveAnimationTrackName =
         activeAnimationTrackName != null && !requiresActiveAnimationTrackFallback
           ? activeAnimationTrackName
-          : (trackNames.values().next().value ?? this.__getFirstAnimationTrackName(rootEntity));
+          : fallbackAnimationTrackName;
       this.__fillMissingVrmaExpressionTracks(rootEntity, expressionActiveAnimationTrackName);
+      const animationState = rootEntity.tryToGetAnimationState();
       if (requiresActiveAnimationTrackFallback && expressionActiveAnimationTrackName != null) {
-        rootEntity.tryToGetAnimationState()?.setFirstActiveAnimationTrack(expressionActiveAnimationTrackName);
+        animationState?.setFirstActiveAnimationTrack(expressionActiveAnimationTrackName);
+      }
+      if (requiresSecondActiveAnimationTrackFallback && fallbackAnimationTrackName != null) {
+        animationState?.setSecondActiveAnimationTrack(fallbackAnimationTrackName);
       }
     } finally {
       this.__engine.entityRepository.deleteEntityRecursively(entityVrma.entityUID);
@@ -628,6 +646,27 @@ export class AnimationAssigner {
       const activeAnimationTrackName = this.__getActiveAnimationTrackName(child.entity);
       if (activeAnimationTrackName != null) {
         return activeAnimationTrackName;
+      }
+    }
+
+    return undefined;
+  }
+
+  private __getSecondActiveAnimationTrackName(rootEntity: ISceneGraphEntity): AnimationTrackName | undefined {
+    const animationComponent = rootEntity.tryToGetAnimation();
+    if (animationComponent != null) {
+      for (const [, channel] of animationComponent.getAnimationChannelsOfTrack()) {
+        const secondActiveAnimationTrackName = channel.animatedValue.getSecondActiveAnimationTrackName();
+        if (secondActiveAnimationTrackName != null) {
+          return secondActiveAnimationTrackName;
+        }
+      }
+    }
+
+    for (const child of rootEntity.children) {
+      const secondActiveAnimationTrackName = this.__getSecondActiveAnimationTrackName(child.entity);
+      if (secondActiveAnimationTrackName != null) {
+        return secondActiveAnimationTrackName;
       }
     }
 

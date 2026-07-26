@@ -45,13 +45,14 @@ function createCharacterVrmaSet(): CharacterVrmaAnimationSet {
 }
 
 function createExpressionVrma({
+  input = new Float32Array([0, 1]),
   interpolation = 'CUBICSPLINE',
   output = new Float32Array([-1, 9, 9, 0.25, 9, 9, 2, 9, 9, -2, 9, 9, 1.5, 9, 9, 3, 9, 9]),
 }: {
+  input?: Float32Array;
   interpolation?: 'LINEAR' | 'STEP' | 'CUBICSPLINE';
   output?: Float32Array;
 } = {}): RnM2Vrma {
-  const input = new Float32Array([0, 1]);
   const samplerObject = {
     interpolation,
     inputObject: { extras: { typedDataArray: input } },
@@ -149,6 +150,11 @@ function createExpressionAssignerFixture(availableExpressions = new Set(['happy'
         channel.animatedValue.setFirstActiveAnimationTrackName(trackName);
       }
     }),
+    setSecondActiveAnimationTrack: vi.fn((trackName: string) => {
+      for (const channel of animationChannels.values()) {
+        channel.animatedValue.setSecondActiveAnimationTrackName(trackName);
+      }
+    }),
     setAnimation,
   };
   const animationState = {
@@ -157,6 +163,9 @@ function createExpressionAssignerFixture(availableExpressions = new Set(['happy'
       for (const channel of animationChannels.values()) {
         channel.animatedValue.blendingRatio = 0;
       }
+    }),
+    setSecondActiveAnimationTrack: vi.fn((trackName: string) => {
+      rootAnimation.setSecondActiveAnimationTrack(trackName);
     }),
   };
   const rootVrm = {
@@ -309,6 +318,26 @@ test.each([
   expect(sampler.interpolationMethod).toBe(expectedInterpolation);
 });
 
+test.each([
+  ['LINEAR', new Float32Array([0.75, 9, 9])],
+  ['CUBICSPLINE', new Float32Array([0, 9, 9, 0.75, 9, 9, 0, 9, 9])],
+] as const)('treats a zero-duration single-key %s expression track as a constant', (interpolation, output) => {
+  mockModelConversion();
+  const { assigner, root, rootAnimation } = createExpressionAssignerFixture(new Set(['happy']));
+  const vrma = createExpressionVrma({
+    input: new Float32Array([0]),
+    interpolation,
+    output,
+  });
+  vrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+
+  assigner.assignAnimationWithVrma(root, vrma);
+
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setTime(10);
+  expect(happyAnimation.x).toBeCloseTo(0.75);
+});
+
 test('uses the first track for every expression on the initial multi-animation VRMA assignment', () => {
   mockModelConversion();
   const { assigner, root, rootAnimation } = createExpressionAssignerFixture();
@@ -386,6 +415,44 @@ test('preserves blending state when adding a postfix track without removing the 
   expect(happyAnimation.getFirstActiveAnimationTrackName()).toBe('Existing__existing');
   expect(happyAnimation.getSecondActiveAnimationTrackName()).toBe('Target__target');
   expect(happyAnimation.blendingRatio).toBe(0.5);
+});
+
+test('rebinds the second active track when its postfix slot is replaced', () => {
+  mockModelConversion();
+  const { animationState, assigner, root, rootAnimation } = createExpressionAssignerFixture(new Set(['happy']));
+  const firstVrma = createExpressionVrma({
+    interpolation: 'LINEAR',
+    output: new Float32Array([0, 9, 9, 0, 9, 9]),
+  });
+  firstVrma.animations[0].name = 'First';
+  firstVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const oldTargetVrma = createExpressionVrma({
+    interpolation: 'LINEAR',
+    output: new Float32Array([1, 9, 9, 1, 9, 9]),
+  });
+  oldTargetVrma.animations[0].name = 'OldTarget';
+  oldTargetVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const newTargetVrma = createExpressionVrma({
+    interpolation: 'LINEAR',
+    output: new Float32Array([0.2, 9, 9, 0.2, 9, 9]),
+  });
+  newTargetVrma.animations[0].name = 'NewTarget';
+  newTargetVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+
+  assigner.assignAnimationWithVrma(root, firstVrma, '__first');
+  assigner.assignAnimationWithVrma(root, oldTargetVrma, '__target');
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setSecondActiveAnimationTrackName('OldTarget__target');
+  happyAnimation.blendingRatio = 0.5;
+  animationState.setSecondActiveAnimationTrack.mockClear();
+
+  assigner.assignAnimationWithVrma(root, newTargetVrma, '__target');
+
+  expect(animationState.setSecondActiveAnimationTrack).toHaveBeenCalledWith('NewTarget__target');
+  expect(happyAnimation.getSecondActiveAnimationTrackName()).toBe('NewTarget__target');
+  expect(happyAnimation.blendingRatio).toBe(0.5);
+  happyAnimation.setTime(0.5);
+  expect(happyAnimation.x).toBeCloseTo(0.1);
 });
 
 test('falls back to the replacement track when an active postfix slot is assigned a differently named clip', () => {

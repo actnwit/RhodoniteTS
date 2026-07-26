@@ -109,14 +109,19 @@ export class AnimatedScalar extends Scalar implements IScalar, IAnimatedValue {
   public update() {
     let time = this.__time ?? 0;
     if (this.isLoop) {
-      let duration = this.__firstActiveAnimationSampler.input[this.__firstActiveAnimationSampler.input.length - 1];
+      const firstDuration =
+        this.__firstActiveAnimationSampler.input[this.__firstActiveAnimationSampler.input.length - 1];
+      let duration = firstDuration > 0 ? firstDuration : Number.POSITIVE_INFINITY;
       if (this.__secondActiveAnimationSampler !== undefined) {
-        duration = Math.min(
-          duration,
-          this.__secondActiveAnimationSampler.input[this.__secondActiveAnimationSampler.input.length - 1]
-        );
+        const secondDuration =
+          this.__secondActiveAnimationSampler.input[this.__secondActiveAnimationSampler.input.length - 1];
+        if (secondDuration > 0) {
+          duration = Math.min(duration, secondDuration);
+        }
       }
-      time = time % duration;
+      if (Number.isFinite(duration)) {
+        time = time % duration;
+      }
     }
     if (this.__lastTime === time) {
       return;
