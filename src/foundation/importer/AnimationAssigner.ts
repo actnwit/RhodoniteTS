@@ -243,8 +243,12 @@ export class AnimationAssigner {
           : fallbackAnimationTrackName;
       this.__fillMissingVrmaExpressionTracks(rootEntity, expressionActiveAnimationTrackName);
       const animationState = rootEntity.tryToGetAnimationState();
-      if (requiresActiveAnimationTrackFallback && expressionActiveAnimationTrackName != null) {
-        animationState?.setFirstActiveAnimationTrack(expressionActiveAnimationTrackName);
+      if (
+        requiresActiveAnimationTrackFallback &&
+        activeAnimationTrackName != null &&
+        expressionActiveAnimationTrackName != null
+      ) {
+        animationState?.replaceFirstActiveAnimationTrack(activeAnimationTrackName, expressionActiveAnimationTrackName);
       }
       if (
         requiresSecondActiveAnimationTrackFallback &&

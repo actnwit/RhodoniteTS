@@ -52,3 +52,16 @@ test('replacing the current blend target updates the next transition source', ()
 
   expect(animation.setActiveAnimationTrack).toHaveBeenCalledWith('Sprint');
 });
+
+test('replacing a non-current first track preserves the logical transition source', () => {
+  const { animation, animationState } = createAnimationStateFixture();
+  animationState.setFirstActiveAnimationTrack('Idle');
+  animationState.forceTransitionTo('Run', 1);
+  animationState.replaceFirstActiveAnimationTrack('Idle', 'Rest');
+  expect(animation.setActiveAnimationTrack).toHaveBeenLastCalledWith('Rest');
+  animation.setActiveAnimationTrack.mockClear();
+
+  animationState.forceTransitionTo('Jump', 1);
+
+  expect(animation.setActiveAnimationTrack).toHaveBeenCalledWith('Run');
+});

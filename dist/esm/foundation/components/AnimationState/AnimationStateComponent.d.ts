@@ -69,6 +69,13 @@ export declare class AnimationStateComponent extends Component {
      */
     setActiveAnimationTrack(animationTrackName: AnimationTrackName): void;
     /**
+     * Rebinds a replaced first animation track without resetting the current blend.
+     * The logical current track is updated only when it referred to the replaced track.
+     * @param replacedAnimationTrackName - The name of the first track that was replaced
+     * @param replacementAnimationTrackName - The name of the replacement first track
+     */
+    replaceFirstActiveAnimationTrack(replacedAnimationTrackName: AnimationTrackName, replacementAnimationTrackName: AnimationTrackName): void;
+    /**
      * Sets the second active animation track for blending purposes.
      * This track is used as the target during animation transitions.
      * @param animationTrackName - The name of the animation track to set as the second active track

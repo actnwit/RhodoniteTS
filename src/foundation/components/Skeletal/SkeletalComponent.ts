@@ -947,9 +947,21 @@ export class SkeletalComponent extends Component {
   }
 
   private __findAnimationTrackFeatureHash(target: ISceneGraphEntity): number | undefined {
-    const hash = target.tryToGetAnimation()?.currentTrackFeatureHash();
-    if (hash != null) {
-      return hash;
+    const animationComponent = target.tryToGetAnimation();
+    if (animationComponent != null) {
+      let hasNonExpressionChannel = false;
+      for (const pathName of animationComponent.getAnimationChannelsOfTrack().keys()) {
+        if (!pathName.startsWith('vrmExpression/')) {
+          hasNonExpressionChannel = true;
+          break;
+        }
+      }
+      if (hasNonExpressionChannel) {
+        const hash = animationComponent.currentTrackFeatureHash();
+        if (hash != null) {
+          return hash;
+        }
+      }
     }
 
     for (const child of target.children) {
