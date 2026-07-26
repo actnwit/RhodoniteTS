@@ -80,6 +80,16 @@ function createExpressionVrma({
   } as unknown as RnM2Vrma;
 }
 
+function createMultiAnimationExpressionVrma(): RnM2Vrma {
+  const vrma = createExpressionVrma();
+  vrma.animations[0].name = 'Idle';
+  vrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const runAnimation = createExpressionVrma().animations[0];
+  runAnimation.name = 'Run';
+  vrma.animations.push(runAnimation);
+  return vrma;
+}
+
 function createAssignerFixture({ version = '1.0' }: { version?: string } = {}) {
   const hipsRetarget = vi.fn((_retarget: unknown, postfix: string | undefined) => [`Clip${postfix ?? ''}`]);
   const spineRetarget = vi.fn((_retarget: unknown, postfix: string | undefined) => [`Clip${postfix ?? ''}`]);
@@ -612,6 +622,38 @@ test('refreshes the animation state when an active postfix slot keeps the same t
   assigner.assignAnimationWithVrma(root, replacementVrma, '__slot');
 
   expect(animationState.replaceFirstActiveAnimationTrack).toHaveBeenCalledWith('Same__slot', 'Same__slot');
+});
+
+test('preserves a recreated first track by name in a multi-animation postfix slot', () => {
+  mockModelConversion();
+  const { animationState, assigner, root, rootAnimation } = createExpressionAssignerFixture(new Set(['happy']));
+  assigner.assignAnimationWithVrma(root, createMultiAnimationExpressionVrma(), '__slot');
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setFirstActiveAnimationTrackName('Run__slot');
+  animationState.replaceFirstActiveAnimationTrack.mockClear();
+
+  assigner.assignAnimationWithVrma(root, createMultiAnimationExpressionVrma(), '__slot');
+
+  expect(animationState.replaceFirstActiveAnimationTrack).toHaveBeenCalledWith('Run__slot', 'Run__slot');
+  expect(happyAnimation.getFirstActiveAnimationTrackName()).toBe('Run__slot');
+});
+
+test('preserves a recreated second track by name in a multi-animation postfix slot', () => {
+  mockModelConversion();
+  const { animationState, assigner, root, rootAnimation } = createExpressionAssignerFixture(new Set(['happy']));
+  assigner.assignAnimationWithVrma(root, createMultiAnimationExpressionVrma(), '__slot');
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setFirstActiveAnimationTrackName('Idle__slot');
+  happyAnimation.setSecondActiveAnimationTrackName('Run__slot');
+  happyAnimation.blendingRatio = 0.5;
+  animationState.replaceSecondActiveAnimationTrack.mockClear();
+
+  assigner.assignAnimationWithVrma(root, createMultiAnimationExpressionVrma(), '__slot');
+
+  expect(animationState.replaceSecondActiveAnimationTrack).toHaveBeenCalledWith('Run__slot', 'Run__slot');
+  expect(happyAnimation.getFirstActiveAnimationTrackName()).toBe('Idle__slot');
+  expect(happyAnimation.getSecondActiveAnimationTrackName()).toBe('Run__slot');
+  expect(happyAnimation.blendingRatio).toBe(0.5);
 });
 
 test('applies a replacement fallback track to the animation state and bone channels', () => {

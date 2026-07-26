@@ -134,8 +134,8 @@ export class AnimationAssigner {
       throw new Error(`Unsupported VRM version '${rootVrm._version}' for VRMA animation assignment.`);
     }
 
-    const activeAnimationTrackName =
-      postfixToTrackName != null ? this.__getActiveAnimationTrackName(rootEntity) : undefined;
+    const firstActiveAnimationTrackName =
+      postfixToTrackName != null ? this.__getFirstActiveAnimationTrackName(rootEntity) : undefined;
     const secondActiveAnimationTrackName =
       postfixToTrackName != null ? this.__getSecondActiveAnimationTrackName(rootEntity) : undefined;
     const entityVrma = ModelConverter.convertToRhodoniteObjectSimple(this.__engine, vrmaModel);
@@ -217,14 +217,16 @@ export class AnimationAssigner {
     try {
       this.__resetAnimationAndPose(rootEntity, postfixToTrackName);
       setRetarget(vrmaModel);
-      const activeAnimationTrackWasReset =
-        activeAnimationTrackName != null &&
+      const firstActiveAnimationTrackWasReset =
+        firstActiveAnimationTrackName != null &&
         postfixToTrackName != null &&
-        activeAnimationTrackName.endsWith(postfixToTrackName);
-      const activeAnimationTrackStillExists =
-        activeAnimationTrackName != null && this.__hasAnimationTrackName(rootEntity, activeAnimationTrackName);
-      const requiresActiveAnimationTrackFallback =
-        activeAnimationTrackName != null && (activeAnimationTrackWasReset || !activeAnimationTrackStillExists);
+        firstActiveAnimationTrackName.endsWith(postfixToTrackName);
+      const firstActiveAnimationTrackStillExists =
+        firstActiveAnimationTrackName != null &&
+        this.__hasAnimationTrackName(rootEntity, firstActiveAnimationTrackName);
+      const requiresFirstActiveAnimationTrackRebind =
+        firstActiveAnimationTrackName != null &&
+        (firstActiveAnimationTrackWasReset || !firstActiveAnimationTrackStillExists);
       const secondActiveAnimationTrackWasReset =
         secondActiveAnimationTrackName != null &&
         postfixToTrackName != null &&
@@ -232,30 +234,40 @@ export class AnimationAssigner {
       const secondActiveAnimationTrackStillExists =
         secondActiveAnimationTrackName != null &&
         this.__hasAnimationTrackName(rootEntity, secondActiveAnimationTrackName);
-      const requiresSecondActiveAnimationTrackFallback =
+      const requiresSecondActiveAnimationTrackRebind =
         secondActiveAnimationTrackName != null &&
         (secondActiveAnimationTrackWasReset || !secondActiveAnimationTrackStillExists);
       const fallbackAnimationTrackName =
         trackNames.values().next().value ?? this.__getFirstAnimationTrackName(rootEntity);
-      const expressionActiveAnimationTrackName =
-        activeAnimationTrackName != null && !requiresActiveAnimationTrackFallback
-          ? activeAnimationTrackName
+      const expressionFirstActiveAnimationTrackName =
+        firstActiveAnimationTrackName != null && firstActiveAnimationTrackStillExists
+          ? firstActiveAnimationTrackName
           : fallbackAnimationTrackName;
-      this.__fillMissingVrmaExpressionTracks(rootEntity, expressionActiveAnimationTrackName);
+      const replacementSecondActiveAnimationTrackName =
+        secondActiveAnimationTrackName != null && secondActiveAnimationTrackStillExists
+          ? secondActiveAnimationTrackName
+          : fallbackAnimationTrackName;
+      this.__fillMissingVrmaExpressionTracks(rootEntity, expressionFirstActiveAnimationTrackName);
       const animationState = rootEntity.tryToGetAnimationState();
       if (
-        requiresActiveAnimationTrackFallback &&
-        activeAnimationTrackName != null &&
-        expressionActiveAnimationTrackName != null
+        requiresFirstActiveAnimationTrackRebind &&
+        firstActiveAnimationTrackName != null &&
+        expressionFirstActiveAnimationTrackName != null
       ) {
-        animationState?.replaceFirstActiveAnimationTrack(activeAnimationTrackName, expressionActiveAnimationTrackName);
+        animationState?.replaceFirstActiveAnimationTrack(
+          firstActiveAnimationTrackName,
+          expressionFirstActiveAnimationTrackName
+        );
       }
       if (
-        requiresSecondActiveAnimationTrackFallback &&
+        requiresSecondActiveAnimationTrackRebind &&
         secondActiveAnimationTrackName != null &&
-        fallbackAnimationTrackName != null
+        replacementSecondActiveAnimationTrackName != null
       ) {
-        animationState?.replaceSecondActiveAnimationTrack(secondActiveAnimationTrackName, fallbackAnimationTrackName);
+        animationState?.replaceSecondActiveAnimationTrack(
+          secondActiveAnimationTrackName,
+          replacementSecondActiveAnimationTrackName
+        );
       }
     } finally {
       this.__engine.entityRepository.deleteEntityRecursively(entityVrma.entityUID);
@@ -567,7 +579,7 @@ export class AnimationAssigner {
    */
   private __fillMissingVrmaExpressionTracks(
     rootEntity: ISceneGraphEntity,
-    activeAnimationTrackName: AnimationTrackName | undefined
+    firstActiveAnimationTrackName: AnimationTrackName | undefined
   ): void {
     const trackTimeRanges = new Map<
       AnimationTrackName,
@@ -692,15 +704,15 @@ export class AnimationAssigner {
       }
 
       if (
-        activeAnimationTrackName != null &&
-        channel.animatedValue.getAllTrackNames().includes(activeAnimationTrackName)
+        firstActiveAnimationTrackName != null &&
+        channel.animatedValue.getAllTrackNames().includes(firstActiveAnimationTrackName)
       ) {
-        channel.animatedValue.setFirstActiveAnimationTrackName(activeAnimationTrackName);
+        channel.animatedValue.setFirstActiveAnimationTrackName(firstActiveAnimationTrackName);
       }
     }
   }
 
-  private __getActiveAnimationTrackName(rootEntity: ISceneGraphEntity): AnimationTrackName | undefined {
+  private __getFirstActiveAnimationTrackName(rootEntity: ISceneGraphEntity): AnimationTrackName | undefined {
     const animationComponent = rootEntity.tryToGetAnimation();
     if (animationComponent != null) {
       for (const [, channel] of animationComponent.getAnimationChannelsOfTrack()) {
@@ -709,9 +721,9 @@ export class AnimationAssigner {
     }
 
     for (const child of rootEntity.children) {
-      const activeAnimationTrackName = this.__getActiveAnimationTrackName(child.entity);
-      if (activeAnimationTrackName != null) {
-        return activeAnimationTrackName;
+      const firstActiveAnimationTrackName = this.__getFirstActiveAnimationTrackName(child.entity);
+      if (firstActiveAnimationTrackName != null) {
+        return firstActiveAnimationTrackName;
       }
     }
 
