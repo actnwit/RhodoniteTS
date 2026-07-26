@@ -428,6 +428,35 @@ test('uses the full track time range for missing expression zero samplers', () =
   expect(smirkAnimation.x).toBeCloseTo(0.3125);
 });
 
+test.each([
+  ['LINEAR', AnimationInterpolation.Linear, new Float32Array([0, 1])],
+  ['STEP', AnimationInterpolation.Step, new Float32Array([0, 1])],
+  ['CUBICSPLINE', AnimationInterpolation.CubicSpline, new Float32Array([0, 0, 2, 3, 1, 4])],
+] as const)('extends an existing %s expression sampler to the full track duration', (_name, interpolation, output) => {
+  const { assigner, root, rootAnimation } = createExpressionAssignerFixture();
+  const boneSampler: AnimationSampler = {
+    input: new Float32Array([0, 2]),
+    output: new Float32Array(6),
+    outputComponentN: 3,
+    interpolationMethod: AnimationInterpolation.Linear,
+  };
+  const expressionSampler: AnimationSampler = {
+    input: new Float32Array([0, 1]),
+    output,
+    outputComponentN: 1,
+    interpolationMethod: interpolation,
+  };
+  rootAnimation.setAnimation('translate', new AnimatedVector3(new Map([['Face', boneSampler]]), 'Face'));
+  const happyAnimation = new AnimatedScalar(new Map([['Face', expressionSampler]]), 'Face');
+  rootAnimation.setAnimation('vrmExpression/happy', happyAnimation);
+
+  (assigner as any).__fillMissingVrmaExpressionTracks(root, 'Face');
+
+  expect(Array.from(happyAnimation.getAnimationSampler('Face').input)).toEqual([0, 1, 2]);
+  happyAnimation.setTime(1.5);
+  expect(happyAnimation.x).toBeCloseTo(1);
+});
+
 test('preserves blending state when adding a postfix track without removing the active track', () => {
   mockModelConversion();
   const { animationState, assigner, root, rootAnimation } = createExpressionAssignerFixture(new Set(['happy']));

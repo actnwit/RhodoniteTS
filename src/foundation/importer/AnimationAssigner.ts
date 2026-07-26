@@ -628,10 +628,46 @@ export class AnimationAssigner {
       return;
     }
 
+    const extendSamplerToEnd = (sampler: AnimationSampler, endInputTime: number) => {
+      const keyFrameCount = sampler.input.length;
+      if (keyFrameCount === 0 || sampler.input[keyFrameCount - 1] >= endInputTime) {
+        return;
+      }
+
+      const input = new Float32Array(keyFrameCount + 1);
+      input.set(sampler.input);
+      input[keyFrameCount] = endInputTime;
+
+      const isCubicSpline = sampler.interpolationMethod === AnimationInterpolation.CubicSpline;
+      const keyFrameStride = sampler.outputComponentN * (isCubicSpline ? 3 : 1);
+      const output = new Float32Array(sampler.output.length + keyFrameStride);
+      output.set(sampler.output);
+      const lastKeyFrameOffset = (keyFrameCount - 1) * keyFrameStride;
+      const appendedKeyFrameOffset = keyFrameCount * keyFrameStride;
+      if (isCubicSpline) {
+        const lastValueOffset = lastKeyFrameOffset + sampler.outputComponentN;
+        const lastOutTangentOffset = lastKeyFrameOffset + sampler.outputComponentN * 2;
+        output.fill(0, lastOutTangentOffset, lastOutTangentOffset + sampler.outputComponentN);
+        output.set(
+          sampler.output.subarray(lastValueOffset, lastValueOffset + sampler.outputComponentN),
+          appendedKeyFrameOffset + sampler.outputComponentN
+        );
+      } else {
+        output.set(
+          sampler.output.subarray(lastKeyFrameOffset, lastKeyFrameOffset + sampler.outputComponentN),
+          appendedKeyFrameOffset
+        );
+      }
+
+      sampler.input = input;
+      sampler.output = output;
+    };
+
     for (const [pathName, channel] of availableExpressionChannels) {
       const existingTrackNames = new Set(channel.animatedValue.getAllTrackNames());
       for (const [trackName, trackTimeRange] of trackTimeRanges) {
         if (existingTrackNames.has(trackName)) {
+          extendSamplerToEnd(channel.animatedValue.getAnimationSampler(trackName), trackTimeRange.maxEndInputTime);
           continue;
         }
 
