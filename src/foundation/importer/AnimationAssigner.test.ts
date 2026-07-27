@@ -755,6 +755,30 @@ test('clears an expression channel and weight when its last postfix sampler is r
   expect(setExpressionWeight).toHaveBeenCalledWith('happy', 0);
 });
 
+test('clears an active expression weight when another slot keeps a zero sampler', () => {
+  mockModelConversion();
+  const { assigner, root, rootAnimation, setExpressionWeight } = createExpressionAssignerFixture();
+  const happyVrma = createExpressionVrma();
+  happyVrma.animations[0].name = 'Happy';
+  happyVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const smirkVrma = createExpressionVrma();
+  smirkVrma.animations[0].name = 'Smirk';
+  smirkVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+  assigner.assignAnimationWithVrma(root, happyVrma, '__active');
+  assigner.assignAnimationWithVrma(root, smirkVrma, '__other');
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setFirstActiveAnimationTrackName('Happy__active');
+  setExpressionWeight.mockClear();
+
+  const replacementVrma = createExpressionVrma();
+  replacementVrma.animations[0].name = 'Replacement';
+  replacementVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+  assigner.assignAnimationWithVrma(root, replacementVrma, '__active');
+
+  expect(setExpressionWeight).toHaveBeenCalledWith('happy', 0);
+  expect(happyAnimation.getAllTrackNames()).toContain('Smirk__other');
+});
+
 test('resets expression weights before replacing unpostfixed VRMA tracks', () => {
   mockModelConversion();
   const { assigner, root, rootAnimation, setExpressionWeight } = createExpressionAssignerFixture();

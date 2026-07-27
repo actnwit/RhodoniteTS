@@ -949,17 +949,24 @@ export class SkeletalComponent extends Component {
   private __findAnimationTrackFeatureHash(target: ISceneGraphEntity): number | undefined {
     const animationComponent = target.tryToGetAnimation();
     if (animationComponent != null) {
-      let hasNonExpressionChannel = false;
-      for (const pathName of animationComponent.getAnimationChannelsOfTrack().keys()) {
-        if (!pathName.startsWith('vrmExpression/')) {
-          hasNonExpressionChannel = true;
-          break;
+      const animationChannels = animationComponent.getAnimationChannelsOfTrack();
+      if (animationChannels.size > 0) {
+        const activeTrackName = animationComponent.getActiveAnimationTrack();
+        let hasNonExpressionChannelForActiveTrack = false;
+        for (const [pathName, channel] of animationChannels) {
+          if (
+            !pathName.startsWith('vrmExpression/') &&
+            channel.animatedValue.getAllTrackNames().includes(activeTrackName)
+          ) {
+            hasNonExpressionChannelForActiveTrack = true;
+            break;
+          }
         }
-      }
-      if (hasNonExpressionChannel) {
-        const hash = animationComponent.currentTrackFeatureHash();
-        if (hash != null) {
-          return hash;
+        if (hasNonExpressionChannelForActiveTrack) {
+          const hash = animationComponent.currentTrackFeatureHash();
+          if (hash != null) {
+            return hash;
+          }
         }
       }
     }

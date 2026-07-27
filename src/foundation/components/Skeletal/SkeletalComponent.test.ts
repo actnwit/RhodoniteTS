@@ -9,16 +9,34 @@ function createEntity(animation: object, children: ISceneGraphEntity[] = []) {
   } as unknown as ISceneGraphEntity;
 }
 
+function createAnimation(hash: number, activeTrackName: string, channels: Array<[string, string[]]>) {
+  return {
+    currentTrackFeatureHash: () => hash,
+    getActiveAnimationTrack: () => activeTrackName,
+    getAnimationChannelsOfTrack: () =>
+      new Map(
+        channels.map(([pathName, trackNames]) => [pathName, { animatedValue: { getAllTrackNames: () => trackNames } }])
+      ),
+  };
+}
+
 test('ignores an expression-only root animation when finding the skeletal cache hash', () => {
-  const boneAnimation = {
-    currentTrackFeatureHash: () => 202,
-    getAnimationChannelsOfTrack: () => new Map([['quaternion', {}]]),
-  };
+  const boneAnimation = createAnimation(202, 'Body', [['quaternion', ['Body']]]);
   const boneEntity = createEntity(boneAnimation);
-  const expressionAnimation = {
-    currentTrackFeatureHash: () => 101,
-    getAnimationChannelsOfTrack: () => new Map([['vrmExpression/happy', {}]]),
-  };
+  const expressionAnimation = createAnimation(101, 'Face', [['vrmExpression/happy', ['Face']]]);
+  const rootEntity = createEntity(expressionAnimation, [boneEntity]);
+  const skeletalComponent = Object.create(SkeletalComponent.prototype) as SkeletalComponent;
+
+  expect((skeletalComponent as any).__findAnimationTrackFeatureHash(rootEntity)).toBe(202);
+});
+
+test('ignores non-expression root channels that do not contain the active track', () => {
+  const boneAnimation = createAnimation(202, 'Face', [['quaternion', ['Face']]]);
+  const boneEntity = createEntity(boneAnimation);
+  const expressionAnimation = createAnimation(101, 'Face', [
+    ['vrmExpression/happy', ['Face']],
+    ['translate', ['Body']],
+  ]);
   const rootEntity = createEntity(expressionAnimation, [boneEntity]);
   const skeletalComponent = Object.create(SkeletalComponent.prototype) as SkeletalComponent;
 

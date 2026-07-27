@@ -344,10 +344,16 @@ export class AnimationAssigner {
           continue;
         }
         const trackNames = channel.animatedValue.getAllTrackNames();
+        const firstActiveTrackName = channel.animatedValue.getFirstActiveAnimationTrackName();
+        const secondActiveTrackName = channel.animatedValue.getSecondActiveAnimationTrackName();
         const removesEverySampler =
           postfixToTrackName == null ||
           (trackNames.length > 0 && trackNames.every(trackName => trackName.endsWith(postfixToTrackName)));
-        if (removesEverySampler) {
+        const removesAnActiveSampler =
+          postfixToTrackName != null &&
+          (firstActiveTrackName.endsWith(postfixToTrackName) ||
+            secondActiveTrackName?.endsWith(postfixToTrackName) === true);
+        if (removesEverySampler || removesAnActiveSampler) {
           vrmComponent.setExpressionWeight(pathName.slice(expressionPathPrefix.length), 0);
         }
       }
