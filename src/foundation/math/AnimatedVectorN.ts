@@ -13,6 +13,7 @@ import { VectorN } from './VectorN';
 export class AnimatedVectorN extends VectorN implements IAnimatedValue {
   private __animationSamplers: AnimationSamplers;
   private __firstActiveAnimationTrackName: AnimationTrackName;
+  private __firstActiveAnimationSamplerTrackName: AnimationTrackName;
   private __firstActiveAnimationSampler: AnimationSampler;
   private __secondActiveAnimationTrackName?: AnimationTrackName;
   private __secondActiveAnimationSampler?: AnimationSampler;
@@ -31,6 +32,7 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
     super(new Float32Array());
     this.__animationSamplers = animationSamplers;
     this.__firstActiveAnimationTrackName = activeAnimationTrackName;
+    this.__firstActiveAnimationSamplerTrackName = activeAnimationTrackName;
     const animationSampler = this.__animationSamplers.get(this.__firstActiveAnimationTrackName);
     if (animationSampler === undefined) {
       throw new Error('Animation channel not found');
@@ -136,6 +138,7 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
       Logger.default.info('Animation channel not found');
     } else {
       this.__firstActiveAnimationSampler = animationSampler;
+      this.__firstActiveAnimationSamplerTrackName = animationTrackName;
     }
   }
 
@@ -160,6 +163,10 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
    */
   getFirstActiveAnimationTrackName() {
     return this.__firstActiveAnimationTrackName;
+  }
+
+  getFirstActiveAnimationSamplerTrackName() {
+    return this.__firstActiveAnimationSamplerTrackName;
   }
 
   /**

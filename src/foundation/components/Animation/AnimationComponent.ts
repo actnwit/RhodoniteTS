@@ -1179,6 +1179,15 @@ export class AnimationComponent extends Component {
   }
 
   /**
+   * Gets the feature hash for a specific animation track.
+   * @param trackName - The animation track whose feature hash should be returned
+   * @returns The feature hash, or undefined when the track is not registered
+   */
+  getAnimationTrackFeatureHash(trackName: AnimationTrackName): number | undefined {
+    return this.__animationTrackFeatureHashes.get(trackName);
+  }
+
+  /**
    * Destroys this component, cleaning up resources and clearing animation data.
    * @override
    */

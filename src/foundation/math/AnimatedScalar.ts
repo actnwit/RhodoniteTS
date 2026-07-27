@@ -14,6 +14,7 @@ import { Scalar } from './Scalar';
 export class AnimatedScalar extends Scalar implements IScalar, IAnimatedValue {
   private __animationSamplers: AnimationSamplers;
   private __firstActiveAnimationTrackName: AnimationTrackName;
+  private __firstActiveAnimationSamplerTrackName: AnimationTrackName;
   private __firstActiveAnimationSampler: AnimationSampler;
   private __secondActiveAnimationTrackName?: AnimationTrackName;
   private __secondActiveAnimationSampler?: AnimationSampler;
@@ -32,6 +33,7 @@ export class AnimatedScalar extends Scalar implements IScalar, IAnimatedValue {
     super(new Float32Array(1));
     this.__animationSamplers = animationSamplers;
     this.__firstActiveAnimationTrackName = activeAnimationTrackName;
+    this.__firstActiveAnimationSamplerTrackName = activeAnimationTrackName;
     const animationSampler = this.__animationSamplers.get(this.__firstActiveAnimationTrackName);
     if (animationSampler === undefined) {
       throw new Error('Animation channel not found');
@@ -148,6 +150,7 @@ export class AnimatedScalar extends Scalar implements IScalar, IAnimatedValue {
       Logger.default.info('Animation channel not found');
     } else {
       this.__firstActiveAnimationSampler = animationSampler;
+      this.__firstActiveAnimationSamplerTrackName = animationTrackName;
     }
   }
 
@@ -172,6 +175,10 @@ export class AnimatedScalar extends Scalar implements IScalar, IAnimatedValue {
    */
   getFirstActiveAnimationTrackName() {
     return this.__firstActiveAnimationTrackName;
+  }
+
+  getFirstActiveAnimationSamplerTrackName() {
+    return this.__firstActiveAnimationSamplerTrackName;
   }
 
   /**

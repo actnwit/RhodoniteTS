@@ -308,6 +308,12 @@ export declare class AnimationComponent extends Component {
     resetAnimationTrackByPostfix(postfix: string): void;
     currentTrackFeatureHash(): number | undefined;
     /**
+     * Gets the feature hash for a specific animation track.
+     * @param trackName - The animation track whose feature hash should be returned
+     * @returns The feature hash, or undefined when the track is not registered
+     */
+    getAnimationTrackFeatureHash(trackName: AnimationTrackName): number | undefined;
+    /**
      * Destroys this component, cleaning up resources and clearing animation data.
      * @override
      */

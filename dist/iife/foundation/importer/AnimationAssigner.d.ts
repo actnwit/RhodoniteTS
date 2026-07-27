@@ -114,6 +114,7 @@ export declare class AnimationAssigner {
      */
     private __fillMissingVrmaExpressionTracks;
     private __getFirstActiveAnimationTrackName;
+    private __findAnimationComponentInHierarchy;
     private __getSecondActiveAnimationTrackName;
     private __getFirstAnimationTrackName;
     private __hasAnimationTrackName;

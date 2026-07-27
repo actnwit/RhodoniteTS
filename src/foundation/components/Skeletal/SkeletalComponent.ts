@@ -952,6 +952,9 @@ export class SkeletalComponent extends Component {
       const animationChannels = animationComponent.getAnimationChannelsOfTrack();
       if (animationChannels.size > 0) {
         const activeTrackName = animationComponent.getActiveAnimationTrack();
+        const hasExpressionChannel = Array.from(animationChannels.keys()).some(pathName =>
+          pathName.startsWith('vrmExpression/')
+        );
         let hasNonExpressionChannelForActiveTrack = false;
         for (const [pathName, channel] of animationChannels) {
           if (
@@ -966,6 +969,18 @@ export class SkeletalComponent extends Component {
           const hash = animationComponent.currentTrackFeatureHash();
           if (hash != null) {
             return hash;
+          }
+        }
+        if (!hasExpressionChannel) {
+          for (const [pathName, channel] of animationChannels) {
+            if (pathName.startsWith('vrmExpression/')) {
+              continue;
+            }
+            const evaluatedTrackName = channel.animatedValue.getFirstActiveAnimationSamplerTrackName();
+            const hash = animationComponent.getAnimationTrackFeatureHash(evaluatedTrackName);
+            if (hash != null) {
+              return hash;
+            }
           }
         }
       }

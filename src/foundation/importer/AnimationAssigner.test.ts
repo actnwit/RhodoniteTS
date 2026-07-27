@@ -319,6 +319,70 @@ test('assigns preset and custom VRMA expressions as scalar root tracks', () => {
   expect(entityRepository.deleteEntityRecursively).toHaveBeenCalledWith(99);
 });
 
+test('inherits existing playback state when creating the root expression animation component', () => {
+  const sourceAnimation = {
+    useGlobalTime: false,
+    time: 1.25,
+    animationBlendingRatio: 0.75,
+    isLoop: false,
+    isAnimating: false,
+  };
+  const targetAnimation = {
+    useGlobalTime: true,
+    time: 0,
+    animationBlendingRatio: 0,
+    isLoop: true,
+    isAnimating: true,
+    setIsAnimating: vi.fn((isAnimating: boolean) => {
+      targetAnimation.isAnimating = isAnimating;
+    }),
+    setAnimation: vi.fn(),
+  };
+  let rootAnimation: typeof targetAnimation | undefined;
+  const child = {
+    tryToGetAnimation: () => sourceAnimation,
+    children: [],
+  } as unknown as ISceneGraphEntity;
+  const root = {
+    tryToGetAnimation: () => rootAnimation,
+    tryToGetVrm: () => ({
+      _version: '1.0',
+      getExpressionWeight: () => 0,
+    }),
+    children: [{ entity: child }],
+  } as unknown as ISceneGraphEntity;
+  const entityRepository = {
+    addComponentToEntity: vi.fn((component: unknown, entity: unknown) => {
+      expect(component).toBe(AnimationComponent);
+      expect(entity).toBe(root);
+      rootAnimation = targetAnimation;
+      return { getAnimation: () => targetAnimation };
+    }),
+  };
+  const assigner = new AnimationAssigner({ entityRepository } as any);
+  const vrma = createExpressionVrma({
+    interpolation: 'LINEAR',
+    output: new Float32Array([0, 9, 9, 1, 9, 9]),
+  });
+  const animation = vrma.animations[0];
+
+  (assigner as any).__setVrmaExpressionAnimation(
+    root,
+    animation,
+    animation.channels[0],
+    [{ name: 'happy', isPreset: true }],
+    '__slot',
+    new Set()
+  );
+
+  expect(targetAnimation.useGlobalTime).toBe(false);
+  expect(targetAnimation.time).toBe(1.25);
+  expect(targetAnimation.animationBlendingRatio).toBe(0.75);
+  expect(targetAnimation.isLoop).toBe(false);
+  expect(targetAnimation.setIsAnimating).toHaveBeenCalledWith(false);
+  expect(targetAnimation.setAnimation).toHaveBeenCalledOnce();
+});
+
 test.each([
   ['LINEAR', AnimationInterpolation.Linear],
   ['STEP', AnimationInterpolation.Step],

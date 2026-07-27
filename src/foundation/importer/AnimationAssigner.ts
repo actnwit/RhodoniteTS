@@ -551,6 +551,8 @@ export class AnimationAssigner {
     const rootVrm = rootEntity.tryToGetVrm()!;
     const trackName = `${animation.name ?? 'Untitled_Animation'}${postfixToTrackName ?? ''}`;
     let animationComponent = rootEntity.tryToGetAnimation();
+    const playbackStateSource =
+      animationComponent == null ? this.__findAnimationComponentInHierarchy(rootEntity) : undefined;
     for (const { name: expressionName, isPreset } of expressionNames) {
       const targetExpressionName =
         rootVrm._version === '0.x' && isPreset && Object.hasOwn(vrmaPresetNameToVrm0xPresetName, expressionName)
@@ -564,6 +566,12 @@ export class AnimationAssigner {
       if (animationComponent == null) {
         const animationEntity = this.__engine.entityRepository.addComponentToEntity(AnimationComponent, rootEntity);
         animationComponent = animationEntity.getAnimation();
+        if (playbackStateSource != null) {
+          animationComponent.useGlobalTime = playbackStateSource.useGlobalTime;
+          animationComponent.time = playbackStateSource.time;
+          animationComponent.isLoop = playbackStateSource.isLoop;
+          animationComponent.setIsAnimating(playbackStateSource.isAnimating);
+        }
       }
       const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
       animationSamplers.set(trackName, {
@@ -577,6 +585,9 @@ export class AnimationAssigner {
         new AnimatedScalar(animationSamplers, trackName)
       );
       trackNames.add(trackName);
+    }
+    if (animationComponent != null && playbackStateSource != null) {
+      animationComponent.animationBlendingRatio = playbackStateSource.animationBlendingRatio;
     }
   }
 
@@ -744,6 +755,20 @@ export class AnimationAssigner {
       }
     }
 
+    return undefined;
+  }
+
+  private __findAnimationComponentInHierarchy(rootEntity: ISceneGraphEntity): AnimationComponent | undefined {
+    const animationComponent = rootEntity.tryToGetAnimation();
+    if (animationComponent != null) {
+      return animationComponent;
+    }
+    for (const child of rootEntity.children) {
+      const childAnimationComponent = this.__findAnimationComponentInHierarchy(child.entity);
+      if (childAnimationComponent != null) {
+        return childAnimationComponent;
+      }
+    }
     return undefined;
   }
 

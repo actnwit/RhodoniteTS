@@ -10,6 +10,7 @@ import { Scalar } from './Scalar';
 export declare class AnimatedScalar extends Scalar implements IScalar, IAnimatedValue {
     private __animationSamplers;
     private __firstActiveAnimationTrackName;
+    private __firstActiveAnimationSamplerTrackName;
     private __firstActiveAnimationSampler;
     private __secondActiveAnimationTrackName?;
     private __secondActiveAnimationSampler?;
@@ -80,6 +81,7 @@ export declare class AnimatedScalar extends Scalar implements IScalar, IAnimated
      * @returns The name of the first active animation track
      */
     getFirstActiveAnimationTrackName(): string;
+    getFirstActiveAnimationSamplerTrackName(): string;
     /**
      * Gets the name of the second active animation track.
      * @returns The name of the second active animation track, or undefined if not set
