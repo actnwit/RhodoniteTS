@@ -539,6 +539,39 @@ test('preserves blending state when replacing the non-current first track', () =
   expect(happyAnimation.x).toBeCloseTo(0.6);
 });
 
+test('sets the preserved second active track on a new expression channel when replacing the first slot', () => {
+  mockModelConversion();
+  const { animationState, assigner, root, rootAnimation } = createExpressionAssignerFixture();
+  const firstVrma = createExpressionVrma();
+  firstVrma.animations[0].name = 'First';
+  firstVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const targetVrma = createExpressionVrma();
+  targetVrma.animations[0].name = 'Target';
+  targetVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const replacementVrma = createExpressionVrma({
+    interpolation: 'LINEAR',
+    output: new Float32Array([0.8, 9, 9, 0.8, 9, 9]),
+  });
+  replacementVrma.animations[0].name = 'Replacement';
+  replacementVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+
+  assigner.assignAnimationWithVrma(root, firstVrma, '__first');
+  assigner.assignAnimationWithVrma(root, targetVrma, '__target');
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setSecondActiveAnimationTrackName('Target__target');
+  animationState.replaceSecondActiveAnimationTrack.mockClear();
+
+  assigner.assignAnimationWithVrma(root, replacementVrma, '__first');
+
+  const smirkAnimation = rootAnimation.getAnimation('vrmExpression/smirk');
+  expect(animationState.replaceSecondActiveAnimationTrack).not.toHaveBeenCalled();
+  expect(smirkAnimation.getFirstActiveAnimationTrackName()).toBe('Replacement__first');
+  expect(smirkAnimation.getSecondActiveAnimationTrackName()).toBe('Target__target');
+  smirkAnimation.blendingRatio = 1;
+  smirkAnimation.setTime(0.5);
+  expect(smirkAnimation.x).toBe(0);
+});
+
 test('rebinds the second active track when its postfix slot is replaced', () => {
   mockModelConversion();
   const { animationState, assigner, root, rootAnimation } = createExpressionAssignerFixture(new Set(['happy']));

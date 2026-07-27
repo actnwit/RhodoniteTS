@@ -247,7 +247,11 @@ export class AnimationAssigner {
         secondActiveAnimationTrackName != null && secondActiveAnimationTrackStillExists
           ? secondActiveAnimationTrackName
           : fallbackAnimationTrackName;
-      this.__fillMissingVrmaExpressionTracks(rootEntity, expressionFirstActiveAnimationTrackName);
+      this.__fillMissingVrmaExpressionTracks(
+        rootEntity,
+        expressionFirstActiveAnimationTrackName,
+        secondActiveAnimationTrackName != null ? replacementSecondActiveAnimationTrackName : undefined
+      );
       const animationState = rootEntity.tryToGetAnimationState();
       if (
         requiresFirstActiveAnimationTrackRebind &&
@@ -585,7 +589,8 @@ export class AnimationAssigner {
    */
   private __fillMissingVrmaExpressionTracks(
     rootEntity: ISceneGraphEntity,
-    firstActiveAnimationTrackName: AnimationTrackName | undefined
+    firstActiveAnimationTrackName: AnimationTrackName | undefined,
+    secondActiveAnimationTrackName?: AnimationTrackName
   ): void {
     const trackTimeRanges = new Map<
       AnimationTrackName,
@@ -714,6 +719,12 @@ export class AnimationAssigner {
         channel.animatedValue.getAllTrackNames().includes(firstActiveAnimationTrackName)
       ) {
         channel.animatedValue.setFirstActiveAnimationTrackName(firstActiveAnimationTrackName);
+      }
+      if (
+        secondActiveAnimationTrackName != null &&
+        channel.animatedValue.getAllTrackNames().includes(secondActiveAnimationTrackName)
+      ) {
+        channel.animatedValue.setSecondActiveAnimationTrackName(secondActiveAnimationTrackName);
       }
     }
   }
