@@ -62,6 +62,12 @@ export declare class AnimationComponent extends Component {
      */
     set animationBlendingRatio(value: number);
     /**
+     * Updates the animation blending ratio without evaluating animation channels immediately.
+     * @param value - The blending ratio value between 0 and 1
+     * @internal
+     */
+    _setAnimationBlendingRatioWithoutApplying(value: number): void;
+    /**
      * Gets the current animation blending ratio.
      * @returns The blending ratio value between 0 and 1
      */

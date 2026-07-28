@@ -587,7 +587,7 @@ export class AnimationAssigner {
       trackNames.add(trackName);
     }
     if (animationComponent != null && playbackStateSource != null) {
-      animationComponent.animationBlendingRatio = playbackStateSource.animationBlendingRatio;
+      animationComponent._setAnimationBlendingRatioWithoutApplying(playbackStateSource.animationBlendingRatio);
     }
   }
 

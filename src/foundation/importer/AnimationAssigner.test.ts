@@ -320,6 +320,8 @@ test('assigns preset and custom VRMA expressions as scalar root tracks', () => {
 });
 
 test('inherits existing playback state when creating the root expression animation component', () => {
+  let targetAnimationBlendingRatio = 0;
+  const applyAnimation = vi.fn();
   const sourceAnimation = {
     useGlobalTime: false,
     time: 1.25,
@@ -330,7 +332,16 @@ test('inherits existing playback state when creating the root expression animati
   const targetAnimation = {
     useGlobalTime: true,
     time: 0,
-    animationBlendingRatio: 0,
+    get animationBlendingRatio() {
+      return targetAnimationBlendingRatio;
+    },
+    set animationBlendingRatio(value: number) {
+      targetAnimationBlendingRatio = value;
+      applyAnimation();
+    },
+    _setAnimationBlendingRatioWithoutApplying: vi.fn((value: number) => {
+      targetAnimationBlendingRatio = value;
+    }),
     isLoop: true,
     isAnimating: true,
     setIsAnimating: vi.fn((isAnimating: boolean) => {
@@ -378,6 +389,8 @@ test('inherits existing playback state when creating the root expression animati
   expect(targetAnimation.useGlobalTime).toBe(false);
   expect(targetAnimation.time).toBe(1.25);
   expect(targetAnimation.animationBlendingRatio).toBe(0.75);
+  expect(targetAnimation._setAnimationBlendingRatioWithoutApplying).toHaveBeenCalledWith(0.75);
+  expect(applyAnimation).not.toHaveBeenCalled();
   expect(targetAnimation.isLoop).toBe(false);
   expect(targetAnimation.setIsAnimating).toHaveBeenCalledWith(false);
   expect(targetAnimation.setAnimation).toHaveBeenCalledOnce();

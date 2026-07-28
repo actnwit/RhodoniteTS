@@ -167,6 +167,15 @@ export class AnimationComponent extends Component {
   }
 
   /**
+   * Updates the animation blending ratio without evaluating animation channels immediately.
+   * @param value - The blending ratio value between 0 and 1
+   * @internal
+   */
+  _setAnimationBlendingRatioWithoutApplying(value: number) {
+    this.__animationBlendingRatio = value;
+  }
+
+  /**
    * Gets the current animation blending ratio.
    * @returns The blending ratio value between 0 and 1
    */
@@ -1149,9 +1158,23 @@ export class AnimationComponent extends Component {
   resetAnimationTrack(trackName: string) {
     const emptyPathNames: AnimationPathName[] = [];
     for (const [pathName, channel] of this.__animationTrack) {
-      channel.animatedValue.deleteAnimationSampler(trackName);
-      if (channel.animatedValue.getAllTrackNames().length === 0) {
+      const animatedValue = channel.animatedValue;
+      const rebindsFirstActiveSampler =
+        animatedValue.getFirstActiveAnimationTrackName() === trackName ||
+        animatedValue.getFirstActiveAnimationSamplerTrackName() === trackName;
+      const rebindsSecondActiveSampler = animatedValue.getSecondActiveAnimationTrackName() === trackName;
+      animatedValue.deleteAnimationSampler(trackName);
+      const remainingTrackNames = animatedValue.getAllTrackNames();
+      if (remainingTrackNames.length === 0) {
         emptyPathNames.push(pathName);
+        continue;
+      }
+      const fallbackTrackName = remainingTrackNames[0];
+      if (rebindsFirstActiveSampler) {
+        animatedValue.setFirstActiveAnimationTrackName(fallbackTrackName);
+      }
+      if (rebindsSecondActiveSampler) {
+        animatedValue.setSecondActiveAnimationTrackName(fallbackTrackName);
       }
     }
     for (const pathName of emptyPathNames) {

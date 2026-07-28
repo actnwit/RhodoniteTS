@@ -88,6 +88,35 @@ test('removes empty channels and animation info when a track is reset', () => {
   expect(AnimationComponent.getAnimationInfo(engine).has(trackName)).toBe(false);
 });
 
+test('rebinds the first active sampler before rebuilding hashes when its track is reset', () => {
+  const { component } = createAnimationComponentFixture();
+  const samplerA = createSampler([0, 1]);
+  samplerA.output.fill(1);
+  const samplerB = createSampler([0, 1]);
+  samplerB.output.fill(2);
+  const animatedValue = new AnimatedScalar(
+    new Map([
+      ['A', samplerA],
+      ['B', samplerB],
+    ]),
+    'A'
+  );
+
+  AnimationComponent.prototype.setAnimation.call(component, 'translate', animatedValue);
+  (component as any).__updateAnimationTrackFeatureHashes = (
+    AnimationComponent.prototype as any
+  ).__updateAnimationTrackFeatureHashes;
+  AnimationComponent.prototype.resetAnimationTrack.call(component, 'A');
+
+  expect(animatedValue.getAllTrackNames()).toEqual(['B']);
+  expect(animatedValue.getFirstActiveAnimationTrackName()).toBe('B');
+  expect(animatedValue.getFirstActiveAnimationSamplerTrackName()).toBe('B');
+  animatedValue.setTime(0.5);
+  expect(animatedValue.x).toBe(2);
+  expect(AnimationComponent.prototype.getAnimationTrackFeatureHash.call(component, 'A')).toBeUndefined();
+  expect(AnimationComponent.prototype.getAnimationTrackFeatureHash.call(component, 'B')).toBeTypeOf('number');
+});
+
 test('recalculates the time range when an existing sampler is replaced', () => {
   const { component, engine } = createAnimationComponentFixture();
   const trackName = 'Clip';
