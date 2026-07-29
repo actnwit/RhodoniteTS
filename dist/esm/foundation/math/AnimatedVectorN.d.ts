@@ -12,6 +12,7 @@ export declare class AnimatedVectorN extends VectorN implements IAnimatedValue {
     private __firstActiveAnimationSamplerTrackName;
     private __firstActiveAnimationSampler;
     private __secondActiveAnimationTrackName?;
+    private __secondActiveAnimationSamplerTrackName?;
     private __secondActiveAnimationSampler?;
     private __blendingRatio;
     private __time?;
@@ -79,6 +80,7 @@ export declare class AnimatedVectorN extends VectorN implements IAnimatedValue {
      * @returns The name of the second active animation track, or undefined if not set
      */
     getSecondActiveAnimationTrackName(): string | undefined;
+    getSecondActiveAnimationSamplerTrackName(): string | undefined;
     /**
      * Gets the minimum start time for a specific animation track.
      * @param trackName - The name of the animation track

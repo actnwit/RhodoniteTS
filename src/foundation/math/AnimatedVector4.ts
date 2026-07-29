@@ -25,6 +25,7 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
   private __firstActiveAnimationSamplerTrackName: AnimationTrackName;
   private __firstActiveAnimationSampler: AnimationSampler;
   private __secondActiveAnimationTrackName?: AnimationTrackName;
+  private __secondActiveAnimationSamplerTrackName?: AnimationTrackName;
   private __secondActiveAnimationSampler?: AnimationSampler;
   private __blendingRatio = 0;
   private __time?: number;
@@ -218,6 +219,7 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
       Logger.default.info('Animation channel not found');
     } else {
       this.__secondActiveAnimationSampler = animationSampler;
+      this.__secondActiveAnimationSamplerTrackName = animationTrackName;
     }
   }
 
@@ -241,6 +243,10 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
    */
   getSecondActiveAnimationTrackName() {
     return this.__secondActiveAnimationTrackName;
+  }
+
+  getSecondActiveAnimationSamplerTrackName() {
+    return this.__secondActiveAnimationSamplerTrackName;
   }
 
   /**

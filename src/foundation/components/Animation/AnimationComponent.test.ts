@@ -117,6 +117,33 @@ test('rebinds the first active sampler before rebuilding hashes when its track i
   expect(AnimationComponent.prototype.getAnimationTrackFeatureHash.call(component, 'B')).toBeTypeOf('number');
 });
 
+test('rebinds the evaluated second sampler when its requested track differs from the reset track', () => {
+  const { component } = createAnimationComponentFixture();
+  const samplerA = createSampler([0, 1]);
+  samplerA.output.fill(1);
+  const samplerB = createSampler([0, 1]);
+  samplerB.output.fill(2);
+  const animatedValue = new AnimatedScalar(
+    new Map([
+      ['A', samplerA],
+      ['B', samplerB],
+    ]),
+    'B'
+  );
+  animatedValue.setSecondActiveAnimationTrackName('A');
+  animatedValue.setSecondActiveAnimationTrackName('Missing');
+  expect(animatedValue.getSecondActiveAnimationSamplerTrackName()).toBe('A');
+
+  AnimationComponent.prototype.setAnimation.call(component, 'translate', animatedValue);
+  AnimationComponent.prototype.resetAnimationTrack.call(component, 'A');
+
+  expect(animatedValue.getSecondActiveAnimationTrackName()).toBe('B');
+  expect(animatedValue.getSecondActiveAnimationSamplerTrackName()).toBe('B');
+  animatedValue.blendingRatio = 1;
+  animatedValue.setTime(0.5);
+  expect(animatedValue.x).toBe(2);
+});
+
 test('recalculates the time range when an existing sampler is replaced', () => {
   const { component, engine } = createAnimationComponentFixture();
   const trackName = 'Clip';

@@ -21,6 +21,7 @@ export declare class AnimatedVector4 extends Vector4 implements IVector4, IAnima
     private __firstActiveAnimationSamplerTrackName;
     private __firstActiveAnimationSampler;
     private __secondActiveAnimationTrackName?;
+    private __secondActiveAnimationSamplerTrackName?;
     private __secondActiveAnimationSampler?;
     private __blendingRatio;
     private __time?;
@@ -128,6 +129,7 @@ export declare class AnimatedVector4 extends Vector4 implements IVector4, IAnima
      * @returns The name of the second active animation track, or undefined if not set
      */
     getSecondActiveAnimationTrackName(): string | undefined;
+    getSecondActiveAnimationSamplerTrackName(): string | undefined;
     /**
      * Gets the minimum start time of the specified animation track.
      *

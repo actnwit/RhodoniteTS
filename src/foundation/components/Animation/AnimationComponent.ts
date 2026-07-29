@@ -1162,7 +1162,9 @@ export class AnimationComponent extends Component {
       const rebindsFirstActiveSampler =
         animatedValue.getFirstActiveAnimationTrackName() === trackName ||
         animatedValue.getFirstActiveAnimationSamplerTrackName() === trackName;
-      const rebindsSecondActiveSampler = animatedValue.getSecondActiveAnimationTrackName() === trackName;
+      const rebindsSecondActiveSampler =
+        animatedValue.getSecondActiveAnimationTrackName() === trackName ||
+        animatedValue.getSecondActiveAnimationSamplerTrackName() === trackName;
       animatedValue.deleteAnimationSampler(trackName);
       const remainingTrackNames = animatedValue.getAllTrackNames();
       if (remainingTrackNames.length === 0) {

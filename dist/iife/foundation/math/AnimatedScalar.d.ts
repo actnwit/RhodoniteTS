@@ -13,6 +13,7 @@ export declare class AnimatedScalar extends Scalar implements IScalar, IAnimated
     private __firstActiveAnimationSamplerTrackName;
     private __firstActiveAnimationSampler;
     private __secondActiveAnimationTrackName?;
+    private __secondActiveAnimationSamplerTrackName?;
     private __secondActiveAnimationSampler?;
     private __blendingRatio;
     private __time?;
@@ -87,6 +88,7 @@ export declare class AnimatedScalar extends Scalar implements IScalar, IAnimated
      * @returns The name of the second active animation track, or undefined if not set
      */
     getSecondActiveAnimationTrackName(): string | undefined;
+    getSecondActiveAnimationSamplerTrackName(): string | undefined;
     /**
      * Gets the minimum start time from the input keyframes of the specified animation track.
      * @param trackName - The name of the animation track
