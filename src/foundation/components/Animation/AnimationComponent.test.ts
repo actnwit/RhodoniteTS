@@ -144,6 +144,46 @@ test('rebinds the evaluated second sampler when its requested track differs from
   expect(animatedValue.x).toBe(2);
 });
 
+test.each([
+  'first',
+  'second',
+] as const)('preserves the evaluated %s sampler when only its requested sparse track is reset', activeSampler => {
+  const { component } = createAnimationComponentFixture();
+  const samplerB = createSampler([0, 1]);
+  samplerB.output.fill(2);
+  const samplerC = createSampler([0, 1]);
+  samplerC.output.fill(3);
+  const animatedValue = new AnimatedScalar(
+    new Map([
+      ['C', samplerC],
+      ['B', samplerB],
+    ]),
+    'B'
+  );
+  if (activeSampler === 'first') {
+    animatedValue.setFirstActiveAnimationTrackName('A');
+  } else {
+    animatedValue.setSecondActiveAnimationTrackName('B');
+    animatedValue.setSecondActiveAnimationTrackName('A');
+  }
+
+  AnimationComponent.prototype.setAnimation.call(component, 'translate', animatedValue);
+  AnimationComponent.prototype.setAnimation.call(
+    component,
+    'scale',
+    new AnimatedScalar(new Map([['A', createSampler([0, 1])]]), 'A')
+  );
+  AnimationComponent.prototype.resetAnimationTrack.call(component, 'A');
+
+  if (activeSampler === 'first') {
+    expect(animatedValue.getFirstActiveAnimationTrackName()).toBe('A');
+    expect(animatedValue.getFirstActiveAnimationSamplerTrackName()).toBe('B');
+  } else {
+    expect(animatedValue.getSecondActiveAnimationTrackName()).toBe('A');
+    expect(animatedValue.getSecondActiveAnimationSamplerTrackName()).toBe('B');
+  }
+});
+
 test('recalculates the time range when an existing sampler is replaced', () => {
   const { component, engine } = createAnimationComponentFixture();
   const trackName = 'Clip';

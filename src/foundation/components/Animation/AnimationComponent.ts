@@ -1159,12 +1159,8 @@ export class AnimationComponent extends Component {
     const emptyPathNames: AnimationPathName[] = [];
     for (const [pathName, channel] of this.__animationTrack) {
       const animatedValue = channel.animatedValue;
-      const rebindsFirstActiveSampler =
-        animatedValue.getFirstActiveAnimationTrackName() === trackName ||
-        animatedValue.getFirstActiveAnimationSamplerTrackName() === trackName;
-      const rebindsSecondActiveSampler =
-        animatedValue.getSecondActiveAnimationTrackName() === trackName ||
-        animatedValue.getSecondActiveAnimationSamplerTrackName() === trackName;
+      const rebindsFirstActiveSampler = animatedValue.getFirstActiveAnimationSamplerTrackName() === trackName;
+      const rebindsSecondActiveSampler = animatedValue.getSecondActiveAnimationSamplerTrackName() === trackName;
       animatedValue.deleteAnimationSampler(trackName);
       const remainingTrackNames = animatedValue.getAllTrackNames();
       if (remainingTrackNames.length === 0) {

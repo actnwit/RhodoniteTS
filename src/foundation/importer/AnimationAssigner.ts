@@ -343,24 +343,22 @@ export class AnimationAssigner {
     const animationComponent = rootEntity.tryToGetAnimation();
     if (vrmComponent != null && animationComponent != null) {
       const expressionPathPrefix = 'vrmExpression/';
+      const blendingRatio = animationComponent.animationBlendingRatio;
       for (const [pathName, channel] of animationComponent.getAnimationChannelsOfTrack()) {
         if (!pathName.startsWith(expressionPathPrefix)) {
           continue;
         }
         const trackNames = channel.animatedValue.getAllTrackNames();
-        const firstActiveTrackName = channel.animatedValue.getFirstActiveAnimationTrackName();
-        const secondActiveTrackName = channel.animatedValue.getSecondActiveAnimationTrackName();
         const firstActiveSamplerTrackName = channel.animatedValue.getFirstActiveAnimationSamplerTrackName();
         const secondActiveSamplerTrackName = channel.animatedValue.getSecondActiveAnimationSamplerTrackName();
         const removesEverySampler =
           postfixToTrackName == null ||
           (trackNames.length > 0 && trackNames.every(trackName => trackName.endsWith(postfixToTrackName)));
-        const removesAnActiveSampler =
+        const removesAContributingSampler =
           postfixToTrackName != null &&
-          [firstActiveTrackName, secondActiveTrackName, firstActiveSamplerTrackName, secondActiveSamplerTrackName].some(
-            trackName => trackName?.endsWith(postfixToTrackName)
-          );
-        if (removesEverySampler || removesAnActiveSampler) {
+          ((blendingRatio !== 1 && firstActiveSamplerTrackName.endsWith(postfixToTrackName)) ||
+            (blendingRatio !== 0 && secondActiveSamplerTrackName?.endsWith(postfixToTrackName) === true));
+        if (removesEverySampler || removesAContributingSampler) {
           vrmComponent.setExpressionWeight(pathName.slice(expressionPathPrefix.length), 0);
         }
       }

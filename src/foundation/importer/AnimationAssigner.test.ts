@@ -142,6 +142,7 @@ function createExpressionAssignerFixture(availableExpressions = new Set(['happy'
     }
   });
   const rootAnimation = {
+    animationBlendingRatio: 0,
     getAnimation: (pathName: AnimationPathName) => animationChannels.get(pathName)?.animatedValue,
     getAnimationChannelsOfTrack: () => animationChannels,
     getAnimationTrackNames: () =>
@@ -177,6 +178,7 @@ function createExpressionAssignerFixture(availableExpressions = new Set(['happy'
   const animationState = {
     setFirstActiveAnimationTrack: vi.fn((trackName: string) => {
       rootAnimation.setActiveAnimationTrack(trackName);
+      rootAnimation.animationBlendingRatio = 0;
       for (const channel of animationChannels.values()) {
         channel.animatedValue.blendingRatio = 0;
       }
@@ -906,11 +908,15 @@ test.each([
   const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
   if (activeSampler === 'first') {
     happyAnimation.setFirstActiveAnimationTrackName('Missing');
+    happyAnimation.blendingRatio = 0;
+    rootAnimation.animationBlendingRatio = 0;
     expect(happyAnimation.getFirstActiveAnimationSamplerTrackName()).toBe('Happy__active');
   } else {
     happyAnimation.setFirstActiveAnimationTrackName('Smirk__other');
     happyAnimation.setSecondActiveAnimationTrackName('Happy__active');
     happyAnimation.setSecondActiveAnimationTrackName('Missing');
+    happyAnimation.blendingRatio = 1;
+    rootAnimation.animationBlendingRatio = 1;
     expect(happyAnimation.getSecondActiveAnimationSamplerTrackName()).toBe('Happy__active');
   }
   setExpressionWeight.mockClear();
@@ -922,6 +928,52 @@ test.each([
 
   expect(setExpressionWeight).toHaveBeenCalledWith('happy', 0);
   expect(happyAnimation.getAllTrackNames()).toContain('Smirk__other');
+});
+
+test.each([
+  {
+    blendingRatio: 0,
+    expressionName: 'happy',
+    postfixToReplace: '__second',
+  },
+  {
+    blendingRatio: 1,
+    expressionName: 'smirk',
+    postfixToReplace: '__first',
+  },
+])('does not clear $expressionName when replacing a non-contributing slot at blend ratio $blendingRatio', ({
+  blendingRatio,
+  expressionName,
+  postfixToReplace,
+}) => {
+  mockModelConversion();
+  const { assigner, root, rootAnimation, setExpressionWeight } = createExpressionAssignerFixture();
+  const happyVrma = createExpressionVrma();
+  happyVrma.animations[0].name = 'Happy';
+  happyVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const smirkVrma = createExpressionVrma();
+  smirkVrma.animations[0].name = 'Smirk';
+  smirkVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+  assigner.assignAnimationWithVrma(root, happyVrma, '__first');
+  assigner.assignAnimationWithVrma(root, smirkVrma, '__second');
+  rootAnimation.setActiveAnimationTrack('Happy__first');
+  rootAnimation.setSecondActiveAnimationTrack('Smirk__second');
+  rootAnimation.animationBlendingRatio = blendingRatio;
+  for (const channel of rootAnimation.getAnimationChannelsOfTrack().values()) {
+    channel.animatedValue.blendingRatio = blendingRatio;
+  }
+  setExpressionWeight.mockClear();
+
+  const replacementVrma = createExpressionVrma();
+  replacementVrma.animations[0].name = 'Replacement';
+  if (postfixToReplace === '__first') {
+    replacementVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  } else {
+    replacementVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+  }
+  assigner.assignAnimationWithVrma(root, replacementVrma, postfixToReplace);
+
+  expect(setExpressionWeight).not.toHaveBeenCalledWith(expressionName, 0);
 });
 
 test('resets expression weights before replacing unpostfixed VRMA tracks', () => {
