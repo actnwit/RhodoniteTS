@@ -768,6 +768,143 @@ test('preserves a recreated second track by name in a multi-animation postfix sl
   expect(happyAnimation.blendingRatio).toBe(0.5);
 });
 
+test.each([
+  'first',
+  'second',
+] as const)('rebinds the evaluated %s bone sampler when an expression-only logical track survives slot replacement', activeSampler => {
+  mockModelConversion();
+  const { animationState, assigner, root, rootAnimation } = createExpressionAssignerFixture(new Set(['happy']));
+  const expressionTrackName = 'FaceOnly';
+  const slotTrackName = 'Body__slot';
+  const fallbackTrackName = 'Fallback__other';
+  const expressionSampler: AnimationSampler = {
+    input: new Float32Array([0, 1]),
+    output: new Float32Array([0, 1]),
+    outputComponentN: 1,
+    interpolationMethod: AnimationInterpolation.Linear,
+  };
+  const expressionAnimation = new AnimatedScalar(
+    new Map([[expressionTrackName, expressionSampler]]),
+    expressionTrackName
+  );
+  if (activeSampler === 'second') {
+    expressionAnimation.setSecondActiveAnimationTrackName(expressionTrackName);
+  }
+  rootAnimation.setAnimation('vrmExpression/happy', expressionAnimation);
+
+  const boneAnimationValue = new AnimatedVector3(
+    new Map([
+      [
+        slotTrackName,
+        {
+          input: new Float32Array([0, 1]),
+          output: new Float32Array([0, 0, 0, 1, 0, 0]),
+          outputComponentN: 3,
+          interpolationMethod: AnimationInterpolation.Linear,
+        },
+      ],
+      [
+        fallbackTrackName,
+        {
+          input: new Float32Array([0, 1]),
+          output: new Float32Array([0, 0, 0, 9, 0, 0]),
+          outputComponentN: 3,
+          interpolationMethod: AnimationInterpolation.Linear,
+        },
+      ],
+    ]),
+    activeSampler === 'first' ? slotTrackName : fallbackTrackName
+  );
+  if (activeSampler === 'first') {
+    boneAnimationValue.setFirstActiveAnimationTrackName(expressionTrackName);
+  } else {
+    boneAnimationValue.setSecondActiveAnimationTrackName(slotTrackName);
+    boneAnimationValue.setSecondActiveAnimationTrackName(expressionTrackName);
+  }
+  const boneAnimationChannels = new Map<AnimationPathName, any>([
+    ['rotate', { animatedValue: boneAnimationValue, target: { pathName: 'rotate' } }],
+  ]);
+  const boneAnimation = {
+    getAnimation: (pathName: AnimationPathName) => boneAnimationChannels.get(pathName)?.animatedValue,
+    getAnimationChannelsOfTrack: () => boneAnimationChannels,
+    getAnimationTrackNames: () => boneAnimationValue.getAllTrackNames(),
+    resetAnimationTrackByPostfix: vi.fn((postfix: string) => {
+      for (const trackName of boneAnimationValue.getAllTrackNames()) {
+        if (!trackName.endsWith(postfix)) {
+          continue;
+        }
+        const rebindsFirst = boneAnimationValue.getFirstActiveAnimationSamplerTrackName() === trackName;
+        const rebindsSecond = boneAnimationValue.getSecondActiveAnimationSamplerTrackName() === trackName;
+        boneAnimationValue.deleteAnimationSampler(trackName);
+        const fallback = boneAnimationValue.getAllTrackNames()[0];
+        if (rebindsFirst) {
+          boneAnimationValue.setFirstActiveAnimationTrackName(fallback);
+        }
+        if (rebindsSecond) {
+          boneAnimationValue.setSecondActiveAnimationTrackName(fallback);
+        }
+      }
+    }),
+    _setRetarget: vi.fn((_retarget: unknown, postfix: string | undefined) => {
+      const trackName = `Body${postfix ?? ''}`;
+      boneAnimationValue.setAnimationSampler(trackName, {
+        input: new Float32Array([0, 1]),
+        output: new Float32Array([0, 0, 0, 2, 0, 0]),
+        outputComponentN: 3,
+        interpolationMethod: AnimationInterpolation.Linear,
+      });
+      return [trackName];
+    }),
+    setActiveAnimationTrack: vi.fn((trackName: string) => {
+      boneAnimationValue.setFirstActiveAnimationTrackName(trackName);
+    }),
+    setSecondActiveAnimationTrack: vi.fn((trackName: string) => {
+      boneAnimationValue.setSecondActiveAnimationTrackName(trackName);
+    }),
+  };
+  const boneEntity = {
+    tryToGetAnimation: () => boneAnimation,
+    getAnimation: () => boneAnimation,
+    getTransform: () => ({ _restoreTransformFromRest: vi.fn() }),
+    children: [],
+  } as unknown as ISceneGraphEntity;
+  (root.children as any).push({ entity: boneEntity });
+  (root as any).getTagValue = (tag: string) => {
+    if (tag === 'humanoid_map_name_nodeId') {
+      return new Map([['hips', 0]]);
+    }
+    if (tag === 'rnEntities') {
+      return [boneEntity];
+    }
+    return undefined;
+  };
+
+  const replacement = createExpressionVrma();
+  replacement.animations[0].name = 'Body';
+  const samplerObject = replacement.animations[0].samplers[0];
+  replacement.animations[0].channels.push({
+    samplerObject,
+    target: { node: 0, path: 'rotation' },
+  });
+  replacement.extensions.VRMC_vrm_animation.humanoidBoneNameMap = new Map([[0, 'hips']]);
+  replacement.extras.rnEntities[0] = { tryToSetUniqueName: vi.fn() } as any;
+
+  assigner.assignAnimationWithVrma(root, replacement, '__slot');
+
+  if (activeSampler === 'first') {
+    expect(animationState.replaceFirstActiveAnimationTrack).not.toHaveBeenCalled();
+    expect(boneAnimationValue.getFirstActiveAnimationTrackName()).toBe(expressionTrackName);
+    expect(boneAnimationValue.getFirstActiveAnimationSamplerTrackName()).toBe(slotTrackName);
+  } else {
+    expect(animationState.replaceSecondActiveAnimationTrack).not.toHaveBeenCalled();
+    expect(boneAnimationValue.getSecondActiveAnimationTrackName()).toBe(expressionTrackName);
+    expect(boneAnimationValue.getSecondActiveAnimationSamplerTrackName()).toBe(slotTrackName);
+  }
+  boneAnimationValue.blendingRatio = activeSampler === 'first' ? 0 : 1;
+  boneAnimationValue.setTime(0.5);
+  expect(boneAnimationValue.x).toBe(1);
+});
+
 test('applies a replacement fallback track to the animation state and bone channels', () => {
   mockModelConversion();
   const { assigner, root } = createExpressionAssignerFixture(new Set(['happy']));
@@ -782,6 +919,7 @@ test('applies a replacement fallback track to the animation state and bone chann
     ['translate', { animatedValue: boneAnimationValue, target: { pathName: 'translate' } }],
   ]);
   const boneAnimation = {
+    getAnimation: (pathName: AnimationPathName) => boneAnimationChannels.get(pathName)?.animatedValue,
     getAnimationChannelsOfTrack: () => boneAnimationChannels,
     getAnimationTrackNames: () => boneAnimationValue.getAllTrackNames(),
     resetAnimationTrackByPostfix: vi.fn((postfix: string) => {

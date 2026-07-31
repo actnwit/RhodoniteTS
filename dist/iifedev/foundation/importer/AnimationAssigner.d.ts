@@ -113,6 +113,8 @@ export declare class AnimationAssigner {
      * can remain active.
      */
     private __fillMissingVrmaExpressionTracks;
+    private __captureActiveSamplerBindingsByPostfix;
+    private __restoreActiveSamplerBindings;
     private __getFirstActiveAnimationTrackName;
     private __findAnimationComponentInHierarchy;
     private __getSecondActiveAnimationTrackName;

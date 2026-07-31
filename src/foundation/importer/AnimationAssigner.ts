@@ -83,6 +83,18 @@ export interface CharacterVrmaAnimationAssignmentResult {
   trackNames: Readonly<Partial<Record<CharacterAnimationSemantic, readonly AnimationTrackName[]>>>;
 }
 
+type ActiveSamplerBinding = {
+  requestedTrackName: AnimationTrackName | undefined;
+  samplerTrackName: AnimationTrackName;
+};
+
+type AnimationChannelActiveSamplerBindings = {
+  animationComponent: AnimationComponent;
+  pathName: AnimationPathName;
+  first?: ActiveSamplerBinding;
+  second?: ActiveSamplerBinding;
+};
+
 export class AnimationAssigner {
   constructor(private readonly __engine: Engine) {}
   /**
@@ -138,6 +150,8 @@ export class AnimationAssigner {
       postfixToTrackName != null ? this.__getFirstActiveAnimationTrackName(rootEntity) : undefined;
     const secondActiveAnimationTrackName =
       postfixToTrackName != null ? this.__getSecondActiveAnimationTrackName(rootEntity) : undefined;
+    const activeSamplerBindings =
+      postfixToTrackName != null ? this.__captureActiveSamplerBindingsByPostfix(rootEntity, postfixToTrackName) : [];
     const entityVrma = ModelConverter.convertToRhodoniteObjectSimple(this.__engine, vrmaModel);
     const rootMotion = options.rootMotion ?? 'preserve';
     const trackNames = new Set<AnimationTrackName>();
@@ -252,6 +266,9 @@ export class AnimationAssigner {
         expressionFirstActiveAnimationTrackName,
         secondActiveAnimationTrackName != null ? replacementSecondActiveAnimationTrackName : undefined
       );
+      if (postfixToTrackName != null) {
+        this.__restoreActiveSamplerBindings(activeSamplerBindings, trackNames, postfixToTrackName);
+      }
       const animationState = rootEntity.tryToGetAnimationState();
       if (
         requiresFirstActiveAnimationTrackRebind &&
@@ -738,6 +755,83 @@ export class AnimationAssigner {
       ) {
         channel.animatedValue.setSecondActiveAnimationTrackName(secondActiveAnimationTrackName);
       }
+    }
+  }
+
+  private __captureActiveSamplerBindingsByPostfix(
+    rootEntity: ISceneGraphEntity,
+    postfixToTrackName: string
+  ): AnimationChannelActiveSamplerBindings[] {
+    const bindings: AnimationChannelActiveSamplerBindings[] = [];
+    const collectBindings = (entity: ISceneGraphEntity) => {
+      const animationComponent = entity.tryToGetAnimation();
+      if (animationComponent != null) {
+        for (const [pathName, channel] of animationComponent.getAnimationChannelsOfTrack()) {
+          const animatedValue = channel.animatedValue;
+          const firstSamplerTrackName = animatedValue.getFirstActiveAnimationSamplerTrackName();
+          const secondSamplerTrackName = animatedValue.getSecondActiveAnimationSamplerTrackName();
+          const first = firstSamplerTrackName.endsWith(postfixToTrackName)
+            ? {
+                requestedTrackName: animatedValue.getFirstActiveAnimationTrackName(),
+                samplerTrackName: firstSamplerTrackName,
+              }
+            : undefined;
+          const second = secondSamplerTrackName?.endsWith(postfixToTrackName)
+            ? {
+                requestedTrackName: animatedValue.getSecondActiveAnimationTrackName(),
+                samplerTrackName: secondSamplerTrackName,
+              }
+            : undefined;
+          if (first != null || second != null) {
+            bindings.push({ animationComponent, pathName, first, second });
+          }
+        }
+      }
+      for (const child of entity.children) {
+        collectBindings(child.entity);
+      }
+    };
+    collectBindings(rootEntity);
+    return bindings;
+  }
+
+  private __restoreActiveSamplerBindings(
+    bindings: readonly AnimationChannelActiveSamplerBindings[],
+    assignedTrackNames: ReadonlySet<AnimationTrackName>,
+    postfixToTrackName: string
+  ): void {
+    for (const binding of bindings) {
+      const animatedValue = binding.animationComponent.getAnimation(binding.pathName);
+      if (animatedValue == null) {
+        continue;
+      }
+      const availableTrackNames = new Set(animatedValue.getAllTrackNames());
+      const restoreBinding = (
+        activeSamplerBinding: ActiveSamplerBinding | undefined,
+        setActiveTrackName: (trackName: AnimationTrackName) => void
+      ) => {
+        if (activeSamplerBinding == null) {
+          return;
+        }
+        const replacementTrackName =
+          assignedTrackNames.has(activeSamplerBinding.samplerTrackName) &&
+          availableTrackNames.has(activeSamplerBinding.samplerTrackName)
+            ? activeSamplerBinding.samplerTrackName
+            : Array.from(assignedTrackNames).find(
+                trackName => trackName.endsWith(postfixToTrackName) && availableTrackNames.has(trackName)
+              );
+        if (replacementTrackName != null && availableTrackNames.has(replacementTrackName)) {
+          setActiveTrackName(replacementTrackName);
+        }
+        const preservedRequestedTrackName = activeSamplerBinding.requestedTrackName?.endsWith(postfixToTrackName)
+          ? undefined
+          : activeSamplerBinding.requestedTrackName;
+        if (preservedRequestedTrackName != null && preservedRequestedTrackName !== replacementTrackName) {
+          setActiveTrackName(preservedRequestedTrackName);
+        }
+      };
+      restoreBinding(binding.first, trackName => animatedValue.setFirstActiveAnimationTrackName(trackName));
+      restoreBinding(binding.second, trackName => animatedValue.setSecondActiveAnimationTrackName(trackName));
     }
   }
 
