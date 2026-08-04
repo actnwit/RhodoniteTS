@@ -18,7 +18,7 @@ import { MutableVector3 } from '../../math/MutableVector3';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { VectorN } from '../../math/VectorN';
 import type { Accessor } from '../../memory/Accessor';
-import { Is } from '../../misc';
+import { DataUtil, Is } from '../../misc';
 import type { Engine } from '../../system/Engine';
 import { AnimationStateRepository } from '../Animation/AnimationStateRepository';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
@@ -947,53 +947,64 @@ export class SkeletalComponent extends Component {
   }
 
   private __findAnimationTrackFeatureHash(target: ISceneGraphEntity): number | undefined {
-    const animationComponent = target.tryToGetAnimation();
-    if (animationComponent != null) {
-      const animationChannels = animationComponent.getAnimationChannelsOfTrack();
-      if (animationChannels.size > 0) {
-        const activeTrackName = animationComponent.getActiveAnimationTrack();
-        const hasExpressionChannel = Array.from(animationChannels.keys()).some(pathName =>
-          pathName.startsWith('vrmExpression/')
-        );
-        let hasNonExpressionChannelForActiveTrack = false;
-        for (const [pathName, channel] of animationChannels) {
-          if (
-            !pathName.startsWith('vrmExpression/') &&
-            channel.animatedValue.getAllTrackNames().includes(activeTrackName)
-          ) {
-            hasNonExpressionChannelForActiveTrack = true;
-            break;
-          }
-        }
-        if (hasNonExpressionChannelForActiveTrack) {
-          const hash = animationComponent.currentTrackFeatureHash();
-          if (hash != null) {
-            return hash;
-          }
-        }
-        if (!hasExpressionChannel) {
+    const hashes: number[] = [];
+    const collectHashes = (entity: ISceneGraphEntity) => {
+      const animationComponent = entity.tryToGetAnimation();
+      if (animationComponent != null) {
+        const animationChannels = animationComponent.getAnimationChannelsOfTrack();
+        if (animationChannels.size > 0) {
+          const componentHashes = new Set<number>();
+          const activeTrackName = animationComponent.getActiveAnimationTrack();
+          const hasExpressionChannel = Array.from(animationChannels.keys()).some(pathName =>
+            pathName.startsWith('vrmExpression/')
+          );
+          let hasNonExpressionChannelForActiveTrack = false;
           for (const [pathName, channel] of animationChannels) {
-            if (pathName.startsWith('vrmExpression/')) {
-              continue;
+            if (
+              !pathName.startsWith('vrmExpression/') &&
+              channel.animatedValue.getAllTrackNames().includes(activeTrackName)
+            ) {
+              hasNonExpressionChannelForActiveTrack = true;
+              break;
             }
-            const evaluatedTrackName = channel.animatedValue.getFirstActiveAnimationSamplerTrackName();
-            const hash = animationComponent.getAnimationTrackFeatureHash(evaluatedTrackName);
+          }
+          if (hasNonExpressionChannelForActiveTrack) {
+            const hash = animationComponent.currentTrackFeatureHash();
             if (hash != null) {
-              return hash;
+              componentHashes.add(hash);
             }
+          }
+          if (componentHashes.size === 0 && !hasExpressionChannel) {
+            for (const [pathName, channel] of animationChannels) {
+              if (pathName.startsWith('vrmExpression/')) {
+                continue;
+              }
+              const evaluatedTrackName = channel.animatedValue.getFirstActiveAnimationSamplerTrackName();
+              const hash = animationComponent.getAnimationTrackFeatureHash(evaluatedTrackName);
+              if (hash != null) {
+                componentHashes.add(hash);
+              }
+            }
+          }
+          for (const hash of componentHashes) {
+            hashes.push(hash);
           }
         }
       }
-    }
-
-    for (const child of target.children) {
-      const childHash = this.__findAnimationTrackFeatureHash(child.entity);
-      if (childHash != null) {
-        return childHash;
+      for (const child of entity.children) {
+        collectHashes(child.entity);
       }
+    };
+    collectHashes(target);
+
+    if (hashes.length === 0) {
+      return undefined;
+    }
+    if (hashes.length === 1) {
+      return hashes[0];
     }
 
-    return undefined;
+    return DataUtil.toCRC32(hashes.join('|'));
   }
 
   /**

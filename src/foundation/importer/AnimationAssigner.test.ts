@@ -1029,6 +1029,33 @@ test('clears an active expression weight when another slot keeps a zero sampler'
   expect(happyAnimation.getAllTrackNames()).toContain('Smirk__other');
 });
 
+test('clears the first expression sampler at blend ratio one when no second sampler is bound', () => {
+  mockModelConversion();
+  const { assigner, root, rootAnimation, setExpressionWeight } = createExpressionAssignerFixture();
+  const happyVrma = createExpressionVrma();
+  happyVrma.animations[0].name = 'Happy';
+  happyVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const smirkVrma = createExpressionVrma();
+  smirkVrma.animations[0].name = 'Smirk';
+  smirkVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+  assigner.assignAnimationWithVrma(root, happyVrma, '__active');
+  assigner.assignAnimationWithVrma(root, smirkVrma, '__other');
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setFirstActiveAnimationTrackName('Happy__active');
+  happyAnimation.blendingRatio = 1;
+  rootAnimation.animationBlendingRatio = 1;
+  expect(happyAnimation.getSecondActiveAnimationSamplerTrackName()).toBeUndefined();
+  setExpressionWeight.mockClear();
+
+  const replacementVrma = createExpressionVrma();
+  replacementVrma.animations[0].name = 'Replacement';
+  replacementVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+  assigner.assignAnimationWithVrma(root, replacementVrma, '__active');
+
+  expect(setExpressionWeight).toHaveBeenCalledWith('happy', 0);
+  expect(happyAnimation.getAllTrackNames()).toContain('Smirk__other');
+});
+
 test.each([
   'first',
   'second',

@@ -368,13 +368,17 @@ export class AnimationAssigner {
         const trackNames = channel.animatedValue.getAllTrackNames();
         const firstActiveSamplerTrackName = channel.animatedValue.getFirstActiveAnimationSamplerTrackName();
         const secondActiveSamplerTrackName = channel.animatedValue.getSecondActiveAnimationSamplerTrackName();
+        const hasSecondActiveSampler = secondActiveSamplerTrackName != null;
         const removesEverySampler =
           postfixToTrackName == null ||
           (trackNames.length > 0 && trackNames.every(trackName => trackName.endsWith(postfixToTrackName)));
         const removesAContributingSampler =
           postfixToTrackName != null &&
-          ((blendingRatio !== 1 && firstActiveSamplerTrackName.endsWith(postfixToTrackName)) ||
-            (blendingRatio !== 0 && secondActiveSamplerTrackName?.endsWith(postfixToTrackName) === true));
+          (((!hasSecondActiveSampler || blendingRatio !== 1) &&
+            firstActiveSamplerTrackName.endsWith(postfixToTrackName)) ||
+            (hasSecondActiveSampler &&
+              blendingRatio !== 0 &&
+              secondActiveSamplerTrackName.endsWith(postfixToTrackName)));
         if (removesEverySampler || removesAContributingSampler) {
           vrmComponent.setExpressionWeight(pathName.slice(expressionPathPrefix.length), 0);
         }

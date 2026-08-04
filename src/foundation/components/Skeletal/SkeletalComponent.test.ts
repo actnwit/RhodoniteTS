@@ -79,3 +79,20 @@ test('uses the cached bone sampler hash when the requested expression-only track
 
   expect((skeletalComponent as any).__findAnimationTrackFeatureHash(rootEntity)).toBe(202);
 });
+
+test('combines an ancestor fallback hash with the active child bone track hash', () => {
+  const runRoot = createEntity(createAnimation(101, 'Run', [['translate', ['Fallback']]]), [
+    createEntity(createAnimation(202, 'Run', [['quaternion', ['Run']]])),
+  ]);
+  const walkRoot = createEntity(createAnimation(101, 'Walk', [['translate', ['Fallback']]]), [
+    createEntity(createAnimation(303, 'Walk', [['quaternion', ['Walk']]])),
+  ]);
+  const skeletalComponent = Object.create(SkeletalComponent.prototype) as SkeletalComponent;
+
+  const runHash = (skeletalComponent as any).__findAnimationTrackFeatureHash(runRoot);
+  const walkHash = (skeletalComponent as any).__findAnimationTrackFeatureHash(walkRoot);
+
+  expect(runHash).not.toBe(101);
+  expect(walkHash).not.toBe(101);
+  expect(runHash).not.toBe(walkHash);
+});
