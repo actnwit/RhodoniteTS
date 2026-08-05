@@ -81,21 +81,50 @@ describe('VrmComponent expressions', () => {
     }
   });
 
-  test('applies VRM expression animation channels to the target VrmComponent', () => {
-    const setExpressionWeight = vi.fn();
-    const animationComponent = {
-      entity: {
-        tryToGetVrm: () => ({ setExpressionWeight }),
+  test('applies all VRM expression animation channels in one morph target pass', () => {
+    const { component: vrmComponent, setWeightByIndex } = createVrmComponentFixture([
+      {
+        name: 'happy',
+        isBinary: false,
+        binds: [{ entityIdx: 1, blendShapeIdx: 2, weight: 0.4 }],
       },
+      {
+        name: 'relaxed',
+        isBinary: false,
+        binds: [{ entityIdx: 1, blendShapeIdx: 3, weight: 0.6 }],
+      },
+    ]);
+    const animationComponent = {
+      __animationBlendingRatio: 0,
+      __animationTrack: new Map([
+        [
+          'vrmExpression/happy',
+          {
+            animatedValue: { setTime: vi.fn(), blendingRatio: 0, x: 0.5 },
+          },
+        ],
+        [
+          'vrmExpression/relaxed',
+          {
+            animatedValue: { setTime: vi.fn(), blendingRatio: 0, x: 0.25 },
+          },
+        ],
+      ]),
+      entity: {
+        getTransform: () => ({}),
+        tryToGetBlendShape: () => undefined,
+        tryToGetEffekseer: () => undefined,
+        tryToGetVrm: () => vrmComponent,
+      },
+      time: 0,
+      useGlobalTime: false,
     };
-    const applyVrmExpressionAnimation = (AnimationComponent.prototype as any).__applyVrmExpressionAnimation;
+    Object.setPrototypeOf(animationComponent, AnimationComponent.prototype);
 
-    expect(
-      applyVrmExpressionAnimation.call(animationComponent, 'vrmExpression/happy', {
-        animatedValue: { x: 1.25 },
-      })
-    ).toBe(true);
-    expect(setExpressionWeight).toHaveBeenCalledWith('happy', 1.25);
-    expect(applyVrmExpressionAnimation.call(animationComponent, 'translate', {})).toBe(false);
+    (AnimationComponent.prototype as any).__applyAnimation.call(animationComponent);
+
+    expect(setWeightByIndex).toHaveBeenCalledTimes(2);
+    expect(setWeightByIndex).toHaveBeenNthCalledWith(1, 2, 0.2);
+    expect(setWeightByIndex).toHaveBeenNthCalledWith(2, 3, 0.15);
   });
 });

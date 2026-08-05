@@ -40,6 +40,7 @@ import { AnimationStateRepository } from './AnimationStateRepository';
 
 const ChangeAnimationInfo = Symbol('AnimationComponentEventChangeAnimationInfo');
 const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
+const VrmExpressionPathPrefix = 'vrmExpression/';
 
 type AnimationTrackFeature = {
   trackName: AnimationTrackName;
@@ -197,12 +198,26 @@ export class AnimationComponent extends Component {
     const transformComponent = (this.entity as unknown as ISceneGraphEntity).getTransform();
     const blendShapeComponent = this.entity.tryToGetBlendShape();
     const effekseerComponent = this.entity.tryToGetEffekseer();
+    let vrmExpressionWeights: Map<string, number> | undefined;
 
     for (const [pathName, channel] of this.__animationTrack) {
       channel.animatedValue.setTime(time);
       channel.animatedValue.blendingRatio = this.__animationBlendingRatio;
 
+      if (pathName.startsWith(VrmExpressionPathPrefix)) {
+        vrmExpressionWeights ??= new Map();
+        const expressionName = pathName.substring(VrmExpressionPathPrefix.length);
+        vrmExpressionWeights.set(expressionName, (channel.animatedValue as unknown as Scalar).x);
+        continue;
+      }
       this.__applyChannelAnimation(pathName, channel, transformComponent, blendShapeComponent, effekseerComponent);
+    }
+
+    if (Is.exist(vrmExpressionWeights)) {
+      const vrmComponent = this.entity.tryToGetVrm();
+      if (Is.exist(vrmComponent)) {
+        vrmComponent.setExpressionWeights(vrmExpressionWeights);
+      }
     }
   }
 
@@ -215,7 +230,6 @@ export class AnimationComponent extends Component {
   ) {
     if (this.__applyTransformAnimation(pathName, channel, transformComponent)) return;
     if (this.__applyBlendShapeAnimation(pathName, channel, blendShapeComponent)) return;
-    if (this.__applyVrmExpressionAnimation(pathName, channel)) return;
     if (this.__applyVisibilityAnimation(pathName, channel)) return;
     if (this.__applyMaterialAnimation(pathName, channel)) return;
     if (this.__applyLightAnimation(pathName, channel)) return;
@@ -253,20 +267,6 @@ export class AnimationComponent extends Component {
       return true;
     }
     return false;
-  }
-
-  private __applyVrmExpressionAnimation(pathName: string, channel: AnimationChannel): boolean {
-    const prefix = 'vrmExpression/';
-    if (!pathName.startsWith(prefix)) {
-      return false;
-    }
-
-    const vrmComponent = this.entity.tryToGetVrm();
-    if (Is.exist(vrmComponent)) {
-      const expressionName = pathName.substring(prefix.length);
-      vrmComponent.setExpressionWeight(expressionName, (channel.animatedValue as unknown as Scalar).x);
-    }
-    return true;
   }
 
   private __applyVisibilityAnimation(pathName: string, channel: AnimationChannel): boolean {

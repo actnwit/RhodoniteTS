@@ -86,15 +86,38 @@ export class VrmComponent extends Component {
    * @param weight - The weight value to apply (typically between 0 and 1)
    */
   public setExpressionWeight(expressionName: VrmExpressionName, weight: number): void {
+    if (!this.__setExpressionWeight(expressionName, weight)) {
+      return;
+    }
+
+    this.__applyExpressionWeightsToMorphTargets();
+  }
+
+  /**
+   * Sets multiple VRM expression weights and updates morph targets in one pass.
+   * This is used when several expression animation channels are evaluated together.
+   * @param expressionWeights - Expression names and their evaluated weights
+   */
+  public setExpressionWeights(expressionWeights: ReadonlyMap<VrmExpressionName, number>): void {
+    let hasValidExpression = false;
+    for (const [expressionName, weight] of expressionWeights) {
+      hasValidExpression = this.__setExpressionWeight(expressionName, weight) || hasValidExpression;
+    }
+
+    if (hasValidExpression) {
+      this.__applyExpressionWeightsToMorphTargets();
+    }
+  }
+
+  private __setExpressionWeight(expressionName: VrmExpressionName, weight: number): boolean {
     const expression = this.__expressions.get(expressionName);
     if (Is.not.exist(expression)) {
-      return;
+      return false;
     }
     const clampedWeight = Math.min(1, Math.max(0, weight));
     const appliedWeight = expression.isBinary ? (clampedWeight > 0.5 ? 1 : 0) : clampedWeight;
     this.__weights.set(expressionName, appliedWeight);
-
-    this.__applyExpressionWeightsToMorphTargets();
+    return true;
   }
 
   /**

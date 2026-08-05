@@ -58,6 +58,13 @@ export declare class VrmComponent extends Component {
      */
     setExpressionWeight(expressionName: VrmExpressionName, weight: number): void;
     /**
+     * Sets multiple VRM expression weights and updates morph targets in one pass.
+     * This is used when several expression animation channels are evaluated together.
+     * @param expressionWeights - Expression names and their evaluated weights
+     */
+    setExpressionWeights(expressionWeights: ReadonlyMap<VrmExpressionName, number>): void;
+    private __setExpressionWeight;
+    /**
      * Recomputes morph target weights from all expression contributions.
      *
      * Multiple VRM expressions may bind the same morph target. Applying each expression directly
