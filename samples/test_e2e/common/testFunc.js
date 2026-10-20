@@ -1,6 +1,6 @@
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
 
-exports.testFunc = async (browser, _url, expect) => {
+export const testFunc = async (browser, _url, expect) => {
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(2000000);
   await page.goto('http://localhost:8082/samples/test_e2e/ColorGradingUsingLUTs');
@@ -13,7 +13,7 @@ exports.testFunc = async (browser, _url, expect) => {
   await page.close();
 };
 
-exports.consoleLog = async page => {
+export const consoleLog = async page => {
   page.on('console', async msg => {
     const lines = [];
     for (let i = 0; i < msg.args().length; i++) {
@@ -24,7 +24,21 @@ exports.consoleLog = async page => {
   });
 };
 
-exports.testCheckWindowRendered = async (browser, url, expect, threshold, noParam = false, consoleOn = false) => {
+const waitForExtraFrames = async (page, frameCount = 5) => {
+  await page.evaluate(async count => {
+    for (let i = 0; i < count; i++) {
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
+    }
+  }, frameCount);
+};
+
+// Pixel level sensitivity and failure threshold used when comparing screenshots
+// with the stored snapshots. They mirror the defaults of jest-image-snapshot and
+// make the tolerance explicit instead of relying on the library defaults.
+const SNAPSHOT_PIXEL_THRESHOLD = 0.01;
+const DEFAULT_FAILURE_THRESHOLD = 0;
+
+export const testCheckWindowRendered = async (browser, url, expect, threshold, noParam = false, consoleOn = false) => {
   expect.extend({ toMatchImageSnapshot });
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(2000000);
@@ -39,21 +53,21 @@ exports.testCheckWindowRendered = async (browser, url, expect, threshold, noPara
     },
     { timeout: 2000000 }
   );
+  // Samples set `_rendered` on the second frame, so let a few extra frames pass to
+  // make sure the screenshot captures a fully converged image.
+  await waitForExtraFrames(page);
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
-  if (noParam) {
-    expect(image).toMatchImageSnapshot();
-  } else {
-    expect(image).toMatchImageSnapshot({
-      failureThreshold: threshold,
-      failureThresholdType: 'percent',
-    });
-  }
+  expect(image).toMatchImageSnapshot({
+    customDiffConfig: { threshold: SNAPSHOT_PIXEL_THRESHOLD },
+    failureThreshold: noParam ? DEFAULT_FAILURE_THRESHOLD : threshold,
+    failureThresholdType: 'percent',
+  });
 
   await page.close();
 };
 
-exports.testCheckPtoDocument = async (browser, url, expect, threshold, noParam = false, consoleOn = false) => {
+export const testCheckPtoDocument = async (browser, url, expect, threshold, noParam = false, consoleOn = false) => {
   expect.extend({ toMatchImageSnapshot });
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(2000000);
@@ -65,42 +79,39 @@ exports.testCheckPtoDocument = async (browser, url, expect, threshold, noParam =
   await page.waitForSelector('p#rendered', { timeout: 2000000 });
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
-  if (noParam) {
-    expect(image).toMatchImageSnapshot();
-  } else {
-    expect(image).toMatchImageSnapshot({
-      failureThreshold: threshold,
-      failureThresholdType: 'percent',
-    });
-  }
+  expect(image).toMatchImageSnapshot({
+    customDiffConfig: { threshold: SNAPSHOT_PIXEL_THRESHOLD },
+    failureThreshold: noParam ? DEFAULT_FAILURE_THRESHOLD : threshold,
+    failureThresholdType: 'percent',
+  });
 
   await page.close();
 };
 
-exports.defineTest = (name, mode, errorThreshold) => {
+export const defineTest = (name, mode, errorThreshold) => {
   const url = `http://localhost:8082/samples/test_e2e/${name}?mode=${mode}`;
   test(`${name} ${mode}`, async () => {
-    await exports.testCheckWindowRendered(browser, url, expect, errorThreshold, true);
+    await testCheckWindowRendered(browser, url, expect, errorThreshold, true);
   });
 };
 
-exports.doTests = (name, modes, errorThreshold = 0.03) => {
+export const doTests = (name, modes, errorThreshold = 0.03) => {
   for (const mode of modes) {
-    exports.defineTest(name, mode, errorThreshold);
+    defineTest(name, mode, errorThreshold);
   }
 };
 
-exports.defineGltfTest = (name, mode, gltfName, gltfFormat, errorThreshold) => {
+export const defineGltfTest = (name, mode, gltfName, gltfFormat, errorThreshold) => {
   const url = `http://localhost:8082/samples/test_e2e/${name}?mode=${mode}&gltf=${gltfName}&gltfformat=${gltfFormat}`;
   test(`${name} ${gltfName} ${mode}`, async () => {
-    await exports.testCheckWindowRendered(browser, url, expect, errorThreshold, true);
+    await testCheckWindowRendered(browser, url, expect, errorThreshold, true);
   });
 };
 
-exports.doGltfTests = (name, modes, gltfInfo, errorThreshold = 0.03) => {
+export const doGltfTests = (name, modes, gltfInfo, errorThreshold = 0.03) => {
   for (const gltf of gltfInfo) {
     for (const mode of modes) {
-      exports.defineGltfTest(name, mode, gltf.name, gltf.format, errorThreshold);
+      defineGltfTest(name, mode, gltf.name, gltf.format, errorThreshold);
     }
   }
 };

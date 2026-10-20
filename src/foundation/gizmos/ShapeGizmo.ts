@@ -13,7 +13,7 @@ import { Gizmo } from './Gizmo';
 
 /** Displays every analytic shape stored in a ShapeComponent. */
 export class ShapeGizmo extends Gizmo {
-  protected declare __topEntity?: ISceneGraphEntity;
+  declare protected __topEntity?: ISceneGraphEntity;
   private readonly __shapeComponent: ShapeComponent;
   private __material?: Material;
   private __shapeEntities: ISceneGraphEntity[] = [];

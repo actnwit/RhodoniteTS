@@ -35,3 +35,6 @@ yarn-error.log
 .dccache
 .envrc
 *.tgz
+
+# Puppeteer browser cache (local CI-like environment)
+.cache/puppeteer/

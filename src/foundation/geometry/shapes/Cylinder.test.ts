@@ -49,15 +49,14 @@ test('Cylinder rejects degenerate dimensions', async () => {
   expect(() => cylinder.generate({ height: 0, radiusBottom: 0, radiusTop: 0 })).toThrow('Cylinder dimensions');
 });
 
-test.each([
-  3.5,
-  Number.NaN,
-  Number.POSITIVE_INFINITY,
-])('Cylinder rejects a non-finite or fractional radialSegments value: %s', async radialSegments => {
-  const engine = await Rn.Engine.init({ approach: Rn.ProcessApproach.None });
-  const cylinder = new Rn.Cylinder(engine);
-  expect(() => cylinder.generate({ radialSegments })).toThrow('Cylinder radialSegments must be a finite integer.');
-});
+test.each([3.5, Number.NaN, Number.POSITIVE_INFINITY])(
+  'Cylinder rejects a non-finite or fractional radialSegments value: %s',
+  async radialSegments => {
+    const engine = await Rn.Engine.init({ approach: Rn.ProcessApproach.None });
+    const cylinder = new Rn.Cylinder(engine);
+    expect(() => cylinder.generate({ radialSegments })).toThrow('Cylinder radialSegments must be a finite integer.');
+  }
+);
 
 test('Cylinder uses 32-bit indices when its vertex indices exceed the Uint16 range', async () => {
   const engine = await Rn.Engine.init({ approach: Rn.ProcessApproach.None });

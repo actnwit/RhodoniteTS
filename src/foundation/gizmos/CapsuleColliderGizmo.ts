@@ -16,7 +16,7 @@ import { Gizmo } from './Gizmo';
  * The visualization is a semi-transparent green wireframe capsule that shows the collider's bounds.
  */
 export class CapsuleColliderGizmo extends Gizmo {
-  protected declare __topEntity?: ISceneGraphEntity;
+  declare protected __topEntity?: ISceneGraphEntity;
 
   private __capsuleCollider: CapsuleCollider;
   private __capsuleEntity?: IMeshEntity;

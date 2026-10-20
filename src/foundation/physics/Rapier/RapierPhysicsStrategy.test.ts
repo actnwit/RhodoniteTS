@@ -481,21 +481,20 @@ test('RapierPhysicsStrategy scopes step participants to the processed engine', a
 test.each([
   { elapsedTime: 10, expectedTimestep: 1 / 15, expectedParticipantDeltaTime: 1 / 15 },
   { elapsedTime: Number.NaN, expectedTimestep: 1 / 60, expectedParticipantDeltaTime: 1 / 60 },
-])('RapierPhysicsStrategy normalizes an unsafe elapsed time before stepping', async ({
-  elapsedTime,
-  expectedTimestep,
-  expectedParticipantDeltaTime,
-}) => {
-  await RapierPhysicsStrategy.initialize(createFakeRapier());
-  const engine = {} as Engine;
-  const participant = { preStep: vi.fn(), postStep: vi.fn() };
-  RapierPhysicsStrategy._registerStepParticipant(participant, engine);
+])(
+  'RapierPhysicsStrategy normalizes an unsafe elapsed time before stepping',
+  async ({ elapsedTime, expectedTimestep, expectedParticipantDeltaTime }) => {
+    await RapierPhysicsStrategy.initialize(createFakeRapier());
+    const engine = {} as Engine;
+    const participant = { preStep: vi.fn(), postStep: vi.fn() };
+    RapierPhysicsStrategy._registerStepParticipant(participant, engine);
 
-  RapierPhysicsStrategy.update(1, elapsedTime, engine);
+    RapierPhysicsStrategy.update(1, elapsedTime, engine);
 
-  expect((RapierPhysicsStrategy._getWorld(engine) as FakeWorld).timestep).toBeCloseTo(expectedTimestep);
-  expect(participant.preStep).toHaveBeenCalledWith(expectedParticipantDeltaTime);
-});
+    expect((RapierPhysicsStrategy._getWorld(engine) as FakeWorld).timestep).toBeCloseTo(expectedTimestep);
+    expect(participant.preStep).toHaveBeenCalledWith(expectedParticipantDeltaTime);
+  }
+);
 
 test('RapierPhysicsStrategy creates and advances an independent world for each Engine', async () => {
   await RapierPhysicsStrategy.initialize(createFakeRapier());

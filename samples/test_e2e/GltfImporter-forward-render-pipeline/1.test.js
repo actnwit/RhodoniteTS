@@ -1,4 +1,4 @@
-const doGltfTests = require('../common/testFunc').doGltfTests;
+import { doGltfTests } from '../common/testFunc.js';
 
 const modes = ['uniform', 'datatexture', 'webgpu'];
 const gltfInfo = [
