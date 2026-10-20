@@ -1,10 +1,10 @@
 import type { AnimationPathName, AnimationSampler, AnimationTrackName, RnM2Vrma } from '../../types';
 import type { Index } from '../../types/CommonTypes';
-import type { RnM2 } from '../../types/RnM2';
+import type { RnM2, RnM2Animation, RnM2AnimationChannel } from '../../types/RnM2';
 import type { VRM } from '../../types/VRM';
 import type { Vrm0x } from '../../types/VRM0x';
 import type { Vrm1 } from '../../types/VRM1';
-import type { HumanBoneNames, NodeId } from '../../types/VRMC_vrm_animation';
+import type { HumanBoneNames, NodeId, VrmaExpressionName } from '../../types/VRMC_vrm_animation';
 import { AbsoluteAnimation, GlobalRetarget, type IAnimationRetarget } from '../components';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
@@ -16,11 +16,13 @@ import { GlobalRetargetReverse } from '../components/Skeletal/AnimationRetarget/
 import { AnimationInterpolation } from '../definitions/AnimationInterpolation';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { AnimatedQuaternion } from '../math/AnimatedQuaternion';
+import { AnimatedScalar } from '../math/AnimatedScalar';
 import { AnimatedVector3 } from '../math/AnimatedVector3';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
 import type { Engine } from '../system/Engine';
 import { ModelConverter } from './ModelConverter';
+import { VrmaImporter } from './VrmaImporter';
 
 type RetargetMode = 'none' | 'global' | 'absolute';
 
@@ -33,6 +35,23 @@ const characterAnimationSemantics: readonly CharacterAnimationSemantic[] = [
   'landing',
   'slide',
 ];
+
+const vrmaPresetNameToVrm0xPresetName: Readonly<Record<string, string>> = {
+  happy: 'joy',
+  sad: 'sorrow',
+  relaxed: 'fun',
+  aa: 'a',
+  ih: 'i',
+  ou: 'u',
+  ee: 'e',
+  oh: 'o',
+  blinkLeft: 'blink_l',
+  blinkRight: 'blink_r',
+  lookUp: 'lookup',
+  lookDown: 'lookdown',
+  lookLeft: 'lookleft',
+  lookRight: 'lookright',
+};
 
 /** Controls how a VRMA's hips translation is handled during retargeting. */
 export type VrmaRootMotionPolicy = 'preserve' | 'ignoreHipsTranslation';
@@ -64,6 +83,18 @@ export interface CharacterVrmaAnimationAssignmentResult {
   trackNames: Readonly<Partial<Record<CharacterAnimationSemantic, readonly AnimationTrackName[]>>>;
 }
 
+type ActiveSamplerBinding = {
+  requestedTrackName: AnimationTrackName | undefined;
+  samplerTrackName: AnimationTrackName;
+};
+
+type AnimationChannelActiveSamplerBindings = {
+  animationComponent: AnimationComponent;
+  pathName: AnimationPathName;
+  first?: ActiveSamplerBinding;
+  second?: ActiveSamplerBinding;
+};
+
 export class AnimationAssigner {
   constructor(private readonly __engine: Engine) {}
   /**
@@ -93,7 +124,7 @@ export class AnimationAssigner {
 
   /**
    * Assigns animation data from a VRMA (VRM Animation) model to a root entity.
-   * This method specifically handles VRM animation format with humanoid bone mapping.
+   * This method handles humanoid retargeting and expression-weight animation.
    *
    * @param rootEntity - The root entity of the model to which animation will be assigned
    * @param vrmaModel - The VRMA model containing animation data and humanoid bone mappings
@@ -115,6 +146,12 @@ export class AnimationAssigner {
       throw new Error(`Unsupported VRM version '${rootVrm._version}' for VRMA animation assignment.`);
     }
 
+    const firstActiveAnimationTrackName =
+      postfixToTrackName != null ? this.__getFirstActiveAnimationTrackName(rootEntity) : undefined;
+    const secondActiveAnimationTrackName =
+      postfixToTrackName != null ? this.__getSecondActiveAnimationTrackName(rootEntity) : undefined;
+    const activeSamplerBindings =
+      postfixToTrackName != null ? this.__captureActiveSamplerBindingsByPostfix(rootEntity, postfixToTrackName) : [];
     const entityVrma = ModelConverter.convertToRhodoniteObjectSimple(this.__engine, vrmaModel);
     const rootMotion = options.rootMotion ?? 'preserve';
     const trackNames = new Set<AnimationTrackName>();
@@ -142,6 +179,17 @@ export class AnimationAssigner {
 
           const humanBones = this.__getVrmaHumanoidBoneNameMap(vrma);
           const humanoidBoneName = humanBones?.get(nodeIndex);
+          const expressionNames = this.__getVrmaExpressionNamesMap(vrma)?.get(nodeIndex);
+          if (channel.target.path === 'translation' && expressionNames != null) {
+            this.__setVrmaExpressionAnimation(
+              rootEntity,
+              animation,
+              channel,
+              expressionNames,
+              postfixToTrackName,
+              trackNames
+            );
+          }
           if (
             rootMotion === 'ignoreHipsTranslation' &&
             humanoidBoneName === 'hips' &&
@@ -183,6 +231,65 @@ export class AnimationAssigner {
     try {
       this.__resetAnimationAndPose(rootEntity, postfixToTrackName);
       setRetarget(vrmaModel);
+      const firstActiveAnimationTrackWasReset =
+        firstActiveAnimationTrackName != null &&
+        postfixToTrackName != null &&
+        firstActiveAnimationTrackName.endsWith(postfixToTrackName);
+      const firstActiveAnimationTrackStillExists =
+        firstActiveAnimationTrackName != null &&
+        this.__hasAnimationTrackName(rootEntity, firstActiveAnimationTrackName);
+      const requiresFirstActiveAnimationTrackRebind =
+        firstActiveAnimationTrackName != null &&
+        (firstActiveAnimationTrackWasReset || !firstActiveAnimationTrackStillExists);
+      const secondActiveAnimationTrackWasReset =
+        secondActiveAnimationTrackName != null &&
+        postfixToTrackName != null &&
+        secondActiveAnimationTrackName.endsWith(postfixToTrackName);
+      const secondActiveAnimationTrackStillExists =
+        secondActiveAnimationTrackName != null &&
+        this.__hasAnimationTrackName(rootEntity, secondActiveAnimationTrackName);
+      const requiresSecondActiveAnimationTrackRebind =
+        secondActiveAnimationTrackName != null &&
+        (secondActiveAnimationTrackWasReset || !secondActiveAnimationTrackStillExists);
+      const fallbackAnimationTrackName =
+        trackNames.values().next().value ?? this.__getFirstAnimationTrackName(rootEntity);
+      const expressionFirstActiveAnimationTrackName =
+        firstActiveAnimationTrackName != null && firstActiveAnimationTrackStillExists
+          ? firstActiveAnimationTrackName
+          : fallbackAnimationTrackName;
+      const replacementSecondActiveAnimationTrackName =
+        secondActiveAnimationTrackName != null && secondActiveAnimationTrackStillExists
+          ? secondActiveAnimationTrackName
+          : fallbackAnimationTrackName;
+      this.__fillMissingVrmaExpressionTracks(
+        rootEntity,
+        expressionFirstActiveAnimationTrackName,
+        secondActiveAnimationTrackName != null ? replacementSecondActiveAnimationTrackName : undefined
+      );
+      if (postfixToTrackName != null) {
+        this.__restoreActiveSamplerBindings(activeSamplerBindings, trackNames, postfixToTrackName);
+      }
+      const animationState = rootEntity.tryToGetAnimationState();
+      if (
+        requiresFirstActiveAnimationTrackRebind &&
+        firstActiveAnimationTrackName != null &&
+        expressionFirstActiveAnimationTrackName != null
+      ) {
+        animationState?.replaceFirstActiveAnimationTrack(
+          firstActiveAnimationTrackName,
+          expressionFirstActiveAnimationTrackName
+        );
+      }
+      if (
+        requiresSecondActiveAnimationTrackRebind &&
+        secondActiveAnimationTrackName != null &&
+        replacementSecondActiveAnimationTrackName != null
+      ) {
+        animationState?.replaceSecondActiveAnimationTrack(
+          secondActiveAnimationTrackName,
+          replacementSecondActiveAnimationTrackName
+        );
+      }
     } finally {
       this.__engine.entityRepository.deleteEntityRecursively(entityVrma.entityUID);
     }
@@ -249,6 +356,35 @@ export class AnimationAssigner {
    * @param postfixToTrackName - Optional postfix to identify specific animation tracks to reset
    */
   private __resetAnimationAndPose(rootEntity: ISceneGraphEntity, postfixToTrackName?: string) {
+    const vrmComponent = rootEntity.tryToGetVrm();
+    const animationComponent = rootEntity.tryToGetAnimation();
+    if (vrmComponent != null && animationComponent != null) {
+      const expressionPathPrefix = 'vrmExpression/';
+      const blendingRatio = animationComponent.animationBlendingRatio;
+      for (const [pathName, channel] of animationComponent.getAnimationChannelsOfTrack()) {
+        if (!pathName.startsWith(expressionPathPrefix)) {
+          continue;
+        }
+        const trackNames = channel.animatedValue.getAllTrackNames();
+        const firstActiveSamplerTrackName = channel.animatedValue.getFirstActiveAnimationSamplerTrackName();
+        const secondActiveSamplerTrackName = channel.animatedValue.getSecondActiveAnimationSamplerTrackName();
+        const hasSecondActiveSampler = secondActiveSamplerTrackName != null;
+        const removesEverySampler =
+          postfixToTrackName == null ||
+          (trackNames.length > 0 && trackNames.every(trackName => trackName.endsWith(postfixToTrackName)));
+        const removesAContributingSampler =
+          postfixToTrackName != null &&
+          (((!hasSecondActiveSampler || blendingRatio !== 1) &&
+            firstActiveSamplerTrackName.endsWith(postfixToTrackName)) ||
+            (hasSecondActiveSampler &&
+              blendingRatio !== 0 &&
+              secondActiveSamplerTrackName.endsWith(postfixToTrackName)));
+        if (removesEverySampler || removesAContributingSampler) {
+          vrmComponent.setExpressionWeight(pathName.slice(expressionPathPrefix.length), 0);
+        }
+      }
+    }
+
     function resetAnimationAndPose(entity: ISceneGraphEntity, postfixToTrackName?: string) {
       const animationComponent = entity.tryToGetAnimation();
       if (animationComponent != null) {
@@ -400,6 +536,400 @@ export class AnimationAssigner {
     }
     vrmaExtension.humanoidBoneNameMap = humanoidBoneNameMap;
     return humanoidBoneNameMap;
+  }
+
+  private __getVrmaExpressionNamesMap(vrmaModel: RnM2Vrma): Map<NodeId, VrmaExpressionName[]> | undefined {
+    const vrmaExtension = vrmaModel.extensions?.VRMC_vrm_animation;
+    if (vrmaExtension == null) {
+      return void 0;
+    }
+
+    if (vrmaExtension.expressionNamesMap == null) {
+      VrmaImporter.readExpressions(vrmaModel);
+    }
+    return vrmaExtension.expressionNamesMap;
+  }
+
+  private __setVrmaExpressionAnimation(
+    rootEntity: ISceneGraphEntity,
+    animation: RnM2Animation,
+    channel: RnM2AnimationChannel,
+    expressionNames: readonly VrmaExpressionName[],
+    postfixToTrackName: string | undefined,
+    trackNames: Set<AnimationTrackName>
+  ): void {
+    const samplerObject = channel.samplerObject;
+    const input = samplerObject?.inputObject?.extras?.typedDataArray;
+    const output = samplerObject?.outputObject?.extras?.typedDataArray;
+    if (samplerObject == null || input == null || output == null) {
+      return;
+    }
+
+    const scalarOutput = new Float32Array(output.length / 3);
+    for (let i = 0; i < scalarOutput.length; i++) {
+      scalarOutput[i] = output[i * 3];
+    }
+
+    const rootVrm = rootEntity.tryToGetVrm()!;
+    const trackName = `${animation.name ?? 'Untitled_Animation'}${postfixToTrackName ?? ''}`;
+    let animationComponent = rootEntity.tryToGetAnimation();
+    const playbackStateSource =
+      animationComponent == null ? this.__findAnimationComponentInHierarchy(rootEntity) : undefined;
+    for (const { name: expressionName, isPreset } of expressionNames) {
+      const targetExpressionName =
+        rootVrm._version === '0.x' && isPreset && Object.hasOwn(vrmaPresetNameToVrm0xPresetName, expressionName)
+          ? vrmaPresetNameToVrm0xPresetName[expressionName]
+          : expressionName;
+      if (rootVrm.getExpressionWeight(targetExpressionName) == null) {
+        Logger.default.info(`VRMA expression '${expressionName}' is not available on the target VRM.`);
+        continue;
+      }
+
+      if (animationComponent == null) {
+        const animationEntity = this.__engine.entityRepository.addComponentToEntity(AnimationComponent, rootEntity);
+        animationComponent = animationEntity.getAnimation();
+        if (playbackStateSource != null) {
+          animationComponent.useGlobalTime = playbackStateSource.useGlobalTime;
+          animationComponent.time = playbackStateSource.time;
+          animationComponent.isLoop = playbackStateSource.isLoop;
+          animationComponent.setIsAnimating(playbackStateSource.isAnimating);
+        }
+      }
+      const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
+      animationSamplers.set(trackName, {
+        input,
+        output: scalarOutput,
+        outputComponentN: 1,
+        interpolationMethod: AnimationInterpolation.fromString(samplerObject.interpolation ?? 'LINEAR'),
+      });
+      animationComponent.setAnimation(
+        `vrmExpression/${targetExpressionName}`,
+        new AnimatedScalar(animationSamplers, trackName)
+      );
+      trackNames.add(trackName);
+    }
+    if (animationComponent != null && playbackStateSource != null) {
+      animationComponent._setAnimationBlendingRatioWithoutApplying(playbackStateSource.animationBlendingRatio);
+    }
+  }
+
+  /**
+   * Adds zero-valued samplers for expression paths that are absent from some assigned VRMA tracks.
+   *
+   * Animation track activation is switched across every channel at once. Without a sampler for the
+   * newly active track, AnimatedScalar keeps its previous sampler and the previous clip's expression
+   * can remain active.
+   */
+  private __fillMissingVrmaExpressionTracks(
+    rootEntity: ISceneGraphEntity,
+    firstActiveAnimationTrackName: AnimationTrackName | undefined,
+    secondActiveAnimationTrackName?: AnimationTrackName
+  ): void {
+    const trackTimeRanges = new Map<
+      AnimationTrackName,
+      {
+        minStartInputTime: number;
+        maxEndInputTime: number;
+        interpolationMethod: AnimationSampler['interpolationMethod'];
+      }
+    >();
+    // Humanoid animation samplers live on bone entities, so collect them recursively from the hierarchy.
+    const collectSamplers = (entity: ISceneGraphEntity) => {
+      const animationComponent = entity.tryToGetAnimation();
+      if (animationComponent != null) {
+        for (const [, channel] of animationComponent.getAnimationChannelsOfTrack()) {
+          for (const trackName of channel.animatedValue.getAllTrackNames()) {
+            const sampler = channel.animatedValue.getAnimationSampler(trackName);
+            if (sampler.input.length === 0) {
+              continue;
+            }
+            const startInputTime = sampler.input[0];
+            const endInputTime = sampler.input[sampler.input.length - 1];
+            const existingRange = trackTimeRanges.get(trackName);
+            if (existingRange == null) {
+              trackTimeRanges.set(trackName, {
+                minStartInputTime: startInputTime,
+                maxEndInputTime: endInputTime,
+                interpolationMethod: sampler.interpolationMethod,
+              });
+            } else {
+              existingRange.minStartInputTime = Math.min(existingRange.minStartInputTime, startInputTime);
+              existingRange.maxEndInputTime = Math.max(existingRange.maxEndInputTime, endInputTime);
+            }
+          }
+        }
+      }
+      for (const child of entity.children) {
+        collectSamplers(child.entity);
+      }
+    };
+    collectSamplers(rootEntity);
+
+    const rootAnimation = rootEntity.tryToGetAnimation();
+    if (rootAnimation == null) {
+      return;
+    }
+
+    const animationChannels = rootAnimation.getAnimationChannelsOfTrack();
+    const expressionChannels = Array.from(animationChannels).filter(([pathName]) =>
+      pathName.startsWith('vrmExpression/')
+    );
+    const availableExpressionChannels: typeof expressionChannels = [];
+    const rootVrm = rootEntity.tryToGetVrm();
+    for (const [pathName, channel] of expressionChannels) {
+      if (channel.animatedValue.getAllTrackNames().length === 0) {
+        animationChannels.delete(pathName);
+        rootVrm?.setExpressionWeight(pathName.slice('vrmExpression/'.length), 0);
+      } else {
+        availableExpressionChannels.push([pathName, channel]);
+      }
+    }
+    if (trackTimeRanges.size === 0) {
+      return;
+    }
+
+    const extendSamplerToEnd = (sampler: AnimationSampler, endInputTime: number) => {
+      const keyFrameCount = sampler.input.length;
+      if (keyFrameCount === 0 || sampler.input[keyFrameCount - 1] >= endInputTime) {
+        return;
+      }
+
+      const input = new Float32Array(keyFrameCount + 1);
+      input.set(sampler.input);
+      input[keyFrameCount] = endInputTime;
+
+      const isCubicSpline = sampler.interpolationMethod === AnimationInterpolation.CubicSpline;
+      const keyFrameStride = sampler.outputComponentN * (isCubicSpline ? 3 : 1);
+      const output = new Float32Array(sampler.output.length + keyFrameStride);
+      output.set(sampler.output);
+      const lastKeyFrameOffset = (keyFrameCount - 1) * keyFrameStride;
+      const appendedKeyFrameOffset = keyFrameCount * keyFrameStride;
+      if (isCubicSpline) {
+        const lastValueOffset = lastKeyFrameOffset + sampler.outputComponentN;
+        const lastOutTangentOffset = lastKeyFrameOffset + sampler.outputComponentN * 2;
+        output.fill(0, lastOutTangentOffset, lastOutTangentOffset + sampler.outputComponentN);
+        output.set(
+          sampler.output.subarray(lastValueOffset, lastValueOffset + sampler.outputComponentN),
+          appendedKeyFrameOffset + sampler.outputComponentN
+        );
+      } else {
+        output.set(
+          sampler.output.subarray(lastKeyFrameOffset, lastKeyFrameOffset + sampler.outputComponentN),
+          appendedKeyFrameOffset
+        );
+      }
+
+      sampler.input = input;
+      sampler.output = output;
+    };
+
+    for (const [pathName, channel] of availableExpressionChannels) {
+      const existingTrackNames = new Set(channel.animatedValue.getAllTrackNames());
+      for (const [trackName, trackTimeRange] of trackTimeRanges) {
+        if (existingTrackNames.has(trackName)) {
+          extendSamplerToEnd(channel.animatedValue.getAnimationSampler(trackName), trackTimeRange.maxEndInputTime);
+          continue;
+        }
+
+        const input =
+          trackTimeRange.minStartInputTime === trackTimeRange.maxEndInputTime
+            ? new Float32Array([trackTimeRange.minStartInputTime])
+            : new Float32Array([trackTimeRange.minStartInputTime, trackTimeRange.maxEndInputTime]);
+        const outputElementCount =
+          trackTimeRange.interpolationMethod === AnimationInterpolation.CubicSpline ? input.length * 3 : input.length;
+        const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
+        animationSamplers.set(trackName, {
+          input,
+          output: new Float32Array(outputElementCount),
+          outputComponentN: 1,
+          interpolationMethod: trackTimeRange.interpolationMethod,
+        });
+        rootAnimation.setAnimation(pathName, new AnimatedScalar(animationSamplers, trackName));
+      }
+
+      if (
+        firstActiveAnimationTrackName != null &&
+        channel.animatedValue.getAllTrackNames().includes(firstActiveAnimationTrackName)
+      ) {
+        channel.animatedValue.setFirstActiveAnimationTrackName(firstActiveAnimationTrackName);
+      }
+      if (
+        secondActiveAnimationTrackName != null &&
+        channel.animatedValue.getAllTrackNames().includes(secondActiveAnimationTrackName)
+      ) {
+        channel.animatedValue.setSecondActiveAnimationTrackName(secondActiveAnimationTrackName);
+      }
+    }
+  }
+
+  private __captureActiveSamplerBindingsByPostfix(
+    rootEntity: ISceneGraphEntity,
+    postfixToTrackName: string
+  ): AnimationChannelActiveSamplerBindings[] {
+    const bindings: AnimationChannelActiveSamplerBindings[] = [];
+    const collectBindings = (entity: ISceneGraphEntity) => {
+      const animationComponent = entity.tryToGetAnimation();
+      if (animationComponent != null) {
+        for (const [pathName, channel] of animationComponent.getAnimationChannelsOfTrack()) {
+          const animatedValue = channel.animatedValue;
+          const firstSamplerTrackName = animatedValue.getFirstActiveAnimationSamplerTrackName();
+          const secondSamplerTrackName = animatedValue.getSecondActiveAnimationSamplerTrackName();
+          const first = firstSamplerTrackName.endsWith(postfixToTrackName)
+            ? {
+                requestedTrackName: animatedValue.getFirstActiveAnimationTrackName(),
+                samplerTrackName: firstSamplerTrackName,
+              }
+            : undefined;
+          const second = secondSamplerTrackName?.endsWith(postfixToTrackName)
+            ? {
+                requestedTrackName: animatedValue.getSecondActiveAnimationTrackName(),
+                samplerTrackName: secondSamplerTrackName,
+              }
+            : undefined;
+          if (first != null || second != null) {
+            bindings.push({ animationComponent, pathName, first, second });
+          }
+        }
+      }
+      for (const child of entity.children) {
+        collectBindings(child.entity);
+      }
+    };
+    collectBindings(rootEntity);
+    return bindings;
+  }
+
+  private __restoreActiveSamplerBindings(
+    bindings: readonly AnimationChannelActiveSamplerBindings[],
+    assignedTrackNames: ReadonlySet<AnimationTrackName>,
+    postfixToTrackName: string
+  ): void {
+    for (const binding of bindings) {
+      const animatedValue = binding.animationComponent.getAnimation(binding.pathName);
+      if (animatedValue == null) {
+        continue;
+      }
+      const availableTrackNames = new Set(animatedValue.getAllTrackNames());
+      const restoreBinding = (
+        activeSamplerBinding: ActiveSamplerBinding | undefined,
+        setActiveTrackName: (trackName: AnimationTrackName) => void
+      ) => {
+        if (activeSamplerBinding == null) {
+          return;
+        }
+        const replacementTrackName =
+          assignedTrackNames.has(activeSamplerBinding.samplerTrackName) &&
+          availableTrackNames.has(activeSamplerBinding.samplerTrackName)
+            ? activeSamplerBinding.samplerTrackName
+            : Array.from(assignedTrackNames).find(
+                trackName => trackName.endsWith(postfixToTrackName) && availableTrackNames.has(trackName)
+              );
+        if (replacementTrackName != null && availableTrackNames.has(replacementTrackName)) {
+          setActiveTrackName(replacementTrackName);
+        }
+        const preservedRequestedTrackName = activeSamplerBinding.requestedTrackName?.endsWith(postfixToTrackName)
+          ? undefined
+          : activeSamplerBinding.requestedTrackName;
+        if (preservedRequestedTrackName != null && preservedRequestedTrackName !== replacementTrackName) {
+          setActiveTrackName(preservedRequestedTrackName);
+        }
+      };
+      restoreBinding(binding.first, trackName => animatedValue.setFirstActiveAnimationTrackName(trackName));
+      restoreBinding(binding.second, trackName => animatedValue.setSecondActiveAnimationTrackName(trackName));
+    }
+  }
+
+  private __getFirstActiveAnimationTrackName(rootEntity: ISceneGraphEntity): AnimationTrackName | undefined {
+    const animationComponent = rootEntity.tryToGetAnimation();
+    if (animationComponent != null) {
+      for (const [, channel] of animationComponent.getAnimationChannelsOfTrack()) {
+        return channel.animatedValue.getFirstActiveAnimationTrackName();
+      }
+    }
+
+    for (const child of rootEntity.children) {
+      const firstActiveAnimationTrackName = this.__getFirstActiveAnimationTrackName(child.entity);
+      if (firstActiveAnimationTrackName != null) {
+        return firstActiveAnimationTrackName;
+      }
+    }
+
+    return undefined;
+  }
+
+  private __findAnimationComponentInHierarchy(rootEntity: ISceneGraphEntity): AnimationComponent | undefined {
+    const animationComponent = rootEntity.tryToGetAnimation();
+    if (animationComponent != null) {
+      return animationComponent;
+    }
+    for (const child of rootEntity.children) {
+      const childAnimationComponent = this.__findAnimationComponentInHierarchy(child.entity);
+      if (childAnimationComponent != null) {
+        return childAnimationComponent;
+      }
+    }
+    return undefined;
+  }
+
+  private __getSecondActiveAnimationTrackName(rootEntity: ISceneGraphEntity): AnimationTrackName | undefined {
+    const animationComponent = rootEntity.tryToGetAnimation();
+    if (animationComponent != null) {
+      for (const [, channel] of animationComponent.getAnimationChannelsOfTrack()) {
+        const secondActiveAnimationTrackName = channel.animatedValue.getSecondActiveAnimationTrackName();
+        if (secondActiveAnimationTrackName != null) {
+          return secondActiveAnimationTrackName;
+        }
+      }
+    }
+
+    for (const child of rootEntity.children) {
+      const secondActiveAnimationTrackName = this.__getSecondActiveAnimationTrackName(child.entity);
+      if (secondActiveAnimationTrackName != null) {
+        return secondActiveAnimationTrackName;
+      }
+    }
+
+    return undefined;
+  }
+
+  private __getFirstAnimationTrackName(rootEntity: ISceneGraphEntity): AnimationTrackName | undefined {
+    const animationComponent = rootEntity.tryToGetAnimation();
+    if (animationComponent != null) {
+      for (const [, channel] of animationComponent.getAnimationChannelsOfTrack()) {
+        const animationTrackName = channel.animatedValue.getAllTrackNames()[0];
+        if (animationTrackName != null) {
+          return animationTrackName;
+        }
+      }
+    }
+
+    for (const child of rootEntity.children) {
+      const animationTrackName = this.__getFirstAnimationTrackName(child.entity);
+      if (animationTrackName != null) {
+        return animationTrackName;
+      }
+    }
+
+    return undefined;
+  }
+
+  private __hasAnimationTrackName(rootEntity: ISceneGraphEntity, trackName: AnimationTrackName): boolean {
+    const animationComponent = rootEntity.tryToGetAnimation();
+    if (animationComponent != null) {
+      for (const [, channel] of animationComponent.getAnimationChannelsOfTrack()) {
+        if (channel.animatedValue.getAllTrackNames().includes(trackName)) {
+          return true;
+        }
+      }
+    }
+
+    for (const child of rootEntity.children) {
+      if (this.__hasAnimationTrackName(child.entity, trackName)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private __validateCharacterVrmaAnimationSet(

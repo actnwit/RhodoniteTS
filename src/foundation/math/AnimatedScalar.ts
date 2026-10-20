@@ -14,8 +14,10 @@ import { Scalar } from './Scalar';
 export class AnimatedScalar extends Scalar implements IScalar, IAnimatedValue {
   private __animationSamplers: AnimationSamplers;
   private __firstActiveAnimationTrackName: AnimationTrackName;
+  private __firstActiveAnimationSamplerTrackName: AnimationTrackName;
   private __firstActiveAnimationSampler: AnimationSampler;
   private __secondActiveAnimationTrackName?: AnimationTrackName;
+  private __secondActiveAnimationSamplerTrackName?: AnimationTrackName;
   private __secondActiveAnimationSampler?: AnimationSampler;
   private __blendingRatio = 0;
   private __time?: number;
@@ -32,6 +34,7 @@ export class AnimatedScalar extends Scalar implements IScalar, IAnimatedValue {
     super(new Float32Array(1));
     this.__animationSamplers = animationSamplers;
     this.__firstActiveAnimationTrackName = activeAnimationTrackName;
+    this.__firstActiveAnimationSamplerTrackName = activeAnimationTrackName;
     const animationSampler = this.__animationSamplers.get(this.__firstActiveAnimationTrackName);
     if (animationSampler === undefined) {
       throw new Error('Animation channel not found');
@@ -109,14 +112,19 @@ export class AnimatedScalar extends Scalar implements IScalar, IAnimatedValue {
   public update() {
     let time = this.__time ?? 0;
     if (this.isLoop) {
-      let duration = this.__firstActiveAnimationSampler.input[this.__firstActiveAnimationSampler.input.length - 1];
+      const firstDuration =
+        this.__firstActiveAnimationSampler.input[this.__firstActiveAnimationSampler.input.length - 1];
+      let duration = firstDuration > 0 ? firstDuration : Number.POSITIVE_INFINITY;
       if (this.__secondActiveAnimationSampler !== undefined) {
-        duration = Math.min(
-          duration,
-          this.__secondActiveAnimationSampler.input[this.__secondActiveAnimationSampler.input.length - 1]
-        );
+        const secondDuration =
+          this.__secondActiveAnimationSampler.input[this.__secondActiveAnimationSampler.input.length - 1];
+        if (secondDuration > 0) {
+          duration = Math.min(duration, secondDuration);
+        }
       }
-      time = time % duration;
+      if (Number.isFinite(duration)) {
+        time = time % duration;
+      }
     }
     if (this.__lastTime === time) {
       return;
@@ -143,6 +151,7 @@ export class AnimatedScalar extends Scalar implements IScalar, IAnimatedValue {
       Logger.default.info('Animation channel not found');
     } else {
       this.__firstActiveAnimationSampler = animationSampler;
+      this.__firstActiveAnimationSamplerTrackName = animationTrackName;
     }
   }
 
@@ -158,6 +167,7 @@ export class AnimatedScalar extends Scalar implements IScalar, IAnimatedValue {
       Logger.default.info('Animation channel not found');
     } else {
       this.__secondActiveAnimationSampler = animationSampler;
+      this.__secondActiveAnimationSamplerTrackName = animationTrackName;
     }
   }
 
@@ -169,12 +179,20 @@ export class AnimatedScalar extends Scalar implements IScalar, IAnimatedValue {
     return this.__firstActiveAnimationTrackName;
   }
 
+  getFirstActiveAnimationSamplerTrackName() {
+    return this.__firstActiveAnimationSamplerTrackName;
+  }
+
   /**
    * Gets the name of the second active animation track.
    * @returns The name of the second active animation track, or undefined if not set
    */
   getSecondActiveAnimationTrackName() {
     return this.__secondActiveAnimationTrackName;
+  }
+
+  getSecondActiveAnimationSamplerTrackName() {
+    return this.__secondActiveAnimationSamplerTrackName;
   }
 
   /**

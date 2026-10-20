@@ -24,8 +24,10 @@ import { Vector3 } from './Vector3';
 export class AnimatedVector3 extends Vector3 implements IVector3, IAnimatedValue {
   private __animationSamplers: AnimationSamplers;
   private __firstActiveAnimationTrackName: AnimationTrackName;
+  private __firstActiveAnimationSamplerTrackName: AnimationTrackName;
   private __firstActiveAnimationSampler: AnimationSampler;
   private __secondActiveAnimationTrackName?: AnimationTrackName;
+  private __secondActiveAnimationSamplerTrackName?: AnimationTrackName;
   private __secondActiveAnimationSampler?: AnimationSampler;
   private __blendingRatio = 0;
   private __time?: number;
@@ -43,6 +45,7 @@ export class AnimatedVector3 extends Vector3 implements IVector3, IAnimatedValue
     super(new Float32Array(3));
     this.__animationSamplers = animationSamplers;
     this.__firstActiveAnimationTrackName = activeAnimationTrackName;
+    this.__firstActiveAnimationSamplerTrackName = activeAnimationTrackName;
     const animationSampler = this.__animationSamplers.get(this.__firstActiveAnimationTrackName);
     if (animationSampler === undefined) {
       throw new Error('Animation channel not found');
@@ -201,6 +204,7 @@ export class AnimatedVector3 extends Vector3 implements IVector3, IAnimatedValue
       Logger.default.info('Animation channel not found');
     } else {
       this.__firstActiveAnimationSampler = animationSampler;
+      this.__firstActiveAnimationSamplerTrackName = animationTrackName;
     }
   }
 
@@ -217,6 +221,7 @@ export class AnimatedVector3 extends Vector3 implements IVector3, IAnimatedValue
       Logger.default.info('Animation channel not found');
     } else {
       this.__secondActiveAnimationSampler = animationSampler;
+      this.__secondActiveAnimationSamplerTrackName = animationTrackName;
     }
   }
 
@@ -229,6 +234,10 @@ export class AnimatedVector3 extends Vector3 implements IVector3, IAnimatedValue
     return this.__firstActiveAnimationTrackName;
   }
 
+  getFirstActiveAnimationSamplerTrackName() {
+    return this.__firstActiveAnimationSamplerTrackName;
+  }
+
   /**
    * Gets the name of the second (secondary) active animation track.
    *
@@ -236,6 +245,10 @@ export class AnimatedVector3 extends Vector3 implements IVector3, IAnimatedValue
    */
   getSecondActiveAnimationTrackName() {
     return this.__secondActiveAnimationTrackName;
+  }
+
+  getSecondActiveAnimationSamplerTrackName() {
+    return this.__secondActiveAnimationSamplerTrackName;
   }
 
   /**

@@ -137,6 +137,11 @@ export function convertToGltfAnimationPathName(path: AnimationPathName): Gltf2An
   }
 }
 
+/** Returns whether an animation path only has meaning inside Rhodonite at runtime. */
+export function isRuntimeOnlyAnimationPath(path: AnimationPathName): boolean {
+  return path.startsWith('vrmExpression/');
+}
+
 /**
  * Aligns accessor byte offset to 4-byte boundaries.
  *
@@ -2255,9 +2260,6 @@ export function __createBufferViewsAndAccessorsOfAnimation(
         const animatedValue = rnChannel.animatedValue;
         const trackNames = animatedValue.getAllTrackNames();
         for (const trackName of trackNames) {
-          const animationEntry = acquireAnimation(trackName);
-          const animation = animationEntry.animation;
-
           const targetOverride = options?.resolveAnimationTarget?.({
             channel: rnChannel,
             entityIdx: i,
@@ -2267,6 +2269,9 @@ export function __createBufferViewsAndAccessorsOfAnimation(
           if (targetOverride === null) {
             continue;
           }
+
+          const animationEntry = acquireAnimation(trackName);
+          const animation = animationEntry.animation;
 
           // create and register Gltf2BufferView and Gltf2Accessor
           //   and set Input animation data as Uint8Array to the Gltf2Accessor

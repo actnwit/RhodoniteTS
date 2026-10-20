@@ -62,6 +62,12 @@ export declare class AnimationComponent extends Component {
      */
     set animationBlendingRatio(value: number);
     /**
+     * Updates the animation blending ratio without evaluating animation channels immediately.
+     * @param value - The blending ratio value between 0 and 1
+     * @internal
+     */
+    _setAnimationBlendingRatioWithoutApplying(value: number): void;
+    /**
      * Gets the current animation blending ratio.
      * @returns The blending ratio value between 0 and 1
      */
@@ -251,6 +257,7 @@ export declare class AnimationComponent extends Component {
      * @returns The animation global info map for the engine
      */
     static getAnimationGlobalInfo(engine: Engine): Map<AnimationTrackName, AnimationInfo>;
+    private static __recalculateAnimationInfo;
     /**
      * Sets the animation state for the specified engine.
      * @param engine - The engine instance to set the animation state for
@@ -305,6 +312,12 @@ export declare class AnimationComponent extends Component {
      */
     resetAnimationTrackByPostfix(postfix: string): void;
     currentTrackFeatureHash(): number | undefined;
+    /**
+     * Gets the feature hash for a specific animation track.
+     * @param trackName - The animation track whose feature hash should be returned
+     * @returns The feature hash, or undefined when the track is not registered
+     */
+    getAnimationTrackFeatureHash(trackName: AnimationTrackName): number | undefined;
     /**
      * Destroys this component, cleaning up resources and clearing animation data.
      * @override

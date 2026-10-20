@@ -40,6 +40,7 @@ import { AnimationStateRepository } from './AnimationStateRepository';
 
 const ChangeAnimationInfo = Symbol('AnimationComponentEventChangeAnimationInfo');
 const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
+const VrmExpressionPathPrefix = 'vrmExpression/';
 
 type AnimationTrackFeature = {
   trackName: AnimationTrackName;
@@ -167,6 +168,15 @@ export class AnimationComponent extends Component {
   }
 
   /**
+   * Updates the animation blending ratio without evaluating animation channels immediately.
+   * @param value - The blending ratio value between 0 and 1
+   * @internal
+   */
+  _setAnimationBlendingRatioWithoutApplying(value: number) {
+    this.__animationBlendingRatio = value;
+  }
+
+  /**
    * Gets the current animation blending ratio.
    * @returns The blending ratio value between 0 and 1
    */
@@ -188,12 +198,26 @@ export class AnimationComponent extends Component {
     const transformComponent = (this.entity as unknown as ISceneGraphEntity).getTransform();
     const blendShapeComponent = this.entity.tryToGetBlendShape();
     const effekseerComponent = this.entity.tryToGetEffekseer();
+    let vrmExpressionWeights: Map<string, number> | undefined;
 
     for (const [pathName, channel] of this.__animationTrack) {
       channel.animatedValue.setTime(time);
       channel.animatedValue.blendingRatio = this.__animationBlendingRatio;
 
+      if (pathName.startsWith(VrmExpressionPathPrefix)) {
+        vrmExpressionWeights ??= new Map();
+        const expressionName = pathName.substring(VrmExpressionPathPrefix.length);
+        vrmExpressionWeights.set(expressionName, (channel.animatedValue as unknown as Scalar).x);
+        continue;
+      }
       this.__applyChannelAnimation(pathName, channel, transformComponent, blendShapeComponent, effekseerComponent);
+    }
+
+    if (Is.exist(vrmExpressionWeights)) {
+      const vrmComponent = this.entity.tryToGetVrm();
+      if (Is.exist(vrmComponent)) {
+        vrmComponent.setExpressionWeights(vrmExpressionWeights);
+      }
     }
   }
 
@@ -456,9 +480,14 @@ export class AnimationComponent extends Component {
    */
   setAnimation(pathName: AnimationPathName, animatedValueArg: IAnimatedValue) {
     let animatedValue: IAnimatedValue;
+    const overwrittenTrackNames = new Set<AnimationTrackName>();
     if (this.__animationTrack.has(pathName)) {
       const existedAnimatedValue = this.__animationTrack.get(pathName)!.animatedValue;
+      const existedTrackNames = new Set(existedAnimatedValue.getAllTrackNames());
       for (const trackName of animatedValueArg.getAllTrackNames()) {
+        if (existedTrackNames.has(trackName)) {
+          overwrittenTrackNames.add(trackName);
+        }
         existedAnimatedValue.setAnimationSampler(trackName, animatedValueArg.getAnimationSampler(trackName));
       }
       animatedValue = existedAnimatedValue;
@@ -477,21 +506,30 @@ export class AnimationComponent extends Component {
     const trackNames = animatedValue.getAllTrackNames();
     const animationGlobalInfo = AnimationComponent.getAnimationGlobalInfo(this.__engine);
     for (const trackName of trackNames) {
+      if (overwrittenTrackNames.has(trackName)) {
+        AnimationComponent.__recalculateAnimationInfo(this.__engine, trackName);
+        continue;
+      }
       const newMinStartInputTime = animatedValue.getMinStartInputTime(trackName);
       const newMaxEndInputTime = animatedValue.getMaxEndInputTime(trackName);
+      const existingInfo = animationGlobalInfo.get(trackName);
 
       const info = {
         name: trackName,
-        minStartInputTime: newMinStartInputTime,
-        maxEndInputTime: newMaxEndInputTime,
+        minStartInputTime:
+          existingInfo == null ? newMinStartInputTime : Math.min(existingInfo.minStartInputTime, newMinStartInputTime),
+        maxEndInputTime:
+          existingInfo == null ? newMaxEndInputTime : Math.max(existingInfo.maxEndInputTime, newMaxEndInputTime),
       };
       animationGlobalInfo.set(trackName, info);
       AnimationComponent.__pubsub.publishAsync(AnimationComponent.Event.ChangeAnimationInfo, {
         infoMap: new Map(animationGlobalInfo),
       });
     }
-    // backup the current transform as rest pose
-    this.entity.getTransform()._backupTransformAsRest();
+    // Runtime-only VRM expression channels do not animate Transform and must not replace its rest pose.
+    if (!pathName.startsWith('vrmExpression/')) {
+      this.entity.getTransform()._backupTransformAsRest();
+    }
     this.__updateAnimationTrackFeatureHashes();
   }
 
@@ -904,6 +942,39 @@ export class AnimationComponent extends Component {
     return infoMap;
   }
 
+  private static __recalculateAnimationInfo(engine: Engine, trackName: AnimationTrackName) {
+    let minStartInputTime = Number.POSITIVE_INFINITY;
+    let maxEndInputTime = Number.NEGATIVE_INFINITY;
+    const components = engine.componentRepository.getComponentsWithType(AnimationComponent) as AnimationComponent[];
+    for (const component of components) {
+      for (const [, channel] of component.__animationTrack) {
+        if (!channel.animatedValue.getAllTrackNames().includes(trackName)) {
+          continue;
+        }
+        const sampler = channel.animatedValue.getAnimationSampler(trackName);
+        if (sampler.input.length === 0) {
+          continue;
+        }
+        minStartInputTime = Math.min(minStartInputTime, sampler.input[0]);
+        maxEndInputTime = Math.max(maxEndInputTime, sampler.input[sampler.input.length - 1]);
+      }
+    }
+
+    const animationGlobalInfo = AnimationComponent.getAnimationGlobalInfo(engine);
+    if (Number.isFinite(minStartInputTime) && Number.isFinite(maxEndInputTime)) {
+      animationGlobalInfo.set(trackName, {
+        name: trackName,
+        minStartInputTime,
+        maxEndInputTime,
+      });
+    } else {
+      animationGlobalInfo.delete(trackName);
+    }
+    AnimationComponent.__pubsub.publishAsync(AnimationComponent.Event.ChangeAnimationInfo, {
+      infoMap: new Map(animationGlobalInfo),
+    });
+  }
+
   /**
    * Sets the animation state for the specified engine.
    * @param engine - The engine instance to set the animation state for
@@ -1072,7 +1143,12 @@ export class AnimationComponent extends Component {
    * Resets all animation tracks, clearing all animation data from this component.
    */
   resetAnimationTracks() {
+    const trackNames = new Set(this.getAnimationTrackNames());
     this.__animationTrack.clear();
+    for (const trackName of trackNames) {
+      AnimationComponent.__recalculateAnimationInfo(this.__engine, trackName);
+    }
+    this.__updateAnimationTrackFeatureHashes();
   }
 
   /**
@@ -1080,9 +1156,30 @@ export class AnimationComponent extends Component {
    * @param trackName - The name of the animation track to reset
    */
   resetAnimationTrack(trackName: string) {
-    for (const [, channel] of this.__animationTrack) {
-      channel.animatedValue.deleteAnimationSampler(trackName);
+    const emptyPathNames: AnimationPathName[] = [];
+    for (const [pathName, channel] of this.__animationTrack) {
+      const animatedValue = channel.animatedValue;
+      const rebindsFirstActiveSampler = animatedValue.getFirstActiveAnimationSamplerTrackName() === trackName;
+      const rebindsSecondActiveSampler = animatedValue.getSecondActiveAnimationSamplerTrackName() === trackName;
+      animatedValue.deleteAnimationSampler(trackName);
+      const remainingTrackNames = animatedValue.getAllTrackNames();
+      if (remainingTrackNames.length === 0) {
+        emptyPathNames.push(pathName);
+        continue;
+      }
+      const fallbackTrackName = remainingTrackNames[0];
+      if (rebindsFirstActiveSampler) {
+        animatedValue.setFirstActiveAnimationTrackName(fallbackTrackName);
+      }
+      if (rebindsSecondActiveSampler) {
+        animatedValue.setSecondActiveAnimationTrackName(fallbackTrackName);
+      }
     }
+    for (const pathName of emptyPathNames) {
+      this.__animationTrack.delete(pathName);
+    }
+    AnimationComponent.__recalculateAnimationInfo(this.__engine, trackName);
+    this.__updateAnimationTrackFeatureHashes();
   }
 
   /**
@@ -1090,7 +1187,7 @@ export class AnimationComponent extends Component {
    * @param postfix - The postfix to match against track names
    */
   resetAnimationTrackByPostfix(postfix: string) {
-    const trackNames = this.getAnimationTrackNames();
+    const trackNames = new Set(this.getAnimationTrackNames());
     for (const trackName of trackNames) {
       if (trackName.endsWith(postfix)) {
         this.resetAnimationTrack(trackName);
@@ -1103,14 +1200,27 @@ export class AnimationComponent extends Component {
   }
 
   /**
+   * Gets the feature hash for a specific animation track.
+   * @param trackName - The animation track whose feature hash should be returned
+   * @returns The feature hash, or undefined when the track is not registered
+   */
+  getAnimationTrackFeatureHash(trackName: AnimationTrackName): number | undefined {
+    return this.__animationTrackFeatureHashes.get(trackName);
+  }
+
+  /**
    * Destroys this component, cleaning up resources and clearing animation data.
    * @override
    */
   _destroy(): void {
+    const trackNames = new Set(this.getAnimationTrackNames());
     super._destroy();
     this.__animationTrack.clear();
     this.__animationTrackFeatureHashes.clear();
     this.__isAnimating = false;
+    for (const trackName of trackNames) {
+      AnimationComponent.__recalculateAnimationInfo(this.__engine, trackName);
+    }
   }
 
   private __updateAnimationTrackFeatureHashes() {

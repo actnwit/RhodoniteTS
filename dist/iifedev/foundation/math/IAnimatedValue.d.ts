@@ -20,10 +20,22 @@ export interface IAnimatedValue {
      */
     getFirstActiveAnimationTrackName(): AnimationTrackName;
     /**
+     * Gets the track name of the sampler that is actually bound as the first animation.
+     * This can differ from the requested active track when that track has no sampler.
+     * @returns The track name of the currently evaluated first sampler
+     */
+    getFirstActiveAnimationSamplerTrackName(): AnimationTrackName;
+    /**
      * Gets the currently active second animation track name.
      * @returns The name of the second active animation track, or undefined if not set
      */
     getSecondActiveAnimationTrackName(): AnimationTrackName | undefined;
+    /**
+     * Gets the track name of the sampler that is actually bound as the second animation.
+     * This can differ from the requested active track when that track has no sampler.
+     * @returns The track name of the currently evaluated second sampler, or undefined if none is bound
+     */
+    getSecondActiveAnimationSamplerTrackName(): AnimationTrackName | undefined;
     /**
      * Gets the minimum start input time for a specified animation track.
      * @param trackName - The name of the animation track

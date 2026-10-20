@@ -11,8 +11,10 @@ import { Quaternion } from './Quaternion';
 export declare class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnimatedValue {
     private __animationSamplers;
     private __firstActiveAnimationTrackName;
+    private __firstActiveAnimationSamplerTrackName;
     private __firstActiveAnimationSampler;
     private __secondActiveAnimationTrackName?;
+    private __secondActiveAnimationSamplerTrackName?;
     private __secondActiveAnimationSampler?;
     private __blendingRatio;
     private __time?;
@@ -101,11 +103,13 @@ export declare class AnimatedQuaternion extends Quaternion implements IQuaternio
      * @returns The first active animation track name
      */
     getFirstActiveAnimationTrackName(): string;
+    getFirstActiveAnimationSamplerTrackName(): string;
     /**
      * Gets the name of the second active animation track.
      * @returns The second active animation track name, or undefined if not set
      */
     getSecondActiveAnimationTrackName(): string | undefined;
+    getSecondActiveAnimationSamplerTrackName(): string | undefined;
     /**
      * Gets the minimum start time for the specified animation track.
      * @param trackName - The animation track name

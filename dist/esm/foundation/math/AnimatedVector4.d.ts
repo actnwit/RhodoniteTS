@@ -18,8 +18,10 @@ import { Vector4 } from './Vector4';
 export declare class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue {
     private __animationSamplers;
     private __firstActiveAnimationTrackName;
+    private __firstActiveAnimationSamplerTrackName;
     private __firstActiveAnimationSampler;
     private __secondActiveAnimationTrackName?;
+    private __secondActiveAnimationSamplerTrackName?;
     private __secondActiveAnimationSampler?;
     private __blendingRatio;
     private __time?;
@@ -120,12 +122,14 @@ export declare class AnimatedVector4 extends Vector4 implements IVector4, IAnima
      * @returns The name of the first active animation track
      */
     getFirstActiveAnimationTrackName(): string;
+    getFirstActiveAnimationSamplerTrackName(): string;
     /**
      * Gets the name of the second (secondary) active animation track.
      *
      * @returns The name of the second active animation track, or undefined if not set
      */
     getSecondActiveAnimationTrackName(): string | undefined;
+    getSecondActiveAnimationSamplerTrackName(): string | undefined;
     /**
      * Gets the minimum start time of the specified animation track.
      *

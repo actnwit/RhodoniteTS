@@ -1,8 +1,10 @@
 import { afterEach, expect, test, vi } from 'vitest';
-import type { AnimationPathName, AnimationSampler, RnM2Vrma } from '../../types';
+import type { AnimationPathName, AnimationSampler, RnM2, RnM2Vrma } from '../../types';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { AnimationInterpolation } from '../definitions/AnimationInterpolation';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { AnimatedScalar } from '../math/AnimatedScalar';
+import { AnimatedVector3 } from '../math/AnimatedVector3';
 import { Quaternion } from '../math/Quaternion';
 import { AnimationAssigner, type CharacterVrmaAnimationSet, type VrmaRootMotionPolicy } from './AnimationAssigner';
 import { ModelConverter } from './ModelConverter';
@@ -43,12 +45,57 @@ function createCharacterVrmaSet(): CharacterVrmaAnimationSet {
   return Object.fromEntries(semantics.map(semantic => [semantic, createVrma()])) as CharacterVrmaAnimationSet;
 }
 
+function createExpressionVrma({
+  input = new Float32Array([0, 1]),
+  interpolation = 'CUBICSPLINE',
+  output = new Float32Array([-1, 9, 9, 0.25, 9, 9, 2, 9, 9, -2, 9, 9, 1.5, 9, 9, 3, 9, 9]),
+}: {
+  input?: Float32Array;
+  interpolation?: 'LINEAR' | 'STEP' | 'CUBICSPLINE';
+  output?: Float32Array;
+} = {}): RnM2Vrma {
+  const samplerObject = {
+    interpolation,
+    inputObject: { extras: { typedDataArray: input } },
+    outputObject: { extras: { typedDataArray: output } },
+  };
+  return {
+    animations: [
+      {
+        name: 'Face',
+        samplers: [samplerObject],
+        channels: [{ samplerObject, target: { node: 2, path: 'translation' } }],
+      },
+    ],
+    extensions: {
+      VRMC_vrm_animation: {
+        specVersion: '1.0',
+        expressions: {
+          preset: { happy: { node: 2 } },
+          custom: { smirk: { node: 2 } },
+        },
+      },
+    },
+    extras: { rnEntities: [] },
+  } as unknown as RnM2Vrma;
+}
+
+function createMultiAnimationExpressionVrma(): RnM2Vrma {
+  const vrma = createExpressionVrma();
+  vrma.animations[0].name = 'Idle';
+  vrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const runAnimation = createExpressionVrma().animations[0];
+  runAnimation.name = 'Run';
+  vrma.animations.push(runAnimation);
+  return vrma;
+}
+
 function createAssignerFixture({ version = '1.0' }: { version?: string } = {}) {
   const hipsRetarget = vi.fn((_retarget: unknown, postfix: string | undefined) => [`Clip${postfix ?? ''}`]);
   const spineRetarget = vi.fn((_retarget: unknown, postfix: string | undefined) => [`Clip${postfix ?? ''}`]);
   const hipsEntity = { getAnimation: () => ({ _setRetarget: hipsRetarget }) };
   const spineEntity = { getAnimation: () => ({ _setRetarget: spineRetarget }) };
-  const animationState = {};
+  const animationState = { setFirstActiveAnimationTrack: vi.fn() };
   const root = {
     entityUID: 42,
     tryToGetVrm: () => ({ _version: version }),
@@ -76,6 +123,92 @@ function createAssignerFixture({ version = '1.0' }: { version?: string } = {}) {
   const assigner = new AnimationAssigner({ entityRepository } as any);
 
   return { assigner, entityRepository, hipsRetarget, root, spineRetarget };
+}
+
+function createExpressionAssignerFixture(availableExpressions = new Set(['happy', 'smirk']), version = '1.0') {
+  const animationChannels = new Map<AnimationPathName, any>();
+  const setExpressionWeight = vi.fn();
+  const setAnimation = vi.fn((pathName: AnimationPathName, animatedValue: any) => {
+    const existingChannel = animationChannels.get(pathName);
+    if (existingChannel == null) {
+      animationChannels.set(pathName, {
+        animatedValue,
+        target: { pathName },
+      });
+      return;
+    }
+    for (const trackName of animatedValue.getAllTrackNames()) {
+      existingChannel.animatedValue.setAnimationSampler(trackName, animatedValue.getAnimationSampler(trackName));
+    }
+  });
+  const rootAnimation = {
+    animationBlendingRatio: 0,
+    getAnimation: (pathName: AnimationPathName) => animationChannels.get(pathName)?.animatedValue,
+    getAnimationChannelsOfTrack: () => animationChannels,
+    getAnimationTrackNames: () =>
+      Array.from(animationChannels.values()).flatMap(channel => channel.animatedValue.getAllTrackNames()),
+    resetAnimationTracks: vi.fn(() => animationChannels.clear()),
+    resetAnimationTrackByPostfix: vi.fn((postfix: string) => {
+      for (const channel of animationChannels.values()) {
+        for (const trackName of channel.animatedValue.getAllTrackNames()) {
+          if (trackName.endsWith(postfix)) {
+            channel.animatedValue.deleteAnimationSampler(trackName);
+          }
+        }
+      }
+    }),
+    setActiveAnimationTrack: vi.fn((trackName: string) => {
+      for (const channel of animationChannels.values()) {
+        channel.animatedValue.setFirstActiveAnimationTrackName(trackName);
+      }
+    }),
+    setSecondActiveAnimationTrack: vi.fn((trackName: string) => {
+      for (const channel of animationChannels.values()) {
+        channel.animatedValue.setSecondActiveAnimationTrackName(trackName);
+      }
+    }),
+    setAnimation,
+  };
+  const setSecondActiveAnimationTrack = vi.fn((trackName: string) => {
+    rootAnimation.setSecondActiveAnimationTrack(trackName);
+  });
+  const replaceFirstActiveAnimationTrack = vi.fn((_replacedTrackName: string, replacementTrackName: string) => {
+    rootAnimation.setActiveAnimationTrack(replacementTrackName);
+  });
+  const animationState = {
+    setFirstActiveAnimationTrack: vi.fn((trackName: string) => {
+      rootAnimation.setActiveAnimationTrack(trackName);
+      rootAnimation.animationBlendingRatio = 0;
+      for (const channel of animationChannels.values()) {
+        channel.animatedValue.blendingRatio = 0;
+      }
+    }),
+    setSecondActiveAnimationTrack,
+    replaceFirstActiveAnimationTrack,
+    replaceSecondActiveAnimationTrack: vi.fn((_replacedTrackName: string, replacementTrackName: string) => {
+      setSecondActiveAnimationTrack(replacementTrackName);
+    }),
+  };
+  const rootVrm = {
+    _version: version,
+    getExpressionNames: () => Array.from(availableExpressions),
+    getExpressionWeight: (name: string) => (availableExpressions.has(name) ? 0 : undefined),
+    setExpressionWeight,
+  };
+  const root = {
+    entityUID: 42,
+    tryToGetVrm: () => rootVrm,
+    tryToGetAnimationState: () => animationState,
+    tryToGetAnimation: () => rootAnimation,
+    getTransform: () => ({ _restoreTransformFromRest: vi.fn() }),
+    children: [],
+  } as unknown as ISceneGraphEntity;
+  const entityRepository = {
+    addComponentToEntity: vi.fn((_component: unknown, entity: unknown) => entity),
+    deleteEntityRecursively: vi.fn(),
+  };
+  const assigner = new AnimationAssigner({ entityRepository } as any);
+  return { animationState, assigner, entityRepository, root, rootAnimation, setAnimation, setExpressionWeight };
 }
 
 function mockModelConversion() {
@@ -151,6 +284,976 @@ test('rejects unsupported target VRM versions before converting a VRMA', () => {
 
   expect(() => assigner.assignAnimationWithVrma(root, createVrma())).toThrow("Unsupported VRM version 'unsupported'");
   expect(ModelConverter.convertToRhodoniteObjectSimple).not.toHaveBeenCalled();
+});
+
+test('preserves manually controlled VRM expressions when assigning a regular glTF animation', () => {
+  const { assigner, root, rootAnimation, setExpressionWeight } = createExpressionAssignerFixture();
+  const gltfModel = {
+    animations: [{ samplers: [], channels: [] }],
+  } as unknown as RnM2;
+
+  assigner.assignAnimation(root, gltfModel, {} as any, false, 'none');
+
+  expect(setExpressionWeight).not.toHaveBeenCalled();
+  expect(rootAnimation.resetAnimationTracks).toHaveBeenCalledTimes(1);
+});
+
+test('assigns preset and custom VRMA expressions as scalar root tracks', () => {
+  mockModelConversion();
+  const { assigner, entityRepository, root, setAnimation } = createExpressionAssignerFixture();
+  const vrma = createExpressionVrma();
+
+  const trackNames = assigner.assignAnimationWithVrma(root, vrma, '__expression');
+
+  expect(trackNames).toEqual(['Face__expression']);
+  expect(setAnimation.mock.calls.map(([pathName]) => pathName)).toEqual(['vrmExpression/happy', 'vrmExpression/smirk']);
+  for (const [, animatedValue] of setAnimation.mock.calls) {
+    const sampler = animatedValue.getAnimationSampler('Face__expression');
+    expect(Array.from(sampler.input)).toEqual([0, 1]);
+    expect(Array.from(sampler.output)).toEqual([-1, 0.25, 2, -2, 1.5, 3]);
+    expect(sampler.outputComponentN).toBe(1);
+    expect(sampler.interpolationMethod).toBe(AnimationInterpolation.CubicSpline);
+  }
+  expect(vrma.extensions.VRMC_vrm_animation.expressionNamesMap?.get(2)).toEqual([
+    { name: 'happy', isPreset: true },
+    { name: 'smirk', isPreset: false },
+  ]);
+  expect(entityRepository.deleteEntityRecursively).toHaveBeenCalledWith(99);
+});
+
+test('inherits existing playback state when creating the root expression animation component', () => {
+  let targetAnimationBlendingRatio = 0;
+  const applyAnimation = vi.fn();
+  const sourceAnimation = {
+    useGlobalTime: false,
+    time: 1.25,
+    animationBlendingRatio: 0.75,
+    isLoop: false,
+    isAnimating: false,
+  };
+  const targetAnimation = {
+    useGlobalTime: true,
+    time: 0,
+    get animationBlendingRatio() {
+      return targetAnimationBlendingRatio;
+    },
+    set animationBlendingRatio(value: number) {
+      targetAnimationBlendingRatio = value;
+      applyAnimation();
+    },
+    _setAnimationBlendingRatioWithoutApplying: vi.fn((value: number) => {
+      targetAnimationBlendingRatio = value;
+    }),
+    isLoop: true,
+    isAnimating: true,
+    setIsAnimating: vi.fn((isAnimating: boolean) => {
+      targetAnimation.isAnimating = isAnimating;
+    }),
+    setAnimation: vi.fn(),
+  };
+  let rootAnimation: typeof targetAnimation | undefined;
+  const child = {
+    tryToGetAnimation: () => sourceAnimation,
+    children: [],
+  } as unknown as ISceneGraphEntity;
+  const root = {
+    tryToGetAnimation: () => rootAnimation,
+    tryToGetVrm: () => ({
+      _version: '1.0',
+      getExpressionWeight: () => 0,
+    }),
+    children: [{ entity: child }],
+  } as unknown as ISceneGraphEntity;
+  const entityRepository = {
+    addComponentToEntity: vi.fn((component: unknown, entity: unknown) => {
+      expect(component).toBe(AnimationComponent);
+      expect(entity).toBe(root);
+      rootAnimation = targetAnimation;
+      return { getAnimation: () => targetAnimation };
+    }),
+  };
+  const assigner = new AnimationAssigner({ entityRepository } as any);
+  const vrma = createExpressionVrma({
+    interpolation: 'LINEAR',
+    output: new Float32Array([0, 9, 9, 1, 9, 9]),
+  });
+  const animation = vrma.animations[0];
+
+  (assigner as any).__setVrmaExpressionAnimation(
+    root,
+    animation,
+    animation.channels[0],
+    [{ name: 'happy', isPreset: true }],
+    '__slot',
+    new Set()
+  );
+
+  expect(targetAnimation.useGlobalTime).toBe(false);
+  expect(targetAnimation.time).toBe(1.25);
+  expect(targetAnimation.animationBlendingRatio).toBe(0.75);
+  expect(targetAnimation._setAnimationBlendingRatioWithoutApplying).toHaveBeenCalledWith(0.75);
+  expect(applyAnimation).not.toHaveBeenCalled();
+  expect(targetAnimation.isLoop).toBe(false);
+  expect(targetAnimation.setIsAnimating).toHaveBeenCalledWith(false);
+  expect(targetAnimation.setAnimation).toHaveBeenCalledOnce();
+});
+
+test.each([
+  ['LINEAR', AnimationInterpolation.Linear],
+  ['STEP', AnimationInterpolation.Step],
+] as const)('preserves %s interpolation for VRMA expression tracks', (interpolation, expectedInterpolation) => {
+  mockModelConversion();
+  const { assigner, root, setAnimation } = createExpressionAssignerFixture(new Set(['happy']));
+  const vrma = createExpressionVrma({
+    interpolation,
+    output: new Float32Array([-0.2, 9, 9, 1.2, 9, 9]),
+  });
+
+  assigner.assignAnimationWithVrma(root, vrma);
+
+  const sampler = setAnimation.mock.calls[0][1].getAnimationSampler('Face');
+  expect(Array.from(sampler.output)).toEqual(Array.from(new Float32Array([-0.2, 1.2])));
+  expect(sampler.interpolationMethod).toBe(expectedInterpolation);
+});
+
+test.each([
+  ['LINEAR', new Float32Array([0.75, 9, 9])],
+  ['CUBICSPLINE', new Float32Array([0, 9, 9, 0.75, 9, 9, 0, 9, 9])],
+] as const)('treats a zero-duration single-key %s expression track as a constant', (interpolation, output) => {
+  mockModelConversion();
+  const { assigner, root, rootAnimation } = createExpressionAssignerFixture(new Set(['happy']));
+  const vrma = createExpressionVrma({
+    input: new Float32Array([0]),
+    interpolation,
+    output,
+  });
+  vrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+
+  assigner.assignAnimationWithVrma(root, vrma);
+
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setTime(10);
+  expect(happyAnimation.x).toBeCloseTo(0.75);
+});
+
+test('uses the first track for every expression on the initial multi-animation VRMA assignment', () => {
+  mockModelConversion();
+  const { assigner, root, rootAnimation } = createExpressionAssignerFixture();
+  const vrma = createExpressionVrma();
+  vrma.animations[0].name = 'Happy';
+  const smirkAnimation = createExpressionVrma().animations[0];
+  smirkAnimation.name = 'Smirk';
+  smirkAnimation.channels[0].target!.node = 3;
+  vrma.animations.push(smirkAnimation);
+  vrma.extensions.VRMC_vrm_animation.expressions = {
+    preset: {
+      happy: { node: 2 },
+    },
+    custom: {
+      smirk: { node: 3 },
+    },
+  };
+
+  assigner.assignAnimationWithVrma(root, vrma);
+
+  expect(rootAnimation.getAnimation('vrmExpression/happy').getFirstActiveAnimationTrackName()).toBe('Happy');
+  expect(rootAnimation.getAnimation('vrmExpression/smirk').getFirstActiveAnimationTrackName()).toBe('Happy');
+});
+
+test('fills missing expression channels with zero samplers across assigned VRMA tracks', () => {
+  mockModelConversion();
+  const { assigner, root, rootAnimation } = createExpressionAssignerFixture();
+  const happyVrma = createExpressionVrma();
+  happyVrma.animations[0].name = 'Happy';
+  happyVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const smirkVrma = createExpressionVrma();
+  smirkVrma.animations[0].name = 'Smirk';
+  smirkVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+
+  assigner.assignAnimationWithVrma(root, happyVrma, '__happy');
+  assigner.assignAnimationWithVrma(root, smirkVrma, '__smirk');
+
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  const smirkAnimation = rootAnimation.getAnimation('vrmExpression/smirk');
+  expect(happyAnimation.getAllTrackNames()).toEqual(['Happy__happy', 'Smirk__smirk']);
+  expect(smirkAnimation.getAllTrackNames()).toEqual(['Smirk__smirk', 'Happy__happy']);
+  expect(Array.from(happyAnimation.getAnimationSampler('Smirk__smirk').output)).toEqual(new Array(6).fill(0));
+  expect(Array.from(smirkAnimation.getAnimationSampler('Happy__happy').output)).toEqual(new Array(6).fill(0));
+  expect(happyAnimation.getFirstActiveAnimationTrackName()).toBe('Happy__happy');
+  expect(smirkAnimation.getFirstActiveAnimationTrackName()).toBe('Happy__happy');
+
+  happyAnimation.setFirstActiveAnimationTrackName('Smirk__smirk');
+  happyAnimation.setTime(0.5);
+  expect(happyAnimation.x).toBe(0);
+});
+
+test('uses the full track time range for missing expression zero samplers', () => {
+  const { assigner, root, rootAnimation } = createExpressionAssignerFixture();
+  const shortBoneSampler: AnimationSampler = {
+    input: new Float32Array([0, 0.5]),
+    output: new Float32Array(6),
+    outputComponentN: 3,
+    interpolationMethod: AnimationInterpolation.Linear,
+  };
+  const faceSampler: AnimationSampler = {
+    input: new Float32Array([0, 2]),
+    output: new Float32Array([0, 1]),
+    outputComponentN: 1,
+    interpolationMethod: AnimationInterpolation.Linear,
+  };
+  const existingSmirkSampler: AnimationSampler = {
+    input: new Float32Array([0, 2]),
+    output: new Float32Array([0, 1]),
+    outputComponentN: 1,
+    interpolationMethod: AnimationInterpolation.Linear,
+  };
+  rootAnimation.setAnimation('translate', new AnimatedVector3(new Map([['Face', shortBoneSampler]]), 'Face'));
+  rootAnimation.setAnimation('vrmExpression/happy', new AnimatedScalar(new Map([['Face', faceSampler]]), 'Face'));
+  const smirkAnimation = new AnimatedScalar(new Map([['Existing', existingSmirkSampler]]), 'Existing');
+  rootAnimation.setAnimation('vrmExpression/smirk', smirkAnimation);
+
+  (assigner as any).__fillMissingVrmaExpressionTracks(root, 'Existing');
+
+  expect(Array.from(smirkAnimation.getAnimationSampler('Face').input)).toEqual([0, 2]);
+  smirkAnimation.setSecondActiveAnimationTrackName('Face');
+  smirkAnimation.blendingRatio = 0.5;
+  smirkAnimation.setTime(1.25);
+  expect(smirkAnimation.x).toBeCloseTo(0.3125);
+});
+
+test.each([
+  ['LINEAR', AnimationInterpolation.Linear, new Float32Array([0, 1])],
+  ['STEP', AnimationInterpolation.Step, new Float32Array([0, 1])],
+  ['CUBICSPLINE', AnimationInterpolation.CubicSpline, new Float32Array([0, 0, 2, 3, 1, 4])],
+] as const)('extends an existing %s expression sampler to the full track duration', (_name, interpolation, output) => {
+  const { assigner, root, rootAnimation } = createExpressionAssignerFixture();
+  const boneSampler: AnimationSampler = {
+    input: new Float32Array([0, 2]),
+    output: new Float32Array(6),
+    outputComponentN: 3,
+    interpolationMethod: AnimationInterpolation.Linear,
+  };
+  const expressionSampler: AnimationSampler = {
+    input: new Float32Array([0, 1]),
+    output,
+    outputComponentN: 1,
+    interpolationMethod: interpolation,
+  };
+  rootAnimation.setAnimation('translate', new AnimatedVector3(new Map([['Face', boneSampler]]), 'Face'));
+  const happyAnimation = new AnimatedScalar(new Map([['Face', expressionSampler]]), 'Face');
+  rootAnimation.setAnimation('vrmExpression/happy', happyAnimation);
+
+  (assigner as any).__fillMissingVrmaExpressionTracks(root, 'Face');
+
+  expect(Array.from(happyAnimation.getAnimationSampler('Face').input)).toEqual([0, 1, 2]);
+  happyAnimation.setTime(1.5);
+  expect(happyAnimation.x).toBeCloseTo(1);
+});
+
+test('preserves blending state when adding a postfix track without removing the active track', () => {
+  mockModelConversion();
+  const { animationState, assigner, root, rootAnimation } = createExpressionAssignerFixture(new Set(['happy']));
+  const existingVrma = createExpressionVrma();
+  existingVrma.animations[0].name = 'Existing';
+  existingVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const targetVrma = createExpressionVrma();
+  targetVrma.animations[0].name = 'Target';
+  targetVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const addedVrma = createExpressionVrma();
+  addedVrma.animations[0].name = 'Added';
+  addedVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+
+  assigner.assignAnimationWithVrma(root, existingVrma, '__existing');
+  assigner.assignAnimationWithVrma(root, targetVrma, '__target');
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setSecondActiveAnimationTrackName('Target__target');
+  happyAnimation.blendingRatio = 0.5;
+  animationState.setFirstActiveAnimationTrack.mockClear();
+
+  assigner.assignAnimationWithVrma(root, addedVrma, '__added');
+
+  expect(animationState.setFirstActiveAnimationTrack).not.toHaveBeenCalled();
+  expect(happyAnimation.getFirstActiveAnimationTrackName()).toBe('Existing__existing');
+  expect(happyAnimation.getSecondActiveAnimationTrackName()).toBe('Target__target');
+  expect(happyAnimation.blendingRatio).toBe(0.5);
+});
+
+test('preserves blending state when replacing the non-current first track', () => {
+  mockModelConversion();
+  const { animationState, assigner, root, rootAnimation } = createExpressionAssignerFixture(new Set(['happy']));
+  const firstVrma = createExpressionVrma({
+    interpolation: 'LINEAR',
+    output: new Float32Array([0, 9, 9, 0, 9, 9]),
+  });
+  firstVrma.animations[0].name = 'First';
+  firstVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const targetVrma = createExpressionVrma({
+    interpolation: 'LINEAR',
+    output: new Float32Array([1, 9, 9, 1, 9, 9]),
+  });
+  targetVrma.animations[0].name = 'Target';
+  targetVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const replacementVrma = createExpressionVrma({
+    interpolation: 'LINEAR',
+    output: new Float32Array([0.2, 9, 9, 0.2, 9, 9]),
+  });
+  replacementVrma.animations[0].name = 'Replacement';
+  replacementVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+
+  assigner.assignAnimationWithVrma(root, firstVrma, '__first');
+  assigner.assignAnimationWithVrma(root, targetVrma, '__target');
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setSecondActiveAnimationTrackName('Target__target');
+  happyAnimation.blendingRatio = 0.5;
+  animationState.setFirstActiveAnimationTrack.mockClear();
+
+  assigner.assignAnimationWithVrma(root, replacementVrma, '__first');
+
+  expect(animationState.setFirstActiveAnimationTrack).not.toHaveBeenCalled();
+  expect(animationState.replaceFirstActiveAnimationTrack).toHaveBeenCalledWith('First__first', 'Replacement__first');
+  expect(happyAnimation.getFirstActiveAnimationTrackName()).toBe('Replacement__first');
+  expect(happyAnimation.getSecondActiveAnimationTrackName()).toBe('Target__target');
+  expect(happyAnimation.blendingRatio).toBe(0.5);
+  happyAnimation.setTime(0.5);
+  expect(happyAnimation.x).toBeCloseTo(0.6);
+});
+
+test('sets the preserved second active track on a new expression channel when replacing the first slot', () => {
+  mockModelConversion();
+  const { animationState, assigner, root, rootAnimation } = createExpressionAssignerFixture();
+  const firstVrma = createExpressionVrma();
+  firstVrma.animations[0].name = 'First';
+  firstVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const targetVrma = createExpressionVrma();
+  targetVrma.animations[0].name = 'Target';
+  targetVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const replacementVrma = createExpressionVrma({
+    interpolation: 'LINEAR',
+    output: new Float32Array([0.8, 9, 9, 0.8, 9, 9]),
+  });
+  replacementVrma.animations[0].name = 'Replacement';
+  replacementVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+
+  assigner.assignAnimationWithVrma(root, firstVrma, '__first');
+  assigner.assignAnimationWithVrma(root, targetVrma, '__target');
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setSecondActiveAnimationTrackName('Target__target');
+  animationState.replaceSecondActiveAnimationTrack.mockClear();
+
+  assigner.assignAnimationWithVrma(root, replacementVrma, '__first');
+
+  const smirkAnimation = rootAnimation.getAnimation('vrmExpression/smirk');
+  expect(animationState.replaceSecondActiveAnimationTrack).not.toHaveBeenCalled();
+  expect(smirkAnimation.getFirstActiveAnimationTrackName()).toBe('Replacement__first');
+  expect(smirkAnimation.getSecondActiveAnimationTrackName()).toBe('Target__target');
+  smirkAnimation.blendingRatio = 1;
+  smirkAnimation.setTime(0.5);
+  expect(smirkAnimation.x).toBe(0);
+});
+
+test('rebinds the second active track when its postfix slot is replaced', () => {
+  mockModelConversion();
+  const { animationState, assigner, root, rootAnimation } = createExpressionAssignerFixture(new Set(['happy']));
+  const firstVrma = createExpressionVrma({
+    interpolation: 'LINEAR',
+    output: new Float32Array([0, 9, 9, 0, 9, 9]),
+  });
+  firstVrma.animations[0].name = 'First';
+  firstVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const oldTargetVrma = createExpressionVrma({
+    interpolation: 'LINEAR',
+    output: new Float32Array([1, 9, 9, 1, 9, 9]),
+  });
+  oldTargetVrma.animations[0].name = 'OldTarget';
+  oldTargetVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const newTargetVrma = createExpressionVrma({
+    interpolation: 'LINEAR',
+    output: new Float32Array([0.2, 9, 9, 0.2, 9, 9]),
+  });
+  newTargetVrma.animations[0].name = 'NewTarget';
+  newTargetVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+
+  assigner.assignAnimationWithVrma(root, firstVrma, '__first');
+  assigner.assignAnimationWithVrma(root, oldTargetVrma, '__target');
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setSecondActiveAnimationTrackName('OldTarget__target');
+  happyAnimation.blendingRatio = 0.5;
+  animationState.setSecondActiveAnimationTrack.mockClear();
+
+  assigner.assignAnimationWithVrma(root, newTargetVrma, '__target');
+
+  expect(animationState.setSecondActiveAnimationTrack).toHaveBeenCalledWith('NewTarget__target');
+  expect(animationState.replaceSecondActiveAnimationTrack).toHaveBeenCalledWith(
+    'OldTarget__target',
+    'NewTarget__target'
+  );
+  expect(happyAnimation.getSecondActiveAnimationTrackName()).toBe('NewTarget__target');
+  expect(happyAnimation.blendingRatio).toBe(0.5);
+  happyAnimation.setTime(0.5);
+  expect(happyAnimation.x).toBeCloseTo(0.1);
+});
+
+test('falls back to the replacement track when an active postfix slot is assigned a differently named clip', () => {
+  mockModelConversion();
+  const { assigner, root, rootAnimation } = createExpressionAssignerFixture();
+  const oldVrma = createExpressionVrma({
+    interpolation: 'LINEAR',
+    output: new Float32Array([1, 9, 9, 1, 9, 9]),
+  });
+  oldVrma.animations[0].name = 'Old';
+  const newVrma = createExpressionVrma({
+    interpolation: 'LINEAR',
+    output: new Float32Array([0, 9, 9, 1, 9, 9]),
+  });
+  newVrma.animations[0].name = 'New';
+
+  assigner.assignAnimationWithVrma(root, oldVrma, '__slot');
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setFirstActiveAnimationTrackName('Old__slot');
+
+  assigner.assignAnimationWithVrma(root, newVrma, '__slot');
+
+  expect(happyAnimation.getAllTrackNames()).toEqual(['New__slot']);
+  expect(happyAnimation.getFirstActiveAnimationTrackName()).toBe('New__slot');
+  happyAnimation.setTime(0.5);
+  expect(happyAnimation.x).toBe(0.5);
+});
+
+test('refreshes the animation state when an active postfix slot keeps the same track name', () => {
+  mockModelConversion();
+  const { animationState, assigner, root } = createExpressionAssignerFixture(new Set(['happy']));
+  const oldVrma = createExpressionVrma();
+  oldVrma.animations[0].name = 'Same';
+  oldVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const replacementVrma = createExpressionVrma();
+  replacementVrma.animations[0].name = 'Same';
+  replacementVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+
+  assigner.assignAnimationWithVrma(root, oldVrma, '__slot');
+  animationState.replaceFirstActiveAnimationTrack.mockClear();
+  assigner.assignAnimationWithVrma(root, replacementVrma, '__slot');
+
+  expect(animationState.replaceFirstActiveAnimationTrack).toHaveBeenCalledWith('Same__slot', 'Same__slot');
+});
+
+test('preserves a recreated first track by name in a multi-animation postfix slot', () => {
+  mockModelConversion();
+  const { animationState, assigner, root, rootAnimation } = createExpressionAssignerFixture(new Set(['happy']));
+  assigner.assignAnimationWithVrma(root, createMultiAnimationExpressionVrma(), '__slot');
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setFirstActiveAnimationTrackName('Run__slot');
+  animationState.replaceFirstActiveAnimationTrack.mockClear();
+
+  assigner.assignAnimationWithVrma(root, createMultiAnimationExpressionVrma(), '__slot');
+
+  expect(animationState.replaceFirstActiveAnimationTrack).toHaveBeenCalledWith('Run__slot', 'Run__slot');
+  expect(happyAnimation.getFirstActiveAnimationTrackName()).toBe('Run__slot');
+});
+
+test('preserves a recreated second track by name in a multi-animation postfix slot', () => {
+  mockModelConversion();
+  const { animationState, assigner, root, rootAnimation } = createExpressionAssignerFixture(new Set(['happy']));
+  assigner.assignAnimationWithVrma(root, createMultiAnimationExpressionVrma(), '__slot');
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setFirstActiveAnimationTrackName('Idle__slot');
+  happyAnimation.setSecondActiveAnimationTrackName('Run__slot');
+  happyAnimation.blendingRatio = 0.5;
+  animationState.replaceSecondActiveAnimationTrack.mockClear();
+
+  assigner.assignAnimationWithVrma(root, createMultiAnimationExpressionVrma(), '__slot');
+
+  expect(animationState.replaceSecondActiveAnimationTrack).toHaveBeenCalledWith('Run__slot', 'Run__slot');
+  expect(happyAnimation.getFirstActiveAnimationTrackName()).toBe('Idle__slot');
+  expect(happyAnimation.getSecondActiveAnimationTrackName()).toBe('Run__slot');
+  expect(happyAnimation.blendingRatio).toBe(0.5);
+});
+
+test.each([
+  'first',
+  'second',
+] as const)('rebinds the evaluated %s bone sampler when an expression-only logical track survives slot replacement', activeSampler => {
+  mockModelConversion();
+  const { animationState, assigner, root, rootAnimation } = createExpressionAssignerFixture(new Set(['happy']));
+  const expressionTrackName = 'FaceOnly';
+  const slotTrackName = 'Body__slot';
+  const fallbackTrackName = 'Fallback__other';
+  const expressionSampler: AnimationSampler = {
+    input: new Float32Array([0, 1]),
+    output: new Float32Array([0, 1]),
+    outputComponentN: 1,
+    interpolationMethod: AnimationInterpolation.Linear,
+  };
+  const expressionAnimation = new AnimatedScalar(
+    new Map([[expressionTrackName, expressionSampler]]),
+    expressionTrackName
+  );
+  if (activeSampler === 'second') {
+    expressionAnimation.setSecondActiveAnimationTrackName(expressionTrackName);
+  }
+  rootAnimation.setAnimation('vrmExpression/happy', expressionAnimation);
+
+  const boneAnimationValue = new AnimatedVector3(
+    new Map([
+      [
+        slotTrackName,
+        {
+          input: new Float32Array([0, 1]),
+          output: new Float32Array([0, 0, 0, 1, 0, 0]),
+          outputComponentN: 3,
+          interpolationMethod: AnimationInterpolation.Linear,
+        },
+      ],
+      [
+        fallbackTrackName,
+        {
+          input: new Float32Array([0, 1]),
+          output: new Float32Array([0, 0, 0, 9, 0, 0]),
+          outputComponentN: 3,
+          interpolationMethod: AnimationInterpolation.Linear,
+        },
+      ],
+    ]),
+    activeSampler === 'first' ? slotTrackName : fallbackTrackName
+  );
+  if (activeSampler === 'first') {
+    boneAnimationValue.setFirstActiveAnimationTrackName(expressionTrackName);
+  } else {
+    boneAnimationValue.setSecondActiveAnimationTrackName(slotTrackName);
+    boneAnimationValue.setSecondActiveAnimationTrackName(expressionTrackName);
+  }
+  const boneAnimationChannels = new Map<AnimationPathName, any>([
+    ['rotate', { animatedValue: boneAnimationValue, target: { pathName: 'rotate' } }],
+  ]);
+  const boneAnimation = {
+    getAnimation: (pathName: AnimationPathName) => boneAnimationChannels.get(pathName)?.animatedValue,
+    getAnimationChannelsOfTrack: () => boneAnimationChannels,
+    getAnimationTrackNames: () => boneAnimationValue.getAllTrackNames(),
+    resetAnimationTrackByPostfix: vi.fn((postfix: string) => {
+      for (const trackName of boneAnimationValue.getAllTrackNames()) {
+        if (!trackName.endsWith(postfix)) {
+          continue;
+        }
+        const rebindsFirst = boneAnimationValue.getFirstActiveAnimationSamplerTrackName() === trackName;
+        const rebindsSecond = boneAnimationValue.getSecondActiveAnimationSamplerTrackName() === trackName;
+        boneAnimationValue.deleteAnimationSampler(trackName);
+        const fallback = boneAnimationValue.getAllTrackNames()[0];
+        if (rebindsFirst) {
+          boneAnimationValue.setFirstActiveAnimationTrackName(fallback);
+        }
+        if (rebindsSecond) {
+          boneAnimationValue.setSecondActiveAnimationTrackName(fallback);
+        }
+      }
+    }),
+    _setRetarget: vi.fn((_retarget: unknown, postfix: string | undefined) => {
+      const trackName = `Body${postfix ?? ''}`;
+      boneAnimationValue.setAnimationSampler(trackName, {
+        input: new Float32Array([0, 1]),
+        output: new Float32Array([0, 0, 0, 2, 0, 0]),
+        outputComponentN: 3,
+        interpolationMethod: AnimationInterpolation.Linear,
+      });
+      return [trackName];
+    }),
+    setActiveAnimationTrack: vi.fn((trackName: string) => {
+      boneAnimationValue.setFirstActiveAnimationTrackName(trackName);
+    }),
+    setSecondActiveAnimationTrack: vi.fn((trackName: string) => {
+      boneAnimationValue.setSecondActiveAnimationTrackName(trackName);
+    }),
+  };
+  const boneEntity = {
+    tryToGetAnimation: () => boneAnimation,
+    getAnimation: () => boneAnimation,
+    getTransform: () => ({ _restoreTransformFromRest: vi.fn() }),
+    children: [],
+  } as unknown as ISceneGraphEntity;
+  (root.children as any).push({ entity: boneEntity });
+  (root as any).getTagValue = (tag: string) => {
+    if (tag === 'humanoid_map_name_nodeId') {
+      return new Map([['hips', 0]]);
+    }
+    if (tag === 'rnEntities') {
+      return [boneEntity];
+    }
+    return undefined;
+  };
+
+  const replacement = createExpressionVrma();
+  replacement.animations[0].name = 'Body';
+  const samplerObject = replacement.animations[0].samplers[0];
+  replacement.animations[0].channels.push({
+    samplerObject,
+    target: { node: 0, path: 'rotation' },
+  });
+  replacement.extensions.VRMC_vrm_animation.humanoidBoneNameMap = new Map([[0, 'hips']]);
+  replacement.extras.rnEntities[0] = { tryToSetUniqueName: vi.fn() } as any;
+
+  assigner.assignAnimationWithVrma(root, replacement, '__slot');
+
+  if (activeSampler === 'first') {
+    expect(animationState.replaceFirstActiveAnimationTrack).not.toHaveBeenCalled();
+    expect(boneAnimationValue.getFirstActiveAnimationTrackName()).toBe(expressionTrackName);
+    expect(boneAnimationValue.getFirstActiveAnimationSamplerTrackName()).toBe(slotTrackName);
+  } else {
+    expect(animationState.replaceSecondActiveAnimationTrack).not.toHaveBeenCalled();
+    expect(boneAnimationValue.getSecondActiveAnimationTrackName()).toBe(expressionTrackName);
+    expect(boneAnimationValue.getSecondActiveAnimationSamplerTrackName()).toBe(slotTrackName);
+  }
+  boneAnimationValue.blendingRatio = activeSampler === 'first' ? 0 : 1;
+  boneAnimationValue.setTime(0.5);
+  expect(boneAnimationValue.x).toBe(1);
+});
+
+test('applies a replacement fallback track to the animation state and bone channels', () => {
+  mockModelConversion();
+  const { assigner, root } = createExpressionAssignerFixture(new Set(['happy']));
+  const oldSampler: AnimationSampler = {
+    input: new Float32Array([0, 1]),
+    output: new Float32Array([9, 0, 0, 9, 0, 0]),
+    outputComponentN: 3,
+    interpolationMethod: AnimationInterpolation.Linear,
+  };
+  const boneAnimationValue = new AnimatedVector3(new Map([['Old__slot', oldSampler]]), 'Old__slot');
+  const boneAnimationChannels = new Map<AnimationPathName, any>([
+    ['translate', { animatedValue: boneAnimationValue, target: { pathName: 'translate' } }],
+  ]);
+  const boneAnimation = {
+    getAnimation: (pathName: AnimationPathName) => boneAnimationChannels.get(pathName)?.animatedValue,
+    getAnimationChannelsOfTrack: () => boneAnimationChannels,
+    getAnimationTrackNames: () => boneAnimationValue.getAllTrackNames(),
+    resetAnimationTrackByPostfix: vi.fn((postfix: string) => {
+      for (const trackName of boneAnimationValue.getAllTrackNames()) {
+        if (trackName.endsWith(postfix)) {
+          boneAnimationValue.deleteAnimationSampler(trackName);
+        }
+      }
+    }),
+    _setRetarget: vi.fn((_retarget: unknown, postfix: string | undefined) => {
+      const trackName = `New${postfix ?? ''}`;
+      boneAnimationValue.setAnimationSampler(trackName, {
+        input: new Float32Array([0, 1]),
+        output: new Float32Array([0, 0, 0, 2, 0, 0]),
+        outputComponentN: 3,
+        interpolationMethod: AnimationInterpolation.Linear,
+      });
+      return [trackName];
+    }),
+    setActiveAnimationTrack: vi.fn((trackName: string) => {
+      boneAnimationValue.setFirstActiveAnimationTrackName(trackName);
+    }),
+  };
+  const boneEntity = {
+    tryToGetAnimation: () => boneAnimation,
+    getAnimation: () => boneAnimation,
+    getTransform: () => ({ _restoreTransformFromRest: vi.fn() }),
+    children: [],
+  } as unknown as ISceneGraphEntity;
+  (root.children as any).push({ entity: boneEntity });
+  (root as any).getTagValue = (tag: string) => {
+    if (tag === 'humanoid_map_name_nodeId') {
+      return new Map([['hips', 0]]);
+    }
+    if (tag === 'rnEntities') {
+      return [boneEntity];
+    }
+    return undefined;
+  };
+  const replaceFirstActiveAnimationTrack = vi.fn((_replacedTrackName: string, replacementTrackName: string) => {
+    boneAnimation.setActiveAnimationTrack(replacementTrackName);
+  });
+  (root as any).tryToGetAnimationState = () => ({ replaceFirstActiveAnimationTrack });
+
+  const replacement = createExpressionVrma({
+    interpolation: 'LINEAR',
+    output: new Float32Array([0, 9, 9, 1, 9, 9]),
+  });
+  replacement.animations[0].name = 'New';
+  const samplerObject = replacement.animations[0].samplers[0];
+  replacement.animations[0].channels.push({
+    samplerObject,
+    target: { node: 0, path: 'rotation' },
+  });
+  replacement.extensions.VRMC_vrm_animation.humanoidBoneNameMap = new Map([[0, 'hips']]);
+  replacement.extras.rnEntities[0] = { tryToSetUniqueName: vi.fn() } as any;
+
+  assigner.assignAnimationWithVrma(root, replacement, '__slot');
+
+  expect(replaceFirstActiveAnimationTrack).toHaveBeenCalledWith('Old__slot', 'New__slot');
+  expect(boneAnimationValue.getFirstActiveAnimationTrackName()).toBe('New__slot');
+  boneAnimationValue.setTime(0.5);
+  expect(boneAnimationValue.x).toBe(1);
+});
+
+test('clears an expression channel and weight when its last postfix sampler is removed', () => {
+  mockModelConversion();
+  const { assigner, root, rootAnimation, setExpressionWeight } = createExpressionAssignerFixture(new Set(['happy']));
+  const oldVrma = createExpressionVrma();
+  oldVrma.animations[0].name = 'Old';
+  oldVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  assigner.assignAnimationWithVrma(root, oldVrma, '__slot');
+  setExpressionWeight.mockClear();
+
+  const unavailableVrma = createExpressionVrma();
+  unavailableVrma.animations[0].name = 'Unavailable';
+  unavailableVrma.extensions.VRMC_vrm_animation.expressions = {
+    custom: { unavailable: { node: 2 } },
+  };
+  assigner.assignAnimationWithVrma(root, unavailableVrma, '__slot');
+
+  expect(rootAnimation.getAnimation('vrmExpression/happy')).toBeUndefined();
+  expect(setExpressionWeight).toHaveBeenCalledWith('happy', 0);
+});
+
+test('clears an active expression weight when another slot keeps a zero sampler', () => {
+  mockModelConversion();
+  const { assigner, root, rootAnimation, setExpressionWeight } = createExpressionAssignerFixture();
+  const happyVrma = createExpressionVrma();
+  happyVrma.animations[0].name = 'Happy';
+  happyVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const smirkVrma = createExpressionVrma();
+  smirkVrma.animations[0].name = 'Smirk';
+  smirkVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+  assigner.assignAnimationWithVrma(root, happyVrma, '__active');
+  assigner.assignAnimationWithVrma(root, smirkVrma, '__other');
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setFirstActiveAnimationTrackName('Happy__active');
+  setExpressionWeight.mockClear();
+
+  const replacementVrma = createExpressionVrma();
+  replacementVrma.animations[0].name = 'Replacement';
+  replacementVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+  assigner.assignAnimationWithVrma(root, replacementVrma, '__active');
+
+  expect(setExpressionWeight).toHaveBeenCalledWith('happy', 0);
+  expect(happyAnimation.getAllTrackNames()).toContain('Smirk__other');
+});
+
+test('clears the first expression sampler at blend ratio one when no second sampler is bound', () => {
+  mockModelConversion();
+  const { assigner, root, rootAnimation, setExpressionWeight } = createExpressionAssignerFixture();
+  const happyVrma = createExpressionVrma();
+  happyVrma.animations[0].name = 'Happy';
+  happyVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const smirkVrma = createExpressionVrma();
+  smirkVrma.animations[0].name = 'Smirk';
+  smirkVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+  assigner.assignAnimationWithVrma(root, happyVrma, '__active');
+  assigner.assignAnimationWithVrma(root, smirkVrma, '__other');
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  happyAnimation.setFirstActiveAnimationTrackName('Happy__active');
+  happyAnimation.blendingRatio = 1;
+  rootAnimation.animationBlendingRatio = 1;
+  expect(happyAnimation.getSecondActiveAnimationSamplerTrackName()).toBeUndefined();
+  setExpressionWeight.mockClear();
+
+  const replacementVrma = createExpressionVrma();
+  replacementVrma.animations[0].name = 'Replacement';
+  replacementVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+  assigner.assignAnimationWithVrma(root, replacementVrma, '__active');
+
+  expect(setExpressionWeight).toHaveBeenCalledWith('happy', 0);
+  expect(happyAnimation.getAllTrackNames()).toContain('Smirk__other');
+});
+
+test.each([
+  'first',
+  'second',
+] as const)('clears an expression weight when the evaluated %s sampler belongs to the replaced slot', activeSampler => {
+  mockModelConversion();
+  const { assigner, root, rootAnimation, setExpressionWeight } = createExpressionAssignerFixture();
+  const happyVrma = createExpressionVrma();
+  happyVrma.animations[0].name = 'Happy';
+  happyVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const smirkVrma = createExpressionVrma();
+  smirkVrma.animations[0].name = 'Smirk';
+  smirkVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+  assigner.assignAnimationWithVrma(root, happyVrma, '__active');
+  assigner.assignAnimationWithVrma(root, smirkVrma, '__other');
+  const happyAnimation = rootAnimation.getAnimation('vrmExpression/happy');
+  if (activeSampler === 'first') {
+    happyAnimation.setFirstActiveAnimationTrackName('Missing');
+    happyAnimation.blendingRatio = 0;
+    rootAnimation.animationBlendingRatio = 0;
+    expect(happyAnimation.getFirstActiveAnimationSamplerTrackName()).toBe('Happy__active');
+  } else {
+    happyAnimation.setFirstActiveAnimationTrackName('Smirk__other');
+    happyAnimation.setSecondActiveAnimationTrackName('Happy__active');
+    happyAnimation.setSecondActiveAnimationTrackName('Missing');
+    happyAnimation.blendingRatio = 1;
+    rootAnimation.animationBlendingRatio = 1;
+    expect(happyAnimation.getSecondActiveAnimationSamplerTrackName()).toBe('Happy__active');
+  }
+  setExpressionWeight.mockClear();
+
+  const replacementVrma = createExpressionVrma();
+  replacementVrma.animations[0].name = 'Replacement';
+  replacementVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+  assigner.assignAnimationWithVrma(root, replacementVrma, '__active');
+
+  expect(setExpressionWeight).toHaveBeenCalledWith('happy', 0);
+  expect(happyAnimation.getAllTrackNames()).toContain('Smirk__other');
+});
+
+test.each([
+  {
+    blendingRatio: 0,
+    expressionName: 'happy',
+    postfixToReplace: '__second',
+  },
+  {
+    blendingRatio: 1,
+    expressionName: 'smirk',
+    postfixToReplace: '__first',
+  },
+])('does not clear $expressionName when replacing a non-contributing slot at blend ratio $blendingRatio', ({
+  blendingRatio,
+  expressionName,
+  postfixToReplace,
+}) => {
+  mockModelConversion();
+  const { assigner, root, rootAnimation, setExpressionWeight } = createExpressionAssignerFixture();
+  const happyVrma = createExpressionVrma();
+  happyVrma.animations[0].name = 'Happy';
+  happyVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const smirkVrma = createExpressionVrma();
+  smirkVrma.animations[0].name = 'Smirk';
+  smirkVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+  assigner.assignAnimationWithVrma(root, happyVrma, '__first');
+  assigner.assignAnimationWithVrma(root, smirkVrma, '__second');
+  rootAnimation.setActiveAnimationTrack('Happy__first');
+  rootAnimation.setSecondActiveAnimationTrack('Smirk__second');
+  rootAnimation.animationBlendingRatio = blendingRatio;
+  for (const channel of rootAnimation.getAnimationChannelsOfTrack().values()) {
+    channel.animatedValue.blendingRatio = blendingRatio;
+  }
+  setExpressionWeight.mockClear();
+
+  const replacementVrma = createExpressionVrma();
+  replacementVrma.animations[0].name = 'Replacement';
+  if (postfixToReplace === '__first') {
+    replacementVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  } else {
+    replacementVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+  }
+  assigner.assignAnimationWithVrma(root, replacementVrma, postfixToReplace);
+
+  expect(setExpressionWeight).not.toHaveBeenCalledWith(expressionName, 0);
+});
+
+test('resets expression weights before replacing unpostfixed VRMA tracks', () => {
+  mockModelConversion();
+  const { assigner, root, rootAnimation, setExpressionWeight } = createExpressionAssignerFixture();
+  const happyVrma = createExpressionVrma();
+  happyVrma.extensions.VRMC_vrm_animation.expressions!.custom = undefined;
+  const smirkVrma = createExpressionVrma();
+  smirkVrma.extensions.VRMC_vrm_animation.expressions!.preset = undefined;
+
+  assigner.assignAnimationWithVrma(root, happyVrma);
+  setExpressionWeight.mockClear();
+  rootAnimation.resetAnimationTracks.mockClear();
+
+  assigner.assignAnimationWithVrma(root, smirkVrma);
+
+  expect(setExpressionWeight).toHaveBeenCalledWith('happy', 0);
+  expect(setExpressionWeight).not.toHaveBeenCalledWith('smirk', 0);
+  expect(setExpressionWeight.mock.invocationCallOrder[0]).toBeLessThan(
+    rootAnimation.resetAnimationTracks.mock.invocationCallOrder[0]
+  );
+  expect(rootAnimation.getAnimation('vrmExpression/happy')).toBeUndefined();
+});
+
+test('maps VRMA 1.0 preset names and preserves custom names for VRM 0.x', () => {
+  mockModelConversion();
+  const vrmaNames = [
+    'happy',
+    'sad',
+    'relaxed',
+    'aa',
+    'ih',
+    'ou',
+    'ee',
+    'oh',
+    'blinkLeft',
+    'blinkRight',
+    'lookUp',
+    'lookDown',
+    'lookLeft',
+    'lookRight',
+    'smirk',
+  ];
+  const vrm0xNames = [
+    'joy',
+    'sorrow',
+    'fun',
+    'a',
+    'i',
+    'u',
+    'e',
+    'o',
+    'blink_l',
+    'blink_r',
+    'lookup',
+    'lookdown',
+    'lookleft',
+    'lookright',
+    'smirk',
+  ];
+  const { assigner, root, setAnimation } = createExpressionAssignerFixture(new Set(vrm0xNames), '0.x');
+  const vrma = createExpressionVrma();
+  vrma.extensions.VRMC_vrm_animation.expressionNamesMap = new Map([
+    [2, vrmaNames.map(name => ({ name, isPreset: name !== 'smirk' }))],
+  ]);
+
+  assigner.assignAnimationWithVrma(root, vrma, '__vrm0');
+
+  expect(setAnimation.mock.calls.map(([pathName]) => pathName)).toEqual(
+    vrm0xNames.map(name => `vrmExpression/${name}`)
+  );
+});
+
+test('keeps preset and custom VRMA expressions distinct when they share a name for VRM 0.x', () => {
+  mockModelConversion();
+  const { assigner, root, setAnimation } = createExpressionAssignerFixture(new Set(['happy', 'joy']), '0.x');
+  const vrma = createExpressionVrma();
+  vrma.extensions.VRMC_vrm_animation.expressions = {
+    preset: {
+      happy: { node: 2 },
+    },
+    custom: {
+      happy: { node: 2 },
+    },
+  };
+
+  assigner.assignAnimationWithVrma(root, vrma);
+
+  expect(setAnimation.mock.calls.map(([pathName]) => pathName)).toEqual(['vrmExpression/joy', 'vrmExpression/happy']);
+});
+
+test.each([
+  'constructor',
+  'toString',
+])('preserves the VRM 0.x custom expression name %s when it collides with Object.prototype', expressionName => {
+  mockModelConversion();
+  const { assigner, root, setAnimation } = createExpressionAssignerFixture(new Set([expressionName]), '0.x');
+  const vrma = createExpressionVrma();
+  vrma.extensions.VRMC_vrm_animation.expressionNamesMap = new Map([[2, [{ name: expressionName, isPreset: false }]]]);
+
+  assigner.assignAnimationWithVrma(root, vrma);
+
+  expect(setAnimation).toHaveBeenCalledTimes(1);
+  expect(setAnimation.mock.calls[0][0]).toBe(`vrmExpression/${expressionName}`);
+});
+
+test('skips VRMA expressions that do not exist on the target model', () => {
+  mockModelConversion();
+  const { assigner, root, setAnimation } = createExpressionAssignerFixture(new Set(['happy']));
+
+  const trackNames = assigner.assignAnimationWithVrma(root, createExpressionVrma());
+
+  expect(trackNames).toEqual(['Face']);
+  expect(setAnimation).toHaveBeenCalledTimes(1);
+  expect(setAnimation.mock.calls[0][0]).toBe('vrmExpression/happy');
 });
 
 test('omits filtered retarget paths while retaining other paths', () => {

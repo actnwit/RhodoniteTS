@@ -51,11 +51,26 @@ export declare class VrmComponent extends Component {
     setVrmExpressions(expressions: VrmExpression[]): void;
     /**
      * Sets the weight for a specific VRM expression.
-     * This method updates the expression weight and applies it to all associated blend shape binds.
+     * This method clamps the input, applies binary-expression behavior, and updates
+     * all associated blend shape binds using the accumulated contribution from every expression.
      * @param expressionName - The name of the expression to modify
      * @param weight - The weight value to apply (typically between 0 and 1)
      */
     setExpressionWeight(expressionName: VrmExpressionName, weight: number): void;
+    /**
+     * Sets multiple VRM expression weights and updates morph targets in one pass.
+     * This is used when several expression animation channels are evaluated together.
+     * @param expressionWeights - Expression names and their evaluated weights
+     */
+    setExpressionWeights(expressionWeights: ReadonlyMap<VrmExpressionName, number>): void;
+    private __setExpressionWeight;
+    /**
+     * Recomputes morph target weights from all expression contributions.
+     *
+     * Multiple VRM expressions may bind the same morph target. Applying each expression directly
+     * would make the result depend on map insertion order, so contributions are accumulated first.
+     */
+    private __applyExpressionWeightsToMorphTargets;
     /**
      * Gets the current weight of a specific VRM expression.
      * @param expressionName - The name of the expression to query

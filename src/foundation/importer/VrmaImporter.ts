@@ -1,6 +1,6 @@
 import type { GltfLoadOption } from '../../types';
 import type { RnM2Vrma } from '../../types/RnM2Vrma';
-import type { HumanBoneNames, NodeId } from '../../types/VRMC_vrm_animation';
+import type { HumanBoneNames, NodeId, VrmaExpressionName } from '../../types/VRMC_vrm_animation';
 import { Is } from '../misc/Is';
 import { Gltf2Importer } from './Gltf2Importer';
 
@@ -8,14 +8,14 @@ import { Gltf2Importer } from './Gltf2Importer';
  * A utility class for importing VRMA (VRM Animation) files.
  *
  * VRMA is an extension format for VRM that adds animation capabilities,
- * allowing for the import and processing of humanoid animation data.
+ * allowing for the import and processing of humanoid and expression animation data.
  * This class provides static methods to import VRMA files from various sources
- * and processes the humanoid bone mapping for efficient animation playback.
+ * and processes node mappings for efficient animation playback.
  *
  * @remarks
  * This class extends the functionality of Gltf2Importer to handle VRMA-specific
  * features, particularly the VRMC_vrm_animation extension that contains
- * humanoid bone definitions and animation data.
+ * humanoid bone and expression definitions.
  *
  * @example
  * ```typescript
@@ -44,6 +44,7 @@ export class VrmaImporter {
     const options: GltfLoadOption = {};
     const result = await Gltf2Importer.importFromUrl(url, options);
     this.readHumanoid(result as RnM2Vrma);
+    this.readExpressions(result as RnM2Vrma);
     return result as RnM2Vrma;
   }
 
@@ -64,6 +65,7 @@ export class VrmaImporter {
     const options: GltfLoadOption = {};
     const result = await Gltf2Importer.importFromArrayBuffers({ 'data.glb': arrayBuffer }, options);
     this.readHumanoid(result as RnM2Vrma);
+    this.readExpressions(result as RnM2Vrma);
     return result as RnM2Vrma;
   }
 
@@ -91,6 +93,40 @@ export class VrmaImporter {
     for (const boneName in humanBones) {
       const node = humanBones[boneName as HumanBoneNames];
       humanoidBoneNameMap.set(node.node, boneName as HumanBoneNames);
+    }
+  }
+
+  /**
+   * Creates a reverse mapping from VRMA expression nodes to expression names and their group type.
+   * Both preset and custom expressions are included, and multiple expressions may intentionally
+   * share the same animation node.
+   *
+   * @param rnm - The imported VRMA data to augment
+   */
+  static readExpressions(rnm: RnM2Vrma) {
+    const expressions = rnm.extensions.VRMC_vrm_animation.expressions;
+    if (Is.not.exist(expressions)) {
+      return;
+    }
+
+    const expressionNamesMap = new Map<NodeId, VrmaExpressionName[]>();
+    rnm.extensions.VRMC_vrm_animation.expressionNamesMap = expressionNamesMap;
+
+    const expressionGroups = [
+      { expressionGroup: expressions.preset, isPreset: true },
+      { expressionGroup: expressions.custom, isPreset: false },
+    ];
+    for (const { expressionGroup: expressionGroup_, isPreset } of expressionGroups) {
+      if (Is.not.exist(expressionGroup_)) {
+        continue;
+      }
+      const expressionGroup = expressionGroup_ as Record<string, { node: number }>;
+      for (const expressionName in expressionGroup) {
+        const nodeId = expressionGroup[expressionName].node;
+        const expressionNames = expressionNamesMap.get(nodeId) ?? [];
+        expressionNames.push({ name: expressionName, isPreset });
+        expressionNamesMap.set(nodeId, expressionNames);
+      }
     }
   }
 }

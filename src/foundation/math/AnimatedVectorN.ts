@@ -13,8 +13,10 @@ import { VectorN } from './VectorN';
 export class AnimatedVectorN extends VectorN implements IAnimatedValue {
   private __animationSamplers: AnimationSamplers;
   private __firstActiveAnimationTrackName: AnimationTrackName;
+  private __firstActiveAnimationSamplerTrackName: AnimationTrackName;
   private __firstActiveAnimationSampler: AnimationSampler;
   private __secondActiveAnimationTrackName?: AnimationTrackName;
+  private __secondActiveAnimationSamplerTrackName?: AnimationTrackName;
   private __secondActiveAnimationSampler?: AnimationSampler;
   private __blendingRatio = 0;
   private __time?: number;
@@ -31,6 +33,7 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
     super(new Float32Array());
     this.__animationSamplers = animationSamplers;
     this.__firstActiveAnimationTrackName = activeAnimationTrackName;
+    this.__firstActiveAnimationSamplerTrackName = activeAnimationTrackName;
     const animationSampler = this.__animationSamplers.get(this.__firstActiveAnimationTrackName);
     if (animationSampler === undefined) {
       throw new Error('Animation channel not found');
@@ -136,6 +139,7 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
       Logger.default.info('Animation channel not found');
     } else {
       this.__firstActiveAnimationSampler = animationSampler;
+      this.__firstActiveAnimationSamplerTrackName = animationTrackName;
     }
   }
 
@@ -151,6 +155,7 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
       Logger.default.info('Animation channel not found');
     } else {
       this.__secondActiveAnimationSampler = animationSampler;
+      this.__secondActiveAnimationSamplerTrackName = animationTrackName;
     }
   }
 
@@ -162,12 +167,20 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
     return this.__firstActiveAnimationTrackName;
   }
 
+  getFirstActiveAnimationSamplerTrackName() {
+    return this.__firstActiveAnimationSamplerTrackName;
+  }
+
   /**
    * Gets the name of the second active animation track.
    * @returns The name of the second active animation track, or undefined if not set
    */
   getSecondActiveAnimationTrackName() {
     return this.__secondActiveAnimationTrackName;
+  }
+
+  getSecondActiveAnimationSamplerTrackName() {
+    return this.__secondActiveAnimationSamplerTrackName;
   }
 
   /**

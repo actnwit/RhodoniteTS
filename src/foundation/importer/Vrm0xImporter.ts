@@ -161,7 +161,7 @@ export class Vrm0xImporter {
     const blendShapeGroups = gltfModel.extensions.VRM.blendShapeMaster.blendShapeGroups;
     for (const blendShapeGroup of blendShapeGroups) {
       const vrmExpression: VrmExpression = {
-        name: blendShapeGroup.presetName,
+        name: blendShapeGroup.presetName === 'unknown' ? blendShapeGroup.name : blendShapeGroup.presetName,
         isBinary: blendShapeGroup.isBinary,
         binds: blendShapeGroup.binds.map(bind => {
           for (let i = 0; i < gltfModel.nodes.length; i++) {
