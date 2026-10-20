@@ -202,44 +202,48 @@ describe('PhysicsComponent shape bindings', async () => {
     expect(rotatedAxis?.z).toBeCloseTo(expectedAxis.z);
   });
 
-  test.each([
-    'localMatrix',
-    'worldMatrix',
-  ] as const)('uses the new rotation when setting %s after the rotation cache was populated', matrixKind => {
-    const parent = Rn.createGroupEntity(engine);
-    const shapeEntity = Rn.createShapeEntity(engine);
-    const parentRotation = Rn.Quaternion.fromAxisAngle(Rn.Vector3.fromCopy3(0, 0, 1), Math.PI / 6);
-    parent.localRotation = parentRotation;
-    parent.addChild(shapeEntity.getSceneGraph());
-    const entity = engine.entityRepository.addComponentToEntity(Rn.PhysicsComponent, shapeEntity);
-    const rotations: Rn.IQuaternion[] = [];
-    entity.getPhysics().setStrategy({
-      update: () => {},
-      setRotation: rotation => {
-        rotations.push(Rn.Quaternion.fromCopyQuaternion(rotation));
-      },
-    });
-    const sceneGraph = entity.getSceneGraph();
-    void sceneGraph.matrix;
-    void sceneGraph.rotation;
-    const targetRotation = Rn.Quaternion.fromAxisAngle(Rn.Vector3.fromCopy3(0, 1, 0), Math.PI / 3);
-    let expectedRotation = targetRotation;
+  test.each(['localMatrix', 'worldMatrix'] as const)(
+    'uses the new rotation when setting %s after the rotation cache was populated',
+    matrixKind => {
+      const parent = Rn.createGroupEntity(engine);
+      const shapeEntity = Rn.createShapeEntity(engine);
+      const parentRotation = Rn.Quaternion.fromAxisAngle(Rn.Vector3.fromCopy3(0, 0, 1), Math.PI / 6);
+      parent.localRotation = parentRotation;
+      parent.addChild(shapeEntity.getSceneGraph());
+      const entity = engine.entityRepository.addComponentToEntity(Rn.PhysicsComponent, shapeEntity);
+      const rotations: Rn.IQuaternion[] = [];
+      entity.getPhysics().setStrategy({
+        update: () => {},
+        setRotation: rotation => {
+          rotations.push(Rn.Quaternion.fromCopyQuaternion(rotation));
+        },
+      });
+      const sceneGraph = entity.getSceneGraph();
+      void sceneGraph.matrix;
+      void sceneGraph.rotation;
+      const targetRotation = Rn.Quaternion.fromAxisAngle(Rn.Vector3.fromCopy3(0, 1, 0), Math.PI / 3);
+      let expectedRotation = targetRotation;
 
-    if (matrixKind === 'localMatrix') {
-      entity.localMatrix = Rn.Matrix44.fromCopyQuaternion(targetRotation);
-      expectedRotation = Rn.Quaternion.multiply(parentRotation, targetRotation);
-    } else {
-      sceneGraph.matrix = Rn.MutableMatrix44.fromCopyQuaternion(targetRotation);
-    }
+      if (matrixKind === 'localMatrix') {
+        entity.localMatrix = Rn.Matrix44.fromCopyQuaternion(targetRotation);
+        expectedRotation = Rn.Quaternion.multiply(parentRotation, targetRotation);
+      } else {
+        sceneGraph.matrix = Rn.MutableMatrix44.fromCopyQuaternion(targetRotation);
+      }
 
-    for (const axis of [Rn.Vector3.fromCopy3(1, 0, 0), Rn.Vector3.fromCopy3(0, 1, 0), Rn.Vector3.fromCopy3(0, 0, 1)]) {
-      const actualAxis = rotations.at(-1)?.transformVector3(axis);
-      const expectedAxis = expectedRotation.transformVector3(axis);
-      expect(actualAxis?.x).toBeCloseTo(expectedAxis.x);
-      expect(actualAxis?.y).toBeCloseTo(expectedAxis.y);
-      expect(actualAxis?.z).toBeCloseTo(expectedAxis.z);
+      for (const axis of [
+        Rn.Vector3.fromCopy3(1, 0, 0),
+        Rn.Vector3.fromCopy3(0, 1, 0),
+        Rn.Vector3.fromCopy3(0, 0, 1),
+      ]) {
+        const actualAxis = rotations.at(-1)?.transformVector3(axis);
+        const expectedAxis = expectedRotation.transformVector3(axis);
+        expect(actualAxis?.x).toBeCloseTo(expectedAxis.x);
+        expect(actualAxis?.y).toBeCloseTo(expectedAxis.y);
+        expect(actualAxis?.z).toBeCloseTo(expectedAxis.z);
+      }
     }
-  });
+  );
 
   test('resynchronizes physical scales when rotating under a non-uniformly scaled parent', () => {
     const scaledParent = Rn.createGroupEntity(engine);

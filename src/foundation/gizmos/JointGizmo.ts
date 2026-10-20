@@ -27,7 +27,7 @@ type JointVisual = {
  * Uses instanced rendering for efficient drawing of multiple joints.
  */
 export class JointGizmo extends Gizmo {
-  protected declare __topEntity?: ISceneGraphEntity;
+  declare protected __topEntity?: ISceneGraphEntity;
 
   private __jointVisuals: JointVisual[] = [];
 

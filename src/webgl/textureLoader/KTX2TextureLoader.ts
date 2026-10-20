@@ -1,12 +1,12 @@
 import {
-  KTX2ChannelETC1S,
-  KTX2ChannelUASTC,
+  KHR_DF_MODEL_UASTC,
+  KHR_DF_TRANSFER_SRGB,
+  KHR_SUPERCOMPRESSION_BASISLZ,
+  KHR_SUPERCOMPRESSION_ZSTD,
+  type KTX2BasicFormatSample,
   type KTX2Container,
   type KTX2DataFormatDescriptorBasicFormat,
   type KTX2GlobalDataBasisLZ,
-  KTX2Model,
-  KTX2SupercompressionScheme,
-  KTX2Transfer,
   read,
 } from 'ktx-parse';
 import { ZSTDDecoder } from 'zstddec';
@@ -26,6 +26,25 @@ import type {
 } from '../../types/KTX2Texture';
 import type { WebGLContextWrapper } from '../WebGLContextWrapper';
 import type { TextureData } from '../WebGLResourceRepository';
+
+/**
+ * KHR_DF channel IDs used by the data format descriptors of Basis Universal textures.
+ *
+ * These values are defined by the KTX2 specification (KHR_DF_CHANNEL_*) and are kept
+ * local because ktx-parse v2 no longer exports the dedicated enums for them.
+ */
+const KTX2ChannelETC1S = {
+  RGB: 0,
+  RRR: 3,
+  GGG: 4,
+  AAA: 15,
+} as const;
+const KTX2ChannelUASTC = {
+  RGB: 0,
+  RGBA: 3,
+  RRR: 4,
+  RRRG: 5,
+} as const;
 
 const CompressedTextureFormat = {
   ETC1S: 0,
@@ -152,7 +171,7 @@ export class KTX2TextureLoader {
       throw new Error('Cube textures are not currently supported');
     }
 
-    if (ktx2Container.supercompressionScheme === KTX2SupercompressionScheme.ZSTD) {
+    if (ktx2Container.supercompressionScheme === KHR_SUPERCOMPRESSION_ZSTD) {
       if (KTX2TextureLoader.__zstdDecoder == null) {
         KTX2TextureLoader.__zstdDecoder = new ZSTDDecoder();
       }
@@ -342,7 +361,7 @@ export class KTX2TextureLoader {
 
     const dfd = ktx2Container.dataFormatDescriptor[0];
     const compressedTextureFormat =
-      dfd.colorModel === KTX2Model.UASTC ? CompressedTextureFormat.UASTC4x4 : CompressedTextureFormat.ETC1S;
+      dfd.colorModel === KHR_DF_MODEL_UASTC ? CompressedTextureFormat.UASTC4x4 : CompressedTextureFormat.ETC1S;
 
     const hasAlpha = this.__hasAlpha(dfd, compressedTextureFormat);
     const isVideo = false;
@@ -370,7 +389,7 @@ export class KTX2TextureLoader {
       height,
       compressionTextureType,
       mipmapData,
-      needGammaCorrection: dfd.transferFunction !== KTX2Transfer.SRGB,
+      needGammaCorrection: dfd.transferFunction !== KHR_DF_TRANSFER_SRGB,
     };
 
     for (let level = 0; level < ktx2Container.levels.length; level++) {
@@ -379,12 +398,17 @@ export class KTX2TextureLoader {
 
       const imageInfo = new transcoderModule.ImageInfo(textureFormat, levelWidth, levelHeight, level);
 
-      let levelBuffer = ktx2Container.levels[level].levelData;
+      let levelBuffer: Uint8Array<ArrayBuffer> = ktx2Container.levels[level].levelData;
       const levelUncompressedByteLength = ktx2Container.levels[level].uncompressedByteLength;
       const levelBufferByteLength = imageInfo.numBlocksX * imageInfo.numBlocksY * dfd.bytesPlane[0];
 
-      if (ktx2Container.supercompressionScheme === KTX2SupercompressionScheme.ZSTD) {
-        levelBuffer = KTX2TextureLoader.__zstdDecoder.decode(levelBuffer, levelUncompressedByteLength);
+      if (ktx2Container.supercompressionScheme === KHR_SUPERCOMPRESSION_ZSTD) {
+        levelBuffer = new Uint8Array(
+          KTX2TextureLoader.__zstdDecoder.decode(
+            new Uint8Array(levelBuffer.buffer, levelBuffer.byteOffset, levelBuffer.byteLength),
+            levelUncompressedByteLength
+          )
+        );
       }
 
       let faceBufferByteOffset = 0;
@@ -393,19 +417,19 @@ export class KTX2TextureLoader {
 
       for (let faceIndex = 0; faceIndex < faceCount; faceIndex++) {
         let imageDesc: KTX2GlobalDataBasisLZImageDesc | null = null;
-        let faceBuffer: Uint8Array;
-        if (ktx2Container.supercompressionScheme === KTX2SupercompressionScheme.BASISLZ) {
+        let faceBuffer: Uint8Array<ArrayBuffer>;
+        if (ktx2Container.supercompressionScheme === KHR_SUPERCOMPRESSION_BASISLZ) {
           imageDesc = imageDescs?.[firstImageDescIndexInLevel + faceIndex] as KTX2GlobalDataBasisLZImageDesc;
 
           faceBuffer = new Uint8Array(
-            levelBuffer as unknown as ArrayBuffer,
-            imageDesc.rgbSliceByteOffset,
+            levelBuffer.buffer,
+            levelBuffer.byteOffset + imageDesc.rgbSliceByteOffset,
             imageDesc.rgbSliceByteLength + imageDesc.alphaSliceByteLength
           );
         } else {
           faceBuffer = new Uint8Array(
-            levelBuffer as unknown as ArrayBuffer,
-            faceBufferByteOffset,
+            levelBuffer.buffer,
+            levelBuffer.byteOffset + faceBufferByteOffset,
             levelBufferByteLength
           );
           faceBufferByteOffset += levelBufferByteLength;
@@ -473,11 +497,28 @@ export class KTX2TextureLoader {
    */
   private __hasAlpha(dfd: KTX2DataFormatDescriptorBasicFormat, compressedTextureFormat: CompressedTextureFormat) {
     if (compressedTextureFormat === CompressedTextureFormat.UASTC4x4) {
-      return dfd.samples[0].channelID === KTX2ChannelUASTC.RGBA;
+      return KTX2TextureLoader.__getChannelType(dfd.samples[0]) === KTX2ChannelUASTC.RGBA;
     }
     return (
       dfd.samples.length === 2 &&
-      (dfd.samples[0].channelID === KTX2ChannelETC1S.AAA || dfd.samples[1].channelID === KTX2ChannelETC1S.AAA)
+      (KTX2TextureLoader.__getChannelType(dfd.samples[0]) === KTX2ChannelETC1S.AAA ||
+        KTX2TextureLoader.__getChannelType(dfd.samples[1]) === KTX2ChannelETC1S.AAA)
     );
+  }
+
+  /**
+   * Returns the KHR_DF channel ID of a DFD sample.
+   *
+   * ktx-parse v2 renamed the former `channelID` property to `channelType`.
+   * The property is read in a version tolerant way so that both ktx-parse
+   * generations keep working for consumers that supply custom DFD samples.
+   *
+   * @param sample - A basic format sample of the data format descriptor
+   * @returns The numeric KHR_DF channel ID
+   * @private
+   */
+  private static __getChannelType(sample: KTX2BasicFormatSample) {
+    const versionTolerantSample = sample as unknown as { channelType?: number; channelID?: number };
+    return versionTolerantSample.channelType ?? versionTolerantSample.channelID ?? 0;
   }
 }

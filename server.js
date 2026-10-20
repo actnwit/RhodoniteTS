@@ -1,6 +1,10 @@
 import express from 'express';
-express.static.mime.define({'application/javascript': ['mjs']});
+
 const app = express();
+
+// Express 5 dropped the `express.static.mime` helper that was used to register the
+// `mjs` extension. Serving ES modules therefore relies on the content type that
+// `serve-static` detects out of the box.
 app.use(express.static('./'));
 
 const port = 8082;

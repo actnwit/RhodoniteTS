@@ -18,7 +18,7 @@ import { Gizmo } from './Gizmo';
  * Uses instanced rendering for efficient drawing of multiple sphere colliders.
  */
 export class SphereColliderGizmo extends Gizmo {
-  protected declare __topEntity?: ISceneGraphEntity;
+  declare protected __topEntity?: ISceneGraphEntity;
 
   private __sphereCollider: SphereCollider;
   private __sphereEntity?: IMeshEntity;
