@@ -1,5 +1,73 @@
 import type { Byte, TypedArray } from '../../types/CommonTypes';
 /**
+ * Detects if the current environment is a mobile VR device (Oculus Browser, Samsung Browser VR, etc.)
+ * @returns True if running on a mobile VR device, false otherwise
+ */
+declare const isMobileVr: () => boolean;
+/**
+ * Detects if the current environment is a mobile device (iPod, iPad, iPhone, Android)
+ * @returns True if running on a mobile device, false otherwise
+ */
+declare const isMobile: () => boolean;
+/**
+ * Detects if the current browser is Safari (excluding Chrome-based browsers)
+ * @returns True if running on Safari browser, false otherwise
+ */
+declare const isSafari: () => boolean;
+/**
+ * Detects if the current environment is an iOS device (iPod, iPad, iPhone)
+ * @returns True if running on an iOS device, false otherwise
+ */
+declare const isIOS: () => boolean;
+/**
+ * Prevents the default behavior of an event only on desktop devices
+ * @param e - The event to potentially prevent default behavior for
+ */
+declare const preventDefaultForDesktopOnly: (e: Event) => void;
+/**
+ * Checks if a value is a plain object (not an array or other object types)
+ * @param o - The value to check
+ * @returns True if the value is a plain object, false otherwise
+ */
+declare const isObject: (o: any) => boolean;
+/**
+ * Fills a template string with variables using template literals
+ * @param templateString - The template string with placeholders
+ * @param templateVars - The variables to substitute into the template
+ * @returns The filled template string
+ * @see https://stackoverflow.com/questions/30003353/can-es6-template-literals-be-substituted-at-runtime-or-reused
+ */
+declare const fillTemplate: (templateString: string, templateVars: string) => string;
+/**
+ * Detects if the current environment is Node.js
+ * @returns True if running in Node.js environment, false otherwise
+ */
+declare const isNode: () => boolean;
+/**
+ * Concatenates multiple ArrayBuffers into a single ArrayBuffer with specified sizes and offsets
+ * @param segments - Array of ArrayBuffers to concatenate
+ * @param sizes - Array of sizes for each segment
+ * @param offsets - Array of offsets for each segment
+ * @param finalSize - Optional final size of the resulting buffer
+ * @returns The concatenated ArrayBuffer
+ */
+declare const concatArrayBuffers: (segments: ArrayBuffer[], sizes: Byte[], offsets: Byte[], finalSize?: Byte) => ArrayBufferLike;
+/**
+ * Concatenates multiple ArrayBuffers into a single ArrayBuffer with a more structured approach
+ * @param params - Configuration object for concatenation
+ * @param params.finalSize - The final size of the resulting buffer
+ * @param params.srcs - Array of source ArrayBuffers
+ * @param params.srcsOffset - Array of offsets for each source buffer
+ * @param params.srcsCopySize - Array of copy sizes for each source buffer
+ * @returns The concatenated ArrayBuffer
+ */
+declare const concatArrayBuffers2: ({ finalSize, srcs, srcsOffset, srcsCopySize, }: {
+    finalSize: Byte;
+    srcs: ArrayBuffer[];
+    srcsOffset: Byte[];
+    srcsCopySize: Byte[];
+}) => ArrayBuffer;
+/**
  * Returns a value if it exists, otherwise returns a default value
  * @template T - The type of the value
  * @param params - Configuration object
@@ -176,22 +244,17 @@ export declare function downloadTypedArray(fileNameToDownload: string, typedArra
  * and file operations
  */
 export declare const MiscUtil: Readonly<{
-    isMobileVr: () => boolean;
-    isMobile: () => boolean;
-    isIOS: () => boolean;
-    isSafari: () => boolean;
-    preventDefaultForDesktopOnly: (e: Event) => void;
-    isObject: (o: any) => boolean;
-    fillTemplate: (templateString: string, templateVars: string) => string;
-    isNode: () => boolean;
-    concatArrayBuffers: (segments: ArrayBuffer[], sizes: Byte[], offsets: Byte[], finalSize?: Byte) => ArrayBufferLike;
-    concatArrayBuffers2: ({ finalSize, srcs, srcsOffset, srcsCopySize, }: {
-        finalSize: Byte;
-        srcs: ArrayBuffer[];
-        srcsOffset: Byte[];
-        srcsCopySize: Byte[];
-    }) => ArrayBuffer;
-    addLineNumberToCode: (shaderString: string) => string;
+    isMobileVr: typeof isMobileVr;
+    isMobile: typeof isMobile;
+    isIOS: typeof isIOS;
+    isSafari: typeof isSafari;
+    preventDefaultForDesktopOnly: typeof preventDefaultForDesktopOnly;
+    isObject: typeof isObject;
+    fillTemplate: typeof fillTemplate;
+    isNode: typeof isNode;
+    concatArrayBuffers: typeof concatArrayBuffers;
+    concatArrayBuffers2: typeof concatArrayBuffers2;
+    addLineNumberToCode: typeof addLineNumberToCode;
     downloadArrayBuffer: typeof downloadArrayBuffer;
     downloadTypedArray: typeof downloadTypedArray;
 }>;

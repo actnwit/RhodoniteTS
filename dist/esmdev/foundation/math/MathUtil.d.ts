@@ -14,6 +14,13 @@ declare function radianToDegree(rad: number): number;
  */
 declare function degreeToRadian(deg: number): number;
 /**
+ * Converts a 32-bit floating point number to a 16-bit half-precision float.
+ * This implementation is based on the OpenEXR half-precision format with additional rounding.
+ * Implementation reference: https://gamedev.stackexchange.com/questions/17326/conversion-of-a-number-from-single-precision-floating-point-representation-to-a/17410#17410
+ * @returns A function that converts a number to half-precision float representation
+ */
+declare const toHalfFloat: () => ((val: number) => number);
+/**
  * Checks whether a number is a power of two.
  * @param x - The number to check
  * @returns True if the number is a power of two, false otherwise
@@ -131,7 +138,7 @@ declare function computeGaussianDistributionRatioWhoseSumIsOne({ kernelSize, var
 export declare const MathUtil: Readonly<{
     radianToDegree: typeof radianToDegree;
     degreeToRadian: typeof degreeToRadian;
-    toHalfFloat: () => ((val: number) => number);
+    toHalfFloat: typeof toHalfFloat;
     isPowerOfTwo: typeof isPowerOfTwo;
     isPowerOfTwoTexture: typeof isPowerOfTwoTexture;
     packNormalizedVec4ToVec2: typeof packNormalizedVec4ToVec2;

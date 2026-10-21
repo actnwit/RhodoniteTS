@@ -135,4 +135,16 @@ export declare class KTX2TextureLoader {
      * @private
      */
     private __hasAlpha;
+    /**
+     * Returns the KHR_DF channel ID of a DFD sample.
+     *
+     * ktx-parse v2 renamed the former `channelID` property to `channelType`.
+     * The property is read in a version tolerant way so that both ktx-parse
+     * generations keep working for consumers that supply custom DFD samples.
+     *
+     * @param sample - A basic format sample of the data format descriptor
+     * @returns The numeric KHR_DF channel ID
+     * @private
+     */
+    private static __getChannelType;
 }
