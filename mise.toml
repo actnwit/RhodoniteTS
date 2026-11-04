@@ -1,4 +1,4 @@
 [tools]
-node = "22"
-pnpm = "11.8.0"
+node = "24"
+pnpm = "12"
 

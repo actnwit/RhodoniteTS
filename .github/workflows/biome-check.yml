@@ -27,13 +27,13 @@ jobs:
         # pnpm/action-setup@v6
         uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093
         with:
-          version: 10
+          version: 12
 
       - name: 'Setup Node.js'
         # actions/setup-node@v4
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
-          node-version: '22'
+          node-version: '24'
           cache: 'pnpm'
 
       - name: Install safe-chain

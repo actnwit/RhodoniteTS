@@ -13,11 +13,11 @@
 ```bash
 # Required versions
 Node.js >= 22.0.0
-pnpm >= 11.8.0 (packageManager: pnpm@11.8.0)
+pnpm >= 12.15.0 (packageManager: pnpm@12.15.0)
 
 # Verify installation
 node --version    # Should be 22+
-pnpm --version    # Should be 11.8.0+
+pnpm --version    # Should be 12.15.0+
 ```
 
 ### Initial Setup
@@ -571,4 +571,4 @@ docs/
 
 ---
 
-**Happy Coding!** 🚀 | **Version**: 0.17.4 | **Node.js**: 22+ | **Package Manager**: pnpm 11.8.0
+**Happy Coding!** 🚀 | **Version**: 0.17.4 | **Node.js**: 22+ | **Package Manager**: pnpm 12.15.0

@@ -8,7 +8,7 @@ const headless = true;
 // `PUPPETEER_CACHE_DIR=.cache/puppeteer pnpm exec puppeteer browsers install chrome`).
 // Without it, Puppeteer falls back to its default browser resolution.
 const localChromePaths = [
-  '.cache/puppeteer/chrome/mac_arm-155.0.8059.79/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing',
+  '.cache/puppeteer/chrome/mac_arm-156.0.8078.47/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing',
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
 ];
 const localChromePath = localChromePaths.find((path) => existsSync(path));
