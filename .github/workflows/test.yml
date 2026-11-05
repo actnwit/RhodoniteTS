@@ -5,7 +5,20 @@ on:
     branches:
       - develop
       - main
+  # Run for pull requests from any branch to any base branch: on creation,
+  # when new commits are pushed to the PR, and when it is reopened.
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
   workflow_dispatch:
+
+# Cancel a run when a newer commit is pushed to the same pull request. Pushes
+# to develop/main always run to completion.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
