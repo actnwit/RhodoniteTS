@@ -1,6 +1,4 @@
-import { toMatchImageSnapshot } from 'jest-image-snapshot';
-
-expect.extend({ toMatchImageSnapshot });
+import { matchCanvasImageSnapshot } from '../common/testFunc';
 
 test('regression test GltfImporter-walk-through-fixed-direction-moving', async () => {
   const page = await browser.newPage();
@@ -11,10 +9,7 @@ test('regression test GltfImporter-walk-through-fixed-direction-moving', async (
 
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
-  expect(image).toMatchImageSnapshot({
-    failureThreshold: 0.01,
-    failureThresholdType: 'percent',
-  });
+  matchCanvasImageSnapshot(expect, image, 0.01);
 
   await page.close();
 });

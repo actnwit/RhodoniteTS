@@ -18,17 +18,27 @@ jobs:
     steps:
       # actions/checkout@v4
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-      # pnpm/action-setup@v6
-      - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093
-        with:
-          version: 10
       # actions/setup-node@v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
-          node-version: '22'
-          cache: 'pnpm'
+          node-version: '24'
+      # Install pnpm without a third-party action (the repository's Actions
+      # policy only allows GitHub-owned actions). The version comes from the
+      # `packageManager` field in package.json.
+      - name: Enable pnpm
+        run: |
+          version="$(node -p "require('./package.json').packageManager.split('@')[1]")"
+          npm install --global "pnpm@${version}"
+          pnpm --version
+      # actions/cache@v4
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
       - name: Install safe-chain
-        run: curl -fsSL https://raw.githubusercontent.com/AikidoSec/safe-chain/6aec1bc4743028a99ab1ebace8e743549260ce82/install-scripts/install-safe-chain.sh | sh -s -- --ci
+        run: curl -fsSL https://github.com/AikidoSec/safe-chain/releases/download/1.5.27/install-safe-chain.sh | sh -s -- --ci
       - run: pnpm install --frozen-lockfile
       - run: pnpm doc
       # actions/upload-artifact@v4

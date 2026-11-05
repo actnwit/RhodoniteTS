@@ -38,6 +38,71 @@ const waitForExtraFrames = async (page, frameCount = 5) => {
 const SNAPSHOT_PIXEL_THRESHOLD = 0.01;
 const DEFAULT_FAILURE_THRESHOLD = 0;
 
+// The reference images are generated in the CI environment (Ubuntu + Mesa
+// llvmpipe/lavapipe, see config/e2e/Dockerfile). Runs on that platform compare
+// against them. GitHub's hosted runners use a different CPU/instance than a
+// local container, and a few numerically sensitive samples (anisotropy,
+// clearcoat, IBL) plus the mouse-interaction samples differ by up to ~3.5%
+// between machines, so CI sets E2E_REFERENCE_FAILURE_THRESHOLD as a floor.
+// Other platforms (macOS with a real GPU) render differently again and keep
+// their own floor.
+const IS_REFERENCE_ENVIRONMENT = process.env.E2E_REFERENCE_ENVIRONMENT !== '0' && process.platform === 'linux';
+const REFERENCE_FAILURE_THRESHOLD = Number(process.env.E2E_REFERENCE_FAILURE_THRESHOLD ?? 0);
+const NON_REFERENCE_FAILURE_THRESHOLD = Number(process.env.E2E_NON_REFERENCE_FAILURE_THRESHOLD ?? 2);
+
+const resolveFailureThreshold = (threshold, noParam) => {
+  const base = noParam ? DEFAULT_FAILURE_THRESHOLD : threshold;
+  if (IS_REFERENCE_ENVIRONMENT) {
+    return Math.max(base, REFERENCE_FAILURE_THRESHOLD);
+  }
+  return Math.max(base, NON_REFERENCE_FAILURE_THRESHOLD);
+};
+
+// Chromium only composites a WebGPU canvas on Linux when the GPU process has a
+// GL context that can share memory with Vulkan ("WebGPU on Vulkan via GL
+// interop"). That is why the E2E runner uses Mesa's llvmpipe + lavapipe on
+// Linux (see vitest-puppeteer.config.js); with Chromium's default SwiftShader GL
+// path the canvas stays blank and no shared-image backing can be created for it.
+// Some environments still cannot provide that interop. When E2E_WEBGPU_SMOKE=1
+// the WebGPU cases only verify that the sample reached its render loop instead
+// of comparing screenshots.
+const WEBGPU_SMOKE_ONLY = process.env.E2E_WEBGPU_SMOKE === '1';
+
+/**
+ * Returns true when the sample rendered through the WebGPU process approach.
+ * A canvas that already owns a WebGPU context returns it from `getContext('webgpu')`,
+ * while a canvas that owns a WebGL2 context returns null, so this detects the
+ * rendering backend without knowing which sample is being tested.
+ */
+const isWebGpuCanvas = async page => {
+  return page.evaluate(() => {
+    const canvas = document.getElementById('world');
+    return canvas != null && canvas.getContext('webgpu') != null;
+  });
+};
+
+// jest-image-snapshot only rewrites snapshots that fail unless
+// updatePassedSnapshot is set. `E2E_UPDATE_ALL_SNAPSHOTS=1` regenerates every
+// reference image in the current environment (used by
+// `config/e2e/run-in-docker.sh update`).
+const UPDATE_ALL_SNAPSHOTS = process.env.E2E_UPDATE_ALL_SNAPSHOTS === '1';
+
+/**
+ * Compares a canvas screenshot with the stored snapshot using the shared pixel
+ * threshold and failure threshold policy (including the software-rendering
+ * tolerance). Test files that take screenshots themselves should use this
+ * instead of calling `toMatchImageSnapshot` directly.
+ */
+export const matchCanvasImageSnapshot = (expect, image, threshold = 0, noParam = false) => {
+  expect.extend({ toMatchImageSnapshot });
+  expect(image).toMatchImageSnapshot({
+    customDiffConfig: { threshold: SNAPSHOT_PIXEL_THRESHOLD },
+    failureThreshold: resolveFailureThreshold(threshold, noParam),
+    failureThresholdType: 'percent',
+    updatePassedSnapshot: UPDATE_ALL_SNAPSHOTS,
+  });
+};
+
 export const testCheckWindowRendered = async (browser, url, expect, threshold, noParam = false, consoleOn = false) => {
   expect.extend({ toMatchImageSnapshot });
   const page = await browser.newPage();
@@ -56,19 +121,27 @@ export const testCheckWindowRendered = async (browser, url, expect, threshold, n
   // Samples set `_rendered` on the second frame, so let a few extra frames pass to
   // make sure the screenshot captures a fully converged image.
   await waitForExtraFrames(page);
+
+  if (WEBGPU_SMOKE_ONLY && (await isWebGpuCanvas(page))) {
+    // The canvas cannot be captured on a GPU-less Linux host, so assert that the
+    // sample reached its render loop instead of comparing pixels.
+    const state = await page.evaluate(() => ({ rendered: window._rendered === true }));
+    expect(state.rendered).toBe(true);
+    console.warn(
+      `[E2E] Skipped image comparison for ${url}: WebGPU canvases cannot be captured on this platform (set E2E_WEBGPU_SMOKE=0 on a machine with a real GPU to compare screenshots).`
+    );
+    await page.close();
+    return;
+  }
+
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
-  expect(image).toMatchImageSnapshot({
-    customDiffConfig: { threshold: SNAPSHOT_PIXEL_THRESHOLD },
-    failureThreshold: noParam ? DEFAULT_FAILURE_THRESHOLD : threshold,
-    failureThresholdType: 'percent',
-  });
+  matchCanvasImageSnapshot(expect, image, threshold, noParam);
 
   await page.close();
 };
 
 export const testCheckPtoDocument = async (browser, url, expect, threshold, noParam = false, consoleOn = false) => {
-  expect.extend({ toMatchImageSnapshot });
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(2000000);
   await page.goto(url);
@@ -77,13 +150,13 @@ export const testCheckPtoDocument = async (browser, url, expect, threshold, noPa
   }
   await page.setViewport({ width: 1000, height: 1000 });
   await page.waitForSelector('p#rendered', { timeout: 2000000 });
+  // Samples set `p#rendered` on the first frame and may still be converging
+  // (camera damping, IBL setup, ...), so wait a few frames like
+  // testCheckWindowRendered does before taking the screenshot.
+  await waitForExtraFrames(page);
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
-  expect(image).toMatchImageSnapshot({
-    customDiffConfig: { threshold: SNAPSHOT_PIXEL_THRESHOLD },
-    failureThreshold: noParam ? DEFAULT_FAILURE_THRESHOLD : threshold,
-    failureThresholdType: 'percent',
-  });
+  matchCanvasImageSnapshot(expect, image, threshold, noParam);
 
   await page.close();
 };

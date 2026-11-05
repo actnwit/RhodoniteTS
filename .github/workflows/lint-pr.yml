@@ -1,4 +1,4 @@
-name: "Lint PR"
+name: 'Lint PR'
 
 on:
   pull_request_target:
@@ -6,16 +6,34 @@ on:
       - opened
       - edited
       - synchronize
+      - reopened
 
 permissions:
   pull-requests: read
 
 jobs:
   main:
+    name: 'Validate PR title'
     runs-on: ubuntu-latest
     steps:
-      # Please look up the latest version from
-      # https://github.com/amannn/action-semantic-pull-request/releases
-      - uses: amannn/action-semantic-pull-request@0723387faaf9b38adef4775cd42cfd5155ed6017 # v5.5.3
+      # Implemented as a script instead of amannn/action-semantic-pull-request
+      # because the repository's Actions policy only allows GitHub-owned
+      # actions. Note that pull_request_target uses this file from the base
+      # branch, so changes here take effect once merged.
+      - name: 'Check Conventional Commits prefix'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          set -euo pipefail
+
+          types='build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test'
+          # <type>[(<scope>)][!]: <description>
+          pattern="^(${types})(\([a-z0-9 ._/-]+\))?!?: .+"
+
+          if [[ ! "${PR_TITLE}" =~ ${pattern} ]]; then
+            echo "::error::The pull request title must follow Conventional Commits (for example 'feat: add X' or 'fix(scope): correct Y')."
+            echo "Got: ${PR_TITLE}"
+            exit 1
+          fi
+
+          echo "PR title is valid: ${PR_TITLE}"

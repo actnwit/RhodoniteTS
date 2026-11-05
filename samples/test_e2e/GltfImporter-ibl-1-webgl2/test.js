@@ -1,6 +1,4 @@
-import { toMatchImageSnapshot } from 'jest-image-snapshot';
-
-expect.extend({ toMatchImageSnapshot });
+import { matchCanvasImageSnapshot } from '../common/testFunc';
 
 test('regression test GltfImporter-ibl-1--webgl2', async () => {
   const page = await browser.newPage();
@@ -19,10 +17,7 @@ test('regression test GltfImporter-ibl-1--webgl2', async () => {
 
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
-  expect(image).toMatchImageSnapshot({
-    failureThreshold: 0.03,
-    failureThresholdType: 'percent',
-  });
+  matchCanvasImageSnapshot(expect, image, 0.03);
 
   await page.close();
 });

@@ -6,13 +6,45 @@ const headless = true;
 
 // Prefer a Chrome binary that was downloaded into this repository (e.g. with
 // `PUPPETEER_CACHE_DIR=.cache/puppeteer pnpm exec puppeteer browsers install chrome`).
-// Without it, Puppeteer falls back to its default browser resolution.
+// Without it, Puppeteer falls back to its default browser resolution, which is
+// what CI relies on.
 const localChromePaths = [
-  '.cache/puppeteer/chrome/mac_arm-155.0.8059.79/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing',
+  '.cache/puppeteer/chrome/mac_arm-156.0.8078.47/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing',
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
 ];
 const localChromePath = localChromePaths.find((path) => existsSync(path));
 const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH ?? localChromePath;
+
+// GitHub Actions runners (and containers in general) have no GPU. On Linux the
+// E2E run uses Mesa's software stack for both APIs:
+//   * llvmpipe for GL/WebGL2 (via ANGLE's GL-EGL backend), and
+//   * lavapipe for Vulkan, which the GPU process uses to allocate the WebGPU
+//     swap chain image and share it with GL.
+// That GL <-> Vulkan interop ("WebGPU on Vulkan via GL interop") is what makes
+// WebGPU canvases present/capture correctly on Linux. With Chromium's default
+// SwiftShader GL path the WebGPU canvas stays blank because no shared-image
+// backing can be created for it, so these flags are not just a speed choice.
+// lavapipe is blocklisted, hence --ignore-gpu-blocklist. Mesa's Vulkan driver
+// must provide samplerYcbcrConversion (Mesa 25.x, which Ubuntu 24.04 ships,
+// does; Mesa 22 does not).
+const softwareRendering =
+  process.env.E2E_SOFTWARE_RENDERING === '1' ||
+  (process.env.E2E_SOFTWARE_RENDERING !== '0' && process.platform === 'linux');
+
+const softwareRenderingArgs = softwareRendering
+  ? [
+      // Allow the SwiftShader WebGPU adapter when no hardware adapter exists,
+      // and keep a software GL fallback if the system GL below cannot start.
+      '--enable-unsafe-webgpu',
+      '--enable-unsafe-swiftshader',
+      // Use ANGLE over the system GL/EGL (Mesa llvmpipe) instead of SwANGLE, so
+      // that the GPU process has a GL context that can share memory with Vulkan.
+      '--use-gl=angle',
+      '--use-angle=gl-egl',
+      // lavapipe (software Vulkan) is on Chromium's blocklist.
+      '--ignore-gpu-blocklist',
+    ]
+  : [];
 
 export default {
   server: {
@@ -36,7 +68,9 @@ export default {
     args: [
       '--start-maximized',
       '--no-sandbox',
+      '--disable-dev-shm-usage',
       '--disable-audio-output',
+      ...softwareRenderingArgs,
     ],
   },
 };
