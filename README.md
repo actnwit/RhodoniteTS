@@ -210,11 +210,11 @@ $ pnpm run test
 The E2E test uses a headless browser for rendering. The reference images are generated in the CI environment: Ubuntu + Mesa's software stack (llvmpipe for GL/WebGL2, lavapipe for Vulkan) and Chromium's "WebGPU on Vulkan via GL interop" path, which is what makes WebGPU canvases capturable without a GPU. That environment is available locally as a Docker container, so the strict check and the reference images are reproducible on any machine:
 
 ```bash
-$ pnpm test-e2e:docker          # strict, CI-identical run
+$ pnpm test-e2e:docker          # strict run in the reference environment
 $ pnpm test-e2e:docker:update   # regenerate all reference images
 ```
 
-Running the suite natively (for example on macOS with a real GPU) renders slightly differently from the software rasterizer (measured at up to ~1%, mostly IBL samples), so native runs apply a 2% tolerance floor (`E2E_NON_REFERENCE_FAILURE_THRESHOLD`). Use native runs for quick feedback and `pnpm test-e2e:docker` when the result must match CI.
+Running the suite natively (for example on macOS with a real GPU) renders slightly differently from the software rasterizer (measured at up to ~1%, mostly IBL samples), so native runs apply a 2% tolerance floor (`E2E_NON_REFERENCE_FAILURE_THRESHOLD`). GitHub's hosted runners use a different CPU than the machine that generated the reference images, so CI applies a 5% floor (`E2E_REFERENCE_FAILURE_THRESHOLD`) for the few sensitive samples. The container is therefore the strictest check; use it when the result must be exact.
 
 If a Linux environment cannot provide the GL/Vulkan interop (no Mesa, or the flags are opted out), WebGPU canvases stay blank. In that case run the WebGPU cases as smoke tests:
 
@@ -224,7 +224,7 @@ $ E2E_WEBGPU_SMOKE=1 pnpm run test-e2e
 
 With `E2E_WEBGPU_SMOKE=1` the WebGPU samples only have to reach their render loop; no screenshot comparison is performed.
 
-The E2E runner passes the Mesa-specific flags automatically on Linux. Set `E2E_SOFTWARE_RENDERING=0` to opt out, or `PUPPETEER_EXECUTABLE_PATH` to use a specific Chrome binary. `E2E_NON_REFERENCE_FAILURE_THRESHOLD` (default `2`, percent) controls the tolerance floor used outside the reference environment; `E2E_REFERENCE_ENVIRONMENT=0` forces that floor on Linux too.
+The E2E runner passes the Mesa-specific flags automatically on Linux. Set `E2E_SOFTWARE_RENDERING=0` to opt out, or `PUPPETEER_EXECUTABLE_PATH` to use a specific Chrome binary. `E2E_REFERENCE_FAILURE_THRESHOLD` (percent, default `0`) is a tolerance floor for the reference environment; CI sets it to `5` because GitHub's hosted runners use a different CPU/instance than the machine that generated the reference images (a few sensitive samples differ by up to ~3.5%). `E2E_NON_REFERENCE_FAILURE_THRESHOLD` (default `2`, percent) is the floor used outside the reference environment; `E2E_REFERENCE_ENVIRONMENT=0` forces that floor on Linux too.
 
 You can execute a part of tests like this.
 

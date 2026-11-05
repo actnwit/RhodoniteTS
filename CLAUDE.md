@@ -125,7 +125,9 @@ src/xr/                 # WebXR support
 - **CI**: Runs on `ubuntu-latest` with Mesa llvmpipe + lavapipe; Chromium's
   WebGPU-on-Vulkan-via-GL-interop path makes WebGPU canvases capturable, so
   WebGL2 and WebGPU snapshots are both compared (`E2E_WEBGPU_SMOKE=1` disables
-  WebGPU comparison where interop is unavailable)
+  WebGPU comparison where interop is unavailable). Hosted runners apply a 5%
+  floor (`E2E_REFERENCE_FAILURE_THRESHOLD`); the Docker container compares
+  strictly.
 - **Same environment locally**: `pnpm test-e2e:docker` (strict run) and
   `pnpm test-e2e:docker:update` (regenerate reference images) use the CI
   container, so local and CI compare against the same rendering

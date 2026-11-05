@@ -40,16 +40,22 @@ const DEFAULT_FAILURE_THRESHOLD = 0;
 
 // The reference images are generated in the CI environment (Ubuntu + Mesa
 // llvmpipe/lavapipe, see config/e2e/Dockerfile). Runs on that platform compare
-// strictly. Other platforms (macOS with a real GPU) render slightly differently
-// (measured at up to ~1% on IBL samples), so they get a tolerance floor instead
-// of failing on environment differences. Use `pnpm test-e2e:docker` when you
-// need the strict, CI-identical check.
+// against them. GitHub's hosted runners use a different CPU/instance than a
+// local container, and a few numerically sensitive samples (anisotropy,
+// clearcoat, IBL) plus the mouse-interaction samples differ by up to ~3.5%
+// between machines, so CI sets E2E_REFERENCE_FAILURE_THRESHOLD as a floor.
+// Other platforms (macOS with a real GPU) render differently again and keep
+// their own floor.
 const IS_REFERENCE_ENVIRONMENT = process.env.E2E_REFERENCE_ENVIRONMENT !== '0' && process.platform === 'linux';
+const REFERENCE_FAILURE_THRESHOLD = Number(process.env.E2E_REFERENCE_FAILURE_THRESHOLD ?? 0);
 const NON_REFERENCE_FAILURE_THRESHOLD = Number(process.env.E2E_NON_REFERENCE_FAILURE_THRESHOLD ?? 2);
 
 const resolveFailureThreshold = (threshold, noParam) => {
   const base = noParam ? DEFAULT_FAILURE_THRESHOLD : threshold;
-  return IS_REFERENCE_ENVIRONMENT ? base : Math.max(base, NON_REFERENCE_FAILURE_THRESHOLD);
+  if (IS_REFERENCE_ENVIRONMENT) {
+    return Math.max(base, REFERENCE_FAILURE_THRESHOLD);
+  }
+  return Math.max(base, NON_REFERENCE_FAILURE_THRESHOLD);
 };
 
 // Chromium only composites a WebGPU canvas on Linux when the GPU process has a
