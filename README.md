@@ -214,7 +214,7 @@ $ pnpm test-e2e:docker          # strict run in the reference environment
 $ pnpm test-e2e:docker:update   # regenerate all reference images
 ```
 
-Running the suite natively (for example on macOS with a real GPU) renders slightly differently from the software rasterizer (measured at up to ~1%, mostly IBL samples), so native runs apply a 2% tolerance floor (`E2E_NON_REFERENCE_FAILURE_THRESHOLD`). CI compares with the same strict thresholds as the container (`E2E_REFERENCE_FAILURE_THRESHOLD`, default `0`). If a hosted runner ever renders differently from the machine that generated the reference images, that floor can be raised for CI only.
+Running the suite natively (for example on macOS with a real GPU) renders slightly differently from the software rasterizer (measured at up to ~1%, mostly IBL samples), so native runs apply a 2% tolerance floor (`E2E_NON_REFERENCE_FAILURE_THRESHOLD`). CI runs on the `ubuntu-24.04-arm` runner and compares with the same strict thresholds as the container (`E2E_REFERENCE_FAILURE_THRESHOLD`, default `0`); the arm64 image is used because llvmpipe renders slightly differently on x64. If a hosted runner ever renders differently from the machine that generated the reference images, that floor can be raised for CI only.
 
 If a Linux environment cannot provide the GL/Vulkan interop (no Mesa, or the flags are opted out), WebGPU canvases stay blank. In that case run the WebGPU cases as smoke tests:
 
