@@ -150,6 +150,10 @@ export const testCheckPtoDocument = async (browser, url, expect, threshold, noPa
   }
   await page.setViewport({ width: 1000, height: 1000 });
   await page.waitForSelector('p#rendered', { timeout: 2000000 });
+  // Samples set `p#rendered` on the first frame and may still be converging
+  // (camera damping, IBL setup, ...), so wait a few frames like
+  // testCheckWindowRendered does before taking the screenshot.
+  await waitForExtraFrames(page);
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
   matchCanvasImageSnapshot(expect, image, threshold, noParam);
