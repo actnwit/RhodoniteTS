@@ -194,12 +194,19 @@ test('YourComponent should handle data correctly', () => {
 
 ```bash
 # Visual regression tests
-pnpm test-e2e                     # Full E2E suite (environment-sensitive)
+pnpm test-e2e                     # Fast native run (tolerance floor outside the CI environment)
+pnpm test-e2e:docker              # Strict run in the CI container (reference environment)
 pnpm test-e2e-part -- ./samples/test_e2e/YourSample
+E2E_WEBGPU_SMOKE=1 pnpm test-e2e  # WebGPU cases as smoke tests (no GL/Vulkan interop)
 
-# Update snapshots when intentional changes made
-pnpm test-e2e-update             # Update all snapshots
+# Reference images: regenerate them in the CI container (source of truth)
+pnpm test-e2e:docker:update
+
+# Update only the snapshots that currently fail, in any environment
+pnpm test-e2e-update
 pnpm test-e2e-part -- --update ./samples/test_e2e/YourSample
+
+pnpm test-e2e:docker:shell        # Debug inside the container
 ```
 
 ### Sample Development
@@ -276,9 +283,6 @@ pnpm doc                    # Generate updated API docs (if needed)
 - name: Install dependencies
   run: pnpm install
 
-- name: Check code quality
-  run: pnpm check
-
 - name: Build library
   run: pnpm build
 
@@ -288,10 +292,12 @@ pnpm doc                    # Generate updated API docs (if needed)
 - name: Run unit tests
   run: pnpm test-unit
 
-# E2E tests are environment-sensitive
-- name: Run E2E tests (allowed to fail)
+# E2E tests run on a GPU-less Ubuntu runner. Mesa's llvmpipe (GL) and lavapipe
+# (Vulkan) provide a software GPU, and Chromium composites WebGPU canvases via
+# its "WebGPU on Vulkan via GL interop" path, so WebGL2 and WebGPU screenshots
+# are both compared.
+- name: Run E2E tests
   run: pnpm test-e2e
-  continue-on-error: true
 ```
 
 ---

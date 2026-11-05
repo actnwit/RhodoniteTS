@@ -1,6 +1,5 @@
-import { toMatchImageSnapshot } from 'jest-image-snapshot';
+import { matchCanvasImageSnapshot } from '../common/testFunc';
 
-expect.extend({ toMatchImageSnapshot });
 test('regression test PixelPickingTest', async () => {
   const page = await browser.newPage();
   await page.goto('http://localhost:8082/samples/test_e2e/PixelPickingTest');
@@ -8,7 +7,7 @@ test('regression test PixelPickingTest', async () => {
   await page.waitForSelector('p#rendered', { timeout: 2000000 });
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
-  expect(image).toMatchImageSnapshot();
+  matchCanvasImageSnapshot(expect, image);
   const windowHandle = await page.evaluateHandle(() => window);
   const valueHandle = await windowHandle.getProperty('_pickedEntityUID');
   expect(await valueHandle.jsonValue()).toBe(9);

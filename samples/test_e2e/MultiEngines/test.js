@@ -1,4 +1,4 @@
-import { toMatchImageSnapshot } from 'jest-image-snapshot';
+import { matchCanvasImageSnapshot } from '../common/testFunc';
 
 const SetURL = 'http://localhost:8082/samples/test_e2e/MultiEngines';
 
@@ -11,7 +11,6 @@ const testCheckPtoDocument = async (
   noParam = false,
   consoleOn = false
 ) => {
-  expect.extend({ toMatchImageSnapshot });
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(2000000);
   await page.goto(url);
@@ -22,14 +21,7 @@ const testCheckPtoDocument = async (
   await page.waitForSelector(`p#rendered_${canvasSelector.replace('#', '')}`, { timeout: 2000000 });
   const canvasElement = await page.$(canvasSelector);
   const image = await canvasElement.screenshot();
-  if (noParam) {
-    expect(image).toMatchImageSnapshot();
-  } else {
-    expect(image).toMatchImageSnapshot({
-      failureThreshold: threshold,
-      failureThresholdType: 'percent',
-    });
-  }
+  matchCanvasImageSnapshot(expect, image, threshold, noParam);
 
   await page.close();
 };

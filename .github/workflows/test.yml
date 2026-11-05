@@ -5,13 +5,20 @@ on:
     branches:
       - develop
       - main
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  build:
-    runs-on: self-hosted
+  test:
+    # E2E tests run on a GPU-less Ubuntu runner. Mesa's software stack provides
+    # both APIs: llvmpipe for GL/WebGL2 and lavapipe for Vulkan. Chromium's
+    # "WebGPU on Vulkan via GL interop" path then lets the WebGPU canvas be
+    # composited and captured (see vitest-puppeteer.config.js), so the whole E2E
+    # suite, WebGPU included, compares screenshots here.
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
 
     steps:
       # actions/checkout@v4
@@ -30,6 +37,14 @@ jobs:
       - name: Install safe-chain
         run: curl -fsSL https://raw.githubusercontent.com/AikidoSec/safe-chain/6aec1bc4743028a99ab1ebace8e743549260ce82/install-scripts/install-safe-chain.sh | sh -s -- --ci
       - run: pnpm install --frozen-lockfile
+      - name: Install Chrome dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libnss3 libgbm1 libxkbcommon0 libxcomposite1 libxdamage1 \
+            libxfixes3 libxrandr2 libxss1 libdrm2 libpango-1.0-0 libcairo2 \
+            fonts-liberation \
+            libegl1 libgl1-mesa-dri mesa-vulkan-drivers
       - run: pnpm run build
       # actions/upload-artifact@v4
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -37,4 +52,15 @@ jobs:
           name: Rhodonite-distribution-files
           path: dist
       - run: pnpm run build-samples
-      - run: pnpm run test
+      - name: Run unit tests
+        run: pnpm run test-unit
+      - name: Run E2E tests
+        run: pnpm run test-e2e
+      - name: Upload E2E failure artifacts
+        if: failure()
+        # actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: e2e-image-diffs
+          path: samples/test_e2e/**/__image_snapshots__/__diff_output__/**
+          if-no-files-found: ignore
