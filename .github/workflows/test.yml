@@ -78,10 +78,6 @@ jobs:
       - name: Run unit tests
         run: pnpm run test-unit
       - name: Run E2E tests
-        env:
-          # Hosted runners use a different CPU/instance than the machine that
-          # generated the reference images (see samples/test_e2e/common/testFunc.js).
-          E2E_REFERENCE_FAILURE_THRESHOLD: '5'
         run: pnpm run test-e2e
       - name: Upload E2E failure artifacts
         if: failure()
