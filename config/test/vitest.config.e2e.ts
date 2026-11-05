@@ -17,6 +17,9 @@ export default defineConfig({
     // (CPU/GPU) without improving the results.
     maxWorkers: 1,
     fileParallelism: false,
+    // A canvas screenshot can occasionally come out blank on a loaded CI
+    // runner; retrying the test once recovers from that transient state.
+    retry: 1,
     environment: 'puppeteer',
     globalSetup: 'vitest-environment-puppeteer/global-init',
     testTimeout: 1000000,
