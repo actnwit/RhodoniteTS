@@ -69,6 +69,33 @@ const resolveFailureThreshold = (threshold, noParam) => {
 const WEBGPU_SMOKE_ONLY = process.env.E2E_WEBGPU_SMOKE === '1';
 
 /**
+ * Collects page errors and warnings so a failed image comparison can explain
+ * what the page did (for example a WebGL or shader error on the CI runner).
+ */
+const collectPageDiagnostics = page => {
+  const messages = [];
+  page.on('pageerror', error => messages.push(`[pageerror] ${error.message}`));
+  page.on('console', message => {
+    const type = message.type();
+    if (type === 'error' || type === 'warning') {
+      messages.push(`[console.${type}] ${message.text()}`);
+    }
+  });
+  return messages;
+};
+
+const compareWithDiagnostics = (expect, image, threshold, noParam, diagnostics) => {
+  try {
+    matchCanvasImageSnapshot(expect, image, threshold, noParam);
+  } catch (error) {
+    if (diagnostics.length > 0) {
+      throw new Error(`${error.message}\n\nPage diagnostics:\n${diagnostics.join('\n')}`);
+    }
+    throw error;
+  }
+};
+
+/**
  * Returns true when the sample rendered through the WebGPU process approach.
  * A canvas that already owns a WebGPU context returns it from `getContext('webgpu')`,
  * while a canvas that owns a WebGL2 context returns null, so this detects the
@@ -106,6 +133,7 @@ export const matchCanvasImageSnapshot = (expect, image, threshold = 0, noParam =
 export const testCheckWindowRendered = async (browser, url, expect, threshold, noParam = false, consoleOn = false) => {
   expect.extend({ toMatchImageSnapshot });
   const page = await browser.newPage();
+  const diagnostics = collectPageDiagnostics(page);
   await page.setDefaultNavigationTimeout(2000000);
   await page.goto(url);
   if (consoleOn) {
@@ -136,13 +164,14 @@ export const testCheckWindowRendered = async (browser, url, expect, threshold, n
 
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
-  matchCanvasImageSnapshot(expect, image, threshold, noParam);
+  compareWithDiagnostics(expect, image, threshold, noParam, diagnostics);
 
   await page.close();
 };
 
 export const testCheckPtoDocument = async (browser, url, expect, threshold, noParam = false, consoleOn = false) => {
   const page = await browser.newPage();
+  const diagnostics = collectPageDiagnostics(page);
   await page.setDefaultNavigationTimeout(2000000);
   await page.goto(url);
   if (consoleOn) {
@@ -156,7 +185,7 @@ export const testCheckPtoDocument = async (browser, url, expect, threshold, noPa
   await waitForExtraFrames(page);
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
-  matchCanvasImageSnapshot(expect, image, threshold, noParam);
+  compareWithDiagnostics(expect, image, threshold, noParam, diagnostics);
 
   await page.close();
 };
