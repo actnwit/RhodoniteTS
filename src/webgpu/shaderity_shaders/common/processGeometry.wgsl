@@ -66,6 +66,21 @@ fn unpackedVec2ToNormalizedVec4(vec_xy: vec2<f32>, criteria: f32) -> vec4<f32> {
   return vec4<f32>(r, g, b, a);
 }
 
+const LOGQUAT_BIAS: f32 = 1048575.0;
+const LOGQUAT_HALF_PI: f32 = 1.5707963;
+
+fn decodeLogQuat(lohi: vec2<u32>) -> vec4<f32> {
+  let lo = lohi.x;
+  let hi = lohi.y;
+  let xi = lo & 0x1FFFFFu;
+  let yi = (lo >> 21u) | ((hi & 0x3FFu) << 11u);
+  let zi = (hi >> 10u) & 0x1FFFFFu;
+  let v = (vec3<f32>(f32(xi), f32(yi), f32(zi)) - LOGQUAT_BIAS) / LOGQUAT_BIAS * LOGQUAT_HALF_PI;
+  let a = length(v);                                   // 半角
+  let k = select(sin(a) / a, 1.0 - a * a / 6.0, a < 1e-4);
+  return vec4<f32>(v * k, cos(a));                     // (x, y, z, w) 単位クォータニオン
+}
+
 fn get_boneMatrixAsMat4x4(skeletalComponentSID: u32, joint: u32) -> mat4x4<f32> {
   let mat43: mat4x3<f32> = get_boneMatrix(skeletalComponentSID, joint);
   return mat4x4<f32>(
@@ -131,16 +146,16 @@ fn getSkinMatrix(skeletalComponentSID: u32, joint: vec4<u32>, weight: vec4<f32>)
 
   let ts_x = unpackVec4FromUvec2(boneCompressedChunksX.zw)*boneCompressedInfo;
   var skinMat: mat4x4<f32> = weight.x * createMatrixFromQuaternionTranslationScale(
-    unpackVec4FromUvec2(boneCompressedChunksX.xy), ts_x.xyz, vec3(ts_x.w));
+    decodeLogQuat(boneCompressedChunksX.xy), ts_x.xyz, vec3(ts_x.w));
   let ts_y = unpackVec4FromUvec2(boneCompressedChunksY.zw)*boneCompressedInfo;
   skinMat += weight.y * createMatrixFromQuaternionTranslationScale(
-    unpackVec4FromUvec2(boneCompressedChunksY.xy), ts_y.xyz, vec3(ts_y.w));
+    decodeLogQuat(boneCompressedChunksY.xy), ts_y.xyz, vec3(ts_y.w));
   let ts_z = unpackVec4FromUvec2(boneCompressedChunksZ.zw)*boneCompressedInfo;
   skinMat += weight.z * createMatrixFromQuaternionTranslationScale(
-    unpackVec4FromUvec2(boneCompressedChunksZ.xy), ts_z.xyz, vec3(ts_z.w));
+    decodeLogQuat(boneCompressedChunksZ.xy), ts_z.xyz, vec3(ts_z.w));
   let ts_w = unpackVec4FromUvec2(boneCompressedChunksW.zw)*boneCompressedInfo;
   skinMat += weight.w * createMatrixFromQuaternionTranslationScale(
-    unpackVec4FromUvec2(boneCompressedChunksW.xy), ts_w.xyz, vec3(ts_w.w));
+    decodeLogQuat(boneCompressedChunksW.xy), ts_w.xyz, vec3(ts_w.w));
 #endif
 
   return skinMat;

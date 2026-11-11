@@ -550,15 +550,23 @@ export class SkeletalComponent extends Component {
         }
 
         if (this.__engine.config.boneDataType === BoneDataType.Vec4x2) {
-          const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, 2 ** 12);
+          const vec2QPacked = MathUtil.encodeLogQuat(q.x, q.y, q.z, q.w);
           this._boneTranslatePackedQuat.setAt(i * 4 + 0, m.m03);
           this._boneTranslatePackedQuat.setAt(i * 4 + 1, m.m13);
           this._boneTranslatePackedQuat.setAt(i * 4 + 2, m.m23);
           this._boneScalePackedQuat.setAt(i * 4 + 0, scaleVec.x);
           this._boneScalePackedQuat.setAt(i * 4 + 1, scaleVec.y);
           this._boneScalePackedQuat.setAt(i * 4 + 2, scaleVec.z);
-          this._boneTranslatePackedQuat.setAt(i * 4 + 3, vec2QPacked[0]);
-          this._boneScalePackedQuat.setAt(i * 4 + 3, vec2QPacked[1]);
+          new Uint32Array(
+            this._boneTranslatePackedQuat._v.buffer,
+            this._boneTranslatePackedQuat._v.byteOffset,
+            this._boneTranslatePackedQuat._v.byteLength
+          )[i * 4 + 3] = vec2QPacked[0];
+          new Uint32Array(
+            this._boneScalePackedQuat._v.buffer,
+            this._boneScalePackedQuat._v.byteOffset,
+            this._boneScalePackedQuat._v.byteLength
+          )[i * 4 + 3] = vec2QPacked[1];
         } else if (this.__engine.config.boneDataType === BoneDataType.Vec4x2Old) {
           this._boneTranslateScale.setAt(i * 4 + 0, m.m03); // m.getTranslate().x
           this._boneTranslateScale.setAt(i * 4 + 1, m.m13); // m.getTranslate().y
