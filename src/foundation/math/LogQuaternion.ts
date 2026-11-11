@@ -63,19 +63,19 @@ export class LogQuaternion implements ILogQuaternion {
   /**
    * Creates a LogQuaternion from a 3-element array by copying the values.
    * @param array - Array of 3 numbers representing x, y, z components
-   * @returns A new Quaternion instance (note: this should return LogQuaternion)
+   * @returns A new LogQuaternion instance
    */
   static fromCopyArray3(array: Array3<number>) {
-    return new Quaternion(new Float32Array(array));
+    return new LogQuaternion(new Float32Array(array));
   }
 
   /**
    * Creates a LogQuaternion from an array by copying the first 3 values.
    * @param array - Array of numbers (only first 3 elements are used)
-   * @returns A new Quaternion instance (note: this should return LogQuaternion)
+   * @returns A new LogQuaternion instance
    */
   static fromCopyArray(array: Array<number>) {
-    return new Quaternion(new Float32Array(array.slice(0, 3)));
+    return new LogQuaternion(new Float32Array(array.slice(0, 3)));
   }
 
   /**
@@ -83,23 +83,10 @@ export class LogQuaternion implements ILogQuaternion {
    * @param x - The x component
    * @param y - The y component
    * @param z - The z component
-   * @returns A new Quaternion instance (note: this should return LogQuaternion)
+   * @returns A new LogQuaternion instance
    */
   static fromCopy3(x: number, y: number, z: number) {
-    return new Quaternion(new Float32Array([x, y, z]));
-  }
-
-  /**
-   * Creates a LogQuaternion by copying from another LogQuaternion.
-   * @param quat - The source LogQuaternion to copy from
-   * @returns A new Quaternion instance (note: this should return LogQuaternion)
-   */
-  static fromCopyLogQuaternion(quat: ILogQuaternion) {
-    const v = new Float32Array(3);
-    v[0] = quat._v[0];
-    v[1] = quat._v[1];
-    v[2] = quat._v[2];
-    return new Quaternion(v);
+    return new LogQuaternion(new Float32Array([x, y, z]));
   }
 
   /**
@@ -107,12 +94,25 @@ export class LogQuaternion implements ILogQuaternion {
    * @param vec - The source IVector3 to copy from
    * @returns A new Quaternion instance (note: this should return LogQuaternion)
    */
-  static fromCopyVector4(vec: IVector3) {
+  static fromCopyVector3(vec: IVector3) {
     const v = new Float32Array(3);
     v[0] = vec._v[0];
     v[1] = vec._v[1];
     v[2] = vec._v[2];
-    return new Quaternion(v);
+    return new LogQuaternion(v);
+  }
+
+  /**
+   * Creates a LogQuaternion by copying from another LogQuaternion.
+   * @param quat - The source LogQuaternion to copy from
+   * @returns A new LogQuaternion instance
+   */
+  static fromCopyLogQuaternion(quat: ILogQuaternion) {
+    const v = new Float32Array(3);
+    v[0] = quat._v[0];
+    v[1] = quat._v[1];
+    v[2] = quat._v[2];
+    return new LogQuaternion(v);
   }
 
   /**
@@ -140,3 +140,4 @@ export class LogQuaternion implements ILogQuaternion {
     return 'LogQuaternion';
   }
 }
+
