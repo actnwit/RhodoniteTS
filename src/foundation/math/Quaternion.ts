@@ -1242,13 +1242,21 @@ export class Quaternion_<T extends FloatTypedArrayConstructor> extends AbstractQ
    * @returns A new quaternion converted from log space
    */
   static fromCopyLogQuaternion(x: ILogQuaternion) {
-    const theta = x._v[0] * x._v[0] + x._v[1] * x._v[1] + x._v[2] * x._v[2];
-    const sin = Math.sin(theta);
+    const length = Math.hypot(x._v[0], x._v[1], x._v[2]);
     const v = new this._type(4);
-    v[0] = x._v[0] * (sin / theta);
-    v[1] = x._v[1] * (sin / theta);
-    v[2] = x._v[2] * (sin / theta);
-    v[3] = Math.cos(theta);
+    if (length === 0) {
+      // log(identity) = 0, so exp(0) is the identity quaternion.
+      v[0] = 0;
+      v[1] = 0;
+      v[2] = 0;
+      v[3] = 1;
+      return new this(v);
+    }
+    const sin = Math.sin(length);
+    v[0] = x._v[0] * (sin / length);
+    v[1] = x._v[1] * (sin / length);
+    v[2] = x._v[2] * (sin / length);
+    v[3] = Math.cos(length);
     return new this(v);
   }
 
