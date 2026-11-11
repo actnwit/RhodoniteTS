@@ -589,12 +589,12 @@ export class MutableQuaternion extends MutableQuaternion_<Float32ArrayConstructo
 /**
  * Mutable quaternion with 64-bit float components.
  */
-export class MutableQuaterniond extends MutableQuaternion_<Float64ArrayConstructor> {
+export class MutableQuaternionD extends MutableQuaternion_<Float64ArrayConstructor> {
   /** The typed array constructor used for newly created quaternions. */
   protected static override readonly _type: FloatTypedArrayConstructor = Float64Array;
 
   /**
-   * Creates a new MutableQuaterniond instance.
+   * Creates a new MutableQuaternionD instance.
    * @param v - The typed array containing the quaternion components
    */
   constructor(v: TypedArray) {
@@ -604,154 +604,159 @@ export class MutableQuaterniond extends MutableQuaternion_<Float64ArrayConstruct
   /**
    * identity
    */
-  static identity(): MutableQuaterniond {
-    return super.identity() as MutableQuaterniond;
+  static identity(): MutableQuaternionD {
+    return super.identity() as MutableQuaternionD;
   }
 
   /**
    * dummy
    */
-  static dummy(): MutableQuaterniond {
-    return super.dummy() as MutableQuaterniond;
+  static dummy(): MutableQuaternionD {
+    return super.dummy() as MutableQuaternionD;
   }
 
   /**
    * invert
    */
-  static invert(quat: IQuaternion): MutableQuaterniond {
-    return super.invert(quat) as MutableQuaterniond;
+  static invert(quat: IQuaternion): MutableQuaternionD {
+    return super.invert(quat) as MutableQuaternionD;
   }
 
   /**
    * qlerp
    */
-  static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaterniond {
-    return super.qlerp(l_quat, r_quat, ratio) as MutableQuaterniond;
+  static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternionD {
+    return super.qlerp(l_quat, r_quat, ratio) as MutableQuaternionD;
   }
 
   /**
    * lerp
    */
-  static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaterniond {
-    return super.lerp(l_quat, r_quat, ratio) as MutableQuaterniond;
+  static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternionD {
+    return super.lerp(l_quat, r_quat, ratio) as MutableQuaternionD;
   }
 
   /**
    * tryAxisAngle
    */
-  static tryAxisAngle(vec: IVector3, radian: number): MutableQuaterniond | null {
-    return super.tryAxisAngle(vec, radian) as MutableQuaterniond | null;
+  static tryAxisAngle(vec: IVector3, radian: number): MutableQuaternionD | null {
+    return super.tryAxisAngle(vec, radian) as MutableQuaternionD | null;
   }
 
   /**
    * axisAngle
    */
-  static axisAngle(vec: IVector3, radian: number): MutableQuaterniond {
-    return super.axisAngle(vec, radian) as MutableQuaterniond;
+  static axisAngle(vec: IVector3, radian: number): MutableQuaternionD {
+    return super.axisAngle(vec, radian) as MutableQuaternionD;
   }
 
   /**
    * tryFromMatrix
    */
-  static tryFromMatrix(mat: IMatrix44): MutableQuaterniond | null {
-    return super.tryFromMatrix(mat) as MutableQuaterniond | null;
+  static tryFromMatrix(mat: IMatrix44): MutableQuaternionD | null {
+    return super.tryFromMatrix(mat) as MutableQuaternionD | null;
   }
 
   /**
    * fromMatrix
    */
-  static fromMatrix(mat: IMatrix44): MutableQuaterniond {
-    return super.fromMatrix(mat) as MutableQuaterniond;
+  static fromMatrix(mat: IMatrix44): MutableQuaternionD {
+    return super.fromMatrix(mat) as MutableQuaternionD;
   }
 
   /**
    * fromPosition
    */
-  static fromPosition(vec: IVector3): MutableQuaterniond {
-    return super.fromPosition(vec) as MutableQuaterniond;
+  static fromPosition(vec: IVector3): MutableQuaternionD {
+    return super.fromPosition(vec) as MutableQuaternionD;
   }
 
   /**
    * add
    */
-  static add(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaterniond {
-    return super.add(l_quat, r_quat) as MutableQuaterniond;
+  static add(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternionD {
+    return super.add(l_quat, r_quat) as MutableQuaternionD;
   }
 
   /**
    * subtract
    */
-  static subtract(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaterniond {
-    return super.subtract(l_quat, r_quat) as MutableQuaterniond;
+  static subtract(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternionD {
+    return super.subtract(l_quat, r_quat) as MutableQuaternionD;
   }
 
   /**
    * multiply
    */
-  static multiply(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaterniond {
-    return super.multiply(l_quat, r_quat) as MutableQuaterniond;
+  static multiply(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternionD {
+    return super.multiply(l_quat, r_quat) as MutableQuaternionD;
   }
 
   /**
    * multiplyNumber
    */
-  static multiplyNumber(quat: IQuaternion, value: number): MutableQuaterniond {
-    return super.multiplyNumber(quat, value) as MutableQuaterniond;
+  static multiplyNumber(quat: IQuaternion, value: number): MutableQuaternionD {
+    return super.multiplyNumber(quat, value) as MutableQuaternionD;
   }
 
   /**
    * divideNumber
    */
-  static divideNumber(quat: IQuaternion, value: number): MutableQuaterniond {
-    return super.divideNumber(quat, value) as MutableQuaterniond;
+  static divideNumber(quat: IQuaternion, value: number): MutableQuaternionD {
+    return super.divideNumber(quat, value) as MutableQuaternionD;
   }
 
   /**
    * Creates a mutable quaternion that directly uses the given Float64Array (no copy).
    */
-  static fromFloat64Array(array: Float64Array): MutableQuaterniond {
-    return super.fromTypedArray(array) as MutableQuaterniond;
+  static fromFloat64Array(array: Float64Array): MutableQuaternionD {
+    return super.fromTypedArray(array) as MutableQuaternionD;
   }
 
   /**
    * fromCopyArray4
    */
-  static fromCopyArray4(array: Array4<number>): MutableQuaterniond {
-    return super.fromCopyArray4(array) as MutableQuaterniond;
+  static fromCopyArray4(array: Array4<number>): MutableQuaternionD {
+    return super.fromCopyArray4(array) as MutableQuaternionD;
   }
 
   /**
    * fromCopyArray
    */
-  static fromCopyArray(array: Array<number>): MutableQuaterniond {
-    return super.fromCopyArray(array) as MutableQuaterniond;
+  static fromCopyArray(array: Array<number>): MutableQuaternionD {
+    return super.fromCopyArray(array) as MutableQuaternionD;
   }
 
   /**
    * fromCopy4
    */
-  static fromCopy4(x: number, y: number, z: number, w: number): MutableQuaterniond {
-    return super.fromCopy4(x, y, z, w) as MutableQuaterniond;
+  static fromCopy4(x: number, y: number, z: number, w: number): MutableQuaternionD {
+    return super.fromCopy4(x, y, z, w) as MutableQuaternionD;
   }
 
   /**
    * fromCopyQuaternion
    */
-  static fromCopyQuaternion(quat: IQuaternion): MutableQuaterniond {
-    return super.fromCopyQuaternion(quat) as MutableQuaterniond;
+  static fromCopyQuaternion(quat: IQuaternion): MutableQuaternionD {
+    return super.fromCopyQuaternion(quat) as MutableQuaternionD;
   }
 
   /**
    * fromCopyVector4
    */
-  static fromCopyVector4(vec: IVector4): MutableQuaterniond {
-    return super.fromCopyVector4(vec) as MutableQuaterniond;
+  static fromCopyVector4(vec: IVector4): MutableQuaternionD {
+    return super.fromCopyVector4(vec) as MutableQuaternionD;
   }
 
   /**
    * fromCopyLogQuaternion
    */
-  static fromCopyLogQuaternion(x: ILogQuaternion): MutableQuaterniond {
-    return super.fromCopyLogQuaternion(x) as MutableQuaterniond;
+  static fromCopyLogQuaternion(x: ILogQuaternion): MutableQuaternionD {
+    return super.fromCopyLogQuaternion(x) as MutableQuaternionD;
   }
 }
+
+/**
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
+ */
+export { MutableQuaternion as MutableQuaternionF };

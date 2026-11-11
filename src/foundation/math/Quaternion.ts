@@ -1653,12 +1653,12 @@ export class Quaternion extends Quaternion_<Float32ArrayConstructor> {
 /**
  * Immutable quaternion with 64-bit float components.
  */
-export class Quaterniond extends Quaternion_<Float64ArrayConstructor> {
+export class QuaternionD extends Quaternion_<Float64ArrayConstructor> {
   /** The typed array constructor used for newly created quaternions. */
   protected static override readonly _type: FloatTypedArrayConstructor = Float64Array;
 
   /**
-   * Creates a new Quaterniond instance.
+   * Creates a new QuaternionD instance.
    * @param v - The typed array containing the quaternion components
    */
   constructor(v: TypedArray) {
@@ -1668,22 +1668,22 @@ export class Quaterniond extends Quaternion_<Float64ArrayConstructor> {
   /**
    * identity
    */
-  static identity(): Quaterniond {
-    return super.identity() as Quaterniond;
+  static identity(): QuaternionD {
+    return super.identity() as QuaternionD;
   }
 
   /**
    * dummy
    */
-  static dummy(): Quaterniond {
-    return super.dummy() as Quaterniond;
+  static dummy(): QuaternionD {
+    return super.dummy() as QuaternionD;
   }
 
   /**
    * invert
    */
-  static invert(quat: IQuaternion): Quaterniond {
-    return super.invert(quat) as Quaterniond;
+  static invert(quat: IQuaternion): QuaternionD {
+    return super.invert(quat) as QuaternionD;
   }
 
   /**
@@ -1696,8 +1696,8 @@ export class Quaterniond extends Quaternion_<Float64ArrayConstructor> {
   /**
    * qlerp
    */
-  static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): Quaterniond {
-    return super.qlerp(l_quat, r_quat, ratio) as Quaterniond;
+  static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): QuaternionD {
+    return super.qlerp(l_quat, r_quat, ratio) as QuaternionD;
   }
 
   /**
@@ -1710,8 +1710,8 @@ export class Quaterniond extends Quaternion_<Float64ArrayConstructor> {
   /**
    * lerp
    */
-  static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): Quaterniond {
-    return super.lerp(l_quat, r_quat, ratio) as Quaterniond;
+  static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): QuaternionD {
+    return super.lerp(l_quat, r_quat, ratio) as QuaternionD;
   }
 
   /**
@@ -1724,29 +1724,29 @@ export class Quaterniond extends Quaternion_<Float64ArrayConstructor> {
   /**
    * tryAxisAngle
    */
-  static tryAxisAngle(vec: IVector3, radian: number): Quaterniond | null {
-    return super.tryAxisAngle(vec, radian) as Quaterniond | null;
+  static tryAxisAngle(vec: IVector3, radian: number): QuaternionD | null {
+    return super.tryAxisAngle(vec, radian) as QuaternionD | null;
   }
 
   /**
    * axisAngle
    */
-  static axisAngle(vec: IVector3, radian: number): Quaterniond {
-    return super.axisAngle(vec, radian) as Quaterniond;
+  static axisAngle(vec: IVector3, radian: number): QuaternionD {
+    return super.axisAngle(vec, radian) as QuaternionD;
   }
 
   /**
    * tryFromMatrix
    */
-  static tryFromMatrix(mat: IMatrix44): Quaterniond | null {
-    return super.tryFromMatrix(mat) as Quaterniond | null;
+  static tryFromMatrix(mat: IMatrix44): QuaternionD | null {
+    return super.tryFromMatrix(mat) as QuaternionD | null;
   }
 
   /**
    * fromMatrix
    */
-  static fromMatrix(mat: IMatrix44): Quaterniond {
-    return super.fromMatrix(mat) as Quaterniond;
+  static fromMatrix(mat: IMatrix44): QuaternionD {
+    return super.fromMatrix(mat) as QuaternionD;
   }
 
   /**
@@ -1773,43 +1773,43 @@ export class Quaterniond extends Quaternion_<Float64ArrayConstructor> {
   /**
    * tryLookForward
    */
-  static tryLookForward(forward: IVector3): Quaterniond | null {
-    return super.tryLookForward(forward) as Quaterniond | null;
+  static tryLookForward(forward: IVector3): QuaternionD | null {
+    return super.tryLookForward(forward) as QuaternionD | null;
   }
 
   /**
    * lookForward
    */
-  static lookForward(forward: IVector3): Quaterniond {
-    return super.lookForward(forward) as Quaterniond;
+  static lookForward(forward: IVector3): QuaternionD {
+    return super.lookForward(forward) as QuaternionD;
   }
 
   /**
    * tryLookForwardAccordingToThisUp
    */
-  static tryLookForwardAccordingToThisUp(forward: IVector3, up: IVector3): Quaterniond | null {
-    return super.tryLookForwardAccordingToThisUp(forward, up) as Quaterniond | null;
+  static tryLookForwardAccordingToThisUp(forward: IVector3, up: IVector3): QuaternionD | null {
+    return super.tryLookForwardAccordingToThisUp(forward, up) as QuaternionD | null;
   }
 
   /**
    * lookForwardAccordingToThisUp
    */
-  static lookForwardAccordingToThisUp(forward: IVector3, up: IVector3): Quaterniond {
-    return super.lookForwardAccordingToThisUp(forward, up) as Quaterniond;
+  static lookForwardAccordingToThisUp(forward: IVector3, up: IVector3): QuaternionD {
+    return super.lookForwardAccordingToThisUp(forward, up) as QuaternionD;
   }
 
   /**
    * fromPosition
    */
-  static fromPosition(vec: IVector3): Quaterniond {
-    return super.fromPosition(vec) as Quaterniond;
+  static fromPosition(vec: IVector3): QuaternionD {
+    return super.fromPosition(vec) as QuaternionD;
   }
 
   /**
    * add
    */
-  static add(l_quat: IQuaternion, r_quat: IQuaternion): Quaterniond {
-    return super.add(l_quat, r_quat) as Quaterniond;
+  static add(l_quat: IQuaternion, r_quat: IQuaternion): QuaternionD {
+    return super.add(l_quat, r_quat) as QuaternionD;
   }
 
   /**
@@ -1822,8 +1822,8 @@ export class Quaterniond extends Quaternion_<Float64ArrayConstructor> {
   /**
    * subtract
    */
-  static subtract(l_quat: IQuaternion, r_quat: IQuaternion): Quaterniond {
-    return super.subtract(l_quat, r_quat) as Quaterniond;
+  static subtract(l_quat: IQuaternion, r_quat: IQuaternion): QuaternionD {
+    return super.subtract(l_quat, r_quat) as QuaternionD;
   }
 
   /**
@@ -1836,8 +1836,8 @@ export class Quaterniond extends Quaternion_<Float64ArrayConstructor> {
   /**
    * multiply
    */
-  static multiply(l_quat: IQuaternion, r_quat: IQuaternion): Quaterniond {
-    return super.multiply(l_quat, r_quat) as Quaterniond;
+  static multiply(l_quat: IQuaternion, r_quat: IQuaternion): QuaternionD {
+    return super.multiply(l_quat, r_quat) as QuaternionD;
   }
 
   /**
@@ -1850,8 +1850,8 @@ export class Quaterniond extends Quaternion_<Float64ArrayConstructor> {
   /**
    * multiplyNumber
    */
-  static multiplyNumber(quat: IQuaternion, value: number): Quaterniond {
-    return super.multiplyNumber(quat, value) as Quaterniond;
+  static multiplyNumber(quat: IQuaternion, value: number): QuaternionD {
+    return super.multiplyNumber(quat, value) as QuaternionD;
   }
 
   /**
@@ -1864,8 +1864,8 @@ export class Quaterniond extends Quaternion_<Float64ArrayConstructor> {
   /**
    * divideNumber
    */
-  static divideNumber(quat: IQuaternion, value: number): Quaterniond {
-    return super.divideNumber(quat, value) as Quaterniond;
+  static divideNumber(quat: IQuaternion, value: number): QuaternionD {
+    return super.divideNumber(quat, value) as QuaternionD;
   }
 
   /**
@@ -1878,8 +1878,8 @@ export class Quaterniond extends Quaternion_<Float64ArrayConstructor> {
   /**
    * normalize
    */
-  static normalize(vec: IQuaternion): Quaterniond {
-    return super.normalize(vec) as Quaterniond;
+  static normalize(vec: IQuaternion): QuaternionD {
+    return super.normalize(vec) as QuaternionD;
   }
 
   /**
@@ -1892,8 +1892,8 @@ export class Quaterniond extends Quaternion_<Float64ArrayConstructor> {
   /**
    * fromToRotation
    */
-  static fromToRotation(from: IVector3, to: IVector3): Quaterniond {
-    return super.fromToRotation(from, to) as Quaterniond;
+  static fromToRotation(from: IVector3, to: IVector3): QuaternionD {
+    return super.fromToRotation(from, to) as QuaternionD;
   }
 
   /**
@@ -1906,57 +1906,57 @@ export class Quaterniond extends Quaternion_<Float64ArrayConstructor> {
   /**
    * Creates a quaternion that directly uses the given Float64Array (no copy).
    */
-  static fromFloat64Array(array: Float64Array): Quaterniond {
-    return super.fromTypedArray(array) as Quaterniond;
+  static fromFloat64Array(array: Float64Array): QuaternionD {
+    return super.fromTypedArray(array) as QuaternionD;
   }
 
   /**
    * fromCopyArray4
    */
-  static fromCopyArray4(array: Array4<number>): Quaterniond {
-    return super.fromCopyArray4(array) as Quaterniond;
+  static fromCopyArray4(array: Array4<number>): QuaternionD {
+    return super.fromCopyArray4(array) as QuaternionD;
   }
 
   /**
    * fromCopyArray
    */
-  static fromCopyArray(array: Array<number>): Quaterniond {
-    return super.fromCopyArray(array) as Quaterniond;
+  static fromCopyArray(array: Array<number>): QuaternionD {
+    return super.fromCopyArray(array) as QuaternionD;
   }
 
   /**
    * fromCopy4
    */
-  static fromCopy4(x: number, y: number, z: number, w: number): Quaterniond {
-    return super.fromCopy4(x, y, z, w) as Quaterniond;
+  static fromCopy4(x: number, y: number, z: number, w: number): QuaternionD {
+    return super.fromCopy4(x, y, z, w) as QuaternionD;
   }
 
   /**
    * fromCopyQuaternion
    */
-  static fromCopyQuaternion(quat: IQuaternion): Quaterniond {
-    return super.fromCopyQuaternion(quat) as Quaterniond;
+  static fromCopyQuaternion(quat: IQuaternion): QuaternionD {
+    return super.fromCopyQuaternion(quat) as QuaternionD;
   }
 
   /**
    * fromCopyVector4
    */
-  static fromCopyVector4(vec: IVector4): Quaterniond {
-    return super.fromCopyVector4(vec) as Quaterniond;
+  static fromCopyVector4(vec: IVector4): QuaternionD {
+    return super.fromCopyVector4(vec) as QuaternionD;
   }
 
   /**
    * fromCopyLogQuaternion
    */
-  static fromCopyLogQuaternion(x: ILogQuaternion): Quaterniond {
-    return super.fromCopyLogQuaternion(x) as Quaterniond;
+  static fromCopyLogQuaternion(x: ILogQuaternion): QuaternionD {
+    return super.fromCopyLogQuaternion(x) as QuaternionD;
   }
 
   /**
    * fromAxisAngle
    */
-  static fromAxisAngle(axis: IVector3, rad: number): Quaterniond {
-    return super.fromAxisAngle(axis, rad) as Quaterniond;
+  static fromAxisAngle(axis: IVector3, rad: number): QuaternionD {
+    return super.fromAxisAngle(axis, rad) as QuaternionD;
   }
 
   /**
@@ -1980,3 +1980,8 @@ export class Quaterniond extends Quaternion_<Float64ArrayConstructor> {
     return super.clampRotation(quat, thetaMax) as IQuaternion;
   }
 }
+
+/**
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
+ */
+export { Quaternion as QuaternionF };

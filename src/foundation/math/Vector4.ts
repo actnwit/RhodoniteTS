@@ -995,15 +995,15 @@ export class Vector4 extends Vector4_<Float32ArrayConstructor> {
  *
  * @example Basic usage:
  * ```typescript
- * const vec1 = Vector4d.fromCopy4(1.0, 2.0, 3.0, 1.0);
- * const vec2 = Vector4d.fromCopyArray4([2.0, 3.0, 3.0, 1.0]);
+ * const vec1 = Vector4D.fromCopy4(1.0, 2.0, 3.0, 1.0);
+ * const vec2 = Vector4D.fromCopyArray4([2.0, 3.0, 3.0, 1.0]);
  * const dotProduct = vec1.dot(vec2);
- * const sum = Vector4d.add(vec1, vec2);
+ * const sum = Vector4D.add(vec1, vec2);
  * ```
  */
-export class Vector4d extends Vector4_<Float64ArrayConstructor> {
+export class Vector4D extends Vector4_<Float64ArrayConstructor> {
   /**
-   * Creates a new Vector4d instance from a Float64Array.
+   * Creates a new Vector4D instance from a Float64Array.
    *
    * @param x - The Float64Array containing vector components
    * @private This constructor is private to prevent direct instantiation
@@ -1013,96 +1013,96 @@ export class Vector4d extends Vector4_<Float64ArrayConstructor> {
   }
 
   /**
-   * Creates a new Vector4d from a 4-element array by copying the values.
+   * Creates a new Vector4D from a 4-element array by copying the values.
    *
    * @param array - Array containing exactly 4 numeric values [x, y, z, w]
-   * @returns A new Vector4d instance with the copied values
+   * @returns A new Vector4D instance with the copied values
    * @static
    */
-  static fromCopyArray4(array: Array4<number>): Vector4d {
-    return super._fromCopyArray4(array, Float64Array) as Vector4d;
+  static fromCopyArray4(array: Array4<number>): Vector4D {
+    return super._fromCopyArray4(array, Float64Array) as Vector4D;
   }
 
   /**
-   * Creates a new Vector4d from individual component values.
+   * Creates a new Vector4D from individual component values.
    *
    * @param x - The X component value
    * @param y - The Y component value
    * @param z - The Z component value
    * @param w - The W component value
-   * @returns A new Vector4d instance with the specified component values
+   * @returns A new Vector4D instance with the specified component values
    * @static
    */
-  static fromCopy4(x: number, y: number, z: number, w: number): Vector4d {
+  static fromCopy4(x: number, y: number, z: number, w: number): Vector4D {
     return super._fromCopy4(x, y, z, w, Float64Array);
   }
 
   /**
-   * Creates a new Vector4d by copying values from an array.
+   * Creates a new Vector4D by copying values from an array.
    * Takes the first 4 elements from the array. If the array has fewer than 4 elements,
    * the remaining components will be undefined.
    *
    * @param array - Array containing numeric values (at least 4 elements recommended)
-   * @returns A new Vector4d instance with copied values
+   * @returns A new Vector4D instance with copied values
    * @static
    */
-  static fromCopyArray(array: Array4<number>): Vector4d {
-    return super._fromCopyArray(array, Float64Array) as Vector4d;
+  static fromCopyArray(array: Array4<number>): Vector4D {
+    return super._fromCopyArray(array, Float64Array) as Vector4D;
   }
 
   /**
-   * Creates a new Vector4d from an ArrayBuffer.
+   * Creates a new Vector4D from an ArrayBuffer.
    * The ArrayBuffer should contain at least 32 bytes (4 float64 values).
    *
    * @param arrayBuffer - The ArrayBuffer containing vector data
-   * @returns A new Vector4d instance using the ArrayBuffer data
+   * @returns A new Vector4D instance using the ArrayBuffer data
    * @static
    */
-  static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector4d {
-    return new Vector4d(new Float64Array(arrayBuffer));
+  static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector4D {
+    return new Vector4D(new Float64Array(arrayBuffer));
   }
 
   /**
-   * Creates a new Vector4d from a Float64Array.
+   * Creates a new Vector4D from a Float64Array.
    * The Float64Array is used directly without copying.
    *
    * @param float64Array - The Float64Array containing vector components
-   * @returns A new Vector4d instance using the provided Float64Array
+   * @returns A new Vector4D instance using the provided Float64Array
    * @static
    */
-  static fromFloat64Array(float64Array: Float64Array): Vector4d {
-    return new Vector4d(float64Array);
+  static fromFloat64Array(float64Array: Float64Array): Vector4D {
+    return new Vector4D(float64Array);
   }
 
   /**
    * Creates a zero vector (0, 0, 0, 0).
    *
-   * @returns A new Vector4d with all components set to zero
+   * @returns A new Vector4D with all components set to zero
    * @static
    */
   static zero() {
-    return super._zero(Float64Array) as Vector4d;
+    return super._zero(Float64Array) as Vector4D;
   }
 
   /**
    * Creates a vector with all components set to 1 (1, 1, 1, 1).
    *
-   * @returns A new Vector4d with all components set to 1
+   * @returns A new Vector4D with all components set to 1
    * @static
    */
   static one() {
-    return super._one(Float64Array) as Vector4d;
+    return super._one(Float64Array) as Vector4D;
   }
 
   /**
    * Creates a dummy vector with no components (empty array).
    * This is used as a placeholder when a vector is needed but not yet initialized.
    *
-   * @returns A new dummy Vector4d with empty components
+   * @returns A new dummy Vector4D with empty components
    * @static
    */
   static dummy() {
-    return super._dummy(Float64Array) as Vector4d;
+    return super._dummy(Float64Array) as Vector4D;
   }
 
   /**
@@ -1110,11 +1110,11 @@ export class Vector4d extends Vector4_<Float64ArrayConstructor> {
    * A normalized vector has a length of 1 while maintaining its direction.
    *
    * @param vec - The vector to normalize
-   * @returns A new normalized Vector4d
+   * @returns A new normalized Vector4D
    * @static
    */
   static normalize(vec: IVector4) {
-    return super._normalize(vec, Float64Array) as Vector4d;
+    return super._normalize(vec, Float64Array) as Vector4D;
   }
 
   /**
@@ -1122,11 +1122,11 @@ export class Vector4d extends Vector4_<Float64ArrayConstructor> {
    *
    * @param l_vec - The left operand vector
    * @param r_vec - The right operand vector
-   * @returns A new Vector4d containing the sum (l_vec + r_vec)
+   * @returns A new Vector4D containing the sum (l_vec + r_vec)
    * @static
    */
   static add(l_vec: IVector4, r_vec: IVector4) {
-    return super._add(l_vec, r_vec, Float64Array) as Vector4d;
+    return super._add(l_vec, r_vec, Float64Array) as Vector4D;
   }
 
   /**
@@ -1134,11 +1134,11 @@ export class Vector4d extends Vector4_<Float64ArrayConstructor> {
    *
    * @param l_vec - The left operand vector (minuend)
    * @param r_vec - The right operand vector (subtrahend)
-   * @returns A new Vector4d containing the difference (l_vec - r_vec)
+   * @returns A new Vector4D containing the difference (l_vec - r_vec)
    * @static
    */
   static subtract(l_vec: IVector4, r_vec: IVector4) {
-    return super._subtract(l_vec, r_vec, Float64Array) as Vector4d;
+    return super._subtract(l_vec, r_vec, Float64Array) as Vector4D;
   }
 
   /**
@@ -1147,11 +1147,11 @@ export class Vector4d extends Vector4_<Float64ArrayConstructor> {
    *
    * @param vec - The vector to multiply
    * @param value - The scalar value to multiply by
-   * @returns A new Vector4d with each component multiplied by the scalar
+   * @returns A new Vector4D with each component multiplied by the scalar
    * @static
    */
   static multiply(vec: IVector4, value: number) {
-    return super._multiply(vec, value, Float64Array) as Vector4d;
+    return super._multiply(vec, value, Float64Array) as Vector4D;
   }
 
   /**
@@ -1160,11 +1160,11 @@ export class Vector4d extends Vector4_<Float64ArrayConstructor> {
    *
    * @param l_vec - The left operand vector
    * @param r_vec - The right operand vector
-   * @returns A new Vector4d with each component being the product of corresponding components
+   * @returns A new Vector4D with each component being the product of corresponding components
    * @static
    */
   static multiplyVector(l_vec: IVector4, r_vec: IVector4) {
-    return super._multiplyVector(l_vec, r_vec, Float64Array) as Vector4d;
+    return super._multiplyVector(l_vec, r_vec, Float64Array) as Vector4D;
   }
 
   /**
@@ -1173,11 +1173,11 @@ export class Vector4d extends Vector4_<Float64ArrayConstructor> {
    *
    * @param vec - The vector to divide
    * @param value - The scalar value to divide by
-   * @returns A new Vector4d with each component divided by the scalar
+   * @returns A new Vector4D with each component divided by the scalar
    * @static
    */
   static divide(vec: IVector4, value: number) {
-    return super._divide(vec, value, Float64Array) as Vector4d;
+    return super._divide(vec, value, Float64Array) as Vector4D;
   }
 
   /**
@@ -1186,28 +1186,22 @@ export class Vector4d extends Vector4_<Float64ArrayConstructor> {
    *
    * @param l_vec - The left operand vector (dividend)
    * @param r_vec - The right operand vector (divisor)
-   * @returns A new Vector4d with component-wise division result
+   * @returns A new Vector4D with component-wise division result
    * @static
    */
   static divideVector(l_vec: IVector4, r_vec: IVector4) {
-    return super._divideVector(l_vec, r_vec, Float64Array) as Vector4d;
+    return super._divideVector(l_vec, r_vec, Float64Array) as Vector4D;
   }
 
   /**
    * Creates a deep copy of this vector.
    *
-   * @returns A new Vector4d instance with the same component values
+   * @returns A new Vector4D instance with the same component values
    */
   clone() {
-    return super.clone() as Vector4d;
+    return super.clone() as Vector4D;
   }
 }
-
-/**
- * Type alias for Vector4 to provide a consistent naming convention.
- * Vector4f explicitly indicates 32-bit float precision.
- */
-export type Vector4f = Vector4;
 
 /**
  * Constant Vector4 with all components set to 1 (1, 1, 1, 1).
@@ -1226,3 +1220,8 @@ export const ConstVector4_0_0_0_1 = Vector4.fromCopy4(0, 0, 0, 1);
  * Represents the zero vector or null vector.
  */
 export const ConstVector4_0_0_0_0 = Vector4.fromCopy4(0, 0, 0, 0);
+
+/**
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
+ */
+export { Vector4 as Vector4F };

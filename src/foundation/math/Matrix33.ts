@@ -1119,9 +1119,9 @@ export class Matrix33 extends Matrix33_<Float32ArrayConstructor> {
  * Immutable 3x3 matrix with 64-bit float components.
  * Use this implementation when higher numerical precision is required.
  */
-export class Matrix33d extends Matrix33_<Float64ArrayConstructor> {
+export class Matrix33D extends Matrix33_<Float64ArrayConstructor> {
   /**
-   * Creates a new Matrix33d instance.
+   * Creates a new Matrix33D instance.
    * @param m - The typed array containing the matrix components
    */
   private constructor(m: TypedArray) {
@@ -1129,33 +1129,33 @@ export class Matrix33d extends Matrix33_<Float64ArrayConstructor> {
   }
 
   /** Creates a zero matrix. */
-  static zero(): Matrix33d {
-    return super._zero(Float64Array) as Matrix33d;
+  static zero(): Matrix33D {
+    return super._zero(Float64Array) as Matrix33D;
   }
 
   /** Creates an identity matrix. */
-  static identity(): Matrix33d {
-    return super._identity(Float64Array) as Matrix33d;
+  static identity(): Matrix33D {
+    return super._identity(Float64Array) as Matrix33D;
   }
 
   /** Creates a dummy matrix with an empty array. */
-  static dummy(): Matrix33d {
-    return super._dummy(Float64Array) as Matrix33d;
+  static dummy(): Matrix33D {
+    return super._dummy(Float64Array) as Matrix33D;
   }
 
   /** Creates the transpose of the given matrix. */
-  static transpose(mat: IMatrix33): Matrix33d {
-    return super._transpose(mat, Float64Array) as Matrix33d;
+  static transpose(mat: IMatrix33): Matrix33D {
+    return super._transpose(mat, Float64Array) as Matrix33D;
   }
 
   /** Attempts to invert the given matrix, returning null when it is singular. */
-  static tryInvert(mat: IMatrix33): Matrix33d | null {
-    return super._tryInvert(mat, Float64Array) as Matrix33d | null;
+  static tryInvert(mat: IMatrix33): Matrix33D | null {
+    return super._tryInvert(mat, Float64Array) as Matrix33D | null;
   }
 
   /** Creates the inverse of the given matrix (identity when singular). */
-  static invert(mat: IMatrix33): Matrix33d {
-    return super._invert(mat, Float64Array) as Matrix33d;
+  static invert(mat: IMatrix33): Matrix33D {
+    return super._invert(mat, Float64Array) as Matrix33D;
   }
 
   /** Attempts to invert the given matrix into outMat. */
@@ -1169,38 +1169,38 @@ export class Matrix33d extends Matrix33_<Float64ArrayConstructor> {
   }
 
   /** Creates a rotation matrix around the X-axis. */
-  static rotateX(radian: number): Matrix33d {
-    return super._rotateX(radian, Float64Array) as Matrix33d;
+  static rotateX(radian: number): Matrix33D {
+    return super._rotateX(radian, Float64Array) as Matrix33D;
   }
 
   /** Creates a rotation matrix around the Y-axis. */
-  static rotateY(radian: number): Matrix33d {
-    return super._rotateY(radian, Float64Array) as Matrix33d;
+  static rotateY(radian: number): Matrix33D {
+    return super._rotateY(radian, Float64Array) as Matrix33D;
   }
 
   /** Creates a rotation matrix around the Z-axis. */
-  static rotateZ(radian: number): Matrix33d {
-    return super._rotateZ(radian, Float64Array) as Matrix33d;
+  static rotateZ(radian: number): Matrix33D {
+    return super._rotateZ(radian, Float64Array) as Matrix33D;
   }
 
   /** Creates a rotation matrix from Euler angles in XYZ order. */
-  static rotateXYZ(x: number, y: number, z: number): Matrix33d {
-    return super._rotateXYZ(x, y, z, Float64Array) as Matrix33d;
+  static rotateXYZ(x: number, y: number, z: number): Matrix33D {
+    return super._rotateXYZ(x, y, z, Float64Array) as Matrix33D;
   }
 
   /** Creates a rotation matrix from a Vector3 containing Euler angles. */
-  static rotate(vec: IVector3): Matrix33d {
-    return super._rotate(vec, Float64Array) as Matrix33d;
+  static rotate(vec: IVector3): Matrix33D {
+    return super._rotate(vec, Float64Array) as Matrix33D;
   }
 
   /** Creates a scaling matrix. */
-  static scale(vec: IVector3): Matrix33d {
-    return super._scale(vec, Float64Array) as Matrix33d;
+  static scale(vec: IVector3): Matrix33D {
+    return super._scale(vec, Float64Array) as Matrix33D;
   }
 
   /** Multiplies two matrices. */
-  static multiply(l_mat: IMatrix33, r_mat: IMatrix33): Matrix33d {
-    return super._multiply(l_mat, r_mat, Float64Array) as Matrix33d;
+  static multiply(l_mat: IMatrix33, r_mat: IMatrix33): Matrix33D {
+    return super._multiply(l_mat, r_mat, Float64Array) as Matrix33D;
   }
 
   /** Multiplies two matrices and stores the result in outMat. */
@@ -1220,8 +1220,8 @@ export class Matrix33d extends Matrix33_<Float64ArrayConstructor> {
     m20: number,
     m21: number,
     m22: number
-  ): Matrix33d {
-    return super._fromCopy9RowMajor(m00, m01, m02, m10, m11, m12, m20, m21, m22, Float64Array) as Matrix33d;
+  ): Matrix33D {
+    return super._fromCopy9RowMajor(m00, m01, m02, m10, m11, m12, m20, m21, m22, Float64Array) as Matrix33D;
   }
 
   /** Creates a matrix from column-major components. */
@@ -1236,57 +1236,62 @@ export class Matrix33d extends Matrix33_<Float64ArrayConstructor> {
     m02: number,
     m12: number,
     m22: number
-  ): Matrix33d {
-    return super._fromCopy9ColumnMajor(m00, m10, m20, m01, m11, m21, m02, m12, m22, Float64Array) as Matrix33d;
+  ): Matrix33D {
+    return super._fromCopy9ColumnMajor(m00, m10, m20, m01, m11, m21, m02, m12, m22, Float64Array) as Matrix33D;
   }
 
   /** Creates a matrix from the upper-left 3x3 portion of a 4x4 matrix. */
-  static fromCopyMatrix44(mat: IMatrix44): Matrix33d {
-    return super._fromCopyMatrix44(mat, Float64Array) as Matrix33d;
+  static fromCopyMatrix44(mat: IMatrix44): Matrix33D {
+    return super._fromCopyMatrix44(mat, Float64Array) as Matrix33D;
   }
 
   /** Creates a matrix that directly uses the given Float64Array. */
-  static fromFloat64ArrayColumnMajor(array: Float64Array): Matrix33d {
-    return super._fromTypedArrayColumnMajor(array, Float64Array) as Matrix33d;
+  static fromFloat64ArrayColumnMajor(array: Float64Array): Matrix33D {
+    return super._fromTypedArrayColumnMajor(array, Float64Array) as Matrix33D;
   }
 
   /** Creates a matrix by copying a Float64Array in column-major order. */
-  static fromCopyFloat64ArrayColumnMajor(array: Float64Array): Matrix33d {
-    return super._fromCopyTypedArrayColumnMajor(array, Float64Array) as Matrix33d;
+  static fromCopyFloat64ArrayColumnMajor(array: Float64Array): Matrix33D {
+    return super._fromCopyTypedArrayColumnMajor(array, Float64Array) as Matrix33D;
   }
 
   /** Creates a matrix by copying a Float64Array in row-major order. */
-  static fromCopyFloat64ArrayRowMajor(array: Float64Array): Matrix33d {
-    return super._fromCopyTypedArrayRowMajor(array, Float64Array) as Matrix33d;
+  static fromCopyFloat64ArrayRowMajor(array: Float64Array): Matrix33D {
+    return super._fromCopyTypedArrayRowMajor(array, Float64Array) as Matrix33D;
   }
 
   /** Creates a matrix by copying another matrix. */
-  static fromCopyMatrix33(mat: IMatrix33): Matrix33d {
-    return super._fromCopyMatrix33(mat, Float64Array) as Matrix33d;
+  static fromCopyMatrix33(mat: IMatrix33): Matrix33D {
+    return super._fromCopyMatrix33(mat, Float64Array) as Matrix33D;
   }
 
   /** Creates a matrix from a 9-element array in column-major order. */
-  static fromCopyArray9ColumnMajor(array: Array9<number>): Matrix33d {
-    return super._fromCopyArray9ColumnMajor(array, Float64Array) as Matrix33d;
+  static fromCopyArray9ColumnMajor(array: Array9<number>): Matrix33D {
+    return super._fromCopyArray9ColumnMajor(array, Float64Array) as Matrix33D;
   }
 
   /** Creates a matrix from an array in column-major order. */
-  static fromCopyArrayColumnMajor(array: Array<number>): Matrix33d {
-    return super._fromCopyArrayColumnMajor(array, Float64Array) as Matrix33d;
+  static fromCopyArrayColumnMajor(array: Array<number>): Matrix33D {
+    return super._fromCopyArrayColumnMajor(array, Float64Array) as Matrix33D;
   }
 
   /** Creates a matrix from a 9-element array in row-major order. */
-  static fromCopyArray9RowMajor(array: Array9<number>): Matrix33d {
-    return super._fromCopyArray9RowMajor(array, Float64Array) as Matrix33d;
+  static fromCopyArray9RowMajor(array: Array9<number>): Matrix33D {
+    return super._fromCopyArray9RowMajor(array, Float64Array) as Matrix33D;
   }
 
   /** Creates a matrix from an array in row-major order. */
-  static fromCopyArrayRowMajor(array: Array<number>): Matrix33d {
-    return super._fromCopyArrayRowMajor(array, Float64Array) as Matrix33d;
+  static fromCopyArrayRowMajor(array: Array<number>): Matrix33D {
+    return super._fromCopyArrayRowMajor(array, Float64Array) as Matrix33D;
   }
 
   /** Creates a matrix from a quaternion representing a rotation. */
-  static fromCopyQuaternion(q: IQuaternion): Matrix33d {
-    return super._fromCopyQuaternion(q, Float64Array) as Matrix33d;
+  static fromCopyQuaternion(q: IQuaternion): Matrix33D {
+    return super._fromCopyQuaternion(q, Float64Array) as Matrix33D;
   }
 }
+
+/**
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
+ */
+export { Matrix33 as Matrix33F };

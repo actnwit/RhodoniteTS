@@ -798,9 +798,9 @@ export class Vector2 extends Vector2_<Float32ArrayConstructor> implements IVecto
  * This class provides high-precision vector operations for applications requiring double precision.
  * All operations return new vector instances, preserving immutability.
  */
-export class Vector2d extends Vector2_<Float64ArrayConstructor> {
+export class Vector2D extends Vector2_<Float64ArrayConstructor> {
   /**
-   * Creates a new Vector2d instance.
+   * Creates a new Vector2D instance.
    *
    * @param x - The typed array containing the vector components
    */
@@ -812,9 +812,9 @@ export class Vector2d extends Vector2_<Float64ArrayConstructor> {
    * Creates a vector from a 2-element array.
    *
    * @param array - The array containing [x, y] components
-   * @returns A new Vector2d instance
+   * @returns A new Vector2D instance
    */
-  static fromCopyArray2(array: Array2<number>): Vector2d {
+  static fromCopyArray2(array: Array2<number>): Vector2D {
     return super._fromCopyArray2(array, Float64Array);
   }
 
@@ -823,9 +823,9 @@ export class Vector2d extends Vector2_<Float64ArrayConstructor> {
    *
    * @param x - The x component
    * @param y - The y component
-   * @returns A new Vector2d instance
+   * @returns A new Vector2D instance
    */
-  static fromCopy2(x: number, y: number): Vector2d {
+  static fromCopy2(x: number, y: number): Vector2D {
     return super._fromCopy2(x, y, Float64Array);
   }
 
@@ -833,9 +833,9 @@ export class Vector2d extends Vector2_<Float64ArrayConstructor> {
    * Creates a vector from an array, taking the first 2 elements.
    *
    * @param array - The array containing components
-   * @returns A new Vector2d instance
+   * @returns A new Vector2D instance
    */
-  static fromCopyArray(array: Array<number>): Vector2d {
+  static fromCopyArray(array: Array<number>): Vector2D {
     return super._fromCopyArray(array, Float64Array);
   }
 
@@ -843,57 +843,57 @@ export class Vector2d extends Vector2_<Float64ArrayConstructor> {
    * Creates a vector from an ArrayBuffer.
    *
    * @param arrayBuffer - The ArrayBuffer containing the vector data
-   * @returns A new Vector2d instance
+   * @returns A new Vector2D instance
    */
-  static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector2d {
-    return new Vector2d(new Float64Array(arrayBuffer));
+  static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector2D {
+    return new Vector2D(new Float64Array(arrayBuffer));
   }
 
   /**
    * Creates a vector from a Float64Array.
    *
    * @param float64Array - The Float64Array containing the vector data
-   * @returns A new Vector2d instance
+   * @returns A new Vector2D instance
    */
-  static fromFloat64Array(float64Array: Float64Array): Vector2d {
-    return new Vector2d(float64Array);
+  static fromFloat64Array(float64Array: Float64Array): Vector2D {
+    return new Vector2D(float64Array);
   }
 
   /**
    * Creates a zero vector (0, 0).
    *
-   * @returns A new zero Vector2d instance
+   * @returns A new zero Vector2D instance
    */
   static zero() {
-    return super._zero(Float64Array) as Vector2d;
+    return super._zero(Float64Array) as Vector2D;
   }
 
   /**
    * Creates a one vector (1, 1).
    *
-   * @returns A new one Vector2d instance
+   * @returns A new one Vector2D instance
    */
   static one() {
-    return super._one(Float64Array) as Vector2d;
+    return super._one(Float64Array) as Vector2D;
   }
 
   /**
    * Creates a dummy vector with no components.
    *
-   * @returns A new dummy Vector2d instance
+   * @returns A new dummy Vector2D instance
    */
   static dummy() {
-    return super._dummy(Float64Array) as Vector2d;
+    return super._dummy(Float64Array) as Vector2D;
   }
 
   /**
    * Normalizes a vector to unit length.
    *
    * @param vec - The vector to normalize
-   * @returns A new normalized Vector2d instance
+   * @returns A new normalized Vector2D instance
    */
   static normalize(vec: IVector2) {
-    return super._normalize(vec, Float64Array) as Vector2d;
+    return super._normalize(vec, Float64Array) as Vector2D;
   }
 
   /**
@@ -901,10 +901,10 @@ export class Vector2d extends Vector2_<Float64ArrayConstructor> {
    *
    * @param l_vec - The left vector operand
    * @param r_vec - The right vector operand
-   * @returns A new Vector2d instance containing the sum
+   * @returns A new Vector2D instance containing the sum
    */
   static add(l_vec: IVector2, r_vec: IVector2) {
-    return super._add(l_vec, r_vec, Float64Array) as Vector2d;
+    return super._add(l_vec, r_vec, Float64Array) as Vector2D;
   }
 
   /**
@@ -912,10 +912,10 @@ export class Vector2d extends Vector2_<Float64ArrayConstructor> {
    *
    * @param l_vec - The left vector operand
    * @param r_vec - The right vector operand
-   * @returns A new Vector2d instance containing the difference
+   * @returns A new Vector2D instance containing the difference
    */
   static subtract(l_vec: IVector2, r_vec: IVector2) {
-    return super._subtract(l_vec, r_vec, Float64Array) as Vector2d;
+    return super._subtract(l_vec, r_vec, Float64Array) as Vector2D;
   }
 
   /**
@@ -923,10 +923,10 @@ export class Vector2d extends Vector2_<Float64ArrayConstructor> {
    *
    * @param vec - The vector to multiply
    * @param value - The scalar value to multiply by
-   * @returns A new Vector2d instance containing the scaled result
+   * @returns A new Vector2D instance containing the scaled result
    */
   static multiply(vec: IVector2, value: number) {
-    return super._multiply(vec, value, Float64Array) as Vector2d;
+    return super._multiply(vec, value, Float64Array) as Vector2D;
   }
 
   /**
@@ -934,10 +934,10 @@ export class Vector2d extends Vector2_<Float64ArrayConstructor> {
    *
    * @param l_vec - The left vector operand
    * @param r_vec - The right vector operand
-   * @returns A new Vector2d instance containing the component-wise product
+   * @returns A new Vector2D instance containing the component-wise product
    */
   static multiplyVector(l_vec: IVector2, r_vec: IVector2) {
-    return super._multiplyVector(l_vec, r_vec, Float64Array) as Vector2d;
+    return super._multiplyVector(l_vec, r_vec, Float64Array) as Vector2D;
   }
 
   /**
@@ -945,10 +945,10 @@ export class Vector2d extends Vector2_<Float64ArrayConstructor> {
    *
    * @param vec - The vector to divide
    * @param value - The scalar value to divide by
-   * @returns A new Vector2d instance containing the divided result
+   * @returns A new Vector2D instance containing the divided result
    */
   static divide(vec: IVector2, value: number) {
-    return super._divide(vec, value, Float64Array) as Vector2d;
+    return super._divide(vec, value, Float64Array) as Vector2D;
   }
 
   /**
@@ -956,26 +956,21 @@ export class Vector2d extends Vector2_<Float64ArrayConstructor> {
    *
    * @param l_vec - The left vector operand (dividend)
    * @param r_vec - The right vector operand (divisor)
-   * @returns A new Vector2d instance containing the component-wise division result
+   * @returns A new Vector2D instance containing the component-wise division result
    */
   static divideVector(l_vec: IVector2, r_vec: IVector2) {
-    return super._divideVector(l_vec, r_vec, Float64Array) as Vector2d;
+    return super._divideVector(l_vec, r_vec, Float64Array) as Vector2D;
   }
 
   /**
    * Creates a clone of this vector.
    *
-   * @returns A new Vector2d instance with the same components
+   * @returns A new Vector2D instance with the same components
    */
   clone() {
-    return super.clone() as Vector2d;
+    return super.clone() as Vector2D;
   }
 }
-
-/**
- * Type alias for Vector2 using 32-bit float components.
- */
-export type Vector2f = Vector2;
 
 /**
  * Constant Vector2 instance representing (1, 1).
@@ -986,3 +981,8 @@ export const ConstVector2_1_1 = Vector2.fromCopy2(1, 1);
  * Constant Vector2 instance representing (0, 0).
  */
 export const ConstVector2_0_0 = Vector2.fromCopy2(0, 0);
+
+/**
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
+ */
+export { Vector2 as Vector2F };

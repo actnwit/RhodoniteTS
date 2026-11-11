@@ -627,9 +627,9 @@ export class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
  * Provides higher precision vector operations for applications requiring
  * greater numerical accuracy than 32-bit floats.
  */
-export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
+export class MutableVector3D extends MutableVector3_<Float64ArrayConstructor> {
   /**
-   * Creates a new MutableVector3d instance.
+   * Creates a new MutableVector3D instance.
    *
    * @param x - The typed array containing the vector components
    */
@@ -643,7 +643,7 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @returns A new zero vector
    */
   static zero() {
-    return super._zero(Float64Array) as MutableVector3d;
+    return super._zero(Float64Array) as MutableVector3D;
   }
 
   /**
@@ -652,7 +652,7 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @returns A new unit vector
    */
   static one() {
-    return super._one(Float64Array) as MutableVector3d;
+    return super._one(Float64Array) as MutableVector3D;
   }
 
   /**
@@ -661,7 +661,7 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @returns A new dummy vector
    */
   static dummy() {
-    return super._dummy(Float64Array) as MutableVector3d;
+    return super._dummy(Float64Array) as MutableVector3D;
   }
 
   /**
@@ -671,7 +671,7 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @returns A new normalized vector
    */
   static normalize(vec: IVector3) {
-    return super._normalize(vec, Float64Array) as MutableVector3d;
+    return super._normalize(vec, Float64Array) as MutableVector3D;
   }
 
   /**
@@ -682,7 +682,7 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @returns A new vector containing the sum
    */
   static add(l_vec: IVector3, r_vec: IVector3) {
-    return super._add(l_vec, r_vec, Float64Array) as MutableVector3d;
+    return super._add(l_vec, r_vec, Float64Array) as MutableVector3D;
   }
 
   /**
@@ -693,7 +693,7 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @returns A new vector containing the difference
    */
   static subtract(l_vec: IVector3, r_vec: IVector3) {
-    return super._subtract(l_vec, r_vec, Float64Array) as MutableVector3d;
+    return super._subtract(l_vec, r_vec, Float64Array) as MutableVector3D;
   }
 
   /**
@@ -704,7 +704,7 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @returns A new scaled vector
    */
   static multiply(vec: IVector3, value: number) {
-    return super._multiply(vec, value, Float64Array) as MutableVector3d;
+    return super._multiply(vec, value, Float64Array) as MutableVector3D;
   }
 
   /**
@@ -715,7 +715,7 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @returns A new vector containing the component-wise product
    */
   static multiplyVector(l_vec: IVector3, r_vec: IVector3) {
-    return super._multiplyVector(l_vec, r_vec, Float64Array) as MutableVector3d;
+    return super._multiplyVector(l_vec, r_vec, Float64Array) as MutableVector3D;
   }
 
   /**
@@ -726,7 +726,7 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @returns A new divided vector
    */
   static divide(vec: IVector3, value: number) {
-    return super._divide(vec, value, Float64Array) as MutableVector3d;
+    return super._divide(vec, value, Float64Array) as MutableVector3D;
   }
 
   /**
@@ -737,7 +737,7 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @returns A new vector containing the component-wise quotient
    */
   static divideVector(l_vec: IVector3, r_vec: IVector3) {
-    return super._divideVector(l_vec, r_vec, Float64Array) as MutableVector3d;
+    return super._divideVector(l_vec, r_vec, Float64Array) as MutableVector3D;
   }
 
   /**
@@ -748,7 +748,7 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @returns A new vector containing the cross product
    */
   static cross(l_vec: IVector3, r_vec: IVector3) {
-    return super._cross(l_vec, r_vec, Float64Array) as MutableVector3d;
+    return super._cross(l_vec, r_vec, Float64Array) as MutableVector3D;
   }
 
   /**
@@ -759,7 +759,7 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @returns A new rotated vector
    */
   static multiplyQuaternion(quat: IQuaternion, vec: IVector3) {
-    return super._multiplyQuaternion(quat, vec, Float64Array) as MutableVector3d;
+    return super._multiplyQuaternion(quat, vec, Float64Array) as MutableVector3D;
   }
 
   /**
@@ -770,7 +770,7 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @param z - The z component
    * @returns A new vector instance
    */
-  static fromCopy3(x: number, y: number, z: number): MutableVector3d {
+  static fromCopy3(x: number, y: number, z: number): MutableVector3D {
     return super._fromCopy3(x, y, z, Float64Array);
   }
 
@@ -780,7 +780,7 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @param val - The value for all components
    * @returns A new vector instance
    */
-  static fromCopy1(val: number): MutableVector3d {
+  static fromCopy1(val: number): MutableVector3D {
     return super._fromCopy3(val, val, val, Float64Array);
   }
 
@@ -790,8 +790,8 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @param array - The array containing x, y, z values
    * @returns A new vector instance
    */
-  static fromCopyArray3(array: Array3<number>): MutableVector3d {
-    return new MutableVector3d(new Float64Array(array));
+  static fromCopyArray3(array: Array3<number>): MutableVector3D {
+    return new MutableVector3D(new Float64Array(array));
   }
 
   /**
@@ -800,8 +800,8 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @param array - The array containing at least 3 values
    * @returns A new vector instance
    */
-  static fromCopyArray(array: Array<number>): MutableVector3d {
-    return new MutableVector3d(new Float64Array(array.slice(0, 3)));
+  static fromCopyArray(array: Array<number>): MutableVector3D {
+    return new MutableVector3D(new Float64Array(array.slice(0, 3)));
   }
 
   /**
@@ -812,7 +812,7 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @param radian - The rotation angle in radians
    * @param outVec - The output vector to store the result
    */
-  static rotateX(vec3: IVector3, radian: number, outVec: MutableVector3d) {
+  static rotateX(vec3: IVector3, radian: number, outVec: MutableVector3D) {
     const c = Math.cos(radian);
     const s = Math.sin(radian);
     outVec.y = vec3.y * c - vec3.z * s;
@@ -827,7 +827,7 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @param radian - The rotation angle in radians
    * @param outVec - The output vector to store the result
    */
-  static rotateY(vec3: IVector3, radian: number, outVec: MutableVector3d) {
+  static rotateY(vec3: IVector3, radian: number, outVec: MutableVector3D) {
     const c = Math.cos(radian);
     const s = Math.sin(radian);
     outVec.x = vec3.x * c + vec3.z * s;
@@ -842,7 +842,7 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @param radian - The rotation angle in radians
    * @param outVec - The output vector to store the result
    */
-  static rotateZ(vec3: IVector3, radian: number, outVec: MutableVector3d) {
+  static rotateZ(vec3: IVector3, radian: number, outVec: MutableVector3D) {
     const c = Math.cos(radian);
     const s = Math.sin(radian);
     outVec.x = vec3.x * c - vec3.y * s;
@@ -855,11 +855,11 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
    * @returns A new vector instance with the same values
    */
   clone() {
-    return super.clone() as MutableVector3d;
+    return super.clone() as MutableVector3D;
   }
 }
 
 /**
- * Type alias for MutableVector3 with single precision (32-bit) floating point components.
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
  */
-export type MutableVector3f = MutableVector3;
+export { MutableVector3 as MutableVector3F };

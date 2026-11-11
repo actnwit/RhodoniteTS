@@ -216,9 +216,9 @@ export class LogQuaternion extends LogQuaternion_<Float32ArrayConstructor> {
  * Logarithm of a quaternion with 64-bit float components.
  * Use this implementation when higher numerical precision is required.
  */
-export class LogQuaterniond extends LogQuaternion_<Float64ArrayConstructor> {
+export class LogQuaternionD extends LogQuaternion_<Float64ArrayConstructor> {
   /**
-   * Creates a new LogQuaterniond instance.
+   * Creates a new LogQuaternionD instance.
    * @param v - The typed array containing the x, y, z components
    */
   constructor(v: TypedArray) {
@@ -226,37 +226,42 @@ export class LogQuaterniond extends LogQuaternion_<Float64ArrayConstructor> {
   }
 
   /** Creates a log quaternion that directly uses the given Float64Array (no copy). */
-  static fromFloat64Array(array: Float64Array): LogQuaterniond {
-    return super._fromTypedArray(array, Float64Array) as LogQuaterniond;
+  static fromFloat64Array(array: Float64Array): LogQuaternionD {
+    return super._fromTypedArray(array, Float64Array) as LogQuaternionD;
   }
 
   /** Creates a log quaternion from a 3-element array by copying the values. */
-  static fromCopyArray3(array: Array3<number>): LogQuaterniond {
-    return super._fromCopyArray3(array, Float64Array) as LogQuaterniond;
+  static fromCopyArray3(array: Array3<number>): LogQuaternionD {
+    return super._fromCopyArray3(array, Float64Array) as LogQuaternionD;
   }
 
   /** Creates a log quaternion from an array by copying the first 3 values. */
-  static fromCopyArray(array: Array<number>): LogQuaterniond {
-    return super._fromCopyArray(array, Float64Array) as LogQuaterniond;
+  static fromCopyArray(array: Array<number>): LogQuaternionD {
+    return super._fromCopyArray(array, Float64Array) as LogQuaternionD;
   }
 
   /** Creates a log quaternion from individual x, y, z component values. */
-  static fromCopy3(x: number, y: number, z: number): LogQuaterniond {
-    return super._fromCopy3(x, y, z, Float64Array) as LogQuaterniond;
+  static fromCopy3(x: number, y: number, z: number): LogQuaternionD {
+    return super._fromCopy3(x, y, z, Float64Array) as LogQuaternionD;
   }
 
   /** Creates a log quaternion from a 3D vector by copying its components. */
-  static fromCopyVector3(vec: IVector3): LogQuaterniond {
-    return super._fromCopyVector3(vec, Float64Array) as LogQuaterniond;
+  static fromCopyVector3(vec: IVector3): LogQuaternionD {
+    return super._fromCopyVector3(vec, Float64Array) as LogQuaternionD;
   }
 
   /** Creates a log quaternion by copying from another log quaternion. */
-  static fromCopyLogQuaternion(quat: ILogQuaternion): LogQuaterniond {
-    return super._fromCopyLogQuaternion(quat, Float64Array) as LogQuaterniond;
+  static fromCopyLogQuaternion(quat: ILogQuaternion): LogQuaternionD {
+    return super._fromCopyLogQuaternion(quat, Float64Array) as LogQuaternionD;
   }
 
   /** Converts a regular quaternion to its logarithmic form. */
-  static fromCopyQuaternion(quat: IQuaternion): LogQuaterniond {
-    return super._fromCopyQuaternion(quat, Float64Array) as LogQuaterniond;
+  static fromCopyQuaternion(quat: IQuaternion): LogQuaternionD {
+    return super._fromCopyQuaternion(quat, Float64Array) as LogQuaternionD;
   }
 }
+
+/**
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
+ */
+export { LogQuaternion as LogQuaternionF };
