@@ -122,27 +122,27 @@ fn getSkinMatrix(skeletalComponentSID: u32, joint: vec4<u32>, weight: vec4<f32>)
     get_boneQuaternion(skeletalComponentSID, joint.w), ts_w.xyz, vec3(ts_w.w));
 
 #elif defined(RN_BONE_DATA_TYPE_VEC4X1)
-  let boneCompressedChunksX = get_boneCompressedChunk(skeletalComponentSID, joint.x);
-  let boneCompressedChunksY = get_boneCompressedChunk(skeletalComponentSID, joint.y);
-  let boneCompressedChunksZ = get_boneCompressedChunk(skeletalComponentSID, joint.z);
-  let boneCompressedChunksW = get_boneCompressedChunk(skeletalComponentSID, joint.w);
+  let boneCompressedChunksX = bitcast<vec4<u32>>(get_boneCompressedChunk(skeletalComponentSID, joint.x));
+  let boneCompressedChunksY = bitcast<vec4<u32>>(get_boneCompressedChunk(skeletalComponentSID, joint.y));
+  let boneCompressedChunksZ = bitcast<vec4<u32>>(get_boneCompressedChunk(skeletalComponentSID, joint.z));
+  let boneCompressedChunksW = bitcast<vec4<u32>>(get_boneCompressedChunk(skeletalComponentSID, joint.w));
 
-  let criteria = vec2<f32>(4096.0, 4096.0);
   let boneCompressedInfo = get_boneCompressedInfo(0u, 0u);
 
-  let ts_x = unpackedVec2ToNormalizedVec4(boneCompressedChunksX.zw, criteria.y)*boneCompressedInfo;
+  let ts_x = unpackVec4FromUvec2(boneCompressedChunksX.zw)*boneCompressedInfo;
   var skinMat: mat4x4<f32> = weight.x * createMatrixFromQuaternionTranslationScale(
-    unpackedVec2ToNormalizedVec4(boneCompressedChunksX.xy, criteria.x), ts_x.xyz, vec3(ts_x.w));
-  let ts_y = unpackedVec2ToNormalizedVec4(boneCompressedChunksY.zw, criteria.y)*boneCompressedInfo;
+    unpackVec4FromUvec2(boneCompressedChunksX.xy), ts_x.xyz, vec3(ts_x.w));
+  let ts_y = unpackVec4FromUvec2(boneCompressedChunksY.zw)*boneCompressedInfo;
   skinMat += weight.y * createMatrixFromQuaternionTranslationScale(
-    unpackedVec2ToNormalizedVec4(boneCompressedChunksY.xy, criteria.x), ts_y.xyz, vec3(ts_y.w));
-  let ts_z = unpackedVec2ToNormalizedVec4(boneCompressedChunksZ.zw, criteria.y)*boneCompressedInfo;
+    unpackVec4FromUvec2(boneCompressedChunksY.xy), ts_y.xyz, vec3(ts_y.w));
+  let ts_z = unpackVec4FromUvec2(boneCompressedChunksZ.zw)*boneCompressedInfo;
   skinMat += weight.z * createMatrixFromQuaternionTranslationScale(
-    unpackedVec2ToNormalizedVec4(boneCompressedChunksZ.xy, criteria.x), ts_z.xyz, vec3(ts_z.w));
-  let ts_w = unpackedVec2ToNormalizedVec4(boneCompressedChunksW.zw, criteria.y)*boneCompressedInfo;
+    unpackVec4FromUvec2(boneCompressedChunksZ.xy), ts_z.xyz, vec3(ts_z.w));
+  let ts_w = unpackVec4FromUvec2(boneCompressedChunksW.zw)*boneCompressedInfo;
   skinMat += weight.w * createMatrixFromQuaternionTranslationScale(
-    unpackedVec2ToNormalizedVec4(boneCompressedChunksW.xy, criteria.x), ts_w.xyz, vec3(ts_w.w));
+    unpackVec4FromUvec2(boneCompressedChunksW.xy), ts_w.xyz, vec3(ts_w.w));
 #endif
+
   return skinMat;
 }
 

@@ -184,6 +184,10 @@ fn fetchMat3No16BytesAligned(scalar_idx: u32) -> mat3x3<f32> {
   }
 }
 
+fn unpackVec4FromUvec2(p: vec2<u32>) -> vec4<f32> {
+  return vec4<f32>(unpack2x16snorm(p.x), unpack2x16snorm(p.y));
+}
+
 fn uvTransform(scale: vec2f, offset: vec2f, rotation: f32, uv: vec2f) -> vec2f {
   let translationMat = mat3x3(1,0,0, 0,1,0, offset.x, offset.y, 1);
   let rotationMat = mat3x3(
