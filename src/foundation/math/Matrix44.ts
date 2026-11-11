@@ -263,16 +263,21 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   }
 
   /**
-   * Creates an inverse matrix from the given matrix.
+   * Attempts to create the inverse of the given matrix.
    * Uses optimized computation for 4x4 matrix inversion.
+   *
+   * Returns null instead of dividing by zero when the matrix is numerically
+   * singular (see {@link MathUtil.isSingularDet}).
+   *
    * @param mat - The matrix to invert
-   * @returns A new Matrix44 instance representing the inverted matrix
-   * @throws Logs an error if the matrix is not invertible (determinant is 0)
+   * @returns A new Matrix44 instance representing the inverted matrix,
+   *          or null if the matrix is not invertible
    */
-  static invert(mat: IMatrix44): Matrix44 {
+  static tryInvert(mat: IMatrix44): Matrix44 | null {
     if (mat.isIdentityMatrixClass) {
       return this.fromCopyMatrix44(mat);
     }
+
     const n00 = mat._v[0] * mat._v[5] - mat._v[4] * mat._v[1];
     const n01 = mat._v[0] * mat._v[9] - mat._v[8] * mat._v[1];
     const n02 = mat._v[0] * mat._v[13] - mat._v[12] * mat._v[1];
@@ -287,9 +292,15 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     const n11 = mat._v[10] * mat._v[15] - mat._v[14] * mat._v[11];
 
     const det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
-    if (det === 0) {
-      Logger.default.error('the determinant is 0!');
+
+    const rowNorm0 = Math.abs(mat._v[0]) + Math.abs(mat._v[1]) + Math.abs(mat._v[2]) + Math.abs(mat._v[3]);
+    const rowNorm1 = Math.abs(mat._v[4]) + Math.abs(mat._v[5]) + Math.abs(mat._v[6]) + Math.abs(mat._v[7]);
+    const rowNorm2 = Math.abs(mat._v[8]) + Math.abs(mat._v[9]) + Math.abs(mat._v[10]) + Math.abs(mat._v[11]);
+    const rowNorm3 = Math.abs(mat._v[12]) + Math.abs(mat._v[13]) + Math.abs(mat._v[14]) + Math.abs(mat._v[15]);
+    if (MathUtil.isSingularDet(det, rowNorm0 * rowNorm1 * rowNorm2 * rowNorm3)) {
+      return null;
     }
+
     const invDet = 1 / det;
 
     const m00 = (mat._v[5] * n11 - mat._v[9] * n10 + mat._v[13] * n09) * invDet;
@@ -313,17 +324,42 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   }
 
   /**
-   * Computes the inverse of a matrix and stores the result in an output matrix.
-   * This is the mutable version of the invert method for performance optimization.
+   * Creates an inverse matrix from the given matrix.
+   * Uses optimized computation for 4x4 matrix inversion.
+   *
+   * If the matrix is numerically singular, an identity matrix is returned
+   * instead of dividing by zero. Use {@link Matrix44.tryInvert} when the
+   * caller needs to detect the failure.
+   *
+   * @param mat - The matrix to invert
+   * @returns A new Matrix44 instance representing the inverted matrix,
+   *          or the identity matrix if the input is singular
+   */
+  static invert(mat: IMatrix44): Matrix44 {
+    const inverted = this.tryInvert(mat);
+    if (inverted !== null) {
+      return inverted;
+    }
+
+    Logger.default.error('the matrix is singular and cannot be inverted. Returning an identity matrix instead.');
+    return this.fromCopy16RowMajor(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+
+  /**
+   * Attempts to compute the inverse of a matrix and store the result in an output matrix.
+   * The output matrix is left untouched when the input is numerically singular,
+   * which lets callers keep the previous valid value.
+   *
    * @param mat - The matrix to invert
    * @param outMat - The output matrix to store the result
-   * @returns The output matrix containing the inverted matrix
-   * @throws Logs an error if the matrix is not invertible (determinant is 0)
+   * @returns True if the inversion succeeded, false if the matrix is singular
    */
-  static invertTo(mat: IMatrix44, outMat: MutableMatrix44): MutableMatrix44 {
+  static tryInvertTo(mat: IMatrix44, outMat: MutableMatrix44): boolean {
     if (mat.isIdentityMatrixClass) {
-      return outMat.copyComponents(mat);
+      outMat.copyComponents(mat);
+      return true;
     }
+
     const n00 = mat._v[0] * mat._v[5] - mat._v[4] * mat._v[1];
     const n01 = mat._v[0] * mat._v[9] - mat._v[8] * mat._v[1];
     const n02 = mat._v[0] * mat._v[13] - mat._v[12] * mat._v[1];
@@ -338,9 +374,15 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     const n11 = mat._v[10] * mat._v[15] - mat._v[14] * mat._v[11];
 
     const det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
-    if (det === 0) {
-      Logger.default.error('the determinant is 0!');
+
+    const rowNorm0 = Math.abs(mat._v[0]) + Math.abs(mat._v[1]) + Math.abs(mat._v[2]) + Math.abs(mat._v[3]);
+    const rowNorm1 = Math.abs(mat._v[4]) + Math.abs(mat._v[5]) + Math.abs(mat._v[6]) + Math.abs(mat._v[7]);
+    const rowNorm2 = Math.abs(mat._v[8]) + Math.abs(mat._v[9]) + Math.abs(mat._v[10]) + Math.abs(mat._v[11]);
+    const rowNorm3 = Math.abs(mat._v[12]) + Math.abs(mat._v[13]) + Math.abs(mat._v[14]) + Math.abs(mat._v[15]);
+    if (MathUtil.isSingularDet(det, rowNorm0 * rowNorm1 * rowNorm2 * rowNorm3)) {
+      return false;
     }
+
     const invDet = 1 / det;
 
     const m00 = (mat._v[5] * n11 - mat._v[9] * n10 + mat._v[13] * n09) * invDet;
@@ -360,7 +402,29 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     const m32 = (mat._v[7] * n01 - mat._v[3] * n03 - mat._v[11] * n00) * invDet;
     const m33 = (mat._v[2] * n03 - mat._v[6] * n01 + mat._v[10] * n00) * invDet;
 
-    return outMat.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+    outMat.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+    return true;
+  }
+
+  /**
+   * Computes the inverse of a matrix and stores the result in an output matrix.
+   * This is the mutable version of the invert method for performance optimization.
+   *
+   * If the matrix is numerically singular, the output matrix is set to the
+   * identity matrix instead of being filled with `Infinity`/`NaN`.
+   * Use {@link Matrix44.tryInvertTo} when the caller needs to detect the failure.
+   *
+   * @param mat - The matrix to invert
+   * @param outMat - The output matrix to store the result
+   * @returns The output matrix containing the inverted matrix, or the identity matrix if the input is singular
+   */
+  static invertTo(mat: IMatrix44, outMat: MutableMatrix44): MutableMatrix44 {
+    if (this.tryInvertTo(mat, outMat)) {
+      return outMat;
+    }
+
+    Logger.default.error('the matrix is singular and cannot be inverted. Returning an identity matrix instead.');
+    return outMat.identity();
   }
 
   /**

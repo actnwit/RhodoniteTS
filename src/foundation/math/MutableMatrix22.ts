@@ -2,6 +2,7 @@ import type { Array4, Index } from '../../types/CommonTypes';
 import { Logger } from '../misc/Logger';
 import type { IMatrix22, IMatrix33, IMatrix44, IMutableMatrix, IMutableMatrix22 } from './IMatrix';
 import type { IVector2 } from './IVector';
+import { MathUtil } from './MathUtil';
 import { Matrix22 } from './Matrix22';
 
 /**
@@ -143,11 +144,22 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
   }
 
   /**
+   * Attempts to create a new matrix that is the inverse of the input matrix.
+   *
+   * @param mat - The matrix to invert
+   * @returns A new MutableMatrix22 containing the inverted matrix,
+   *          or null if the matrix is numerically singular
+   */
+  static tryInvert(mat: IMatrix22): MutableMatrix22 | null {
+    return super.tryInvert(mat) as MutableMatrix22 | null;
+  }
+
+  /**
    * Creates a new matrix that is the inverse of the input matrix.
    *
    * @param mat - The matrix to invert
-   * @returns A new MutableMatrix22 containing the inverted matrix
-   * @throws Error if the matrix is not invertible (determinant is 0)
+   * @returns A new MutableMatrix22 containing the inverted matrix,
+   *          or the identity matrix if the input is singular
    */
   static invert(mat: IMatrix22): MutableMatrix22 {
     return super.invert(mat) as MutableMatrix22;
@@ -292,23 +304,47 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
   }
 
   /**
-   * Inverts this matrix in place.
+   * Attempts to invert this matrix in place.
    *
-   * @returns This matrix instance for method chaining
-   * @throws Error if the matrix is not invertible (determinant is 0)
+   * The matrix is left unchanged when it is numerically singular, which
+   * lets callers keep the previous valid value.
+   *
+   * @returns True if the inversion succeeded, false if the matrix is singular
    */
-  invert(): MutableMatrix22 {
+  tryInvert(): boolean {
     const det = this.determinant();
-    if (det === 0) {
-      Logger.default.error('the determinant is 0!');
+    const rowNorm0 = Math.abs(this._v[0]) + Math.abs(this._v[2]);
+    const rowNorm1 = Math.abs(this._v[1]) + Math.abs(this._v[3]);
+    if (MathUtil.isSingularDet(det, rowNorm0 * rowNorm1)) {
+      return false;
     }
 
-    const m00 = this._v[3] / det;
-    const m01 = (this._v[2] / det) * -1.0;
-    const m10 = (this._v[1] / det) * -1.0;
-    const m11 = this._v[0] / det;
+    const invDet = 1 / det;
+    const m00 = this._v[3] * invDet;
+    const m01 = -this._v[2] * invDet;
+    const m10 = -this._v[1] * invDet;
+    const m11 = this._v[0] * invDet;
 
-    return this.setComponents(m00, m01, m10, m11);
+    this.setComponents(m00, m01, m10, m11);
+    return true;
+  }
+
+  /**
+   * Inverts this matrix in place.
+   *
+   * If the matrix is numerically singular, it is set to the identity matrix
+   * instead of being filled with `Infinity`/`NaN`.
+   * Use {@link MutableMatrix22.tryInvert} when the caller needs to detect the failure.
+   *
+   * @returns This matrix instance for method chaining
+   */
+  invert(): MutableMatrix22 {
+    if (this.tryInvert()) {
+      return this;
+    }
+
+    Logger.default.error('the matrix is singular and cannot be inverted. Returning an identity matrix instead.');
+    return this.identity();
   }
 
   /**

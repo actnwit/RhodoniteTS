@@ -199,7 +199,7 @@ export class MutableVector2_<T extends FloatTypedArrayConstructor> extends Vecto
 
   /**
    * Divides this vector by a scalar value (modifies this vector in place).
-   * If the divisor is zero, sets components to Infinity and logs an error.
+   * If the divisor is zero, sets components to 0 and logs an error.
    *
    * @param value - The scalar value to divide by
    * @returns This vector instance for method chaining
@@ -209,16 +209,16 @@ export class MutableVector2_<T extends FloatTypedArrayConstructor> extends Vecto
       this._v[0] /= value;
       this._v[1] /= value;
     } else {
-      Logger.default.error('0 division occurred!');
-      this._v[0] = Number.POSITIVE_INFINITY;
-      this._v[1] = Number.POSITIVE_INFINITY;
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      this._v[0] = 0;
+      this._v[1] = 0;
     }
     return this;
   }
 
   /**
    * Divides this vector component-wise by another vector (modifies this vector in place).
-   * If any component of the divisor is zero, sets that component to Infinity and logs an error.
+   * If any component of the divisor is zero, sets that component to 0 and logs an error.
    *
    * @param vec - The vector to divide by
    * @returns This vector instance for method chaining
@@ -228,9 +228,9 @@ export class MutableVector2_<T extends FloatTypedArrayConstructor> extends Vecto
       this._v[0] /= vec._v[0];
       this._v[1] /= vec._v[1];
     } else {
-      Logger.default.error('0 division occurred!');
-      this._v[0] = vec._v[0] === 0 ? Number.POSITIVE_INFINITY : this._v[0] / vec._v[0];
-      this._v[1] = vec._v[1] === 0 ? Number.POSITIVE_INFINITY : this._v[1] / vec._v[1];
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      this._v[0] = vec._v[0] === 0 ? 0 : this._v[0] / vec._v[0];
+      this._v[1] = vec._v[1] === 0 ? 0 : this._v[1] / vec._v[1];
     }
     return this;
   }

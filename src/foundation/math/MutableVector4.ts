@@ -251,7 +251,7 @@ export class MutableVector4_<T extends FloatTypedArrayConstructor>
 
   /**
    * Divides this vector by a scalar value.
-   * If the value is zero, sets components to Infinity and logs an error.
+   * If the value is zero, sets components to 0 and logs an error.
    *
    * @param value - The scalar value to divide by
    * @returns This vector instance for method chaining
@@ -263,18 +263,18 @@ export class MutableVector4_<T extends FloatTypedArrayConstructor>
       this._v[2] /= value;
       this._v[3] /= value;
     } else {
-      Logger.default.error('0 division occurred!');
-      this._v[0] = Number.POSITIVE_INFINITY;
-      this._v[1] = Number.POSITIVE_INFINITY;
-      this._v[2] = Number.POSITIVE_INFINITY;
-      this._v[3] = Number.POSITIVE_INFINITY;
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      this._v[0] = 0;
+      this._v[1] = 0;
+      this._v[2] = 0;
+      this._v[3] = 0;
     }
     return this;
   }
 
   /**
    * Divides this vector by another vector component-wise.
-   * If any component of the divisor is zero, sets the corresponding result to Infinity.
+   * If any component of the divisor is zero, sets the corresponding result to 0.
    *
    * @param vec - The vector to divide by
    * @returns This vector instance for method chaining
@@ -286,11 +286,11 @@ export class MutableVector4_<T extends FloatTypedArrayConstructor>
       this._v[2] /= vec._v[2];
       this._v[3] /= vec._v[3];
     } else {
-      Logger.default.error('0 division occurred!');
-      this._v[0] = vec._v[0] === 0 ? Number.POSITIVE_INFINITY : this._v[0] / vec._v[0];
-      this._v[1] = vec._v[1] === 0 ? Number.POSITIVE_INFINITY : this._v[1] / vec._v[1];
-      this._v[2] = vec._v[2] === 0 ? Number.POSITIVE_INFINITY : this._v[2] / vec._v[2];
-      this._v[3] = vec._v[3] === 0 ? Number.POSITIVE_INFINITY : this._v[3] / vec._v[3];
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      this._v[0] = vec._v[0] === 0 ? 0 : this._v[0] / vec._v[0];
+      this._v[1] = vec._v[1] === 0 ? 0 : this._v[1] / vec._v[1];
+      this._v[2] = vec._v[2] === 0 ? 0 : this._v[2] / vec._v[2];
+      this._v[3] = vec._v[3] === 0 ? 0 : this._v[3] / vec._v[3];
     }
     return this;
   }

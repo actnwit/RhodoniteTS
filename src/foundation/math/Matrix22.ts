@@ -166,6 +166,33 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
   }
 
   /**
+   * Attempts to create the inverse of the given matrix.
+   *
+   * Unlike `invert`, this method never returns a matrix filled with
+   * `Infinity`/`NaN`: it returns `null` when the matrix is numerically
+   * singular (see {@link MathUtil.isSingularDet}).
+   *
+   * @param mat - The matrix to invert
+   * @returns A new Matrix22, or null if the matrix is not invertible
+   */
+  static tryInvert(mat: IMatrix22): Matrix22 | null {
+    const det = mat.determinant();
+    const rowNorm0 = Math.abs(mat._v[0]) + Math.abs(mat._v[2]);
+    const rowNorm1 = Math.abs(mat._v[1]) + Math.abs(mat._v[3]);
+    if (MathUtil.isSingularDet(det, rowNorm0 * rowNorm1)) {
+      return null;
+    }
+
+    const invDet = 1 / det;
+    const m00 = mat._v[3] * invDet;
+    const m01 = -mat._v[2] * invDet;
+    const m10 = -mat._v[1] * invDet;
+    const m11 = mat._v[0] * invDet;
+
+    return this.fromCopy4RowMajor(m00, m01, m10, m11);
+  }
+
+  /**
    * Creates the inverse of the given matrix.
    *
    * For a 2x2 matrix, the inverse is calculated using the formula:
@@ -174,9 +201,13 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * where A = | a b | and det(A) = ad - bc
    *           | c d |
    *
+   * If the matrix is numerically singular, an identity matrix is returned
+   * instead of dividing by zero. Use {@link Matrix22.tryInvert} when the
+   * caller needs to detect the failure.
+   *
    * @param mat - The matrix to invert
-   * @returns A new Matrix22 that is the inverse of the input matrix
-   * @throws Error if the matrix is singular (determinant is 0)
+   * @returns A new Matrix22 that is the inverse of the input matrix,
+   *          or the identity matrix if the input is singular
    *
    * @example
    * ```typescript
@@ -187,41 +218,59 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * // |   0 0.5 |
    * ```
    */
-  static invert(mat: IMatrix22) {
-    const det = mat.determinant();
-    if (det === 0) {
-      Logger.default.error('the determinant is 0!');
+  static invert(mat: IMatrix22): Matrix22 {
+    const inverted = this.tryInvert(mat);
+    if (inverted !== null) {
+      return inverted;
     }
 
-    const m00 = mat._v[3] / det;
-    const m01 = (mat._v[2] / det) * -1.0;
-    const m10 = (mat._v[1] / det) * -1.0;
-    const m11 = mat._v[0] / det;
+    Logger.default.error('the matrix is singular and cannot be inverted. Returning an identity matrix instead.');
+    return this.fromCopy4RowMajor(1, 0, 0, 1);
+  }
 
-    return this.fromCopy4RowMajor(m00, m01, m10, m11);
+  /**
+   * Attempts to calculate the inverse of the given matrix and stores the
+   * result in the output matrix.
+   *
+   * The output matrix is left untouched when the input is numerically
+   * singular, which lets callers keep the previous valid value.
+   *
+   * @param mat - The matrix to invert
+   * @param outMat - The mutable matrix to store the result
+   * @returns True if the inversion succeeded, false if the matrix is singular
+   */
+  static tryInvertTo(mat: IMatrix22, outMat: MutableMatrix22): boolean {
+    const det = mat.determinant();
+    const rowNorm0 = Math.abs(mat._v[0]) + Math.abs(mat._v[2]);
+    const rowNorm1 = Math.abs(mat._v[1]) + Math.abs(mat._v[3]);
+    if (MathUtil.isSingularDet(det, rowNorm0 * rowNorm1)) {
+      return false;
+    }
+
+    const invDet = 1 / det;
+    outMat.setComponents(mat._v[3] * invDet, -mat._v[2] * invDet, -mat._v[1] * invDet, mat._v[0] * invDet);
+    return true;
   }
 
   /**
    * Calculates the inverse of the given matrix and stores the result in the output matrix.
    * This method avoids creating a new matrix instance for better performance.
    *
+   * If the matrix is numerically singular, the output matrix is set to the
+   * identity matrix instead of being filled with `Infinity`/`NaN`.
+   * Use {@link Matrix22.tryInvertTo} when the caller needs to detect the failure.
+   *
    * @param mat - The matrix to invert
    * @param outMat - The mutable matrix to store the result
-   * @returns The output matrix containing the inverse
-   * @throws Error if the matrix is singular (determinant is 0)
+   * @returns The output matrix containing the inverse, or the identity matrix if the input is singular
    */
-  static invertTo(mat: Matrix22, outMat: MutableMatrix22) {
-    const det = mat.determinant();
-    if (det === 0) {
-      Logger.default.error('the determinant is 0!');
+  static invertTo(mat: IMatrix22, outMat: MutableMatrix22): MutableMatrix22 {
+    if (this.tryInvertTo(mat, outMat)) {
+      return outMat;
     }
 
-    const m00 = mat._v[3] / det;
-    const m01 = (mat._v[2] / det) * -1.0;
-    const m10 = (mat._v[1] / det) * -1.0;
-    const m11 = mat._v[0] / det;
-
-    return outMat.setComponents(m00, m01, m10, m11);
+    Logger.default.error('the matrix is singular and cannot be inverted. Returning an identity matrix instead.');
+    return outMat.identity();
   }
 
   /**

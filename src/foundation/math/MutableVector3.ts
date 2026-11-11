@@ -155,6 +155,8 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
   /**
    * Normalizes this vector to unit length.
    * Modifies the vector in place to have a magnitude of 1.
+   * A zero-length vector stays a zero vector (an error is logged) instead of
+   * becoming `Infinity`/`NaN`.
    *
    * @returns This vector instance for method chaining
    */
@@ -223,7 +225,7 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
   /**
    * Divides this vector by a scalar value.
    * Scales all components by 1/value and modifies this vector in place.
-   * If value is 0, sets all components to Infinity and logs an error.
+   * If value is 0, sets all components to 0 and logs an error.
    *
    * @param value - The scalar value to divide by
    * @returns This vector instance for method chaining
@@ -234,10 +236,10 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
       this._v[1] /= value;
       this._v[2] /= value;
     } else {
-      Logger.default.error('0 division occurred!');
-      this._v[0] = Number.POSITIVE_INFINITY;
-      this._v[1] = Number.POSITIVE_INFINITY;
-      this._v[2] = Number.POSITIVE_INFINITY;
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      this._v[0] = 0;
+      this._v[1] = 0;
+      this._v[2] = 0;
     }
 
     return this;
@@ -246,7 +248,7 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
   /**
    * Divides this vector by another vector component-wise.
    * Performs element-wise division and modifies this vector in place.
-   * If any component of the divisor vector is 0, sets the corresponding component to Infinity.
+   * If any component of the divisor vector is 0, sets the corresponding component to 0.
    *
    * @param vec - The vector to divide by
    * @returns This vector instance for method chaining
@@ -257,10 +259,10 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
       this._v[1] /= vec._v[1];
       this._v[2] /= vec._v[2];
     } else {
-      Logger.default.error('0 division occurred!');
-      this._v[0] = vec._v[0] === 0 ? Number.POSITIVE_INFINITY : this._v[0] / vec._v[0];
-      this._v[1] = vec._v[1] === 0 ? Number.POSITIVE_INFINITY : this._v[1] / vec._v[1];
-      this._v[2] = vec._v[2] === 0 ? Number.POSITIVE_INFINITY : this._v[2] / vec._v[2];
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      this._v[0] = vec._v[0] === 0 ? 0 : this._v[0] / vec._v[0];
+      this._v[1] = vec._v[1] === 0 ? 0 : this._v[1] / vec._v[1];
+      this._v[2] = vec._v[2] === 0 ? 0 : this._v[2] / vec._v[2];
     }
     return this;
   }

@@ -218,60 +218,117 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   }
 
   /**
-   * Creates the inverse of the given matrix.
+   * Attempts to create the inverse of the given matrix.
+   *
+   * Returns null instead of dividing by zero when the matrix is numerically
+   * singular (see {@link MathUtil.isSingularDet}).
+   *
    * @param mat - The matrix to invert
-   * @returns A new inverted matrix
-   * @throws Will log an error if the matrix is not invertible (determinant is 0)
+   * @returns A new inverted matrix, or null if the matrix is not invertible
    */
-  static invert(mat: IMatrix33) {
+  static tryInvert(mat: IMatrix33): IMatrix33 | null {
     if (mat.isIdentityMatrixClass) {
-      return mat;
-    }
-    const det = mat.determinant();
-    if (det === 0) {
-      Logger.default.error('the determinant is 0!');
+      return this.fromCopyMatrix33(mat);
     }
 
-    const m00 = (mat._v[4] * mat._v[8] - mat._v[7] * mat._v[5]) / det;
-    const m01 = (mat._v[6] * mat._v[5] - mat._v[3] * mat._v[8]) / det;
-    const m02 = (mat._v[3] * mat._v[7] - mat._v[6] * mat._v[4]) / det;
-    const m10 = (mat._v[7] * mat._v[2] - mat._v[1] * mat._v[8]) / det;
-    const m11 = (mat._v[0] * mat._v[8] - mat._v[6] * mat._v[2]) / det;
-    const m12 = (mat._v[6] * mat._v[1] - mat._v[0] * mat._v[7]) / det;
-    const m20 = (mat._v[1] * mat._v[5] - mat._v[4] * mat._v[2]) / det;
-    const m21 = (mat._v[3] * mat._v[2] - mat._v[0] * mat._v[5]) / det;
-    const m22 = (mat._v[0] * mat._v[4] - mat._v[3] * mat._v[1]) / det;
+    const det = mat.determinant();
+    const rowNorm0 = Math.abs(mat._v[0]) + Math.abs(mat._v[3]) + Math.abs(mat._v[6]);
+    const rowNorm1 = Math.abs(mat._v[1]) + Math.abs(mat._v[4]) + Math.abs(mat._v[7]);
+    const rowNorm2 = Math.abs(mat._v[2]) + Math.abs(mat._v[5]) + Math.abs(mat._v[8]);
+    if (MathUtil.isSingularDet(det, rowNorm0 * rowNorm1 * rowNorm2)) {
+      return null;
+    }
+
+    const invDet = 1 / det;
+    const m00 = (mat._v[4] * mat._v[8] - mat._v[7] * mat._v[5]) * invDet;
+    const m01 = (mat._v[6] * mat._v[5] - mat._v[3] * mat._v[8]) * invDet;
+    const m02 = (mat._v[3] * mat._v[7] - mat._v[6] * mat._v[4]) * invDet;
+    const m10 = (mat._v[7] * mat._v[2] - mat._v[1] * mat._v[8]) * invDet;
+    const m11 = (mat._v[0] * mat._v[8] - mat._v[6] * mat._v[2]) * invDet;
+    const m12 = (mat._v[6] * mat._v[1] - mat._v[0] * mat._v[7]) * invDet;
+    const m20 = (mat._v[1] * mat._v[5] - mat._v[4] * mat._v[2]) * invDet;
+    const m21 = (mat._v[3] * mat._v[2] - mat._v[0] * mat._v[5]) * invDet;
+    const m22 = (mat._v[0] * mat._v[4] - mat._v[3] * mat._v[1]) * invDet;
 
     return this.fromCopy9RowMajor(m00, m01, m02, m10, m11, m12, m20, m21, m22);
   }
 
   /**
-   * Calculates the inverse of the given matrix and stores the result in the output matrix.
+   * Creates the inverse of the given matrix.
+   *
+   * If the matrix is numerically singular, an identity matrix is returned
+   * instead of dividing by zero. Use {@link Matrix33.tryInvert} when the
+   * caller needs to detect the failure.
+   *
+   * @param mat - The matrix to invert
+   * @returns A new inverted matrix, or the identity matrix if the input is singular
+   */
+  static invert(mat: IMatrix33): IMatrix33 {
+    const inverted = this.tryInvert(mat);
+    if (inverted !== null) {
+      return inverted;
+    }
+
+    Logger.default.error('the matrix is singular and cannot be inverted. Returning an identity matrix instead.');
+    return this.fromCopy9RowMajor(1, 0, 0, 0, 1, 0, 0, 0, 1);
+  }
+
+  /**
+   * Attempts to calculate the inverse of the given matrix and stores the
+   * result in the output matrix. The output matrix is left untouched when the
+   * input is numerically singular.
+   *
    * @param mat - The matrix to invert
    * @param outMat - The output mutable matrix to store the result
-   * @returns The output matrix containing the inverted matrix
-   * @throws Will log an error if the matrix is not invertible (determinant is 0)
+   * @returns True if the inversion succeeded, false if the matrix is singular
    */
-  static invertTo(mat: IMatrix33, outMat: MutableMatrix33) {
+  static tryInvertTo(mat: IMatrix33, outMat: MutableMatrix33): boolean {
     if (mat.isIdentityMatrixClass) {
-      return outMat.copyComponents(mat);
+      outMat.copyComponents(mat);
+      return true;
     }
+
     const det = mat.determinant();
-    if (det === 0) {
-      Logger.default.error('the determinant is 0!');
+    const rowNorm0 = Math.abs(mat._v[0]) + Math.abs(mat._v[3]) + Math.abs(mat._v[6]);
+    const rowNorm1 = Math.abs(mat._v[1]) + Math.abs(mat._v[4]) + Math.abs(mat._v[7]);
+    const rowNorm2 = Math.abs(mat._v[2]) + Math.abs(mat._v[5]) + Math.abs(mat._v[8]);
+    if (MathUtil.isSingularDet(det, rowNorm0 * rowNorm1 * rowNorm2)) {
+      return false;
     }
 
-    const m00 = (mat._v[4] * mat._v[8] - mat._v[7] * mat._v[5]) / det;
-    const m01 = (mat._v[6] * mat._v[5] - mat._v[3] * mat._v[8]) / det;
-    const m02 = (mat._v[3] * mat._v[7] - mat._v[6] * mat._v[4]) / det;
-    const m10 = (mat._v[7] * mat._v[2] - mat._v[1] * mat._v[8]) / det;
-    const m11 = (mat._v[0] * mat._v[8] - mat._v[6] * mat._v[2]) / det;
-    const m12 = (mat._v[6] * mat._v[1] - mat._v[0] * mat._v[7]) / det;
-    const m20 = (mat._v[1] * mat._v[5] - mat._v[4] * mat._v[2]) / det;
-    const m21 = (mat._v[3] * mat._v[2] - mat._v[0] * mat._v[5]) / det;
-    const m22 = (mat._v[0] * mat._v[4] - mat._v[3] * mat._v[1]) / det;
+    const invDet = 1 / det;
+    const m00 = (mat._v[4] * mat._v[8] - mat._v[7] * mat._v[5]) * invDet;
+    const m01 = (mat._v[6] * mat._v[5] - mat._v[3] * mat._v[8]) * invDet;
+    const m02 = (mat._v[3] * mat._v[7] - mat._v[6] * mat._v[4]) * invDet;
+    const m10 = (mat._v[7] * mat._v[2] - mat._v[1] * mat._v[8]) * invDet;
+    const m11 = (mat._v[0] * mat._v[8] - mat._v[6] * mat._v[2]) * invDet;
+    const m12 = (mat._v[6] * mat._v[1] - mat._v[0] * mat._v[7]) * invDet;
+    const m20 = (mat._v[1] * mat._v[5] - mat._v[4] * mat._v[2]) * invDet;
+    const m21 = (mat._v[3] * mat._v[2] - mat._v[0] * mat._v[5]) * invDet;
+    const m22 = (mat._v[0] * mat._v[4] - mat._v[3] * mat._v[1]) * invDet;
 
-    return outMat.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+    outMat.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+    return true;
+  }
+
+  /**
+   * Calculates the inverse of the given matrix and stores the result in the output matrix.
+   *
+   * If the matrix is numerically singular, the output matrix is set to the
+   * identity matrix instead of being filled with `Infinity`/`NaN`.
+   * Use {@link Matrix33.tryInvertTo} when the caller needs to detect the failure.
+   *
+   * @param mat - The matrix to invert
+   * @param outMat - The output mutable matrix to store the result
+   * @returns The output matrix containing the inverted matrix, or the identity matrix if the input is singular
+   */
+  static invertTo(mat: IMatrix33, outMat: MutableMatrix33): MutableMatrix33 {
+    if (this.tryInvertTo(mat, outMat)) {
+      return outMat;
+    }
+
+    Logger.default.error('the matrix is singular and cannot be inverted. Returning an identity matrix instead.');
+    return outMat.identity();
   }
 
   /**

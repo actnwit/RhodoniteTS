@@ -254,21 +254,25 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   }
 
   /**
-   * Creates a quaternion from an axis-angle representation.
+   * Attempts to create a quaternion from an axis-angle representation.
+   *
+   * Returns null when the axis has zero length (or contains non-finite values),
+   * because such a rotation is undefined.
+   *
    * @param vec - The rotation axis (will be normalized internally)
    * @param radian - The rotation angle in radians
-   * @returns A quaternion representing the rotation around the given axis
+   * @returns A quaternion representing the rotation around the given axis, or null
    */
-  static axisAngle(vec: IVector3, radian: number) {
+  static tryAxisAngle(vec: IVector3, radian: number): Quaternion | null {
+    const length = vec.length();
+    if (!Number.isFinite(length) || length === 0) {
+      return null;
+    }
+
     const halfAngle = 0.5 * radian;
     const sin = Math.sin(halfAngle);
 
-    const length = vec.length();
-    if (length === 0) {
-      Logger.default.error('0 division occurred!');
-    }
-
-    return Quaternion.fromCopy4(
+    return this.fromCopy4(
       (sin * vec._v[0]) / length,
       (sin * vec._v[1]) / length,
       (sin * vec._v[2]) / length,
@@ -277,20 +281,57 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   }
 
   /**
-   * Creates a quaternion from a 4x4 rotation matrix.
-   * Extracts the rotation component from the matrix and converts it to quaternion form.
-   * @param mat - The 4x4 matrix containing rotation information
-   * @returns A quaternion representing the same rotation as the matrix
+   * Creates a quaternion from an axis-angle representation.
+   *
+   * If the axis has zero length, an identity quaternion is returned instead of
+   * a quaternion filled with `Infinity`/`NaN`.
+   * Use {@link Quaternion.tryAxisAngle} when the caller needs to detect the failure.
+   *
+   * @param vec - The rotation axis (will be normalized internally)
+   * @param radian - The rotation angle in radians
+   * @returns A quaternion representing the rotation around the given axis,
+   *          or the identity quaternion if the axis is degenerate
    */
-  static fromMatrix(mat: IMatrix44) {
-    let sx = Math.hypot(mat.m00, mat.m10, mat.m20);
+  static axisAngle(vec: IVector3, radian: number): Quaternion {
+    const quat = this.tryAxisAngle(vec, radian);
+    if (quat !== null) {
+      return quat;
+    }
+
+    Logger.default.error('the rotation axis has zero length. Returning an identity quaternion instead.');
+    return this.fromCopy4(0, 0, 0, 1);
+  }
+
+  /**
+   * Core implementation for extracting a quaternion from a 4x4 matrix.
+   * Writes the x, y, z, w components into `outV`.
+   *
+   * The rotation part is normalized by its column lengths so that scale and
+   * translation are ignored. Extraction is impossible (and the result would be
+   * `NaN`) when a basis vector has zero length, when the linear part is
+   * numerically singular, or when the matrix contains non-finite values.
+   *
+   * @param mat - The 4x4 matrix containing rotation information
+   * @param outV - The destination for the x, y, z, w components
+   * @returns True if the quaternion could be extracted, false otherwise
+   * @private
+   */
+  private static __fromMatrixToFloat32Array(mat: IMatrix44, outV: Float32Array): boolean {
+    const sxRaw = Math.hypot(mat.m00, mat.m10, mat.m20);
     const sy = Math.hypot(mat.m01, mat.m11, mat.m21);
     const sz = Math.hypot(mat.m02, mat.m12, mat.m22);
 
     const det = mat.determinant();
-    if (det < 0) {
-      sx = -sx;
+
+    // The product of the column norms is an upper bound of |det| (Hadamard's
+    // inequality), so it works as a scale reference for the singularity test.
+    // This also covers zero-length basis vectors and non-finite input, which
+    // would otherwise turn into Infinity/NaN through the normalization below.
+    if (MathUtil.isSingularDet(det, sxRaw * sy * sz)) {
+      return false;
     }
+
+    const sx = det < 0 ? -sxRaw : sxRaw;
 
     const m = MutableMatrix44.fromCopyMatrix44(mat);
 
@@ -314,98 +355,111 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
 
     if (trace > 0) {
       const S = 0.5 / Math.sqrt(trace + 1.0);
-      const x = (m.m21 - m.m12) * S;
-      const y = (m.m02 - m.m20) * S;
-      const z = (m.m10 - m.m01) * S;
-      const w = 0.25 / S;
-      return Quaternion.fromCopy4(x, y, z, w);
-    }
-    if (m.m00 > m.m11 && m.m00 > m.m22) {
+      outV[0] = (m.m21 - m.m12) * S;
+      outV[1] = (m.m02 - m.m20) * S;
+      outV[2] = (m.m10 - m.m01) * S;
+      outV[3] = 0.25 / S;
+    } else if (m.m00 > m.m11 && m.m00 > m.m22) {
       const S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
-      const x = 0.25 * S;
-      const y = (m.m01 + m.m10) / S;
-      const z = (m.m02 + m.m20) / S;
-      const w = (m.m21 - m.m12) / S;
-      return Quaternion.fromCopy4(x, y, z, w);
-    }
-    if (m.m11 > m.m22) {
+      outV[0] = 0.25 * S;
+      outV[1] = (m.m01 + m.m10) / S;
+      outV[2] = (m.m02 + m.m20) / S;
+      outV[3] = (m.m21 - m.m12) / S;
+    } else if (m.m11 > m.m22) {
       const S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
-      const x = (m.m01 + m.m10) / S;
-      const y = 0.25 * S;
-      const z = (m.m12 + m.m21) / S;
-      const w = (m.m02 - m.m20) / S;
-      return Quaternion.fromCopy4(x, y, z, w);
+      outV[0] = (m.m01 + m.m10) / S;
+      outV[1] = 0.25 * S;
+      outV[2] = (m.m12 + m.m21) / S;
+      outV[3] = (m.m02 - m.m20) / S;
+    } else {
+      const S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
+      outV[0] = (m.m02 + m.m20) / S;
+      outV[1] = (m.m12 + m.m21) / S;
+      outV[2] = 0.25 * S;
+      outV[3] = (m.m10 - m.m01) / S;
     }
-    const S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
-    const x = (m.m02 + m.m20) / S;
-    const y = (m.m12 + m.m21) / S;
-    const z = 0.25 * S;
-    const w = (m.m10 - m.m01) / S;
-    return Quaternion.fromCopy4(x, y, z, w);
+
+    return true;
+  }
+
+  /**
+   * Attempts to create a quaternion from a 4x4 rotation matrix.
+   * Extracts the rotation component from the matrix and converts it to quaternion form.
+   *
+   * @param mat - The 4x4 matrix containing rotation information
+   * @returns A quaternion representing the same rotation as the matrix, or null
+   *          if the rotation cannot be extracted (zero-length basis vector,
+   *          numerically singular linear part, or non-finite values)
+   */
+  static tryFromMatrix(mat: IMatrix44): Quaternion | null {
+    const outV = new Float32Array(4);
+    if (!this.__fromMatrixToFloat32Array(mat, outV)) {
+      return null;
+    }
+
+    return this.fromCopy4(outV[0], outV[1], outV[2], outV[3]);
+  }
+
+  /**
+   * Creates a quaternion from a 4x4 rotation matrix.
+   * Extracts the rotation component from the matrix and converts it to quaternion form.
+   *
+   * If the rotation cannot be extracted, an identity quaternion is returned
+   * instead of a quaternion filled with `Infinity`/`NaN`.
+   * Use {@link Quaternion.tryFromMatrix} when the caller needs to detect the failure.
+   *
+   * @param mat - The 4x4 matrix containing rotation information
+   * @returns A quaternion representing the same rotation as the matrix,
+   *          or the identity quaternion if the rotation cannot be extracted
+   */
+  static fromMatrix(mat: IMatrix44): Quaternion {
+    const quat = this.tryFromMatrix(mat);
+    if (quat !== null) {
+      return quat;
+    }
+
+    Logger.default.error(
+      'the rotation cannot be extracted from the matrix (it is singular or contains non-finite values). Returning an identity quaternion instead.'
+    );
+    return this.fromCopy4(0, 0, 0, 1);
+  }
+
+  /**
+   * Attempts to create a quaternion from a 4x4 rotation matrix and stores it in the output parameter.
+   * The output quaternion is left untouched when the rotation cannot be extracted.
+   *
+   * @param mat - The 4x4 matrix containing rotation information
+   * @param out - The output quaternion to store the result
+   * @returns True if the quaternion could be extracted, false otherwise
+   */
+  static tryFromMatrixTo(mat: IMatrix44, out: IMutableQuaternion): boolean {
+    return this.__fromMatrixToFloat32Array(mat, out._v);
   }
 
   /**
    * Creates a quaternion from a 4x4 rotation matrix and stores it in the output parameter.
+   *
+   * If the rotation cannot be extracted, the output quaternion is set to the
+   * identity quaternion instead of being filled with `Infinity`/`NaN`.
+   * Use {@link Quaternion.tryFromMatrixTo} when the caller needs to detect the failure.
+   *
    * @param mat - The 4x4 matrix containing rotation information
    * @param out - The output quaternion to store the result
-   * @returns The output quaternion containing the extracted rotation
+   * @returns The output quaternion containing the extracted rotation,
+   *          or the identity quaternion if the rotation cannot be extracted
    */
-  static fromMatrixTo(mat: IMatrix44, out: IMutableQuaternion) {
-    let sx = Math.hypot(mat.m00, mat.m10, mat.m20);
-    const sy = Math.hypot(mat.m01, mat.m11, mat.m21);
-    const sz = Math.hypot(mat.m02, mat.m12, mat.m22);
-
-    const det = mat.determinant();
-    if (det < 0) {
-      sx = -sx;
+  static fromMatrixTo(mat: IMatrix44, out: IMutableQuaternion): IMutableQuaternion {
+    if (this.tryFromMatrixTo(mat, out)) {
+      return out;
     }
 
-    const m = MutableMatrix44.fromCopyMatrix44(mat);
-
-    const invSx = 1 / sx;
-    const invSy = 1 / sy;
-    const invSz = 1 / sz;
-
-    m.m00 *= invSx;
-    m.m10 *= invSx;
-    m.m20 *= invSx;
-
-    m.m01 *= invSy;
-    m.m11 *= invSy;
-    m.m21 *= invSy;
-
-    m.m02 *= invSz;
-    m.m12 *= invSz;
-    m.m22 *= invSz;
-
-    const trace = m.m00 + m.m11 + m.m22;
-
-    if (trace > 0) {
-      const S = 0.5 / Math.sqrt(trace + 1.0);
-      out._v[0] = (m.m21 - m.m12) * S;
-      out._v[1] = (m.m02 - m.m20) * S;
-      out._v[2] = (m.m10 - m.m01) * S;
-      out._v[3] = 0.25 / S;
-    } else if (m.m00 > m.m11 && m.m00 > m.m22) {
-      const S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
-      out._v[0] = 0.25 * S;
-      out._v[1] = (m.m01 + m.m10) / S;
-      out._v[2] = (m.m02 + m.m20) / S;
-      out._v[3] = (m.m21 - m.m12) / S;
-    } else if (m.m11 > m.m22) {
-      const S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
-      out._v[0] = (m.m01 + m.m10) / S;
-      out._v[1] = 0.25 * S;
-      out._v[2] = (m.m12 + m.m21) / S;
-      out._v[3] = (m.m02 - m.m20) / S;
-    } else {
-      const S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
-      out._v[0] = (m.m02 + m.m20) / S;
-      out._v[1] = (m.m12 + m.m21) / S;
-      out._v[2] = 0.25 * S;
-      out._v[3] = (m.m10 - m.m01) / S;
-    }
-
+    Logger.default.error(
+      'the rotation cannot be extracted from the matrix (it is singular or contains non-finite values). Returning an identity quaternion instead.'
+    );
+    out._v[0] = 0;
+    out._v[1] = 0;
+    out._v[2] = 0;
+    out._v[3] = 1;
     return out;
   }
 
@@ -423,38 +477,59 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   }
 
   /**
-   * Creates a quaternion that looks in the specified forward direction using default up vector (0, 1, 0).
+   * Attempts to create a quaternion that looks in the specified forward direction using default up vector (0, 1, 0).
    * @param forward - The forward direction vector
-   * @returns A quaternion representing the look rotation
+   * @returns A quaternion representing the look rotation, or null if the direction is degenerate
    */
-  static lookForward(forward: IVector3) {
+  static tryLookForward(forward: IVector3): Quaternion | null {
     if (Quaternion.__tmp_upVec == null) {
       Quaternion.__tmp_upVec = new (forward.constructor as any)(0, 1, 0);
     }
 
-    return this.lookForwardAccordingToThisUp(forward, Quaternion.__tmp_upVec);
+    return this.tryLookForwardAccordingToThisUp(forward, Quaternion.__tmp_upVec);
   }
 
   /**
-   * Creates a quaternion that looks in the specified forward direction with a custom up vector.
+   * Creates a quaternion that looks in the specified forward direction using default up vector (0, 1, 0).
+   *
+   * If the direction is degenerate (zero length), an identity quaternion is
+   * returned instead of a quaternion filled with `Infinity`/`NaN`.
+   * Use {@link Quaternion.tryLookForward} when the caller needs to detect the failure.
+   *
+   * @param forward - The forward direction vector
+   * @returns A quaternion representing the look rotation,
+   *          or the identity quaternion if the direction is degenerate
+   */
+  static lookForward(forward: IVector3): Quaternion {
+    const quat = this.tryLookForward(forward);
+    if (quat !== null) {
+      return quat;
+    }
+
+    Logger.default.error('the forward direction has zero length. Returning an identity quaternion instead.');
+    return this.fromCopy4(0, 0, 0, 1);
+  }
+
+  /**
+   * Attempts to create a quaternion that looks in the specified forward direction with a custom up vector.
+   *
+   * Returns null when either direction has zero length or when the forward and
+   * up directions are parallel, because the rotation basis cannot be built.
+   *
    * @param forward - The forward direction vector
    * @param up - The up direction vector
-   * @returns A quaternion representing the look rotation with the specified up vector
+   * @returns A quaternion representing the look rotation, or null
    */
-  static lookForwardAccordingToThisUp(forward: IVector3, up: IVector3): IQuaternion {
+  static tryLookForwardAccordingToThisUp(forward: IVector3, up: IVector3): Quaternion | null {
     const forwardLength = forward.length();
-    if (forwardLength === 0) {
-      Logger.default.error('0 division occurred!');
+    const upLength = up.length();
+    if (!Number.isFinite(forwardLength) || !Number.isFinite(upLength) || forwardLength === 0 || upLength === 0) {
+      return null;
     }
 
     const forwardX = forward._v[0] / forwardLength;
     const forwardY = forward._v[1] / forwardLength;
     const forwardZ = forward._v[2] / forwardLength;
-
-    const upLength = up.length();
-    if (upLength === 0) {
-      Logger.default.error('0 division occurred!');
-    }
 
     const upX = up._v[0] / upLength;
     const upY = up._v[1] / upLength;
@@ -466,8 +541,8 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     let rightZ = up._v[0] * forward._v[1] - up._v[1] * forward._v[0];
 
     const rightLength = Math.hypot(rightX, rightY, rightZ);
-    if (rightLength === 0) {
-      Logger.default.error('0 division occurred!');
+    if (!Number.isFinite(rightLength) || rightLength === 0) {
+      return null;
     }
     rightX /= rightLength;
     rightY /= rightLength;
@@ -487,31 +562,47 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     if (num8 > 0) {
       const num = Math.sqrt(num8 + 1);
       const num2 = 0.5 / num;
-      return Quaternion.fromCopy4((m12 - m21) * num2, (m20 - m02) * num2, (m01 - m10) * num2, num * 0.5) as IQuaternion;
+      return this.fromCopy4((m12 - m21) * num2, (m20 - m02) * num2, (m01 - m10) * num2, num * 0.5);
     }
     if (m00 >= m11 && m00 >= m22) {
       const num7 = Math.sqrt(1 + m00 - m11 - m22);
       const num4 = 0.5 / num7;
-      return Quaternion.fromCopy4(
-        0.5 * num7,
-        (m01 + m10) * num4,
-        (m02 + m20) * num4,
-        (m12 - m21) * num4
-      ) as IQuaternion;
+      return this.fromCopy4(0.5 * num7, (m01 + m10) * num4, (m02 + m20) * num4, (m12 - m21) * num4);
     }
     if (m11 > m22) {
       const num6 = Math.sqrt(1 + m11 - m00 - m22);
       const num3 = 0.5 / num6;
-      return Quaternion.fromCopy4(
-        (m10 + m01) * num3,
-        0.5 * num6,
-        (m21 + m12) * num3,
-        (m20 - m02) * num3
-      ) as IQuaternion;
+      return this.fromCopy4((m10 + m01) * num3, 0.5 * num6, (m21 + m12) * num3, (m20 - m02) * num3);
     }
     const num5 = Math.sqrt(1 + m22 - m00 - m11);
     const num2 = 0.5 / num5;
-    return Quaternion.fromCopy4((m20 + m02) * num2, (m21 + m12) * num2, 0.5 * num5, (m01 - m10) * num2) as IQuaternion;
+    return this.fromCopy4((m20 + m02) * num2, (m21 + m12) * num2, 0.5 * num5, (m01 - m10) * num2);
+  }
+
+  /**
+   * Creates a quaternion that looks in the specified forward direction with a custom up vector.
+   *
+   * If the directions are degenerate (zero length, or forward parallel to up),
+   * an identity quaternion is returned instead of a quaternion filled with
+   * `Infinity`/`NaN`.
+   * Use {@link Quaternion.tryLookForwardAccordingToThisUp} when the caller needs
+   * to detect the failure.
+   *
+   * @param forward - The forward direction vector
+   * @param up - The up direction vector
+   * @returns A quaternion representing the look rotation with the specified up vector,
+   *          or the identity quaternion if the directions are degenerate
+   */
+  static lookForwardAccordingToThisUp(forward: IVector3, up: IVector3): IQuaternion {
+    const quat = this.tryLookForwardAccordingToThisUp(forward, up);
+    if (quat !== null) {
+      return quat;
+    }
+
+    Logger.default.error(
+      'the forward/up directions are degenerate (zero length or parallel). Returning an identity quaternion instead.'
+    );
+    return this.fromCopy4(0, 0, 0, 1);
   }
 
   /**
@@ -676,31 +767,39 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
 
   /**
    * Divides a quaternion by a scalar value.
+   * If the divisor is zero, all components are set to 0 and an error is logged
+   * instead of producing `Infinity`/`NaN`.
+   *
    * @param quat - The quaternion to divide
-   * @param value - The scalar value to divide by (must not be zero)
+   * @param value - The scalar value to divide by
    * @returns A new quaternion with all components divided by the scalar
    */
   static divideNumber(quat: IQuaternion, value: number) {
     if (value === 0) {
-      Logger.default.error('0 division occurred!');
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      return this.fromCopy4(0, 0, 0, 0);
     }
-    const x = quat._v[0] / value;
-    const y = quat._v[1] / value;
-    const z = quat._v[2] / value;
-    const w = quat._v[3] / value;
-    return Quaternion.fromCopy4(x, y, z, w);
+    return this.fromCopy4(quat._v[0] / value, quat._v[1] / value, quat._v[2] / value, quat._v[3] / value);
   }
 
   /**
    * Divides a quaternion by a scalar and stores the result in the output parameter.
+   * If the divisor is zero, all components are set to 0 and an error is logged
+   * instead of producing `Infinity`/`NaN`.
+   *
    * @param quat - The quaternion to divide
-   * @param value - The scalar value to divide by (must not be zero)
+   * @param value - The scalar value to divide by
    * @param out - The output quaternion to store the result
    * @returns The output quaternion containing the divided result
    */
   static divideNumberTo(quat: IQuaternion, value: number, out: IMutableQuaternion) {
     if (value === 0) {
-      Logger.default.error('0 division occurred!');
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      out._v[0] = 0;
+      out._v[1] = 0;
+      out._v[2] = 0;
+      out._v[3] = 0;
+      return out;
     }
     out._v[0] = quat._v[0] / value;
     out._v[1] = quat._v[1] / value;
@@ -829,7 +928,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * Private helper method for dividing a quaternion by a scalar value.
    * @param vec - The quaternion to divide
    * @param value - The scalar value to divide by
-   * @returns A new quaternion with divided components, or Infinity components if division by zero
+   * @returns A new quaternion with divided components, or zero components if division by zero
    */
   private static _divide(vec: IQuaternion, value: number) {
     let x: number;
@@ -842,13 +941,13 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       z = vec._v[2] / value;
       w = vec._v[3] / value;
     } else {
-      Logger.default.error('0 division occurred!');
-      x = Number.POSITIVE_INFINITY;
-      y = Number.POSITIVE_INFINITY;
-      z = Number.POSITIVE_INFINITY;
-      w = Number.POSITIVE_INFINITY;
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      x = 0;
+      y = 0;
+      z = 0;
+      w = 0;
     }
-    return Quaternion.fromCopy4(x, y, z, w);
+    return this.fromCopy4(x, y, z, w);
   }
 
   /**
@@ -869,11 +968,11 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       z = vec._v[2] / value;
       w = vec._v[3] / value;
     } else {
-      Logger.default.error('0 division occurred!');
-      x = Number.POSITIVE_INFINITY;
-      y = Number.POSITIVE_INFINITY;
-      z = Number.POSITIVE_INFINITY;
-      w = Number.POSITIVE_INFINITY;
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      x = 0;
+      y = 0;
+      z = 0;
+      w = 0;
     }
     out._v[0] = x;
     out._v[1] = y;
@@ -884,11 +983,17 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
 
   /**
    * Normalizes a quaternion to unit length.
+   * A zero-length quaternion is normalized to the identity quaternion (an error
+   * is logged) instead of becoming `Infinity`/`NaN`.
    * @param vec - The quaternion to normalize
    * @returns A new normalized quaternion
    */
-  static normalize(vec: IQuaternion) {
+  static normalize(vec: IQuaternion): Quaternion {
     const length = vec.length();
+    if (length === 0) {
+      Logger.default.error('cannot normalize a zero-length quaternion. Returning an identity quaternion instead.');
+      return this.fromCopy4(0, 0, 0, 1);
+    }
     return this._divide(vec, length);
   }
 
@@ -898,8 +1003,16 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * @param out - The output quaternion to store the result
    * @returns The output quaternion containing the normalized result
    */
-  static normalizeTo(vec: IQuaternion, out: IMutableQuaternion) {
+  static normalizeTo(vec: IQuaternion, out: IMutableQuaternion): IMutableQuaternion {
     const length = vec.length();
+    if (length === 0) {
+      Logger.default.error('cannot normalize a zero-length quaternion. The output is set to the identity quaternion.');
+      out._v[0] = 0;
+      out._v[1] = 0;
+      out._v[2] = 0;
+      out._v[3] = 1;
+      return out;
+    }
     return this._divideTo(vec, length, out);
   }
 

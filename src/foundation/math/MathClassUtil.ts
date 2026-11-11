@@ -283,7 +283,8 @@ export class MathClassUtil {
 
     const outNonNormalized = inversePVMat44.multiplyVectorTo(input, this.__tmpVector4_1);
     if (outNonNormalized.w === 0) {
-      Logger.default.error('0 division occurred!');
+      Logger.default.error('0 division occurred! The result is left unchanged.');
+      return out;
     }
 
     return MutableVector3.multiplyTo(outNonNormalized, 1.0 / outNonNormalized.w, out);

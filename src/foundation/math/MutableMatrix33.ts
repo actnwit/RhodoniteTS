@@ -3,6 +3,7 @@ import { Logger } from '../misc/Logger';
 import type { IMatrix33, IMatrix44, IMutableMatrix, IMutableMatrix33 } from './IMatrix';
 import type { IQuaternion } from './IQuaternion';
 import type { IVector3 } from './IVector';
+import { MathUtil } from './MathUtil';
 import { Matrix33 } from './Matrix33';
 
 /**
@@ -210,9 +211,20 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
   }
 
   /**
+   * Attempts to create a new matrix that is the inverse of the input matrix.
+   * @param mat - The matrix to invert
+   * @returns A new MutableMatrix33 instance representing the inverted matrix,
+   *          or null if the matrix is numerically singular
+   */
+  static tryInvert(mat: IMatrix33): MutableMatrix33 | null {
+    return super.tryInvert(mat) as MutableMatrix33 | null;
+  }
+
+  /**
    * Creates a new matrix that is the inverse of the input matrix.
    * @param mat - The matrix to invert
-   * @returns A new MutableMatrix33 instance representing the inverted matrix
+   * @returns A new MutableMatrix33 instance representing the inverted matrix,
+   *          or the identity matrix if the input is singular
    */
   static invert(mat: IMatrix33): MutableMatrix33 {
     return super.invert(mat) as MutableMatrix33;
@@ -411,27 +423,53 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
   }
 
   /**
+   * Attempts to invert this matrix in place.
+   *
+   * The matrix is left unchanged when it is numerically singular, which
+   * lets callers keep the previous valid value.
+   *
+   * @returns True if the inversion succeeded, false if the matrix is singular
+   */
+  tryInvert(): boolean {
+    const det = this.determinant();
+    const rowNorm0 = Math.abs(this._v[0]) + Math.abs(this._v[3]) + Math.abs(this._v[6]);
+    const rowNorm1 = Math.abs(this._v[1]) + Math.abs(this._v[4]) + Math.abs(this._v[7]);
+    const rowNorm2 = Math.abs(this._v[2]) + Math.abs(this._v[5]) + Math.abs(this._v[8]);
+    if (MathUtil.isSingularDet(det, rowNorm0 * rowNorm1 * rowNorm2)) {
+      return false;
+    }
+
+    const invDet = 1 / det;
+    const m00 = (this._v[4] * this._v[8] - this._v[7] * this._v[5]) * invDet;
+    const m01 = (this._v[6] * this._v[5] - this._v[3] * this._v[8]) * invDet;
+    const m02 = (this._v[3] * this._v[7] - this._v[6] * this._v[4]) * invDet;
+    const m10 = (this._v[7] * this._v[2] - this._v[1] * this._v[8]) * invDet;
+    const m11 = (this._v[0] * this._v[8] - this._v[6] * this._v[2]) * invDet;
+    const m12 = (this._v[6] * this._v[1] - this._v[0] * this._v[7]) * invDet;
+    const m20 = (this._v[1] * this._v[5] - this._v[4] * this._v[2]) * invDet;
+    const m21 = (this._v[3] * this._v[2] - this._v[0] * this._v[5]) * invDet;
+    const m22 = (this._v[0] * this._v[4] - this._v[3] * this._v[1]) * invDet;
+
+    this.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+    return true;
+  }
+
+  /**
    * Inverts this matrix in place using the determinant method.
-   * Logs an error if the determinant is 0 (matrix is not invertible).
+   *
+   * If the matrix is numerically singular, it is set to the identity matrix
+   * instead of being filled with `Infinity`/`NaN`.
+   * Use {@link MutableMatrix33.tryInvert} when the caller needs to detect the failure.
+   *
    * @returns This matrix instance for method chaining
    */
   invert(): MutableMatrix33 {
-    const det = this.determinant();
-    if (det === 0) {
-      Logger.default.error('the determinant is 0!');
+    if (this.tryInvert()) {
+      return this;
     }
 
-    const m00 = (this._v[4] * this._v[8] - this._v[7] * this._v[5]) / det;
-    const m01 = (this._v[6] * this._v[5] - this._v[3] * this._v[8]) / det;
-    const m02 = (this._v[3] * this._v[7] - this._v[6] * this._v[4]) / det;
-    const m10 = (this._v[7] * this._v[2] - this._v[1] * this._v[8]) / det;
-    const m11 = (this._v[0] * this._v[8] - this._v[6] * this._v[2]) / det;
-    const m12 = (this._v[6] * this._v[1] - this._v[0] * this._v[7]) / det;
-    const m20 = (this._v[1] * this._v[5] - this._v[4] * this._v[2]) / det;
-    const m21 = (this._v[3] * this._v[2] - this._v[0] * this._v[5]) / det;
-    const m22 = (this._v[0] * this._v[4] - this._v[3] * this._v[1]) / det;
-
-    return this.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+    Logger.default.error('the matrix is singular and cannot be inverted. Returning an identity matrix instead.');
+    return this.identity();
   }
 
   /**
