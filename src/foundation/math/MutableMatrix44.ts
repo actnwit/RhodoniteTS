@@ -3,6 +3,7 @@ import { Logger } from '../misc/Logger';
 import type { IMatrix33, IMatrix44, IMutableMatrix, IMutableMatrix44 } from './IMatrix';
 import type { IQuaternion } from './IQuaternion';
 import type { IVector3 } from './IVector';
+import { MathUtil } from './MathUtil';
 import { Matrix44 } from './Matrix44';
 import type { MutableVector3 } from './MutableVector3';
 
@@ -410,10 +411,22 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
   }
 
   /**
+   * Attempts to create an inverted matrix from the given matrix.
+   *
+   * @param mat - The matrix to invert
+   * @returns A new MutableMatrix44 instance that is the inverse of the input matrix,
+   *          or null if the matrix is numerically singular
+   */
+  static tryInvert(mat: IMatrix44): MutableMatrix44 | null {
+    return super.tryInvert(mat) as MutableMatrix44 | null;
+  }
+
+  /**
    * Creates an inverted matrix from the given matrix.
    *
    * @param mat - The matrix to invert
-   * @returns A new MutableMatrix44 instance that is the inverse of the input matrix
+   * @returns A new MutableMatrix44 instance that is the inverse of the input matrix,
+   *          or the identity matrix if the input is singular
    */
   static invert(mat: IMatrix44): MutableMatrix44 {
     return super.invert(mat) as MutableMatrix44;
@@ -703,12 +716,14 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
   }
 
   /**
-   * Inverts this matrix in place.
-   * The matrix must be invertible (determinant != 0), otherwise an error is logged.
+   * Attempts to invert this matrix in place.
    *
-   * @returns This matrix instance for method chaining
+   * The matrix is left unchanged when it is numerically singular, which
+   * lets callers keep the previous valid value.
+   *
+   * @returns True if the inversion succeeded, false if the matrix is singular
    */
-  invert(): MutableMatrix44 {
+  tryInvert(): boolean {
     const n00 = this._v[0] * this._v[5] - this._v[4] * this._v[1];
     const n01 = this._v[0] * this._v[9] - this._v[8] * this._v[1];
     const n02 = this._v[0] * this._v[13] - this._v[12] * this._v[1];
@@ -723,8 +738,13 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
     const n11 = this._v[10] * this._v[15] - this._v[14] * this._v[11];
 
     const det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
-    if (det === 0) {
-      Logger.default.error('the determinant is 0!');
+
+    const rowNorm0 = Math.abs(this._v[0]) + Math.abs(this._v[1]) + Math.abs(this._v[2]) + Math.abs(this._v[3]);
+    const rowNorm1 = Math.abs(this._v[4]) + Math.abs(this._v[5]) + Math.abs(this._v[6]) + Math.abs(this._v[7]);
+    const rowNorm2 = Math.abs(this._v[8]) + Math.abs(this._v[9]) + Math.abs(this._v[10]) + Math.abs(this._v[11]);
+    const rowNorm3 = Math.abs(this._v[12]) + Math.abs(this._v[13]) + Math.abs(this._v[14]) + Math.abs(this._v[15]);
+    if (MathUtil.isSingularDet(det, rowNorm0 * rowNorm1 * rowNorm2 * rowNorm3)) {
+      return false;
     }
 
     const m00 = (this._v[5] * n11 - this._v[9] * n10 + this._v[13] * n09) / det;
@@ -744,7 +764,26 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
     const m32 = (this._v[7] * n01 - this._v[3] * n03 - this._v[11] * n00) / det;
     const m33 = (this._v[2] * n03 - this._v[6] * n01 + this._v[10] * n00) / det;
 
-    return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+    this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+    return true;
+  }
+
+  /**
+   * Inverts this matrix in place.
+   *
+   * If the matrix is numerically singular, it is set to the identity matrix
+   * instead of being filled with `Infinity`/`NaN`.
+   * Use {@link MutableMatrix44.tryInvert} when the caller needs to detect the failure.
+   *
+   * @returns This matrix instance for method chaining
+   */
+  invert(): MutableMatrix44 {
+    if (this.tryInvert()) {
+      return this;
+    }
+
+    Logger.default.error('the matrix is singular and cannot be inverted. Returning an identity matrix instead.');
+    return this.identity();
   }
 
   /**

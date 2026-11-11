@@ -442,7 +442,7 @@ export class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVect
 
   /**
    * Divides a vector by a scalar value and returns a new vector.
-   * If the divisor is zero, the result components will be set to Infinity and an error will be logged.
+   * If the divisor is zero, the result components will be set to 0 and an error will be logged.
    *
    * @param vec - The vector to divide
    * @param value - The scalar value to divide by
@@ -461,18 +461,18 @@ export class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVect
       z = vec._v[2] / value;
       w = vec._v[3] / value;
     } else {
-      Logger.default.error('0 division occurred!');
-      x = Number.POSITIVE_INFINITY;
-      y = Number.POSITIVE_INFINITY;
-      z = Number.POSITIVE_INFINITY;
-      w = Number.POSITIVE_INFINITY;
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      x = 0;
+      y = 0;
+      z = 0;
+      w = 0;
     }
     return new this(new type([x, y, z, w]), { type });
   }
 
   /**
    * Divides a vector by a scalar value and stores the result in the output vector.
-   * If the divisor is zero, the result components will be set to Infinity and an error will be logged.
+   * If the divisor is zero, the result components will be set to 0 and an error will be logged.
    * This method modifies the output vector in-place for better performance.
    *
    * @param vec - The vector to divide
@@ -488,18 +488,18 @@ export class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVect
       out._v[2] = vec._v[2] / value;
       out._v[3] = vec._v[3] / value;
     } else {
-      Logger.default.error('0 division occurred!');
-      out._v[0] = Number.POSITIVE_INFINITY;
-      out._v[1] = Number.POSITIVE_INFINITY;
-      out._v[2] = Number.POSITIVE_INFINITY;
-      out._v[3] = Number.POSITIVE_INFINITY;
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      out._v[0] = 0;
+      out._v[1] = 0;
+      out._v[2] = 0;
+      out._v[3] = 0;
     }
     return out;
   }
 
   /**
    * Divides the left vector by the right vector component-wise and returns a new vector.
-   * If any component of the right vector is zero, the corresponding result component will be set to Infinity.
+   * If any component of the right vector is zero, the corresponding result component will be set to 0.
    *
    * @param l_vec - The left operand vector (dividend)
    * @param r_vec - The right operand vector (divisor)
@@ -518,18 +518,18 @@ export class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVect
       z = l_vec._v[2] / r_vec._v[2];
       w = l_vec._v[3] / r_vec._v[3];
     } else {
-      Logger.default.error('0 division occurred!');
-      x = r_vec._v[0] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[0] / r_vec._v[0];
-      y = r_vec._v[1] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[1] / r_vec._v[1];
-      z = r_vec._v[2] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[2] / r_vec._v[2];
-      w = r_vec._v[3] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[3] / r_vec._v[3];
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      x = r_vec._v[0] === 0 ? 0 : l_vec._v[0] / r_vec._v[0];
+      y = r_vec._v[1] === 0 ? 0 : l_vec._v[1] / r_vec._v[1];
+      z = r_vec._v[2] === 0 ? 0 : l_vec._v[2] / r_vec._v[2];
+      w = r_vec._v[3] === 0 ? 0 : l_vec._v[3] / r_vec._v[3];
     }
     return new this(new type([x, y, z, w]), { type });
   }
 
   /**
    * Divides the left vector by the right vector component-wise and stores the result in the output vector.
-   * If any component of the right vector is zero, the corresponding result component will be set to Infinity.
+   * If any component of the right vector is zero, the corresponding result component will be set to 0.
    * This method modifies the output vector in-place for better performance.
    *
    * @param l_vec - The left operand vector (dividend)
@@ -545,11 +545,11 @@ export class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVect
       out._v[2] = l_vec._v[2] / r_vec._v[2];
       out._v[3] = l_vec._v[3] / r_vec._v[3];
     } else {
-      Logger.default.error('0 division occurred!');
-      out._v[0] = r_vec._v[0] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[0] / r_vec._v[0];
-      out._v[1] = r_vec._v[1] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[1] / r_vec._v[1];
-      out._v[2] = r_vec._v[2] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[2] / r_vec._v[2];
-      out._v[3] = r_vec._v[3] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[3] / r_vec._v[3];
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      out._v[0] = r_vec._v[0] === 0 ? 0 : l_vec._v[0] / r_vec._v[0];
+      out._v[1] = r_vec._v[1] === 0 ? 0 : l_vec._v[1] / r_vec._v[1];
+      out._v[2] = r_vec._v[2] === 0 ? 0 : l_vec._v[2] / r_vec._v[2];
+      out._v[3] = r_vec._v[3] === 0 ? 0 : l_vec._v[3] / r_vec._v[3];
     }
     return out;
   }
@@ -952,7 +952,7 @@ export class Vector4 extends Vector4_<Float32ArrayConstructor> {
 
   /**
    * Divides a vector by a scalar value and returns a new vector.
-   * If the divisor is zero, the result components will be set to Infinity and an error will be logged.
+   * If the divisor is zero, the result components will be set to 0 and an error will be logged.
    *
    * @param vec - The vector to divide
    * @param value - The scalar value to divide by
@@ -965,7 +965,7 @@ export class Vector4 extends Vector4_<Float32ArrayConstructor> {
 
   /**
    * Divides the left vector by the right vector component-wise and returns a new vector.
-   * If any component of the right vector is zero, the corresponding result component will be set to Infinity.
+   * If any component of the right vector is zero, the corresponding result component will be set to 0.
    *
    * @param l_vec - The left operand vector (dividend)
    * @param r_vec - The right operand vector (divisor)
@@ -1169,7 +1169,7 @@ export class Vector4d extends Vector4_<Float64ArrayConstructor> {
 
   /**
    * Divides a vector by a scalar value and returns a new vector.
-   * If the divisor is zero, the result components will be set to Infinity and an error will be logged.
+   * If the divisor is zero, the result components will be set to 0 and an error will be logged.
    *
    * @param vec - The vector to divide
    * @param value - The scalar value to divide by
@@ -1182,7 +1182,7 @@ export class Vector4d extends Vector4_<Float64ArrayConstructor> {
 
   /**
    * Divides the left vector by the right vector component-wise and returns a new vector.
-   * If any component of the right vector is zero, the corresponding result component will be set to Infinity.
+   * If any component of the right vector is zero, the corresponding result component will be set to 0.
    *
    * @param l_vec - The left operand vector (dividend)
    * @param r_vec - The right operand vector (divisor)

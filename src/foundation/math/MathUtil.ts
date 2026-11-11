@@ -21,6 +21,40 @@ function degreeToRadian(deg: number): number {
 }
 
 /**
+ * Relative tolerance used to decide whether a determinant is numerically zero.
+ *
+ * The determinant is compared against the product of the row norms, which is
+ * an upper bound of |det| (Hadamard's inequality). This makes the check
+ * independent of the matrix scale, unlike comparing |det| against a fixed
+ * absolute value.
+ *
+ * Matrix elements are stored as Float32, which carries roughly 1.2e-7 of
+ * relative precision. A 4x4 determinant combines four rows, so 1e-6 gives a
+ * practical safety margin: a matrix whose inverse would amplify the input
+ * error by more than ~1e6 is treated as singular.
+ */
+const SINGULAR_EPSILON = 1e-6;
+
+/**
+ * Checks whether a determinant should be treated as zero.
+ *
+ * A plain `det === 0` test only catches exactly singular matrices. In practice
+ * a matrix whose determinant is tiny compared with its scale is just as
+ * dangerous, because its inverse amplifies rounding errors into garbage.
+ *
+ * @param det - The determinant of the matrix
+ * @param scale - The product of the row norms of the matrix (Hadamard bound)
+ * @returns True if the matrix should be considered singular
+ */
+function isSingularDet(det: number, scale: number): boolean {
+  if (!Number.isFinite(det)) {
+    return true;
+  }
+  // A zero matrix has scale 0 and det 0, so this also returns true there.
+  return Math.abs(det) <= SINGULAR_EPSILON * scale;
+}
+
+/**
  * Converts a 32-bit floating point number to a 16-bit half-precision float.
  * This implementation is based on the OpenEXR half-precision format with additional rounding.
  * Implementation reference: https://gamedev.stackexchange.com/questions/17326/conversion-of-a-number-from-single-precision-floating-point-representation-to-a/17410#17410
@@ -457,6 +491,8 @@ function computeGaussianDistributionRatioWhoseSumIsOne({
 export const MathUtil = Object.freeze({
   radianToDegree,
   degreeToRadian,
+  isSingularDet,
+  SINGULAR_EPSILON,
   toHalfFloat,
   isPowerOfTwo,
   isPowerOfTwoTexture,

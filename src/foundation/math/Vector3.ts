@@ -166,6 +166,8 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
 
   /**
    * Normalizes a vector to unit length (static version).
+   * A zero-length vector is normalized to the zero vector (an error is logged)
+   * instead of becoming `Infinity`/`NaN`.
    * @param vec - The vector to normalize
    * @param type - The typed array constructor to use
    * @returns A new normalized vector
@@ -360,7 +362,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @param value - The scalar value to divide by
    * @param type - The typed array constructor to use
    * @returns A new vector containing the divided result
-   * @throws Error if division by zero occurs
+   * @remarks If division by zero occurs, the result is set to 0 and an error is logged
    */
   static _divide(vec: IVector3, value: number, type: FloatTypedArrayConstructor) {
     let x: number;
@@ -371,10 +373,10 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
       y = vec._v[1] / value;
       z = vec._v[2] / value;
     } else {
-      Logger.default.error('0 division occurred!');
-      x = Number.POSITIVE_INFINITY;
-      y = Number.POSITIVE_INFINITY;
-      z = Number.POSITIVE_INFINITY;
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      x = 0;
+      y = 0;
+      z = 0;
     }
     return this._fromCopyArray([x, y, z], type);
   }
@@ -385,7 +387,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @param value - The scalar value to divide by
    * @param out - The output vector to store the result
    * @returns The output vector containing the divided result
-   * @throws Error if division by zero occurs
+   * @remarks If division by zero occurs, the result is set to 0 and an error is logged
    */
   static divideTo(vec: IVector3, value: number, out: IMutableVector3) {
     if (value !== 0) {
@@ -393,10 +395,10 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
       out._v[1] = vec._v[1] / value;
       out._v[2] = vec._v[2] / value;
     } else {
-      Logger.default.error('0 division occurred!');
-      out._v[0] = Number.POSITIVE_INFINITY;
-      out._v[1] = Number.POSITIVE_INFINITY;
-      out._v[2] = Number.POSITIVE_INFINITY;
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      out._v[0] = 0;
+      out._v[1] = 0;
+      out._v[2] = 0;
     }
     return out;
   }
@@ -407,7 +409,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @param r_vec - The vector to divide by
    * @param type - The typed array constructor to use
    * @returns A new vector containing the component-wise division result
-   * @throws Error if division by zero occurs
+   * @remarks If division by zero occurs, the result is set to 0 and an error is logged
    */
   static _divideVector(l_vec: IVector3, r_vec: IVector3, type: FloatTypedArrayConstructor) {
     let x: number;
@@ -418,10 +420,10 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
       y = l_vec._v[1] / r_vec._v[1];
       z = l_vec._v[2] / r_vec._v[2];
     } else {
-      Logger.default.error('0 division occurred!');
-      x = r_vec._v[0] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[0] / r_vec._v[0];
-      y = r_vec._v[1] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[1] / r_vec._v[1];
-      z = r_vec._v[2] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[2] / r_vec._v[2];
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      x = r_vec._v[0] === 0 ? 0 : l_vec._v[0] / r_vec._v[0];
+      y = r_vec._v[1] === 0 ? 0 : l_vec._v[1] / r_vec._v[1];
+      z = r_vec._v[2] === 0 ? 0 : l_vec._v[2] / r_vec._v[2];
     }
     return this._fromCopyArray([x, y, z], type);
   }
@@ -432,7 +434,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @param r_vec - The vector to divide by
    * @param out - The output vector to store the result
    * @returns The output vector containing the component-wise division result
-   * @throws Error if division by zero occurs
+   * @remarks If division by zero occurs, the result is set to 0 and an error is logged
    */
   static divideVectorTo(l_vec: IVector3, r_vec: IVector3, out: IMutableVector3) {
     if (r_vec._v[0] !== 0 && r_vec._v[1] !== 0 && r_vec._v[2] !== 0) {
@@ -440,10 +442,10 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
       out._v[1] = l_vec._v[1] / r_vec._v[1];
       out._v[2] = l_vec._v[2] / r_vec._v[2];
     } else {
-      Logger.default.error('0 division occurred!');
-      out._v[0] = r_vec._v[0] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[0] / r_vec._v[0];
-      out._v[1] = r_vec._v[1] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[1] / r_vec._v[1];
-      out._v[2] = r_vec._v[2] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[2] / r_vec._v[2];
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      out._v[0] = r_vec._v[0] === 0 ? 0 : l_vec._v[0] / r_vec._v[0];
+      out._v[1] = r_vec._v[1] === 0 ? 0 : l_vec._v[1] / r_vec._v[1];
+      out._v[2] = r_vec._v[2] === 0 ? 0 : l_vec._v[2] / r_vec._v[2];
     }
     return out;
   }

@@ -3,7 +3,6 @@ import { Logger } from '../misc/Logger';
 import type { IMatrix44 } from './IMatrix';
 import type { ILogQuaternion, IMutableQuaternion, IQuaternion } from './IQuaternion';
 import type { IVector3, IVector4 } from './IVector';
-import { MutableMatrix44 } from './MutableMatrix44';
 import { Quaternion } from './Quaternion';
 
 /**
@@ -133,19 +132,41 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
   }
 
   /**
-   * Creates a quaternion from an axis and angle.
-   * @param vec - The rotation axis (normalized vector recommended)
+   * Attempts to create a quaternion from an axis and angle.
+   * @param vec - The rotation axis (will be normalized internally)
    * @param radian - The rotation angle in radians
-   * @returns A new MutableQuaternion representing the axis-angle rotation
+   * @returns A new MutableQuaternion, or null if the axis is degenerate
+   */
+  static tryAxisAngle(vec: IVector3, radian: number): MutableQuaternion | null {
+    return super.tryAxisAngle(vec, radian) as MutableQuaternion | null;
+  }
+
+  /**
+   * Creates a quaternion from an axis and angle.
+   * @param vec - The rotation axis (will be normalized internally)
+   * @param radian - The rotation angle in radians
+   * @returns A new MutableQuaternion representing the axis-angle rotation,
+   *          or the identity quaternion if the axis is degenerate
    */
   static axisAngle(vec: IVector3, radian: number): MutableQuaternion {
     return super.axisAngle(vec, radian) as MutableQuaternion;
   }
 
   /**
+   * Attempts to create a quaternion from a rotation matrix.
+   * @param mat - The 4x4 transformation matrix
+   * @returns A new MutableQuaternion representing the matrix's rotation,
+   *          or null if the rotation cannot be extracted
+   */
+  static tryFromMatrix(mat: IMatrix44): MutableQuaternion | null {
+    return super.tryFromMatrix(mat) as MutableQuaternion | null;
+  }
+
+  /**
    * Creates a quaternion from a rotation matrix.
    * @param mat - The 4x4 transformation matrix
-   * @returns A new MutableQuaternion representing the matrix's rotation
+   * @returns A new MutableQuaternion representing the matrix's rotation,
+   *          or the identity quaternion if the rotation cannot be extracted
    */
   static fromMatrix(mat: IMatrix44): MutableQuaternion {
     return super.fromMatrix(mat) as MutableQuaternion;
@@ -268,6 +289,10 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    */
   normalize(): MutableQuaternion {
     const norm = this.length();
+    if (norm === 0) {
+      Logger.default.error('cannot normalize a zero-length quaternion. Returning an identity quaternion instead.');
+      return this.identity();
+    }
     return this.divideNumber(norm);
   }
 
@@ -352,89 +377,88 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
   }
 
   /**
-   * Sets this quaternion from an axis and angle.
+   * Attempts to set this quaternion from an axis and angle.
+   *
+   * The quaternion is left unchanged when the axis is degenerate
+   * (zero length or non-finite).
+   *
    * @param vec - The rotation axis (will be normalized)
    * @param radian - The rotation angle in radians
-   * @returns This instance for method chaining
+   * @returns True if the quaternion could be set, false otherwise
    */
-  axisAngle(vec: IVector3, radian: number): MutableQuaternion {
+  tryAxisAngle(vec: IVector3, radian: number): boolean {
+    const length = vec.length();
+    if (!Number.isFinite(length) || length === 0) {
+      return false;
+    }
+
     const halfAngle = 0.5 * radian;
     const sin = Math.sin(halfAngle);
-
-    const length = vec.length();
-    if (length === 0) {
-      Logger.default.error('0 division occurred!');
-    }
 
     this._v[3] = Math.cos(halfAngle);
     this._v[0] = (sin * vec._v[0]) / length;
     this._v[1] = (sin * vec._v[1]) / length;
     this._v[2] = (sin * vec._v[2]) / length;
 
-    return this;
+    return true;
+  }
+
+  /**
+   * Sets this quaternion from an axis and angle.
+   *
+   * If the axis is degenerate (zero length), this quaternion is set to the
+   * identity quaternion instead of being filled with `Infinity`/`NaN`.
+   * Use {@link MutableQuaternion.tryAxisAngle} when the caller needs to detect the failure.
+   *
+   * @param vec - The rotation axis (will be normalized)
+   * @param radian - The rotation angle in radians
+   * @returns This instance for method chaining
+   */
+  axisAngle(vec: IVector3, radian: number): MutableQuaternion {
+    if (this.tryAxisAngle(vec, radian)) {
+      return this;
+    }
+
+    Logger.default.error('the rotation axis has zero length. Returning an identity quaternion instead.');
+    return this.identity();
+  }
+
+  /**
+   * Attempts to set this quaternion from a 4x4 transformation matrix.
+   * Extracts the rotation component from the matrix, ignoring scale and translation.
+   *
+   * The quaternion is left unchanged when the rotation cannot be extracted.
+   *
+   * @param mat - The 4x4 transformation matrix
+   * @returns True if the rotation could be extracted, false otherwise
+   */
+  tryFromMatrix(mat: IMatrix44): boolean {
+    return Quaternion.tryFromMatrixTo(mat, this);
   }
 
   /**
    * Sets this quaternion from a 4x4 transformation matrix.
    * Extracts the rotation component from the matrix, ignoring scale and translation.
+   *
+   * If the rotation cannot be extracted, this quaternion is set to the identity
+   * quaternion instead of being filled with `Infinity`/`NaN`.
+   * Use {@link MutableQuaternion.tryFromMatrix} when the caller needs to detect the failure.
+   *
    * @param mat - The 4x4 transformation matrix
    * @returns This instance for method chaining
    */
   fromMatrix(mat: IMatrix44): MutableQuaternion {
-    let sx = Math.hypot(mat.m00, mat.m10, mat.m20);
-    const sy = Math.hypot(mat.m01, mat.m11, mat.m21);
-    const sz = Math.hypot(mat.m02, mat.m12, mat.m22);
-
-    const det = mat.determinant();
-    if (det < 0) {
-      sx = -sx;
+    if (this.tryFromMatrix(mat)) {
+      return this;
     }
 
-    const m = MutableMatrix44.fromCopyMatrix44(mat);
-
-    const invSx = 1 / sx;
-    const invSy = 1 / sy;
-    const invSz = 1 / sz;
-
-    m.m00 *= invSx;
-    m.m10 *= invSx;
-    m.m20 *= invSx;
-
-    m.m01 *= invSy;
-    m.m11 *= invSy;
-    m.m21 *= invSy;
-
-    m.m02 *= invSz;
-    m.m12 *= invSz;
-    m.m22 *= invSz;
-
-    const trace = m.m00 + m.m11 + m.m22;
-
-    if (trace > 0) {
-      const S = 0.5 / Math.sqrt(trace + 1.0);
-      this._v[0] = (m.m21 - m.m12) * S;
-      this._v[1] = (m.m02 - m.m20) * S;
-      this._v[2] = (m.m10 - m.m01) * S;
-      this._v[3] = 0.25 / S;
-    } else if (m.m00 > m.m11 && m.m00 > m.m22) {
-      const S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
-      this._v[0] = 0.25 * S;
-      this._v[1] = (m.m01 + m.m10) / S;
-      this._v[2] = (m.m02 + m.m20) / S;
-      this._v[3] = (m.m21 - m.m12) / S;
-    } else if (m.m11 > m.m22) {
-      const S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
-      this._v[0] = (m.m01 + m.m10) / S;
-      this._v[1] = 0.25 * S;
-      this._v[2] = (m.m12 + m.m21) / S;
-      this._v[3] = (m.m02 - m.m20) / S;
-    } else {
-      const S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
-      this._v[0] = (m.m02 + m.m20) / S;
-      this._v[1] = (m.m12 + m.m21) / S;
-      this._v[2] = 0.25 * S;
-      this._v[3] = (m.m10 - m.m01) / S;
-    }
+    Logger.default.error(
+      'the rotation cannot be extracted from the matrix (it is singular or contains non-finite values). Returning an identity quaternion instead.'
+    );
+    this._v[0] = 0;
+    this._v[1] = 0;
+    this._v[2] = 0;
+    this._v[3] = 1;
     return this;
   }
 
@@ -512,11 +536,11 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
       this._v[2] /= value;
       this._v[3] /= value;
     } else {
-      Logger.default.error('0 division occurred!');
-      this._v[0] = Number.POSITIVE_INFINITY;
-      this._v[1] = Number.POSITIVE_INFINITY;
-      this._v[2] = Number.POSITIVE_INFINITY;
-      this._v[3] = Number.POSITIVE_INFINITY;
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      this._v[0] = 0;
+      this._v[1] = 0;
+      this._v[2] = 0;
+      this._v[3] = 0;
     }
     return this;
   }

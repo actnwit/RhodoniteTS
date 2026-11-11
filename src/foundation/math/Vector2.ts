@@ -299,9 +299,9 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
       x = vec._v[0] / value;
       y = vec._v[1] / value;
     } else {
-      Logger.default.error('0 division occurred!');
-      x = Number.POSITIVE_INFINITY;
-      y = Number.POSITIVE_INFINITY;
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      x = 0;
+      y = 0;
     }
     return this._fromCopyArray2([x, y], type);
   }
@@ -319,9 +319,9 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
       out._v[0] = vec._v[0] / value;
       out._v[1] = vec._v[1] / value;
     } else {
-      Logger.default.error('0 division occurred!');
-      out._v[0] = Number.POSITIVE_INFINITY;
-      out._v[1] = Number.POSITIVE_INFINITY;
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      out._v[0] = 0;
+      out._v[1] = 0;
     }
     return out;
   }
@@ -341,9 +341,9 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
       x = l_vec._v[0] / r_vec._v[0];
       y = l_vec._v[1] / r_vec._v[1];
     } else {
-      Logger.default.error('0 division occurred!');
-      x = r_vec._v[0] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[0] / r_vec._v[0];
-      y = r_vec._v[1] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[1] / r_vec._v[1];
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      x = r_vec._v[0] === 0 ? 0 : l_vec._v[0] / r_vec._v[0];
+      y = r_vec._v[1] === 0 ? 0 : l_vec._v[1] / r_vec._v[1];
     }
     return this._fromCopyArray2([x, y], type);
   }
@@ -361,9 +361,9 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
       out._v[0] = l_vec._v[0] / r_vec._v[0];
       out._v[1] = l_vec._v[1] / r_vec._v[1];
     } else {
-      Logger.default.error('0 division occurred!');
-      out._v[0] = r_vec._v[0] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[0] / r_vec._v[0];
-      out._v[1] = r_vec._v[1] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[1] / r_vec._v[1];
+      Logger.default.error('0 division occurred! The result is set to zero.');
+      out._v[0] = r_vec._v[0] === 0 ? 0 : l_vec._v[0] / r_vec._v[0];
+      out._v[1] = r_vec._v[1] === 0 ? 0 : l_vec._v[1] / r_vec._v[1];
     }
     return out;
   }
