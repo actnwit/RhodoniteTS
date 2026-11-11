@@ -17,6 +17,7 @@ cameraComponent.zFar = 100;
 cameraComponent.setFovyAndChangeFocalLength(50);
 cameraComponent.aspect = 800 / 600;
 
+// Setup a VRM character with VRMA animations
 const [vrmExpression, standingIdleVrma, walkVrma, mediumRunVrma, jumpUpVrma, floatingVrma, jumpDownVrma] =
   await Promise.all([
     Rn.GltfImporter.importFromUrl(engine, '../../../assets/vrm/test.vrm', { cameraComponent }),
@@ -40,6 +41,7 @@ const characterAnimationAssignment = vrmaAnimationAssigner.assignCharacterAnimat
   landing: jumpDownVrma,
 });
 
+// setup a character controller for the VRM character
 const characterEntity = Rn.createCharacterControllerEntity(engine);
 const vrmAabb = vrmRoot.getSceneGraph().worldMergedAABB;
 const vrmFootCenter = Rn.Vector3.fromCopy3(vrmAabb.centerPoint.x, vrmAabb.minPoint.y, vrmAabb.centerPoint.z);
@@ -77,6 +79,7 @@ const characterAnimation = new Rn.CharacterAnimationController(
   }
 );
 
+// Setup a stage
 const stageGltf = await Rn.Gltf2Importer.importFromUrl('./stage.gltf');
 const stageColliderRoot = await Rn.ModelConverter.convertToRhodoniteObject(engine, stageGltf);
 renderPass.addEntities([stageColliderRoot]);
