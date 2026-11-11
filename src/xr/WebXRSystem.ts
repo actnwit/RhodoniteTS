@@ -364,7 +364,7 @@ export class WebXRSystem {
   get leftProjectionMatrix() {
     const xrViewLeft = this.__xrViewerPose?.views[0];
     return MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
-      Is.exist(xrViewLeft) ? xrViewLeft.projectionMatrix : MutableMatrix44.identity()._v
+      Is.exist(xrViewLeft) ? xrViewLeft.projectionMatrix : (MutableMatrix44.identity()._v as Float32Array)
     );
   }
 
@@ -377,7 +377,7 @@ export class WebXRSystem {
   get rightProjectionMatrix() {
     const xrViewRight = this.__xrViewerPose?.views[1];
     return MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
-      Is.exist(xrViewRight) ? xrViewRight.projectionMatrix : MutableMatrix44.identity()._v
+      Is.exist(xrViewRight) ? xrViewRight.projectionMatrix : (MutableMatrix44.identity()._v as Float32Array)
     );
   }
 

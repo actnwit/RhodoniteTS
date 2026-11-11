@@ -1,9 +1,9 @@
-import type { Array4, Index } from '../../types/CommonTypes';
+import type { Array4, FloatTypedArrayConstructor, Index, TypedArray } from '../../types/CommonTypes';
 import { Logger } from '../misc/Logger';
 import type { IMatrix22, IMatrix33, IMatrix44, IMutableMatrix, IMutableMatrix22 } from './IMatrix';
 import type { IVector2 } from './IVector';
 import { MathUtil } from './MathUtil';
-import { Matrix22 } from './Matrix22';
+import { Matrix22_ } from './Matrix22';
 
 /**
  * A mutable 2x2 matrix class that extends Matrix22 and provides modification capabilities.
@@ -24,7 +24,19 @@ import { Matrix22 } from './Matrix22';
  * matrix.scale(Vector2.fromCopyArray([2, 3])); // Scale by 2x and 3y
  * ```
  */
-export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutableMatrix22 {
+export class MutableMatrix22_<T extends FloatTypedArrayConstructor>
+  extends Matrix22_<T>
+  implements IMutableMatrix, IMutableMatrix22
+{
+  /**
+   * Creates a new MutableMatrix22_ instance.
+   * @param m - The typed array containing the matrix components
+   * @param options - Configuration object containing the typed array constructor
+   */
+  constructor(m: TypedArray, options: { type: T }) {
+    super(m, options);
+  }
+
   /**
    * Sets the value at position (0,0) of the matrix.
    *
@@ -107,96 +119,6 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
   }
 
   /**
-   * Creates a new zero matrix where all elements are 0.
-   *
-   * @returns A new MutableMatrix22 instance with all zero values
-   */
-  static zero(): MutableMatrix22 {
-    return super.zero() as MutableMatrix22;
-  }
-
-  /**
-   * Creates a new 2x2 identity matrix.
-   *
-   * @returns A new MutableMatrix22 identity matrix
-   */
-  static identity(): MutableMatrix22 {
-    return super.identity() as MutableMatrix22;
-  }
-
-  /**
-   * Creates a dummy matrix for placeholder purposes.
-   *
-   * @returns A new MutableMatrix22 dummy instance
-   */
-  static dummy(): MutableMatrix22 {
-    return super.dummy() as MutableMatrix22;
-  }
-
-  /**
-   * Creates a new matrix that is the transpose of the input matrix.
-   *
-   * @param mat - The matrix to transpose
-   * @returns A new MutableMatrix22 containing the transposed matrix
-   */
-  static transpose(mat: IMatrix22): MutableMatrix22 {
-    return super.transpose(mat) as MutableMatrix22;
-  }
-
-  /**
-   * Attempts to create a new matrix that is the inverse of the input matrix.
-   *
-   * @param mat - The matrix to invert
-   * @returns A new MutableMatrix22 containing the inverted matrix,
-   *          or null if the matrix is numerically singular
-   */
-  static tryInvert(mat: IMatrix22): MutableMatrix22 | null {
-    return super.tryInvert(mat) as MutableMatrix22 | null;
-  }
-
-  /**
-   * Creates a new matrix that is the inverse of the input matrix.
-   *
-   * @param mat - The matrix to invert
-   * @returns A new MutableMatrix22 containing the inverted matrix,
-   *          or the identity matrix if the input is singular
-   */
-  static invert(mat: IMatrix22): MutableMatrix22 {
-    return super.invert(mat) as MutableMatrix22;
-  }
-
-  /**
-   * Creates a new rotation matrix for the given angle.
-   *
-   * @param radian - The rotation angle in radians
-   * @returns A new MutableMatrix22 representing the rotation transformation
-   */
-  static rotate(radian: number): MutableMatrix22 {
-    return super.rotate(radian) as MutableMatrix22;
-  }
-
-  /**
-   * Creates a new scale matrix from a 2D vector.
-   *
-   * @param vec - Vector2 containing the scale factors for x and y axes
-   * @returns A new MutableMatrix22 representing the scale transformation
-   */
-  static scale(vec: IVector2): MutableMatrix22 {
-    return super.scale(vec) as MutableMatrix22;
-  }
-
-  /**
-   * Multiplies two matrices and returns a new matrix with the result.
-   *
-   * @param l_mat - The left matrix operand
-   * @param r_mat - The right matrix operand
-   * @returns A new MutableMatrix22 containing the multiplication result
-   */
-  static multiply(l_mat: IMatrix22, r_mat: IMatrix22): MutableMatrix22 {
-    return super.multiply(l_mat, r_mat) as MutableMatrix22;
-  }
-
-  /**
    * Creates a deep copy of this matrix.
    *
    * @returns A new MutableMatrix22 instance with the same values
@@ -211,7 +133,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    *
    * @returns The internal Float32Array in column-major order
    */
-  raw(): Float32Array {
+  raw() {
     return this._v;
   }
 
@@ -315,7 +237,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
     const det = this.determinant();
     const rowNorm0 = Math.abs(this._v[0]) + Math.abs(this._v[2]);
     const rowNorm1 = Math.abs(this._v[1]) + Math.abs(this._v[3]);
-    if (MathUtil.isSingularDet(det, rowNorm0 * rowNorm1)) {
+    if (MathUtil.isSingularDet(det, rowNorm0 * rowNorm1, MathUtil.getSingularEpsilon(this._v.BYTES_PER_ELEMENT))) {
       return false;
     }
 
@@ -416,151 +338,248 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
 
     return this.setComponents(m00, m01, m10, m11);
   }
+}
 
+export class MutableMatrix22 extends MutableMatrix22_<Float32ArrayConstructor> {
   /**
-   * Creates a new matrix from values provided in row-major order.
-   * This is more intuitive for manual input as values are specified
-   * in the same order they appear visually in the matrix.
-   *
-   * @param m00 - Value for position (0,0)
-   * @param m01 - Value for position (0,1)
-   * @param m10 - Value for position (1,0)
-   * @param m11 - Value for position (1,1)
-   * @returns A new MutableMatrix22 instance
+   * Creates a new MutableMatrix22 instance.
+   * @param m - The typed array containing the matrix components
    */
+  constructor(m: TypedArray) {
+    super(m, { type: Float32Array });
+  }
+
+  /** Creates a zero matrix. */
+  static zero(): MutableMatrix22 {
+    return super._zero(Float32Array) as MutableMatrix22;
+  }
+
+  /** Creates an identity matrix. */
+  static identity(): MutableMatrix22 {
+    return super._identity(Float32Array) as MutableMatrix22;
+  }
+
+  /** Creates a dummy matrix with an empty array. */
+  static dummy(): MutableMatrix22 {
+    return super._dummy(Float32Array) as MutableMatrix22;
+  }
+
+  /** Creates the transpose of the given matrix. */
+  static transpose(mat: IMatrix22): MutableMatrix22 {
+    return super._transpose(mat, Float32Array) as MutableMatrix22;
+  }
+
+  /** Attempts to invert the given matrix, returning null when it is singular. */
+  static tryInvert(mat: IMatrix22): MutableMatrix22 | null {
+    return super._tryInvert(mat, Float32Array) as MutableMatrix22 | null;
+  }
+
+  /** Creates the inverse of the given matrix (identity when singular). */
+  static invert(mat: IMatrix22): MutableMatrix22 {
+    return super._invert(mat, Float32Array) as MutableMatrix22;
+  }
+
+  /** Attempts to invert the given matrix into outMat. */
+  static tryInvertTo<T extends IMutableMatrix22>(mat: IMatrix22, outMat: T): boolean {
+    return super._tryInvertTo(mat, outMat);
+  }
+
+  /** Inverts the given matrix into outMat (identity when singular). */
+  static invertTo<T extends IMutableMatrix22>(mat: IMatrix22, outMat: T): T {
+    return super._invertTo(mat, outMat) as T;
+  }
+
+  /** Creates a 2D rotation matrix. */
+  static rotate(radian: number): MutableMatrix22 {
+    return super._rotate(radian, Float32Array) as MutableMatrix22;
+  }
+
+  /** Creates a 2D scaling matrix. */
+  static scale(vec: IVector2): MutableMatrix22 {
+    return super._scale(vec, Float32Array) as MutableMatrix22;
+  }
+
+  /** Multiplies two 2x2 matrices. */
+  static multiply(l_mat: IMatrix22, r_mat: IMatrix22): MutableMatrix22 {
+    return super._multiply(l_mat, r_mat, Float32Array) as MutableMatrix22;
+  }
+
+  /** Multiplies two matrices and stores the result in outMat. */
+  static multiplyTo<T extends IMutableMatrix22>(l_mat: IMatrix22, r_mat: IMatrix22, outMat: T): T {
+    return super._multiplyTo(l_mat, r_mat, outMat) as T;
+  }
+
+  /** Creates a matrix from row-major components. */
   static fromCopy4RowMajor(m00: number, m01: number, m10: number, m11: number): MutableMatrix22 {
-    const v = new Float32Array(4);
-    v[0] = m00;
-    v[2] = m01;
-    v[1] = m10;
-    v[3] = m11;
-    return new MutableMatrix22(v);
+    return super._fromCopy4RowMajor(m00, m01, m10, m11, Float32Array) as MutableMatrix22;
   }
 
-  /**
-   * Creates a new matrix from values provided in column-major order.
-   * This matches the internal storage format used by WebGL.
-   *
-   * @param m00 - Value for position (0,0)
-   * @param m10 - Value for position (1,0)
-   * @param m01 - Value for position (0,1)
-   * @param m11 - Value for position (1,1)
-   * @returns A new MutableMatrix22 instance
-   */
+  /** Creates a matrix from column-major components. */
   static fromCopy4ColumnMajor(m00: number, m10: number, m01: number, m11: number): MutableMatrix22 {
-    const v = new Float32Array(4);
-    v[0] = m00;
-    v[2] = m01;
-    v[1] = m10;
-    v[3] = m11;
-    return new MutableMatrix22(v);
+    return super._fromCopy4ColumnMajor(m00, m10, m01, m11, Float32Array) as MutableMatrix22;
   }
 
-  /**
-   * Creates a new matrix using the provided Float32Array directly (no copy).
-   * The array is expected to be in column-major order.
-   *
-   * @param float32Array - Float32Array containing matrix data in column-major order
-   * @returns A new MutableMatrix22 instance sharing the provided array
-   */
-  static fromFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix22 {
-    return new MutableMatrix22(float32Array);
+  /** Creates a matrix that directly uses the given Float32Array. */
+  static fromFloat32ArrayColumnMajor(array: Float32Array): MutableMatrix22 {
+    return super._fromTypedArrayColumnMajor(array, Float32Array) as MutableMatrix22;
   }
 
-  /**
-   * Creates a new matrix by copying from a Float32Array in column-major order.
-   *
-   * @param float32Array - Float32Array containing matrix data in column-major order
-   * @returns A new MutableMatrix22 instance with copied data
-   */
-  static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix22 {
-    const v = new Float32Array(4);
-    v.set(float32Array);
-    return new MutableMatrix22(v);
+  /** Creates a matrix by copying a Float32Array in column-major order. */
+  static fromCopyFloat32ArrayColumnMajor(array: Float32Array): MutableMatrix22 {
+    return super._fromCopyTypedArrayColumnMajor(array, Float32Array) as MutableMatrix22;
   }
 
-  /**
-   * Creates a new matrix by copying from a Float32Array in row-major order.
-   *
-   * @param array - Float32Array containing matrix data in row-major order
-   * @returns A new MutableMatrix22 instance with converted data
-   */
+  /** Creates a matrix by copying a Float32Array in row-major order. */
   static fromCopyFloat32ArrayRowMajor(array: Float32Array): MutableMatrix22 {
-    const v = new Float32Array(4);
-    v[0] = array[0];
-    v[3] = array[1];
-    v[1] = array[2];
-    v[4] = array[3];
-
-    return new MutableMatrix22(v);
+    return super._fromCopyTypedArrayRowMajor(array, Float32Array) as MutableMatrix22;
   }
 
-  /**
-   * Creates a new matrix by copying from another Matrix22 instance.
-   *
-   * @param mat - The source Matrix22 to copy from
-   * @returns A new MutableMatrix22 instance with copied data
-   */
+  /** Creates a matrix by copying another matrix. */
   static fromCopyMatrix22(mat: IMatrix22): MutableMatrix22 {
-    const v = new Float32Array(4);
-    v[0] = mat._v[0];
-    v[3] = mat._v[1];
-    v[1] = mat._v[2];
-    v[4] = mat._v[3];
-    return new MutableMatrix22(v);
+    return super._fromCopyMatrix22(mat, Float32Array) as MutableMatrix22;
   }
 
-  /**
-   * Creates a new matrix from a 4-element array in column-major order.
-   *
-   * @param array - Array4 containing matrix data in column-major order
-   * @returns A new MutableMatrix22 instance with copied data
-   */
+  /** Creates a matrix from a 4-element array in column-major order. */
   static fromCopyArray9ColumnMajor(array: Array4<number>): MutableMatrix22 {
-    const v = new Float32Array(4);
-    v.set(array);
-    return new MutableMatrix22(v);
+    return super._fromCopyArray4ColumnMajor(array, Float32Array) as MutableMatrix22;
   }
 
-  /**
-   * Creates a new matrix from an array in column-major order.
-   *
-   * @param array - Array containing matrix data in column-major order
-   * @returns A new MutableMatrix22 instance with copied data
-   */
+  /** Creates a matrix from an array in column-major order. */
   static fromCopyArrayColumnMajor(array: Array<number>): MutableMatrix22 {
-    const v = new Float32Array(4);
-    v.set(array);
-    return new MutableMatrix22(v);
+    return super._fromCopyArrayColumnMajor(array, Float32Array) as MutableMatrix22;
   }
 
-  /**
-   * Creates a new matrix from a 4-element array in row-major order.
-   *
-   * @param array - Array4 containing matrix data in row-major order
-   * @returns A new MutableMatrix22 instance with converted data
-   */
+  /** Creates a matrix from a 4-element array in row-major order. */
   static fromCopyArray9RowMajor(array: Array4<number>): MutableMatrix22 {
-    const v = new Float32Array(4);
-    v[0] = array[0];
-    v[3] = array[1];
-    v[1] = array[2];
-    v[4] = array[3];
-    return new MutableMatrix22(v);
+    return super._fromCopyArray4RowMajor(array, Float32Array) as MutableMatrix22;
   }
 
-  /**
-   * Creates a new matrix from an array in row-major order.
-   *
-   * @param array - Array containing matrix data in row-major order
-   * @returns A new MutableMatrix22 instance with converted data
-   */
+  /** Creates a matrix from an array in row-major order. */
   static fromCopyArrayRowMajor(array: Array<number>): MutableMatrix22 {
-    const v = new Float32Array(4);
-    v[0] = array[0];
-    v[3] = array[1];
-    v[1] = array[2];
-    v[4] = array[3];
-    return new MutableMatrix22(v);
+    return super._fromCopyArrayRowMajor(array, Float32Array) as MutableMatrix22;
+  }
+}
+
+/**
+ * Immutable 2x2 matrix with 64-bit float components.
+ * Use this implementation when higher numerical precision is required.
+ */
+export class MutableMatrix22d extends MutableMatrix22_<Float64ArrayConstructor> {
+  /**
+   * Creates a new MutableMatrix22d instance.
+   * @param m - The typed array containing the matrix components
+   */
+  private constructor(m: TypedArray) {
+    super(m, { type: Float64Array });
+  }
+
+  /** Creates a zero matrix. */
+  static zero(): MutableMatrix22d {
+    return super._zero(Float64Array) as MutableMatrix22d;
+  }
+
+  /** Creates an identity matrix. */
+  static identity(): MutableMatrix22d {
+    return super._identity(Float64Array) as MutableMatrix22d;
+  }
+
+  /** Creates a dummy matrix with an empty array. */
+  static dummy(): MutableMatrix22d {
+    return super._dummy(Float64Array) as MutableMatrix22d;
+  }
+
+  /** Creates the transpose of the given matrix. */
+  static transpose(mat: IMatrix22): MutableMatrix22d {
+    return super._transpose(mat, Float64Array) as MutableMatrix22d;
+  }
+
+  /** Attempts to invert the given matrix, returning null when it is singular. */
+  static tryInvert(mat: IMatrix22): MutableMatrix22d | null {
+    return super._tryInvert(mat, Float64Array) as MutableMatrix22d | null;
+  }
+
+  /** Creates the inverse of the given matrix (identity when singular). */
+  static invert(mat: IMatrix22): MutableMatrix22d {
+    return super._invert(mat, Float64Array) as MutableMatrix22d;
+  }
+
+  /** Attempts to invert the given matrix into outMat. */
+  static tryInvertTo<T extends IMutableMatrix22>(mat: IMatrix22, outMat: T): boolean {
+    return super._tryInvertTo(mat, outMat);
+  }
+
+  /** Inverts the given matrix into outMat (identity when singular). */
+  static invertTo<T extends IMutableMatrix22>(mat: IMatrix22, outMat: T): T {
+    return super._invertTo(mat, outMat) as T;
+  }
+
+  /** Creates a 2D rotation matrix. */
+  static rotate(radian: number): MutableMatrix22d {
+    return super._rotate(radian, Float64Array) as MutableMatrix22d;
+  }
+
+  /** Creates a 2D scaling matrix. */
+  static scale(vec: IVector2): MutableMatrix22d {
+    return super._scale(vec, Float64Array) as MutableMatrix22d;
+  }
+
+  /** Multiplies two 2x2 matrices. */
+  static multiply(l_mat: IMatrix22, r_mat: IMatrix22): MutableMatrix22d {
+    return super._multiply(l_mat, r_mat, Float64Array) as MutableMatrix22d;
+  }
+
+  /** Multiplies two matrices and stores the result in outMat. */
+  static multiplyTo<T extends IMutableMatrix22>(l_mat: IMatrix22, r_mat: IMatrix22, outMat: T): T {
+    return super._multiplyTo(l_mat, r_mat, outMat) as T;
+  }
+
+  /** Creates a matrix from row-major components. */
+  static fromCopy4RowMajor(m00: number, m01: number, m10: number, m11: number): MutableMatrix22d {
+    return super._fromCopy4RowMajor(m00, m01, m10, m11, Float64Array) as MutableMatrix22d;
+  }
+
+  /** Creates a matrix from column-major components. */
+  static fromCopy4ColumnMajor(m00: number, m10: number, m01: number, m11: number): MutableMatrix22d {
+    return super._fromCopy4ColumnMajor(m00, m10, m01, m11, Float64Array) as MutableMatrix22d;
+  }
+
+  /** Creates a matrix that directly uses the given Float64Array. */
+  static fromFloat64ArrayColumnMajor(array: Float64Array): MutableMatrix22d {
+    return super._fromTypedArrayColumnMajor(array, Float64Array) as MutableMatrix22d;
+  }
+
+  /** Creates a matrix by copying a Float64Array in column-major order. */
+  static fromCopyFloat64ArrayColumnMajor(array: Float64Array): MutableMatrix22d {
+    return super._fromCopyTypedArrayColumnMajor(array, Float64Array) as MutableMatrix22d;
+  }
+
+  /** Creates a matrix by copying a Float64Array in row-major order. */
+  static fromCopyFloat64ArrayRowMajor(array: Float64Array): MutableMatrix22d {
+    return super._fromCopyTypedArrayRowMajor(array, Float64Array) as MutableMatrix22d;
+  }
+
+  /** Creates a matrix by copying another matrix. */
+  static fromCopyMatrix22(mat: IMatrix22): MutableMatrix22d {
+    return super._fromCopyMatrix22(mat, Float64Array) as MutableMatrix22d;
+  }
+
+  /** Creates a matrix from a 4-element array in column-major order. */
+  static fromCopyArray9ColumnMajor(array: Array4<number>): MutableMatrix22d {
+    return super._fromCopyArray4ColumnMajor(array, Float64Array) as MutableMatrix22d;
+  }
+
+  /** Creates a matrix from an array in column-major order. */
+  static fromCopyArrayColumnMajor(array: Array<number>): MutableMatrix22d {
+    return super._fromCopyArrayColumnMajor(array, Float64Array) as MutableMatrix22d;
+  }
+
+  /** Creates a matrix from a 4-element array in row-major order. */
+  static fromCopyArray9RowMajor(array: Array4<number>): MutableMatrix22d {
+    return super._fromCopyArray4RowMajor(array, Float64Array) as MutableMatrix22d;
+  }
+
+  /** Creates a matrix from an array in row-major order. */
+  static fromCopyArrayRowMajor(array: Array<number>): MutableMatrix22d {
+    return super._fromCopyArrayRowMajor(array, Float64Array) as MutableMatrix22d;
   }
 }

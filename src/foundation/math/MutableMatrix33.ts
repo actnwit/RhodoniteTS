@@ -1,10 +1,10 @@
-import type { Array9, Index } from '../../types/CommonTypes';
+import type { Array9, FloatTypedArrayConstructor, Index, TypedArray } from '../../types/CommonTypes';
 import { Logger } from '../misc/Logger';
 import type { IMatrix33, IMatrix44, IMutableMatrix, IMutableMatrix33 } from './IMatrix';
 import type { IQuaternion } from './IQuaternion';
 import type { IVector3 } from './IVector';
 import { MathUtil } from './MathUtil';
-import { Matrix33 } from './Matrix33';
+import { Matrix33_ } from './Matrix33';
 
 /**
  * A mutable 3x3 matrix class that extends Matrix33 and provides mutating operations.
@@ -24,7 +24,19 @@ import { Matrix33 } from './Matrix33';
  * | m20  m21  m22 |
  * ```
  */
-export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutableMatrix33 {
+export class MutableMatrix33_<T extends FloatTypedArrayConstructor>
+  extends Matrix33_<T>
+  implements IMutableMatrix, IMutableMatrix33
+{
+  /**
+   * Creates a new MutableMatrix33_ instance.
+   * @param m - The typed array containing the matrix components
+   * @param options - Configuration object containing the typed array constructor
+   */
+  constructor(m: TypedArray, options: { type: T }) {
+    super(m, options);
+  }
+
   /**
    * Sets the matrix element at position (0,0).
    * @param val - The value to set
@@ -178,125 +190,6 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
   }
 
   /**
-   * Creates a new zero matrix (all elements set to 0).
-   * @returns A new MutableMatrix33 instance with all elements set to 0
-   */
-  static zero(): MutableMatrix33 {
-    return super.zero() as MutableMatrix33;
-  }
-
-  /**
-   * Creates a new identity matrix.
-   * @returns A new MutableMatrix33 instance representing the identity matrix
-   */
-  static identity(): MutableMatrix33 {
-    return MutableMatrix33.fromCopy9RowMajor(1, 0, 0, 0, 1, 0, 0, 0, 1);
-  }
-
-  /**
-   * Creates a dummy matrix for testing purposes.
-   * @returns A new MutableMatrix33 instance with default values
-   */
-  static dummy(): MutableMatrix33 {
-    return super.dummy() as MutableMatrix33;
-  }
-
-  /**
-   * Creates a new matrix that is the transpose of the input matrix.
-   * @param mat - The matrix to transpose
-   * @returns A new MutableMatrix33 instance representing the transposed matrix
-   */
-  static transpose(mat: IMatrix33): MutableMatrix33 {
-    return super.transpose(mat) as MutableMatrix33;
-  }
-
-  /**
-   * Attempts to create a new matrix that is the inverse of the input matrix.
-   * @param mat - The matrix to invert
-   * @returns A new MutableMatrix33 instance representing the inverted matrix,
-   *          or null if the matrix is numerically singular
-   */
-  static tryInvert(mat: IMatrix33): MutableMatrix33 | null {
-    return super.tryInvert(mat) as MutableMatrix33 | null;
-  }
-
-  /**
-   * Creates a new matrix that is the inverse of the input matrix.
-   * @param mat - The matrix to invert
-   * @returns A new MutableMatrix33 instance representing the inverted matrix,
-   *          or the identity matrix if the input is singular
-   */
-  static invert(mat: IMatrix33): MutableMatrix33 {
-    return super.invert(mat) as MutableMatrix33;
-  }
-
-  /**
-   * Creates a rotation matrix around the X-axis.
-   * @param radian - The rotation angle in radians
-   * @returns A new MutableMatrix33 instance representing the X-axis rotation
-   */
-  static rotateX(radian: number): MutableMatrix33 {
-    return super.rotateX(radian) as MutableMatrix33;
-  }
-
-  /**
-   * Creates a rotation matrix around the Y-axis.
-   * @param radian - The rotation angle in radians
-   * @returns A new MutableMatrix33 instance representing the Y-axis rotation
-   */
-  static rotateY(radian: number): MutableMatrix33 {
-    return super.rotateY(radian) as MutableMatrix33;
-  }
-
-  /**
-   * Creates a rotation matrix around the Z-axis.
-   * @param radian - The rotation angle in radians
-   * @returns A new MutableMatrix33 instance representing the Z-axis rotation
-   */
-  static rotateZ(radian: number): MutableMatrix33 {
-    return super.rotateZ(radian) as MutableMatrix33;
-  }
-
-  /**
-   * Creates a rotation matrix for combined X, Y, and Z axis rotations applied in that order.
-   * @param x - Rotation angle around X-axis in radians
-   * @param y - Rotation angle around Y-axis in radians
-   * @param z - Rotation angle around Z-axis in radians
-   * @returns A new MutableMatrix33 instance representing the combined rotation
-   */
-  static rotateXYZ(x: number, y: number, z: number): MutableMatrix33 {
-    return super.rotateXYZ(x, y, z) as MutableMatrix33;
-  }
-
-  /**
-   * Creates a rotation matrix from a vector containing rotation angles.
-   * @param vec - A vector containing rotation angles for X, Y, and Z axes
-   * @returns A new MutableMatrix33 instance representing the rotation
-   */
-  static rotate(vec: IVector3): MutableMatrix33 {
-    return super.rotateXYZ(vec._v[0], vec._v[1], vec._v[2]) as MutableMatrix33;
-  }
-
-  /**
-   * Creates a scaling matrix from a vector.
-   * @param vec - A vector containing scale factors for X, Y, and Z axes
-   * @returns A new MutableMatrix33 instance representing the scaling transformation
-   */
-  static scale(vec: IVector3): MutableMatrix33 {
-    return super.scale(vec) as MutableMatrix33;
-  }
-
-  /**
-   * Multiplies two matrices and returns the result as a new matrix.
-   * @param l_mat - The left matrix operand
-   * @param r_mat - The right matrix operand
-   * @returns A new MutableMatrix33 instance representing l_mat * r_mat
-   */
-  static multiply(l_mat: IMatrix33, r_mat: IMatrix33): MutableMatrix33 {
-    return super.multiply(l_mat, r_mat) as MutableMatrix33;
-  }
-
-  /**
    * Creates a copy of this matrix.
    * @returns A new MutableMatrix33 instance with the same values
    */
@@ -309,7 +202,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Gets the raw Float32Array containing the matrix data.
    * @returns The underlying Float32Array in column-major order
    */
-  raw(): Float32Array {
+  raw() {
     return this._v;
   }
 
@@ -435,7 +328,13 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
     const rowNorm0 = Math.abs(this._v[0]) + Math.abs(this._v[3]) + Math.abs(this._v[6]);
     const rowNorm1 = Math.abs(this._v[1]) + Math.abs(this._v[4]) + Math.abs(this._v[7]);
     const rowNorm2 = Math.abs(this._v[2]) + Math.abs(this._v[5]) + Math.abs(this._v[8]);
-    if (MathUtil.isSingularDet(det, rowNorm0 * rowNorm1 * rowNorm2)) {
+    if (
+      MathUtil.isSingularDet(
+        det,
+        rowNorm0 * rowNorm1 * rowNorm2,
+        MathUtil.getSingularEpsilon(this._v.BYTES_PER_ELEMENT)
+      )
+    ) {
       return false;
     }
 
@@ -667,21 +566,99 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
 
     return this.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
   }
+}
 
+export class MutableMatrix33 extends MutableMatrix33_<Float32ArrayConstructor> {
   /**
-   * Creates a new matrix from 9 values specified in row-major order.
-   * This is more intuitive when writing matrix values as they appear visually.
-   * @param m00 - Element at position (0,0)
-   * @param m01 - Element at position (0,1)
-   * @param m02 - Element at position (0,2)
-   * @param m10 - Element at position (1,0)
-   * @param m11 - Element at position (1,1)
-   * @param m12 - Element at position (1,2)
-   * @param m20 - Element at position (2,0)
-   * @param m21 - Element at position (2,1)
-   * @param m22 - Element at position (2,2)
-   * @returns A new MutableMatrix33 instance
+   * Creates a new MutableMatrix33 instance.
+   * @param m - The typed array containing the matrix components
    */
+  constructor(m: TypedArray) {
+    super(m, { type: Float32Array });
+  }
+
+  /** Creates a zero matrix. */
+  static zero(): MutableMatrix33 {
+    return super._zero(Float32Array) as MutableMatrix33;
+  }
+
+  /** Creates an identity matrix (optimized IdentityMatrix33 instance). */
+  static identity(): MutableMatrix33 {
+    return super._identity(Float32Array) as MutableMatrix33;
+  }
+
+  /** Creates a dummy matrix with an empty array. */
+  static dummy(): MutableMatrix33 {
+    return super._dummy(Float32Array) as MutableMatrix33;
+  }
+
+  /** Creates the transpose of the given matrix. */
+  static transpose(mat: IMatrix33): MutableMatrix33 {
+    return super._transpose(mat, Float32Array) as MutableMatrix33;
+  }
+
+  /** Attempts to invert the given matrix, returning null when it is singular. */
+  static tryInvert(mat: IMatrix33): MutableMatrix33 | null {
+    return super._tryInvert(mat, Float32Array) as MutableMatrix33 | null;
+  }
+
+  /** Creates the inverse of the given matrix (identity when singular). */
+  static invert(mat: IMatrix33): MutableMatrix33 {
+    return super._invert(mat, Float32Array) as MutableMatrix33;
+  }
+
+  /** Attempts to invert the given matrix into outMat. */
+  static tryInvertTo<T extends IMutableMatrix33>(mat: IMatrix33, outMat: T): boolean {
+    return super._tryInvertTo(mat, outMat);
+  }
+
+  /** Inverts the given matrix into outMat (identity when singular). */
+  static invertTo<T extends IMutableMatrix33>(mat: IMatrix33, outMat: T): T {
+    return super._invertTo(mat, outMat) as T;
+  }
+
+  /** Creates a rotation matrix around the X-axis. */
+  static rotateX(radian: number): MutableMatrix33 {
+    return super._rotateX(radian, Float32Array) as MutableMatrix33;
+  }
+
+  /** Creates a rotation matrix around the Y-axis. */
+  static rotateY(radian: number): MutableMatrix33 {
+    return super._rotateY(radian, Float32Array) as MutableMatrix33;
+  }
+
+  /** Creates a rotation matrix around the Z-axis. */
+  static rotateZ(radian: number): MutableMatrix33 {
+    return super._rotateZ(radian, Float32Array) as MutableMatrix33;
+  }
+
+  /** Creates a rotation matrix from Euler angles in XYZ order. */
+  static rotateXYZ(x: number, y: number, z: number): MutableMatrix33 {
+    return super._rotateXYZ(x, y, z, Float32Array) as MutableMatrix33;
+  }
+
+  /** Creates a rotation matrix from a Vector3 containing Euler angles. */
+  static rotate(vec: IVector3): MutableMatrix33 {
+    return super._rotate(vec, Float32Array) as MutableMatrix33;
+  }
+
+  /** Creates a scaling matrix. */
+  static scale(vec: IVector3): MutableMatrix33 {
+    return super._scale(vec, Float32Array) as MutableMatrix33;
+  }
+
+  /** Multiplies two matrices. */
+  static multiply(l_mat: IMatrix33, r_mat: IMatrix33): MutableMatrix33 {
+    return super._multiply(l_mat, r_mat, Float32Array) as MutableMatrix33;
+  }
+
+  /** Multiplies two matrices and stores the result in outMat. */
+  static multiplyTo<T extends IMutableMatrix33>(l_mat: IMatrix33, r_mat: IMatrix33, outMat: T): T {
+    return super._multiplyTo(l_mat, r_mat, outMat) as T;
+  }
+
+  /** Creates a matrix from row-major components. */
+  // prettier-ignore
   static fromCopy9RowMajor(
     m00: number,
     m01: number,
@@ -693,33 +670,11 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
     m21: number,
     m22: number
   ): MutableMatrix33 {
-    const v = new Float32Array(9);
-    v[0] = m00;
-    v[3] = m01;
-    v[6] = m02;
-    v[1] = m10;
-    v[4] = m11;
-    v[7] = m12;
-    v[2] = m20;
-    v[5] = m21;
-    v[8] = m22;
-    return new MutableMatrix33(v);
+    return super._fromCopy9RowMajor(m00, m01, m02, m10, m11, m12, m20, m21, m22, Float32Array) as MutableMatrix33;
   }
 
-  /**
-   * Creates a new matrix from 9 values specified in column-major order.
-   * This matches the internal storage format of WebGL matrices.
-   * @param m00 - Element at position (0,0)
-   * @param m10 - Element at position (1,0)
-   * @param m20 - Element at position (2,0)
-   * @param m01 - Element at position (0,1)
-   * @param m11 - Element at position (1,1)
-   * @param m21 - Element at position (2,1)
-   * @param m02 - Element at position (0,2)
-   * @param m12 - Element at position (1,2)
-   * @param m22 - Element at position (2,2)
-   * @returns A new MutableMatrix33 instance
-   */
+  /** Creates a matrix from column-major components. */
+  // prettier-ignore
   static fromCopy9ColumnMajor(
     m00: number,
     m10: number,
@@ -731,182 +686,232 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
     m12: number,
     m22: number
   ): MutableMatrix33 {
-    const v = new Float32Array(9);
-    v[0] = m00;
-    v[3] = m01;
-    v[6] = m02;
-    v[1] = m10;
-    v[4] = m11;
-    v[7] = m12;
-    v[2] = m20;
-    v[5] = m21;
-    v[8] = m22;
-    return new MutableMatrix33(v);
+    return super._fromCopy9ColumnMajor(m00, m10, m20, m01, m11, m21, m02, m12, m22, Float32Array) as MutableMatrix33;
   }
 
-  /**
-   * Creates a new 3x3 matrix by copying the upper-left 3x3 portion of a 4x4 matrix.
-   * @param mat - The 4x4 matrix to copy from
-   * @returns A new MutableMatrix33 instance
-   */
+  /** Creates a matrix from the upper-left 3x3 portion of a 4x4 matrix. */
   static fromCopyMatrix44(mat: IMatrix44): MutableMatrix33 {
-    const v = new Float32Array(9);
-    v.set(mat._v);
-    return new MutableMatrix33(v);
+    return super._fromCopyMatrix44(mat, Float32Array) as MutableMatrix33;
   }
 
-  /**
-   * Creates a new matrix using the provided Float32Array directly (no copy).
-   * The array should contain 9 elements in column-major order.
-   * @param float32Array - A Float32Array containing the matrix data
-   * @returns A new MutableMatrix33 instance that shares the array reference
-   */
-  static fromFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix33 {
-    return new MutableMatrix33(float32Array);
+  /** Creates a matrix that directly uses the given Float32Array. */
+  static fromFloat32ArrayColumnMajor(array: Float32Array): MutableMatrix33 {
+    return super._fromTypedArrayColumnMajor(array, Float32Array) as MutableMatrix33;
   }
 
-  /**
-   * Creates a new matrix by copying data from a Float32Array in column-major order.
-   * @param float32Array - A Float32Array containing the matrix data to copy
-   * @returns A new MutableMatrix33 instance with copied data
-   */
-  static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix33 {
-    const v = new Float32Array(9);
-    v.set(float32Array);
-    return new MutableMatrix33(v);
+  /** Creates a matrix by copying a Float32Array in column-major order. */
+  static fromCopyFloat32ArrayColumnMajor(array: Float32Array): MutableMatrix33 {
+    return super._fromCopyTypedArrayColumnMajor(array, Float32Array) as MutableMatrix33;
   }
 
-  /**
-   * Creates a new matrix by copying data from a Float32Array in row-major order.
-   * The data is converted to column-major order during the copy process.
-   * @param array - A Float32Array containing the matrix data in row-major order
-   * @returns A new MutableMatrix33 instance with converted data
-   */
+  /** Creates a matrix by copying a Float32Array in row-major order. */
   static fromCopyFloat32ArrayRowMajor(array: Float32Array): MutableMatrix33 {
-    const v = new Float32Array(9);
-    v[0] = array[0];
-    v[3] = array[1];
-    v[6] = array[2];
-    v[1] = array[3];
-    v[4] = array[4];
-    v[7] = array[5];
-    v[2] = array[6];
-    v[5] = array[7];
-    v[8] = array[8];
-
-    return new MutableMatrix33(v);
+    return super._fromCopyTypedArrayRowMajor(array, Float32Array) as MutableMatrix33;
   }
 
-  /**
-   * Creates a new matrix by copying from another 3x3 matrix.
-   * @param mat - The source matrix to copy from
-   * @returns A new MutableMatrix33 instance with copied data
-   */
+  /** Creates a matrix by copying another matrix. */
   static fromCopyMatrix33(mat: IMatrix33): MutableMatrix33 {
-    const v = new Float32Array(9);
-    v[0] = mat._v[0];
-    v[3] = mat._v[3];
-    v[6] = mat._v[6];
-    v[1] = mat._v[1];
-    v[4] = mat._v[4];
-    v[7] = mat._v[7];
-    v[2] = mat._v[2];
-    v[5] = mat._v[5];
-    v[8] = mat._v[8];
-    return new MutableMatrix33(v);
+    return super._fromCopyMatrix33(mat, Float32Array) as MutableMatrix33;
   }
 
-  /**
-   * Creates a new matrix from a 9-element array in column-major order.
-   * @param array - An array containing exactly 9 numbers in column-major order
-   * @returns A new MutableMatrix33 instance
-   */
+  /** Creates a matrix from a 9-element array in column-major order. */
   static fromCopyArray9ColumnMajor(array: Array9<number>): MutableMatrix33 {
-    const v = new Float32Array(9);
-    v.set(array);
-    return new MutableMatrix33(v);
+    return super._fromCopyArray9ColumnMajor(array, Float32Array) as MutableMatrix33;
   }
 
-  /**
-   * Creates a new matrix from an array in column-major order.
-   * Only the first 9 elements are used if the array is larger.
-   * @param array - An array containing the matrix data in column-major order
-   * @returns A new MutableMatrix33 instance
-   */
+  /** Creates a matrix from an array in column-major order. */
   static fromCopyArrayColumnMajor(array: Array<number>): MutableMatrix33 {
-    const v = new Float32Array(9);
-    v.set(array);
-    return new MutableMatrix33(v);
+    return super._fromCopyArrayColumnMajor(array, Float32Array) as MutableMatrix33;
   }
 
-  /**
-   * Creates a new matrix from a 9-element array in row-major order.
-   * The data is converted to column-major order during the creation process.
-   * @param array - An array containing exactly 9 numbers in row-major order
-   * @returns A new MutableMatrix33 instance
-   */
+  /** Creates a matrix from a 9-element array in row-major order. */
   static fromCopyArray9RowMajor(array: Array9<number>): MutableMatrix33 {
-    const v = new Float32Array(9);
-    v[0] = array[0];
-    v[3] = array[1];
-    v[6] = array[2];
-    v[1] = array[3];
-    v[4] = array[4];
-    v[7] = array[5];
-    v[2] = array[6];
-    v[5] = array[7];
-    v[8] = array[8];
-    return new MutableMatrix33(v);
+    return super._fromCopyArray9RowMajor(array, Float32Array) as MutableMatrix33;
   }
 
-  /**
-   * Creates a new matrix from an array in row-major order.
-   * Only the first 9 elements are used if the array is larger.
-   * The data is converted to column-major order during the creation process.
-   * @param array - An array containing the matrix data in row-major order
-   * @returns A new MutableMatrix33 instance
-   */
+  /** Creates a matrix from an array in row-major order. */
   static fromCopyArrayRowMajor(array: Array<number>): MutableMatrix33 {
-    const v = new Float32Array(9);
-    v[0] = array[0];
-    v[3] = array[1];
-    v[6] = array[2];
-    v[1] = array[3];
-    v[4] = array[4];
-    v[7] = array[5];
-    v[2] = array[6];
-    v[5] = array[7];
-    v[8] = array[8];
-    return new MutableMatrix33(v);
+    return super._fromCopyArrayRowMajor(array, Float32Array) as MutableMatrix33;
   }
 
-  /**
-   * Creates a new rotation matrix from a quaternion.
-   * Converts the quaternion representation to its equivalent 3x3 rotation matrix.
-   * @param q - The quaternion to convert (should be normalized)
-   * @returns A new MutableMatrix33 instance representing the rotation
-   */
+  /** Creates a matrix from a quaternion representing a rotation. */
   static fromCopyQuaternion(q: IQuaternion): MutableMatrix33 {
-    const sx = q._v[0] * q._v[0];
-    const sy = q._v[1] * q._v[1];
-    const sz = q._v[2] * q._v[2];
-    const cx = q._v[1] * q._v[2];
-    const cy = q._v[0] * q._v[2];
-    const cz = q._v[0] * q._v[1];
-    const wx = q._v[3] * q._v[0];
-    const wy = q._v[3] * q._v[1];
-    const wz = q._v[3] * q._v[2];
-    const v = new Float32Array(9);
-    v[0] = 1.0 - 2.0 * (sy + sz);
-    v[3] = 2.0 * (cz - wz);
-    v[6] = 2.0 * (cy + wy);
-    v[1] = 2.0 * (cz + wz);
-    v[4] = 1.0 - 2.0 * (sx + sz);
-    v[7] = 2.0 * (cx - wx);
-    v[2] = 2.0 * (cy - wy);
-    v[5] = 2.0 * (cx + wx);
-    v[8] = 1.0 - 2.0 * (sx + sy);
+    return super._fromCopyQuaternion(q, Float32Array) as MutableMatrix33;
+  }
+}
 
-    return new MutableMatrix33(v);
+/**
+ * Immutable 3x3 matrix with 64-bit float components.
+ * Use this implementation when higher numerical precision is required.
+ */
+export class MutableMatrix33d extends MutableMatrix33_<Float64ArrayConstructor> {
+  /**
+   * Creates a new MutableMatrix33d instance.
+   * @param m - The typed array containing the matrix components
+   */
+  private constructor(m: TypedArray) {
+    super(m, { type: Float64Array });
+  }
+
+  /** Creates a zero matrix. */
+  static zero(): MutableMatrix33d {
+    return super._zero(Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates an identity matrix. */
+  static identity(): MutableMatrix33d {
+    return super._identity(Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates a dummy matrix with an empty array. */
+  static dummy(): MutableMatrix33d {
+    return super._dummy(Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates the transpose of the given matrix. */
+  static transpose(mat: IMatrix33): MutableMatrix33d {
+    return super._transpose(mat, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Attempts to invert the given matrix, returning null when it is singular. */
+  static tryInvert(mat: IMatrix33): MutableMatrix33d | null {
+    return super._tryInvert(mat, Float64Array) as MutableMatrix33d | null;
+  }
+
+  /** Creates the inverse of the given matrix (identity when singular). */
+  static invert(mat: IMatrix33): MutableMatrix33d {
+    return super._invert(mat, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Attempts to invert the given matrix into outMat. */
+  static tryInvertTo<T extends IMutableMatrix33>(mat: IMatrix33, outMat: T): boolean {
+    return super._tryInvertTo(mat, outMat);
+  }
+
+  /** Inverts the given matrix into outMat (identity when singular). */
+  static invertTo<T extends IMutableMatrix33>(mat: IMatrix33, outMat: T): T {
+    return super._invertTo(mat, outMat) as T;
+  }
+
+  /** Creates a rotation matrix around the X-axis. */
+  static rotateX(radian: number): MutableMatrix33d {
+    return super._rotateX(radian, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates a rotation matrix around the Y-axis. */
+  static rotateY(radian: number): MutableMatrix33d {
+    return super._rotateY(radian, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates a rotation matrix around the Z-axis. */
+  static rotateZ(radian: number): MutableMatrix33d {
+    return super._rotateZ(radian, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates a rotation matrix from Euler angles in XYZ order. */
+  static rotateXYZ(x: number, y: number, z: number): MutableMatrix33d {
+    return super._rotateXYZ(x, y, z, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates a rotation matrix from a Vector3 containing Euler angles. */
+  static rotate(vec: IVector3): MutableMatrix33d {
+    return super._rotate(vec, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates a scaling matrix. */
+  static scale(vec: IVector3): MutableMatrix33d {
+    return super._scale(vec, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Multiplies two matrices. */
+  static multiply(l_mat: IMatrix33, r_mat: IMatrix33): MutableMatrix33d {
+    return super._multiply(l_mat, r_mat, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Multiplies two matrices and stores the result in outMat. */
+  static multiplyTo<T extends IMutableMatrix33>(l_mat: IMatrix33, r_mat: IMatrix33, outMat: T): T {
+    return super._multiplyTo(l_mat, r_mat, outMat) as T;
+  }
+
+  /** Creates a matrix from row-major components. */
+  // prettier-ignore
+  static fromCopy9RowMajor(
+    m00: number,
+    m01: number,
+    m02: number,
+    m10: number,
+    m11: number,
+    m12: number,
+    m20: number,
+    m21: number,
+    m22: number
+  ): MutableMatrix33d {
+    return super._fromCopy9RowMajor(m00, m01, m02, m10, m11, m12, m20, m21, m22, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates a matrix from column-major components. */
+  // prettier-ignore
+  static fromCopy9ColumnMajor(
+    m00: number,
+    m10: number,
+    m20: number,
+    m01: number,
+    m11: number,
+    m21: number,
+    m02: number,
+    m12: number,
+    m22: number
+  ): MutableMatrix33d {
+    return super._fromCopy9ColumnMajor(m00, m10, m20, m01, m11, m21, m02, m12, m22, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates a matrix from the upper-left 3x3 portion of a 4x4 matrix. */
+  static fromCopyMatrix44(mat: IMatrix44): MutableMatrix33d {
+    return super._fromCopyMatrix44(mat, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates a matrix that directly uses the given Float64Array. */
+  static fromFloat64ArrayColumnMajor(array: Float64Array): MutableMatrix33d {
+    return super._fromTypedArrayColumnMajor(array, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates a matrix by copying a Float64Array in column-major order. */
+  static fromCopyFloat64ArrayColumnMajor(array: Float64Array): MutableMatrix33d {
+    return super._fromCopyTypedArrayColumnMajor(array, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates a matrix by copying a Float64Array in row-major order. */
+  static fromCopyFloat64ArrayRowMajor(array: Float64Array): MutableMatrix33d {
+    return super._fromCopyTypedArrayRowMajor(array, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates a matrix by copying another matrix. */
+  static fromCopyMatrix33(mat: IMatrix33): MutableMatrix33d {
+    return super._fromCopyMatrix33(mat, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates a matrix from a 9-element array in column-major order. */
+  static fromCopyArray9ColumnMajor(array: Array9<number>): MutableMatrix33d {
+    return super._fromCopyArray9ColumnMajor(array, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates a matrix from an array in column-major order. */
+  static fromCopyArrayColumnMajor(array: Array<number>): MutableMatrix33d {
+    return super._fromCopyArrayColumnMajor(array, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates a matrix from a 9-element array in row-major order. */
+  static fromCopyArray9RowMajor(array: Array9<number>): MutableMatrix33d {
+    return super._fromCopyArray9RowMajor(array, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates a matrix from an array in row-major order. */
+  static fromCopyArrayRowMajor(array: Array<number>): MutableMatrix33d {
+    return super._fromCopyArrayRowMajor(array, Float64Array) as MutableMatrix33d;
+  }
+
+  /** Creates a matrix from a quaternion representing a rotation. */
+  static fromCopyQuaternion(q: IQuaternion): MutableMatrix33d {
+    return super._fromCopyQuaternion(q, Float64Array) as MutableMatrix33d;
   }
 }

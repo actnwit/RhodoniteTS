@@ -1,13 +1,11 @@
 import type { Array4 } from '../../types';
+import type { FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
 import { CompositionType } from '../definitions/CompositionType';
 import { Logger } from '../misc/Logger';
 import { AbstractMatrix } from './AbstractMatrix';
-import type { IMatrix22 } from './IMatrix';
+import type { IMatrix22, IMutableMatrix22 } from './IMatrix';
 import type { IVector2 } from './IVector';
 import { MathUtil } from './MathUtil';
-/* eslint-disable prettier/prettier */
-import type { Matrix33 } from './Matrix33';
-import type { MutableMatrix22 } from './MutableMatrix22';
 import type { MutableVector2 } from './MutableVector2';
 import { Vector2 } from './Vector2';
 
@@ -36,13 +34,14 @@ import { Vector2 } from './Vector2';
  * const scale = Matrix22.scale(Vector2.fromCopyArray2([2, 3]));
  * ```
  */
-export class Matrix22 extends AbstractMatrix implements IMatrix22 {
+export class Matrix22_<T extends FloatTypedArrayConstructor> extends AbstractMatrix implements IMatrix22 {
   /**
-   * Creates a new Matrix22 instance.
+   * Creates a new Matrix22_ instance.
    *
-   * @param m - Float32Array containing matrix values in column-major order
+   * @param m - Typed array containing matrix values in column-major order
+   * @param _options - Configuration object containing the typed array constructor
    */
-  constructor(m: Float32Array) {
+  constructor(m: TypedArray, _options: { type: T }) {
     super();
     this._v = m;
   }
@@ -114,8 +113,8 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * // | 0 0 |
    * ```
    */
-  static zero() {
-    return this.fromCopy4RowMajor(0, 0, 0, 0);
+  static _zero(type: FloatTypedArrayConstructor): IMatrix22 {
+    return this._fromCopy4RowMajor(0, 0, 0, 0, type);
   }
 
   /**
@@ -131,8 +130,8 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * // | 0 1 |
    * ```
    */
-  static identity() {
-    return this.fromCopy4RowMajor(1, 0, 0, 1);
+  static _identity(type: FloatTypedArrayConstructor): IMatrix22 {
+    return this._fromCopy4RowMajor(1, 0, 0, 1, type);
   }
 
   /**
@@ -141,8 +140,8 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    *
    * @returns A new Matrix22 with empty Float32Array
    */
-  static dummy() {
-    return new this(new Float32Array(0));
+  static _dummy(type: FloatTypedArrayConstructor): IMatrix22 {
+    return new this(new type(0), { type });
   }
 
   /**
@@ -161,8 +160,8 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * // | 3 4 |      | 2 4 |
    * ```
    */
-  static transpose(mat: IMatrix22) {
-    return this.fromCopy4RowMajor(mat._v[0], mat._v[1], mat._v[2], mat._v[3]);
+  static _transpose(mat: IMatrix22, type: FloatTypedArrayConstructor): IMatrix22 {
+    return this._fromCopy4RowMajor(mat._v[0], mat._v[1], mat._v[2], mat._v[3], type);
   }
 
   /**
@@ -175,11 +174,11 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * @param mat - The matrix to invert
    * @returns A new Matrix22, or null if the matrix is not invertible
    */
-  static tryInvert(mat: IMatrix22): Matrix22 | null {
+  static _tryInvert(mat: IMatrix22, type: FloatTypedArrayConstructor): IMatrix22 | null {
     const det = mat.determinant();
     const rowNorm0 = Math.abs(mat._v[0]) + Math.abs(mat._v[2]);
     const rowNorm1 = Math.abs(mat._v[1]) + Math.abs(mat._v[3]);
-    if (MathUtil.isSingularDet(det, rowNorm0 * rowNorm1)) {
+    if (MathUtil.isSingularDet(det, rowNorm0 * rowNorm1, MathUtil.getSingularEpsilon(mat._v.BYTES_PER_ELEMENT))) {
       return null;
     }
 
@@ -189,7 +188,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
     const m10 = -mat._v[1] * invDet;
     const m11 = mat._v[0] * invDet;
 
-    return this.fromCopy4RowMajor(m00, m01, m10, m11);
+    return this._fromCopy4RowMajor(m00, m01, m10, m11, type);
   }
 
   /**
@@ -218,14 +217,14 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * // |   0 0.5 |
    * ```
    */
-  static invert(mat: IMatrix22): Matrix22 {
-    const inverted = this.tryInvert(mat);
+  static _invert(mat: IMatrix22, type: FloatTypedArrayConstructor): IMatrix22 {
+    const inverted = this._tryInvert(mat, type);
     if (inverted !== null) {
       return inverted;
     }
 
     Logger.default.error('the matrix is singular and cannot be inverted. Returning an identity matrix instead.');
-    return this.fromCopy4RowMajor(1, 0, 0, 1);
+    return this._fromCopy4RowMajor(1, 0, 0, 1, type);
   }
 
   /**
@@ -239,11 +238,11 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * @param outMat - The mutable matrix to store the result
    * @returns True if the inversion succeeded, false if the matrix is singular
    */
-  static tryInvertTo(mat: IMatrix22, outMat: MutableMatrix22): boolean {
+  static _tryInvertTo(mat: IMatrix22, outMat: IMutableMatrix22): boolean {
     const det = mat.determinant();
     const rowNorm0 = Math.abs(mat._v[0]) + Math.abs(mat._v[2]);
     const rowNorm1 = Math.abs(mat._v[1]) + Math.abs(mat._v[3]);
-    if (MathUtil.isSingularDet(det, rowNorm0 * rowNorm1)) {
+    if (MathUtil.isSingularDet(det, rowNorm0 * rowNorm1, MathUtil.getSingularEpsilon(mat._v.BYTES_PER_ELEMENT))) {
       return false;
     }
 
@@ -264,8 +263,8 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * @param outMat - The mutable matrix to store the result
    * @returns The output matrix containing the inverse, or the identity matrix if the input is singular
    */
-  static invertTo(mat: IMatrix22, outMat: MutableMatrix22): MutableMatrix22 {
-    if (this.tryInvertTo(mat, outMat)) {
+  static _invertTo(mat: IMatrix22, outMat: IMutableMatrix22): IMutableMatrix22 {
+    if (this._tryInvertTo(mat, outMat)) {
       return outMat;
     }
 
@@ -289,10 +288,10 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * const rotation = Matrix22.rotate(Math.PI / 2);
    * ```
    */
-  static rotate(radian: number) {
+  static _rotate(radian: number, type: FloatTypedArrayConstructor): IMatrix22 {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return this.fromCopy4RowMajor(cos, -sin, sin, cos);
+    return this._fromCopy4RowMajor(cos, -sin, sin, cos, type);
   }
 
   /**
@@ -311,8 +310,8 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * // Creates a matrix that scales x by 2 and y by 3
    * ```
    */
-  static scale(vec: IVector2) {
-    return this.fromCopy4RowMajor(vec._v[0], 0, 0, vec._v[1]);
+  static _scale(vec: IVector2, type: FloatTypedArrayConstructor): IMatrix22 {
+    return this._fromCopy4RowMajor(vec._v[0], 0, 0, vec._v[1], type);
   }
 
   /**
@@ -330,14 +329,14 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * const result = Matrix22.multiply(a, b); // Scale then rotate
    * ```
    */
-  static multiply(l_mat: IMatrix22, r_mat: IMatrix22) {
+  static _multiply(l_mat: IMatrix22, r_mat: IMatrix22, type: FloatTypedArrayConstructor): IMatrix22 {
     const m00 = l_mat._v[0] * r_mat._v[0] + l_mat._v[2] * r_mat._v[1];
     const m10 = l_mat._v[1] * r_mat._v[0] + l_mat._v[3] * r_mat._v[1];
 
     const m01 = l_mat._v[0] * r_mat._v[2] + l_mat._v[2] * r_mat._v[3];
     const m11 = l_mat._v[1] * r_mat._v[2] + l_mat._v[3] * r_mat._v[3];
 
-    return this.fromCopy4RowMajor(m00, m01, m10, m11);
+    return this._fromCopy4RowMajor(m00, m01, m10, m11, type);
   }
 
   /**
@@ -352,7 +351,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * @param outMat - The mutable matrix to store the result
    * @returns The output matrix containing the product
    */
-  static multiplyTo(l_mat: Matrix33, r_mat: Matrix33, outMat: MutableMatrix22) {
+  static _multiplyTo(l_mat: IMatrix22, r_mat: IMatrix22, outMat: IMutableMatrix22): IMutableMatrix22 {
     const m00 = l_mat._v[0] * r_mat._v[0] + l_mat._v[2] * r_mat._v[1];
     const m10 = l_mat._v[1] * r_mat._v[0] + l_mat._v[3] * r_mat._v[1];
 
@@ -580,13 +579,19 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * // | 3 4 |
    * ```
    */
-  static fromCopy4RowMajor(m00: number, m01: number, m10: number, m11: number) {
-    const v = new Float32Array(4);
+  static _fromCopy4RowMajor(
+    m00: number,
+    m01: number,
+    m10: number,
+    m11: number,
+    type: FloatTypedArrayConstructor
+  ): IMatrix22 {
+    const v = new type(4);
     v[0] = m00;
     v[2] = m01;
     v[1] = m10;
     v[3] = m11;
-    return new Matrix22(v);
+    return new this(v, { type });
   }
 
   /**
@@ -604,13 +609,19 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * @param m11 - Element at row 1, column 1
    * @returns A new Matrix22 with the specified values
    */
-  static fromCopy4ColumnMajor(m00: number, m10: number, m01: number, m11: number) {
-    const v = new Float32Array(4);
+  static _fromCopy4ColumnMajor(
+    m00: number,
+    m10: number,
+    m01: number,
+    m11: number,
+    type: FloatTypedArrayConstructor
+  ): IMatrix22 {
+    const v = new type(4);
     v[0] = m00;
     v[2] = m01;
     v[1] = m10;
     v[3] = m11;
-    return new Matrix22(v);
+    return new this(v, { type });
   }
 
   /**
@@ -621,8 +632,8 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * @param float32Array - Float32Array containing matrix values in column-major order
    * @returns A new Matrix22 using the provided array
    */
-  static fromFloat32ArrayColumnMajor(float32Array: Float32Array) {
-    return new Matrix22(float32Array);
+  static _fromTypedArrayColumnMajor(array: TypedArray, type: FloatTypedArrayConstructor): IMatrix22 {
+    return new this(array, { type });
   }
 
   /**
@@ -631,10 +642,10 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * @param float32Array - Float32Array containing matrix values in column-major order
    * @returns A new Matrix22 with copied values
    */
-  static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array) {
-    const v = new Float32Array(4);
-    v.set(float32Array);
-    return new Matrix22(v);
+  static _fromCopyTypedArrayColumnMajor(array: TypedArray, type: FloatTypedArrayConstructor): IMatrix22 {
+    const v = new type(4);
+    v.set(array);
+    return new this(v, { type });
   }
 
   /**
@@ -643,14 +654,14 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * @param array - Float32Array containing matrix values in row-major order
    * @returns A new Matrix22 with values converted to column-major order
    */
-  static fromCopyFloat32ArrayRowMajor(array: Float32Array) {
-    const v = new Float32Array(4);
+  static _fromCopyTypedArrayRowMajor(array: TypedArray, type: FloatTypedArrayConstructor): IMatrix22 {
+    const v = new type(4);
     v[0] = array[0];
-    v[3] = array[1];
+    v[2] = array[1];
     v[1] = array[2];
-    v[4] = array[3];
+    v[3] = array[3];
 
-    return new Matrix22(v);
+    return new this(v, { type });
   }
 
   /**
@@ -659,13 +670,13 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * @param mat - The matrix to copy from
    * @returns A new Matrix22 with copied values
    */
-  static fromCopyMatrix22(mat: IMatrix22) {
-    const v = new Float32Array(4);
+  static _fromCopyMatrix22(mat: IMatrix22, type: FloatTypedArrayConstructor): IMatrix22 {
+    const v = new type(4);
     v[0] = mat._v[0];
-    v[3] = mat._v[1];
-    v[1] = mat._v[2];
-    v[4] = mat._v[3];
-    return new Matrix22(v);
+    v[1] = mat._v[1];
+    v[2] = mat._v[2];
+    v[3] = mat._v[3];
+    return new this(v, { type });
   }
 
   /**
@@ -674,10 +685,10 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * @param array - Array4 containing exactly 4 numbers in column-major order
    * @returns A new Matrix22 with the array values
    */
-  static fromCopyArray9ColumnMajor(array: Array4<number>) {
-    const v = new Float32Array(4);
+  static _fromCopyArray4ColumnMajor(array: Array4<number>, type: FloatTypedArrayConstructor): IMatrix22 {
+    const v = new type(4);
     v.set(array);
-    return new Matrix22(v);
+    return new this(v, { type });
   }
 
   /**
@@ -687,10 +698,10 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * @param array - Array containing matrix values in column-major order
    * @returns A new Matrix22 with the first 4 array values
    */
-  static fromCopyArrayColumnMajor(array: Array<number>) {
-    const v = new Float32Array(4);
+  static _fromCopyArrayColumnMajor(array: Array<number>, type: FloatTypedArrayConstructor): IMatrix22 {
+    const v = new type(4);
     v.set(array);
-    return new Matrix22(v);
+    return new this(v, { type });
   }
 
   /**
@@ -699,13 +710,13 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * @param array - Array4 containing exactly 4 numbers in row-major order
    * @returns A new Matrix22 with values converted to column-major order
    */
-  static fromCopyArray9RowMajor(array: Array4<number>) {
-    const v = new Float32Array(4);
+  static _fromCopyArray4RowMajor(array: Array4<number>, type: FloatTypedArrayConstructor): IMatrix22 {
+    const v = new type(4);
     v[0] = array[0];
-    v[3] = array[1];
+    v[2] = array[1];
     v[1] = array[2];
-    v[4] = array[3];
-    return new Matrix22(v);
+    v[3] = array[3];
+    return new this(v, { type });
   }
 
   /**
@@ -715,12 +726,260 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * @param array - Array containing matrix values in row-major order
    * @returns A new Matrix22 with values converted to column-major order
    */
-  static fromCopyArrayRowMajor(array: Array<number>) {
-    const v = new Float32Array(4);
+  static _fromCopyArrayRowMajor(array: Array<number>, type: FloatTypedArrayConstructor): IMatrix22 {
+    const v = new type(4);
     v[0] = array[0];
-    v[3] = array[1];
+    v[2] = array[1];
     v[1] = array[2];
-    v[4] = array[3];
-    return new Matrix22(v);
+    v[3] = array[3];
+    return new this(v, { type });
+  }
+}
+
+/**
+ * Immutable 2x2 matrix with 32-bit float components.
+ * This is the standard precision implementation for most 2D graphics operations.
+ */
+export class Matrix22 extends Matrix22_<Float32ArrayConstructor> {
+  /**
+   * Creates a new Matrix22 instance.
+   * @param m - The typed array containing the matrix components
+   */
+  constructor(m: TypedArray) {
+    super(m, { type: Float32Array });
+  }
+
+  /** Creates a zero matrix. */
+  static zero(): Matrix22 {
+    return super._zero(Float32Array) as Matrix22;
+  }
+
+  /** Creates an identity matrix. */
+  static identity(): Matrix22 {
+    return super._identity(Float32Array) as Matrix22;
+  }
+
+  /** Creates a dummy matrix with an empty array. */
+  static dummy(): Matrix22 {
+    return super._dummy(Float32Array) as Matrix22;
+  }
+
+  /** Creates the transpose of the given matrix. */
+  static transpose(mat: IMatrix22): Matrix22 {
+    return super._transpose(mat, Float32Array) as Matrix22;
+  }
+
+  /** Attempts to invert the given matrix, returning null when it is singular. */
+  static tryInvert(mat: IMatrix22): Matrix22 | null {
+    return super._tryInvert(mat, Float32Array) as Matrix22 | null;
+  }
+
+  /** Creates the inverse of the given matrix (identity when singular). */
+  static invert(mat: IMatrix22): Matrix22 {
+    return super._invert(mat, Float32Array) as Matrix22;
+  }
+
+  /** Attempts to invert the given matrix into outMat. */
+  static tryInvertTo<T extends IMutableMatrix22>(mat: IMatrix22, outMat: T): boolean {
+    return super._tryInvertTo(mat, outMat);
+  }
+
+  /** Inverts the given matrix into outMat (identity when singular). */
+  static invertTo<T extends IMutableMatrix22>(mat: IMatrix22, outMat: T): T {
+    return super._invertTo(mat, outMat) as T;
+  }
+
+  /** Creates a 2D rotation matrix. */
+  static rotate(radian: number): Matrix22 {
+    return super._rotate(radian, Float32Array) as Matrix22;
+  }
+
+  /** Creates a 2D scaling matrix. */
+  static scale(vec: IVector2): Matrix22 {
+    return super._scale(vec, Float32Array) as Matrix22;
+  }
+
+  /** Multiplies two 2x2 matrices. */
+  static multiply(l_mat: IMatrix22, r_mat: IMatrix22): Matrix22 {
+    return super._multiply(l_mat, r_mat, Float32Array) as Matrix22;
+  }
+
+  /** Multiplies two matrices and stores the result in outMat. */
+  static multiplyTo<T extends IMutableMatrix22>(l_mat: IMatrix22, r_mat: IMatrix22, outMat: T): T {
+    return super._multiplyTo(l_mat, r_mat, outMat) as T;
+  }
+
+  /** Creates a matrix from row-major components. */
+  static fromCopy4RowMajor(m00: number, m01: number, m10: number, m11: number): Matrix22 {
+    return super._fromCopy4RowMajor(m00, m01, m10, m11, Float32Array) as Matrix22;
+  }
+
+  /** Creates a matrix from column-major components. */
+  static fromCopy4ColumnMajor(m00: number, m10: number, m01: number, m11: number): Matrix22 {
+    return super._fromCopy4ColumnMajor(m00, m10, m01, m11, Float32Array) as Matrix22;
+  }
+
+  /** Creates a matrix that directly uses the given Float32Array. */
+  static fromFloat32ArrayColumnMajor(array: Float32Array): Matrix22 {
+    return super._fromTypedArrayColumnMajor(array, Float32Array) as Matrix22;
+  }
+
+  /** Creates a matrix by copying a Float32Array in column-major order. */
+  static fromCopyFloat32ArrayColumnMajor(array: Float32Array): Matrix22 {
+    return super._fromCopyTypedArrayColumnMajor(array, Float32Array) as Matrix22;
+  }
+
+  /** Creates a matrix by copying a Float32Array in row-major order. */
+  static fromCopyFloat32ArrayRowMajor(array: Float32Array): Matrix22 {
+    return super._fromCopyTypedArrayRowMajor(array, Float32Array) as Matrix22;
+  }
+
+  /** Creates a matrix by copying another matrix. */
+  static fromCopyMatrix22(mat: IMatrix22): Matrix22 {
+    return super._fromCopyMatrix22(mat, Float32Array) as Matrix22;
+  }
+
+  /** Creates a matrix from a 4-element array in column-major order. */
+  static fromCopyArray9ColumnMajor(array: Array4<number>): Matrix22 {
+    return super._fromCopyArray4ColumnMajor(array, Float32Array) as Matrix22;
+  }
+
+  /** Creates a matrix from an array in column-major order. */
+  static fromCopyArrayColumnMajor(array: Array<number>): Matrix22 {
+    return super._fromCopyArrayColumnMajor(array, Float32Array) as Matrix22;
+  }
+
+  /** Creates a matrix from a 4-element array in row-major order. */
+  static fromCopyArray9RowMajor(array: Array4<number>): Matrix22 {
+    return super._fromCopyArray4RowMajor(array, Float32Array) as Matrix22;
+  }
+
+  /** Creates a matrix from an array in row-major order. */
+  static fromCopyArrayRowMajor(array: Array<number>): Matrix22 {
+    return super._fromCopyArrayRowMajor(array, Float32Array) as Matrix22;
+  }
+}
+
+/**
+ * Immutable 2x2 matrix with 64-bit float components.
+ * Use this implementation when higher numerical precision is required.
+ */
+export class Matrix22d extends Matrix22_<Float64ArrayConstructor> {
+  /**
+   * Creates a new Matrix22d instance.
+   * @param m - The typed array containing the matrix components
+   */
+  private constructor(m: TypedArray) {
+    super(m, { type: Float64Array });
+  }
+
+  /** Creates a zero matrix. */
+  static zero(): Matrix22d {
+    return super._zero(Float64Array) as Matrix22d;
+  }
+
+  /** Creates an identity matrix. */
+  static identity(): Matrix22d {
+    return super._identity(Float64Array) as Matrix22d;
+  }
+
+  /** Creates a dummy matrix with an empty array. */
+  static dummy(): Matrix22d {
+    return super._dummy(Float64Array) as Matrix22d;
+  }
+
+  /** Creates the transpose of the given matrix. */
+  static transpose(mat: IMatrix22): Matrix22d {
+    return super._transpose(mat, Float64Array) as Matrix22d;
+  }
+
+  /** Attempts to invert the given matrix, returning null when it is singular. */
+  static tryInvert(mat: IMatrix22): Matrix22d | null {
+    return super._tryInvert(mat, Float64Array) as Matrix22d | null;
+  }
+
+  /** Creates the inverse of the given matrix (identity when singular). */
+  static invert(mat: IMatrix22): Matrix22d {
+    return super._invert(mat, Float64Array) as Matrix22d;
+  }
+
+  /** Attempts to invert the given matrix into outMat. */
+  static tryInvertTo<T extends IMutableMatrix22>(mat: IMatrix22, outMat: T): boolean {
+    return super._tryInvertTo(mat, outMat);
+  }
+
+  /** Inverts the given matrix into outMat (identity when singular). */
+  static invertTo<T extends IMutableMatrix22>(mat: IMatrix22, outMat: T): T {
+    return super._invertTo(mat, outMat) as T;
+  }
+
+  /** Creates a 2D rotation matrix. */
+  static rotate(radian: number): Matrix22d {
+    return super._rotate(radian, Float64Array) as Matrix22d;
+  }
+
+  /** Creates a 2D scaling matrix. */
+  static scale(vec: IVector2): Matrix22d {
+    return super._scale(vec, Float64Array) as Matrix22d;
+  }
+
+  /** Multiplies two 2x2 matrices. */
+  static multiply(l_mat: IMatrix22, r_mat: IMatrix22): Matrix22d {
+    return super._multiply(l_mat, r_mat, Float64Array) as Matrix22d;
+  }
+
+  /** Multiplies two matrices and stores the result in outMat. */
+  static multiplyTo<T extends IMutableMatrix22>(l_mat: IMatrix22, r_mat: IMatrix22, outMat: T): T {
+    return super._multiplyTo(l_mat, r_mat, outMat) as T;
+  }
+
+  /** Creates a matrix from row-major components. */
+  static fromCopy4RowMajor(m00: number, m01: number, m10: number, m11: number): Matrix22d {
+    return super._fromCopy4RowMajor(m00, m01, m10, m11, Float64Array) as Matrix22d;
+  }
+
+  /** Creates a matrix from column-major components. */
+  static fromCopy4ColumnMajor(m00: number, m10: number, m01: number, m11: number): Matrix22d {
+    return super._fromCopy4ColumnMajor(m00, m10, m01, m11, Float64Array) as Matrix22d;
+  }
+
+  /** Creates a matrix that directly uses the given Float64Array. */
+  static fromFloat64ArrayColumnMajor(array: Float64Array): Matrix22d {
+    return super._fromTypedArrayColumnMajor(array, Float64Array) as Matrix22d;
+  }
+
+  /** Creates a matrix by copying a Float64Array in column-major order. */
+  static fromCopyFloat64ArrayColumnMajor(array: Float64Array): Matrix22d {
+    return super._fromCopyTypedArrayColumnMajor(array, Float64Array) as Matrix22d;
+  }
+
+  /** Creates a matrix by copying a Float64Array in row-major order. */
+  static fromCopyFloat64ArrayRowMajor(array: Float64Array): Matrix22d {
+    return super._fromCopyTypedArrayRowMajor(array, Float64Array) as Matrix22d;
+  }
+
+  /** Creates a matrix by copying another matrix. */
+  static fromCopyMatrix22(mat: IMatrix22): Matrix22d {
+    return super._fromCopyMatrix22(mat, Float64Array) as Matrix22d;
+  }
+
+  /** Creates a matrix from a 4-element array in column-major order. */
+  static fromCopyArray9ColumnMajor(array: Array4<number>): Matrix22d {
+    return super._fromCopyArray4ColumnMajor(array, Float64Array) as Matrix22d;
+  }
+
+  /** Creates a matrix from an array in column-major order. */
+  static fromCopyArrayColumnMajor(array: Array<number>): Matrix22d {
+    return super._fromCopyArrayColumnMajor(array, Float64Array) as Matrix22d;
+  }
+
+  /** Creates a matrix from a 4-element array in row-major order. */
+  static fromCopyArray9RowMajor(array: Array4<number>): Matrix22d {
+    return super._fromCopyArray4RowMajor(array, Float64Array) as Matrix22d;
+  }
+
+  /** Creates a matrix from an array in row-major order. */
+  static fromCopyArrayRowMajor(array: Array<number>): Matrix22d {
+    return super._fromCopyArrayRowMajor(array, Float64Array) as Matrix22d;
   }
 }

@@ -36,6 +36,15 @@ function degreeToRadian(deg: number): number {
 const SINGULAR_EPSILON = 1e-6;
 
 /**
+ * Relative tolerance used for matrices backed by a Float64Array.
+ *
+ * Double precision carries roughly 2.2e-16 of relative precision, so a much
+ * tighter threshold can be used. This keeps genuinely invertible matrices
+ * invertible when the double-precision implementation is used.
+ */
+const SINGULAR_EPSILON_FLOAT64 = 1e-12;
+
+/**
  * Checks whether a determinant should be treated as zero.
  *
  * A plain `det === 0` test only catches exactly singular matrices. In practice
@@ -44,14 +53,24 @@ const SINGULAR_EPSILON = 1e-6;
  *
  * @param det - The determinant of the matrix
  * @param scale - The product of the row norms of the matrix (Hadamard bound)
+ * @param epsilon - The relative tolerance (defaults to the Float32 threshold)
  * @returns True if the matrix should be considered singular
  */
-function isSingularDet(det: number, scale: number): boolean {
+function isSingularDet(det: number, scale: number, epsilon: number = SINGULAR_EPSILON): boolean {
   if (!Number.isFinite(det)) {
     return true;
   }
   // A zero matrix has scale 0 and det 0, so this also returns true there.
-  return Math.abs(det) <= SINGULAR_EPSILON * scale;
+  return Math.abs(det) <= epsilon * scale;
+}
+
+/**
+ * Returns the relative singularity tolerance for a typed array element size.
+ * @param bytesPerElement - 4 for Float32Array, 8 for Float64Array
+ * @returns The relative tolerance to use
+ */
+function getSingularEpsilon(bytesPerElement: number): number {
+  return bytesPerElement === 8 ? SINGULAR_EPSILON_FLOAT64 : SINGULAR_EPSILON;
 }
 
 /**
@@ -492,7 +511,9 @@ export const MathUtil = Object.freeze({
   radianToDegree,
   degreeToRadian,
   isSingularDet,
+  getSingularEpsilon,
   SINGULAR_EPSILON,
+  SINGULAR_EPSILON_FLOAT64,
   toHalfFloat,
   isPowerOfTwo,
   isPowerOfTwoTexture,
