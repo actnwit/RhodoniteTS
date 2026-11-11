@@ -66,6 +66,23 @@ highp vec4 unpackedVec2ToNormalizedVec4(highp vec2 vec_xy, highp float criteria)
   return vec4(r, g, b, a);
 }
 
+const float LOGQUAT_BIAS    = 1048575.0;       // 2^20 - 1
+const float LOGQUAT_HALF_PI = 1.57079632679;
+
+// Decode a 64-bit log-quaternion (lo, hi) into a unit quaternion (x, y, z, w)
+vec4 decodeLogQuat(uvec2 lohi) {
+  uint lo = lohi.x;
+  uint hi = lohi.y;
+  uint xi = lo & 0x1FFFFFu;
+  uint yi = (lo >> 21u) | ((hi & 0x3FFu) << 11u);
+  uint zi = (hi >> 10u) & 0x1FFFFFu;
+
+  vec3 v = (vec3(float(xi), float(yi), float(zi)) - LOGQUAT_BIAS) / LOGQUAT_BIAS * LOGQUAT_HALF_PI;
+  float a = length(v);                                        // half angle
+  float k = (a < 1e-4) ? 1.0 - a * a * (1.0 / 6.0) : sin(a) / a;
+  return vec4(v * k, cos(a));
+}
+
 mat4 getSkinMatrix(uint skeletalComponentSID, uvec4 joint, vec4 weight) {
 
 #ifdef RN_BONE_DATA_TYPE_Mat43x1
@@ -121,16 +138,16 @@ mat4 getSkinMatrix(uint skeletalComponentSID, uvec4 joint, vec4 weight) {
 
   vec4 ts_x = unpackVec4FromUvec2(boneCompressedChunksX.zw)*boneCompressedInfo;
   mat4 skinMat = weight.x * createMatrixFromQuaternionTranslationScale(
-    unpackVec4FromUvec2(boneCompressedChunksX.xy), ts_x.xyz, vec3(ts_x.w));
+    decodeLogQuat(boneCompressedChunksX.xy), ts_x.xyz, vec3(ts_x.w));
   vec4 ts_y = unpackVec4FromUvec2(boneCompressedChunksY.zw)*boneCompressedInfo;
   skinMat += weight.y * createMatrixFromQuaternionTranslationScale(
-    unpackVec4FromUvec2(boneCompressedChunksY.xy), ts_y.xyz, vec3(ts_y.w));
+    decodeLogQuat(boneCompressedChunksY.xy), ts_y.xyz, vec3(ts_y.w));
   vec4 ts_z = unpackVec4FromUvec2(boneCompressedChunksZ.zw)*boneCompressedInfo;
   skinMat += weight.z * createMatrixFromQuaternionTranslationScale(
-    unpackVec4FromUvec2(boneCompressedChunksZ.xy), ts_z.xyz, vec3(ts_z.w));
+    decodeLogQuat(boneCompressedChunksZ.xy), ts_z.xyz, vec3(ts_z.w));
   vec4 ts_w = unpackVec4FromUvec2(boneCompressedChunksW.zw)*boneCompressedInfo;
   skinMat += weight.w * createMatrixFromQuaternionTranslationScale(
-    unpackVec4FromUvec2(boneCompressedChunksW.xy), ts_w.xyz, vec3(ts_w.w));
+    decodeLogQuat(boneCompressedChunksW.xy), ts_w.xyz, vec3(ts_w.w));
 #endif
   return skinMat;
 }

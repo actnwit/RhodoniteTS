@@ -44,6 +44,48 @@ const SINGULAR_EPSILON = 1e-6;
  */
 const SINGULAR_EPSILON_FLOAT64 = 1e-12;
 
+const BIAS = 1048575; // 2^20 - 1
+const HALF_PI = Math.PI / 2;
+
+/**
+ * Encode a quaternion (x, y, z, w) into a 64-bit log-quaternion.
+ * Returns [lo, hi] as unsigned 32-bit integers.
+ */
+export function encodeLogQuat(qx: number, qy: number, qz: number, qw: number): Uint32Array {
+  // Normalize the input to be safe
+  const len = Math.hypot(qx, qy, qz, qw);
+  let x = qx / len,
+    y = qy / len,
+    z = qz / len,
+    w = qw / len;
+
+  // q and -q represent the same rotation; force w >= 0
+  if (w < 0) {
+    x = -x;
+    y = -y;
+    z = -z;
+    w = -w;
+  }
+
+  // Log map: v = axis * (theta / 2) = (xyz / |xyz|) * atan2(|xyz|, w)
+  const s = Math.hypot(x, y, z);
+  const k = s < 1e-12 ? 1 : Math.atan2(s, w) / s;
+
+  // Offset-binary quantization so that 0 is exactly representable
+  const quant = (c: number): number => {
+    const i = Math.round(((c * k) / HALF_PI) * BIAS) + BIAS;
+    return Math.min(2 * BIAS, Math.max(0, i)); // 0..=2^21-2
+  };
+  const ix = quant(x),
+    iy = quant(y),
+    iz = quant(z);
+
+  // Layout: lo = x(21) | y low 11 bits, hi = y high 10 bits | z(21)
+  const lo = (ix | ((iy & 0x7ff) << 21)) >>> 0;
+  const hi = ((iy >>> 11) | (iz << 10)) >>> 0;
+  return new Uint32Array([lo, hi]);
+}
+
 /**
  * Checks whether a determinant should be treated as zero.
  *
@@ -524,6 +566,7 @@ function computeGaussianDistributionRatioWhoseSumIsOne({
 export const MathUtil = Object.freeze({
   radianToDegree,
   degreeToRadian,
+  encodeLogQuat,
   isSingularDet,
   getSingularEpsilon,
   SINGULAR_EPSILON,
