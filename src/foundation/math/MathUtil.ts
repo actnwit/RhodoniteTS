@@ -155,7 +155,7 @@ function isPowerOfTwoTexture(width: Size, height: Size): boolean {
  * @returns A 2-element array containing the packed values
  */
 function packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, criteria: number): number[] {
-  // range to [0, s1]
+  // range to [0, 1]
   x = (x + 1) / 2.0;
   y = (y + 1) / 2.0;
   z = (z + 1) / 2.0;
@@ -171,6 +171,20 @@ function packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, cr
   const iba = ib * criteria + ia;
   const v1 = iba / criteria;
   return [v0, v1];
+}
+
+function packSnormVec4ToUVec2(x: number, y: number, z: number, w: number): Uint32Array {
+  // vec4 -> two uint32
+  const packed = new Uint32Array([pack2x16snorm(x, y), pack2x16snorm(z, w)]);
+  return packed;
+}
+
+/**
+ * Bit-compatible with WGSL pack2x16snorm / GLSL packSnorm2x16
+ */
+function pack2x16snorm(x: number, y: number): number {
+  const q = (v: number) => Math.floor(0.5 + 32767 * Math.min(1, Math.max(-1, v))) & 0xffff;
+  return (q(x) | (q(y) << 16)) >>> 0;
 }
 
 /**
@@ -518,6 +532,7 @@ export const MathUtil = Object.freeze({
   isPowerOfTwo,
   isPowerOfTwoTexture,
   packNormalizedVec4ToVec2,
+  packSnormVec4ToUVec2,
   convertToStringAsGLSLFloat,
   nearZeroToZero,
   gaussianCdf,

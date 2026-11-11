@@ -574,9 +574,20 @@ export class SkeletalComponent extends Component {
           this._boneTranslateScale.setAt(i * 4 + 0, m.m03); // m.getTranslate().x
           this._boneTranslateScale.setAt(i * 4 + 1, m.m13); // m.getTranslate().y
           this._boneTranslateScale.setAt(i * 4 + 2, m.m23); // m.getTranslate().z
-          const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, 2 ** 12);
-          this._boneCompressedChunk.setAt(i * 4 + 0, vec2QPacked[0]);
-          this._boneCompressedChunk.setAt(i * 4 + 1, vec2QPacked[1]);
+          // const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, 2 ** 12);
+          // this._boneCompressedChunk.setAt(i * 4 + 0, vec2QPacked[0]);
+          // this._boneCompressedChunk.setAt(i * 4 + 1, vec2QPacked[1]);
+          const vec2QPacked2 = MathUtil.packSnormVec4ToUVec2(q.x, q.y, q.z, q.w);
+          new Uint32Array(
+            this._boneCompressedChunk._v.buffer,
+            this._boneCompressedChunk._v.byteOffset,
+            this._boneCompressedChunk._v.byteLength
+          )[i * 4 + 0] = vec2QPacked2[0];
+          new Uint32Array(
+            this._boneCompressedChunk._v.buffer,
+            this._boneCompressedChunk._v.byteOffset,
+            this._boneCompressedChunk._v.byteLength
+          )[i * 4 + 1] = vec2QPacked2[1];
           // q.normalize();
         }
       }
@@ -617,15 +628,28 @@ export class SkeletalComponent extends Component {
         const normalizedZ = z / maxAbsZ;
         const normalizedW = scale;
 
-        const vec2TPacked = MathUtil.packNormalizedVec4ToVec2(
-          normalizedX,
-          normalizedY,
-          normalizedZ,
-          normalizedW,
-          2 ** 12
-        );
-        this._boneCompressedChunk.setAt(i * 4 + 2, vec2TPacked[0]);
-        this._boneCompressedChunk.setAt(i * 4 + 3, vec2TPacked[1]);
+        // const vec2TPacked = MathUtil.packNormalizedVec4ToVec2(
+        //   normalizedX,
+        //   normalizedY,
+        //   normalizedZ,
+        //   normalizedW,
+        //   2 ** 12
+        // );
+        // this._boneCompressedChunk.setAt(i * 4 + 2, vec2TPacked[0]);
+        // this._boneCompressedChunk.setAt(i * 4 + 3, vec2TPacked[1]);
+
+        const vec2TPacked2 = MathUtil.packSnormVec4ToUVec2(normalizedX, normalizedY, normalizedZ, normalizedW);
+
+        new Uint32Array(
+          this._boneCompressedChunk._v.buffer,
+          this._boneCompressedChunk._v.byteOffset,
+          this._boneCompressedChunk._v.byteLength
+        )[i * 4 + 2] = vec2TPacked2[0];
+        new Uint32Array(
+          this._boneCompressedChunk._v.buffer,
+          this._boneCompressedChunk._v.byteOffset,
+          this._boneCompressedChunk._v.byteLength
+        )[i * 4 + 3] = vec2TPacked2[1];
       }
     }
 
