@@ -415,8 +415,6 @@ export function _setupGlobalShaderDefinitionWebGL(engine: Engine, materialTypeNa
     definitions += '#define RN_BONE_DATA_TYPE_Mat43x1\n';
   } else if (engine.config.boneDataType === BoneDataType.Vec4x2) {
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X2\n';
-  } else if (engine.config.boneDataType === BoneDataType.Vec4x2Old) {
-    definitions += '#define RN_BONE_DATA_TYPE_VEC4X2_OLD\n';
   } else if (engine.config.boneDataType === BoneDataType.Vec4x1) {
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
   }
@@ -498,8 +496,6 @@ export function _createProgramAsSingleOperationWebGpu(
     definitions += '#define RN_BONE_DATA_TYPE_Mat43x1\n';
   } else if (engine.config.boneDataType === BoneDataType.Vec4x2) {
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X2\n';
-  } else if (engine.config.boneDataType === BoneDataType.Vec4x2Old) {
-    definitions += '#define RN_BONE_DATA_TYPE_VEC4X2_OLD\n';
   } else if (engine.config.boneDataType === BoneDataType.Vec4x1) {
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
   }

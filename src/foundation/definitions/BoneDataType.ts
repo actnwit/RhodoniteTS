@@ -16,12 +16,8 @@ const Vec4x2: BoneDataTypeEnum = new BoneDataTypeClass({
   index: 1,
   str: 'Vec4x2',
 });
-const Vec4x2Old: BoneDataTypeEnum = new BoneDataTypeClass({
-  index: 2,
-  str: 'Vec4x2Old',
-});
 const Vec4x1: BoneDataTypeEnum = new BoneDataTypeClass({
-  index: 3,
+  index: 2,
   str: 'Vec4x1',
 });
 
@@ -38,7 +34,6 @@ function fromString(str: string): BoneDataTypeEnum {
 export const BoneDataType = Object.freeze({
   Mat43x1,
   Vec4x2,
-  Vec4x2Old,
   Vec4x1,
   from,
   fromString,

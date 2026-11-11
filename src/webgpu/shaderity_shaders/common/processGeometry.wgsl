@@ -120,20 +120,6 @@ fn getSkinMatrix(skeletalComponentSID: u32, joint: vec4<u32>, weight: vec4<f32>)
   quat = decodeLogQuat(vec2<u32>(bitcast<u32>(tq_w.w), bitcast<u32>(sq_w.w)));
   skinMat += weight.w * createMatrixFromQuaternionTranslationScale(quat, tq_w.xyz, sq_w.xyz);
 
-#elif defined(RN_BONE_DATA_TYPE_VEC4X2_OLD)
-  let ts_x = get_boneTranslateScale(skeletalComponentSID, joint.x);
-  var skinMat: mat4x4<f32> = weight.x * createMatrixFromQuaternionTranslationScale(
-    get_boneQuaternion(skeletalComponentSID, joint.x), ts_x.xyz, vec3(ts_x.w));
-  let ts_y = get_boneTranslateScale(skeletalComponentSID, joint.y);
-  skinMat += weight.y * createMatrixFromQuaternionTranslationScale(
-    get_boneQuaternion(skeletalComponentSID, joint.y), ts_y.xyz, vec3(ts_y.w));
-  let ts_z = get_boneTranslateScale(skeletalComponentSID, joint.z);
-  skinMat += weight.z * createMatrixFromQuaternionTranslationScale(
-    get_boneQuaternion(skeletalComponentSID, joint.z), ts_z.xyz, vec3(ts_z.w));
-  let ts_w = get_boneTranslateScale(skeletalComponentSID, joint.w);
-  skinMat += weight.w * createMatrixFromQuaternionTranslationScale(
-    get_boneQuaternion(skeletalComponentSID, joint.w), ts_w.xyz, vec3(ts_w.w));
-
 #elif defined(RN_BONE_DATA_TYPE_VEC4X1)
   let boneCompressedChunksX = bitcast<vec4<u32>>(get_boneCompressedChunk(skeletalComponentSID, joint.x));
   let boneCompressedChunksY = bitcast<vec4<u32>>(get_boneCompressedChunk(skeletalComponentSID, joint.y));
