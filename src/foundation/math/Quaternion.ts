@@ -1,4 +1,4 @@
-import type { Array4 } from '../../types/CommonTypes';
+import type { Array4, FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
 import { CompositionType } from '../definitions/CompositionType';
 import { Logger } from '../misc/Logger';
 import { AbstractQuaternion } from './AbstractQuaternion';
@@ -32,7 +32,10 @@ import { Vector3 } from './Vector3';
  * const combined = Quaternion.multiply(rotation1, rotation2);
  * ```
  */
-export class Quaternion extends AbstractQuaternion implements IQuaternion {
+export class Quaternion_<T extends FloatTypedArrayConstructor> extends AbstractQuaternion implements IQuaternion {
+  /** The typed array constructor used for newly created quaternions. */
+  protected static readonly _type: FloatTypedArrayConstructor = Float32Array;
+
   private static __tmp_upVec: any = undefined;
   private static __tmp_vec3_0: any = MutableVector3.zero();
   private static __tmp_vec3_1: any = MutableVector3.zero();
@@ -42,10 +45,11 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   private static __tmp_vec3_5: any = MutableVector3.zero();
 
   /**
-   * Creates a new Quaternion instance.
-   * @param x - The Float32Array containing the quaternion components [x, y, z, w]
+   * Creates a new Quaternion_ instance.
+   * @param x - The typed array containing the quaternion components [x, y, z, w]
+   * @param _options - Configuration object containing the typed array constructor
    */
-  constructor(x: Float32Array) {
+  constructor(x: TypedArray, _options?: { type: T }) {
     super();
     this._v = x;
   }
@@ -72,7 +76,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * @returns A new identity quaternion
    */
   static identity() {
-    return Quaternion.fromCopy4(0, 0, 0, 1);
+    return this.fromCopy4(0, 0, 0, 1);
   }
 
   /**
@@ -81,7 +85,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * @returns A new dummy quaternion
    */
   static dummy() {
-    return new this(new Float32Array(0));
+    return new this(new this._type(0));
   }
 
   /**
@@ -93,14 +97,14 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   static invert(quat: IQuaternion): IQuaternion {
     const norm = quat.length();
     if (norm === 0.0) {
-      return Quaternion.fromCopy4(0, 0, 0, 0) as IQuaternion;
+      return this.fromCopy4(0, 0, 0, 0) as IQuaternion;
     }
 
     const x = -quat._v[0] / norm;
     const y = -quat._v[1] / norm;
     const z = -quat._v[2] / norm;
     const w = quat._v[3] / norm;
-    return Quaternion.fromCopy4(x, y, z, w) as IQuaternion;
+    return this.fromCopy4(x, y, z, w) as IQuaternion;
   }
 
   /**
@@ -172,7 +176,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     z = z / length;
     w = w / length;
 
-    return Quaternion.fromCopy4(x, y, z, w) as IQuaternion;
+    return this.fromCopy4(x, y, z, w) as IQuaternion;
   }
 
   /**
@@ -234,7 +238,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     const y = l_quat._v[1] * (1 - ratio) + r_quat._v[1] * ratio;
     const z = l_quat._v[2] * (1 - ratio) + r_quat._v[2] * ratio;
     const w = l_quat._v[3] * (1 - ratio) + r_quat._v[3] * ratio;
-    return Quaternion.fromCopy4(x, y, z, w);
+    return this.fromCopy4(x, y, z, w);
   }
 
   /**
@@ -316,7 +320,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * @returns True if the quaternion could be extracted, false otherwise
    * @private
    */
-  private static __fromMatrixToFloat32Array(mat: IMatrix44, outV: Float32Array): boolean {
+  private static __fromMatrixToTypedArray(mat: IMatrix44, outV: TypedArray): boolean {
     const sxRaw = Math.hypot(mat.m00, mat.m10, mat.m20);
     const sy = Math.hypot(mat.m01, mat.m11, mat.m21);
     const sz = Math.hypot(mat.m02, mat.m12, mat.m22);
@@ -327,7 +331,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     // inequality), so it works as a scale reference for the singularity test.
     // This also covers zero-length basis vectors and non-finite input, which
     // would otherwise turn into Infinity/NaN through the normalization below.
-    if (MathUtil.isSingularDet(det, sxRaw * sy * sz)) {
+    if (MathUtil.isSingularDet(det, sxRaw * sy * sz, MathUtil.getSingularEpsilon(this._type.BYTES_PER_ELEMENT))) {
       return false;
     }
 
@@ -392,8 +396,8 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    *          numerically singular linear part, or non-finite values)
    */
   static tryFromMatrix(mat: IMatrix44): Quaternion | null {
-    const outV = new Float32Array(4);
-    if (!this.__fromMatrixToFloat32Array(mat, outV)) {
+    const outV = new this._type(4);
+    if (!this.__fromMatrixToTypedArray(mat, outV)) {
       return null;
     }
 
@@ -433,7 +437,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * @returns True if the quaternion could be extracted, false otherwise
    */
   static tryFromMatrixTo(mat: IMatrix44, out: IMutableQuaternion): boolean {
-    return this.__fromMatrixToFloat32Array(mat, out._v);
+    return this.__fromMatrixToTypedArray(mat, out._v);
   }
 
   /**
@@ -471,7 +475,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    */
   static lookFromTo(fromDirection: IVector3, toDirection: IVector3): IQuaternion {
     if (fromDirection.isEqual(toDirection)) {
-      return Quaternion.fromCopy4(0, 0, 0, 1) as IQuaternion;
+      return this.fromCopy4(0, 0, 0, 1) as IQuaternion;
     }
     return this.qlerp(this.lookForward(fromDirection), this.lookForward(toDirection), 1);
   }
@@ -482,11 +486,11 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * @returns A quaternion representing the look rotation, or null if the direction is degenerate
    */
   static tryLookForward(forward: IVector3): Quaternion | null {
-    if (Quaternion.__tmp_upVec == null) {
-      Quaternion.__tmp_upVec = new (forward.constructor as any)(0, 1, 0);
+    if (this.__tmp_upVec == null) {
+      this.__tmp_upVec = new (forward.constructor as any)(0, 1, 0);
     }
 
-    return this.tryLookForwardAccordingToThisUp(forward, Quaternion.__tmp_upVec);
+    return this.tryLookForwardAccordingToThisUp(forward, this.__tmp_upVec);
   }
 
   /**
@@ -612,7 +616,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * @returns A quaternion with xyz from the vector and w=0
    */
   static fromPosition(vec: IVector3) {
-    return Quaternion.fromCopy4(vec._v[0], vec._v[1], vec._v[2], 0);
+    return this.fromCopy4(vec._v[0], vec._v[1], vec._v[2], 0);
   }
 
   /**
@@ -626,7 +630,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     const y = l_quat._v[1] + r_quat._v[1];
     const z = l_quat._v[2] + r_quat._v[2];
     const w = l_quat._v[3] + r_quat._v[3];
-    return Quaternion.fromCopy4(x, y, z, w);
+    return this.fromCopy4(x, y, z, w);
   }
 
   /**
@@ -655,7 +659,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     const y = l_quat._v[1] - r_quat._v[1];
     const z = l_quat._v[2] - r_quat._v[2];
     const w = l_quat._v[3] - r_quat._v[3];
-    return Quaternion.fromCopy4(x, y, z, w);
+    return this.fromCopy4(x, y, z, w);
   }
 
   /**
@@ -702,7 +706,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       r_quat._v[1] * l_quat._v[1] -
       r_quat._v[2] * l_quat._v[2] +
       r_quat._v[3] * l_quat._v[3];
-    return Quaternion.fromCopy4(x, y, z, w);
+    return this.fromCopy4(x, y, z, w);
   }
 
   /**
@@ -747,7 +751,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     const y = quat._v[1] * value;
     const z = quat._v[2] * value;
     const w = quat._v[3] * value;
-    return Quaternion.fromCopy4(x, y, z, w);
+    return this.fromCopy4(x, y, z, w);
   }
 
   /**
@@ -1037,7 +1041,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       this._v[1] = c.y;
       this._v[2] = c.z;
       this._v[3] = s * 0.5;
-      return Quaternion.normalize(this);
+      return (this.constructor as any).normalize(this);
     }
     let axis = Vector3.fromCopy3(0, 1, 0);
     let axis2 = v0.cross(axis);
@@ -1046,7 +1050,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       axis2 = v0.cross(axis);
     }
     axis2.normalize();
-    return Quaternion.fromAxisAngle(axis2, Math.PI);
+    return (this.constructor as any).fromAxisAngle(axis2, Math.PI);
   }
 
   /**
@@ -1062,19 +1066,19 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       r = 0;
 
       if (Math.abs(from.x) > Math.abs(from.z)) {
-        const q = Quaternion.fromCopy4(-from.y, from.x, 0, r);
-        return Quaternion.normalize(q);
+        const q = this.fromCopy4(-from.y, from.x, 0, r);
+        return this.normalize(q);
       }
-      const q = Quaternion.fromCopy4(0, -from.z, from.y, r);
-      return Quaternion.normalize(q);
+      const q = this.fromCopy4(0, -from.z, from.y, r);
+      return this.normalize(q);
     }
-    const q = Quaternion.fromCopy4(
+    const q = this.fromCopy4(
       from.y * to.z - from.z * to.y,
       from.z * to.x - from.x * to.z,
       from.x * to.y - from.y * to.x,
       r
     );
-    return Quaternion.normalize(q);
+    return this.normalize(q);
   }
 
   /**
@@ -1153,7 +1157,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * @returns A new transformed vector
    */
   transformVector3Inverse(v: IVector3) {
-    const inv = Quaternion.invert(this);
+    const inv = (this.constructor as any).invert(this);
     return inv.transformVector3(v);
   }
 
@@ -1161,17 +1165,17 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * Creates a deep copy of this quaternion.
    * @returns A new quaternion with the same component values
    */
-  clone(): Quaternion {
-    return Quaternion.fromCopy4(this._v[0], this._v[1], this._v[2], this._v[3]);
+  clone(): this {
+    return (this.constructor as any).fromCopy4(this._v[0], this._v[1], this._v[2], this._v[3]);
   }
 
   /**
-   * Creates a quaternion from a Float32Array.
-   * @param array - The Float32Array containing quaternion components
+   * Creates a quaternion that directly uses the given typed array (no copy).
+   * @param array - The typed array containing quaternion components
    * @returns A new quaternion using the provided array
    */
-  static fromFloat32Array(array: Float32Array) {
-    return new Quaternion(array);
+  static fromTypedArray(array: TypedArray) {
+    return new this(array);
   }
 
   /**
@@ -1180,7 +1184,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * @returns A new quaternion with copied components
    */
   static fromCopyArray4(array: Array4<number>) {
-    return new Quaternion(new Float32Array(array));
+    return new this(new this._type(array));
   }
 
   /**
@@ -1189,7 +1193,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * @returns A new quaternion with the first 4 components copied
    */
   static fromCopyArray(array: Array<number>) {
-    return new Quaternion(new Float32Array(array.slice(0, 4)));
+    return new this(new this._type(array.slice(0, 4)));
   }
 
   /**
@@ -1201,7 +1205,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * @returns A new quaternion with the specified components
    */
   static fromCopy4(x: number, y: number, z: number, w: number) {
-    return new Quaternion(new Float32Array([x, y, z, w]));
+    return new this(new this._type([x, y, z, w]));
   }
 
   /**
@@ -1210,12 +1214,12 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * @returns A new quaternion with copied components
    */
   static fromCopyQuaternion(quat: IQuaternion) {
-    const v = new Float32Array(4);
+    const v = new this._type(4);
     v[0] = quat._v[0];
     v[1] = quat._v[1];
     v[2] = quat._v[2];
     v[3] = quat._v[3];
-    return new Quaternion(v);
+    return new this(v);
   }
 
   /**
@@ -1224,12 +1228,12 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * @returns A new quaternion with components copied from the vector
    */
   static fromCopyVector4(vec: IVector4) {
-    const v = new Float32Array(4);
+    const v = new this._type(4);
     v[0] = vec._v[0];
     v[1] = vec._v[1];
     v[2] = vec._v[2];
     v[3] = vec._v[3];
-    return new Quaternion(v);
+    return new this(v);
   }
 
   /**
@@ -1240,12 +1244,12 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   static fromCopyLogQuaternion(x: ILogQuaternion) {
     const theta = x._v[0] * x._v[0] + x._v[1] * x._v[1] + x._v[2] * x._v[2];
     const sin = Math.sin(theta);
-    const v = new Float32Array(4);
+    const v = new this._type(4);
     v[0] = x._v[0] * (sin / theta);
     v[1] = x._v[1] * (sin / theta);
     v[2] = x._v[2] * (sin / theta);
     v[3] = Math.cos(theta);
-    return new Quaternion(v);
+    return new this(v);
   }
 
   /**
@@ -1257,7 +1261,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   static fromAxisAngle(axis: IVector3, rad: number) {
     rad = rad * 0.5;
     const s = Math.sin(rad);
-    return Quaternion.fromCopy4(s * axis.x, s * axis.y, s * axis.z, Math.cos(rad));
+    return this.fromCopy4(s * axis.x, s * axis.y, s * axis.z, Math.cos(rad));
   }
 
   /**
@@ -1296,7 +1300,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * @returns A quaternion with rotation angle clamped to thetaMax
    */
   static clampRotation(quat: IQuaternion, thetaMax: number) {
-    const theta = Quaternion.getQuaternionAngle(quat);
+    const theta = this.getQuaternionAngle(quat);
     if (theta <= thetaMax) {
       // Do nothing if already small enough
       return quat;
@@ -1304,8 +1308,667 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     // Slerp from unit Q to q at the ratio of θmax/θ
     const t = thetaMax / theta;
     // Unit quaternion (no rotation)
-    const qIdentity = Quaternion.fromCopy4(0.0, 0.0, 0.0, 1.0);
+    const qIdentity = this.fromCopy4(0.0, 0.0, 0.0, 1.0);
     // Interpolate from qIdentity (0 degrees) to q (θ degrees) and reduce to θmax
-    return Quaternion.qlerp(qIdentity, quat, t);
+    return this.qlerp(qIdentity, quat, t);
+  }
+}
+
+/**
+ * Immutable quaternion with 32-bit float components.
+ */
+export class Quaternion extends Quaternion_<Float32ArrayConstructor> {
+  /**
+   * Creates a new Quaternion instance.
+   * @param v - The typed array containing the quaternion components
+   */
+  constructor(v: TypedArray) {
+    super(v, { type: Float32Array });
+  }
+
+  /**
+   * identity
+   */
+  static identity(): Quaternion {
+    return super.identity() as Quaternion;
+  }
+
+  /**
+   * dummy
+   */
+  static dummy(): Quaternion {
+    return super.dummy() as Quaternion;
+  }
+
+  /**
+   * invert
+   */
+  static invert(quat: IQuaternion): Quaternion {
+    return super.invert(quat) as Quaternion;
+  }
+
+  /**
+   * invertTo
+   */
+  static invertTo(quat: IQuaternion, out: IMutableQuaternion): IMutableQuaternion {
+    return super.invertTo(quat, out) as IMutableQuaternion;
+  }
+
+  /**
+   * qlerp
+   */
+  static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): Quaternion {
+    return super.qlerp(l_quat, r_quat, ratio) as Quaternion;
+  }
+
+  /**
+   * qlerpTo
+   */
+  static qlerpTo(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number, out: IMutableQuaternion): IMutableQuaternion {
+    return super.qlerpTo(l_quat, r_quat, ratio, out) as IMutableQuaternion;
+  }
+
+  /**
+   * lerp
+   */
+  static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): Quaternion {
+    return super.lerp(l_quat, r_quat, ratio) as Quaternion;
+  }
+
+  /**
+   * lerpTo
+   */
+  static lerpTo(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number, out: IMutableQuaternion): IMutableQuaternion {
+    return super.lerpTo(l_quat, r_quat, ratio, out) as IMutableQuaternion;
+  }
+
+  /**
+   * tryAxisAngle
+   */
+  static tryAxisAngle(vec: IVector3, radian: number): Quaternion | null {
+    return super.tryAxisAngle(vec, radian) as Quaternion | null;
+  }
+
+  /**
+   * axisAngle
+   */
+  static axisAngle(vec: IVector3, radian: number): Quaternion {
+    return super.axisAngle(vec, radian) as Quaternion;
+  }
+
+  /**
+   * tryFromMatrix
+   */
+  static tryFromMatrix(mat: IMatrix44): Quaternion | null {
+    return super.tryFromMatrix(mat) as Quaternion | null;
+  }
+
+  /**
+   * fromMatrix
+   */
+  static fromMatrix(mat: IMatrix44): Quaternion {
+    return super.fromMatrix(mat) as Quaternion;
+  }
+
+  /**
+   * tryFromMatrixTo
+   */
+  static tryFromMatrixTo(mat: IMatrix44, out: IMutableQuaternion): boolean {
+    return super.tryFromMatrixTo(mat, out) as boolean;
+  }
+
+  /**
+   * fromMatrixTo
+   */
+  static fromMatrixTo(mat: IMatrix44, out: IMutableQuaternion): IMutableQuaternion {
+    return super.fromMatrixTo(mat, out) as IMutableQuaternion;
+  }
+
+  /**
+   * lookFromTo
+   */
+  static lookFromTo(fromDirection: IVector3, toDirection: IVector3): IMutableQuaternion {
+    return super.lookFromTo(fromDirection, toDirection) as IMutableQuaternion;
+  }
+
+  /**
+   * tryLookForward
+   */
+  static tryLookForward(forward: IVector3): Quaternion | null {
+    return super.tryLookForward(forward) as Quaternion | null;
+  }
+
+  /**
+   * lookForward
+   */
+  static lookForward(forward: IVector3): Quaternion {
+    return super.lookForward(forward) as Quaternion;
+  }
+
+  /**
+   * tryLookForwardAccordingToThisUp
+   */
+  static tryLookForwardAccordingToThisUp(forward: IVector3, up: IVector3): Quaternion | null {
+    return super.tryLookForwardAccordingToThisUp(forward, up) as Quaternion | null;
+  }
+
+  /**
+   * lookForwardAccordingToThisUp
+   */
+  static lookForwardAccordingToThisUp(forward: IVector3, up: IVector3): Quaternion {
+    return super.lookForwardAccordingToThisUp(forward, up) as Quaternion;
+  }
+
+  /**
+   * fromPosition
+   */
+  static fromPosition(vec: IVector3): Quaternion {
+    return super.fromPosition(vec) as Quaternion;
+  }
+
+  /**
+   * add
+   */
+  static add(l_quat: IQuaternion, r_quat: IQuaternion): Quaternion {
+    return super.add(l_quat, r_quat) as Quaternion;
+  }
+
+  /**
+   * addTo
+   */
+  static addTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion): IMutableQuaternion {
+    return super.addTo(l_quat, r_quat, out) as IMutableQuaternion;
+  }
+
+  /**
+   * subtract
+   */
+  static subtract(l_quat: IQuaternion, r_quat: IQuaternion): Quaternion {
+    return super.subtract(l_quat, r_quat) as Quaternion;
+  }
+
+  /**
+   * subtractTo
+   */
+  static subtractTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion): IMutableQuaternion {
+    return super.subtractTo(l_quat, r_quat, out) as IMutableQuaternion;
+  }
+
+  /**
+   * multiply
+   */
+  static multiply(l_quat: IQuaternion, r_quat: IQuaternion): Quaternion {
+    return super.multiply(l_quat, r_quat) as Quaternion;
+  }
+
+  /**
+   * multiplyTo
+   */
+  static multiplyTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion): IMutableQuaternion {
+    return super.multiplyTo(l_quat, r_quat, out) as IMutableQuaternion;
+  }
+
+  /**
+   * multiplyNumber
+   */
+  static multiplyNumber(quat: IQuaternion, value: number): Quaternion {
+    return super.multiplyNumber(quat, value) as Quaternion;
+  }
+
+  /**
+   * multiplyNumberTo
+   */
+  static multiplyNumberTo(quat: IQuaternion, value: number, out: IMutableQuaternion): IMutableQuaternion {
+    return super.multiplyNumberTo(quat, value, out) as IMutableQuaternion;
+  }
+
+  /**
+   * divideNumber
+   */
+  static divideNumber(quat: IQuaternion, value: number): Quaternion {
+    return super.divideNumber(quat, value) as Quaternion;
+  }
+
+  /**
+   * divideNumberTo
+   */
+  static divideNumberTo(quat: IQuaternion, value: number, out: IMutableQuaternion): IMutableQuaternion {
+    return super.divideNumberTo(quat, value, out) as IMutableQuaternion;
+  }
+
+  /**
+   * normalize
+   */
+  static normalize(vec: IQuaternion): Quaternion {
+    return super.normalize(vec) as Quaternion;
+  }
+
+  /**
+   * normalizeTo
+   */
+  static normalizeTo(vec: IQuaternion, out: IMutableQuaternion): IMutableQuaternion {
+    return super.normalizeTo(vec, out) as IMutableQuaternion;
+  }
+
+  /**
+   * fromToRotation
+   */
+  static fromToRotation(from: IVector3, to: IVector3): Quaternion {
+    return super.fromToRotation(from, to) as Quaternion;
+  }
+
+  /**
+   * fromToRotationTo
+   */
+  static fromToRotationTo(from: IVector3, to: IVector3, out: IMutableQuaternion): IMutableQuaternion {
+    return super.fromToRotationTo(from, to, out) as IMutableQuaternion;
+  }
+
+  /**
+   * Creates a quaternion that directly uses the given Float32Array (no copy).
+   */
+  static fromFloat32Array(array: Float32Array): Quaternion {
+    return super.fromTypedArray(array) as Quaternion;
+  }
+
+  /**
+   * fromCopyArray4
+   */
+  static fromCopyArray4(array: Array4<number>): Quaternion {
+    return super.fromCopyArray4(array) as Quaternion;
+  }
+
+  /**
+   * fromCopyArray
+   */
+  static fromCopyArray(array: Array<number>): Quaternion {
+    return super.fromCopyArray(array) as Quaternion;
+  }
+
+  /**
+   * fromCopy4
+   */
+  static fromCopy4(x: number, y: number, z: number, w: number): Quaternion {
+    return super.fromCopy4(x, y, z, w) as Quaternion;
+  }
+
+  /**
+   * fromCopyQuaternion
+   */
+  static fromCopyQuaternion(quat: IQuaternion): Quaternion {
+    return super.fromCopyQuaternion(quat) as Quaternion;
+  }
+
+  /**
+   * fromCopyVector4
+   */
+  static fromCopyVector4(vec: IVector4): Quaternion {
+    return super.fromCopyVector4(vec) as Quaternion;
+  }
+
+  /**
+   * fromCopyLogQuaternion
+   */
+  static fromCopyLogQuaternion(x: ILogQuaternion): Quaternion {
+    return super.fromCopyLogQuaternion(x) as Quaternion;
+  }
+
+  /**
+   * fromAxisAngle
+   */
+  static fromAxisAngle(axis: IVector3, rad: number): Quaternion {
+    return super.fromAxisAngle(axis, rad) as Quaternion;
+  }
+
+  /**
+   * fromAxisAngleTo
+   */
+  static fromAxisAngleTo(axis: IVector3, rad: number, out: IMutableQuaternion): IMutableQuaternion {
+    return super.fromAxisAngleTo(axis, rad, out) as IMutableQuaternion;
+  }
+
+  /**
+   * getQuaternionAngle
+   */
+  static getQuaternionAngle(q: IQuaternion): number {
+    return super.getQuaternionAngle(q) as number;
+  }
+
+  /**
+   * clampRotation
+   */
+  static clampRotation(quat: IQuaternion, thetaMax: number): IQuaternion {
+    return super.clampRotation(quat, thetaMax) as IQuaternion;
+  }
+}
+
+/**
+ * Immutable quaternion with 64-bit float components.
+ */
+export class Quaterniond extends Quaternion_<Float64ArrayConstructor> {
+  /** The typed array constructor used for newly created quaternions. */
+  protected static override readonly _type: FloatTypedArrayConstructor = Float64Array;
+
+  /**
+   * Creates a new Quaterniond instance.
+   * @param v - The typed array containing the quaternion components
+   */
+  constructor(v: TypedArray) {
+    super(v, { type: Float64Array });
+  }
+
+  /**
+   * identity
+   */
+  static identity(): Quaterniond {
+    return super.identity() as Quaterniond;
+  }
+
+  /**
+   * dummy
+   */
+  static dummy(): Quaterniond {
+    return super.dummy() as Quaterniond;
+  }
+
+  /**
+   * invert
+   */
+  static invert(quat: IQuaternion): Quaterniond {
+    return super.invert(quat) as Quaterniond;
+  }
+
+  /**
+   * invertTo
+   */
+  static invertTo(quat: IQuaternion, out: IMutableQuaternion): IMutableQuaternion {
+    return super.invertTo(quat, out) as IMutableQuaternion;
+  }
+
+  /**
+   * qlerp
+   */
+  static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): Quaterniond {
+    return super.qlerp(l_quat, r_quat, ratio) as Quaterniond;
+  }
+
+  /**
+   * qlerpTo
+   */
+  static qlerpTo(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number, out: IMutableQuaternion): IMutableQuaternion {
+    return super.qlerpTo(l_quat, r_quat, ratio, out) as IMutableQuaternion;
+  }
+
+  /**
+   * lerp
+   */
+  static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): Quaterniond {
+    return super.lerp(l_quat, r_quat, ratio) as Quaterniond;
+  }
+
+  /**
+   * lerpTo
+   */
+  static lerpTo(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number, out: IMutableQuaternion): IMutableQuaternion {
+    return super.lerpTo(l_quat, r_quat, ratio, out) as IMutableQuaternion;
+  }
+
+  /**
+   * tryAxisAngle
+   */
+  static tryAxisAngle(vec: IVector3, radian: number): Quaterniond | null {
+    return super.tryAxisAngle(vec, radian) as Quaterniond | null;
+  }
+
+  /**
+   * axisAngle
+   */
+  static axisAngle(vec: IVector3, radian: number): Quaterniond {
+    return super.axisAngle(vec, radian) as Quaterniond;
+  }
+
+  /**
+   * tryFromMatrix
+   */
+  static tryFromMatrix(mat: IMatrix44): Quaterniond | null {
+    return super.tryFromMatrix(mat) as Quaterniond | null;
+  }
+
+  /**
+   * fromMatrix
+   */
+  static fromMatrix(mat: IMatrix44): Quaterniond {
+    return super.fromMatrix(mat) as Quaterniond;
+  }
+
+  /**
+   * tryFromMatrixTo
+   */
+  static tryFromMatrixTo(mat: IMatrix44, out: IMutableQuaternion): boolean {
+    return super.tryFromMatrixTo(mat, out) as boolean;
+  }
+
+  /**
+   * fromMatrixTo
+   */
+  static fromMatrixTo(mat: IMatrix44, out: IMutableQuaternion): IMutableQuaternion {
+    return super.fromMatrixTo(mat, out) as IMutableQuaternion;
+  }
+
+  /**
+   * lookFromTo
+   */
+  static lookFromTo(fromDirection: IVector3, toDirection: IVector3): IMutableQuaternion {
+    return super.lookFromTo(fromDirection, toDirection) as IMutableQuaternion;
+  }
+
+  /**
+   * tryLookForward
+   */
+  static tryLookForward(forward: IVector3): Quaterniond | null {
+    return super.tryLookForward(forward) as Quaterniond | null;
+  }
+
+  /**
+   * lookForward
+   */
+  static lookForward(forward: IVector3): Quaterniond {
+    return super.lookForward(forward) as Quaterniond;
+  }
+
+  /**
+   * tryLookForwardAccordingToThisUp
+   */
+  static tryLookForwardAccordingToThisUp(forward: IVector3, up: IVector3): Quaterniond | null {
+    return super.tryLookForwardAccordingToThisUp(forward, up) as Quaterniond | null;
+  }
+
+  /**
+   * lookForwardAccordingToThisUp
+   */
+  static lookForwardAccordingToThisUp(forward: IVector3, up: IVector3): Quaterniond {
+    return super.lookForwardAccordingToThisUp(forward, up) as Quaterniond;
+  }
+
+  /**
+   * fromPosition
+   */
+  static fromPosition(vec: IVector3): Quaterniond {
+    return super.fromPosition(vec) as Quaterniond;
+  }
+
+  /**
+   * add
+   */
+  static add(l_quat: IQuaternion, r_quat: IQuaternion): Quaterniond {
+    return super.add(l_quat, r_quat) as Quaterniond;
+  }
+
+  /**
+   * addTo
+   */
+  static addTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion): IMutableQuaternion {
+    return super.addTo(l_quat, r_quat, out) as IMutableQuaternion;
+  }
+
+  /**
+   * subtract
+   */
+  static subtract(l_quat: IQuaternion, r_quat: IQuaternion): Quaterniond {
+    return super.subtract(l_quat, r_quat) as Quaterniond;
+  }
+
+  /**
+   * subtractTo
+   */
+  static subtractTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion): IMutableQuaternion {
+    return super.subtractTo(l_quat, r_quat, out) as IMutableQuaternion;
+  }
+
+  /**
+   * multiply
+   */
+  static multiply(l_quat: IQuaternion, r_quat: IQuaternion): Quaterniond {
+    return super.multiply(l_quat, r_quat) as Quaterniond;
+  }
+
+  /**
+   * multiplyTo
+   */
+  static multiplyTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion): IMutableQuaternion {
+    return super.multiplyTo(l_quat, r_quat, out) as IMutableQuaternion;
+  }
+
+  /**
+   * multiplyNumber
+   */
+  static multiplyNumber(quat: IQuaternion, value: number): Quaterniond {
+    return super.multiplyNumber(quat, value) as Quaterniond;
+  }
+
+  /**
+   * multiplyNumberTo
+   */
+  static multiplyNumberTo(quat: IQuaternion, value: number, out: IMutableQuaternion): IMutableQuaternion {
+    return super.multiplyNumberTo(quat, value, out) as IMutableQuaternion;
+  }
+
+  /**
+   * divideNumber
+   */
+  static divideNumber(quat: IQuaternion, value: number): Quaterniond {
+    return super.divideNumber(quat, value) as Quaterniond;
+  }
+
+  /**
+   * divideNumberTo
+   */
+  static divideNumberTo(quat: IQuaternion, value: number, out: IMutableQuaternion): IMutableQuaternion {
+    return super.divideNumberTo(quat, value, out) as IMutableQuaternion;
+  }
+
+  /**
+   * normalize
+   */
+  static normalize(vec: IQuaternion): Quaterniond {
+    return super.normalize(vec) as Quaterniond;
+  }
+
+  /**
+   * normalizeTo
+   */
+  static normalizeTo(vec: IQuaternion, out: IMutableQuaternion): IMutableQuaternion {
+    return super.normalizeTo(vec, out) as IMutableQuaternion;
+  }
+
+  /**
+   * fromToRotation
+   */
+  static fromToRotation(from: IVector3, to: IVector3): Quaterniond {
+    return super.fromToRotation(from, to) as Quaterniond;
+  }
+
+  /**
+   * fromToRotationTo
+   */
+  static fromToRotationTo(from: IVector3, to: IVector3, out: IMutableQuaternion): IMutableQuaternion {
+    return super.fromToRotationTo(from, to, out) as IMutableQuaternion;
+  }
+
+  /**
+   * Creates a quaternion that directly uses the given Float64Array (no copy).
+   */
+  static fromFloat64Array(array: Float64Array): Quaterniond {
+    return super.fromTypedArray(array) as Quaterniond;
+  }
+
+  /**
+   * fromCopyArray4
+   */
+  static fromCopyArray4(array: Array4<number>): Quaterniond {
+    return super.fromCopyArray4(array) as Quaterniond;
+  }
+
+  /**
+   * fromCopyArray
+   */
+  static fromCopyArray(array: Array<number>): Quaterniond {
+    return super.fromCopyArray(array) as Quaterniond;
+  }
+
+  /**
+   * fromCopy4
+   */
+  static fromCopy4(x: number, y: number, z: number, w: number): Quaterniond {
+    return super.fromCopy4(x, y, z, w) as Quaterniond;
+  }
+
+  /**
+   * fromCopyQuaternion
+   */
+  static fromCopyQuaternion(quat: IQuaternion): Quaterniond {
+    return super.fromCopyQuaternion(quat) as Quaterniond;
+  }
+
+  /**
+   * fromCopyVector4
+   */
+  static fromCopyVector4(vec: IVector4): Quaterniond {
+    return super.fromCopyVector4(vec) as Quaterniond;
+  }
+
+  /**
+   * fromCopyLogQuaternion
+   */
+  static fromCopyLogQuaternion(x: ILogQuaternion): Quaterniond {
+    return super.fromCopyLogQuaternion(x) as Quaterniond;
+  }
+
+  /**
+   * fromAxisAngle
+   */
+  static fromAxisAngle(axis: IVector3, rad: number): Quaterniond {
+    return super.fromAxisAngle(axis, rad) as Quaterniond;
+  }
+
+  /**
+   * fromAxisAngleTo
+   */
+  static fromAxisAngleTo(axis: IVector3, rad: number, out: IMutableQuaternion): IMutableQuaternion {
+    return super.fromAxisAngleTo(axis, rad, out) as IMutableQuaternion;
+  }
+
+  /**
+   * getQuaternionAngle
+   */
+  static getQuaternionAngle(q: IQuaternion): number {
+    return super.getQuaternionAngle(q) as number;
+  }
+
+  /**
+   * clampRotation
+   */
+  static clampRotation(quat: IQuaternion, thetaMax: number): IQuaternion {
+    return super.clampRotation(quat, thetaMax) as IQuaternion;
   }
 }

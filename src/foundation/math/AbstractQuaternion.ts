@@ -1,3 +1,4 @@
+import type { TypedArray } from '../../types/CommonTypes';
 import type { IQuaternion } from './IQuaternion';
 import type { IMutableVector3, IVector3 } from './IVector';
 
@@ -210,5 +211,5 @@ export abstract class AbstractQuaternion implements IQuaternion {
    * Internal typed array storage for quaternion components [x, y, z, w].
    * @protected
    */
-  _v = new Float32Array() as Float32Array;
+  _v: TypedArray = new Float32Array();
 }
