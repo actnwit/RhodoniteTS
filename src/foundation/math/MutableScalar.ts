@@ -160,7 +160,7 @@ export class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {
  * Mutable scalar class with 64-bit float components.
  * This class provides a mutable scalar value backed by a Float64Array for higher precision.
  */
-export class MutableScalard extends MutableScalar_<Float64ArrayConstructor> {
+export class MutableScalarD extends MutableScalar_<Float64ArrayConstructor> {
   /**
    * Creates a new mutable scalar with 64-bit float precision.
    * @param x - The typed array containing the scalar value
@@ -171,39 +171,38 @@ export class MutableScalard extends MutableScalar_<Float64ArrayConstructor> {
 
   /**
    * Creates a copy of this scalar.
-   * @returns A new MutableScalard instance with the same value
+   * @returns A new MutableScalarD instance with the same value
    */
-  clone(): MutableScalard {
-    return new MutableScalard(new Float64Array([this.x]));
+  clone(): MutableScalarD {
+    return new MutableScalarD(new Float64Array([this.x]));
   }
 
   /**
    * Creates a scalar with value 1.
-   * @returns A new MutableScalard instance with value 1
+   * @returns A new MutableScalarD instance with value 1
    */
-  static one(): MutableScalard {
-    return new MutableScalard(new Float64Array([1]));
+  static one(): MutableScalarD {
+    return new MutableScalarD(new Float64Array([1]));
   }
 
   /**
    * Creates a dummy scalar with no data.
-   * @returns A new MutableScalard instance with empty array
+   * @returns A new MutableScalarD instance with empty array
    */
-  static dummy(): MutableScalard {
-    return new MutableScalard(new Float64Array([]));
+  static dummy(): MutableScalarD {
+    return new MutableScalarD(new Float64Array([]));
   }
 
   /**
    * Creates a scalar with value 0.
-   * @returns A new MutableScalard instance with value 0
+   * @returns A new MutableScalarD instance with value 0
    */
-  static zero(): MutableScalard {
-    return new MutableScalard(new Float64Array([0]));
+  static zero(): MutableScalarD {
+    return new MutableScalarD(new Float64Array([0]));
   }
 }
 
 /**
- * Type alias for MutableScalar (32-bit float precision).
- * Provides backward compatibility and clearer naming.
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
  */
-export type MutableScalarf = MutableScalar;
+export { MutableScalar as MutableScalarF };

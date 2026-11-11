@@ -34,7 +34,7 @@ type SkinningCache = {
   boneQuaternion?: TypedArray;
   boneTranslateScale?: TypedArray;
   boneCompressedChunk?: TypedArray;
-  jointMatrix: Float32Array;
+  jointMatrix: TypedArray;
   isWorldMatrixVanilla: boolean;
   qtsInfo?: [number, number, number, number];
 };

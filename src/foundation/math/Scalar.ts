@@ -243,7 +243,7 @@ export class Scalar extends Scalar_<Float32ArrayConstructor> implements IScalar 
  * Provides higher precision than the standard Scalar class for applications
  * requiring double-precision arithmetic.
  */
-export class Scalard extends Scalar_<Float64ArrayConstructor> {
+export class ScalarD extends Scalar_<Float64ArrayConstructor> {
   /**
    * Creates a new 64-bit float scalar instance.
    * @param x - The typed array containing the scalar value
@@ -255,47 +255,46 @@ export class Scalard extends Scalar_<Float64ArrayConstructor> {
   /**
    * Creates a new double-precision scalar from a numeric value.
    * @param value - The numeric value to create the scalar from
-   * @returns A new Scalard instance
+   * @returns A new ScalarD instance
    */
-  static fromCopyNumber(value: number): Scalard {
-    return super._fromCopyNumber(value, Float64Array) as Scalard;
+  static fromCopyNumber(value: number): ScalarD {
+    return super._fromCopyNumber(value, Float64Array) as ScalarD;
   }
 
   /**
    * Creates a double-precision scalar with value zero.
-   * @returns A new Scalard instance with value 0
+   * @returns A new ScalarD instance with value 0
    */
-  static zero(): Scalard {
-    return super._fromCopyNumber(0, Float64Array) as Scalard;
+  static zero(): ScalarD {
+    return super._fromCopyNumber(0, Float64Array) as ScalarD;
   }
 
   /**
    * Creates a double-precision scalar with value one.
-   * @returns A new Scalard instance with value 1
+   * @returns A new ScalarD instance with value 1
    */
-  static one(): Scalard {
-    return super._fromCopyNumber(1, Float64Array) as Scalard;
+  static one(): ScalarD {
+    return super._fromCopyNumber(1, Float64Array) as ScalarD;
   }
 
   /**
    * Creates a dummy (uninitialized) double-precision scalar instance.
-   * @returns A new dummy Scalard instance
+   * @returns A new dummy ScalarD instance
    */
-  static dummy(): Scalard {
-    return super._dummy(Float64Array) as Scalard;
+  static dummy(): ScalarD {
+    return super._dummy(Float64Array) as ScalarD;
   }
 
   /**
    * Creates a deep copy of this double-precision scalar.
-   * @returns A new Scalard instance with the same value
+   * @returns A new ScalarD instance with the same value
    */
-  clone(): Scalard {
-    return new Scalard(new Float64Array([this._v[0]])) as Scalard;
+  clone(): ScalarD {
+    return new ScalarD(new Float64Array([this._v[0]])) as ScalarD;
   }
 }
 
 /**
- * Type alias for the standard 32-bit float Scalar class.
- * Provides convenient naming for float-precision scalar operations.
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
  */
-export type Scalarf = Scalar;
+export { Scalar as ScalarF };

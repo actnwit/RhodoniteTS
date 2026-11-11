@@ -1,6 +1,6 @@
 import { Matrix44 } from './Matrix44';
 import { Quaternion } from './Quaternion';
-import { Vector3, Vector3d } from './Vector3';
+import { Vector3, Vector3D } from './Vector3';
 import { Vector4 } from './Vector4';
 
 describe('Vector3', () => {
@@ -358,23 +358,23 @@ describe('Vector3', () => {
   });
 });
 
-describe('Vector3d (double precision)', () => {
+describe('Vector3D (double precision)', () => {
   test('fromCopy3 creates double precision vector', () => {
-    const vec = Vector3d.fromCopy3(1.123456789012345, 2.987654321098765, 3.456789012345678);
+    const vec = Vector3D.fromCopy3(1.123456789012345, 2.987654321098765, 3.456789012345678);
     expect(vec.x).toBe(1.123456789012345);
     expect(vec.y).toBe(2.987654321098765);
     expect(vec.z).toBe(3.456789012345678);
   });
 
   test('bytesPerComponent returns 8 for double precision', () => {
-    const vec = Vector3d.fromCopy3(1, 2, 3);
+    const vec = Vector3D.fromCopy3(1, 2, 3);
     expect(vec.bytesPerComponent).toBe(8); // Float64Array
   });
 
   test('mathematical operations work with double precision', () => {
-    const vec1 = Vector3d.fromCopy3(1.1, 2.2, 3.3);
-    const vec2 = Vector3d.fromCopy3(4.4, 5.5, 6.6);
-    const result = Vector3d.add(vec1, vec2);
+    const vec1 = Vector3D.fromCopy3(1.1, 2.2, 3.3);
+    const vec2 = Vector3D.fromCopy3(4.4, 5.5, 6.6);
+    const result = Vector3D.add(vec1, vec2);
     expect(result.x).toBeCloseTo(5.5, 10);
     expect(result.y).toBeCloseTo(7.7, 10);
     expect(result.z).toBeCloseTo(9.9, 10);

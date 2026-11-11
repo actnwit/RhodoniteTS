@@ -1,9 +1,9 @@
-import type { Array4 } from '../../types/CommonTypes';
+import type { Array4, FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
 import { Logger } from '../misc/Logger';
 import type { IMatrix44 } from './IMatrix';
 import type { ILogQuaternion, IMutableQuaternion, IQuaternion } from './IQuaternion';
 import type { IVector3, IVector4 } from './IVector';
-import { Quaternion } from './Quaternion';
+import { Quaternion, Quaternion_ } from './Quaternion';
 
 /**
  * A mutable quaternion class that extends the immutable Quaternion class.
@@ -11,7 +11,19 @@ import { Quaternion } from './Quaternion';
  * Quaternions are used to represent rotations in 3D space and are particularly
  * useful for avoiding gimbal lock and providing smooth interpolations.
  */
-export class MutableQuaternion extends Quaternion implements IMutableQuaternion {
+export class MutableQuaternion_<T extends FloatTypedArrayConstructor>
+  extends Quaternion_<T>
+  implements IMutableQuaternion
+{
+  /**
+   * Creates a new MutableQuaternion_ instance.
+   * @param v - The typed array containing the quaternion components
+   * @param _options - Configuration object containing the typed array constructor
+   */
+  constructor(v: TypedArray, _options?: { type: T }) {
+    super(v, _options);
+  }
+
   /**
    * Sets the x component of the quaternion.
    * @param x - The x component value
@@ -85,157 +97,10 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
   }
 
   /**
-   * Creates an identity quaternion (0, 0, 0, 1).
-   * @returns A new MutableQuaternion representing no rotation
-   */
-  static identity(): MutableQuaternion {
-    return MutableQuaternion.fromCopy4(0, 0, 0, 1);
-  }
-
-  /**
-   * Creates a dummy quaternion with empty array (for initialization purposes).
-   * @returns A new MutableQuaternion with zero-length array
-   */
-  static dummy(): MutableQuaternion {
-    return new this(new Float32Array(0));
-  }
-
-  /**
-   * Inverts a quaternion and returns a new MutableQuaternion.
-   * @param quat - The quaternion to invert
-   * @returns A new MutableQuaternion representing the inverse rotation
-   */
-  static invert(quat: IQuaternion): MutableQuaternion {
-    return super.invert(quat) as MutableQuaternion;
-  }
-
-  /**
-   * Performs spherical linear interpolation (SLERP) between two quaternions.
-   * @param l_quat - The starting quaternion
-   * @param r_quat - The ending quaternion
-   * @param ratio - Interpolation factor (0.0 to 1.0)
-   * @returns A new MutableQuaternion representing the interpolated rotation
-   */
-  static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternion {
-    return super.qlerp(l_quat, r_quat, ratio) as MutableQuaternion;
-  }
-
-  /**
-   * Performs linear interpolation between two quaternions.
-   * @param l_quat - The starting quaternion
-   * @param r_quat - The ending quaternion
-   * @param ratio - Interpolation factor (0.0 to 1.0)
-   * @returns A new MutableQuaternion representing the interpolated rotation
-   */
-  static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternion {
-    return super.lerp(l_quat, r_quat, ratio) as MutableQuaternion;
-  }
-
-  /**
-   * Attempts to create a quaternion from an axis and angle.
-   * @param vec - The rotation axis (will be normalized internally)
-   * @param radian - The rotation angle in radians
-   * @returns A new MutableQuaternion, or null if the axis is degenerate
-   */
-  static tryAxisAngle(vec: IVector3, radian: number): MutableQuaternion | null {
-    return super.tryAxisAngle(vec, radian) as MutableQuaternion | null;
-  }
-
-  /**
-   * Creates a quaternion from an axis and angle.
-   * @param vec - The rotation axis (will be normalized internally)
-   * @param radian - The rotation angle in radians
-   * @returns A new MutableQuaternion representing the axis-angle rotation,
-   *          or the identity quaternion if the axis is degenerate
-   */
-  static axisAngle(vec: IVector3, radian: number): MutableQuaternion {
-    return super.axisAngle(vec, radian) as MutableQuaternion;
-  }
-
-  /**
-   * Attempts to create a quaternion from a rotation matrix.
-   * @param mat - The 4x4 transformation matrix
-   * @returns A new MutableQuaternion representing the matrix's rotation,
-   *          or null if the rotation cannot be extracted
-   */
-  static tryFromMatrix(mat: IMatrix44): MutableQuaternion | null {
-    return super.tryFromMatrix(mat) as MutableQuaternion | null;
-  }
-
-  /**
-   * Creates a quaternion from a rotation matrix.
-   * @param mat - The 4x4 transformation matrix
-   * @returns A new MutableQuaternion representing the matrix's rotation,
-   *          or the identity quaternion if the rotation cannot be extracted
-   */
-  static fromMatrix(mat: IMatrix44): MutableQuaternion {
-    return super.fromMatrix(mat) as MutableQuaternion;
-  }
-
-  /**
-   * Creates a quaternion from a position vector (w component set to 0).
-   * @param vec - The position vector
-   * @returns A new MutableQuaternion with position data
-   */
-  static fromPosition(vec: IVector3): MutableQuaternion {
-    return super.fromPosition(vec) as MutableQuaternion;
-  }
-
-  /**
-   * Adds two quaternions component-wise.
-   * @param l_quat - The left quaternion
-   * @param r_quat - The right quaternion
-   * @returns A new MutableQuaternion representing the sum
-   */
-  static add(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternion {
-    return super.add(l_quat, r_quat) as MutableQuaternion;
-  }
-
-  /**
-   * Subtracts the second quaternion from the first component-wise.
-   * @param l_quat - The left quaternion
-   * @param r_quat - The right quaternion
-   * @returns A new MutableQuaternion representing the difference
-   */
-  static subtract(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternion {
-    return super.subtract(l_quat, r_quat) as MutableQuaternion;
-  }
-
-  /**
-   * Multiplies two quaternions (quaternion composition).
-   * @param l_quat - The left quaternion
-   * @param r_quat - The right quaternion
-   * @returns A new MutableQuaternion representing the composed rotation
-   */
-  static multiply(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternion {
-    return super.multiply(l_quat, r_quat) as MutableQuaternion;
-  }
-
-  /**
-   * Multiplies a quaternion by a scalar value.
-   * @param quat - The quaternion to multiply
-   * @param value - The scalar value
-   * @returns A new MutableQuaternion representing the scaled quaternion
-   */
-  static multiplyNumber(quat: IQuaternion, value: number): MutableQuaternion {
-    return super.multiplyNumber(quat, value) as MutableQuaternion;
-  }
-
-  /**
-   * Divides a quaternion by a scalar value.
-   * @param quat - The quaternion to divide
-   * @param value - The scalar value (must not be zero)
-   * @returns A new MutableQuaternion representing the scaled quaternion
-   */
-  static divideNumber(quat: IQuaternion, value: number): MutableQuaternion {
-    return super.divideNumber(quat, value) as MutableQuaternion;
-  }
-
-  /**
    * Gets the raw Float32Array containing the quaternion components.
    * @returns The underlying Float32Array [x, y, z, w]
    */
-  raw(): Float32Array {
+  raw() {
     return this._v;
   }
 
@@ -245,7 +110,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param value - The value to set
    * @returns This instance for method chaining
    */
-  setAt(i: number, value: number): MutableQuaternion {
+  setAt(i: number, value: number): this {
     this._v[i] = value;
     return this;
   }
@@ -258,7 +123,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param w - The w component
    * @returns This instance for method chaining
    */
-  setComponents(x: number, y: number, z: number, w: number): MutableQuaternion {
+  setComponents(x: number, y: number, z: number, w: number): this {
     this._v[0] = x;
     this._v[1] = y;
     this._v[2] = z;
@@ -271,7 +136,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param quat - The quaternion to copy from
    * @returns This instance for method chaining
    */
-  copyComponents(quat: IQuaternion): MutableQuaternion {
+  copyComponents(quat: IQuaternion): this {
     return this.setComponents(quat._v[0], quat._v[1], quat._v[2], quat._v[3]);
   }
 
@@ -279,7 +144,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * Sets this quaternion to the identity quaternion (0, 0, 0, 1).
    * @returns This instance for method chaining
    */
-  identity(): MutableQuaternion {
+  identity(): this {
     return this.setComponents(0, 0, 0, 1);
   }
 
@@ -287,7 +152,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * Normalizes this quaternion to unit length in place.
    * @returns This instance for method chaining
    */
-  normalize(): MutableQuaternion {
+  normalize(): this {
     const norm = this.length();
     if (norm === 0) {
       Logger.default.error('cannot normalize a zero-length quaternion. Returning an identity quaternion instead.');
@@ -300,7 +165,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * Inverts this quaternion in place (conjugate divided by magnitude squared).
    * @returns This instance for method chaining
    */
-  invert(): MutableQuaternion {
+  invert(): this {
     const norm = this.length();
     if (norm === 0.0) {
       return this; // [0, 0, 0, 0]
@@ -320,7 +185,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param ratio - Interpolation factor (0.0 to 1.0)
    * @returns This instance for method chaining
    */
-  qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternion {
+  qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): this {
     let qr =
       l_quat._v[3] * r_quat._v[3] +
       l_quat._v[0] * r_quat._v[0] +
@@ -367,7 +232,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param ratio - Interpolation factor (0.0 to 1.0)
    * @returns This instance for method chaining
    */
-  lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternion {
+  lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): this {
     this._v[0] = l_quat._v[0] * (1 - ratio) + r_quat._v[0] * ratio;
     this._v[1] = l_quat._v[1] * (1 - ratio) + r_quat._v[1] * ratio;
     this._v[2] = l_quat._v[2] * (1 - ratio) + r_quat._v[2] * ratio;
@@ -414,7 +279,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param radian - The rotation angle in radians
    * @returns This instance for method chaining
    */
-  axisAngle(vec: IVector3, radian: number): MutableQuaternion {
+  axisAngle(vec: IVector3, radian: number): this {
     if (this.tryAxisAngle(vec, radian)) {
       return this;
     }
@@ -447,7 +312,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param mat - The 4x4 transformation matrix
    * @returns This instance for method chaining
    */
-  fromMatrix(mat: IMatrix44): MutableQuaternion {
+  fromMatrix(mat: IMatrix44): this {
     if (this.tryFromMatrix(mat)) {
       return this;
     }
@@ -467,7 +332,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param vec - The position vector
    * @returns This instance for method chaining
    */
-  fromPosition(vec: IVector3): MutableQuaternion {
+  fromPosition(vec: IVector3): this {
     return this.setComponents(vec._v[0], vec._v[1], vec._v[2], 0);
   }
 
@@ -476,7 +341,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param quat - The quaternion to add
    * @returns This instance for method chaining
    */
-  add(quat: IQuaternion): MutableQuaternion {
+  add(quat: IQuaternion): this {
     this._v[0] += quat._v[0];
     this._v[1] += quat._v[1];
     this._v[2] += quat._v[2];
@@ -489,7 +354,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param quat - The quaternion to subtract
    * @returns This instance for method chaining
    */
-  subtract(quat: IQuaternion): MutableQuaternion {
+  subtract(quat: IQuaternion): this {
     this._v[0] -= quat._v[0];
     this._v[1] -= quat._v[1];
     this._v[2] -= quat._v[2];
@@ -503,7 +368,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param quat - The quaternion to multiply by
    * @returns This instance for method chaining
    */
-  multiply(quat: IQuaternion): MutableQuaternion {
+  multiply(quat: IQuaternion): this {
     const x = quat._v[3] * this._v[0] + quat._v[2] * this._v[1] + quat._v[1] * this._v[2] - quat._v[0] * this._v[3];
     const y = -quat._v[2] * this._v[0] + quat._v[3] * this._v[1] + quat._v[0] * this._v[2] - quat._v[1] * this._v[3];
     const z = quat._v[1] * this._v[0] + quat._v[0] * this._v[1] + quat._v[3] * this._v[2] - quat._v[2] * this._v[3];
@@ -516,7 +381,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param value - The scalar value to multiply by
    * @returns This instance for method chaining
    */
-  multiplyNumber(value: number): MutableQuaternion {
+  multiplyNumber(value: number): this {
     this._v[0] *= value;
     this._v[1] *= value;
     this._v[2] *= value;
@@ -529,7 +394,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param value - The scalar value to divide by (must not be zero)
    * @returns This instance for method chaining
    */
-  divideNumber(value: number): MutableQuaternion {
+  divideNumber(value: number): this {
     if (value !== 0) {
       this._v[0] /= value;
       this._v[1] /= value;
@@ -549,91 +414,349 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * Creates a copy of this quaternion.
    * @returns A new IMutableQuaternion with the same component values
    */
-  clone(): MutableQuaternion {
-    return MutableQuaternion.fromCopy4(this._v[0], this._v[1], this._v[2], this._v[3]);
-  }
-
-  /**
-   * Creates a MutableQuaternion from an existing Float32Array.
-   * @param array - The Float32Array containing quaternion components
-   * @returns A new MutableQuaternion instance
-   */
-  static fromFloat32Array(array: Float32Array): MutableQuaternion {
-    return new MutableQuaternion(array);
-  }
-
-  /**
-   * Creates a MutableQuaternion by copying from a 4-element array.
-   * @param array - Array containing [x, y, z, w] components
-   * @returns A new MutableQuaternion instance
-   */
-  static fromCopyArray4(array: Array4<number>): MutableQuaternion {
-    return new MutableQuaternion(new Float32Array(array));
-  }
-
-  /**
-   * Creates a MutableQuaternion by copying from an array (takes first 4 elements).
-   * @param array - Array containing quaternion components
-   * @returns A new MutableQuaternion instance
-   */
-  static fromCopyArray(array: Array<number>): MutableQuaternion {
-    return new MutableQuaternion(new Float32Array(array.slice(0, 4)));
-  }
-
-  /**
-   * Creates a MutableQuaternion from individual component values.
-   * @param x - The x component
-   * @param y - The y component
-   * @param z - The z component
-   * @param w - The w component
-   * @returns A new MutableQuaternion instance
-   */
-  static fromCopy4(x: number, y: number, z: number, w: number): MutableQuaternion {
-    return new MutableQuaternion(new Float32Array([x, y, z, w]));
-  }
-
-  /**
-   * Creates a MutableQuaternion by copying from another quaternion.
-   * @param quat - The quaternion to copy from
-   * @returns A new MutableQuaternion instance
-   */
-  static fromCopyQuaternion(quat: IQuaternion): MutableQuaternion {
-    const v = new Float32Array(4);
-    v[0] = quat._v[0];
-    v[1] = quat._v[1];
-    v[2] = quat._v[2];
-    v[3] = quat._v[3];
-    return new MutableQuaternion(v);
-  }
-
-  /**
-   * Creates a MutableQuaternion by copying from a 4D vector.
-   * @param vec - The 4D vector to copy from
-   * @returns A new MutableQuaternion instance
-   */
-  static fromCopyVector4(vec: IVector4): MutableQuaternion {
-    const v = new Float32Array(4);
-    v[0] = vec._v[0];
-    v[1] = vec._v[1];
-    v[2] = vec._v[2];
-    v[3] = vec._v[3];
-    return new MutableQuaternion(v);
-  }
-
-  /**
-   * Creates a MutableQuaternion from a logarithmic quaternion.
-   * Converts from log space back to quaternion space using exponential map.
-   * @param x - The logarithmic quaternion to convert
-   * @returns A new MutableQuaternion instance
-   */
-  static fromCopyLogQuaternion(x: ILogQuaternion): MutableQuaternion {
-    const theta = x._v[0] * x._v[0] + x._v[1] * x._v[1] + x._v[2] * x._v[2];
-    const sin = Math.sin(theta);
-    const v = new Float32Array(4);
-    v[0] = x._v[0] * (sin / theta);
-    v[1] = x._v[1] * (sin / theta);
-    v[2] = x._v[2] * (sin / theta);
-    v[3] = Math.cos(theta);
-    return new MutableQuaternion(v);
+  clone(): this {
+    return (this.constructor as any).fromCopy4(this._v[0], this._v[1], this._v[2], this._v[3]);
   }
 }
+
+/**
+ * Mutable quaternion with 32-bit float components.
+ */
+export class MutableQuaternion extends MutableQuaternion_<Float32ArrayConstructor> {
+  /**
+   * Creates a new MutableQuaternion instance.
+   * @param v - The typed array containing the quaternion components
+   */
+  constructor(v: TypedArray) {
+    super(v, { type: Float32Array });
+  }
+
+  /**
+   * identity
+   */
+  static identity(): MutableQuaternion {
+    return super.identity() as MutableQuaternion;
+  }
+
+  /**
+   * dummy
+   */
+  static dummy(): MutableQuaternion {
+    return super.dummy() as MutableQuaternion;
+  }
+
+  /**
+   * invert
+   */
+  static invert(quat: IQuaternion): MutableQuaternion {
+    return super.invert(quat) as MutableQuaternion;
+  }
+
+  /**
+   * qlerp
+   */
+  static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternion {
+    return super.qlerp(l_quat, r_quat, ratio) as MutableQuaternion;
+  }
+
+  /**
+   * lerp
+   */
+  static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternion {
+    return super.lerp(l_quat, r_quat, ratio) as MutableQuaternion;
+  }
+
+  /**
+   * tryAxisAngle
+   */
+  static tryAxisAngle(vec: IVector3, radian: number): MutableQuaternion | null {
+    return super.tryAxisAngle(vec, radian) as MutableQuaternion | null;
+  }
+
+  /**
+   * axisAngle
+   */
+  static axisAngle(vec: IVector3, radian: number): MutableQuaternion {
+    return super.axisAngle(vec, radian) as MutableQuaternion;
+  }
+
+  /**
+   * tryFromMatrix
+   */
+  static tryFromMatrix(mat: IMatrix44): MutableQuaternion | null {
+    return super.tryFromMatrix(mat) as MutableQuaternion | null;
+  }
+
+  /**
+   * fromMatrix
+   */
+  static fromMatrix(mat: IMatrix44): MutableQuaternion {
+    return super.fromMatrix(mat) as MutableQuaternion;
+  }
+
+  /**
+   * fromPosition
+   */
+  static fromPosition(vec: IVector3): MutableQuaternion {
+    return super.fromPosition(vec) as MutableQuaternion;
+  }
+
+  /**
+   * add
+   */
+  static add(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternion {
+    return super.add(l_quat, r_quat) as MutableQuaternion;
+  }
+
+  /**
+   * subtract
+   */
+  static subtract(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternion {
+    return super.subtract(l_quat, r_quat) as MutableQuaternion;
+  }
+
+  /**
+   * multiply
+   */
+  static multiply(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternion {
+    return super.multiply(l_quat, r_quat) as MutableQuaternion;
+  }
+
+  /**
+   * multiplyNumber
+   */
+  static multiplyNumber(quat: IQuaternion, value: number): MutableQuaternion {
+    return super.multiplyNumber(quat, value) as MutableQuaternion;
+  }
+
+  /**
+   * divideNumber
+   */
+  static divideNumber(quat: IQuaternion, value: number): MutableQuaternion {
+    return super.divideNumber(quat, value) as MutableQuaternion;
+  }
+
+  /**
+   * Creates a mutable quaternion that directly uses the given Float32Array (no copy).
+   */
+  static fromFloat32Array(array: Float32Array): MutableQuaternion {
+    return super.fromTypedArray(array) as MutableQuaternion;
+  }
+
+  /**
+   * fromCopyArray4
+   */
+  static fromCopyArray4(array: Array4<number>): MutableQuaternion {
+    return super.fromCopyArray4(array) as MutableQuaternion;
+  }
+
+  /**
+   * fromCopyArray
+   */
+  static fromCopyArray(array: Array<number>): MutableQuaternion {
+    return super.fromCopyArray(array) as MutableQuaternion;
+  }
+
+  /**
+   * fromCopy4
+   */
+  static fromCopy4(x: number, y: number, z: number, w: number): MutableQuaternion {
+    return super.fromCopy4(x, y, z, w) as MutableQuaternion;
+  }
+
+  /**
+   * fromCopyQuaternion
+   */
+  static fromCopyQuaternion(quat: IQuaternion): MutableQuaternion {
+    return super.fromCopyQuaternion(quat) as MutableQuaternion;
+  }
+
+  /**
+   * fromCopyVector4
+   */
+  static fromCopyVector4(vec: IVector4): MutableQuaternion {
+    return super.fromCopyVector4(vec) as MutableQuaternion;
+  }
+
+  /**
+   * fromCopyLogQuaternion
+   */
+  static fromCopyLogQuaternion(x: ILogQuaternion): MutableQuaternion {
+    return super.fromCopyLogQuaternion(x) as MutableQuaternion;
+  }
+}
+
+/**
+ * Mutable quaternion with 64-bit float components.
+ */
+export class MutableQuaternionD extends MutableQuaternion_<Float64ArrayConstructor> {
+  /** The typed array constructor used for newly created quaternions. */
+  protected static override readonly _type: FloatTypedArrayConstructor = Float64Array;
+
+  /**
+   * Creates a new MutableQuaternionD instance.
+   * @param v - The typed array containing the quaternion components
+   */
+  constructor(v: TypedArray) {
+    super(v, { type: Float64Array });
+  }
+
+  /**
+   * identity
+   */
+  static identity(): MutableQuaternionD {
+    return super.identity() as MutableQuaternionD;
+  }
+
+  /**
+   * dummy
+   */
+  static dummy(): MutableQuaternionD {
+    return super.dummy() as MutableQuaternionD;
+  }
+
+  /**
+   * invert
+   */
+  static invert(quat: IQuaternion): MutableQuaternionD {
+    return super.invert(quat) as MutableQuaternionD;
+  }
+
+  /**
+   * qlerp
+   */
+  static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternionD {
+    return super.qlerp(l_quat, r_quat, ratio) as MutableQuaternionD;
+  }
+
+  /**
+   * lerp
+   */
+  static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternionD {
+    return super.lerp(l_quat, r_quat, ratio) as MutableQuaternionD;
+  }
+
+  /**
+   * tryAxisAngle
+   */
+  static tryAxisAngle(vec: IVector3, radian: number): MutableQuaternionD | null {
+    return super.tryAxisAngle(vec, radian) as MutableQuaternionD | null;
+  }
+
+  /**
+   * axisAngle
+   */
+  static axisAngle(vec: IVector3, radian: number): MutableQuaternionD {
+    return super.axisAngle(vec, radian) as MutableQuaternionD;
+  }
+
+  /**
+   * tryFromMatrix
+   */
+  static tryFromMatrix(mat: IMatrix44): MutableQuaternionD | null {
+    return super.tryFromMatrix(mat) as MutableQuaternionD | null;
+  }
+
+  /**
+   * fromMatrix
+   */
+  static fromMatrix(mat: IMatrix44): MutableQuaternionD {
+    return super.fromMatrix(mat) as MutableQuaternionD;
+  }
+
+  /**
+   * fromPosition
+   */
+  static fromPosition(vec: IVector3): MutableQuaternionD {
+    return super.fromPosition(vec) as MutableQuaternionD;
+  }
+
+  /**
+   * add
+   */
+  static add(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternionD {
+    return super.add(l_quat, r_quat) as MutableQuaternionD;
+  }
+
+  /**
+   * subtract
+   */
+  static subtract(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternionD {
+    return super.subtract(l_quat, r_quat) as MutableQuaternionD;
+  }
+
+  /**
+   * multiply
+   */
+  static multiply(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternionD {
+    return super.multiply(l_quat, r_quat) as MutableQuaternionD;
+  }
+
+  /**
+   * multiplyNumber
+   */
+  static multiplyNumber(quat: IQuaternion, value: number): MutableQuaternionD {
+    return super.multiplyNumber(quat, value) as MutableQuaternionD;
+  }
+
+  /**
+   * divideNumber
+   */
+  static divideNumber(quat: IQuaternion, value: number): MutableQuaternionD {
+    return super.divideNumber(quat, value) as MutableQuaternionD;
+  }
+
+  /**
+   * Creates a mutable quaternion that directly uses the given Float64Array (no copy).
+   */
+  static fromFloat64Array(array: Float64Array): MutableQuaternionD {
+    return super.fromTypedArray(array) as MutableQuaternionD;
+  }
+
+  /**
+   * fromCopyArray4
+   */
+  static fromCopyArray4(array: Array4<number>): MutableQuaternionD {
+    return super.fromCopyArray4(array) as MutableQuaternionD;
+  }
+
+  /**
+   * fromCopyArray
+   */
+  static fromCopyArray(array: Array<number>): MutableQuaternionD {
+    return super.fromCopyArray(array) as MutableQuaternionD;
+  }
+
+  /**
+   * fromCopy4
+   */
+  static fromCopy4(x: number, y: number, z: number, w: number): MutableQuaternionD {
+    return super.fromCopy4(x, y, z, w) as MutableQuaternionD;
+  }
+
+  /**
+   * fromCopyQuaternion
+   */
+  static fromCopyQuaternion(quat: IQuaternion): MutableQuaternionD {
+    return super.fromCopyQuaternion(quat) as MutableQuaternionD;
+  }
+
+  /**
+   * fromCopyVector4
+   */
+  static fromCopyVector4(vec: IVector4): MutableQuaternionD {
+    return super.fromCopyVector4(vec) as MutableQuaternionD;
+  }
+
+  /**
+   * fromCopyLogQuaternion
+   */
+  static fromCopyLogQuaternion(x: ILogQuaternion): MutableQuaternionD {
+    return super.fromCopyLogQuaternion(x) as MutableQuaternionD;
+  }
+}
+
+/**
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
+ */
+export { MutableQuaternion as MutableQuaternionF };

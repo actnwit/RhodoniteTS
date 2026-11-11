@@ -1019,14 +1019,14 @@ export class Vector3 extends Vector3_<Float32ArrayConstructor> {
  *
  * @example
  * ```typescript
- * const v1 = Vector3d.fromCopy3(1.123456789, 2.987654321, 3.456789123);
- * const v2 = Vector3d.fromCopy3(4.111111111, 5.222222222, 6.333333333);
- * const sum = Vector3d.add(v1, v2);
+ * const v1 = Vector3D.fromCopy3(1.123456789, 2.987654321, 3.456789123);
+ * const v2 = Vector3D.fromCopy3(4.111111111, 5.222222222, 6.333333333);
+ * const sum = Vector3D.add(v1, v2);
  * ```
  */
-export class Vector3d extends Vector3_<Float64ArrayConstructor> {
+export class Vector3D extends Vector3_<Float64ArrayConstructor> {
   /**
-   * Creates a new Vector3d instance from a typed array.
+   * Creates a new Vector3D instance from a typed array.
    * @param v - The Float64Array containing the vector components
    */
   private constructor(v: TypedArray) {
@@ -1036,9 +1036,9 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
   /**
    * Creates a vector from a 3-element array.
    * @param array - Array containing [x, y, z] components
-   * @returns A new Vector3d instance
+   * @returns A new Vector3D instance
    */
-  static fromCopyArray3(array: Array3<number>): Vector3d {
+  static fromCopyArray3(array: Array3<number>): Vector3D {
     return super._fromCopyArray3(array, Float64Array);
   }
 
@@ -1047,78 +1047,78 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
    * @param x - The x component
    * @param y - The y component
    * @param z - The z component
-   * @returns A new Vector3d instance
+   * @returns A new Vector3D instance
    */
-  static fromCopy3(x: number, y: number, z: number): Vector3d {
+  static fromCopy3(x: number, y: number, z: number): Vector3D {
     return super._fromCopy3(x, y, z, Float64Array);
   }
 
   /**
    * Creates a vector with all components set to the same value.
    * @param val - The value to set for all components
-   * @returns A new Vector3d instance
+   * @returns A new Vector3D instance
    */
-  static fromCopy1(val: number): Vector3d {
+  static fromCopy1(val: number): Vector3D {
     return super._fromCopy3(val, val, val, Float64Array);
   }
 
   /**
    * Creates a vector from an array (takes first 3 elements).
    * @param array - The array containing the components
-   * @returns A new Vector3d instance
+   * @returns A new Vector3D instance
    */
-  static fromCopyArray(array: Array<number>): Vector3d {
+  static fromCopyArray(array: Array<number>): Vector3D {
     return super._fromCopyArray(array, Float64Array);
   }
 
   /**
    * Creates a vector from an ArrayBuffer.
    * @param arrayBuffer - The ArrayBuffer containing the vector data
-   * @returns A new Vector3d instance
+   * @returns A new Vector3D instance
    */
-  static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector3d {
-    return new Vector3d(new Float64Array(arrayBuffer));
+  static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector3D {
+    return new Vector3D(new Float64Array(arrayBuffer));
   }
 
   /**
    * Creates a vector from a Float64Array.
    * @param float64Array - The Float64Array containing the vector data
-   * @returns A new Vector3d instance
+   * @returns A new Vector3D instance
    */
-  static fromFloat64Array(float64Array: Float64Array): Vector3d {
-    return new Vector3d(float64Array);
+  static fromFloat64Array(float64Array: Float64Array): Vector3D {
+    return new Vector3D(float64Array);
   }
 
   /**
    * Creates a zero vector (0, 0, 0).
-   * @returns A new Vector3d instance with all components set to 0
+   * @returns A new Vector3D instance with all components set to 0
    */
-  static zero(): Vector3d {
+  static zero(): Vector3D {
     return super._zero(Float64Array);
   }
 
   /**
    * Creates a vector with all components set to 1 (1, 1, 1).
-   * @returns A new Vector3d instance with all components set to 1
+   * @returns A new Vector3D instance with all components set to 1
    */
-  static one(): Vector3d {
+  static one(): Vector3D {
     return super._one(Float64Array);
   }
 
   /**
    * Creates an empty dummy vector for placeholder purposes.
-   * @returns A new dummy Vector3d instance
+   * @returns A new dummy Vector3D instance
    */
-  static dummy(): Vector3d {
+  static dummy(): Vector3D {
     return super._dummy(Float64Array);
   }
 
   /**
    * Normalizes a vector to unit length.
    * @param vec - The vector to normalize
-   * @returns A new normalized Vector3d instance
+   * @returns A new normalized Vector3D instance
    */
-  static normalize(vec: IVector3): Vector3d {
+  static normalize(vec: IVector3): Vector3D {
     return super._normalize(vec, Float64Array);
   }
 
@@ -1126,9 +1126,9 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
    * Adds two vectors component-wise.
    * @param l_vec - The first vector
    * @param r_vec - The second vector
-   * @returns A new Vector3d instance containing the sum
+   * @returns A new Vector3D instance containing the sum
    */
-  static add(l_vec: IVector3, r_vec: IVector3): Vector3d {
+  static add(l_vec: IVector3, r_vec: IVector3): Vector3D {
     return super._add(l_vec, r_vec, Float64Array);
   }
 
@@ -1136,9 +1136,9 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
    * Subtracts the second vector from the first vector.
    * @param l_vec - The vector to subtract from
    * @param r_vec - The vector to subtract
-   * @returns A new Vector3d instance containing the difference
+   * @returns A new Vector3D instance containing the difference
    */
-  static subtract(l_vec: IVector3, r_vec: IVector3): Vector3d {
+  static subtract(l_vec: IVector3, r_vec: IVector3): Vector3D {
     return super._subtract(l_vec, r_vec, Float64Array);
   }
 
@@ -1146,9 +1146,9 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
    * Multiplies a vector by a scalar value.
    * @param vec - The vector to multiply
    * @param value - The scalar value to multiply by
-   * @returns A new Vector3d instance containing the scaled result
+   * @returns A new Vector3D instance containing the scaled result
    */
-  static multiply(vec: IVector3, value: number): Vector3d {
+  static multiply(vec: IVector3, value: number): Vector3D {
     return super._multiply(vec, value, Float64Array);
   }
 
@@ -1156,9 +1156,9 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
    * Multiplies two vectors component-wise.
    * @param l_vec - The first vector
    * @param r_vec - The second vector
-   * @returns A new Vector3d instance containing the component-wise product
+   * @returns A new Vector3D instance containing the component-wise product
    */
-  static multiplyVector(l_vec: IVector3, r_vec: IVector3): Vector3d {
+  static multiplyVector(l_vec: IVector3, r_vec: IVector3): Vector3D {
     return super._multiplyVector(l_vec, r_vec, Float64Array);
   }
 
@@ -1166,9 +1166,9 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
    * Transforms a 3D vector by a 4x4 matrix.
    * @param vec - The vector to transform
    * @param mat - The 4x4 transformation matrix
-   * @returns A new Vector3d instance containing the transformed result
+   * @returns A new Vector3D instance containing the transformed result
    */
-  static multiplyMatrix4(vec: IVector3, mat: IMatrix44): Vector3d {
+  static multiplyMatrix4(vec: IVector3, mat: IMatrix44): Vector3D {
     return super._multiplyMatrix4(vec, mat, Float64Array);
   }
 
@@ -1176,9 +1176,9 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
    * Divides a vector by a scalar value.
    * @param vec - The vector to divide
    * @param value - The scalar value to divide by
-   * @returns A new Vector3d instance containing the divided result
+   * @returns A new Vector3D instance containing the divided result
    */
-  static divide(vec: IVector3, value: number): Vector3d {
+  static divide(vec: IVector3, value: number): Vector3D {
     return super._divide(vec, value, Float64Array);
   }
 
@@ -1186,9 +1186,9 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
    * Divides two vectors component-wise.
    * @param l_vec - The vector to divide
    * @param r_vec - The vector to divide by
-   * @returns A new Vector3d instance containing the component-wise division result
+   * @returns A new Vector3D instance containing the component-wise division result
    */
-  static divideVector(l_vec: IVector3, r_vec: IVector3): Vector3d {
+  static divideVector(l_vec: IVector3, r_vec: IVector3): Vector3D {
     return super._divideVector(l_vec, r_vec, Float64Array);
   }
 
@@ -1196,9 +1196,9 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
    * Calculates the cross product of two vectors.
    * @param l_vec - The first vector (left operand)
    * @param r_vec - The second vector (right operand)
-   * @returns A new Vector3d instance containing the cross product result
+   * @returns A new Vector3D instance containing the cross product result
    */
-  static cross(l_vec: IVector3, r_vec: IVector3): Vector3d {
+  static cross(l_vec: IVector3, r_vec: IVector3): Vector3D {
     return super._cross(l_vec, r_vec, Float64Array);
   }
 
@@ -1206,9 +1206,9 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
    * Transforms a vector by a quaternion rotation.
    * @param quat - The quaternion to apply
    * @param vec - The vector to transform
-   * @returns A new Vector3d instance containing the transformed result
+   * @returns A new Vector3D instance containing the transformed result
    */
-  static multiplyQuaternion(quat: IQuaternion, vec: IVector3): Vector3d {
+  static multiplyQuaternion(quat: IQuaternion, vec: IVector3): Vector3D {
     return super._multiplyQuaternion(quat, vec, Float64Array);
   }
 
@@ -1217,18 +1217,12 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
    * @param lhs - The start vector
    * @param rhs - The end vector
    * @param ratio - The interpolation ratio (0.0 to 1.0)
-   * @returns A new Vector3d instance containing the interpolated result
+   * @returns A new Vector3D instance containing the interpolated result
    */
-  static lerp(lhs: IVector3, rhs: IVector3, ratio: number): Vector3d {
+  static lerp(lhs: IVector3, rhs: IVector3, ratio: number): Vector3D {
     return super._lerp(lhs, rhs, ratio, Float64Array);
   }
 }
-
-/**
- * Type alias for Vector3 with 32-bit float precision.
- * @deprecated Use Vector3 directly instead
- */
-export type Vector3f = Vector3;
 
 /**
  * Constant vector representing (1, 1, 1).
@@ -1241,3 +1235,8 @@ export const ConstVector3_1_1_1 = Vector3.fromCopy3(1, 1, 1);
  * Useful as an origin point or for zero/null vector operations.
  */
 export const ConstVector3_0_0_0 = Vector3.fromCopy3(0, 0, 0);
+
+/**
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
+ */
+export { Vector3 as Vector3F };

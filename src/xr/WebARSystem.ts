@@ -360,7 +360,7 @@ export class WebARSystem {
   get projectionMatrix() {
     const xrView = this.__oArViewerPose.unwrapForce().views[0];
     return MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
-      Is.exist(xrView) ? xrView.projectionMatrix : MutableMatrix44.identity()._v
+      Is.exist(xrView) ? xrView.projectionMatrix : (MutableMatrix44.identity()._v as Float32Array)
     );
   }
 

@@ -12,8 +12,8 @@ export interface IQuaternion {
   /** The class name identifier */
   readonly className: string;
 
-  /** Internal Float32Array storage for quaternion components */
-  _v: Float32Array;
+  /** Internal typed array storage for quaternion components (Float32Array or Float64Array) */
+  _v: TypedArray;
 
   /** The x component (i quaternion basis) */
   readonly x: number;
@@ -344,8 +344,8 @@ export interface ILogQuaternion {
   /** The class name identifier */
   readonly className: string;
 
-  /** Internal Float32Array storage for logarithmic quaternion components */
-  readonly _v: Float32Array;
+  /** Internal typed array storage for logarithmic quaternion components (Float32Array or Float64Array) */
+  readonly _v: TypedArray;
 
   /** The x component of the logarithmic quaternion */
   readonly x: number;

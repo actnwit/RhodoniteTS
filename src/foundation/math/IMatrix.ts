@@ -15,8 +15,8 @@ import type {
  * Provides read-only access to matrix data and basic mathematical operations.
  */
 export interface IMatrix {
-  /** Internal typed array storing matrix data in column-major order */
-  _v: Float32Array;
+  /** Internal typed array storing matrix data in column-major order (Float32Array or Float64Array) */
+  _v: TypedArray;
 
   /** Returns the class name of the matrix implementation */
   readonly className: string;

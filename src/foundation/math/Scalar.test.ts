@@ -1,5 +1,5 @@
 import { CompositionType } from '../definitions/CompositionType';
-import { Scalar, Scalard } from './Scalar';
+import { Scalar, ScalarD } from './Scalar';
 
 describe('Scalar', () => {
   test('Scalar is immutable', () => {
@@ -223,29 +223,29 @@ describe('Scalar', () => {
   });
 });
 
-describe('Scalard (double precision)', () => {
+describe('ScalarD (double precision)', () => {
   test('fromCopyNumber creates double precision scalar', () => {
-    const scalar = Scalard.fromCopyNumber(1.23456789012345);
+    const scalar = ScalarD.fromCopyNumber(1.23456789012345);
     expect(scalar.getValue()).toBe(1.23456789012345);
   });
 
   test('zero creates double precision scalar with value 0', () => {
-    const scalar = Scalard.zero();
+    const scalar = ScalarD.zero();
     expect(scalar.getValue()).toBe(0);
   });
 
   test('one creates double precision scalar with value 1', () => {
-    const scalar = Scalard.one();
+    const scalar = ScalarD.one();
     expect(scalar.getValue()).toBe(1);
   });
 
   test('bytesPerComponent returns 8 for double precision', () => {
-    const scalar = Scalard.fromCopyNumber(1);
+    const scalar = ScalarD.fromCopyNumber(1);
     expect(scalar.bytesPerComponent).toBe(8); // Float64Array
   });
 
   test('clone creates a copy of the double precision scalar', () => {
-    const original = Scalard.fromCopyNumber(Math.PI);
+    const original = ScalarD.fromCopyNumber(Math.PI);
     const cloned = original.clone();
 
     expect(cloned.getValue()).toBe(Math.PI);
@@ -254,7 +254,7 @@ describe('Scalard (double precision)', () => {
   });
 
   test('clone creates independent copy for double precision', () => {
-    const original = Scalard.fromCopyNumber(Math.E);
+    const original = ScalarD.fromCopyNumber(Math.E);
     const cloned = original.clone();
 
     // Verify independence by modifying the underlying array
@@ -266,14 +266,14 @@ describe('Scalard (double precision)', () => {
 
   test('handles high precision values', () => {
     const highPrecisionValue = 1.7976931348623157e100; // Large but not max double
-    const scalar = Scalard.fromCopyNumber(highPrecisionValue);
+    const scalar = ScalarD.fromCopyNumber(highPrecisionValue);
     expect(scalar.getValue()).toBe(highPrecisionValue);
   });
 
   test('maintains precision better than 32-bit', () => {
     const preciseValue = 0.1234567890123456;
     const scalar32 = Scalar.fromCopyNumber(preciseValue);
-    const scalar64 = Scalard.fromCopyNumber(preciseValue);
+    const scalar64 = ScalarD.fromCopyNumber(preciseValue);
 
     // Double precision should maintain more decimal places
     expect(scalar64.getValue()).toBeCloseTo(preciseValue, 15);
@@ -282,8 +282,8 @@ describe('Scalard (double precision)', () => {
   });
 
   test('comparison methods work with double precision', () => {
-    const scalar1 = Scalard.fromCopyNumber(1.000000000000001);
-    const scalar2 = Scalard.fromCopyNumber(1.000000000000002);
+    const scalar1 = ScalarD.fromCopyNumber(1.000000000000001);
+    const scalar2 = ScalarD.fromCopyNumber(1.000000000000002);
 
     expect(scalar1.isStrictEqual(scalar2)).toBe(false);
     expect(scalar1.isEqual(scalar2, 1e-14)).toBe(true);
@@ -291,7 +291,7 @@ describe('Scalard (double precision)', () => {
   });
 
   test('dummy creates empty dummy double precision scalar', () => {
-    const scalar = Scalard.dummy();
+    const scalar = ScalarD.dummy();
     expect(scalar.isDummy()).toBe(true);
   });
 });

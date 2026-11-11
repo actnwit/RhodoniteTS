@@ -1,10 +1,10 @@
-import type { Array16, Index } from '../../types/CommonTypes';
+import type { Array16, ArrayType, FloatTypedArrayConstructor, Index, TypedArray } from '../../types/CommonTypes';
 import { Logger } from '../misc/Logger';
 import type { IMatrix33, IMatrix44, IMutableMatrix, IMutableMatrix44 } from './IMatrix';
 import type { IQuaternion } from './IQuaternion';
 import type { IVector3 } from './IVector';
 import { MathUtil } from './MathUtil';
-import { Matrix44 } from './Matrix44';
+import { Matrix44_ } from './Matrix44';
 import type { MutableVector3 } from './MutableVector3';
 
 /**
@@ -21,7 +21,19 @@ import type { MutableVector3 } from './MutableVector3';
  * matrix.rotateY(Math.PI / 4);
  * ```
  */
-export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutableMatrix44 {
+export class MutableMatrix44_<T extends FloatTypedArrayConstructor>
+  extends Matrix44_<T>
+  implements IMutableMatrix, IMutableMatrix44
+{
+  /**
+   * Creates a new MutableMatrix44_ instance.
+   * @param m - The typed array containing the matrix components
+   * @param options - Configuration object containing the typed array constructor
+   */
+  constructor(m: TypedArray, options: { type: T }) {
+    super(m, options);
+  }
+
   /**
    * Sets the value at position (0,0) in the matrix.
    *
@@ -374,148 +386,6 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
   }
 
   /**
-   * Creates a zero matrix (all elements are 0).
-   *
-   * @returns A new MutableMatrix44 instance with all elements set to 0
-   */
-  static zero(): MutableMatrix44 {
-    return MutableMatrix44.fromCopy16RowMajor(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-  }
-
-  /**
-   * Creates an identity matrix.
-   *
-   * @returns A new MutableMatrix44 instance representing the 4x4 identity matrix
-   */
-  static identity(): MutableMatrix44 {
-    return MutableMatrix44.fromCopy16RowMajor(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-  }
-
-  /**
-   * Creates a dummy matrix (typically used as a placeholder).
-   *
-   * @returns A new MutableMatrix44 instance representing a dummy matrix
-   */
-  static dummy(): MutableMatrix44 {
-    return super.dummy() as MutableMatrix44;
-  }
-
-  /**
-   * Creates a transposed matrix from the given matrix.
-   *
-   * @param mat - The matrix to transpose
-   * @returns A new MutableMatrix44 instance that is the transpose of the input matrix
-   */
-  static transpose(mat: IMatrix44): MutableMatrix44 {
-    return MutableMatrix44.fromCopyFloat32ArrayRowMajor(mat._v);
-  }
-
-  /**
-   * Attempts to create an inverted matrix from the given matrix.
-   *
-   * @param mat - The matrix to invert
-   * @returns A new MutableMatrix44 instance that is the inverse of the input matrix,
-   *          or null if the matrix is numerically singular
-   */
-  static tryInvert(mat: IMatrix44): MutableMatrix44 | null {
-    return super.tryInvert(mat) as MutableMatrix44 | null;
-  }
-
-  /**
-   * Creates an inverted matrix from the given matrix.
-   *
-   * @param mat - The matrix to invert
-   * @returns A new MutableMatrix44 instance that is the inverse of the input matrix,
-   *          or the identity matrix if the input is singular
-   */
-  static invert(mat: IMatrix44): MutableMatrix44 {
-    return super.invert(mat) as MutableMatrix44;
-  }
-
-  /**
-   * Creates a translation matrix from the given vector.
-   *
-   * @param vec - The translation vector
-   * @returns A new MutableMatrix44 instance representing the translation transformation
-   */
-  static translate(vec: IVector3): MutableMatrix44 {
-    return super.translate(vec) as MutableMatrix44;
-  }
-
-  /**
-   * Creates a rotation matrix around the X-axis.
-   *
-   * @param radian - The rotation angle in radians
-   * @returns A new MutableMatrix44 instance representing the X-axis rotation
-   */
-  static rotateX(radian: number): MutableMatrix44 {
-    return super.rotateX(radian) as MutableMatrix44;
-  }
-
-  /**
-   * Creates a rotation matrix around the Y-axis.
-   *
-   * @param radian - The rotation angle in radians
-   * @returns A new MutableMatrix44 instance representing the Y-axis rotation
-   */
-  static rotateY(radian: number): MutableMatrix44 {
-    return super.rotateY(radian) as MutableMatrix44;
-  }
-
-  /**
-   * Creates a rotation matrix around the Z-axis.
-   *
-   * @param radian - The rotation angle in radians
-   * @returns A new MutableMatrix44 instance representing the Z-axis rotation
-   */
-  static rotateZ(radian: number): MutableMatrix44 {
-    return super.rotateZ(radian) as MutableMatrix44;
-  }
-
-  /**
-   * Creates a rotation matrix with rotations around X, Y, and Z axes in that order.
-   *
-   * @param x - Rotation angle around X-axis in radians
-   * @param y - Rotation angle around Y-axis in radians
-   * @param z - Rotation angle around Z-axis in radians
-   * @returns A new MutableMatrix44 instance representing the combined rotation
-   */
-  static rotateXYZ(x: number, y: number, z: number): MutableMatrix44 {
-    return super.rotateXYZ(x, y, z) as MutableMatrix44;
-  }
-
-  /**
-   * Creates a rotation matrix from a vector containing X, Y, Z rotation angles.
-   *
-   * @param vec - Vector containing rotation angles (x, y, z) in radians
-   * @returns A new MutableMatrix44 instance representing the rotation transformation
-   */
-  static rotate(vec: IVector3): MutableMatrix44 {
-    return super.rotateXYZ(vec._v[0], vec._v[1], vec._v[2]) as MutableMatrix44;
-  }
-
-  /**
-   * Creates a scaling matrix from the given vector.
-   *
-   * @param vec - The scaling factors for X, Y, and Z axes
-   * @returns A new MutableMatrix44 instance representing the scaling transformation
-   */
-  static scale(vec: IVector3): MutableMatrix44 {
-    return super.scale(vec) as MutableMatrix44;
-  }
-
-  /**
-   * Multiplies two matrices and returns the result as a new matrix.
-   *
-   * @param l_mat - The left matrix in the multiplication
-   * @param r_mat - The right matrix in the multiplication
-   * @returns A new MutableMatrix44 instance representing the product l_mat * r_mat
-   */
-  static multiply(l_mat: IMatrix44, r_mat: IMatrix44): MutableMatrix44 {
-    return super.multiply(l_mat, r_mat) as MutableMatrix44;
-  }
-
-  /**
    * Creates a copy of this matrix.
    *
    * @returns A new MutableMatrix44 instance with the same values as this matrix
@@ -571,7 +441,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The internal Float32Array with matrix values in column-major order
    */
-  raw(): Float32Array {
+  raw() {
     return this._v;
   }
 
@@ -743,7 +613,13 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
     const rowNorm1 = Math.abs(this._v[4]) + Math.abs(this._v[5]) + Math.abs(this._v[6]) + Math.abs(this._v[7]);
     const rowNorm2 = Math.abs(this._v[8]) + Math.abs(this._v[9]) + Math.abs(this._v[10]) + Math.abs(this._v[11]);
     const rowNorm3 = Math.abs(this._v[12]) + Math.abs(this._v[13]) + Math.abs(this._v[14]) + Math.abs(this._v[15]);
-    if (MathUtil.isSingularDet(det, rowNorm0 * rowNorm1 * rowNorm2 * rowNorm3)) {
+    if (
+      MathUtil.isSingularDet(
+        det,
+        rowNorm0 * rowNorm1 * rowNorm2 * rowNorm3,
+        MathUtil.getSingularEpsilon(this._v.BYTES_PER_ELEMENT)
+      )
+    ) {
       return false;
     }
 
@@ -1088,14 +964,119 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
 
     return this.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
   }
+}
 
+export class MutableMatrix44 extends MutableMatrix44_<Float32ArrayConstructor> {
   /**
-   * Creates a matrix from 16 values in row-major order.
-   * Values are provided in row-major order but stored internally in column-major order.
-   *
-   * @param m00-m33 - Matrix elements in row-major order
-   * @returns A new MutableMatrix44 instance
+   * Creates a new MutableMatrix44 instance.
+   * @param m - The typed array containing the matrix components
    */
+  constructor(m: TypedArray) {
+    super(m, { type: Float32Array });
+  }
+
+  /** Creates a zero matrix. */
+  static zero(): MutableMatrix44 {
+    return super._zero(Float32Array) as MutableMatrix44;
+  }
+
+  /** Creates an identity matrix (optimized IdentityMatrix44 instance). */
+  static identity(): MutableMatrix44 {
+    return super._identity(Float32Array) as MutableMatrix44;
+  }
+
+  /** Creates a dummy matrix with an empty array. */
+  static dummy(): MutableMatrix44 {
+    return super._dummy(Float32Array) as MutableMatrix44;
+  }
+
+  /** Creates the transpose of the given matrix. */
+  static transpose(mat: IMatrix44): MutableMatrix44 {
+    return super._transpose(mat, Float32Array) as MutableMatrix44;
+  }
+
+  /** Attempts to invert the given matrix, returning null when it is singular. */
+  static tryInvert(mat: IMatrix44): MutableMatrix44 | null {
+    return super._tryInvert(mat, Float32Array) as MutableMatrix44 | null;
+  }
+
+  /** Creates the inverse of the given matrix (identity when singular). */
+  static invert(mat: IMatrix44): MutableMatrix44 {
+    return super._invert(mat, Float32Array) as MutableMatrix44;
+  }
+
+  /** Attempts to invert the given matrix into outMat. */
+  static tryInvertTo<T extends IMutableMatrix44>(mat: IMatrix44, outMat: T): boolean {
+    return super._tryInvertTo(mat, outMat);
+  }
+
+  /** Inverts the given matrix into outMat (identity when singular). */
+  static invertTo<T extends IMutableMatrix44>(mat: IMatrix44, outMat: T): T {
+    return super._invertTo(mat, outMat) as T;
+  }
+
+  /** Creates a translation matrix. */
+  static translate(vec: IVector3): MutableMatrix44 {
+    return super._translate(vec, Float32Array) as MutableMatrix44;
+  }
+
+  /** Creates a rotation matrix around the X-axis. */
+  static rotateX(radian: number): MutableMatrix44 {
+    return super._rotateX(radian, Float32Array) as MutableMatrix44;
+  }
+
+  /** Creates a rotation matrix around the Y-axis. */
+  static rotateY(radian: number): MutableMatrix44 {
+    return super._rotateY(radian, Float32Array) as MutableMatrix44;
+  }
+
+  /** Creates a rotation matrix around the Z-axis. */
+  static rotateZ(radian: number): MutableMatrix44 {
+    return super._rotateZ(radian, Float32Array) as MutableMatrix44;
+  }
+
+  /** Creates a rotation matrix from Euler angles in XYZ order. */
+  static rotateXYZ(x: number, y: number, z: number): MutableMatrix44 {
+    return super._rotateXYZ(x, y, z, Float32Array) as MutableMatrix44;
+  }
+
+  /** Creates a rotation matrix from a vector containing Euler angles. */
+  static rotate(vec: IVector3): MutableMatrix44 {
+    return super._rotate(vec, Float32Array) as MutableMatrix44;
+  }
+
+  /** Creates a scaling matrix. */
+  static scale(vec: IVector3): MutableMatrix44 {
+    return super._scale(vec, Float32Array) as MutableMatrix44;
+  }
+
+  /** Multiplies two matrices. */
+  static multiply(l_mat: IMatrix44, r_mat: IMatrix44): MutableMatrix44 {
+    return super._multiply(l_mat, r_mat, Float32Array) as MutableMatrix44;
+  }
+
+  /** Multiplies two matrices and stores the result in outMat. */
+  static multiplyTo<T extends IMutableMatrix44>(l_mat: IMatrix44, r_mat: IMatrix44, outMat: T): T {
+    return super._multiplyTo(l_mat, r_mat, outMat) as T;
+  }
+
+  /** Multiplies a matrix with typed array data and stores the result in outMat. */
+  static multiplyTypedArrayTo<T extends IMutableMatrix44>(
+    l_mat: IMatrix44,
+    r_array: ArrayType,
+    outMat: T,
+    offsetAsComposition: number
+  ): T {
+    return super._multiplyTypedArrayTo(l_mat, r_array, outMat, offsetAsComposition) as T;
+  }
+
+  /** Creates a rotation matrix from a quaternion and stores it in outMat. */
+  static fromQuaternionTo<T extends IMutableMatrix44>(quat: IQuaternion, outMat: T): T {
+    return super._fromQuaternionTo(quat, outMat) as T;
+  }
+
+  /** Creates a matrix from row-major components. */
+  // prettier-ignore
   static fromCopy16RowMajor(
     m00: number,
     m01: number,
@@ -1114,32 +1095,29 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
     m32: number,
     m33: number
   ): MutableMatrix44 {
-    const v = new Float32Array(16);
-    v[0] = m00;
-    v[4] = m01;
-    v[8] = m02;
-    v[12] = m03;
-    v[1] = m10;
-    v[5] = m11;
-    v[9] = m12;
-    v[13] = m13;
-    v[2] = m20;
-    v[6] = m21;
-    v[10] = m22;
-    v[14] = m23;
-    v[3] = m30;
-    v[7] = m31;
-    v[11] = m32;
-    v[15] = m33;
-    return new MutableMatrix44(v);
+    return super._fromCopy16RowMajor(
+      m00,
+      m01,
+      m02,
+      m03,
+      m10,
+      m11,
+      m12,
+      m13,
+      m20,
+      m21,
+      m22,
+      m23,
+      m30,
+      m31,
+      m32,
+      m33,
+      Float32Array
+    ) as MutableMatrix44;
   }
 
-  /**
-   * Creates a matrix from 16 values in column-major order.
-   *
-   * @param m00-m33 - Matrix elements in column-major order
-   * @returns A new MutableMatrix44 instance
-   */
+  /** Creates a matrix from column-major components. */
+  // prettier-ignore
   static fromCopy16ColumnMajor(
     m00: number,
     m10: number,
@@ -1158,240 +1136,325 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
     m23: number,
     m33: number
   ): MutableMatrix44 {
-    const v = new Float32Array(16);
-    v[0] = m00;
-    v[4] = m01;
-    v[8] = m02;
-    v[12] = m03;
-    v[1] = m10;
-    v[5] = m11;
-    v[9] = m12;
-    v[13] = m13;
-    v[2] = m20;
-    v[6] = m21;
-    v[10] = m22;
-    v[14] = m23;
-    v[3] = m30;
-    v[7] = m31;
-    v[11] = m32;
-    v[15] = m33;
-    return new MutableMatrix44(v);
+    return super._fromCopy16ColumnMajor(
+      m00,
+      m10,
+      m20,
+      m30,
+      m01,
+      m11,
+      m21,
+      m31,
+      m02,
+      m12,
+      m22,
+      m32,
+      m03,
+      m13,
+      m23,
+      m33,
+      Float32Array
+    ) as MutableMatrix44;
   }
 
-  /**
-   * Creates a new MutableMatrix44 from an existing Matrix44 instance.
-   * This creates a copy of the matrix data, so modifications to the new matrix
-   * will not affect the original.
-   *
-   * @param mat - The source Matrix44 to copy from
-   * @returns A new MutableMatrix44 instance with copied data
-   */
+  /** Creates a matrix by copying another matrix. */
   static fromCopyMatrix44(mat: IMatrix44): MutableMatrix44 {
-    const v = new Float32Array(16);
-    v.set(mat._v);
-    return new MutableMatrix44(v);
+    return super._fromCopyMatrix44(mat, Float32Array) as MutableMatrix44;
   }
 
-  /**
-   * Creates a new MutableMatrix44 directly from a Float32Array in column-major order.
-   * This method does not copy the array, so the matrix will share the same memory
-   * as the input array.
-   *
-   * @param float32Array - A Float32Array containing 16 elements in column-major order
-   * @returns A new MutableMatrix44 instance using the provided array
-   */
-  static fromFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix44 {
-    return new MutableMatrix44(float32Array);
+  /** Creates a matrix that directly uses the given Float32Array. */
+  static fromFloat32ArrayColumnMajor(array: Float32Array): MutableMatrix44 {
+    return super._fromTypedArrayColumnMajor(array, Float32Array) as MutableMatrix44;
   }
 
-  /**
-   * Creates a new MutableMatrix44 from a Float32Array in column-major order.
-   * This method creates a copy of the input array, so modifications to the matrix
-   * will not affect the original array.
-   *
-   * @param float32Array - A Float32Array containing 16 elements in column-major order
-   * @returns A new MutableMatrix44 instance with copied data
-   */
-  static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix44 {
-    const v = new Float32Array(16);
-    v.set(float32Array);
-    return new MutableMatrix44(v);
+  /** Creates a matrix by copying a Float32Array in column-major order. */
+  static fromCopyFloat32ArrayColumnMajor(array: Float32Array): MutableMatrix44 {
+    return super._fromCopyTypedArrayColumnMajor(array, Float32Array) as MutableMatrix44;
   }
 
-  /**
-   * Creates a new MutableMatrix44 from a Float32Array in row-major order.
-   * The input data is converted from row-major to column-major order during creation.
-   *
-   * @param array - A Float32Array containing 16 elements in row-major order
-   * @returns A new MutableMatrix44 instance with data converted to column-major order
-   */
+  /** Creates a matrix by copying a Float32Array in row-major order. */
   static fromCopyFloat32ArrayRowMajor(array: Float32Array): MutableMatrix44 {
-    const v = new Float32Array(16);
-    v[0] = array[0];
-    v[4] = array[1];
-    v[8] = array[2];
-    v[12] = array[3];
-    v[1] = array[4];
-    v[5] = array[5];
-    v[9] = array[6];
-    v[13] = array[7];
-    v[2] = array[8];
-    v[6] = array[9];
-    v[10] = array[10];
-    v[14] = array[11];
-    v[3] = array[12];
-    v[7] = array[13];
-    v[11] = array[14];
-    v[15] = array[15];
-    return new MutableMatrix44(v);
+    return super._fromCopyTypedArrayRowMajor(array, Float32Array) as MutableMatrix44;
   }
 
-  /**
-   * Creates a new MutableMatrix44 from a 3x3 matrix.
-   * The 3x3 matrix is embedded in the upper-left corner of the 4x4 matrix,
-   * with the bottom row and right column set to [0, 0, 0, 1].
-   *
-   * @param mat - The source 3x3 matrix to convert
-   * @returns A new MutableMatrix44 instance with the 3x3 matrix embedded
-   */
+  /** Creates a matrix from a 3x3 matrix embedded in the upper-left corner. */
   static fromCopyMatrix33(mat: IMatrix33): MutableMatrix44 {
-    const v = new Float32Array(16);
-    v[0] = mat._v[0];
-    v[4] = mat._v[3];
-    v[8] = mat._v[6];
-    v[12] = 0;
-    v[1] = mat._v[1];
-    v[5] = mat._v[4];
-    v[9] = mat._v[7];
-    v[13] = 0;
-    v[2] = mat._v[2];
-    v[6] = mat._v[5];
-    v[10] = mat._v[8];
-    v[14] = 0;
-    v[3] = 0;
-    v[7] = 0;
-    v[11] = 0;
-    v[15] = 1;
-    return new MutableMatrix44(v);
+    return super._fromCopyMatrix33(mat, Float32Array) as MutableMatrix44;
   }
 
-  /**
-   * Creates a new MutableMatrix44 from an Array16 in column-major order.
-   * This method copies the array data into a new Float32Array.
-   *
-   * @param array - An Array16 containing 16 elements in column-major order
-   * @returns A new MutableMatrix44 instance with copied data
-   */
+  /** Creates a matrix from a 16-element array in column-major order. */
   static fromCopyArray16ColumnMajor(array: Array16<number>): MutableMatrix44 {
-    const v = new Float32Array(16);
-    v.set(array);
-    return new MutableMatrix44(v);
+    return super._fromCopyArray16ColumnMajor(array, Float32Array) as MutableMatrix44;
   }
 
-  /**
-   * Creates a new MutableMatrix44 from a regular array in column-major order.
-   * Only the first 16 elements are used if the array is larger.
-   *
-   * @param array - An array containing at least 16 elements in column-major order
-   * @returns A new MutableMatrix44 instance with copied data
-   */
+  /** Creates a matrix from an array in column-major order. */
   static fromCopyArrayColumnMajor(array: Array<number>): MutableMatrix44 {
-    const v = new Float32Array(16);
-    v.set(array);
-    return new MutableMatrix44(v);
+    return super._fromCopyArrayColumnMajor(array, Float32Array) as MutableMatrix44;
   }
 
-  /**
-   * Creates a new MutableMatrix44 from an Array16 in row-major order.
-   * The input data is converted from row-major to column-major order during creation.
-   *
-   * @param array - An Array16 containing 16 elements in row-major order
-   * @returns A new MutableMatrix44 instance with data converted to column-major order
-   */
+  /** Creates a matrix from a 16-element array in row-major order. */
   static fromCopyArray16RowMajor(array: Array16<number>): MutableMatrix44 {
-    const v = new Float32Array(16);
-    v[0] = array[0];
-    v[4] = array[1];
-    v[8] = array[2];
-    v[12] = array[3];
-    v[1] = array[4];
-    v[5] = array[5];
-    v[9] = array[6];
-    v[13] = array[7];
-    v[2] = array[8];
-    v[6] = array[9];
-    v[10] = array[10];
-    v[14] = array[11];
-    v[3] = array[12];
-    v[7] = array[13];
-    v[11] = array[14];
-    v[15] = array[15];
-    return new MutableMatrix44(v);
+    return super._fromCopyArray16RowMajor(array, Float32Array) as MutableMatrix44;
   }
 
-  /**
-   * Creates a new MutableMatrix44 from a regular array in row-major order.
-   * The input data is converted from row-major to column-major order during creation.
-   * Only the first 16 elements are used if the array is larger.
-   *
-   * @param array - An array containing at least 16 elements in row-major order
-   * @returns A new MutableMatrix44 instance with data converted to column-major order
-   */
+  /** Creates a matrix from an array in row-major order. */
   static fromCopyArrayRowMajor(array: Array<number>): MutableMatrix44 {
-    const v = new Float32Array(16);
-    v[0] = array[0];
-    v[4] = array[1];
-    v[8] = array[2];
-    v[12] = array[3];
-    v[1] = array[4];
-    v[5] = array[5];
-    v[9] = array[6];
-    v[13] = array[7];
-    v[2] = array[8];
-    v[6] = array[9];
-    v[10] = array[10];
-    v[14] = array[11];
-    v[3] = array[12];
-    v[7] = array[13];
-    v[11] = array[14];
-    v[15] = array[15];
-    return new MutableMatrix44(v);
+    return super._fromCopyArrayRowMajor(array, Float32Array) as MutableMatrix44;
   }
 
-  /**
-   * Creates a matrix from a quaternion.
-   *
-   * @param q - The quaternion to convert
-   * @returns A new MutableMatrix44 instance representing the rotation
-   */
+  /** Creates a rotation matrix from a quaternion. */
   static fromCopyQuaternion(q: IQuaternion): MutableMatrix44 {
-    const sx = q._v[0] * q._v[0];
-    const sy = q._v[1] * q._v[1];
-    const sz = q._v[2] * q._v[2];
-    const cx = q._v[1] * q._v[2];
-    const cy = q._v[0] * q._v[2];
-    const cz = q._v[0] * q._v[1];
-    const wx = q._v[3] * q._v[0];
-    const wy = q._v[3] * q._v[1];
-    const wz = q._v[3] * q._v[2];
-    const v = new Float32Array(16);
-    v[0] = 1.0 - 2.0 * (sy + sz);
-    v[4] = 2.0 * (cz - wz);
-    v[8] = 2.0 * (cy + wy);
-    v[12] = 0;
-    v[1] = 2.0 * (cz + wz);
-    v[5] = 1.0 - 2.0 * (sx + sz);
-    v[9] = 2.0 * (cx - wx);
-    v[13] = 0;
-    v[2] = 2.0 * (cy - wy);
-    v[6] = 2.0 * (cx + wx);
-    v[10] = 1.0 - 2.0 * (sx + sy);
-    v[14] = 0;
-    v[3] = 0;
-    v[7] = 0;
-    v[11] = 0;
-    v[15] = 1;
-
-    return new MutableMatrix44(v);
+    return super._fromCopyQuaternion(q, Float32Array) as MutableMatrix44;
   }
 }
+
+/**
+ * Immutable 4x4 matrix with 64-bit float components.
+ * Use this implementation when higher numerical precision is required.
+ */
+export class MutableMatrix44D extends MutableMatrix44_<Float64ArrayConstructor> {
+  /**
+   * Creates a new MutableMatrix44D instance.
+   * @param m - The typed array containing the matrix components
+   */
+  private constructor(m: TypedArray) {
+    super(m, { type: Float64Array });
+  }
+
+  /** Creates a zero matrix. */
+  static zero(): MutableMatrix44D {
+    return super._zero(Float64Array) as MutableMatrix44D;
+  }
+
+  /** Creates an identity matrix. */
+  static identity(): MutableMatrix44D {
+    return super._identity(Float64Array) as MutableMatrix44D;
+  }
+
+  /** Creates a dummy matrix with an empty array. */
+  static dummy(): MutableMatrix44D {
+    return super._dummy(Float64Array) as MutableMatrix44D;
+  }
+
+  /** Creates the transpose of the given matrix. */
+  static transpose(mat: IMatrix44): MutableMatrix44D {
+    return super._transpose(mat, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Attempts to invert the given matrix, returning null when it is singular. */
+  static tryInvert(mat: IMatrix44): MutableMatrix44D | null {
+    return super._tryInvert(mat, Float64Array) as MutableMatrix44D | null;
+  }
+
+  /** Creates the inverse of the given matrix (identity when singular). */
+  static invert(mat: IMatrix44): MutableMatrix44D {
+    return super._invert(mat, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Attempts to invert the given matrix into outMat. */
+  static tryInvertTo<T extends IMutableMatrix44>(mat: IMatrix44, outMat: T): boolean {
+    return super._tryInvertTo(mat, outMat);
+  }
+
+  /** Inverts the given matrix into outMat (identity when singular). */
+  static invertTo<T extends IMutableMatrix44>(mat: IMatrix44, outMat: T): T {
+    return super._invertTo(mat, outMat) as T;
+  }
+
+  /** Creates a translation matrix. */
+  static translate(vec: IVector3): MutableMatrix44D {
+    return super._translate(vec, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Creates a rotation matrix around the X-axis. */
+  static rotateX(radian: number): MutableMatrix44D {
+    return super._rotateX(radian, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Creates a rotation matrix around the Y-axis. */
+  static rotateY(radian: number): MutableMatrix44D {
+    return super._rotateY(radian, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Creates a rotation matrix around the Z-axis. */
+  static rotateZ(radian: number): MutableMatrix44D {
+    return super._rotateZ(radian, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Creates a rotation matrix from Euler angles in XYZ order. */
+  static rotateXYZ(x: number, y: number, z: number): MutableMatrix44D {
+    return super._rotateXYZ(x, y, z, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Creates a rotation matrix from a vector containing Euler angles. */
+  static rotate(vec: IVector3): MutableMatrix44D {
+    return super._rotate(vec, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Creates a scaling matrix. */
+  static scale(vec: IVector3): MutableMatrix44D {
+    return super._scale(vec, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Multiplies two matrices. */
+  static multiply(l_mat: IMatrix44, r_mat: IMatrix44): MutableMatrix44D {
+    return super._multiply(l_mat, r_mat, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Multiplies two matrices and stores the result in outMat. */
+  static multiplyTo<T extends IMutableMatrix44>(l_mat: IMatrix44, r_mat: IMatrix44, outMat: T): T {
+    return super._multiplyTo(l_mat, r_mat, outMat) as T;
+  }
+
+  /** Multiplies a matrix with typed array data and stores the result in outMat. */
+  static multiplyTypedArrayTo<T extends IMutableMatrix44>(
+    l_mat: IMatrix44,
+    r_array: ArrayType,
+    outMat: T,
+    offsetAsComposition: number
+  ): T {
+    return super._multiplyTypedArrayTo(l_mat, r_array, outMat, offsetAsComposition) as T;
+  }
+
+  /** Creates a rotation matrix from a quaternion and stores it in outMat. */
+  static fromQuaternionTo<T extends IMutableMatrix44>(quat: IQuaternion, outMat: T): T {
+    return super._fromQuaternionTo(quat, outMat) as T;
+  }
+
+  /** Creates a matrix from row-major components. */
+  // prettier-ignore
+  static fromCopy16RowMajor(
+    m00: number,
+    m01: number,
+    m02: number,
+    m03: number,
+    m10: number,
+    m11: number,
+    m12: number,
+    m13: number,
+    m20: number,
+    m21: number,
+    m22: number,
+    m23: number,
+    m30: number,
+    m31: number,
+    m32: number,
+    m33: number
+  ): MutableMatrix44D {
+    return super._fromCopy16RowMajor(
+      m00,
+      m01,
+      m02,
+      m03,
+      m10,
+      m11,
+      m12,
+      m13,
+      m20,
+      m21,
+      m22,
+      m23,
+      m30,
+      m31,
+      m32,
+      m33,
+      Float64Array
+    ) as MutableMatrix44D;
+  }
+
+  /** Creates a matrix from column-major components. */
+  // prettier-ignore
+  static fromCopy16ColumnMajor(
+    m00: number,
+    m10: number,
+    m20: number,
+    m30: number,
+    m01: number,
+    m11: number,
+    m21: number,
+    m31: number,
+    m02: number,
+    m12: number,
+    m22: number,
+    m32: number,
+    m03: number,
+    m13: number,
+    m23: number,
+    m33: number
+  ): MutableMatrix44D {
+    return super._fromCopy16ColumnMajor(
+      m00,
+      m10,
+      m20,
+      m30,
+      m01,
+      m11,
+      m21,
+      m31,
+      m02,
+      m12,
+      m22,
+      m32,
+      m03,
+      m13,
+      m23,
+      m33,
+      Float64Array
+    ) as MutableMatrix44D;
+  }
+
+  /** Creates a matrix by copying another matrix. */
+  static fromCopyMatrix44(mat: IMatrix44): MutableMatrix44D {
+    return super._fromCopyMatrix44(mat, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Creates a matrix that directly uses the given Float64Array. */
+  static fromFloat64ArrayColumnMajor(array: Float64Array): MutableMatrix44D {
+    return super._fromTypedArrayColumnMajor(array, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Creates a matrix by copying a Float64Array in column-major order. */
+  static fromCopyFloat64ArrayColumnMajor(array: Float64Array): MutableMatrix44D {
+    return super._fromCopyTypedArrayColumnMajor(array, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Creates a matrix by copying a Float64Array in row-major order. */
+  static fromCopyFloat64ArrayRowMajor(array: Float64Array): MutableMatrix44D {
+    return super._fromCopyTypedArrayRowMajor(array, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Creates a matrix from a 3x3 matrix embedded in the upper-left corner. */
+  static fromCopyMatrix33(mat: IMatrix33): MutableMatrix44D {
+    return super._fromCopyMatrix33(mat, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Creates a matrix from a 16-element array in column-major order. */
+  static fromCopyArray16ColumnMajor(array: Array16<number>): MutableMatrix44D {
+    return super._fromCopyArray16ColumnMajor(array, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Creates a matrix from an array in column-major order. */
+  static fromCopyArrayColumnMajor(array: Array<number>): MutableMatrix44D {
+    return super._fromCopyArrayColumnMajor(array, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Creates a matrix from a 16-element array in row-major order. */
+  static fromCopyArray16RowMajor(array: Array16<number>): MutableMatrix44D {
+    return super._fromCopyArray16RowMajor(array, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Creates a matrix from an array in row-major order. */
+  static fromCopyArrayRowMajor(array: Array<number>): MutableMatrix44D {
+    return super._fromCopyArrayRowMajor(array, Float64Array) as MutableMatrix44D;
+  }
+
+  /** Creates a rotation matrix from a quaternion. */
+  static fromCopyQuaternion(q: IQuaternion): MutableMatrix44D {
+    return super._fromCopyQuaternion(q, Float64Array) as MutableMatrix44D;
+  }
+}
+
+/**
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
+ */
+export { MutableMatrix44 as MutableMatrix44F };

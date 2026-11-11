@@ -1,4 +1,4 @@
-import { Vector2, Vector2d } from './Vector2';
+import { Vector2, Vector2D } from './Vector2';
 import { Vector4 } from './Vector4';
 
 describe('Vector2', () => {
@@ -265,22 +265,22 @@ describe('Vector2', () => {
   });
 });
 
-describe('Vector2d (double precision)', () => {
+describe('Vector2D (double precision)', () => {
   test('fromCopy2 creates double precision vector', () => {
-    const vec = Vector2d.fromCopy2(1.123456789012345, 2.987654321098765);
+    const vec = Vector2D.fromCopy2(1.123456789012345, 2.987654321098765);
     expect(vec.x).toBe(1.123456789012345);
     expect(vec.y).toBe(2.987654321098765);
   });
 
   test('bytesPerComponent returns 8 for double precision', () => {
-    const vec = Vector2d.fromCopy2(1, 2);
+    const vec = Vector2D.fromCopy2(1, 2);
     expect(vec.bytesPerComponent).toBe(8); // Float64Array
   });
 
   test('mathematical operations work with double precision', () => {
-    const vec1 = Vector2d.fromCopy2(1.1, 2.2);
-    const vec2 = Vector2d.fromCopy2(3.3, 4.4);
-    const result = Vector2d.add(vec1, vec2);
+    const vec1 = Vector2D.fromCopy2(1.1, 2.2);
+    const vec2 = Vector2D.fromCopy2(3.3, 4.4);
+    const result = Vector2D.add(vec1, vec2);
     expect(result.x).toBeCloseTo(4.4, 10);
     expect(result.y).toBeCloseTo(6.6, 10);
   });
@@ -291,14 +291,14 @@ describe('Vector2d (double precision)', () => {
     view[0] = 1.5;
     view[1] = 2.5;
 
-    const vec = Vector2d.fromArrayBuffer(buffer);
+    const vec = Vector2D.fromArrayBuffer(buffer);
     expect(vec.x).toBe(1.5);
     expect(vec.y).toBe(2.5);
   });
 
   test('fromFloat64Array creates vector from Float64Array', () => {
     const array = new Float64Array([3.14, 2.71]);
-    const vec = Vector2d.fromFloat64Array(array);
+    const vec = Vector2D.fromFloat64Array(array);
     expect(vec.x).toBe(3.14);
     expect(vec.y).toBe(2.71);
   });
