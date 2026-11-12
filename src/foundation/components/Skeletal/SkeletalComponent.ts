@@ -51,8 +51,15 @@ export class SkeletalComponent extends Component {
    * - Mat43x1: 3 vec4 per joint (4x3 matrix, column-major)
    * - Vec4x2: 2 vec4 per joint ([translation.xyz, logQuat.lo], [scale.xyz, logQuat.hi])
    * - Vec4x1: 1 vec4 per joint ([logQuat.lo, logQuat.hi, packedTranslateScale.lo, packedTranslateScale.hi])
+   *
+   * This is a variable-length member: each component gets exactly (joint count) x (vec4 per joint) vec4s,
+   * also in Memory Boost Mode, and shaders find it through `_boneDataLocation`.
    */
   private _boneData = VectorN.dummy();
+  /**
+   * The location of `_boneData` in the GPU data (written by the memory allocation of Component).
+   */
+  private _boneDataLocation = MutableVector4.dummy();
   /**
    * Per-component bone data info: xyz = dequantization factors of translation (Vec4x1 only),
    * w = bone data type index (used by shaders to select the decoding path).
@@ -182,8 +189,7 @@ export class SkeletalComponent extends Component {
     this.__resetBoneDataBuffers();
 
     const boneDataType = this.boneDataType;
-    this.__boneDataArrayLength = this.__calcBoneDataArrayLength(boneDataType, joints.length);
-    SkeletalComponent._registerBoneDataMember(this.__boneDataArrayLength, this.componentSID);
+    this.__boneDataArrayLength = SkeletalComponent.__calcBoneDataArrayLength(boneDataType, joints.length);
 
     // Check if this component is being reused to determine allocation strategy
     const isComponentReused = this.__isReUse;
@@ -231,33 +237,19 @@ export class SkeletalComponent extends Component {
     if (this.__allocatedBoneDataType === undefined || this.__allocatedBoneDataType === boneDataType) {
       return;
     }
-    const requiredLength = this.__calcBoneDataArrayLength(boneDataType, this.__joints.length);
-    if (requiredLength === this.__boneDataArrayLength) {
-      // The same capacity is reused (e.g. Memory Boost Mode). Only the decoding path changes.
-      this.__allocatedBoneDataType = boneDataType;
-      this.__setBoneDataInfo(1, 1, 1, boneDataType);
-      this.__updateSkinCacheKey();
-      return;
-    }
     this.setJoints(this.__joints);
   }
 
   /**
-   * Calculates the array length (in vec4) of the bone data for this component.
+   * Calculates the array length (in vec4) of the bone data.
+   * The bone data is a variable-length member, so this is exact in every mode (including Memory Boost Mode).
    *
    * @param boneDataType - The bone data type
    * @param jointCount - The number of joints
    * @returns The array length in vec4
    */
-  private __calcBoneDataArrayLength(boneDataType: BoneDataTypeEnum, jointCount: number) {
-    const config = this.__engine.config;
-    if (config.skeletalComponentCountPerBufferView === 1) {
-      return Math.max(jointCount, 1) * BoneDataType.getVec4CountPerJoint(boneDataType);
-    }
-    // In Memory Boost Mode, multiple components share one buffer view, so all of them must have the same capacity.
-    // Reserve the largest layout unless the bone data type is forced by Config.
-    const vec4CountPerJoint = BoneDataType.getVec4CountPerJoint(config.boneDataType ?? BoneDataType.Mat43x1);
-    return config.maxBoneNumberForMemoryBoostMode * vec4CountPerJoint;
+  private static __calcBoneDataArrayLength(boneDataType: BoneDataTypeEnum, jointCount: number) {
+    return Math.max(jointCount, 1) * BoneDataType.getVec4CountPerJoint(boneDataType);
   }
 
   /**
@@ -830,13 +822,21 @@ export class SkeletalComponent extends Component {
   }
 
   /**
-   * Registers the bone data member. When arrayLength and componentSID are given,
-   * the class-wide maximum array length is also updated.
-   *
-   * @param arrayLength - The array length (in vec4) of the bone data
-   * @param componentSID - The component SID requesting the array length
+   * Registers the bone data member and its location member.
+   * The bone data is a variable-length member, so its size is decided per component
+   * (see `_getArrayLengthForAllocation`).
    */
-  static _registerBoneDataMember(arrayLength?: number, componentSID?: ComponentSID) {
+  static _registerBoneDataMember() {
+    // Must be registered before the variable-length member
+    SkeletalComponent.registerMember({
+      bufferUse: BufferUse.GPUInstanceData,
+      memberName: 'boneDataLocation',
+      dataClassType: MutableVector4,
+      shaderType: ShaderType.VertexShader,
+      compositionType: CompositionType.Vec4,
+      componentType: ComponentType.Float,
+      initValues: [0, 0, 0, 0],
+    });
     SkeletalComponent.registerMember({
       bufferUse: BufferUse.GPUInstanceData,
       memberName: 'boneData',
@@ -844,9 +844,8 @@ export class SkeletalComponent extends Component {
       shaderType: ShaderType.VertexShader,
       compositionType: CompositionType.Vec4Array,
       componentType: ComponentType.Float,
-      arrayLength,
-      componentSID,
       initValues: new VectorN(new Float32Array(0)),
+      isVariableLength: true,
       // Uniform mode: reserve up to 3 vec4 per joint (Mat43x1)
       uniformArrayLengthMultiplier: BoneDataType.getVec4CountPerJoint(BoneDataType.Mat43x1),
     });
@@ -1060,6 +1059,6 @@ export class SkeletalComponent extends Component {
   }
 }
 
-// Register GPU members. The array length of 'boneData' is updated per component in setJoints().
+// Register GPU members. The size of 'boneData' is decided per component in setJoints().
 SkeletalComponent._registerBoneDataMember();
 SkeletalComponent._registerBoneDataInfoMember();

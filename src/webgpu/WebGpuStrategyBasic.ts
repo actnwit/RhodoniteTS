@@ -142,12 +142,27 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
         default:
           throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
       }
+      const vec4SizeOfProperty: IndexOf16Bytes = memberInfo.compositionType.getVec4SizeOfProperty();
+
+      if (memberInfo.isVariableLength === true) {
+        // Each instance has its own chunk. Its location is stored in the `${memberName}Location` member.
+        const radix = Component._variableLengthLocationRadix;
+        str += `
+  fn get_${memberName}(instanceId: u32, idxOfArray: u32) -> ${typeStr} {
+    let location = get_${Component._getVariableLengthLocationMemberName(memberName)}(instanceId);
+    let index: u32 = u32(location.x) * ${radix}u + u32(location.y) + ${vec4SizeOfProperty}u * idxOfArray;
+    let value = ${fetchTypeStr}(index);
+    return value;
+  }
+  `;
+        return;
+      }
+
       const locationOffsets_vec4_idx = Component.getLocationOffsetOfMemberOfComponent(
         engine,
         componentClass,
         memberName
       );
-      const vec4SizeOfProperty: IndexOf16Bytes = memberInfo.compositionType.getVec4SizeOfProperty();
       const arrayLength = Component.getArrayLengthOfMember(engine).get(componentClass)?.get(memberName) ?? 0;
       const arrayLengthStr = `let arrayLength: u32 = ${arrayLength}u;`;
       const indexStr = `indices[instanceIdOfBufferViews] + instanceIdInBufferView * ${vec4SizeOfProperty}u * arrayLength + ${vec4SizeOfProperty}u * idxOfArray;`; // vec4_idx

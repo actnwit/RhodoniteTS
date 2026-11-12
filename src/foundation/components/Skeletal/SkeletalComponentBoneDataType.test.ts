@@ -80,3 +80,27 @@ test('Config.boneDataType overrides the bone data type of each component', () =>
   }
   expect(skeletal.boneDataType).toBe(Rn.BoneDataType.Vec4x1);
 });
+
+function decodeLocation(skeletal: Rn.SkeletalComponent) {
+  const v = (skeletal as any)._boneDataLocation._v as Float32Array;
+  return v[0] * Rn.Component._variableLengthLocationRadix + v[1];
+}
+
+function locationOf(typedArray: Float32Array) {
+  const memoryManager = engine.memoryManager;
+  const buffers = memoryManager.getBuffers(Rn.BufferUse.GPUInstanceData);
+  const layer = buffers.findIndex(buffer => buffer.getArrayBuffer() === typedArray.buffer);
+  expect(layer).toBeGreaterThanOrEqual(0);
+  const layerOffset = memoryManager.getByteOffsetOfExistingBuffers(Rn.BufferUse.GPUInstanceData, layer);
+  return (layerOffset + typedArray.byteOffset) / 16;
+}
+
+test('the bone data location tells shaders where the bone data is', () => {
+  const skeletal = createSkeletal();
+  skeletal.setBoneDataType(Rn.BoneDataType.Vec4x1);
+  skeletal.setJoints(createJoints(3));
+  expect(decodeLocation(skeletal)).toBe(locationOf(skeletal.boneDataArray));
+
+  skeletal.setBoneDataType(Rn.BoneDataType.Mat43x1);
+  expect(decodeLocation(skeletal)).toBe(locationOf(skeletal.boneDataArray));
+});

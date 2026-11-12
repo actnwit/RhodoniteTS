@@ -41,7 +41,11 @@ export class Config {
   lightComponentCountPerBufferView = 1;
   /**　The maximum number of lights that Rhodonite can handle */
   maxLightNumber = 6;
-  /**　The maximum number of bones that Rhodonite can handle for Memory Boost Mode */
+  /**
+   * The maximum number of bones that Rhodonite can handle for Memory Boost Mode.
+   * @deprecated No longer used. The bone data of each SkeletalComponent is allocated with its exact size
+   * (joint count x vec4 count per joint of its bone data type), also in Memory Boost Mode.
+   */
   maxBoneNumberForMemoryBoostMode = 500;
   /**
    * Number of instances of each material type to be placed consecutively in memory.
