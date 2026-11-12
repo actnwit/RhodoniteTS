@@ -281,13 +281,13 @@ export class VrmImporter {
           const joint = spring.joints[jointIdx];
           const entity = gltfModel.asset.extras!.rnEntities![joint.node];
           const springBone = new VRMSpringBone(entity);
-          springBone.dragForce = joint.dragForce;
-          springBone.stiffnessForce = joint.stiffness;
+          springBone.dragForce = Is.exist(joint.dragForce) ? joint.dragForce : 0.4;
+          springBone.stiffnessForce = Is.exist(joint.stiffness) ? joint.stiffness : 1;
           springBone.gravityPower = Is.exist(joint.gravityPower) ? joint.gravityPower : 1;
           springBone.gravityDir = Is.exist(joint.gravityDir)
             ? Vector3.fromCopyArray3([joint.gravityDir[0], joint.gravityDir[1], joint.gravityDir[2]])
             : Vector3.fromCopyArray3([0, -1, 0]);
-          springBone.hitRadius = joint.hitRadius;
+          springBone.hitRadius = Is.exist(joint.hitRadius) ? joint.hitRadius : 0.02;
           vrmSpring.bones.push(springBone);
           addedEntities.push(entity);
         }
