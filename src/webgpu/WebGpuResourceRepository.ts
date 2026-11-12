@@ -71,6 +71,13 @@ const _IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT = 16;
 const _IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT = 17;
 const DEFAULT_DEPTH_FORMAT = 'depth32float' as GPUTextureFormat;
 
+// Kinds of attachment sets a render pass encoder can target. Render passes are merged into an
+// open encoder only when both the kind and every attachment view match.
+const RENDER_PASS_TARGET_KIND_NONE = 0; // not mergeable (e.g. WebXR sub-images, external rendering)
+const RENDER_PASS_TARGET_KIND_MSAA_RESOLVE = 1;
+const RENDER_PASS_TARGET_KIND_FRAMEBUFFER = 2;
+const RENDER_PASS_TARGET_KIND_CANVAS = 3;
+
 type DRAW_PARAMETERS_IDENTIFIER = string;
 
 /**
@@ -99,6 +106,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   private __bindGroupLayoutUniformDrawParameters?: GPUBindGroupLayout;
   private __uniformDrawParametersBuffers: Map<DRAW_PARAMETERS_IDENTIFIER, GPUBuffer> = new Map();
   private __commandEncoder?: GPUCommandEncoder;
+  /** Cached `gpuDevice.queue` ([SameObject]), read on every frame by flush(). */
+  private __gpuQueue?: GPUQueue;
   private __renderBundles: Map<string, GPURenderBundle> = new Map();
   private __renderBundleEncoder?: GPURenderBundleEncoder;
   private __renderBundleEncoderKey?: string;
@@ -107,6 +116,42 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   private __uniformMorphOffsetsBuffer?: GPUBuffer;
   private __uniformMorphWeightsBuffer?: GPUBuffer;
   private __renderPassEncoder?: GPURenderPassEncoder;
+  /**
+   * The render pass encoder is kept open after a render pass has been recorded so that following
+   * render passes drawing into the same attachments (without clearing) can be merged into it.
+   * Every beginRenderPass/end pair is a comparatively expensive native call, and on tile-based GPUs
+   * each extra pass also costs a load/store of the attachments.
+   * These fields describe the currently open encoder.
+   */
+  private __renderPassEncoderOwner?: RenderPass;
+  private __renderPassEncoderDisplayIdx = -1;
+  private __renderPassEncoderTargetKind = RENDER_PASS_TARGET_KIND_NONE;
+  private __renderPassEncoderTargetViews: (GPUTextureView | undefined)[] = [];
+  /** Scratch array swapped with `__renderPassEncoderTargetViews` to avoid per-pass allocations. */
+  private __candidateRenderPassTargetViews: (GPUTextureView | undefined)[] = [];
+  /** Render bundles waiting to be executed in the open render pass. See __executeRenderBundle(). */
+  private __pendingRenderBundles: GPURenderBundle[] = [];
+  /**
+   * The clear of a render pass that draws nothing, not encoded yet. See clearFrameBuffer().
+   * The object is reused to keep the per-frame path free of allocations.
+   */
+  private __pendingClear = {
+    active: false,
+    engine: undefined as Engine | undefined,
+    renderPass: undefined as RenderPass | undefined,
+    displayIdx: 0,
+    targetKind: RENDER_PASS_TARGET_KIND_NONE,
+    targetViews: [] as (GPUTextureView | undefined)[],
+    isColorClear: false,
+    clearColor: { r: 0, g: 0, b: 0, a: 0 },
+    isDepthClear: false,
+    clearDepth: 1,
+  };
+  /** A depth clear of the system depth texture deferred to the next render pass attaching it. See flush(). */
+  private __deferredSystemDepthClearValue: number | undefined;
+  /** The render pass (and display) the pending render bundle encoder is recording for. */
+  private __renderBundleEncoderOwner?: RenderPass;
+  private __renderBundleEncoderDisplayIdx = -1;
   private __generateMipmapsShaderModule?: GPUShaderModule;
   private __generateMipmapsPipeline?: GPURenderPipeline;
   private __generateMipmapsFormat?: GPUTextureFormat;
@@ -160,6 +205,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    */
   addWebGpuDeviceWrapper(webGpuDeviceWrapper: WebGpuDeviceWrapper) {
     this.__webGpuDeviceWrapper = webGpuDeviceWrapper;
+    this.__gpuQueue = webGpuDeviceWrapper.gpuDevice.queue;
     this.__commandEncoder = this.__webGpuDeviceWrapper.gpuDevice.createCommandEncoder();
   }
 
@@ -828,15 +874,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       this.__generateMipmapsSampler = gpuDevice.createSampler({ minFilter: 'linear' });
     }
 
-    if (this.__renderPassEncoder != null) {
-      if (this.__renderBundleEncoder != null) {
-        this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
-        this.__renderBundleEncoder = undefined;
-        this.__renderBundleEncoderKey = undefined;
-      }
-      this.__renderPassEncoder.end();
-      this.__renderPassEncoder = undefined;
-    }
+    this.__flushRenderPassWork();
     const isCubemap = texture.dimension === '2d' && texture.depthOrArrayLayers === 6;
     const layerCount = isCubemap ? 6 : 1;
 
@@ -1363,7 +1401,52 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       return;
     }
 
-    const context = this.__webGpuDeviceWrapper!.context;
+    const webXRSystem = engine.webXRSystem;
+    const isXrTarget = renderPass.getFramebuffer() == null && webXRSystem.isWebXRMode && renderPass.isOutputForVr;
+    if (renderPass.getResolveFramebuffer() == null && !isXrTarget) {
+      // Nothing is drawn by this render pass, so beginning a render pass only to clear is deferred.
+      // The clear is folded into the load ops of the next render pass on the same attachments
+      // (see createRenderPassEncoder), or encoded on its own when something else comes first.
+      const targetViews = this.__candidateRenderPassTargetViews;
+      const targetKind = this.__collectRenderPassTargetViews(engine, renderPass, targetViews);
+      const pendingClear = this.__pendingClear;
+      if (pendingClear.active) {
+        if (
+          targetKind !== pendingClear.targetKind ||
+          !WebGpuResourceRepository.__isSameTargetViews(targetViews, pendingClear.targetViews)
+        ) {
+          this.__encodePendingClear();
+        }
+      }
+      if (!pendingClear.active) {
+        pendingClear.active = true;
+        pendingClear.engine = engine;
+        pendingClear.renderPass = renderPass;
+        pendingClear.displayIdx = displayIdx;
+        pendingClear.targetKind = targetKind;
+        // Swap the scratch arrays instead of copying the views.
+        this.__candidateRenderPassTargetViews = pendingClear.targetViews;
+        pendingClear.targetViews = targetViews;
+      }
+      // A later clear of the same attachment overrides an earlier one.
+      if (renderPass.toClearColorBuffer) {
+        const clearColor = renderPass.clearColor;
+        pendingClear.isColorClear = true;
+        pendingClear.clearColor.r = clearColor.x;
+        pendingClear.clearColor.g = clearColor.y;
+        pendingClear.clearColor.b = clearColor.z;
+        pendingClear.clearColor.a = clearColor.w;
+      }
+      if (renderPass.toClearDepthBuffer) {
+        pendingClear.isDepthClear = true;
+        pendingClear.clearDepth = renderPass.clearDepth;
+      }
+      return;
+    }
+    // A MSAA pass would resolve into its resolve target at the end of the pass, which the
+    // standalone clear below never did, so it is not merged.
+    this.__flushRenderPassWork();
+
     const colorAttachments: GPURenderPassColorAttachment[] = [];
     let depthStencilAttachment: GPURenderPassDepthStencilAttachment | undefined;
     const webxrSystem = engine.webXRSystem;
@@ -1404,11 +1487,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           storeOp: 'store',
         });
       } else {
-        if (this.__contextCurrentTextureView == null) {
-          this.__contextCurrentTextureView = context.getCurrentTexture().createView();
-        }
         colorAttachments.push({
-          view: this.__contextCurrentTextureView,
+          view: this.__getContextCurrentTextureView(),
           clearValue: {
             r: renderPass.clearColor.x,
             g: renderPass.clearColor.y,
@@ -1459,7 +1539,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       depthStencilAttachment: depthStencilAttachment,
       label: renderPass.uniqueName,
     };
-    const passEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
+    const passEncoder = this.__beginRenderPass(renderPassDescriptor);
     passEncoder.end();
   }
 
@@ -1701,17 +1781,10 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     renderPass: RenderPass,
     displayIdx: number
   ): GPURenderPassEncoder | undefined {
-    if (this.__renderPassEncoder != null) {
-      if (this.__renderBundleEncoder != null) {
-        this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
-        this.__renderBundleEncoder = undefined;
-        this.__renderBundleEncoderKey = undefined;
-      }
-      this.__renderPassEncoder.end();
-      this.__renderPassEncoder = undefined;
-    } else if (this.__renderBundleEncoder != null) {
-      this.__renderBundleEncoder = undefined;
-      this.__renderBundleEncoderKey = undefined;
+    // Executes a pending bundle of the same render pass into the open pass, as before.
+    this.__flushRenderPassWork();
+    if (this.__renderBundleEncoder != null) {
+      this.__clearRenderBundleEncoder();
     }
 
     const framebuffer = renderPass.getFramebuffer();
@@ -1752,12 +1825,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         storeOp: 'store',
       });
     } else {
-      if (this.__contextCurrentTextureView == null) {
-        const context = this.__webGpuDeviceWrapper!.context;
-        this.__contextCurrentTextureView = context.getCurrentTexture().createView();
-      }
       colorAttachments.push({
-        view: this.__contextCurrentTextureView,
+        view: this.__getContextCurrentTextureView(),
         loadOp: 'load',
         storeOp: 'store',
       });
@@ -1784,6 +1853,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       sampleCount: renderBundleDescriptor.sampleCount,
     });
 
+    this.__renderBundleEncoderOwner = renderPass;
+    this.__renderBundleEncoderDisplayIdx = displayIdx;
     if (this.__renderBundleEncoder != null && this.__renderBundleEncoderKey === descriptorKey) {
       return;
     }
@@ -1801,22 +1872,327 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param displayIdx - The display index for stereo rendering (0 for left eye, 1 for right eye)
    */
   private createRenderPassEncoder(engine: Engine, renderPass: RenderPass, displayIdx: number) {
-    if (this.__renderPassEncoder != null) {
+    if (
+      this.__renderPassEncoder != null &&
+      this.__renderPassEncoderOwner === renderPass &&
+      this.__renderPassEncoderDisplayIdx === displayIdx &&
+      !this.__pendingClear.active
+    ) {
       return;
     }
+    const targetViews = this.__candidateRenderPassTargetViews;
+    const targetKind = this.__collectRenderPassTargetViews(engine, renderPass, targetViews);
 
+    let mergePendingClear = false;
+    const pendingClear = this.__pendingClear;
+    if (pendingClear.active) {
+      if (
+        targetKind !== RENDER_PASS_TARGET_KIND_NONE &&
+        targetKind === pendingClear.targetKind &&
+        WebGpuResourceRepository.__isSameTargetViews(targetViews, pendingClear.targetViews)
+      ) {
+        // Nothing has been encoded between the pending clear and this render pass, so the clear
+        // can be folded into the load ops of the render pass that is begun below.
+        mergePendingClear = true;
+      } else {
+        this.__encodePendingClear();
+      }
+    }
+
+    if (this.__renderPassEncoder != null) {
+      if (
+        !mergePendingClear &&
+        targetKind !== RENDER_PASS_TARGET_KIND_NONE &&
+        targetKind === this.__renderPassEncoderTargetKind &&
+        !renderPass.toClearColorBuffer &&
+        !renderPass.toClearDepthBuffer &&
+        WebGpuResourceRepository.__isSameTargetViews(targetViews, this.__renderPassEncoderTargetViews)
+      ) {
+        // Same attachments and nothing to clear: keep drawing into the open render pass.
+        this.__renderPassEncoderOwner = renderPass;
+        this.__renderPassEncoderDisplayIdx = displayIdx;
+        return;
+      }
+      this.__endRenderPassEncoder();
+    }
+
+    this.__beginRenderPassEncoder(engine, renderPass, displayIdx, mergePendingClear);
+    if (mergePendingClear) {
+      this.__resetPendingClear();
+    }
+
+    if (this.__renderPassEncoder != null) {
+      this.__renderPassEncoderOwner = renderPass;
+      this.__renderPassEncoderDisplayIdx = displayIdx;
+      this.__renderPassEncoderTargetKind = targetKind;
+      // Swap the scratch arrays instead of copying the views.
+      this.__candidateRenderPassTargetViews = this.__renderPassEncoderTargetViews;
+      this.__renderPassEncoderTargetViews = targetViews;
+    }
+  }
+
+  /**
+   * Collects the attachment views `__beginRenderPassEncoder` would use for the render pass.
+   * Must be kept in sync with the attachment selection in `__beginRenderPassEncoder`.
+   *
+   * @returns The kind of the target, or `RENDER_PASS_TARGET_KIND_NONE` if the render pass must not be merged.
+   */
+  private __collectRenderPassTargetViews(
+    engine: Engine,
+    renderPass: RenderPass,
+    out: (GPUTextureView | undefined)[]
+  ): number {
+    out.length = 0;
+    const framebuffer = renderPass.getFramebuffer();
+    const resolveFramebuffer = renderPass.getResolveFramebuffer();
+    const webGpuResources = this.__webGpuResources;
+
+    if (resolveFramebuffer != null && framebuffer != null) {
+      for (let i = 0; i < resolveFramebuffer.colorAttachments.length; i++) {
+        const colorAttachment = framebuffer.colorAttachments[i] as RenderBuffer;
+        const resolveColorAttachment = resolveFramebuffer.colorAttachments[i] as RenderBuffer;
+        out.push(webGpuResources.get(colorAttachment._textureViewAsRenderTargetResourceUid) as GPUTextureView);
+        out.push(webGpuResources.get(resolveColorAttachment._textureViewAsRenderTargetResourceUid) as GPUTextureView);
+      }
+      let depthTextureView = this.__systemDepthTextureView;
+      const depthAttachment = framebuffer.depthAttachment;
+      if (depthAttachment != null && webGpuResources.get(depthAttachment._textureResourceUid) != null) {
+        depthTextureView = webGpuResources.get(depthAttachment._textureViewResourceUid) as GPUTextureView;
+      }
+      out.push(depthTextureView);
+      return RENDER_PASS_TARGET_KIND_MSAA_RESOLVE;
+    }
+
+    if (framebuffer != null) {
+      for (const colorAttachment of framebuffer.colorAttachments) {
+        out.push(webGpuResources.get(colorAttachment._textureViewAsRenderTargetResourceUid) as GPUTextureView);
+      }
+      let depthTextureView: GPUTextureView | undefined;
+      const depthAttachment = framebuffer.depthAttachment;
+      if (depthAttachment != null && webGpuResources.get(depthAttachment._textureResourceUid) != null) {
+        depthTextureView = webGpuResources.get(depthAttachment._textureViewAsRenderTargetResourceUid) as GPUTextureView;
+      }
+      out.push(depthTextureView);
+      return RENDER_PASS_TARGET_KIND_FRAMEBUFFER;
+    }
+
+    if (engine.webXRSystem.isWebXRMode && renderPass.isOutputForVr) {
+      // WebXR sub-image views are created per render pass, so they are never merged.
+      return RENDER_PASS_TARGET_KIND_NONE;
+    }
+
+    out.push(this.__getContextCurrentTextureView());
+    out.push(this.__systemDepthTextureView);
+    return RENDER_PASS_TARGET_KIND_CANVAS;
+  }
+
+  /**
+   * Returns the attachment for the current canvas texture of this frame.
+   *
+   * When the browser accepts a GPUTexture where a GPUTextureView is expected (the texture's default
+   * view is used), the texture itself is returned. This saves a `createView()` call per frame.
+   */
+  private __getContextCurrentTextureView(): GPUTextureView {
+    let view = this.__contextCurrentTextureView;
+    if (view == null) {
+      const texture = this.__webGpuDeviceWrapper!.context.getCurrentTexture();
+      view = WebGpuResourceRepository.__isTextureAsAttachmentViewSupported(this.__webGpuDeviceWrapper!.gpuDevice)
+        ? (texture as unknown as GPUTextureView)
+        : texture.createView();
+      this.__contextCurrentTextureView = view;
+    }
+    return view;
+  }
+
+  private static __textureAsAttachmentViewSupport: boolean | undefined;
+
+  /**
+   * Detects once whether a GPUTexture can be passed as a render pass attachment view.
+   * Browsers that do not support it throw a TypeError while converting the descriptor.
+   */
+  private static __isTextureAsAttachmentViewSupported(gpuDevice: GPUDevice): boolean {
+    let supported = WebGpuResourceRepository.__textureAsAttachmentViewSupport;
+    if (supported !== undefined) {
+      return supported;
+    }
+    let texture: GPUTexture | undefined;
+    try {
+      texture = gpuDevice.createTexture({
+        size: [1, 1],
+        format: 'rgba8unorm',
+        usage: GPUTextureUsage.RENDER_ATTACHMENT,
+      });
+      // The encoder is never finished or submitted, so this has no side effect on the GPU.
+      const pass = gpuDevice.createCommandEncoder().beginRenderPass({
+        colorAttachments: [{ view: texture as unknown as GPUTextureView, loadOp: 'clear', storeOp: 'store' }],
+      });
+      pass.end();
+      supported = true;
+    } catch {
+      supported = false;
+    } finally {
+      texture?.destroy();
+    }
+    WebGpuResourceRepository.__textureAsAttachmentViewSupport = supported;
+    return supported;
+  }
+
+  /**
+   * Begins a render pass on the frame's command encoder. A deferred clear of the system depth
+   * texture (see flush()) is applied here to the first render pass that attaches it.
+   */
+  private __beginRenderPass(renderPassDescriptor: GPURenderPassDescriptor): GPURenderPassEncoder {
+    const deferredDepthClearValue = this.__deferredSystemDepthClearValue;
+    if (deferredDepthClearValue !== undefined) {
+      const depthStencilAttachment = renderPassDescriptor.depthStencilAttachment;
+      if (depthStencilAttachment != null && depthStencilAttachment.view === this.__systemDepthTextureView) {
+        if (depthStencilAttachment.depthLoadOp === 'load') {
+          depthStencilAttachment.depthLoadOp = 'clear';
+          depthStencilAttachment.depthClearValue = deferredDepthClearValue;
+        }
+        this.__deferredSystemDepthClearValue = undefined;
+      }
+    }
+    return this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
+  }
+
+  /**
+   * Encodes the pending clear (see clearFrameBuffer) as a render pass of its own.
+   * Anything recorded in the open render pass happened before the clear, so it is ended first.
+   */
+  private __encodePendingClear() {
+    const pendingClear = this.__pendingClear;
+    if (!pendingClear.active) {
+      return;
+    }
+    this.__endRenderPassEncoder();
+    // The pending clear carries the (possibly merged) clear ops. The render pass is only used for
+    // its attachments, its own clears are already part of the pending clear.
+    this.__beginRenderPassEncoder(pendingClear.engine!, pendingClear.renderPass!, pendingClear.displayIdx, true, false);
+    this.__resetPendingClear();
+    this.__renderPassEncoder?.end();
+    this.__renderPassEncoder = undefined;
+  }
+
+  private __resetPendingClear() {
+    const pendingClear = this.__pendingClear;
+    pendingClear.active = false;
+    pendingClear.engine = undefined;
+    pendingClear.renderPass = undefined;
+    pendingClear.targetViews.length = 0;
+    pendingClear.isColorClear = false;
+    pendingClear.isDepthClear = false;
+  }
+
+  /**
+   * Ends the open render pass (if any) and encodes a pending clear, so that commands can be recorded
+   * directly on the command encoder (copies, mipmap generation, external rendering, submission).
+   */
+  private __flushRenderPassWork() {
+    this.__encodePendingClear();
+    this.__endRenderPassEncoder();
+  }
+
+  /**
+   * Executes a render bundle in the open render pass. Bundles are batched and executed with a
+   * single executeBundles() call when the pass is ended or handed out for direct drawing.
+   */
+  private __executeRenderBundle(renderBundle: GPURenderBundle) {
+    this.__pendingRenderBundles.push(renderBundle);
+  }
+
+  private __executePendingRenderBundles() {
+    const pendingRenderBundles = this.__pendingRenderBundles;
+    if (pendingRenderBundles.length === 0 || this.__renderPassEncoder == null) {
+      return;
+    }
+    this.__renderPassEncoder.executeBundles(pendingRenderBundles);
+    pendingRenderBundles.length = 0;
+  }
+
+  private static __isSameTargetViews(a: (GPUTextureView | undefined)[], b: (GPUTextureView | undefined)[]) {
+    if (a.length !== b.length) {
+      return false;
+    }
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Ends the open render pass encoder, if any.
+   *
+   * A pending render bundle encoder is executed into the pass only when it was recorded for the
+   * same render pass. Otherwise it belongs to a render pass that is still being recorded (the open
+   * encoder is just being kept for merging) and must stay pending.
+   */
+  private __endRenderPassEncoder() {
+    const renderPassEncoder = this.__renderPassEncoder;
+    if (renderPassEncoder == null) {
+      return;
+    }
+    this.__executePendingRenderBundles();
+    if (
+      this.__renderBundleEncoder != null &&
+      this.__renderBundleEncoderOwner === this.__renderPassEncoderOwner &&
+      this.__renderBundleEncoderDisplayIdx === this.__renderPassEncoderDisplayIdx
+    ) {
+      renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
+      this.__clearRenderBundleEncoder();
+    }
+    renderPassEncoder.end();
+    this.__renderPassEncoder = undefined;
+    this.__renderPassEncoderOwner = undefined;
+    this.__renderPassEncoderDisplayIdx = -1;
+    this.__renderPassEncoderTargetKind = RENDER_PASS_TARGET_KIND_NONE;
+  }
+
+  private __clearRenderBundleEncoder() {
+    this.__renderBundleEncoder = undefined;
+    this.__renderBundleEncoderKey = undefined;
+    this.__renderBundleEncoderOwner = undefined;
+    this.__renderBundleEncoderDisplayIdx = -1;
+  }
+
+  /**
+   * Begins a new render pass encoder for the render pass. The caller must have ended any open encoder.
+   */
+  private __beginRenderPassEncoder(
+    engine: Engine,
+    renderPass: RenderPass,
+    displayIdx: number,
+    mergePendingClear: boolean,
+    useOwnClears = true
+  ) {
     const framebuffer = renderPass.getFramebuffer();
     const resolveFramebuffer = renderPass.getResolveFramebuffer();
 
-    const clearValue = renderPass.toClearColorBuffer
-      ? {
-          r: renderPass.clearColor.x,
-          g: renderPass.clearColor.y,
-          b: renderPass.clearColor.z,
-          a: renderPass.clearColor.w,
-        }
-      : undefined;
-    const depthClearValue = renderPass.toClearDepthBuffer ? renderPass.clearDepth : undefined;
+    // A pending clear for the same attachments (see clearFrameBuffer) is folded into the load ops.
+    // The render pass' own clears win because they would have been executed after the pending one.
+    const pendingClear = mergePendingClear ? this.__pendingClear : undefined;
+    let clearValue: GPUColorDict | undefined;
+    if (useOwnClears && renderPass.toClearColorBuffer) {
+      clearValue = {
+        r: renderPass.clearColor.x,
+        g: renderPass.clearColor.y,
+        b: renderPass.clearColor.z,
+        a: renderPass.clearColor.w,
+      };
+    } else if (pendingClear?.isColorClear) {
+      const c = pendingClear.clearColor;
+      clearValue = { r: c.r, g: c.g, b: c.b, a: c.a };
+    }
+    let depthClearValue: number | undefined;
+    if (useOwnClears && renderPass.toClearDepthBuffer) {
+      depthClearValue = renderPass.clearDepth;
+    } else if (pendingClear?.isDepthClear) {
+      depthClearValue = pendingClear.clearDepth;
+    }
+    const colorLoadOp: GPULoadOp = clearValue != null ? 'clear' : 'load';
+    const depthLoadOp: GPULoadOp = depthClearValue != null ? 'clear' : 'load';
 
     const webxrSystem = engine.webXRSystem;
 
@@ -1835,7 +2211,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         depthStencilAttachment: {
           view: depthTextureView,
           depthClearValue: depthClearValue,
-          depthLoadOp: renderPass.toClearDepthBuffer ? 'clear' : 'load',
+          depthLoadOp: depthLoadOp,
           depthStoreOp: 'store',
         },
         label: renderPass.uniqueName,
@@ -1854,12 +2230,12 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           view: textureView,
           resolveTarget: resolveTextureView,
           clearValue: clearValue,
-          loadOp: renderPass.toClearColorBuffer ? 'clear' : 'load',
+          loadOp: colorLoadOp,
           storeOp: 'store',
         });
       }
       renderPassDescriptor.colorAttachments = colorAttachments as GPURenderPassColorAttachment[];
-      this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
+      this.__renderPassEncoder = this.__beginRenderPass(renderPassDescriptor);
     } else if (framebuffer != null) {
       let depthTextureView: GPUTextureView | undefined;
       if (framebuffer.depthAttachment != null) {
@@ -1875,7 +2251,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         depthStencilAttachment = {
           view: depthTextureView,
           depthClearValue: depthClearValue,
-          depthLoadOp: renderPass.toClearDepthBuffer ? 'clear' : 'load',
+          depthLoadOp: depthLoadOp,
           depthStoreOp: 'store',
         };
       }
@@ -1892,12 +2268,12 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         colorAttachments.push({
           view: textureView,
           clearValue: clearValue,
-          loadOp: renderPass.toClearColorBuffer ? 'clear' : 'load',
+          loadOp: colorLoadOp,
           storeOp: 'store',
         });
       }
       renderPassDescriptor.colorAttachments = colorAttachments as GPURenderPassColorAttachment[];
-      this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
+      this.__renderPassEncoder = this.__beginRenderPass(renderPassDescriptor);
     } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
       const colorAttachments: GPURenderPassColorAttachment[] = [];
       const view = engine.engineState.xrPoseWebGPU!.views[displayIdx];
@@ -1908,43 +2284,39 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       colorAttachments.push({
         view: subImage.colorTexture.createView(subImage.getViewDescriptor()),
         clearValue: clearValue,
-        loadOp: renderPass.toClearColorBuffer ? 'clear' : 'load',
+        loadOp: colorLoadOp,
         storeOp: 'store',
       });
       const depthStencilAttachment: GPURenderPassDepthStencilAttachment = {
         view: subImage.depthStencilTexture.createView(subImage.getViewDescriptor()),
         depthClearValue: depthClearValue,
-        depthLoadOp: renderPass.toClearDepthBuffer ? 'clear' : 'load',
+        depthLoadOp: depthLoadOp,
         depthStoreOp: 'store',
       };
       const renderPassDescriptor: GPURenderPassDescriptor = {
         colorAttachments: colorAttachments as GPURenderPassColorAttachment[],
         depthStencilAttachment: depthStencilAttachment,
       };
-      this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
+      this.__renderPassEncoder = this.__beginRenderPass(renderPassDescriptor);
     } else {
-      if (this.__contextCurrentTextureView == null) {
-        const context = this.__webGpuDeviceWrapper!.context;
-        this.__contextCurrentTextureView = context.getCurrentTexture().createView();
-      }
       const renderPassDescriptor: GPURenderPassDescriptor = {
         colorAttachments: [
           {
-            view: this.__contextCurrentTextureView,
+            view: this.__getContextCurrentTextureView(),
             clearValue: clearValue,
-            loadOp: renderPass.toClearColorBuffer ? 'clear' : 'load',
+            loadOp: colorLoadOp,
             storeOp: 'store',
           },
         ],
         depthStencilAttachment: {
           view: this.__systemDepthTextureView!,
           depthClearValue: depthClearValue,
-          depthLoadOp: renderPass.toClearDepthBuffer ? 'clear' : 'load',
+          depthLoadOp: depthLoadOp,
           depthStoreOp: 'store',
         },
         label: renderPass.uniqueName,
       };
-      this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
+      this.__renderPassEncoder = this.__beginRenderPass(renderPassDescriptor);
     }
   }
 
@@ -1978,10 +2350,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       this.createRenderPassEncoder(engine, renderPass, displayIdx);
 
       if (this.__renderPassEncoder != null) {
-        this.__renderPassEncoder.executeBundles([renderBundle]);
-        this.__renderPassEncoder.end();
-        this.__renderPassEncoder = undefined;
-
+        this.__executeRenderBundle(renderBundle);
+        // The pass is intentionally left open so that following render passes targeting the same
+        // attachments can be merged into it. It is ended on demand or in flush().
         return true;
       }
     }
@@ -2005,9 +2376,10 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       this.createRenderPassEncoder(engine, renderPass, displayIdx);
 
       if (this.__renderPassEncoder != null) {
-        this.__renderPassEncoder.executeBundles([renderBundle]);
-        this.__renderBundleEncoder = undefined;
-        this.__renderBundleEncoderKey = undefined;
+        this.__executeRenderBundle(renderBundle);
+        // The encoder is handed out for direct drawing, so the batched bundles must be executed now.
+        this.__executePendingRenderBundles();
+        this.__clearRenderBundleEncoder();
         return this.__renderPassEncoder;
       }
     }
@@ -2026,11 +2398,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       } else {
         this.__renderBundles.clear();
       }
-      this.__renderPassEncoder.executeBundles([renderBundle]);
-      this.__renderPassEncoder.end();
-      this.__renderBundleEncoder = undefined;
-      this.__renderBundleEncoderKey = undefined;
-      this.__renderPassEncoder = undefined;
+      this.__executeRenderBundle(renderBundle);
+      // Left open for merging. See renderWithRenderBundle().
+      this.__clearRenderBundleEncoder();
     } else {
       console.log('renderPassEncoder is null');
     }
@@ -2051,10 +2421,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       } else {
         this.__renderBundles.clear();
       }
-      this.__renderPassEncoder.executeBundles([renderBundle]);
-      this.__renderBundleEncoder = undefined;
-      this.__renderBundleEncoderKey = undefined;
+      this.__executeRenderBundle(renderBundle);
+      this.__clearRenderBundleEncoder();
     }
+    // The encoder is handed out for direct drawing, so the batched bundles must be executed now.
+    this.__executePendingRenderBundles();
 
     return this.__renderPassEncoder;
   }
@@ -2065,6 +2436,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     displayIdx: number
   ): GPURenderPassEncoder | undefined {
     this.createRenderPassEncoder(engine, renderPass, displayIdx);
+    this.__executePendingRenderBundles();
     return this.__renderPassEncoder;
   }
 
@@ -2072,13 +2444,12 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (this.__renderPassEncoder == null) {
       return;
     }
+    this.__executePendingRenderBundles();
     if (this.__renderBundleEncoder != null) {
       this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
-      this.__renderBundleEncoder = undefined;
-      this.__renderBundleEncoderKey = undefined;
+      this.__clearRenderBundleEncoder();
     }
-    this.__renderPassEncoder.end();
-    this.__renderPassEncoder = undefined;
+    this.__endRenderPassEncoder();
   }
 
   getOrCreateRenderPipeline(
@@ -2261,7 +2632,22 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    */
   flush() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    gpuDevice.queue.submit([this.__commandEncoder!.finish()]);
+    const pendingClear = this.__pendingClear;
+    if (
+      pendingClear.active &&
+      !pendingClear.isColorClear &&
+      pendingClear.targetKind === RENDER_PASS_TARGET_KIND_CANVAS &&
+      pendingClear.targetViews[pendingClear.targetViews.length - 1] === this.__systemDepthTextureView
+    ) {
+      // A depth-only clear of the system depth texture with nothing drawn after it in this frame.
+      // The texture is only a render attachment, so its contents can only be observed by later
+      // render passes: the clear is deferred to the next render pass that attaches it
+      // (see __beginRenderPass) instead of encoding a render pass just for clearing.
+      this.__deferredSystemDepthClearValue = pendingClear.clearDepth;
+      this.__resetPendingClear();
+    }
+    this.__flushRenderPassWork();
+    this.__gpuQueue!.submit([this.__commandEncoder!.finish()]);
     this.__commandEncoder = gpuDevice.createCommandEncoder();
 
     if (this.__contextCurrentTextureView != null) {
@@ -3866,15 +4252,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   copyTextureData(fromTexture: WebGPUResourceHandle, toTexture: WebGPUResourceHandle) {
     const from = this.__webGpuResources.get(fromTexture) as GPUTexture;
     const to = this.__webGpuResources.get(toTexture) as GPUTexture;
-    if (this.__renderPassEncoder != null) {
-      if (this.__renderBundleEncoder != null) {
-        this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
-        this.__renderBundleEncoder = undefined;
-        this.__renderBundleEncoderKey = undefined;
-      }
-      this.__renderPassEncoder.end();
-      this.__renderPassEncoder = undefined;
-    }
+    this.__flushRenderPassWork();
     this.__commandEncoder!.copyTextureToTexture(
       {
         texture: from,
@@ -3911,15 +4289,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     };
     const newTexture = gpuDevice.createTexture(textureDescriptor);
 
-    if (this.__renderPassEncoder != null) {
-      if (this.__renderBundleEncoder != null) {
-        this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
-        this.__renderBundleEncoder = undefined;
-        this.__renderBundleEncoderKey = undefined;
-      }
-      this.__renderPassEncoder.end();
-      this.__renderPassEncoder = undefined;
-    }
+    this.__flushRenderPassWork();
 
     // Copy the texture to the new texture
     this.__commandEncoder!.copyTextureToTexture(
@@ -4140,6 +4510,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (this.__systemDepthTexture != null) {
       this.__systemDepthTexture.destroy();
     }
+    // A new texture starts with its own (zero) contents, as it did before deferring the clear.
+    this.__deferredSystemDepthClearValue = undefined;
     if (canvas.width <= 0 || canvas.height <= 0) {
       Logger.default.warn('Skip recreating system depth texture because the canvas size is zero.');
       return;

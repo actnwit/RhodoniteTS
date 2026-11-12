@@ -662,8 +662,6 @@ export class Engine extends RnObject {
     const webGpuResourceRepository = this.webGpuResourceRepository;
     const webxrSystem = this.__webXRSystem;
     for (const stage of Component._processStages) {
-      const methodName = stage.methodName;
-      const commonMethodName = `common_${methodName}`;
       if (stage === ProcessStage.Render) {
         MeshRendererComponent.common_$prerender(this);
         const isWebXRMode = webxrSystem.isWebXRMode;
@@ -747,6 +745,8 @@ export class Engine extends RnObject {
           CameraControllerComponent.getUpdateCount(this) !== this.__lastCameraControllerComponentsUpdateCount ||
           Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
         ) {
+          // Built only when the stage actually runs: a static scene skips it on every frame.
+          const commonMethodName = `common_${stage.methodName}`;
           for (const componentTid of componentTids) {
             const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
 
