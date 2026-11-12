@@ -53,7 +53,7 @@ export class SkeletalComponent extends Component {
    * - Vec4x1: 1 vec4 per joint ([logQuat.lo, logQuat.hi, packedTranslateScale.lo, packedTranslateScale.hi])
    *
    * This is a variable-length member: each component gets exactly (joint count) x (vec4 per joint) vec4s,
-   * also in Memory Boost Mode, and shaders find it through `_boneDataLocation`.
+   * even though skeletal components share buffer views, and shaders find it through `_boneDataLocation`.
    */
   private _boneData = VectorN.dummy();
   /**
@@ -242,7 +242,7 @@ export class SkeletalComponent extends Component {
 
   /**
    * Calculates the array length (in vec4) of the bone data.
-   * The bone data is a variable-length member, so this is exact in every mode (including Memory Boost Mode).
+   * The bone data is a variable-length member, so this is exact regardless of skeletalComponentCountPerBufferView.
    *
    * @param boneDataType - The bone data type
    * @param jointCount - The number of joints

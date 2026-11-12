@@ -1,11 +1,9 @@
 import Rn from '../../../../dist/esm';
 
-const config = new Rn.Config();
-config.setUpAsMemoryBoostMode();
+// Skeletal components share a buffer view by default (Config.skeletalComponentCountPerBufferView)
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.None,
   canvas: document.getElementById('world') as HTMLCanvasElement,
-  config,
 });
 const countPerBufferView = engine.config.skeletalComponentCountPerBufferView;
 
@@ -47,11 +45,11 @@ function expectSlotOfFixedMember(skeletal: Rn.SkeletalComponent, memberName: str
   expect(view.byteOffset).toBe(accessor.byteOffsetInRawArrayBufferOfBuffer + (sid % countPerBufferView) * 16);
 }
 
-test('Memory Boost Mode shares a buffer view among skeletal components', () => {
+test('skeletal components share a buffer view by default', () => {
   expect(countPerBufferView).toBeGreaterThan(1);
 });
 
-test('bone data is allocated with the exact size of each bone data type in Memory Boost Mode', () => {
+test('bone data is allocated with the exact size of each bone data type when buffer views are shared', () => {
   const cases: [Rn.BoneDataTypeEnum, number][] = [
     [Rn.BoneDataType.Vec4x1, 1],
     [Rn.BoneDataType.Vec4x2, 2],
@@ -90,7 +88,7 @@ test('bone data of skeletal components with different bone data types do not ove
   }
 });
 
-test('changing the bone data type re-allocates the exact size in Memory Boost Mode', () => {
+test('changing the bone data type re-allocates the exact size when buffer views are shared', () => {
   const skeletal = createSkeletal();
   skeletal.setJoints(createJoints(6));
   expect(skeletal.boneDataArray.length).toBe(6 * 2 * 4);
@@ -123,7 +121,7 @@ test('a chunk released by a component is reused by another component', () => {
   expect(decodeLocation(skeletalB)).toBe(locationOf(skeletalB.boneDataArray));
 });
 
-test('skeletal components can set joints out of SID order in Memory Boost Mode', () => {
+test('skeletal components can set joints out of SID order when buffer views are shared', () => {
   // Make the next skeletal component the first one of a new buffer view, and let it never allocate.
   let first = createSkeletal();
   while (first.componentSID % countPerBufferView !== 0) {
@@ -185,8 +183,9 @@ test('a variable-length member requires its location member', () => {
   ).toThrow();
 });
 
-test('skeletons can have more joints than the former maxBoneNumberForMemoryBoostMode in Memory Boost Mode', () => {
-  const jointCount = engine.config.maxBoneNumberForMemoryBoostMode + 100;
+test('skeletons have no joint count limit when buffer views are shared', () => {
+  // More than the former fixed capacity (500 joints per skeleton)
+  const jointCount = 600;
   const skeletalA = createSkeletal();
   skeletalA.setBoneDataType(Rn.BoneDataType.Mat43x1);
   skeletalA.setJoints(createJoints(jointCount));

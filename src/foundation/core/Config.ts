@@ -12,7 +12,6 @@ type ConfigInitDescription = {
   cameraComponentCountPerBufferView?: number;
   lightComponentCountPerBufferView?: number;
   maxLightNumber?: number;
-  maxBoneNumberForMemoryBoostMode?: number;
   materialCountPerBufferView?: number;
   boneDataType?: BoneDataTypeEnum;
   maxSkeletalBoneNumberForUniformMode?: number;
@@ -32,9 +31,9 @@ type ConfigInitDescription = {
  */
 export class Config {
   /**　The number of scenegraph components per buffer view */
-  scenegraphComponentCountPerBufferView = 10;
+  scenegraphComponentCountPerBufferView = 1000;
   /**　The number of skeletal components per buffer view */
-  skeletalComponentCountPerBufferView = 1;
+  skeletalComponentCountPerBufferView = 100;
   /**　The number of camera components per buffer view */
   cameraComponentCountPerBufferView = 1;
   /**　The number of light components per buffer view */
@@ -42,17 +41,11 @@ export class Config {
   /**　The maximum number of lights that Rhodonite can handle */
   maxLightNumber = 6;
   /**
-   * The maximum number of bones that Rhodonite can handle for Memory Boost Mode.
-   * @deprecated No longer used. The bone data of each SkeletalComponent is allocated with its exact size
-   * (joint count x vec4 count per joint of its bone data type), also in Memory Boost Mode.
-   */
-  maxBoneNumberForMemoryBoostMode = 500;
-  /**
    * Number of instances of each material type to be placed consecutively in memory.
    * This is on the memory layout, and the number of material instances that can be generated is not limited by this setting.
    * If this limit is exceeded, the material type is internally treated as a separate material type.
    */
-  materialCountPerBufferView = 3;
+  materialCountPerBufferView = 100;
   /**
    * Forces the bone data type of all SkeletalComponents.
    * When undefined (default), each SkeletalComponent uses its own bone data type
@@ -97,9 +90,6 @@ export class Config {
     if (initDescription.maxLightNumber !== undefined) {
       this.maxLightNumber = initDescription.maxLightNumber;
     }
-    if (initDescription.maxBoneNumberForMemoryBoostMode !== undefined) {
-      this.maxBoneNumberForMemoryBoostMode = initDescription.maxBoneNumberForMemoryBoostMode;
-    }
     if (initDescription.materialCountPerBufferView !== undefined) {
       this.materialCountPerBufferView = initDescription.materialCountPerBufferView;
     }
@@ -137,12 +127,5 @@ export class Config {
     if (initDescription.logLevel !== undefined) {
       this.logLevel = initDescription.logLevel;
     }
-  }
-
-  public setUpAsMemoryBoostMode() {
-    this.bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 4, 1 / 4, 1 / 4, 1 / 4];
-    this.skeletalComponentCountPerBufferView = 100;
-    this.scenegraphComponentCountPerBufferView = 1000;
-    this.materialCountPerBufferView = 1000;
   }
 }
