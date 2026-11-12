@@ -88,6 +88,16 @@ const int RN_BONE_DATA_TYPE_MAT43X1 = 0;
 const int RN_BONE_DATA_TYPE_VEC4X2 = 1;
 const int RN_BONE_DATA_TYPE_VEC4X1 = 2;
 
+// Vec4x1 stores log2(|uniform scale|) / RN_VEC4X1_LOG2_SCALE_RANGE as snorm16, and the sign of the scale
+// (negative for a mirrored joint) in bit 31 of logQuat.hi (must match MathUtil.encodeVec4x1Scale and SkeletalComponent)
+const float RN_VEC4X1_LOG2_SCALE_RANGE = 16.0;
+const uint RN_VEC4X1_NEGATIVE_SCALE_BIT = 0x80000000u;
+
+float decodeVec4x1Scale(float encodedScale, uint logQuatHi) {
+  float scale = exp2(encodedScale * RN_VEC4X1_LOG2_SCALE_RANGE);
+  return (logQuatHi & RN_VEC4X1_NEGATIVE_SCALE_BIT) != 0u ? -scale : scale;
+}
+
 // Decode the matrix of one joint from the bone data, according to the bone data type of the skeleton
 mat4 getBoneMatrix(uint skeletalComponentSID, uint jointIdx, int boneDataType, vec4 boneDataInfo) {
   if (boneDataType == RN_BONE_DATA_TYPE_MAT43X1) {
@@ -108,10 +118,12 @@ mat4 getBoneMatrix(uint skeletalComponentSID, uint jointIdx, int boneDataType, v
     vec4 quat = decodeLogQuat(uvec2(floatBitsToUint(tq.w), floatBitsToUint(sq.w)));
     return createMatrixFromQuaternionTranslationScale(quat, tq.xyz, sq.xyz);
   } else {
-    // 1 vec4 per joint: [logQuat.lo, logQuat.hi, packedTranslateScale.lo, packedTranslateScale.hi]
+    // 1 vec4 per joint: [logQuat.lo, logQuat.hi (bit 31: negative scale), packedTranslateScale.lo, packedTranslateScale.hi]
     uvec4 chunk = floatBitsToUint(get_boneData(skeletalComponentSID, jointIdx));
-    vec4 ts = unpackVec4FromUvec2(chunk.zw) * vec4(boneDataInfo.xyz, 1.0);
-    return createMatrixFromQuaternionTranslationScale(decodeLogQuat(chunk.xy), ts.xyz, vec3(ts.w));
+    vec4 ts = unpackVec4FromUvec2(chunk.zw);
+    vec3 translation = ts.xyz * boneDataInfo.xyz;
+    float scale = decodeVec4x1Scale(ts.w, chunk.y);
+    return createMatrixFromQuaternionTranslationScale(decodeLogQuat(chunk.xy), translation, vec3(scale));
   }
 }
 

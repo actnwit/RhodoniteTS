@@ -14,7 +14,6 @@ import { MathUtil } from '../../math/MathUtil';
 import { Matrix44 } from '../../math/Matrix44';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MutableQuaternion } from '../../math/MutableQuaternion';
-import { MutableVector3 } from '../../math/MutableVector3';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { VectorN } from '../../math/VectorN';
 import type { Accessor } from '../../memory/Accessor';
@@ -34,6 +33,12 @@ type SkinningCache = {
 };
 
 /**
+ * Vec4x1: bit 31 of logQuat.hi (unused by the 63-bit log-quaternion) tells that the uniform scale is negative,
+ * which represents a mirrored joint matrix. Must match RN_VEC4X1_NEGATIVE_SCALE_BIT in the shaders.
+ */
+const VEC4X1_NEGATIVE_SCALE_BIT = 0x80000000;
+
+/**
  * SkeletalComponent manages skeletal animation for entities.
  * This component handles bone transformations, joint matrices, and skinning calculations
  * for 3D models with skeletal animation systems.
@@ -49,8 +54,11 @@ export class SkeletalComponent extends Component {
   /**
    * GPU bone data of all joints. The layout per joint depends on the bone data type:
    * - Mat43x1: 3 vec4 per joint (4x3 matrix, column-major)
-   * - Vec4x2: 2 vec4 per joint ([translation.xyz, logQuat.lo], [scale.xyz, logQuat.hi])
-   * - Vec4x1: 1 vec4 per joint ([logQuat.lo, logQuat.hi, packedTranslateScale.lo, packedTranslateScale.hi])
+   * - Vec4x2: 2 vec4 per joint ([translation.xyz, logQuat.lo], [scale.xyz, logQuat.hi]).
+   *   The x scale is negative for a mirrored joint matrix.
+   * - Vec4x1: 1 vec4 per joint ([logQuat.lo, logQuat.hi, packedTranslateScale.lo, packedTranslateScale.hi]).
+   *   packedTranslateScale is snorm16 x 4: the translation divided by `_boneDataInfo.xyz`, and
+   *   log2(|uniform scale|) / 16 (see MathUtil.encodeVec4x1Scale). Bit 31 of logQuat.hi is the sign of the scale.
    *
    * This is a variable-length member: each component gets exactly (joint count) x (vec4 per joint) vec4s,
    * even though skeletal components share buffer views, and shaders find it through `_boneDataLocation`.
@@ -67,6 +75,9 @@ export class SkeletalComponent extends Component {
   private _boneDataInfo = MutableVector4.dummy();
   private __boneDataUint32?: Uint32Array;
   private __boneDataType: BoneDataTypeEnum = BoneDataType.Vec4x2;
+  /** Whether __boneDataType was chosen automatically (an automatic Vec4x1 may be switched to Vec4x2) */
+  private __isBoneDataTypeAutoSelected = false;
+  private __hasWarnedNonUniformScale = false;
   private __allocatedBoneDataType?: BoneDataTypeEnum;
   private __boneDataArrayLength = 0;
   private __boneTranslateScaleWork = new Float32Array(0);
@@ -81,7 +92,6 @@ export class SkeletalComponent extends Component {
   private __skinCacheKey?: string;
   private __inverseBindMatricesSignature?: string;
   private static __tookGlobalDataNum = 0;
-  private static __tmpVec3_0 = MutableVector3.zero();
   private static __tmp_mat4 = MutableMatrix44.identity();
   private static __tmp_q: MutableQuaternion = MutableQuaternion.fromCopy4(0, 0, 0, 1);
   private static __tmp_mat4_2 = MutableMatrix44.identity();
@@ -121,6 +131,8 @@ export class SkeletalComponent extends Component {
       this._bindShapeMatrix = undefined;
       this.isSkinning = true;
       this.__boneDataType = BoneDataType.Vec4x2;
+      this.__isBoneDataTypeAutoSelected = false;
+      this.__hasWarnedNonUniformScale = false;
       this.__allocatedBoneDataType = undefined;
       this.__boneDataArrayLength = 0;
       this.__jointListKey = undefined;
@@ -222,10 +234,16 @@ export class SkeletalComponent extends Component {
    * If joints are already set and the GPU data layout changes, the bone data is re-allocated.
    * Note that Config.boneDataType, if set, takes precedence over this value.
    *
+   * If a non-uniform scale is found at runtime with Vec4x1, an automatically selected Vec4x1 is switched to Vec4x2,
+   * while an explicitly specified Vec4x1 is kept (the largest scale is used, and a warning is logged once).
+   *
    * @param boneDataType - The bone data type to use
+   * @param isAutoSelected - True if the type was chosen automatically (e.g. by the glTF importer) rather than
+   *   specified by the user
    */
-  setBoneDataType(boneDataType: BoneDataTypeEnum) {
+  setBoneDataType(boneDataType: BoneDataTypeEnum, isAutoSelected = false) {
     this.__boneDataType = boneDataType;
+    this.__isBoneDataTypeAutoSelected = isAutoSelected;
     this.__ensureBoneDataLayout();
   }
 
@@ -507,6 +525,7 @@ export class SkeletalComponent extends Component {
     const boneDataUint32 = this.__boneDataUint32!;
     const translateScaleWork = this.__getTranslateScaleWork(boneDataType);
     const inverseGlobalTransform = MutableMatrix44.invertTo(this.entity.matrixInner, SkeletalComponent.__tmp_mat4_2);
+    let hasNonUniformScale = false;
     for (let i = 0; i < this.__joints.length; i++) {
       const joint = this.__joints[i];
       const globalJointTransform = joint.matrixInner;
@@ -522,7 +541,8 @@ export class SkeletalComponent extends Component {
         SkeletalComponent.__tmp_mat4_3
       );
       if (this._bindShapeMatrix) {
-        SkeletalComponent.__tmp_mat4.multiply(this._bindShapeMatrix); // only for glTF1
+        // glTF1 skins: the bind shape matrix is applied to vertices before the inverse bind matrix
+        jointMatrix.multiply(this._bindShapeMatrix);
       }
       const m = jointMatrix;
 
@@ -541,59 +561,53 @@ export class SkeletalComponent extends Component {
         continue;
       }
 
-      const scaleVec = SkeletalComponent.__tmpVec3_0.setComponents(
-        Math.hypot(m._v[0], m._v[1], m._v[2]),
-        Math.hypot(m._v[4], m._v[5], m._v[6]),
-        Math.hypot(m._v[8], m._v[9], m._v[10])
-      );
-
-      m.m00 /= scaleVec.x;
-      m.m01 /= scaleVec.x;
-      m.m02 /= scaleVec.x;
-      m.m10 /= scaleVec.y;
-      m.m11 /= scaleVec.y;
-      m.m12 /= scaleVec.y;
-      m.m20 /= scaleVec.z;
-      m.m21 /= scaleVec.z;
-      m.m22 /= scaleVec.z;
-
-      const q = SkeletalComponent.__tmp_q.fromMatrix(m);
-      const vec2QPacked = MathUtil.encodeLogQuat(q.x, q.y, q.z, q.w);
+      // Decompose M = T * R * S: each column of the upper-left 3x3 is an axis of R multiplied by its scale
+      const v = m._v;
+      const sx = Math.hypot(v[0], v[1], v[2]);
+      const sy = Math.hypot(v[4], v[5], v[6]);
+      const sz = Math.hypot(v[8], v[9], v[10]);
+      // A mirrored matrix (det < 0) is not a rotation times positive scales, so it needs a negative scale
+      const isMirrored = SkeletalComponent.__determinant3x3(v) < 0;
 
       if (boneDataType === BoneDataType.Vec4x2) {
+        // Negate the x scale of a mirrored matrix so that R is a proper rotation
+        const signedSx = isMirrored ? -sx : sx;
+        const q = SkeletalComponent.__extractRotation(m, signedSx, sy, sz);
+        const logQuat = MathUtil.encodeLogQuat(q.x, q.y, q.z, q.w);
         // [translation.xyz, logQuat.lo], [scale.xyz, logQuat.hi]
         const base = i * 8;
-        boneData[base + 0] = m.m03;
-        boneData[base + 1] = m.m13;
-        boneData[base + 2] = m.m23;
-        boneDataUint32[base + 3] = vec2QPacked[0];
-        boneData[base + 4] = scaleVec.x;
-        boneData[base + 5] = scaleVec.y;
-        boneData[base + 6] = scaleVec.z;
-        boneDataUint32[base + 7] = vec2QPacked[1];
+        boneData[base + 0] = v[12];
+        boneData[base + 1] = v[13];
+        boneData[base + 2] = v[14];
+        boneDataUint32[base + 3] = logQuat[0];
+        boneData[base + 4] = signedSx;
+        boneData[base + 5] = sy;
+        boneData[base + 6] = sz;
+        boneDataUint32[base + 7] = logQuat[1];
       } else {
-        // Vec4x1: [logQuat.lo, logQuat.hi, packedTranslateScale.lo, packedTranslateScale.hi]
-        let maxScale = 1;
-        if (Math.abs(scaleVec.x) > Math.abs(scaleVec.y)) {
-          if (Math.abs(scaleVec.x) > Math.abs(scaleVec.z)) {
-            maxScale = scaleVec.x;
-          } else {
-            maxScale = scaleVec.z;
-          }
-        } else {
-          if (Math.abs(scaleVec.y) > Math.abs(scaleVec.z)) {
-            maxScale = scaleVec.y;
-          } else {
-            maxScale = scaleVec.z;
-          }
+        // Vec4x1 supports only uniform scale: the largest one is used
+        if (!hasNonUniformScale && !MathUtil.isUniformScale(sx, sy, sz)) {
+          hasNonUniformScale = true;
         }
-        translateScaleWork[i * 4 + 0] = m.m03;
-        translateScaleWork[i * 4 + 1] = m.m13;
-        translateScaleWork[i * 4 + 2] = m.m23;
-        translateScaleWork[i * 4 + 3] = maxScale;
-        boneDataUint32[i * 4 + 0] = vec2QPacked[0];
-        boneDataUint32[i * 4 + 1] = vec2QPacked[1];
+        // Represent a mirrored matrix as R * (-s): negate all the axes so that R is a proper rotation
+        const sign = isMirrored ? -1 : 1;
+        const q = SkeletalComponent.__extractRotation(m, sign * sx, sign * sy, sign * sz);
+        const logQuat = MathUtil.encodeLogQuat(q.x, q.y, q.z, q.w);
+        // [logQuat.lo, logQuat.hi (bit 31: negative scale), packedTranslateScale.lo, packedTranslateScale.hi]
+        // The translation and the scale are packed after this loop, as the translation is normalized by the max.
+        translateScaleWork[i * 4 + 0] = v[12];
+        translateScaleWork[i * 4 + 1] = v[13];
+        translateScaleWork[i * 4 + 2] = v[14];
+        translateScaleWork[i * 4 + 3] = Math.max(sx, sy, sz);
+        boneDataUint32[i * 4 + 0] = logQuat[0];
+        boneDataUint32[i * 4 + 1] = isMirrored ? (logQuat[1] | VEC4X1_NEGATIVE_SCALE_BIT) >>> 0 : logQuat[1];
       }
+    }
+
+    if (hasNonUniformScale && this.__handleNonUniformScaleOfVec4x1()) {
+      // Switched to Vec4x2: compute again with the new layout (the skinning cache key changes as well)
+      this.$logic();
+      return;
     }
 
     if (boneDataType === BoneDataType.Vec4x1) {
@@ -616,13 +630,13 @@ export class SkeletalComponent extends Component {
       }
 
       for (let i = 0; i < this.__joints.length; i++) {
-        // pack normalized XYZ and Uniform Scale
+        // Pack the normalized translation and the uniform scale (in log2 space, so that scales over 1 are kept)
         const normalizedX = translateScaleWork[i * 4 + 0] / maxAbsX;
         const normalizedY = translateScaleWork[i * 4 + 1] / maxAbsY;
         const normalizedZ = translateScaleWork[i * 4 + 2] / maxAbsZ;
-        const normalizedW = translateScaleWork[i * 4 + 3];
+        const encodedScale = MathUtil.encodeVec4x1Scale(translateScaleWork[i * 4 + 3]);
 
-        const vec2TPacked = MathUtil.packSnormVec4ToUVec2(normalizedX, normalizedY, normalizedZ, normalizedW);
+        const vec2TPacked = MathUtil.packSnormVec4ToUVec2(normalizedX, normalizedY, normalizedZ, encodedScale);
         boneDataUint32[i * 4 + 2] = vec2TPacked[0];
         boneDataUint32[i * 4 + 3] = vec2TPacked[1];
       }
@@ -634,6 +648,103 @@ export class SkeletalComponent extends Component {
     if (cacheKey) {
       SkeletalComponent.__skinCalculationCache.set(cacheKey, this.__createSkinningCache(currentProcessFrameToken));
     }
+  }
+
+  /**
+   * Calculates the determinant of the upper-left 3x3 part of a column-major 4x4 matrix.
+   *
+   * @param v - The matrix elements (column-major)
+   * @returns The determinant
+   */
+  private static __determinant3x3(v: ArrayLike<number>) {
+    // c0 . (c1 x c2)
+    return (
+      v[0] * (v[5] * v[10] - v[6] * v[9]) + v[1] * (v[6] * v[8] - v[4] * v[10]) + v[2] * (v[4] * v[9] - v[5] * v[8])
+    );
+  }
+
+  /**
+   * Extracts the rotation R of M = T * R * S, given the (signed) scales of S.
+   * The columns of the upper-left 3x3 of `m` are divided by the scales in place.
+   *
+   * If the rotation cannot be extracted (e.g. a zero scale used to hide a part of a mesh), the identity is
+   * returned without logging an error, since the rotation does not affect the result in that case.
+   *
+   * @param m - The matrix to decompose (overwritten)
+   * @param sx - The x scale (negative for a mirrored axis)
+   * @param sy - The y scale (negative for a mirrored axis)
+   * @param sz - The z scale (negative for a mirrored axis)
+   * @returns The rotation (a shared temporary quaternion)
+   */
+  private static __extractRotation(m: MutableMatrix44, sx: number, sy: number, sz: number) {
+    const v = m._v;
+    const invSx = 1 / sx;
+    const invSy = 1 / sy;
+    const invSz = 1 / sz;
+    v[0] *= invSx;
+    v[1] *= invSx;
+    v[2] *= invSx;
+    v[4] *= invSy;
+    v[5] *= invSy;
+    v[6] *= invSy;
+    v[8] *= invSz;
+    v[9] *= invSz;
+    v[10] *= invSz;
+    const q = SkeletalComponent.__tmp_q;
+    if (!q.tryFromMatrix(m)) {
+      q.setComponents(0, 0, 0, 1);
+    }
+    return q;
+  }
+
+  /**
+   * Handles a non-uniform scale found with the Vec4x1 bone data type, which supports only uniform scale.
+   * An automatically selected Vec4x1 is switched to Vec4x2. An explicitly specified Vec4x1 (setBoneDataType or
+   * Config.boneDataType) is kept, and a warning is logged once (the largest scale of each joint is used).
+   *
+   * The components sharing the skinning cache with this one are switched together. Otherwise they would get
+   * a different cache key and lose the shared result, and a follower would fall back to its own joints, which
+   * may not be animated (see the AnimationComponent early return). If any of them specifies Vec4x1 explicitly,
+   * none of them is switched.
+   *
+   * @returns True if the bone data type has been switched to Vec4x2
+   */
+  private __handleNonUniformScaleOfVec4x1(): boolean {
+    const sharingComponents = this.__getComponentsSharingSkinCache();
+    if (
+      this.__engine.config.boneDataType == null &&
+      sharingComponents.every(component => component.__isBoneDataTypeAutoSelected)
+    ) {
+      for (const component of sharingComponents) {
+        component.setBoneDataType(BoneDataType.Vec4x2, true);
+      }
+      this.__engine.logger.info(
+        `SkeletalComponent (entity ${this.entityUID}): switched the bone data type from Vec4x1 to Vec4x2 because a non-uniform scale was found (${sharingComponents.length} component(s) sharing the skinning cache).`
+      );
+      return this.__allocatedBoneDataType === BoneDataType.Vec4x2;
+    }
+    if (!this.__hasWarnedNonUniformScale) {
+      this.__hasWarnedNonUniformScale = true;
+      this.__engine.logger.warn(
+        `SkeletalComponent (entity ${this.entityUID}): the Vec4x1 bone data type supports only uniform scale, but a non-uniform scale was found. The largest scale is used. Use Vec4x2 or Mat43x1 for this skeleton.`
+      );
+    }
+    return false;
+  }
+
+  /**
+   * Gets the skeletal components that share the skinning cache with this component (including this one).
+   *
+   * @returns The components with the same skinning cache key
+   */
+  private __getComponentsSharingSkinCache(): SkeletalComponent[] {
+    const key = this.__skinCacheKey;
+    if (key == null) {
+      return [this];
+    }
+    const components = (this.__engine.componentRepository.getComponentsWithType(SkeletalComponent) ??
+      []) as SkeletalComponent[];
+    return components.filter(component => component === this || component.__skinCacheKey === key);
   }
 
   /**
@@ -702,6 +813,7 @@ export class SkeletalComponent extends Component {
 
     this._jointIndices = component._jointIndices.concat();
     this.__boneDataType = component.__boneDataType;
+    this.__isBoneDataTypeAutoSelected = component.__isBoneDataTypeAutoSelected;
 
     if (component.__joints.length > 0) {
       this.setJoints(component.__joints.concat());

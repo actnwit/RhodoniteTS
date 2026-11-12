@@ -1081,15 +1081,21 @@ export class ModelConverter {
 
         // Choose the bone data type before setJoints() so that the GPU bone data is allocated only once.
         // Mat43x1 is used only when specified explicitly by the loader option (or Config.boneDataType).
-        const boneDataType =
-          forcedBoneDataType ??
-          detectBoneDataTypeForSkin(
-            gltfModel,
-            node.skinObject,
-            Number(node_i),
-            rnAccessorOfInverseBindMat?.getTypedArray()
+        if (forcedBoneDataType != null) {
+          skeletalComponent.setBoneDataType(forcedBoneDataType);
+        } else {
+          // An automatically selected Vec4x1 is switched to Vec4x2 if a non-uniform scale appears at runtime
+          const isAutoSelected = true;
+          skeletalComponent.setBoneDataType(
+            detectBoneDataTypeForSkin(
+              gltfModel,
+              node.skinObject,
+              Number(node_i),
+              rnAccessorOfInverseBindMat?.getTypedArray()
+            ),
+            isAutoSelected
           );
-        skeletalComponent.setBoneDataType(boneDataType);
+        }
 
         if (Is.exist(node.skinObject.bindShapeMatrix)) {
           skeletalComponent._bindShapeMatrix = Matrix44.fromCopyArrayColumnMajor(node.skinObject.bindShapeMatrix);

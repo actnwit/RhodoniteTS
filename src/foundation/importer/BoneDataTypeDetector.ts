@@ -1,16 +1,12 @@
 import type { RnM2, RnM2Skin } from '../../types/RnM2';
 import { BoneDataType, type BoneDataTypeEnum } from '../definitions/BoneDataType';
-
-/**
- * Relative tolerance used to decide whether a scale is uniform.
- * (max - min) <= tolerance * max is treated as uniform.
- */
-const UNIFORM_SCALE_RELATIVE_TOLERANCE = 1e-3;
+import { MathUtil } from '../math/MathUtil';
 
 const NODE_SCALE_POINTER_REGEX = /^\/nodes\/([0-9]+)\/scale$/;
 
 /**
  * Checks whether the given three scale components are (almost) uniform.
+ * The same criterion is used by SkeletalComponent at runtime (see MathUtil.isUniformScale).
  *
  * @param x - The x component of the scale
  * @param y - The y component of the scale
@@ -18,12 +14,7 @@ const NODE_SCALE_POINTER_REGEX = /^\/nodes\/([0-9]+)\/scale$/;
  * @returns True if the scale is uniform
  */
 export function isUniformScale(x: number, y: number, z: number): boolean {
-  const ax = Math.abs(x);
-  const ay = Math.abs(y);
-  const az = Math.abs(z);
-  const max = Math.max(ax, ay, az);
-  const min = Math.min(ax, ay, az);
-  return max - min <= UNIFORM_SCALE_RELATIVE_TOLERANCE * max;
+  return MathUtil.isUniformScale(x, y, z);
 }
 
 /**
@@ -62,6 +53,8 @@ function areAllUniformScales(values: ArrayLike<number>): boolean {
  * and on the inverse bind matrices. If all of their scales (static values and animations) are uniform,
  * or no scale is specified, Vec4x1 (the most compact format, which supports only uniform scale) is chosen.
  * Otherwise Vec4x2 (which supports non-uniform scale) is chosen.
+ * If a non-uniform scale still appears at runtime (e.g. an animation assigned later), SkeletalComponent
+ * switches the automatically selected Vec4x1 to Vec4x2.
  *
  * Note: _setupAnimation must have been called before this function so that animation output data is available.
  *

@@ -86,6 +86,16 @@ const RN_BONE_DATA_TYPE_MAT43X1: i32 = 0;
 const RN_BONE_DATA_TYPE_VEC4X2: i32 = 1;
 const RN_BONE_DATA_TYPE_VEC4X1: i32 = 2;
 
+// Vec4x1 stores log2(|uniform scale|) / RN_VEC4X1_LOG2_SCALE_RANGE as snorm16, and the sign of the scale
+// (negative for a mirrored joint) in bit 31 of logQuat.hi (must match MathUtil.encodeVec4x1Scale and SkeletalComponent)
+const RN_VEC4X1_LOG2_SCALE_RANGE: f32 = 16.0;
+const RN_VEC4X1_NEGATIVE_SCALE_BIT: u32 = 0x80000000u;
+
+fn decodeVec4x1Scale(encodedScale: f32, logQuatHi: u32) -> f32 {
+  let scale = exp2(encodedScale * RN_VEC4X1_LOG2_SCALE_RANGE);
+  return select(scale, -scale, (logQuatHi & RN_VEC4X1_NEGATIVE_SCALE_BIT) != 0u);
+}
+
 // Decode the matrix of one joint from the bone data, according to the bone data type of the skeleton
 fn getBoneMatrix(skeletalComponentSID: u32, jointIdx: u32, boneDataType: i32, boneDataInfo: vec4<f32>) -> mat4x4<f32> {
   if (boneDataType == RN_BONE_DATA_TYPE_MAT43X1) {
@@ -106,10 +116,12 @@ fn getBoneMatrix(skeletalComponentSID: u32, jointIdx: u32, boneDataType: i32, bo
     let quat = decodeLogQuat(vec2<u32>(bitcast<u32>(tq.w), bitcast<u32>(sq.w)));
     return createMatrixFromQuaternionTranslationScale(quat, tq.xyz, sq.xyz);
   }
-  // 1 vec4 per joint: [logQuat.lo, logQuat.hi, packedTranslateScale.lo, packedTranslateScale.hi]
+  // 1 vec4 per joint: [logQuat.lo, logQuat.hi (bit 31: negative scale), packedTranslateScale.lo, packedTranslateScale.hi]
   let chunk = bitcast<vec4<u32>>(get_boneData(skeletalComponentSID, jointIdx));
-  let ts = unpackVec4FromUvec2(chunk.zw) * vec4<f32>(boneDataInfo.xyz, 1.0);
-  return createMatrixFromQuaternionTranslationScale(decodeLogQuat(chunk.xy), ts.xyz, vec3<f32>(ts.w));
+  let ts = unpackVec4FromUvec2(chunk.zw);
+  let translation = ts.xyz * boneDataInfo.xyz;
+  let scale = decodeVec4x1Scale(ts.w, chunk.y);
+  return createMatrixFromQuaternionTranslationScale(decodeLogQuat(chunk.xy), translation, vec3<f32>(scale));
 }
 
 fn getSkinMatrix(skeletalComponentSID: u32, joint: vec4<u32>, weight: vec4<f32>) -> mat4x4<f32> {
