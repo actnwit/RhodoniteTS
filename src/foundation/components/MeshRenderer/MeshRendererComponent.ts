@@ -34,6 +34,22 @@ import { TransformComponent } from '../Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**
+ * Reusable working buffers for one render pass.
+ *
+ * `sort_$render` runs every frame and used to allocate a filtered mesh component
+ * array, a `Set`, a mapped array and several closures per call. All of them are
+ * replaced by these per-render-pass scratch buffers.
+ */
+type MeshRendererSortScratch = {
+  /** Primitives collected by the culling pass. */
+  primitives: Primitive[];
+  /** Per-primitive stamp used to remove duplicates without a `Set`. */
+  stamp: Uint32Array;
+  /** Current stamp value; a primitive is a duplicate while `stamp[uid] === stampTick`. */
+  stampTick: number;
+};
+
+/**
  * MeshRendererComponent is a component that manages the rendering of a mesh entity.
  * It handles mesh rendering pipeline, IBL (Image-Based Lighting) cube maps, frustum culling,
  * and rendering optimization through various strategies.
@@ -53,6 +69,13 @@ export class MeshRendererComponent extends Component {
   public static _isFrustumCullingEnabled = true;
 
   private __fingerPrint = '';
+
+  /** Per-render-pass scratch buffers reused by sort_$render to avoid per-frame allocations. */
+  private static __sortScratchMap: WeakMap<RenderPass, MeshRendererSortScratch> = new WeakMap();
+
+  /** Memoized rendering strategy for common_$prerender (the hot path runs once per frame). */
+  private static __prerenderStrategyEngineUid: ObjectUID = -1;
+  private static __prerenderStrategy: CGAPIStrategy | undefined;
 
   /**
    * Creates a new MeshRendererComponent instance.
@@ -306,25 +329,23 @@ export class MeshRendererComponent extends Component {
       }
     }
 
-    // FrustumCulling
-    let primitives: Primitive[] = [];
-    const meshComponents = renderPass._optimizedMeshComponents;
-    primitives = MeshRendererComponent.__cullingWithViewFrustum(cameraComponent, meshComponents);
+    // FrustumCulling (writes into the reusable per-render-pass scratch array)
+    const scratch = MeshRendererComponent.__getSortScratch(renderPass);
+    const primitives = MeshRendererComponent.__cullingWithViewFrustum(
+      cameraComponent,
+      renderPass._optimizedMeshComponents,
+      scratch.primitives
+    );
 
     // After Frustum Culling, remove duplicated Primitives
-    primitives = Array.from(new Set(primitives));
+    MeshRendererComponent.__removeDuplicatedPrimitives(primitives, scratch);
 
     // Sort by sortkey
-    primitives.sort((a, b) => {
-      const delta = a._sortkey - b._sortkey;
-      if (delta !== 0) {
-        return delta;
-      }
-      return a._viewDepth - b._viewDepth;
-    });
+    if (primitives.length > 1) {
+      primitives.sort(MeshRendererComponent.__comparePrimitives);
+    }
 
-    const primitiveUids = primitives.map(primitive => primitive.primitiveUid);
-    primitiveUids.push(-1);
+    const primitiveUids = MeshRendererComponent.__createPrimitiveUids(primitives);
 
     let _lastOpaqueIndex = primitives.length - 1;
     let _lastTranslucentIndex = primitives.length - 1;
@@ -421,80 +442,158 @@ export class MeshRendererComponent extends Component {
    * Filters out mesh components that are not visible from the camera's perspective.
    * @param cameraComponent - The camera component used for frustum culling
    * @param meshComponents - Array of mesh components to be culled
-   * @returns Array of primitives that passed the frustum culling test
+   * @param outPrimitives - Reusable output array. It is cleared and filled with the primitives that passed culling
+   * @returns The `outPrimitives` array (same reference) for convenience
    */
-  private static __cullingWithViewFrustum(cameraComponent: CameraComponent, meshComponents: MeshComponent[]) {
-    let filteredMeshComponents: MeshComponent[] = [];
-    if (cameraComponent && MeshRendererComponent._isFrustumCullingEnabled) {
+  private static __cullingWithViewFrustum(
+    cameraComponent: CameraComponent,
+    meshComponents: MeshComponent[],
+    outPrimitives: Primitive[]
+  ): Primitive[] {
+    outPrimitives.length = 0;
+
+    // A single pass over the mesh components: cull, update visibility flags and
+    // collect primitives. The previous implementation allocated a filtered array
+    // and an inner closure per call.
+    const isFrustumCullingEnabled = cameraComponent != null && MeshRendererComponent._isFrustumCullingEnabled;
+    let frustum: CameraComponent['frustum'] | undefined;
+    if (isFrustumCullingEnabled) {
       cameraComponent.updateFrustum();
-
-      // const whetherContainsSkeletal = (sg: SceneGraphComponent): boolean => {
-      //   const skeletalComponent = sg.entity.tryToGetSkeletal();
-      //   if (Is.exist(skeletalComponent)) {
-      //     return true;
-      //   } else {
-      //     const children = sg.children;
-      //     for (const child of children) {
-      //       return whetherContainsSkeletal(child);
-      //     }
-      //     return false;
-      //   }
-      // };
-
-      const frustum = cameraComponent.frustum;
-      const frustumCulling = (meshComponent: MeshComponent, outMeshComponents: MeshComponent[]) => {
-        const result =
-          meshComponent.entity.getTagValue('type') === 'background-assets' ? true : frustum.culling(meshComponent);
-        if (result) {
-          outMeshComponents.push(meshComponent);
-          meshComponent.entity.getSceneGraph()._isCulled = false;
-          const skeletal = meshComponent.entity.tryToGetSkeletal();
-          if (skeletal !== undefined) {
-            skeletal._isCulled = false;
-          }
-        } else {
-          meshComponent.entity.getSceneGraph()._isCulled = true;
-          const skeletal = meshComponent.entity.tryToGetSkeletal();
-          if (skeletal !== undefined) {
-            skeletal._isCulled = true;
-          }
-        }
-      };
-      for (const meshComponent of meshComponents) {
-        if (meshComponent._isAlive && meshComponent.entity.getSceneGraph().isVisible) {
-          frustumCulling(meshComponent, filteredMeshComponents);
-        }
-      }
-    } else {
-      filteredMeshComponents = meshComponents.filter(
-        meshComponent => meshComponent._isAlive && meshComponent.entity.getSceneGraph().isVisible
-      );
+      frustum = cameraComponent.frustum;
     }
 
-    const primitives: Primitive[] = [];
-    for (let i = 0; i < filteredMeshComponents.length; i++) {
-      const meshComponent = filteredMeshComponents[i];
-      const mesh = meshComponent.mesh;
-      if (mesh !== undefined) {
-        const meshPrimitives = mesh.primitives;
-        let isBlendExist = false;
-        for (let j = 0; j < meshPrimitives.length; j++) {
-          const primitive = meshPrimitives[j];
-          primitives.push(primitive);
-          if (isBlend(primitive)) {
-            isBlendExist = true;
-          }
+    for (let i = 0; i < meshComponents.length; i++) {
+      const meshComponent = meshComponents[i];
+      const sceneGraph = meshComponent.entity.getSceneGraph();
+      if (!meshComponent._isAlive || !sceneGraph.isVisible) {
+        continue;
+      }
+
+      if (frustum != null) {
+        const isBackgroundAsset = meshComponent.entity.getTagValue('type') === 'background-assets';
+        const visible = isBackgroundAsset ? true : frustum.culling(meshComponent);
+        sceneGraph._isCulled = !visible;
+        const skeletal = meshComponent.entity.tryToGetSkeletal();
+        if (skeletal !== undefined) {
+          skeletal._isCulled = !visible;
         }
-        if (isBlendExist) {
-          const viewDepth = meshComponent.calcViewDepth(cameraComponent);
-          for (let j = 0; j < meshPrimitives.length; j++) {
-            const primitive = meshPrimitives[j];
-            primitive._viewDepth = viewDepth;
-          }
+        if (!visible) {
+          continue;
         }
       }
+
+      MeshRendererComponent.__appendPrimitivesOfMeshComponent(meshComponent, cameraComponent, outPrimitives);
     }
-    return primitives;
+
+    return outPrimitives;
+  }
+
+  /**
+   * Appends the primitives of a mesh component to `outPrimitives` and computes the
+   * view depth for blended primitives.
+   */
+  private static __appendPrimitivesOfMeshComponent(
+    meshComponent: MeshComponent,
+    cameraComponent: CameraComponent,
+    outPrimitives: Primitive[]
+  ) {
+    const mesh = meshComponent.mesh;
+    if (mesh === undefined) {
+      return;
+    }
+    const meshPrimitives = mesh.primitives;
+    const primitiveCount = meshPrimitives.length;
+    let isBlendExist = false;
+    for (let i = 0; i < primitiveCount; i++) {
+      const primitive = meshPrimitives[i];
+      outPrimitives.push(primitive);
+      if (!isBlendExist && isBlend(primitive)) {
+        isBlendExist = true;
+      }
+    }
+    if (isBlendExist) {
+      const viewDepth = meshComponent.calcViewDepth(cameraComponent);
+      for (let i = 0; i < primitiveCount; i++) {
+        meshPrimitives[i]._viewDepth = viewDepth;
+      }
+    }
+  }
+
+  /**
+   * Removes duplicated primitives in place without allocating a `Set` or a new array.
+   * A primitive UID is unique, so a stamp array indexed by the UID is enough to detect
+   * duplicates. `primitives.length` is updated to the deduplicated length.
+   */
+  private static __removeDuplicatedPrimitives(primitives: Primitive[], scratch: MeshRendererSortScratch) {
+    const length = primitives.length;
+    if (length <= 1) {
+      return;
+    }
+
+    let stamp = scratch.stamp;
+    let stampTick = scratch.stampTick + 1;
+    if (stampTick === 0xffffffff) {
+      // Wrap around: clear the stamps so that old values cannot be mistaken for the current tick.
+      stamp.fill(0);
+      stampTick = 1;
+    }
+    scratch.stampTick = stampTick;
+
+    let uniqueLength = 0;
+    for (let i = 0; i < length; i++) {
+      const primitive = primitives[i];
+      const primitiveUid = primitive.primitiveUid;
+      if (primitiveUid < 0) {
+        primitives[uniqueLength++] = primitive;
+        continue;
+      }
+      if (primitiveUid >= stamp.length) {
+        // Grow the stamp array up to the largest primitive UID seen so far.
+        const newStamp = new Uint32Array(Math.max(primitiveUid + 1, stamp.length * 2, 64));
+        newStamp.set(stamp);
+        scratch.stamp = newStamp;
+        stamp = newStamp;
+      }
+      if (stamp[primitiveUid] === stampTick) {
+        continue;
+      }
+      stamp[primitiveUid] = stampTick;
+      primitives[uniqueLength++] = primitive;
+    }
+    primitives.length = uniqueLength;
+  }
+
+  /** Sort comparator shared by every render pass (avoids allocating a closure per frame). */
+  private static __comparePrimitives(a: Primitive, b: Primitive) {
+    const delta = a._sortkey - b._sortkey;
+    if (delta !== 0) {
+      return delta;
+    }
+    return a._viewDepth - b._viewDepth;
+  }
+
+  /**
+   * Builds the primitive UID list used for drawing. The trailing `-1` is the sentinel
+   * that terminates the list.
+   */
+  private static __createPrimitiveUids(primitives: Primitive[]): ComponentSID[] {
+    const primitiveCount = primitives.length;
+    const primitiveUids = new Array<ComponentSID>(primitiveCount + 1);
+    for (let i = 0; i < primitiveCount; i++) {
+      primitiveUids[i] = primitives[i].primitiveUid;
+    }
+    primitiveUids[primitiveCount] = -1;
+    return primitiveUids;
+  }
+
+  /** Returns (and lazily creates) the reusable scratch buffers of a render pass. */
+  private static __getSortScratch(renderPass: RenderPass): MeshRendererSortScratch {
+    let scratch = MeshRendererComponent.__sortScratchMap.get(renderPass);
+    if (scratch === undefined) {
+      scratch = { primitives: [], stamp: new Uint32Array(64), stampTick: 0 };
+      MeshRendererComponent.__sortScratchMap.set(renderPass, scratch);
+    }
+    return scratch;
   }
 
   /**
@@ -503,13 +602,25 @@ export class MeshRendererComponent extends Component {
    */
   static common_$prerender(engine: Engine) {
     const engineUid = engine.objectUID;
-    if (!MeshRendererComponent.__cgApiRenderingStrategyMap.has(engineUid)) {
-      // Possible if there is no mesh entity in the scene
-      const processApproach = engine.engineState.currentProcessApproach;
-      this.common_$load({ processApproach, engine });
+    // This runs once per frame, so the strategy is memoized instead of doing a
+    // `Map.has` + `Map.get` pair on every frame.
+    let strategy = MeshRendererComponent.__prerenderStrategy;
+    if (strategy === undefined || MeshRendererComponent.__prerenderStrategyEngineUid !== engineUid) {
+      strategy = MeshRendererComponent.__cgApiRenderingStrategyMap.get(engineUid);
+      if (strategy === undefined) {
+        // Possible if there is no mesh entity in the scene
+        const processApproach = engine.engineState.currentProcessApproach;
+        this.common_$load({ processApproach, engine });
+        strategy = MeshRendererComponent.__cgApiRenderingStrategyMap.get(engineUid);
+        if (strategy === undefined) {
+          return;
+        }
+      }
+      MeshRendererComponent.__prerenderStrategyEngineUid = engineUid;
+      MeshRendererComponent.__prerenderStrategy = strategy;
     }
-    // Call common_$prerender of WebGLRenderingStrategy
-    MeshRendererComponent.__cgApiRenderingStrategyMap.get(engineUid)!.prerender();
+    // Call common_$prerender of the WebGL/WebGPU rendering strategy
+    strategy.prerender();
   }
 
   /**
@@ -608,5 +719,10 @@ export class MeshRendererComponent extends Component {
       strategy.destroy();
     }
     MeshRendererComponent.__cgApiRenderingStrategyMap.delete(engine.objectUID);
+    // Drop the memoized strategy so that a stale instance is never reused.
+    if (MeshRendererComponent.__prerenderStrategyEngineUid === engine.objectUID) {
+      MeshRendererComponent.__prerenderStrategyEngineUid = -1;
+      MeshRendererComponent.__prerenderStrategy = undefined;
+    }
   }
 }
