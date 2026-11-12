@@ -7,6 +7,7 @@ import type { Vrm1 } from '../../types/VRM1';
 import type { HumanBoneNames, NodeId, VrmaExpressionName } from '../../types/VRMC_vrm_animation';
 import { AbsoluteAnimation, GlobalRetarget, type IAnimationRetarget } from '../components';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
+import { AnimationStateRepository } from '../components/Animation/AnimationStateRepository';
 import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
 import type {
   CharacterAnimationMapping,
@@ -679,6 +680,7 @@ export class AnimationAssigner {
     for (const [pathName, channel] of expressionChannels) {
       if (channel.animatedValue.getAllTrackNames().length === 0) {
         animationChannels.delete(pathName);
+        AnimationStateRepository.markAnimationBindingChanged();
         rootVrm?.setExpressionWeight(pathName.slice('vrmExpression/'.length), 0);
       } else {
         availableExpressionChannels.push([pathName, channel]);

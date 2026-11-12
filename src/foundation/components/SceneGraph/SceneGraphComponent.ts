@@ -46,6 +46,7 @@ export class SceneGraphComponent extends Component {
   private __children: SceneGraphComponent[] = [];
   private __gizmoChildren: SceneGraphComponent[] = [];
   private __physicsComponentCountInSubtree = 0;
+  private static __hierarchyVersion = 0;
   private _worldMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _worldMatrixRest: MutableMatrix44 = MutableMatrix44.identity();
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
@@ -411,6 +412,15 @@ export class SceneGraphComponent extends Component {
    * Gets the component type identifier for SceneGraphComponent.
    * @returns The component type ID
    */
+  /**
+   * Gets the version counter of the scene graph hierarchy.
+   * It changes whenever a parent-child relationship of any SceneGraphComponent may have changed.
+   * @returns The hierarchy version counter
+   */
+  static get hierarchyVersion(): number {
+    return SceneGraphComponent.__hierarchyVersion;
+  }
+
   static get componentTID() {
     return WellKnownComponentTIDs.SceneGraphComponentTID;
   }
@@ -506,6 +516,7 @@ export class SceneGraphComponent extends Component {
     }
     sg.__parent = this;
     this.__children.push(sg);
+    SceneGraphComponent.__hierarchyVersion++;
     this.__adjustPhysicsComponentCountInSubtree(sg.__physicsComponentCountInSubtree);
 
     if (keepPoseInWorldSpace) {
@@ -532,6 +543,7 @@ export class SceneGraphComponent extends Component {
       this.__gizmoChildren.splice(gizmoIndex, 1);
     }
     sg.__parent = undefined;
+    SceneGraphComponent.__hierarchyVersion++;
   }
 
   /**
@@ -541,6 +553,7 @@ export class SceneGraphComponent extends Component {
   _addGizmoChild(sg: SceneGraphComponent): void {
     sg.__parent = this;
     this.__gizmoChildren.push(sg);
+    SceneGraphComponent.__hierarchyVersion++;
   }
 
   /**
@@ -1521,6 +1534,7 @@ export class SceneGraphComponent extends Component {
   private __copyChild(child: SceneGraphComponent): ISceneGraphEntity {
     const newChild = child.entity.engine.entityRepository._shallowCopyEntityInner(child.entity) as ISceneGraphEntity;
     newChild.getSceneGraph().__parent = this;
+    SceneGraphComponent.__hierarchyVersion++;
     return newChild;
   }
 
@@ -1533,6 +1547,7 @@ export class SceneGraphComponent extends Component {
 
     this.__parent = component.__parent;
     this.__children = [];
+    SceneGraphComponent.__hierarchyVersion++;
     this.__physicsComponentCountInSubtree = 0;
     for (let i = 0; i < component.__children.length; i++) {
       const copyChild = this.__copyChild(component.__children[i]).getSceneGraph();
@@ -1587,6 +1602,7 @@ export class SceneGraphComponent extends Component {
    */
   _destroy() {
     super._destroy();
+    SceneGraphComponent.__hierarchyVersion++;
     this.__aabbGizmo?._destroy();
     this.__locatorGizmo?._destroy();
     this.__translationGizmo?._destroy();

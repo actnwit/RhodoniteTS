@@ -21,7 +21,7 @@ import { DataUtil, Is } from '../../misc';
 import type { Engine } from '../../system/Engine';
 import { AnimationStateRepository } from '../Animation/AnimationStateRepository';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
-import type { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
+import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 type SkinningCache = {
@@ -90,6 +90,9 @@ export class SkeletalComponent extends Component {
 
   private __jointListKey?: string;
   private __skinCacheKey?: string;
+  // Versions of animation bindings and scene graph hierarchy used for the current __skinCacheKey (-1: not computed)
+  private __skinCacheKeyAnimationBindingVersion = -1;
+  private __skinCacheKeyHierarchyVersion = -1;
   private __inverseBindMatricesSignature?: string;
   private static __tookGlobalDataNum = 0;
   private static __tmp_mat4 = MutableMatrix44.identity();
@@ -138,6 +141,8 @@ export class SkeletalComponent extends Component {
       this.__jointListKey = undefined;
       this.__skinCacheKey = undefined;
       this.__inverseBindMatricesSignature = undefined;
+      this.__skinCacheKeyAnimationBindingVersion = -1;
+      this.__skinCacheKeyHierarchyVersion = -1;
       return;
     }
 
@@ -428,8 +433,8 @@ export class SkeletalComponent extends Component {
    * Only follower joints are registered for early return (__currentFrameCachedEntityUIDs).
    */
   $logic() {
-    // Skip if skinning is disabled or entity is culled
-    if (!this.isSkinning || this._isCulled) {
+    // Skip if skinning is disabled
+    if (!this.isSkinning) {
       return;
     }
 
@@ -443,11 +448,22 @@ export class SkeletalComponent extends Component {
     if (this._boneData.isDummy()) {
       return;
     }
+
+    if (this._isCulled) {
+      // A culled skin is neither computed nor drawn. Let its joints skip animation while a visible
+      // SkeletalComponent with the same cache key (the leader) computes the shared skinning result.
+      // Otherwise, culled models would keep animating all their joints every frame.
+      this.__updateSkinCacheKeyIfNeeded();
+      if (this.__skinCacheKey !== undefined) {
+        AnimationStateRepository.addCulledSkeletonJoints(this.__engine, this.__skinCacheKey, this.__joints);
+      }
+      return;
+    }
     // Follow changes of Config.boneDataType at runtime
     this.__ensureBoneDataLayout();
 
     // --- Skinning Cache Lookup ---
-    this.__updateSkinCacheKey();
+    this.__updateSkinCacheKeyIfNeeded();
     const cacheKey = this.__skinCacheKey;
     // Use the Engine.process() token instead of TransformComponent.updateCount for cache
     // validity. updateCount changes when AnimationComponents update joints, including while
@@ -1096,6 +1112,24 @@ export class SkeletalComponent extends Component {
   }
 
   /**
+   * Updates the skinning cache key only when animation bindings or the scene graph hierarchy
+   * may have changed since the key was last computed.
+   * Searching animation track feature hashes walks the whole model hierarchy, so doing it
+   * every frame for every SkeletalComponent is too expensive when many models are animated.
+   * Other inputs of the key (joints, inverse bind matrices, bone data type) update the key
+   * immediately in their setters.
+   */
+  private __updateSkinCacheKeyIfNeeded() {
+    if (
+      this.__skinCacheKeyAnimationBindingVersion === AnimationStateRepository.getAnimationBindingVersion() &&
+      this.__skinCacheKeyHierarchyVersion === SceneGraphComponent.hierarchyVersion
+    ) {
+      return;
+    }
+    this.__updateSkinCacheKey();
+  }
+
+  /**
    * Updates the skinning cache key based on current animation state.
    *
    * The cache key determines which SkeletalComponents can share skinning results:
@@ -1112,6 +1146,9 @@ export class SkeletalComponent extends Component {
    * - Each model maintains its own cache
    */
   private __updateSkinCacheKey() {
+    this.__skinCacheKeyAnimationBindingVersion = AnimationStateRepository.getAnimationBindingVersion();
+    this.__skinCacheKeyHierarchyVersion = SceneGraphComponent.hierarchyVersion;
+
     if (!this.__inverseBindMatricesAccessor) {
       this.__skinCacheKey = undefined;
       return;

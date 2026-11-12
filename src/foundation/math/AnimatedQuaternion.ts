@@ -1,5 +1,6 @@
 import type { AnimationSampler, AnimationSamplers, AnimationTrackName } from '../../types/AnimationTypes';
 import { __interpolate } from '../components/Animation/AnimationOps';
+import { AnimationStateRepository } from '../components/Animation/AnimationStateRepository';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
 import { Logger } from '../misc/Logger';
 import type { IAnimatedValue } from './IAnimatedValue';
@@ -181,6 +182,7 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
    * @param animationTrackName - The name of the animation track to set as the first active track
    */
   setFirstActiveAnimationTrackName(animationTrackName: AnimationTrackName) {
+    AnimationStateRepository.markAnimationBindingChanged();
     this.__firstActiveAnimationTrackName = animationTrackName;
     const animationSampler = this.__animationSamplers.get(this.__firstActiveAnimationTrackName);
     if (animationSampler === undefined) {
@@ -287,6 +289,7 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
    * @param trackName - The animation track name to delete
    */
   deleteAnimationSampler(trackName: AnimationTrackName) {
+    AnimationStateRepository.markAnimationBindingChanged();
     this.__animationSamplers.delete(trackName);
   }
 
@@ -296,6 +299,7 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
    * @param animationSampler - The animation sampler to set
    */
   setAnimationSampler(animationTrackName: AnimationTrackName, animationSampler: AnimationSampler) {
+    AnimationStateRepository.markAnimationBindingChanged();
     this.__animationSamplers.set(animationTrackName, animationSampler);
   }
 }
