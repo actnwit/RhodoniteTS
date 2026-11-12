@@ -847,7 +847,7 @@ export class SceneGraphComponent extends Component {
    * @returns The output quaternion containing the world rotation
    */
   getQuaternionRecursivelyTo(out: IMutableQuaternion): IMutableQuaternion {
-    const localRotation = this.entity.getTransform().localRotation;
+    const localRotation = this.entity.getTransform().localRotationInner;
     if (this.__parent == null) {
       return out.copyComponents(localRotation);
     }
