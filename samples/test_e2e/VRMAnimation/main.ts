@@ -11,7 +11,6 @@ const config = new Rn.Config({
   cgApiDebugConsoleOutput: true,
   logLevel: Rn.LogLevel.Info,
 });
-config.setUpAsMemoryBoostMode();
 
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,

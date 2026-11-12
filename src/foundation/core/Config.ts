@@ -3,7 +3,7 @@
  */
 
 /* eslint-disable prefer-const */
-import { BoneDataType, type BoneDataTypeEnum } from '../definitions/BoneDataType';
+import type { BoneDataTypeEnum } from '../definitions/BoneDataType';
 import { LogLevel } from '../misc/Logger';
 
 type ConfigInitDescription = {
@@ -12,7 +12,6 @@ type ConfigInitDescription = {
   cameraComponentCountPerBufferView?: number;
   lightComponentCountPerBufferView?: number;
   maxLightNumber?: number;
-  maxBoneNumberForMemoryBoostMode?: number;
   materialCountPerBufferView?: number;
   boneDataType?: BoneDataTypeEnum;
   maxSkeletalBoneNumberForUniformMode?: number;
@@ -32,25 +31,28 @@ type ConfigInitDescription = {
  */
 export class Config {
   /**　The number of scenegraph components per buffer view */
-  scenegraphComponentCountPerBufferView = 10;
+  scenegraphComponentCountPerBufferView = 1000;
   /**　The number of skeletal components per buffer view */
-  skeletalComponentCountPerBufferView = 1;
+  skeletalComponentCountPerBufferView = 100;
   /**　The number of camera components per buffer view */
   cameraComponentCountPerBufferView = 1;
   /**　The number of light components per buffer view */
   lightComponentCountPerBufferView = 1;
   /**　The maximum number of lights that Rhodonite can handle */
   maxLightNumber = 6;
-  /**　The maximum number of bones that Rhodonite can handle for Memory Boost Mode */
-  maxBoneNumberForMemoryBoostMode = 500;
   /**
    * Number of instances of each material type to be placed consecutively in memory.
    * This is on the memory layout, and the number of material instances that can be generated is not limited by this setting.
    * If this limit is exceeded, the material type is internally treated as a separate material type.
    */
-  materialCountPerBufferView = 3;
-  /**　The data type of the bone */
-  boneDataType = BoneDataType.Mat43x1;
+  materialCountPerBufferView = 100;
+  /**
+   * Forces the bone data type of all SkeletalComponents.
+   * When undefined (default), each SkeletalComponent uses its own bone data type
+   * (see SkeletalComponent.setBoneDataType). Importers choose Vec4x1 or Vec4x2 automatically,
+   * and other SkeletalComponents default to Vec4x2.
+   */
+  boneDataType: BoneDataTypeEnum | undefined = undefined;
   /**　The maximum number of bones of each skeleton that Rhodonite can handle for Uniform Mode */
   maxSkeletalBoneNumberForUniformMode = 50;
   /**　Whether the UBO is enabled */
@@ -87,9 +89,6 @@ export class Config {
     }
     if (initDescription.maxLightNumber !== undefined) {
       this.maxLightNumber = initDescription.maxLightNumber;
-    }
-    if (initDescription.maxBoneNumberForMemoryBoostMode !== undefined) {
-      this.maxBoneNumberForMemoryBoostMode = initDescription.maxBoneNumberForMemoryBoostMode;
     }
     if (initDescription.materialCountPerBufferView !== undefined) {
       this.materialCountPerBufferView = initDescription.materialCountPerBufferView;
@@ -128,12 +127,5 @@ export class Config {
     if (initDescription.logLevel !== undefined) {
       this.logLevel = initDescription.logLevel;
     }
-  }
-
-  public setUpAsMemoryBoostMode() {
-    this.bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 4, 1 / 4, 1 / 4, 1 / 4];
-    this.skeletalComponentCountPerBufferView = 100;
-    this.scenegraphComponentCountPerBufferView = 1000;
-    this.materialCountPerBufferView = 1000;
   }
 }

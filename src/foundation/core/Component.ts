@@ -1,4 +1,4 @@
-import type { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
+import { ComponentType, type ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import type { Byte, ComponentSID, Count, EntityUID, IndexOf16Bytes, TypedArray } from '../../types/CommonTypes';
 import type { ComponentToComponentMethods } from '../components/ComponentTypes';
@@ -19,7 +19,7 @@ import { RnException } from '../misc';
 import { Err, Ok, type Result } from '../misc/Result';
 import type { RenderPass } from '../renderer/RenderPass';
 import type { Engine } from '../system/Engine';
-import type { ComponentMemoryRegistry } from './ComponentMemoryRegistry';
+import type { ComponentMemoryRegistry, VariableLengthChunk } from './ComponentMemoryRegistry';
 import type { IEntity } from './Entity';
 import type { EntityRepository } from './EntityRepository';
 import { RnObject } from './RnObject';
@@ -42,6 +42,15 @@ export type MemberInfo = {
   componentType: ComponentTypeEnum;
   initValues: number[] | VectorN;
   convertToBool?: boolean;
+  /**
+   * Multiplier applied to the uniform array length in uniform mode
+   * (the array length becomes Config.maxSkeletalBoneNumberForUniformMode * this value).
+   */
+  uniformArrayLengthMultiplier?: number;
+  /**
+   * Whether this array member has a per-instance length (see `Component.registerMember`).
+   */
+  isVariableLength?: boolean;
 };
 
 type MemberName = string;
@@ -272,7 +281,7 @@ export class Component extends RnObject {
    * @param memberName - The name of the member field
    * @param dataClassType - The data class type for the member
    * @param initValues - Initial values to set for the member
-   * @param isReUse - Whether to reuse an existing memory slot
+   * @param _isReUse - Whether this component is being reused (the existing slot is detected from the accessor)
    * @param componentSid - The component scoped ID
    * @param componentCountPerBufferView - The number of components per buffer view
    * @returns null on success
@@ -281,11 +290,12 @@ export class Component extends RnObject {
     memberName: string,
     dataClassType: any,
     initValues: number[] | VectorN,
-    isReUse: boolean,
+    _isReUse: boolean,
     componentSid: ComponentSID,
     componentCountPerBufferView: Count
   ): any {
-    if (!(this as any)[`_${memberName}`].isDummy()) {
+    const current = (this as any)[`_${memberName}`];
+    if (current != null && !current.isDummy()) {
       return;
     }
 
@@ -294,12 +304,10 @@ export class Component extends RnObject {
     const registry = this._componentMemoryRegistry;
     const componentClass = this.constructor as typeof Component;
     const accessor = registry.getAccessor(componentClass, memberName, indexOfTheBufferView)!;
-    let taken: TypedArray | undefined;
-    if (isReUse) {
-      taken = accessor._takeExistedOne(indexOfBufferViews);
-    } else {
-      taken = accessor.takeOne();
-    }
+    // Shaders address the data of a component by `componentSid % componentCountPerBufferView`,
+    // so always view that slot. This keeps the layout correct even if components allocate
+    // out of SID order (e.g. SkeletalComponent allocates in setJoints) or are reused.
+    const taken: TypedArray = accessor._takeExistedOne(indexOfBufferViews);
     (this as any)[`_${memberName}`] = new dataClassType(taken, false, true);
 
     if (!(initValues instanceof VectorN)) {
@@ -309,6 +317,120 @@ export class Component extends RnObject {
     }
 
     return null;
+  }
+
+  /**
+   * Allocates memory for a variable-length array member of this component instance.
+   *
+   * Unlike fixed members, the data is not placed in the slot layout shared by the components of a buffer view.
+   * Each instance gets its own chunk sized by `_getArrayLengthForAllocation`, and the location of the chunk
+   * (index of 16 bytes in the GPU data) is written to the `${memberName}Location` member so that shaders can find it.
+   * The chunk is kept per component SID and reused when it is large enough.
+   *
+   * @param info - The member info of the variable-length array member
+   * @param componentSid - The component scoped ID
+   */
+  private __takeVariableLengthOne(info: MemberInfo, componentSid: ComponentSID) {
+    const memberName = info.memberName;
+    const current = (this as any)[`_${memberName}`];
+    if (current != null && !current.isDummy()) {
+      return;
+    }
+
+    const componentClass = this.constructor as typeof Component;
+    const registry = this._componentMemoryRegistry;
+    const arrayLength = Math.max(
+      this._getArrayLengthForAllocation(memberName) ??
+        Component.__arrayLengthMap.get(componentClass)?.get(memberName) ??
+        1,
+      1
+    );
+    const elementCount = info.compositionType.getNumberOfComponents() * arrayLength;
+    const byteLength = elementCount * info.componentType.getSizeInBytes();
+
+    let chunk = registry.getVariableLengthChunk(componentClass, memberName, componentSid);
+    if (chunk == null || chunk.byteCapacity < byteLength) {
+      if (chunk != null) {
+        // The chunk is too small. Let other components reuse it.
+        registry.releaseVariableLengthChunk(componentClass, memberName, chunk);
+      }
+      chunk =
+        registry.takeFreeVariableLengthChunk(componentClass, memberName, byteLength) ??
+        Component.__createVariableLengthChunk(this.__engine, info.bufferUse, byteLength);
+      registry.setVariableLengthChunk(componentClass, memberName, componentSid, chunk);
+    }
+
+    const bufferView = chunk.bufferView;
+    const taken = new Float32Array(
+      bufferView.buffer.getArrayBuffer(),
+      bufferView.byteOffsetInRawArrayBufferOfBuffer,
+      elementCount
+    );
+    // The chunk may contain the data of a previous owner
+    taken.fill(0);
+    const dataClassType = info.dataClassType as any;
+    (this as any)[`_${memberName}`] = new dataClassType(taken, false, true);
+
+    // Tell shaders where the data is. The location is split into two floats so that it is represented exactly.
+    const locationMember = (this as any)[`_${Component._getVariableLengthLocationMemberName(memberName)}`];
+    const radix = Component._variableLengthLocationRadix;
+    locationMember._v[0] = Math.floor(chunk.location / radix);
+    locationMember._v[1] = chunk.location % radix;
+    locationMember._v[2] = arrayLength;
+    locationMember._v[3] = 0;
+  }
+
+  /**
+   * Creates a new chunk of memory for a variable-length array member.
+   *
+   * @param engine - The engine instance
+   * @param bufferUse - The intended use of the buffer
+   * @param byteLength - The byte length of the chunk
+   * @returns The created chunk
+   */
+  private static __createVariableLengthChunk(
+    engine: Engine,
+    bufferUse: BufferUseEnum,
+    byteLength: Byte
+  ): VariableLengthChunk {
+    let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
+    let requireBufferLayerIndex = 0;
+    do {
+      const buffer = engine.memoryManager.createOrGetBuffer(bufferUse, requireBufferLayerIndex);
+      bufferViewResult = buffer.takeBufferView({
+        byteLengthToNeed: byteLength,
+        byteStride: 0,
+      });
+      if (bufferViewResult.isErr()) {
+        requireBufferLayerIndex++;
+      }
+    } while (bufferViewResult.isErr());
+
+    const bufferView = bufferViewResult.get();
+    const byteOffset =
+      engine.memoryManager.getByteOffsetOfExistingBuffers(bufferUse, bufferView.buffer.indexOfTheBufferUsage) +
+      bufferView.byteOffsetInBuffer;
+    return {
+      bufferView,
+      byteCapacity: byteLength,
+      location: byteOffset / 4 / 4,
+    };
+  }
+
+  /**
+   * The radix used to split the location of a variable-length array member into two floats
+   * (`location = x * radix + y`), so that both are exactly representable as 32-bit floats.
+   */
+  static readonly _variableLengthLocationRadix = 65536;
+
+  /**
+   * Gets the name of the member which holds the location of a variable-length array member.
+   *
+   * @param memberName - The name of the variable-length array member
+   * @returns The name of the location member
+   */
+  static _getVariableLengthLocationMemberName(memberName: string) {
+    return `${memberName}Location`;
   }
 
   /**
@@ -408,6 +530,11 @@ export class Component extends RnObject {
    * Registers a member field of the component class for memory allocation.
    * This method defines the memory layout and characteristics of component data members.
    *
+   * Variable-length array members (`isVariableLength: true`) are allocated per instance with the length
+   * returned by `_getArrayLengthForAllocation`, instead of the fixed slot layout shared by the components
+   * of a buffer view. Shaders find the data through a Vec4 member named `${memberName}Location`,
+   * which must be registered before the variable-length member.
+   *
    * @param bufferUse - The intended purpose/type of buffer use
    * @param memberName - The name of the member field
    * @param dataClassType - The class type of the data
@@ -415,6 +542,8 @@ export class Component extends RnObject {
    * @param componentType - The primitive data type (e.g., Float32, Int32)
    * @param initValues - Initial values for the member field
    * @param convertToBool - Whether to convert the member value to a boolean
+   * @param uniformArrayLengthMultiplier - Multiplier of the uniform array length in uniform mode
+   * @param isVariableLength - Whether the array member has a per-instance length
    */
   static registerMember(
     this: typeof Component,
@@ -429,6 +558,8 @@ export class Component extends RnObject {
       arrayLength,
       componentSID,
       convertToBool,
+      uniformArrayLengthMultiplier,
+      isVariableLength,
     }: {
       bufferUse: BufferUseEnum;
       memberName: string;
@@ -440,12 +571,33 @@ export class Component extends RnObject {
       arrayLength?: Count | undefined;
       componentSID?: ComponentSID;
       convertToBool?: boolean;
+      uniformArrayLengthMultiplier?: number;
+      isVariableLength?: boolean;
     }
   ) {
     if (!Component.__memberInfo.has(this)) {
       Component.__memberInfo.set(this, new Map());
     }
     const memberInfoArray = Component.__memberInfo.get(this);
+
+    if (isVariableLength === true) {
+      if (
+        compositionType !== CompositionType.Vec4Array &&
+        compositionType !== CompositionType.Mat4Array &&
+        compositionType !== CompositionType.Mat4x3Array
+      ) {
+        throw new Error(`Variable-length member ${memberName} must be Vec4Array, Mat4Array or Mat4x3Array.`);
+      }
+      if (componentType !== ComponentType.Float) {
+        throw new Error(`Variable-length member ${memberName} must have the Float component type.`);
+      }
+      const locationInfo = memberInfoArray!.get(Component._getVariableLengthLocationMemberName(memberName));
+      if (locationInfo == null || locationInfo.compositionType !== CompositionType.Vec4) {
+        throw new Error(
+          `Register a Vec4 member named ${Component._getVariableLengthLocationMemberName(memberName)} before the variable-length member ${memberName}.`
+        );
+      }
+    }
 
     memberInfoArray!.set(memberName, {
       bufferUse: bufferUse,
@@ -456,6 +608,8 @@ export class Component extends RnObject {
       componentType: componentType,
       initValues: initValues,
       convertToBool: convertToBool,
+      uniformArrayLengthMultiplier: uniformArrayLengthMultiplier,
+      isVariableLength: isVariableLength,
     });
 
     if (arrayLength != null && componentSID != null) {
@@ -486,14 +640,19 @@ export class Component extends RnObject {
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
     const engine = this.__engine;
 
-    // Do this only for the first entity of the component
+    // Usually the first component of a buffer view creates the buffer views and accessors.
+    // Components which allocate lazily (e.g. SkeletalComponent allocates in setJoints) may come in any order,
+    // so also create them if they do not exist yet.
     const indexOfTheBufferView = Math.floor(this._component_sid / componentCountPerBufferView);
-    if (this._component_sid % componentCountPerBufferView === 0) {
+    if (this._component_sid % componentCountPerBufferView === 0 || hasMissingAccessor(indexOfTheBufferView)) {
       getBufferViewsAndAccessors(indexOfTheBufferView);
     }
 
     // take a field value allocation for each entity for each member field
     memberInfoArray.forEach(info => {
+      if (info.isVariableLength === true) {
+        return;
+      }
       this.__takeOne(
         info.memberName,
         info.dataClassType,
@@ -504,11 +663,34 @@ export class Component extends RnObject {
       );
     });
 
-    // inner function
+    // Variable-length members are allocated after the fixed members,
+    // because their locations are written to fixed members.
+    memberInfoArray.forEach(info => {
+      if (info.isVariableLength === true) {
+        this.__takeVariableLengthOne(info, this._component_sid);
+      }
+    });
+
+    // inner functions
+    function hasMissingAccessor(indexOfTheBufferView: IndexOfTheBufferView) {
+      for (const info of memberInfoArray.values()) {
+        if (
+          info.isVariableLength !== true &&
+          registry.getAccessor(componentClass, info.memberName, indexOfTheBufferView) == null
+        ) {
+          return true;
+        }
+      }
+      return false;
+    }
+
     function getBufferViewsAndAccessors(indexOfTheBufferView: IndexOfTheBufferView) {
       // for each member field, take a BufferView for all entities' the member field.
       // take a Accessor for all entities for each member fields (same as BufferView)
       memberInfoArray.forEach(info => {
+        if (info.isVariableLength === true) {
+          return;
+        }
         const arrayLength = Component.__arrayLengthMap.get(componentClass)?.get(info.memberName);
         const accessorResult = Component.__takeAccessor(
           engine,
@@ -533,6 +715,18 @@ export class Component extends RnObject {
         registry.setByteOffset(componentClass, info.memberName, indexOfTheBufferView, byteOffset);
       });
     }
+  }
+
+  /**
+   * Returns the array length to allocate for a variable-length array member of this component instance
+   * (see `registerMember`). Override this to allocate a per-instance size. When undefined is returned,
+   * the maximum array length registered for the component class is used.
+   *
+   * @param _memberName - The name of the variable-length array member
+   * @returns The array length, or undefined to use the class-wide value
+   */
+  protected _getArrayLengthForAllocation(_memberName: string): Count | undefined {
+    return undefined;
   }
 
   /**
@@ -565,8 +759,14 @@ export class Component extends RnObject {
     if (byteOffsetMap == null) {
       return [0]; // indicate that this is invalid value
     }
-    for (const byteOffset of byteOffsetMap.values()) {
-      locationOffsets.push(byteOffset / 4 / 4);
+    // Shaders index this array by the buffer view index, which may differ from the creation order
+    for (const [indexOfTheBufferView, byteOffset] of byteOffsetMap) {
+      locationOffsets[indexOfTheBufferView] = byteOffset / 4 / 4;
+    }
+    for (let i = 0; i < locationOffsets.length; i++) {
+      if (locationOffsets[i] === undefined) {
+        locationOffsets[i] = 0;
+      }
     }
     return locationOffsets;
   }

@@ -291,6 +291,10 @@ mat4x3 fetchMat4x3(int vec4_idx) {
   return val;
 }
 
+highp vec4 unpackVec4FromUvec2(highp uvec2 p) {
+  return vec4(unpackSnorm2x16(p.x), unpackSnorm2x16(p.y));
+}
+
 float rand(const vec2 co){
   return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }

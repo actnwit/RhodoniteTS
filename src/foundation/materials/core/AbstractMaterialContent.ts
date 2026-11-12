@@ -493,28 +493,15 @@ export abstract class AbstractMaterialContent extends RnObject {
     }
     if (skeletalComponent) {
       if (setUniform) {
-        if (config.boneDataType === BoneDataType.Mat43x1) {
-          const jointMatricesArray = skeletalComponent.jointMatricesArray;
-          (shaderProgram as any)._gl.uniformMatrix4x3fv((shaderProgram as any).boneMatrix, false, jointMatricesArray);
-        } else if (config.boneDataType === BoneDataType.Vec4x2) {
-          const jointTranslatePackedQuat = skeletalComponent.jointTranslatePackedQuat;
-          const jointScalePackedQuat = skeletalComponent.jointScalePackedQuat;
-          (shaderProgram as any)._gl.uniform4fv(
-            (shaderProgram as any).boneTranslatePackedQuat,
-            jointTranslatePackedQuat
-          );
-          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneScalePackedQuat, jointScalePackedQuat);
-        } else if (config.boneDataType === BoneDataType.Vec4x2Old) {
-          const jointQuaternionArray = skeletalComponent.jointQuaternionArray;
-          const jointTranslateScaleArray = skeletalComponent.jointTranslateScaleArray;
-          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneQuaternion, jointQuaternionArray);
-          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneTranslateScale, jointTranslateScaleArray);
-        } else if (config.boneDataType === BoneDataType.Vec4x1) {
-          const jointCompressedChunk = skeletalComponent.jointCompressedChunk;
-          const jointCompressedInfo = skeletalComponent.jointCompressedInfo;
-          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneCompressedChunk, jointCompressedChunk);
-          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneCompressedInfo, jointCompressedInfo._v);
-        }
+        // The bone data layout is decoded in the shader according to boneDataInfo.w (bone data type index)
+        const boneData = skeletalComponent.boneDataArray;
+        const maxVec4Count =
+          config.maxSkeletalBoneNumberForUniformMode * BoneDataType.getVec4CountPerJoint(BoneDataType.Mat43x1);
+        (shaderProgram as any)._gl.uniform4fv(
+          (shaderProgram as any).boneData,
+          boneData.length > maxVec4Count * 4 ? boneData.subarray(0, maxVec4Count * 4) : boneData
+        );
+        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneDataInfo, skeletalComponent.boneDataInfo._v);
 
         (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, skeletalComponent.componentSID);
       }

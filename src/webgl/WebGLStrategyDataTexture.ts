@@ -165,12 +165,28 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
           throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
       }
 
+      const vec4SizeOfProperty: IndexOf16Bytes = memberInfo.compositionType.getVec4SizeOfProperty();
+
+      if (memberInfo.isVariableLength === true) {
+        // Each instance has its own chunk. Its location is stored in the `${memberName}Location` member,
+        // whose getter is generated before this one (it is registered before the variable-length member).
+        const radix = Component._variableLengthLocationRadix;
+        str += `
+  ${typeStr} get_${memberName}(uint instanceId, uint idxOfArray) {
+    vec4 location = get_${Component._getVariableLengthLocationMemberName(memberName)}(instanceId);
+    int index = int(location.x) * ${radix} + int(location.y) + ${vec4SizeOfProperty} * int(idxOfArray);
+    ${typeStr} value = ${fetchTypeStr}(index);
+    return value;
+  }
+`;
+        return;
+      }
+
       const locationOffsets_vec4_idx = Component.getLocationOffsetOfMemberOfComponent(
         engine,
         componentClass,
         memberName
       );
-      const vec4SizeOfProperty: IndexOf16Bytes = memberInfo.compositionType.getVec4SizeOfProperty();
       const arrayLengthMap = Component.getArrayLengthOfMember(engine).get(componentClass) ?? new Map<string, number>();
       const arrayLength = arrayLengthMap.get(memberName) ?? 0;
       const arrayLengthStr = `int arrayLength = ${arrayLength};`;
@@ -1035,45 +1051,35 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       const morphBuffers = memoryManager.getBuffers(BufferUse.GPUVertexData);
       const morphBufferArrayBuffers = morphBuffers.map(buffer => buffer.getArrayBuffer());
 
-      const srcs = gpuInstanceDataBuffers.map(buffer => buffer.getArrayBuffer());
-      srcs.push(...morphBufferArrayBuffers);
-
-      const srcsCopySizes: Byte[] = [];
-      const srcsOffsets: Byte[] = [];
-      gpuInstanceDataBuffers.forEach(buffer => {
-        // spare padding texel for texture alignment (to edge of the width of texture)
-        const paddingSpaceTexel = dataTextureWidth - ((buffer.takenSizeInByte / 4 / 4) % dataTextureWidth);
-        const paddingSpaceBytes = paddingSpaceTexel * 4 * 4;
-        srcsCopySizes.push(buffer.takenSizeInByte + paddingSpaceBytes);
-        srcsOffsets.push(0);
-      });
-      const srcCopySizesExceptMorphBuffer = srcsCopySizes.slice();
-      morphBuffers.forEach(buffer => {
-        srcsCopySizes.push(buffer.byteLength);
-        srcsOffsets.push(0);
-      });
-
-      const morphBufferByteLength = morphBuffers.reduce((acc, buffer) => acc + buffer.byteLength, 0);
-      const totalSizeOfTheBuffersInTexel = (totalSizeOfTheBuffers + morphBufferByteLength) / 4 / 4;
-      const dataTextureHeight = Math.ceil(totalSizeOfTheBuffersInTexel / dataTextureWidth);
-      const dataTextureByteSize = dataTextureWidth * dataTextureHeight * 4 * 4;
-      const finalArrayBuffer = MiscUtil.concatArrayBuffers2({
-        finalSize: dataTextureByteSize,
-        srcs: srcs,
-        srcsCopySize: srcsCopySizes,
-        srcsOffset: srcsOffsets,
-      });
-
-      // warning if the used memory exceeds the size of the data texture.
-      if (srcsCopySizes.reduce((acc, size) => acc + size, 0) > dataTextureByteSize) {
-        Logger.default.warn('The buffer size exceeds the size of the data texture.');
-      }
-
-      const floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
-      this.__engine.engineState.totalSizeOfGPUShaderDataStorageExceptMorphData = srcCopySizesExceptMorphBuffer.reduce(
-        (acc, size) => acc + size,
-        0
+      // Reserve the whole capacity of each GPU instance data buffer (aligned to the rows of the texture),
+      // and place the morph data after them. This layout matches the update path above and the locations
+      // used by shaders (see MemoryManager.getByteOffsetOfExistingBuffers), and allocations after the creation
+      // of the texture (e.g. bone data of a SkeletalComponent) never overwrite the morph data.
+      const dataTextureWidthInByte = dataTextureWidth * 4 * 4;
+      const instanceDataRegionSizes: Byte[] = gpuInstanceDataBuffers.map(
+        buffer => Math.ceil(buffer.byteLength / dataTextureWidthInByte) * dataTextureWidthInByte
       );
+      const instanceDataRegionTotalSize = instanceDataRegionSizes.reduce((acc, size) => acc + size, 0);
+      const morphBufferByteLength = morphBuffers.reduce((acc, buffer) => acc + buffer.byteLength, 0);
+      const dataTextureHeight = Math.max(
+        Math.ceil((instanceDataRegionTotalSize + morphBufferByteLength) / dataTextureWidthInByte),
+        1
+      );
+      const dataTextureByteSize = dataTextureWidthInByte * dataTextureHeight;
+      const finalUint8Array = new Uint8Array(dataTextureByteSize);
+      let dstByteOffset = 0;
+      gpuInstanceDataBuffers.forEach((buffer, i) => {
+        // The rest of the region is not taken yet, so it stays zero.
+        finalUint8Array.set(new Uint8Array(buffer.getArrayBuffer(), 0, buffer.takenSizeInByte), dstByteOffset);
+        dstByteOffset += instanceDataRegionSizes[i];
+      });
+      morphBuffers.forEach((buffer, i) => {
+        finalUint8Array.set(new Uint8Array(morphBufferArrayBuffers[i], 0, buffer.byteLength), dstByteOffset);
+        dstByteOffset += buffer.byteLength;
+      });
+
+      const floatDataTextureBuffer = new Float32Array(finalUint8Array.buffer);
+      this.__engine.engineState.totalSizeOfGPUShaderDataStorageExceptMorphData = instanceDataRegionTotalSize;
 
       // write data
       this.__dataTextureUid = this.__engine.webglResourceRepository.createTextureFromTypedArray(

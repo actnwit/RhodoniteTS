@@ -1,7 +1,6 @@
 import type { ProcessApproachEnum } from '../../foundation/definitions/ProcessApproach';
 import type { Byte, CGAPIResourceHandle, Count, Index, IndexOf16Bytes } from '../../types/CommonTypes';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
-import { BoneDataType } from '../definitions/BoneDataType';
 import { BufferUse } from '../definitions/BufferUse';
 import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
@@ -11,7 +10,6 @@ import { ShaderType } from '../definitions/ShaderType';
 import { MathClassUtil } from '../math/MathClassUtil';
 import { Scalar } from '../math/Scalar';
 import { Vector2 } from '../math/Vector2';
-import { Vector4 } from '../math/Vector4';
 import { VectorN } from '../math/VectorN';
 import type { Accessor } from '../memory/Accessor';
 import type { BufferView } from '../memory/BufferView';
@@ -65,21 +63,8 @@ export class GlobalDataRepository {
     this.takeOne('currentComponentSIDs');
 
     // Skinning
-    if (this.__engine.config.boneDataType === BoneDataType.Vec4x1) {
-      const boneCompressedInfoInfo = {
-        semantic: 'boneCompressedInfo',
-        compositionType: CompositionType.Vec4,
-        componentType: ComponentType.Float,
-        soloDatum: true,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isInternalSetting: true,
-        initialValue: Vector4.zero(),
-      };
-      this.__registerProperty(boneCompressedInfoInfo, 1);
-      this.takeOne('boneCompressedInfo');
-    }
+    // Note: bone data and its per-skeleton info (bone data type, dequantization factors)
+    // are stored in SkeletalComponent's GPU instance data ('boneData' / 'boneDataInfo').
     const skeletalComponentSIDInfo = {
       semantic: 'skinningMode',
       compositionType: CompositionType.Scalar,

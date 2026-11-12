@@ -66,83 +66,60 @@ fn unpackedVec2ToNormalizedVec4(vec_xy: vec2<f32>, criteria: f32) -> vec4<f32> {
   return vec4<f32>(r, g, b, a);
 }
 
-fn get_boneMatrixAsMat4x4(skeletalComponentSID: u32, joint: u32) -> mat4x4<f32> {
-  let mat43: mat4x3<f32> = get_boneMatrix(skeletalComponentSID, joint);
-  return mat4x4<f32>(
-    vec4<f32>(mat43[0], 0.0),
-    vec4<f32>(mat43[1], 0.0),
-    vec4<f32>(mat43[2], 0.0),
-    vec4<f32>(mat43[3], 1.0)
-  );
+const LOGQUAT_BIAS: f32 = 1048575.0;
+const LOGQUAT_HALF_PI: f32 = 1.5707963;
+
+fn decodeLogQuat(lohi: vec2<u32>) -> vec4<f32> {
+  let lo = lohi.x;
+  let hi = lohi.y;
+  let xi = lo & 0x1FFFFFu;
+  let yi = (lo >> 21u) | ((hi & 0x3FFu) << 11u);
+  let zi = (hi >> 10u) & 0x1FFFFFu;
+  let v = (vec3<f32>(f32(xi), f32(yi), f32(zi)) - LOGQUAT_BIAS) / LOGQUAT_BIAS * LOGQUAT_HALF_PI;
+  let a = length(v);                                   // 半角
+  let k = select(sin(a) / a, 1.0 - a * a / 6.0, a < 1e-4);
+  return vec4<f32>(v * k, cos(a));                     // (x, y, z, w) 単位クォータニオン
+}
+
+// Bone data type indices (must match BoneDataType in TypeScript)
+const RN_BONE_DATA_TYPE_MAT43X1: i32 = 0;
+const RN_BONE_DATA_TYPE_VEC4X2: i32 = 1;
+const RN_BONE_DATA_TYPE_VEC4X1: i32 = 2;
+
+// Decode the matrix of one joint from the bone data, according to the bone data type of the skeleton
+fn getBoneMatrix(skeletalComponentSID: u32, jointIdx: u32, boneDataType: i32, boneDataInfo: vec4<f32>) -> mat4x4<f32> {
+  if (boneDataType == RN_BONE_DATA_TYPE_MAT43X1) {
+    // 3 vec4 per joint: 4x3 matrix (column-major)
+    let a = get_boneData(skeletalComponentSID, jointIdx * 3u);
+    let b = get_boneData(skeletalComponentSID, jointIdx * 3u + 1u);
+    let c = get_boneData(skeletalComponentSID, jointIdx * 3u + 2u);
+    return mat4x4<f32>(
+      vec4<f32>(a.x, a.y, a.z, 0.0),
+      vec4<f32>(a.w, b.x, b.y, 0.0),
+      vec4<f32>(b.z, b.w, c.x, 0.0),
+      vec4<f32>(c.y, c.z, c.w, 1.0)
+    );
+  } else if (boneDataType == RN_BONE_DATA_TYPE_VEC4X2) {
+    // 2 vec4 per joint: [translation.xyz, logQuat.lo], [scale.xyz, logQuat.hi]
+    let tq = get_boneData(skeletalComponentSID, jointIdx * 2u);
+    let sq = get_boneData(skeletalComponentSID, jointIdx * 2u + 1u);
+    let quat = decodeLogQuat(vec2<u32>(bitcast<u32>(tq.w), bitcast<u32>(sq.w)));
+    return createMatrixFromQuaternionTranslationScale(quat, tq.xyz, sq.xyz);
+  }
+  // 1 vec4 per joint: [logQuat.lo, logQuat.hi, packedTranslateScale.lo, packedTranslateScale.hi]
+  let chunk = bitcast<vec4<u32>>(get_boneData(skeletalComponentSID, jointIdx));
+  let ts = unpackVec4FromUvec2(chunk.zw) * vec4<f32>(boneDataInfo.xyz, 1.0);
+  return createMatrixFromQuaternionTranslationScale(decodeLogQuat(chunk.xy), ts.xyz, vec3<f32>(ts.w));
 }
 
 fn getSkinMatrix(skeletalComponentSID: u32, joint: vec4<u32>, weight: vec4<f32>) -> mat4x4<f32> {
+  let boneDataInfo = get_boneDataInfo(skeletalComponentSID);
+  let boneDataType = i32(boneDataInfo.w + 0.5);
 
-#ifdef RN_BONE_DATA_TYPE_Mat43x1
-  var skinMat: mat4x4<f32> = weight.x * get_boneMatrixAsMat4x4(skeletalComponentSID, joint.x);
-  skinMat += weight.y * get_boneMatrixAsMat4x4(skeletalComponentSID, joint.y);
-  skinMat += weight.z * get_boneMatrixAsMat4x4(skeletalComponentSID, joint.z);
-  skinMat += weight.w * get_boneMatrixAsMat4x4(skeletalComponentSID, joint.w);
-
-#elif defined(RN_BONE_DATA_TYPE_VEC4X2)
-  let criteria = vec2<f32>(4096.0, 4096.0);
-
-  let tq_x = get_boneTranslatePackedQuat(skeletalComponentSID, joint.x);
-  let sq_x = get_boneScalePackedQuat(skeletalComponentSID, joint.x);
-  var quat = unpackedVec2ToNormalizedVec4(vec2(tq_x.w, sq_x.w), criteria.x);
-  var skinMat: mat4x4<f32> = weight.x * createMatrixFromQuaternionTranslationScale(quat, tq_x.xyz, sq_x.xyz);
-
-  let tq_y = get_boneTranslatePackedQuat(skeletalComponentSID, joint.y);
-  let sq_y = get_boneScalePackedQuat(skeletalComponentSID, joint.y);
-  quat = unpackedVec2ToNormalizedVec4(vec2(tq_y.w, sq_y.w), criteria.x);
-  skinMat += weight.y * createMatrixFromQuaternionTranslationScale(quat, tq_y.xyz, sq_y.xyz);
-
-  let tq_z = get_boneTranslatePackedQuat(skeletalComponentSID, joint.z);
-  let sq_z = get_boneScalePackedQuat(skeletalComponentSID, joint.z);
-  quat = unpackedVec2ToNormalizedVec4(vec2(tq_z.w, sq_z.w), criteria.x);
-  skinMat += weight.z * createMatrixFromQuaternionTranslationScale(quat, tq_z.xyz, sq_z.xyz);
-
-  let tq_w = get_boneTranslatePackedQuat(skeletalComponentSID, joint.w);
-  let sq_w = get_boneScalePackedQuat(skeletalComponentSID, joint.w);
-  quat = unpackedVec2ToNormalizedVec4(vec2(tq_w.w, sq_w.w), criteria.x);
-  skinMat += weight.w * createMatrixFromQuaternionTranslationScale(quat, tq_w.xyz, sq_w.xyz);
-
-#elif defined(RN_BONE_DATA_TYPE_VEC4X2_OLD)
-  let ts_x = get_boneTranslateScale(skeletalComponentSID, joint.x);
-  var skinMat: mat4x4<f32> = weight.x * createMatrixFromQuaternionTranslationScale(
-    get_boneQuaternion(skeletalComponentSID, joint.x), ts_x.xyz, vec3(ts_x.w));
-  let ts_y = get_boneTranslateScale(skeletalComponentSID, joint.y);
-  skinMat += weight.y * createMatrixFromQuaternionTranslationScale(
-    get_boneQuaternion(skeletalComponentSID, joint.y), ts_y.xyz, vec3(ts_y.w));
-  let ts_z = get_boneTranslateScale(skeletalComponentSID, joint.z);
-  skinMat += weight.z * createMatrixFromQuaternionTranslationScale(
-    get_boneQuaternion(skeletalComponentSID, joint.z), ts_z.xyz, vec3(ts_z.w));
-  let ts_w = get_boneTranslateScale(skeletalComponentSID, joint.w);
-  skinMat += weight.w * createMatrixFromQuaternionTranslationScale(
-    get_boneQuaternion(skeletalComponentSID, joint.w), ts_w.xyz, vec3(ts_w.w));
-
-#elif defined(RN_BONE_DATA_TYPE_VEC4X1)
-  let boneCompressedChunksX = get_boneCompressedChunk(skeletalComponentSID, joint.x);
-  let boneCompressedChunksY = get_boneCompressedChunk(skeletalComponentSID, joint.y);
-  let boneCompressedChunksZ = get_boneCompressedChunk(skeletalComponentSID, joint.z);
-  let boneCompressedChunksW = get_boneCompressedChunk(skeletalComponentSID, joint.w);
-
-  let criteria = vec2<f32>(4096.0, 4096.0);
-  let boneCompressedInfo = get_boneCompressedInfo(0u, 0u);
-
-  let ts_x = unpackedVec2ToNormalizedVec4(boneCompressedChunksX.zw, criteria.y)*boneCompressedInfo;
-  var skinMat: mat4x4<f32> = weight.x * createMatrixFromQuaternionTranslationScale(
-    unpackedVec2ToNormalizedVec4(boneCompressedChunksX.xy, criteria.x), ts_x.xyz, vec3(ts_x.w));
-  let ts_y = unpackedVec2ToNormalizedVec4(boneCompressedChunksY.zw, criteria.y)*boneCompressedInfo;
-  skinMat += weight.y * createMatrixFromQuaternionTranslationScale(
-    unpackedVec2ToNormalizedVec4(boneCompressedChunksY.xy, criteria.x), ts_y.xyz, vec3(ts_y.w));
-  let ts_z = unpackedVec2ToNormalizedVec4(boneCompressedChunksZ.zw, criteria.y)*boneCompressedInfo;
-  skinMat += weight.z * createMatrixFromQuaternionTranslationScale(
-    unpackedVec2ToNormalizedVec4(boneCompressedChunksZ.xy, criteria.x), ts_z.xyz, vec3(ts_z.w));
-  let ts_w = unpackedVec2ToNormalizedVec4(boneCompressedChunksW.zw, criteria.y)*boneCompressedInfo;
-  skinMat += weight.w * createMatrixFromQuaternionTranslationScale(
-    unpackedVec2ToNormalizedVec4(boneCompressedChunksW.xy, criteria.x), ts_w.xyz, vec3(ts_w.w));
-#endif
+  var skinMat: mat4x4<f32> = weight.x * getBoneMatrix(skeletalComponentSID, joint.x, boneDataType, boneDataInfo);
+  skinMat += weight.y * getBoneMatrix(skeletalComponentSID, joint.y, boneDataType, boneDataInfo);
+  skinMat += weight.z * getBoneMatrix(skeletalComponentSID, joint.z, boneDataType, boneDataInfo);
+  skinMat += weight.w * getBoneMatrix(skeletalComponentSID, joint.w, boneDataType, boneDataInfo);
   return skinMat;
 }
 
