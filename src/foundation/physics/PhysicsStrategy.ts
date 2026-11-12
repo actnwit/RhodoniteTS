@@ -40,6 +40,8 @@ export interface PhysicsStrategy {
   /**
    * Sets the world position of the physics body.
    * This is optional and only implemented by rigid-body physics strategies.
+   * The passed vector may be a shared reusable instance, so implementations
+   * must copy the values they need instead of retaining the reference.
    * @param worldPosition - The new world position
    */
   setPosition?(worldPosition: IVector3): void;
@@ -65,6 +67,8 @@ export interface PhysicsStrategy {
   /**
    * Sets the world scale of the physics body.
    * This is optional and only implemented by rigid-body physics strategies.
+   * The passed vector may be a shared reusable instance, so implementations
+   * must copy the values they need instead of retaining the reference.
    * @param worldScale - The new world scale
    */
   setScale?(worldScale: IVector3): void;

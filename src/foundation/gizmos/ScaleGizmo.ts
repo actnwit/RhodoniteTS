@@ -11,10 +11,12 @@ import { Plane } from '../geometry/shapes/Plane';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
 import { MaterialHelper } from '../helpers/MaterialHelper';
 import type { Material } from '../materials/core/Material';
+import type { IVector3 } from '../math/IVector';
 import { MathUtil } from '../math/MathUtil';
 import { Matrix33 } from '../math/Matrix33';
 import { MutableMatrix33 } from '../math/MutableMatrix33';
 import { MutableQuaternion } from '../math/MutableQuaternion';
+import { MutableVector3 } from '../math/MutableVector3';
 import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
@@ -79,7 +81,7 @@ export class ScaleGizmo extends Gizmo {
   private static __originalX = 0;
   private static __originalY = 0;
   private __pickStatedPoint = Vector3.zero();
-  private __deltaPoint = Vector3.one();
+  private __deltaPoint: IVector3 = Vector3.one();
   private __targetScaleBackup = Vector3.one();
   private __isPointerDown = false;
   private __isCameraControllerDisabled = false;
@@ -93,6 +95,11 @@ export class ScaleGizmo extends Gizmo {
 
   /** Reusable quaternion for world-rotation calculations (avoids per-frame allocations) */
   private static readonly __tmpQuaternion_0 = MutableQuaternion.identity();
+  /** Reusable vectors for drag calculations (avoids per-frame allocations) */
+  private static readonly __tmpVector3_0 = MutableVector3.zero();
+  private static readonly __tmpVector3_1 = MutableVector3.zero();
+  private static readonly __tmpVector3_2 = MutableVector3.zero();
+  private static readonly __tmpVector3_3 = MutableVector3.zero();
 
   /**
    * Gets the resources for a specific engine, or undefined if not initialized.
@@ -501,7 +508,7 @@ export class ScaleGizmo extends Gizmo {
 
     if (this.__isPointerDown) {
       if (ScaleGizmo.__latestTargetEntity === this.__target) {
-        this.__target.getTransform().localScale = this.__deltaPoint.clone();
+        this.__target.getTransform().localScale = this.__deltaPoint;
       }
     }
   }
@@ -710,30 +717,29 @@ export class ScaleGizmo extends Gizmo {
 
     const sg = this.__target.getSceneGraph()!;
     const aabb = sg.worldMergedAABBWithSkeletal;
-    const deltaVector3 = Vector3.multiply(
-      Vector3.subtract(pickInMovingPoint, this.__pickStatedPoint),
-      1 / aabb.lengthCenterToCorner
+    const deltaVector3 = Vector3.multiplyTo(
+      Vector3.subtractTo(pickInMovingPoint, this.__pickStatedPoint, ScaleGizmo.__tmpVector3_0),
+      1 / aabb.lengthCenterToCorner,
+      ScaleGizmo.__tmpVector3_1
     );
 
     Logger.default.debug(`${this.__target.uniqueName}: ${deltaVector3.toStringApproximately()}`);
 
     if (ScaleGizmo.__space === 'local') {
-      this.__deltaPoint = Vector3.add(this.__targetScaleBackup, deltaVector3);
-      this.__deltaPoint = Vector3.fromCopy3(
-        Math.max(this.__deltaPoint.x, 0.01),
-        Math.max(this.__deltaPoint.y, 0.01),
-        Math.max(this.__deltaPoint.z, 0.01)
+      this.__deltaPoint = ScaleGizmo.__tmpVector3_2.setComponents(
+        Math.max(this.__targetScaleBackup.x + deltaVector3.x, 0.01),
+        Math.max(this.__targetScaleBackup.y + deltaVector3.y, 0.01),
+        Math.max(this.__targetScaleBackup.z + deltaVector3.z, 0.01)
       );
     } else if (ScaleGizmo.__space === 'world') {
       const worldQuaternion = this.__target.getSceneGraph().getQuaternionRecursivelyTo(ScaleGizmo.__tmpQuaternion_0);
       const worldRotation = Matrix33.fromCopyQuaternion(worldQuaternion);
       const inverseWorldRotation = Matrix33.transpose(worldRotation) as Matrix33;
-      const deltaLocal = inverseWorldRotation.multiplyVector(deltaVector3);
-      const unclampedScale = Vector3.add(this.__targetScaleBackup, deltaLocal);
-      this.__deltaPoint = Vector3.fromCopy3(
-        Math.max(unclampedScale.x, 0.01),
-        Math.max(unclampedScale.y, 0.01),
-        Math.max(unclampedScale.z, 0.01)
+      const deltaLocal = inverseWorldRotation.multiplyVectorTo(deltaVector3, ScaleGizmo.__tmpVector3_2);
+      this.__deltaPoint = ScaleGizmo.__tmpVector3_3.setComponents(
+        Math.max(this.__targetScaleBackup.x + deltaLocal.x, 0.01),
+        Math.max(this.__targetScaleBackup.y + deltaLocal.y, 0.01),
+        Math.max(this.__targetScaleBackup.z + deltaLocal.z, 0.01)
       );
     }
 

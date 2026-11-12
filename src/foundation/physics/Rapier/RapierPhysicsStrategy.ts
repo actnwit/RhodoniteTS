@@ -3,7 +3,15 @@ import type { Config } from '../../core/Config';
 import { PhysicsShape } from '../../definitions/PhysicsShapeType';
 import type { ShapeInstance } from '../../geometry/Shape';
 import type { ISceneGraphEntity } from '../../helpers';
-import { type IQuaternion, type IVector3, Matrix44, MutableQuaternion, Quaternion, Vector3 } from '../../math';
+import {
+  type IQuaternion,
+  type IVector3,
+  Matrix44,
+  MutableQuaternion,
+  MutableVector3,
+  Quaternion,
+  Vector3,
+} from '../../math';
 import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
 import type {
@@ -246,6 +254,16 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
   private __warnedShearedBoxApproximation = false;
   /** Reusable quaternion for world-rotation lookups (avoids per-frame allocations) */
   private __tmpWorldRotation = MutableQuaternion.identity();
+  /** Reusable Euler angles for rotation conversions (avoids per-frame allocations) */
+  private __tmpEuler = MutableVector3.zero();
+  /** Reusable Euler angles stored in the cached physics property */
+  private __tmpPropertyRotation = MutableVector3.zero();
+  /** Reusable vectors for converting motion velocities */
+  private __tmpLinearVelocity = MutableVector3.zero();
+  private __tmpAngularVelocity = MutableVector3.zero();
+  /** Reusable temporaries for the per-frame physics sync */
+  private __tmpUpdatePosition = MutableVector3.zero();
+  private __tmpUpdateRotation = MutableQuaternion.identity();
 
   /**
    * Injects Rapier.js bindings. Physics worlds are created lazily per Engine.
@@ -377,7 +395,10 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
         type: first.shape.shape.type === 'box' ? PhysicsShape.Box : PhysicsShape.Sphere,
         size,
         position: entity.getSceneGraph().position,
-        rotation: entity.getSceneGraph().getQuaternionRecursivelyTo(this.__tmpWorldRotation).toEulerAngles(),
+        rotation: entity
+          .getSceneGraph()
+          .getQuaternionRecursivelyTo(this.__tmpWorldRotation)
+          .toEulerAnglesTo(this.__tmpEuler),
         move: resolvedMotion.move,
         density: first.body.density,
         friction: first.collider.friction,
@@ -443,8 +464,12 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
 
     const pos = this.__rigidBody.translation();
     const rot = this.__rigidBody.rotation();
-    this.__entity.getSceneGraph().setPositionWithoutPhysics(Vector3.fromCopy3(pos.x, pos.y, pos.z));
-    this.__entity.getSceneGraph().setRotationWithoutPhysics(Quaternion.fromCopy4(rot.x, rot.y, rot.z, rot.w));
+    this.__entity
+      .getSceneGraph()
+      .setPositionWithoutPhysics(this.__tmpUpdatePosition.setComponents(pos.x, pos.y, pos.z));
+    this.__entity
+      .getSceneGraph()
+      .setRotationWithoutPhysics(this.__tmpUpdateRotation.setComponents(rot.x, rot.y, rot.z, rot.w));
   }
 
   /**
@@ -474,12 +499,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
    */
   setRotation(worldRotation: IQuaternion): void {
     if (this.__property != null) {
-      this.__property.rotation = Quaternion.fromCopy4(
-        worldRotation.x,
-        worldRotation.y,
-        worldRotation.z,
-        worldRotation.w
-      ).toEulerAngles();
+      this.__property.rotation = worldRotation.toEulerAnglesTo(this.__tmpPropertyRotation);
     }
     if (this.__rigidBody == null) {
       return;
@@ -750,10 +770,14 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
         this.__entity?.getSceneGraph().getQuaternionRecursivelyTo(this.__tmpWorldRotation) ?? rotation;
       const linearVelocity =
         preservedState?.linearVelocity ??
-        (motion?.linearVelocity == null ? undefined : velocityRotation.transformVector3(motion.linearVelocity));
+        (motion?.linearVelocity == null
+          ? undefined
+          : velocityRotation.transformVector3To(motion.linearVelocity, this.__tmpLinearVelocity));
       const angularVelocity =
         preservedState?.angularVelocity ??
-        (motion?.angularVelocity == null ? undefined : velocityRotation.transformVector3(motion.angularVelocity));
+        (motion?.angularVelocity == null
+          ? undefined
+          : velocityRotation.transformVector3To(motion.angularVelocity, this.__tmpAngularVelocity));
       if (linearVelocity != null) {
         rigidBodyDesc.setLinvel?.(linearVelocity.x, linearVelocity.y, linearVelocity.z);
       }

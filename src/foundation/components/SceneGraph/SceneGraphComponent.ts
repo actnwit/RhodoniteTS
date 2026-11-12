@@ -90,6 +90,13 @@ export class SceneGraphComponent extends Component {
   private static __tmp_quat_1 = MutableQuaternion.identity();
   private static __tmp_quat_2 = MutableQuaternion.identity();
   private static __tmp_quat_3 = MutableQuaternion.identity();
+  private static __tmp_vec3_0 = MutableVector3.zero();
+  private static __tmp_vec3_1 = MutableVector3.zero();
+  private static __tmp_vec3_2 = MutableVector3.zero();
+  private static __tmp_matrixScale = MutableVector3.one();
+  private static __tmp_physicsWorldScale = MutableVector3.one();
+  private static __tmp_euler = MutableVector3.zero();
+  private static __tmp_translate = MutableVector3.zero();
 
   /** Map to store update count per Engine instance for multi-engine support */
   private static __updateCountMap: Map<Engine, number> = new Map();
@@ -615,11 +622,11 @@ export class SceneGraphComponent extends Component {
           if (strategy.setRotation != null) {
             strategy.setRotation(worldRotation);
           } else if (strategy.setEulerAngle != null) {
-            strategy.setEulerAngle(worldRotation.toEulerAngles());
+            strategy.setEulerAngle(worldRotation.toEulerAnglesTo(SceneGraphComponent.__tmp_euler));
           }
         }
         if (updatePosition && strategy.setPosition != null) {
-          strategy.setPosition(matrix.getTranslate());
+          strategy.setPosition(matrix.getTranslateTo(SceneGraphComponent.__tmp_translate));
         }
         if (updateScale && strategy.setScale != null) {
           strategy.setScale(this._getPhysicsWorldScale(matrix));
@@ -1345,7 +1352,7 @@ export class SceneGraphComponent extends Component {
         if (strategy.setRotation != null) {
           strategy.setRotation(quat);
         } else if (strategy.setEulerAngle != null) {
-          strategy.setEulerAngle(quat.toEulerAngles());
+          strategy.setEulerAngle(quat.toEulerAnglesTo(SceneGraphComponent.__tmp_euler));
         }
       }
     }
@@ -1485,18 +1492,21 @@ export class SceneGraphComponent extends Component {
   /**
    * Resolves world-scale magnitudes with signs relative to the entity's proper world rotation.
    * Physics bodies use that rotation separately, so reflected local offsets need these signs.
+   *
+   * The returned vector is a shared reusable instance, so callers must copy it
+   * when they need to keep the values around.
    * @internal
    */
-  _getPhysicsWorldScale(matrix: IMatrix44 = this.matrixInner): Vector3 {
+  _getPhysicsWorldScale(matrix: IMatrix44 = this.matrixInner): IVector3 {
     const rotation = this.getQuaternionRecursivelyTo(SceneGraphComponent.__tmp_quat_2);
-    const axisX = rotation.transformVector3(SceneGraphComponent.__axisX);
-    const axisY = rotation.transformVector3(SceneGraphComponent.__axisY);
-    const axisZ = rotation.transformVector3(SceneGraphComponent.__axisZ);
-    const scale = matrix.getScale();
+    const axisX = rotation.transformVector3To(SceneGraphComponent.__axisX, SceneGraphComponent.__tmp_vec3_0);
+    const axisY = rotation.transformVector3To(SceneGraphComponent.__axisY, SceneGraphComponent.__tmp_vec3_1);
+    const axisZ = rotation.transformVector3To(SceneGraphComponent.__axisZ, SceneGraphComponent.__tmp_vec3_2);
+    const scale = matrix.getScaleTo(SceneGraphComponent.__tmp_matrixScale);
     const projectionX = matrix.m00 * axisX.x + matrix.m10 * axisX.y + matrix.m20 * axisX.z;
     const projectionY = matrix.m01 * axisY.x + matrix.m11 * axisY.y + matrix.m21 * axisY.z;
     const projectionZ = matrix.m02 * axisZ.x + matrix.m12 * axisZ.y + matrix.m22 * axisZ.z;
-    return Vector3.fromCopy3(
+    return SceneGraphComponent.__tmp_physicsWorldScale.setComponents(
       projectionX < 0 ? -scale.x : scale.x,
       projectionY < 0 ? -scale.y : scale.y,
       projectionZ < 0 ? -scale.z : scale.z

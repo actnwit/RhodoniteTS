@@ -278,6 +278,18 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
   }
 
   /**
+   * Extracts the translation components from this transformation matrix
+   * and stores them in the output vector.
+   * For identity matrix, the translation is (0, 0, 0).
+   *
+   * @param outVec - The output vector to store the translation
+   * @returns The output vector with all components set to 0
+   */
+  getTranslateTo(outVec: MutableVector3): MutableVector3 {
+    return outVec.setComponents(0, 0, 0);
+  }
+
+  /**
    * Gets the matrix element at row 0, column 0.
    * @returns Always 1 for identity matrix
    */
