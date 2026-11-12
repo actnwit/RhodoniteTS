@@ -221,11 +221,58 @@ function packSnormVec4ToUVec2(x: number, y: number, z: number, w: number): numbe
 }
 
 /**
- * Bit-compatible with WGSL pack2x16snorm / GLSL packSnorm2x16
+ * Bit-compatible with WGSL pack2x16snorm (floor(0.5 + 32767 * v)).
+ * GLSL packSnorm2x16 uses round(), whose direction for an exact .5 is implementation-defined,
+ * but shaders only unpack the data packed here, so the result does not depend on the GPU.
  */
 function pack2x16snorm(x: number, y: number): number {
   const q = (v: number) => Math.floor(0.5 + 32767 * Math.min(1, Math.max(-1, v))) & 0xffff;
   return (q(x) | (q(y) << 16)) >>> 0;
+}
+
+/**
+ * Relative tolerance used to decide whether a scale is uniform: (max - min) <= tolerance * max.
+ * The Vec4x1 bone data type, which supports only uniform scale, relies on this decision.
+ */
+const UNIFORM_SCALE_RELATIVE_TOLERANCE = 1e-3;
+
+/**
+ * Checks whether the given three scale components are (almost) uniform.
+ * The signs are ignored (only the magnitudes are compared).
+ *
+ * @param x - The x component of the scale
+ * @param y - The y component of the scale
+ * @param z - The z component of the scale
+ * @returns True if the scale is uniform
+ */
+function isUniformScale(x: number, y: number, z: number): boolean {
+  const ax = Math.abs(x);
+  const ay = Math.abs(y);
+  const az = Math.abs(z);
+  const max = Math.max(ax, ay, az);
+  const min = Math.min(ax, ay, az);
+  return max - min <= UNIFORM_SCALE_RELATIVE_TOLERANCE * max;
+}
+
+/**
+ * The range of log2(scale) that the uniform scale of the Vec4x1 bone data type can represent: [-16, 16].
+ * Must match RN_VEC4X1_LOG2_SCALE_RANGE in the shaders (processGeometry.glsl / processGeometry.wgsl).
+ */
+const VEC4X1_LOG2_SCALE_RANGE = 16;
+
+/**
+ * Encodes the magnitude of a uniform scale for the Vec4x1 bone data type.
+ *
+ * The scale is stored as log2(scale) / 16 in a snorm16 value, and shaders decode it with exp2(value * 16).
+ * The relative error is therefore constant (at most about 1.7e-4) over 2^-16 .. 2^16, and 1.0 is exact.
+ * Scales out of the range are clamped by the snorm packing: a zero scale (often used to hide a part of a mesh)
+ * becomes 2^-16, which keeps the mesh invisible while keeping the skinning matrix invertible for normals.
+ *
+ * @param scale - The magnitude of the uniform scale (>= 0)
+ * @returns The value to be packed as snorm16 (it may be out of [-1, 1]; the packing clamps it)
+ */
+function encodeVec4x1Scale(scale: number): number {
+  return Math.log2(scale) / VEC4X1_LOG2_SCALE_RANGE;
 }
 
 /**
@@ -575,6 +622,8 @@ export const MathUtil = Object.freeze({
   isPowerOfTwoTexture,
   packNormalizedVec4ToVec2,
   packSnormVec4ToUVec2,
+  isUniformScale,
+  encodeVec4x1Scale,
   convertToStringAsGLSLFloat,
   nearZeroToZero,
   gaussianCdf,
