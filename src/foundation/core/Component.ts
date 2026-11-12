@@ -237,8 +237,16 @@ export class Component extends RnObject {
     }
 
     const methodName = processStage.methodName;
-    const components: Component[] | undefined = engine.componentRepository.getComponentsWithType(componentType)!;
+    // Iterate the raw component array instead of building a filtered copy on
+    // every call. Component arrays can contain holes for deleted components.
+    const components = engine.componentRepository._getComponents(componentType);
+    if (components == null) {
+      return;
+    }
     for (const component of components) {
+      if (component == null) {
+        continue;
+      }
       if (processStage === component.__currentProcessStage) {
         (component as any)[methodName]();
       }

@@ -205,6 +205,48 @@ export class ComponentRepository {
   }
 
   /**
+   * Checks whether at least one live component of the given type exists.
+   * This is allocation-free and is intended for hot paths such as the render
+   * loop, where building a filtered component list every frame is wasteful.
+   *
+   * @param componentTID - The ComponentTID to check
+   * @returns True if at least one live component of the type exists
+   */
+  public hasAnyComponent(componentTID: ComponentTID): boolean {
+    const components = this.__components.get(componentTID);
+    if (components == null) {
+      return false;
+    }
+    for (let i = 0; i < components.length; i++) {
+      if (components[i] != null) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Counts live components of the given type without allocating a filtered
+   * array. Intended for per-frame checks in the render loop.
+   *
+   * @param componentTID - The ComponentTID to count
+   * @returns The number of live components of the type
+   */
+  public getComponentCount(componentTID: ComponentTID): number {
+    const components = this.__components.get(componentTID);
+    if (components == null) {
+      return 0;
+    }
+    let count = 0;
+    for (let i = 0; i < components.length; i++) {
+      if (components[i] != null) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  /**
    * Gets an array of all component instances of the specified type.
    * This is an internal method that includes undefined slots in the array.
    *

@@ -469,6 +469,7 @@ export class Engine extends RnObject {
     renderPassTickCount,
     primitiveUids,
     displayIdx,
+    hasAnyEffekseerComponents,
     deferredEffekseerRenderJobs,
   }: {
     webGpuResourceRepository: WebGpuResourceRepository;
@@ -476,6 +477,7 @@ export class Engine extends RnObject {
     renderPassTickCount: number;
     primitiveUids: PrimitiveUID[];
     displayIdx: number;
+    hasAnyEffekseerComponents: boolean;
     deferredEffekseerRenderJobs?: DeferredEffekseerWebGPURenderJob[];
   }): boolean {
     // Run pre-render hook per-eye (ensures per-view framebuffer adjustments)
@@ -483,9 +485,10 @@ export class Engine extends RnObject {
 
     // Scanning every entity for an EffekseerComponent costs a component lookup
     // per entity plus two array allocations per render pass (and per eye). Only
-    // do it when this pass actually renders Effekseer effects.
+    // do it when this pass actually renders Effekseer effects and at least one
+    // EffekseerComponent exists in the engine.
     let effekseerComponents: EffekseerComponent[] | undefined;
-    if (renderPass.toRenderEffekseerEffects) {
+    if (hasAnyEffekseerComponents && renderPass.toRenderEffekseerEffects) {
       effekseerComponents = [];
       const entities = renderPass.entities;
       for (let i = 0; i < entities.length; i++) {
@@ -521,8 +524,6 @@ export class Engine extends RnObject {
 
     // clear Framebuffer
     webGpuResourceRepository.clearFrameBuffer(this, renderPass, displayIdx);
-
-    webGpuResourceRepository.createRenderBundleEncoder(this, renderPass, displayIdx);
 
     this.__renderMeshesWebGPU({
       webGpuResourceRepository,
@@ -565,6 +566,10 @@ export class Engine extends RnObject {
     deferredEffekseerRenderJobs: DeferredEffekseerWebGPURenderJob[];
     displayIdx: number;
   }) {
+    if (deferredEffekseerRenderJobs.length === 0) {
+      return;
+    }
+
     const currentResolveFramebuffer = currentRenderPass.getResolveFramebuffer();
     if (currentResolveFramebuffer == null) {
       return;
@@ -626,6 +631,12 @@ export class Engine extends RnObject {
       return renderPassEncoderForEffekseer;
     }
 
+    // The render bundle could not be reused (first frame, cache invalidation,
+    // or changed sort order), so record fresh commands. Creating the bundle
+    // encoder only here avoids descriptor computation and GPU encoder
+    // allocation on every frame where a cached bundle is executed.
+    webGpuResourceRepository.createRenderBundleEncoder(this, renderPass, displayIdx);
+
     const renderedSomething = MeshRendererComponent.common_$render({
       renderPass: renderPass,
       renderPassTickCount,
@@ -659,25 +670,39 @@ export class Engine extends RnObject {
         const isMultiView = webxrSystem.isMultiView();
         const xrPose = this.__engineState.xrPoseWebGPU;
         const displayCount = isWebXRMode && !isMultiView && xrPose != null ? xrPose.views.length : 1;
-        const renderPassTickCountMap = new Map<number, number>();
-        const primitiveUidsMap = new Map<number, PrimitiveUID[]>();
+        // Effekseer is rarely used. Detect it once per frame so the per-pass
+        // code can skip entity scans, job arrays and the deferred-render call.
+        const hasAnyEffekseerComponents = this.__componentRepository.hasAnyComponent(
+          WellKnownComponentTIDs.EffekseerComponentTID
+        );
+        // The maps only exist to share sorting work between the eyes in stereo
+        // rendering. Allocating them for the common single-display case costs
+        // two Map allocations on every frame.
+        const isMultiDisplay = displayCount > 1;
+        const renderPassTickCountMap = isMultiDisplay ? new Map<number, number>() : undefined;
+        const primitiveUidsMap = isMultiDisplay ? new Map<number, PrimitiveUID[]>() : undefined;
 
         for (let displayIdx = 0; displayIdx < displayCount; displayIdx++) {
-          const deferredEffekseerRenderJobs: DeferredEffekseerWebGPURenderJob[] = [];
+          const deferredEffekseerRenderJobs: DeferredEffekseerWebGPURenderJob[] | undefined = hasAnyEffekseerComponents
+            ? []
+            : undefined;
           let renderedEffekseerEffectsInDisplay = false;
           for (const exp of expressions) {
             for (const renderPass of exp.renderPasses) {
               const renderPassUid = renderPass.renderPassUID;
-              let renderPassTickCount = renderPassTickCountMap.get(renderPassUid);
+              let renderPassTickCount = renderPassTickCountMap?.get(renderPassUid);
+              let primitiveUids: PrimitiveUID[];
               if (renderPassTickCount === undefined) {
                 renderPassTickCount = this.__renderPassTickCount;
-                renderPassTickCountMap.set(renderPassUid, renderPassTickCount);
                 renderPass._isChangedSortRenderResult = false;
-                primitiveUidsMap.set(renderPassUid, MeshRendererComponent.sort_$render(this, renderPass));
+                primitiveUids = MeshRendererComponent.sort_$render(this, renderPass);
+                if (renderPassTickCountMap != null) {
+                  renderPassTickCountMap.set(renderPassUid, renderPassTickCount);
+                  primitiveUidsMap!.set(renderPassUid, primitiveUids);
+                }
+              } else {
+                primitiveUids = primitiveUidsMap!.get(renderPassUid)!;
               }
-
-              const primitiveUids =
-                primitiveUidsMap.get(renderPassUid) ?? MeshRendererComponent.sort_$render(this, renderPass);
 
               const renderedEffekseerEffects = this.__processRenderPassWebGPU({
                 webGpuResourceRepository,
@@ -685,20 +710,23 @@ export class Engine extends RnObject {
                 renderPassTickCount,
                 primitiveUids,
                 displayIdx,
+                hasAnyEffekseerComponents,
                 deferredEffekseerRenderJobs,
               });
               renderedEffekseerEffectsInDisplay ||= renderedEffekseerEffects;
-              this.__renderDeferredEffekseerEffectsAfterResolveWebGPU({
-                webGpuResourceRepository,
-                currentRenderPass: renderPass,
-                deferredEffekseerRenderJobs,
-                displayIdx,
-              });
+              if (deferredEffekseerRenderJobs != null && deferredEffekseerRenderJobs.length > 0) {
+                this.__renderDeferredEffekseerEffectsAfterResolveWebGPU({
+                  webGpuResourceRepository,
+                  currentRenderPass: renderPass,
+                  deferredEffekseerRenderJobs,
+                  displayIdx,
+                });
+              }
 
               // advance tick count only after the final display has been processed
               if (displayIdx === displayCount - 1) {
-                renderPassTickCountMap.delete(renderPassUid);
-                primitiveUidsMap.delete(renderPassUid);
+                renderPassTickCountMap?.delete(renderPassUid);
+                primitiveUidsMap?.delete(renderPassUid);
                 this.__renderPassTickCount++;
               }
             }

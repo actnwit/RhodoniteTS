@@ -132,7 +132,9 @@ export class BlendShapeComponent extends Component {
   }
 
   static getCountOfBlendShapeComponents(engine: Engine) {
-    return engine.componentRepository.getComponentsWithType(BlendShapeComponent).length;
+    // Called from the per-frame prerender path, so avoid allocating a filtered
+    // component array just to read its length.
+    return engine.componentRepository.getComponentCount(BlendShapeComponent.componentTID);
   }
 
   /**
