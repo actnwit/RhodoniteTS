@@ -64,6 +64,29 @@ describe('SceneGraphComponent', async () => {
     expect(result.length).toBe(4);
   });
 
+  test('getQuaternionRecursivelyTo writes the world rotation into the given quaternion', () => {
+    const sceneEntity = generateEntity();
+    const parentEntity = generateEntity();
+    const childEntity = generateEntity();
+
+    parentEntity.getTransform().localRotation = Rn.Quaternion.axisAngle(Rn.Vector3.fromCopy3(0, 1, 0), Math.PI / 4);
+    childEntity.getTransform().localRotation = Rn.Quaternion.axisAngle(Rn.Vector3.fromCopy3(1, 0, 0), Math.PI / 6);
+    parentEntity.getSceneGraph().addChild(childEntity.getSceneGraph());
+    sceneEntity.addChild(parentEntity.getSceneGraph());
+
+    const childSceneGraph = childEntity.getSceneGraph();
+    const out = Rn.MutableQuaternion.identity();
+    const returned = childSceneGraph.getQuaternionRecursivelyTo(out);
+
+    expect(returned).toBe(out);
+    expect(out.isEqual(childSceneGraph.getQuaternionRecursively(), 0.00001)).toBe(true);
+
+    // The same output instance can be reused without allocating a new quaternion.
+    const out2 = Rn.MutableQuaternion.identity();
+    expect(childSceneGraph.getQuaternionRecursivelyTo(out2)).toBe(out2);
+    expect(out2.isStrictEqual(out)).toBe(true);
+  });
+
   // test('create Parents and children.', () => {
   //   const entityRepository = EntityRepository.getInstance();
   //   const entity = entityRepository.createEntity([]);

@@ -17,7 +17,7 @@ import { TranslationGizmo } from '../../gizmos/TranslationGizmo';
 import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
 import { AABB } from '../../math/AABB';
 import type { IMatrix44 } from '../../math/IMatrix';
-import type { IQuaternion } from '../../math/IQuaternion';
+import type { IMutableQuaternion, IQuaternion } from '../../math/IQuaternion';
 import type { IVector3 } from '../../math/IVector';
 import { Matrix44 } from '../../math/Matrix44';
 import { MutableMatrix33 } from '../../math/MutableMatrix33';
@@ -88,6 +88,7 @@ export class SceneGraphComponent extends Component {
   private static __tmp_mat4_4 = MutableMatrix44.identity();
   private static __tmp_quat_0 = MutableQuaternion.identity();
   private static __tmp_quat_1 = MutableQuaternion.identity();
+  private static __tmp_quat_2 = MutableQuaternion.identity();
 
   /** Map to store update count per Engine instance for multi-engine support */
   private static __updateCountMap: Map<Engine, number> = new Map();
@@ -823,15 +824,31 @@ export class SceneGraphComponent extends Component {
 
   /**
    * Gets the world rotation quaternion by recursively combining local rotations.
+   * This allocates a new quaternion. Use {@link getQuaternionRecursivelyTo}
+   * when a pre-allocated output quaternion is available (e.g. in hot per-frame paths).
    * @returns The world rotation quaternion
    */
   getQuaternionRecursively(): IQuaternion {
-    if (Is.not.exist(this.parent)) {
-      return this.entity.getTransform().localRotation;
+    return Quaternion.fromCopyQuaternion(this.getQuaternionRecursivelyTo(SceneGraphComponent.__tmp_quat_1));
+  }
+
+  /**
+   * Gets the world rotation quaternion by recursively combining local rotations
+   * and stores the result in the given output quaternion without allocating.
+   * @param out - The output quaternion to store the result
+   * @returns The output quaternion containing the world rotation
+   */
+  getQuaternionRecursivelyTo(out: IMutableQuaternion): IMutableQuaternion {
+    const localRotation = this.entity.getTransform().localRotation;
+    if (this.__parent == null) {
+      return out.copyComponents(localRotation);
     }
 
-    const matrixFromAncestorToParent = this.parent.getQuaternionRecursively();
-    return Quaternion.multiply(matrixFromAncestorToParent, this.entity.getTransform().localRotation);
+    // The recursion reuses a single temporary quaternion: Quaternion.multiplyTo
+    // computes all components before writing to the output, so using the same
+    // instance as both an input and the output is safe.
+    this.__parent.getQuaternionRecursivelyTo(SceneGraphComponent.__tmp_quat_0);
+    return Quaternion.multiplyTo(SceneGraphComponent.__tmp_quat_0, localRotation, out);
   }
 
   /**
@@ -1470,7 +1487,7 @@ export class SceneGraphComponent extends Component {
    * @internal
    */
   _getPhysicsWorldScale(matrix: IMatrix44 = this.matrixInner): Vector3 {
-    const rotation = this.getQuaternionRecursively();
+    const rotation = this.getQuaternionRecursivelyTo(SceneGraphComponent.__tmp_quat_2);
     const axisX = rotation.transformVector3(SceneGraphComponent.__axisX);
     const axisY = rotation.transformVector3(SceneGraphComponent.__axisY);
     const axisZ = rotation.transformVector3(SceneGraphComponent.__axisZ);
