@@ -51,7 +51,7 @@ const HALF_PI = Math.PI / 2;
  * Encode a quaternion (x, y, z, w) into a 64-bit log-quaternion.
  * Returns [lo, hi] as unsigned 32-bit integers.
  */
-export function encodeLogQuat(qx: number, qy: number, qz: number, qw: number): Uint32Array {
+export function encodeLogQuat(qx: number, qy: number, qz: number, qw: number): number[] {
   // Normalize the input to be safe
   const len = Math.hypot(qx, qy, qz, qw);
   let x = qx / len,
@@ -83,7 +83,7 @@ export function encodeLogQuat(qx: number, qy: number, qz: number, qw: number): U
   // Layout: lo = x(21) | y low 11 bits, hi = y high 10 bits | z(21)
   const lo = (ix | ((iy & 0x7ff) << 21)) >>> 0;
   const hi = ((iy >>> 11) | (iz << 10)) >>> 0;
-  return new Uint32Array([lo, hi]);
+  return [lo, hi];
 }
 
 /**
@@ -215,10 +215,9 @@ function packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, cr
   return [v0, v1];
 }
 
-function packSnormVec4ToUVec2(x: number, y: number, z: number, w: number): Uint32Array {
+function packSnormVec4ToUVec2(x: number, y: number, z: number, w: number): number[] {
   // vec4 -> two uint32
-  const packed = new Uint32Array([pack2x16snorm(x, y), pack2x16snorm(z, w)]);
-  return packed;
+  return [pack2x16snorm(x, y), pack2x16snorm(z, w)];
 }
 
 /**
