@@ -114,7 +114,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   private __generateMipmapsBindGroupLayout?: GPUBindGroupLayout;
   private __contextCurrentTextureView?: GPUTextureView;
 
-  private __lastMaterialsUpdateCount = -1;
+  private __lastBindingStateVersion = -1;
   private __lastCurrentCameraComponentSid = -1;
   private __lastEntityRepositoryUpdateCount = -1;
   private __lastPrimitivesMaterialVariantUpdateCount = -1;
@@ -1516,7 +1516,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const renderPipelineId = `${primitive._getFingerPrint()} ${material._getFingerPrint()} ${material.__materialTypeName} ${
       renderPass.renderPassUID
     } ${meshRendererComponentFingerPrint} ${zWrite} `;
-    const bindGroupId = `${renderPipelineId} ${material.stateVersion} ${material.__materialSid}`;
+    const bindGroupId = `${renderPipelineId} ${material.textureStateVersion} ${material.__materialSid}`;
 
     if (!this.__bindGroupTextureMap.has(bindGroupId)) {
       this.__createBindGroup(engine, bindGroupId, material, diffuseCubeMap, specularCubeMap, sheenCubeMap);
@@ -1950,7 +1950,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
 
   private __toClearRenderBundles(engine: Engine) {
     if (
-      engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount ||
+      engine.materialRepository.bindingStateVersion !== this.__lastBindingStateVersion ||
       CameraComponent.getCurrent(engine) !== this.__lastCurrentCameraComponentSid ||
       EntityRepository.updateCount !== this.__lastEntityRepositoryUpdateCount ||
       Primitive.variantUpdateCount !== this.__lastPrimitivesMaterialVariantUpdateCount ||
@@ -1959,7 +1959,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       this.__renderBundles.clear();
       engine.engineState.webgpuRenderBundleMode = false;
       this.__lastCurrentCameraComponentSid = CameraComponent.getCurrent(engine);
-      this.__lastMaterialsUpdateCount = engine.materialRepository.stateVersion;
+      this.__lastBindingStateVersion = engine.materialRepository.bindingStateVersion;
       this.__lastEntityRepositoryUpdateCount = EntityRepository.updateCount;
       this.__lastPrimitivesMaterialVariantUpdateCount = Primitive.variantUpdateCount;
       this.__lastMeshRendererComponentsUpdateCount = MeshRendererComponent.updateCount;
@@ -2093,8 +2093,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     _sheenCubeMap?: CubeTexture | RenderTargetTextureCube
   ): [GPURenderPipeline, boolean] {
     if (this.__webGpuRenderPipelineMap.has(renderPipelineId)) {
-      const materialStateVersion = this.__materialStateVersionMap.get(renderPipelineId);
-      if (materialStateVersion === material.stateVersion) {
+      const pipelineStateVersion = this.__materialStateVersionMap.get(renderPipelineId);
+      if (pipelineStateVersion === material.pipelineStateVersion) {
         return [this.__webGpuRenderPipelineMap.get(renderPipelineId)!, false];
       }
     }
@@ -2250,7 +2250,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     });
 
     this.__webGpuRenderPipelineMap.set(renderPipelineId, pipeline);
-    this.__materialStateVersionMap.set(renderPipelineId, material.stateVersion);
+    this.__materialStateVersionMap.set(renderPipelineId, material.pipelineStateVersion);
 
     return [pipeline, true];
   }
