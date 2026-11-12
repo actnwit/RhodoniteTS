@@ -104,6 +104,8 @@ export class Engine extends RnObject {
   private __engineState = new EngineState();
   private __renderPassTickCount = 0;
   private __animationFrameId = -1;
+  /** The object (Window or XRSession) that owns the current animation frame callback. */
+  private __animationFrameObject?: Window | XRSession;
 
   private __renderLoopFunc?: (time: number, ...args: any[]) => void;
   private __args: unknown[] = [];
@@ -310,26 +312,55 @@ export class Engine extends RnObject {
   public startRenderLoop(renderLoopFunc: (time: number, ...args: any[]) => void, ...args: any[]) {
     this.__renderLoopFunc = renderLoopFunc;
     this.__args = args;
+
+    // Cancel a still pending frame first so that calling startRenderLoop twice
+    // never leaves two loops running in parallel.
+    if (this.__animationFrameId !== -1) {
+      this.stopRenderLoop();
+    }
+
     const animationFrameObject = this.__getAnimationFrameObject();
+    this.__animationFrameObject = animationFrameObject;
+
+    // Cache everything the hot path needs in local variables. Resolving the
+    // `Window | XRSession` union and the class fields on every frame costs more
+    // than the loop body itself.
+    const requestAnimationFrame = animationFrameObject.requestAnimationFrame.bind(animationFrameObject);
     const webXRSystem = this.__webXRSystem;
     const webARSystem = this.__webARSystem;
+
+    // The extra arguments are immutable for the lifetime of the loop, so they
+    // are copied once. Slot 0 is reserved for the current time and overwritten
+    // in place, which keeps the per-frame path free of array allocations and
+    // spread/apply overhead in the common (no extra args) case.
+    const hasExtraArgs = args.length > 0;
+    const callArgs: any[] = hasExtraArgs ? [0, ...args] : [];
+
+    const invokeRenderLoopFunc = hasExtraArgs
+      ? (time: number) => {
+          callArgs[0] = time;
+          renderLoopFunc.apply(renderLoopFunc, callArgs as [number, ...any[]]);
+        }
+      : (time: number) => {
+          renderLoopFunc.call(renderLoopFunc, time);
+        };
 
     const __renderLoopFunc = ((_time: number, xrFrame: XRFrame) => {
       if (webXRSystem.isReadyForWebXR) {
         webXRSystem._preRender(_time, xrFrame);
-        renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
+        invokeRenderLoopFunc(_time);
         webXRSystem._postRender();
       } else if (webARSystem.isReadyForWebAR) {
         webARSystem._preRender(_time, xrFrame);
-        renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
-        webARSystem._preRender(_time, xrFrame);
+        invokeRenderLoopFunc(_time);
+        webARSystem._postRender();
       } else {
-        renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
+        invokeRenderLoopFunc(_time);
       }
-      this.__animationFrameId = animationFrameObject.requestAnimationFrame(__renderLoopFunc);
+      this.__animationFrameId = requestAnimationFrame(__renderLoopFunc);
     }) as FrameRequestCallback;
 
-    this.__animationFrameId = animationFrameObject.requestAnimationFrame(__renderLoopFunc);
+    this.__animationFrameId = requestAnimationFrame(__renderLoopFunc);
   }
 
   private __getAnimationFrameObject(): Window | XRSession {
@@ -351,9 +382,15 @@ export class Engine extends RnObject {
    * Stops a existing render loop.
    */
   public stopRenderLoop() {
-    const animationFrameObject = this.__getAnimationFrameObject();
-    animationFrameObject.cancelAnimationFrame(this.__animationFrameId);
+    // Cancel on the same object that was used to request the frame. Asking
+    // __getAnimationFrameObject() again could return a different object (e.g.
+    // when an XR session has just ended) and the old loop would keep running.
+    const animationFrameObject = this.__animationFrameObject ?? this.__getAnimationFrameObject();
+    if (this.__animationFrameId !== -1) {
+      animationFrameObject.cancelAnimationFrame(this.__animationFrameId);
+    }
     this.__animationFrameId = -1;
+    this.__animationFrameObject = undefined;
   }
 
   /**
@@ -361,7 +398,7 @@ export class Engine extends RnObject {
    */
   public restartRenderLoop() {
     if (this.__renderLoopFunc != null) {
-      this.startRenderLoop(this.__renderLoopFunc, 0, this.__args);
+      this.startRenderLoop(this.__renderLoopFunc, ...this.__args);
     }
   }
 
@@ -444,10 +481,24 @@ export class Engine extends RnObject {
     // Run pre-render hook per-eye (ensures per-view framebuffer adjustments)
     renderPass.doPreRender();
 
-    const effekseerComponents = renderPass.entities
-      .map(entity => entity.tryToGetEffekseer())
-      .filter(effekseerComponent => effekseerComponent != null);
-    const hasEffekseerEffects = effekseerComponents.length > 0;
+    // Scanning every entity for an EffekseerComponent costs a component lookup
+    // per entity plus two array allocations per render pass (and per eye). Only
+    // do it when this pass actually renders Effekseer effects.
+    let effekseerComponents: EffekseerComponent[] | undefined;
+    if (renderPass.toRenderEffekseerEffects) {
+      effekseerComponents = [];
+      const entities = renderPass.entities;
+      for (let i = 0; i < entities.length; i++) {
+        const effekseerComponent = entities[i].tryToGetEffekseer();
+        if (effekseerComponent != null) {
+          effekseerComponents.push(effekseerComponent);
+        }
+      }
+      if (effekseerComponents.length === 0) {
+        effekseerComponents = undefined;
+      }
+    }
+    const hasEffekseerEffects = effekseerComponents != null;
     const effekseerRenderPassOptions = hasEffekseerEffects
       ? webGpuResourceRepository.getEffekseerRenderPassOptions(this, renderPass, displayIdx)
       : undefined;
@@ -455,16 +506,16 @@ export class Engine extends RnObject {
     const shouldDeferEffekseerEffects =
       shouldRenderEffekseerEffects && renderPass.getResolveFramebuffer() != null && deferredEffekseerRenderJobs != null;
     if (shouldRenderEffekseerEffects && effekseerRenderPassOptions != null) {
-      for (const effekseerComponent of effekseerComponents) {
+      for (const effekseerComponent of effekseerComponents!) {
         effekseerComponent.prepareWebGPURendering(effekseerRenderPassOptions);
       }
     }
     if (shouldDeferEffekseerEffects) {
-      deferredEffekseerRenderJobs.push({
+      deferredEffekseerRenderJobs!.push({
         renderPass,
         displayIdx,
         renderPassOptions: effekseerRenderPassOptions,
-        effekseerComponents,
+        effekseerComponents: effekseerComponents!,
       });
     }
 
@@ -490,7 +541,7 @@ export class Engine extends RnObject {
       );
 
       if (renderPassEncoder != null) {
-        for (const effekseerComponent of effekseerComponents) {
+        for (const effekseerComponent of effekseerComponents!) {
           effekseerComponent.$renderWebGPU(renderPassEncoder, effekseerRenderPassOptions, displayIdx);
         }
       }
