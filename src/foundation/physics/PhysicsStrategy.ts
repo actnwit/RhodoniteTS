@@ -47,6 +47,8 @@ export interface PhysicsStrategy {
   /**
    * Sets the world rotation of the physics body.
    * This is optional and only implemented by rigid-body physics strategies.
+   * The passed quaternion may be a shared reusable instance, so implementations
+   * must copy the values they need instead of retaining the reference.
    * @param worldRotation - The new world rotation
    */
   setRotation?(worldRotation: IQuaternion): void;
@@ -54,6 +56,8 @@ export interface PhysicsStrategy {
   /**
    * Sets the world rotation of the physics body with Euler angles.
    * This is optional and only implemented by rigid-body physics strategies.
+   * The passed vector may be a shared reusable instance, so implementations
+   * must copy the values they need instead of retaining the reference.
    * @param eulerAngles - The new Euler angles in radians
    */
   setEulerAngle?(eulerAngles: IVector3): void;

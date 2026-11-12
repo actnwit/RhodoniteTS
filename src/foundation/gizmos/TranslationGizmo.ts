@@ -14,11 +14,11 @@ import { MaterialHelper } from '../helpers/MaterialHelper';
 import { MeshHelper } from '../helpers/MeshHelper';
 import type { Material } from '../materials/core/Material';
 import type { IMatrix44 } from '../math/IMatrix';
-import type { IQuaternion } from '../math/IQuaternion';
 import { MathUtil } from '../math/MathUtil';
 import { Matrix33 } from '../math/Matrix33';
 import { Matrix44 } from '../math/Matrix44';
 import { MutableMatrix33 } from '../math/MutableMatrix33';
+import { MutableQuaternion } from '../math/MutableQuaternion';
 import { Quaternion } from '../math/Quaternion';
 import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
@@ -91,6 +91,9 @@ export class TranslationGizmo extends Gizmo {
   private __isCameraControllerDisabled = false;
 
   private static __length = 1;
+  /** Reusable quaternions for world-rotation calculations (avoids per-frame allocations) */
+  private static readonly __tmpQuaternion_0 = MutableQuaternion.identity();
+  private static readonly __tmpQuaternion_1 = MutableQuaternion.identity();
 
   /**
    * Gets the resources for a specific engine, or undefined if not initialized.
@@ -182,14 +185,16 @@ export class TranslationGizmo extends Gizmo {
       this.__topEntity!.getSceneGraph().addChild(resources.groupEntity.getSceneGraph());
       this.__latestTargetEntity = this.__target;
       if (TranslationGizmo.__space === 'local') {
+        const quaternion = TranslationGizmo.__tmpQuaternion_0;
         const parent = this.__target.getSceneGraph().parent;
-        let quaternion: IQuaternion = Quaternion.identity();
         if (Is.exist(parent)) {
-          quaternion = parent.getQuaternionRecursively();
+          parent.getQuaternionRecursivelyTo(quaternion);
+        } else {
+          quaternion.identity();
         }
         resources.groupEntity.getTransform().localRotation = quaternion;
       } else if (TranslationGizmo.__space === 'world') {
-        resources.groupEntity.getTransform().localRotation = Quaternion.fromCopy4(0, 0, 0, 1);
+        resources.groupEntity.getTransform().localRotation = TranslationGizmo.__tmpQuaternion_0.identity();
       }
     }
 
@@ -722,8 +727,8 @@ export class TranslationGizmo extends Gizmo {
       const parent = this.__target.getSceneGraph().parent;
       let deltaInLocal = deltaVector3;
       if (Is.exist(parent)) {
-        const parentRotation = parent.getQuaternionRecursively();
-        const inverseParentRotation = Quaternion.invert(parentRotation);
+        const parentRotation = parent.getQuaternionRecursivelyTo(TranslationGizmo.__tmpQuaternion_0);
+        const inverseParentRotation = Quaternion.invertTo(parentRotation, TranslationGizmo.__tmpQuaternion_1);
         deltaInLocal = inverseParentRotation.transformVector3(deltaVector3);
       }
       this.__deltaPoint = Vector3.add(this.__targetPointBackup, deltaInLocal);

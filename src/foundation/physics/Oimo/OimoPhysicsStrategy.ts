@@ -2,7 +2,7 @@ import type { Config } from '../../core/Config';
 import { PhysicsShape } from '../../definitions/PhysicsShapeType';
 import type { ShapeDescriptor, ShapeInstance } from '../../geometry/Shape';
 import type { ISceneGraphEntity } from '../../helpers';
-import { type IQuaternion, type IVector3, MathUtil, Matrix44, Quaternion } from '../../math';
+import { type IQuaternion, type IVector3, MathUtil, Matrix44, MutableQuaternion, Quaternion } from '../../math';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
 import { Logger } from '../../misc/Logger';
@@ -66,6 +66,8 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
   private __usesShapeInstance = false;
   private __shapeType?: ShapeDescriptor['type'];
   private __warnedScaleApproximation = false;
+  /** Reusable quaternion for world-rotation lookups (avoids per-frame allocations) */
+  private __tmpWorldRotation = MutableQuaternion.identity();
 
   /**
    * Creates a new OimoPhysicsStrategy instance.
@@ -190,7 +192,7 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     this.__entity = entity;
 
     const entityPosition = entity.getSceneGraph().position;
-    const entityRotation = entity.getSceneGraph().getQuaternionRecursively();
+    const entityRotation = entity.getSceneGraph().getQuaternionRecursivelyTo(this.__tmpWorldRotation);
     const entityEuler = entityRotation.toEulerAngles();
     this.__property = {
       type: physicsType,
@@ -281,9 +283,10 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
       return;
     }
     const prop = this.__property;
+    const worldRotation = this.__entity.getSceneGraph().getQuaternionRecursivelyTo(this.__tmpWorldRotation);
     const pose = this.__usesShapeInstance
-      ? this.__toBodyPose(worldPosition, this.__entity.getSceneGraph().getQuaternionRecursively())
-      : { position: worldPosition, rotation: this.__entity.getSceneGraph().getQuaternionRecursively() };
+      ? this.__toBodyPose(worldPosition, worldRotation)
+      : { position: worldPosition, rotation: worldRotation };
     const bodyEuler = pose.rotation.toEulerAngles();
     this.__property = {
       type: prop.type,
@@ -366,14 +369,12 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     if (resolvedShape != null) {
       this.__resolvedShapeLocalRotation = resolvedShape.rotation;
     }
+    const worldRotation = this.__entity.getSceneGraph().getQuaternionRecursivelyTo(this.__tmpWorldRotation);
     const pose = this.__usesShapeInstance
-      ? this.__toBodyPose(
-          this.__entity.getSceneGraph().position,
-          this.__entity.getSceneGraph().getQuaternionRecursively()
-        )
+      ? this.__toBodyPose(this.__entity.getSceneGraph().position, worldRotation)
       : {
           position: this.__body.getPosition(),
-          rotation: this.__entity.getSceneGraph().getQuaternionRecursively(),
+          rotation: worldRotation,
         };
     const bodyEuler = pose.rotation.toEulerAngles();
     const prop = this.__property;

@@ -11,11 +11,10 @@ import { Plane } from '../geometry/shapes/Plane';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
 import { MaterialHelper } from '../helpers/MaterialHelper';
 import type { Material } from '../materials/core/Material';
-import type { IQuaternion } from '../math/IQuaternion';
 import { MathUtil } from '../math/MathUtil';
 import { Matrix33 } from '../math/Matrix33';
 import { MutableMatrix33 } from '../math/MutableMatrix33';
-import { Quaternion } from '../math/Quaternion';
+import { MutableQuaternion } from '../math/MutableQuaternion';
 import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
@@ -91,6 +90,9 @@ export class ScaleGizmo extends Gizmo {
   private __onPointerDownFunc = this.__onPointerDown.bind(this);
   private __onPointerMoveFunc = this.__onPointerMove.bind(this);
   private __onPointerUpFunc = this.__onPointerUp.bind(this);
+
+  /** Reusable quaternion for world-rotation calculations (avoids per-frame allocations) */
+  private static readonly __tmpQuaternion_0 = MutableQuaternion.identity();
 
   /**
    * Gets the resources for a specific engine, or undefined if not initialized.
@@ -180,14 +182,16 @@ export class ScaleGizmo extends Gizmo {
       this.__topEntity!.getSceneGraph().addChild(resources.groupEntity.getSceneGraph());
       ScaleGizmo.__latestTargetEntity = this.__target;
       if (ScaleGizmo.__space === 'local') {
+        const quaternion = ScaleGizmo.__tmpQuaternion_0;
         const parent = this.__target.getSceneGraph();
-        let quaternion: IQuaternion = Quaternion.identity();
         if (Is.exist(parent)) {
-          quaternion = parent.getQuaternionRecursively();
+          parent.getQuaternionRecursivelyTo(quaternion);
+        } else {
+          quaternion.identity();
         }
         resources.groupEntity.getTransform().localRotation = quaternion;
       } else if (ScaleGizmo.__space === 'world') {
-        resources.groupEntity.getTransform().localRotation = Quaternion.fromCopy4(0, 0, 0, 1);
+        resources.groupEntity.getTransform().localRotation = ScaleGizmo.__tmpQuaternion_0.identity();
       }
     }
 
@@ -721,7 +725,7 @@ export class ScaleGizmo extends Gizmo {
         Math.max(this.__deltaPoint.z, 0.01)
       );
     } else if (ScaleGizmo.__space === 'world') {
-      const worldQuaternion = Quaternion.fromCopyQuaternion(this.__target.getSceneGraph().getQuaternionRecursively());
+      const worldQuaternion = this.__target.getSceneGraph().getQuaternionRecursivelyTo(ScaleGizmo.__tmpQuaternion_0);
       const worldRotation = Matrix33.fromCopyQuaternion(worldQuaternion);
       const inverseWorldRotation = Matrix33.transpose(worldRotation) as Matrix33;
       const deltaLocal = inverseWorldRotation.multiplyVector(deltaVector3);

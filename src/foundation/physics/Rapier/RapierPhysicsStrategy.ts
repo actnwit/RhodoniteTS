@@ -3,7 +3,7 @@ import type { Config } from '../../core/Config';
 import { PhysicsShape } from '../../definitions/PhysicsShapeType';
 import type { ShapeInstance } from '../../geometry/Shape';
 import type { ISceneGraphEntity } from '../../helpers';
-import { type IQuaternion, type IVector3, Matrix44, Quaternion, Vector3 } from '../../math';
+import { type IQuaternion, type IVector3, Matrix44, MutableQuaternion, Quaternion, Vector3 } from '../../math';
 import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
 import type {
@@ -244,6 +244,8 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
   private __warnedAsymmetricRadius = false;
   private __warnedNonUniformScale = false;
   private __warnedShearedBoxApproximation = false;
+  /** Reusable quaternion for world-rotation lookups (avoids per-frame allocations) */
+  private __tmpWorldRotation = MutableQuaternion.identity();
 
   /**
    * Injects Rapier.js bindings. Physics worlds are created lazily per Engine.
@@ -375,7 +377,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
         type: first.shape.shape.type === 'box' ? PhysicsShape.Box : PhysicsShape.Sphere,
         size,
         position: entity.getSceneGraph().position,
-        rotation: entity.getSceneGraph().getQuaternionRecursively().toEulerAngles(),
+        rotation: entity.getSceneGraph().getQuaternionRecursivelyTo(this.__tmpWorldRotation).toEulerAngles(),
         move: resolvedMotion.move,
         density: first.body.density,
         friction: first.collider.friction,
@@ -744,7 +746,8 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       .setRotation(RapierPhysicsStrategy.__toRapierQuaternion(rotation));
 
     if (prop.move && !isKinematic) {
-      const velocityRotation = this.__entity?.getSceneGraph().getQuaternionRecursively() ?? rotation;
+      const velocityRotation =
+        this.__entity?.getSceneGraph().getQuaternionRecursivelyTo(this.__tmpWorldRotation) ?? rotation;
       const linearVelocity =
         preservedState?.linearVelocity ??
         (motion?.linearVelocity == null ? undefined : velocityRotation.transformVector3(motion.linearVelocity));

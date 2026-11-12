@@ -89,6 +89,7 @@ export class SceneGraphComponent extends Component {
   private static __tmp_quat_0 = MutableQuaternion.identity();
   private static __tmp_quat_1 = MutableQuaternion.identity();
   private static __tmp_quat_2 = MutableQuaternion.identity();
+  private static __tmp_quat_3 = MutableQuaternion.identity();
 
   /** Map to store update count per Engine instance for multi-engine support */
   private static __updateCountMap: Map<Engine, number> = new Map();
@@ -610,7 +611,7 @@ export class SceneGraphComponent extends Component {
       if (physicsComponent.strategy !== undefined) {
         const strategy = physicsComponent.strategy;
         if (updateRotation) {
-          const worldRotation = this.getQuaternionRecursively();
+          const worldRotation = this.getQuaternionRecursivelyTo(SceneGraphComponent.__tmp_quat_3);
           if (strategy.setRotation != null) {
             strategy.setRotation(worldRotation);
           } else if (strategy.setEulerAngle != null) {
