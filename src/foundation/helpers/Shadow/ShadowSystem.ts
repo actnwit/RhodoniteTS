@@ -35,6 +35,9 @@ export class ShadowSystem {
   private __lightTypes: LightTypeEnum[] = [];
   private __lightEnables: boolean[] = [];
   private __lightCastShadows: boolean[] = [];
+  /** Reused by setDepthBiasPV() on every frame. */
+  private __depthBiasPVArray?: Float32Array;
+  private __depthBiasPV?: VectorN;
   private __lastTransformUpdateCountForAutoFit = -1;
   private __lastEntityCountForAutoFit = -1;
   private __lastAutoFitCenter = Vector3.fromCopy3(0, 0, 0);
@@ -88,6 +91,10 @@ export class ShadowSystem {
     // This ensures the shadow camera covers the entire scene when rendering the shadow map.
     this.__autoFitDirectionalLightShadowVolume(entities);
 
+    // Only these entities are rendered into the shadow maps. Every entity still receives shadows,
+    // so `entities` keeps being used for the material setup below.
+    const shadowCasters = entities.filter(ShadowSystem.__isShadowCaster);
+
     const expressions = [];
     const depthTextureIndexList = [];
 
@@ -100,7 +107,9 @@ export class ShadowSystem {
       this.__lightEnables[i] = lightComponent.enable;
       this.__lightCastShadows[i] = lightComponent.castShadow;
 
-      if (!(lightComponent.enable && lightComponent.castShadow)) {
+      // Without any shadow caster the shadow map would stay empty, so the shadow map and blur
+      // passes are not created at all and the light is treated as not casting shadows.
+      if (!(lightComponent.enable && lightComponent.castShadow) || shadowCasters.length === 0) {
         depthTextureIndexList.push(-1);
         continue;
       }
@@ -109,7 +118,7 @@ export class ShadowSystem {
         const shadowMapExpression = new Expression();
         shadowMapExpression.addRenderPasses(
           this.__pointShadowMap.getRenderPasses(
-            entities,
+            shadowCasters,
             lightComponent.entity as ISceneGraphEntity & ILightEntityMethods
           )
         );
@@ -139,7 +148,7 @@ export class ShadowSystem {
         const shadowMapExpression = new Expression();
         shadowMapExpression.addRenderPasses(
           this.__shadowMap.getRenderPasses(
-            entities,
+            shadowCasters,
             lightComponent.entity as ISceneGraphEntity & ILightEntityMethods & ICameraEntityMethods
           )
         );
@@ -260,31 +269,62 @@ export class ShadowSystem {
     // Note: This does not move the light; it only adjusts shadowAreaSizeForDirectionalLight and range.
     this.__autoFitDirectionalLightShadowVolume(entities);
 
-    const float32Array = new Float32Array(this.__engine.config.maxLightNumber * 16);
+    // This runs every frame, so the array and the VectorN are reused. setParameter() copies the
+    // values into the material's own variable, so sharing one VectorN between materials is safe.
+    const arrayLength = this.__engine.config.maxLightNumber * 16;
+    let float32Array = this.__depthBiasPVArray;
+    let depthBiasPV = this.__depthBiasPV;
+    if (float32Array == null || depthBiasPV == null || float32Array.length !== arrayLength) {
+      float32Array = new Float32Array(arrayLength);
+      depthBiasPV = new VectorN(float32Array);
+      this.__depthBiasPVArray = float32Array;
+      this.__depthBiasPV = depthBiasPV;
+    } else {
+      float32Array.fill(0);
+    }
 
-    const lightComponents = this.__engine.componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
-
-    for (let i = 0; i < lightComponents.length; i++) {
-      const lightComponent = lightComponents[i];
-      const lightEntity = lightComponent.entity as ISceneGraphEntity & ILightEntityMethods & ICameraEntityMethods;
-      if (lightComponent.type === LightType.Directional || lightComponent.type === LightType.Spot) {
-        const cameraComponent = lightEntity.tryToGetCamera();
-        if (cameraComponent != null) {
-          const biasViewProjectionMatrix = cameraComponent.biasViewProjectionMatrix;
-          float32Array.set(biasViewProjectionMatrix._v, i * 16);
+    // Iterate the internal component array instead of getComponentsWithType(), which allocates a
+    // filtered copy. `lightIndex` counts live components only, as the filtered array did.
+    const lightComponents = this.__engine.componentRepository._getComponents(LightComponent) as
+      | (LightComponent | undefined)[]
+      | undefined;
+    if (lightComponents != null) {
+      let lightIndex = 0;
+      for (let i = 0; i < lightComponents.length; i++) {
+        const lightComponent = lightComponents[i];
+        if (lightComponent == null) {
+          continue;
         }
+        if (lightComponent.type === LightType.Directional || lightComponent.type === LightType.Spot) {
+          const lightEntity = lightComponent.entity as ISceneGraphEntity & ILightEntityMethods & ICameraEntityMethods;
+          const cameraComponent = lightEntity.tryToGetCamera();
+          if (cameraComponent != null) {
+            const biasViewProjectionMatrix = cameraComponent.biasViewProjectionMatrix;
+            float32Array.set(biasViewProjectionMatrix._v, lightIndex * 16);
+          }
+        }
+        lightIndex++;
       }
     }
 
-    for (const entity of entities) {
-      const meshComponent = entity.tryToGetMesh();
-      if (meshComponent != null && meshComponent.mesh != null) {
-        for (let i = 0; i < meshComponent.mesh.getPrimitiveNumber(); i++) {
-          const primitive = meshComponent.mesh.getPrimitiveAt(i);
-          primitive.material.setParameter('depthBiasPV', new VectorN(float32Array));
+    for (let i = 0; i < entities.length; i++) {
+      const meshComponent = entities[i].tryToGetMesh();
+      const mesh = meshComponent?.mesh;
+      if (mesh != null) {
+        const primitiveNumber = mesh.getPrimitiveNumber();
+        for (let j = 0; j < primitiveNumber; j++) {
+          mesh.getPrimitiveAt(j).material.setParameter('depthBiasPV', depthBiasPV);
         }
       }
     }
+  }
+
+  /**
+   * Background assets (tagged `type: background-assets`, e.g. the environment cube and the grid
+   * in RhodoniteEditor2) do not cast shadows. The shadow volume auto-fit excludes them as well.
+   */
+  private static __isShadowCaster(entity: ISceneGraphEntity) {
+    return entity.getTagValue('type') !== 'background-assets';
   }
 
   private __autoFitDirectionalLightShadowVolume(entities: ISceneGraphEntity[]) {
@@ -344,8 +384,16 @@ export class ShadowSystem {
     const areaMargin = 1.15;
     const nearFarMargin = 1.25;
 
-    const lightComponents = this.__engine.componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
-    for (const lightComponent of lightComponents) {
+    // Called every frame: iterate the internal array instead of allocating a filtered copy.
+    const lightComponents = this.__engine.componentRepository._getComponents(LightComponent) as
+      | (LightComponent | undefined)[]
+      | undefined;
+    if (lightComponents == null) {
+      return;
+    }
+    for (let i = 0; i < lightComponents.length; i++) {
+      const lightComponent = lightComponents[i];
+      if (lightComponent == null) continue;
       if (!(lightComponent.enable && lightComponent.castShadow)) continue;
       if (lightComponent.type !== LightType.Directional) continue;
 
