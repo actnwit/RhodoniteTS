@@ -31,10 +31,31 @@ function fromString(str: string): BoneDataTypeEnum {
   return _fromString({ typeList, str }) as BoneDataTypeEnum;
 }
 
+/**
+ * Returns how many vec4 slots one joint occupies in the GPU bone data array.
+ *
+ * - Mat43x1: 3 (a 4x3 matrix)
+ * - Vec4x2: 2 (translation + scale, with a log-quaternion packed into the w components)
+ * - Vec4x1: 1 (log-quaternion + quantized translation/uniform scale)
+ *
+ * @param boneDataType - The bone data type
+ * @returns The number of vec4 slots per joint
+ */
+function getVec4CountPerJoint(boneDataType: BoneDataTypeEnum): number {
+  if (boneDataType === Mat43x1) {
+    return 3;
+  }
+  if (boneDataType === Vec4x2) {
+    return 2;
+  }
+  return 1;
+}
+
 export const BoneDataType = Object.freeze({
   Mat43x1,
   Vec4x2,
   Vec4x1,
   from,
   fromString,
+  getVec4CountPerJoint,
 });

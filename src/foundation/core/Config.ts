@@ -3,7 +3,7 @@
  */
 
 /* eslint-disable prefer-const */
-import { BoneDataType, type BoneDataTypeEnum } from '../definitions/BoneDataType';
+import type { BoneDataTypeEnum } from '../definitions/BoneDataType';
 import { LogLevel } from '../misc/Logger';
 
 type ConfigInitDescription = {
@@ -49,8 +49,13 @@ export class Config {
    * If this limit is exceeded, the material type is internally treated as a separate material type.
    */
   materialCountPerBufferView = 3;
-  /**　The data type of the bone */
-  boneDataType = BoneDataType.Mat43x1;
+  /**
+   * Forces the bone data type of all SkeletalComponents.
+   * When undefined (default), each SkeletalComponent uses its own bone data type
+   * (see SkeletalComponent.setBoneDataType). Importers choose Vec4x1 or Vec4x2 automatically,
+   * and other SkeletalComponents default to Vec4x2.
+   */
+  boneDataType: BoneDataTypeEnum | undefined = undefined;
   /**　The maximum number of bones of each skeleton that Rhodonite can handle for Uniform Mode */
   maxSkeletalBoneNumberForUniformMode = 50;
   /**　Whether the UBO is enabled */

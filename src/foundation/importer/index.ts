@@ -1,4 +1,5 @@
 export * from './AnimationAssigner';
+export * from './BoneDataTypeDetector';
 export * from './DrcPointCloudImporter';
 export * from './FormatDetector';
 export * from './Gltf2Importer';

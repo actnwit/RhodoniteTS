@@ -139,7 +139,9 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
             throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
         }
         const isArray = CompositionType.isArray(memberInfo.compositionType);
-        str += `uniform ${memberInfo.convertToBool ? 'bool' : typeStr} u_${memberName}${isArray ? `[${engine.config.maxSkeletalBoneNumberForUniformMode}]` : ''};\n`;
+        const uniformArrayLength =
+          engine.config.maxSkeletalBoneNumberForUniformMode * (memberInfo.uniformArrayLengthMultiplier ?? 1);
+        str += `uniform ${memberInfo.convertToBool ? 'bool' : typeStr} u_${memberName}${isArray ? `[${uniformArrayLength}]` : ''};\n`;
         str += `${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(uint instanceId${isArray ? ', uint idxOfArray' : ''}) {
   return u_${memberName}${isArray ? '[idxOfArray]' : ''};
 }\n`;

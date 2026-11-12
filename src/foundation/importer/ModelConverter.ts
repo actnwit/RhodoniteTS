@@ -87,6 +87,7 @@ import type { RenderPass } from '../renderer/RenderPass';
 import type { Engine } from '../system/Engine';
 import { Sampler } from '../textures/Sampler';
 import { Texture } from '../textures/Texture';
+import { detectBoneDataTypeForSkin } from './BoneDataTypeDetector';
 import { setupKhrStaticColliders } from './KhrPhysicsImporter';
 import { RhodoniteImportExtension } from './RhodoniteImportExtension';
 
@@ -1062,6 +1063,8 @@ export class ModelConverter {
       return;
     }
 
+    const forcedBoneDataType = gltfModel.asset.extras?.rnLoaderOptions?.boneDataType;
+
     for (const node_i in gltfModel.nodes) {
       const node = gltfModel.nodes[node_i];
       const sg = rnEntities[node_i].getSceneGraph()!;
@@ -1070,6 +1073,24 @@ export class ModelConverter {
         const rnEntity = rnEntities[node_i];
         const newRnEntity = engine.entityRepository.addComponentToEntity(SkeletalComponent, rnEntity);
         skeletalComponent = newRnEntity.getSkeletal();
+
+        const inverseBindMatAccessor = node.skinObject.inverseBindMatricesObject;
+        const rnAccessorOfInverseBindMat = Is.exist(inverseBindMatAccessor)
+          ? this.__getRnBufferViewAndRnAccessor(engine, inverseBindMatAccessor, rnBuffers)
+          : undefined;
+
+        // Choose the bone data type before setJoints() so that the GPU bone data is allocated only once.
+        // Mat43x1 is used only when specified explicitly by the loader option (or Config.boneDataType).
+        const boneDataType =
+          forcedBoneDataType ??
+          detectBoneDataTypeForSkin(
+            gltfModel,
+            node.skinObject,
+            Number(node_i),
+            rnAccessorOfInverseBindMat?.getTypedArray()
+          );
+        skeletalComponent.setBoneDataType(boneDataType);
+
         if (Is.exist(node.skinObject.bindShapeMatrix)) {
           skeletalComponent._bindShapeMatrix = Matrix44.fromCopyArrayColumnMajor(node.skinObject.bindShapeMatrix);
         }
@@ -1093,14 +1114,8 @@ export class ModelConverter {
           }
         }
 
-        const inverseBindMatAccessor = node.skinObject.inverseBindMatricesObject;
-        if (Is.exist(inverseBindMatAccessor)) {
-          const rnBufferOfInverseBindMatAccessor = this.__getRnBufferViewAndRnAccessor(
-            engine,
-            inverseBindMatAccessor,
-            rnBuffers
-          );
-          skeletalComponent!.setInverseBindMatricesAccessor(rnBufferOfInverseBindMatAccessor);
+        if (Is.exist(rnAccessorOfInverseBindMat)) {
+          skeletalComponent!.setInverseBindMatricesAccessor(rnAccessorOfInverseBindMat);
         }
       }
     }

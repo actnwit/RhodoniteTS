@@ -83,70 +83,46 @@ vec4 decodeLogQuat(uvec2 lohi) {
   return vec4(v * k, cos(a));
 }
 
+// Bone data type indices (must match BoneDataType in TypeScript)
+const int RN_BONE_DATA_TYPE_MAT43X1 = 0;
+const int RN_BONE_DATA_TYPE_VEC4X2 = 1;
+const int RN_BONE_DATA_TYPE_VEC4X1 = 2;
+
+// Decode the matrix of one joint from the bone data, according to the bone data type of the skeleton
+mat4 getBoneMatrix(uint skeletalComponentSID, uint jointIdx, int boneDataType, vec4 boneDataInfo) {
+  if (boneDataType == RN_BONE_DATA_TYPE_MAT43X1) {
+    // 3 vec4 per joint: 4x3 matrix (column-major)
+    vec4 a = get_boneData(skeletalComponentSID, jointIdx * 3u);
+    vec4 b = get_boneData(skeletalComponentSID, jointIdx * 3u + 1u);
+    vec4 c = get_boneData(skeletalComponentSID, jointIdx * 3u + 2u);
+    return mat4(
+      a.x, a.y, a.z, 0.0,
+      a.w, b.x, b.y, 0.0,
+      b.z, b.w, c.x, 0.0,
+      c.y, c.z, c.w, 1.0
+    );
+  } else if (boneDataType == RN_BONE_DATA_TYPE_VEC4X2) {
+    // 2 vec4 per joint: [translation.xyz, logQuat.lo], [scale.xyz, logQuat.hi]
+    vec4 tq = get_boneData(skeletalComponentSID, jointIdx * 2u);
+    vec4 sq = get_boneData(skeletalComponentSID, jointIdx * 2u + 1u);
+    vec4 quat = decodeLogQuat(uvec2(floatBitsToUint(tq.w), floatBitsToUint(sq.w)));
+    return createMatrixFromQuaternionTranslationScale(quat, tq.xyz, sq.xyz);
+  } else {
+    // 1 vec4 per joint: [logQuat.lo, logQuat.hi, packedTranslateScale.lo, packedTranslateScale.hi]
+    uvec4 chunk = floatBitsToUint(get_boneData(skeletalComponentSID, jointIdx));
+    vec4 ts = unpackVec4FromUvec2(chunk.zw) * vec4(boneDataInfo.xyz, 1.0);
+    return createMatrixFromQuaternionTranslationScale(decodeLogQuat(chunk.xy), ts.xyz, vec3(ts.w));
+  }
+}
+
 mat4 getSkinMatrix(uint skeletalComponentSID, uvec4 joint, vec4 weight) {
+  vec4 boneDataInfo = get_boneDataInfo(skeletalComponentSID);
+  int boneDataType = int(boneDataInfo.w + 0.5);
 
-#ifdef RN_BONE_DATA_TYPE_Mat43x1
-  mat4 skinMat = weight.x * mat4(get_boneMatrix(skeletalComponentSID, joint.x));
-  skinMat += weight.y * mat4(get_boneMatrix(skeletalComponentSID, joint.y));
-  skinMat += weight.z * mat4(get_boneMatrix(skeletalComponentSID, joint.z));
-  skinMat += weight.w * mat4(get_boneMatrix(skeletalComponentSID, joint.w));
-
-#elif defined(RN_BONE_DATA_TYPE_VEC4X2)
-  vec4 tq_x = get_boneTranslatePackedQuat(skeletalComponentSID, joint.x);
-  vec4 sq_x = get_boneScalePackedQuat(skeletalComponentSID, joint.x);
-  vec4 quat = decodeLogQuat(uvec2(floatBitsToUint(tq_x.w), floatBitsToUint(sq_x.w)));
-  mat4 skinMat = weight.x * createMatrixFromQuaternionTranslationScale(quat, tq_x.xyz, sq_x.xyz);
-
-  vec4 tq_y = get_boneTranslatePackedQuat(skeletalComponentSID, joint.y);
-  vec4 sq_y = get_boneScalePackedQuat(skeletalComponentSID, joint.y);
-  quat = decodeLogQuat(uvec2(floatBitsToUint(tq_y.w), floatBitsToUint(sq_y.w)));
-  skinMat += weight.y * createMatrixFromQuaternionTranslationScale(quat, tq_y.xyz, sq_y.xyz);
-
-  vec4 tq_z = get_boneTranslatePackedQuat(skeletalComponentSID, joint.z);
-  vec4 sq_z = get_boneScalePackedQuat(skeletalComponentSID, joint.z);
-  quat = decodeLogQuat(uvec2(floatBitsToUint(tq_z.w), floatBitsToUint(sq_z.w)));
-  skinMat += weight.z * createMatrixFromQuaternionTranslationScale(quat, tq_z.xyz, sq_z.xyz);
-
-  vec4 tq_w = get_boneTranslatePackedQuat(skeletalComponentSID, joint.w);
-  vec4 sq_w = get_boneScalePackedQuat(skeletalComponentSID, joint.w);
-  quat = decodeLogQuat(uvec2(floatBitsToUint(tq_w.w), floatBitsToUint(sq_w.w)));
-  skinMat += weight.w * createMatrixFromQuaternionTranslationScale(quat, tq_w.xyz, sq_w.xyz);
-
-#elif defined(RN_BONE_DATA_TYPE_VEC4X2_OLD)
-  vec4 ts_x = get_boneTranslateScale(skeletalComponentSID, joint.x);
-  mat4 skinMat = weight.x * createMatrixFromQuaternionTranslationScale(
-    get_boneQuaternion(skeletalComponentSID, joint.x), ts_x.xyz, vec3(ts_x.w));
-  vec4 ts_y = get_boneTranslateScale(skeletalComponentSID, joint.y);
-  skinMat += weight.y * createMatrixFromQuaternionTranslationScale(
-    get_boneQuaternion(skeletalComponentSID, joint.y), ts_y.xyz, vec3(ts_y.w));
-  vec4 ts_z = get_boneTranslateScale(skeletalComponentSID, joint.z);
-  skinMat += weight.z * createMatrixFromQuaternionTranslationScale(
-    get_boneQuaternion(skeletalComponentSID, joint.z), ts_z.xyz, vec3(ts_z.w));
-  vec4 ts_w = get_boneTranslateScale(skeletalComponentSID, joint.w);
-  skinMat += weight.w * createMatrixFromQuaternionTranslationScale(
-    get_boneQuaternion(skeletalComponentSID, joint.w), ts_w.xyz, vec3(ts_w.w));
-
-#elif defined(RN_BONE_DATA_TYPE_VEC4X1)
-  uvec4 boneCompressedChunksX = floatBitsToUint(get_boneCompressedChunk(skeletalComponentSID, joint.x));
-  uvec4 boneCompressedChunksY = floatBitsToUint(get_boneCompressedChunk(skeletalComponentSID, joint.y));
-  uvec4 boneCompressedChunksZ = floatBitsToUint(get_boneCompressedChunk(skeletalComponentSID, joint.z));
-  uvec4 boneCompressedChunksW = floatBitsToUint(get_boneCompressedChunk(skeletalComponentSID, joint.w));
-
-  vec4 boneCompressedInfo = get_boneCompressedInfo(0u, 0u);
-
-  vec4 ts_x = unpackVec4FromUvec2(boneCompressedChunksX.zw)*boneCompressedInfo;
-  mat4 skinMat = weight.x * createMatrixFromQuaternionTranslationScale(
-    decodeLogQuat(boneCompressedChunksX.xy), ts_x.xyz, vec3(ts_x.w));
-  vec4 ts_y = unpackVec4FromUvec2(boneCompressedChunksY.zw)*boneCompressedInfo;
-  skinMat += weight.y * createMatrixFromQuaternionTranslationScale(
-    decodeLogQuat(boneCompressedChunksY.xy), ts_y.xyz, vec3(ts_y.w));
-  vec4 ts_z = unpackVec4FromUvec2(boneCompressedChunksZ.zw)*boneCompressedInfo;
-  skinMat += weight.z * createMatrixFromQuaternionTranslationScale(
-    decodeLogQuat(boneCompressedChunksZ.xy), ts_z.xyz, vec3(ts_z.w));
-  vec4 ts_w = unpackVec4FromUvec2(boneCompressedChunksW.zw)*boneCompressedInfo;
-  skinMat += weight.w * createMatrixFromQuaternionTranslationScale(
-    decodeLogQuat(boneCompressedChunksW.xy), ts_w.xyz, vec3(ts_w.w));
-#endif
+  mat4 skinMat = weight.x * getBoneMatrix(skeletalComponentSID, joint.x, boneDataType, boneDataInfo);
+  skinMat += weight.y * getBoneMatrix(skeletalComponentSID, joint.y, boneDataType, boneDataInfo);
+  skinMat += weight.z * getBoneMatrix(skeletalComponentSID, joint.z, boneDataType, boneDataInfo);
+  skinMat += weight.w * getBoneMatrix(skeletalComponentSID, joint.w, boneDataType, boneDataInfo);
   return skinMat;
 }
 

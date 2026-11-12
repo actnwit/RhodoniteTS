@@ -42,6 +42,11 @@ export type MemberInfo = {
   componentType: ComponentTypeEnum;
   initValues: number[] | VectorN;
   convertToBool?: boolean;
+  /**
+   * Multiplier applied to the uniform array length in uniform mode
+   * (the array length becomes Config.maxSkeletalBoneNumberForUniformMode * this value).
+   */
+  uniformArrayLengthMultiplier?: number;
 };
 
 type MemberName = string;
@@ -272,7 +277,7 @@ export class Component extends RnObject {
    * @param memberName - The name of the member field
    * @param dataClassType - The data class type for the member
    * @param initValues - Initial values to set for the member
-   * @param isReUse - Whether to reuse an existing memory slot
+   * @param _isReUse - Whether this component is being reused (the existing slot is detected from the accessor)
    * @param componentSid - The component scoped ID
    * @param componentCountPerBufferView - The number of components per buffer view
    * @returns null on success
@@ -281,7 +286,7 @@ export class Component extends RnObject {
     memberName: string,
     dataClassType: any,
     initValues: number[] | VectorN,
-    isReUse: boolean,
+    _isReUse: boolean,
     componentSid: ComponentSID,
     componentCountPerBufferView: Count
   ): any {
@@ -295,7 +300,10 @@ export class Component extends RnObject {
     const componentClass = this.constructor as typeof Component;
     const accessor = registry.getAccessor(componentClass, memberName, indexOfTheBufferView)!;
     let taken: TypedArray | undefined;
-    if (isReUse) {
+    // If the slot has already been taken (component reuse, or re-allocation into the same accessor),
+    // view the existing slot instead of taking a new one. A freshly created accessor (e.g. after the
+    // array length of a member has changed) has no taken slot yet, so take a new one even on reuse.
+    if (accessor.takenCount > indexOfBufferViews) {
       taken = accessor._takeExistedOne(indexOfBufferViews);
     } else {
       taken = accessor.takeOne();
@@ -429,6 +437,7 @@ export class Component extends RnObject {
       arrayLength,
       componentSID,
       convertToBool,
+      uniformArrayLengthMultiplier,
     }: {
       bufferUse: BufferUseEnum;
       memberName: string;
@@ -440,6 +449,7 @@ export class Component extends RnObject {
       arrayLength?: Count | undefined;
       componentSID?: ComponentSID;
       convertToBool?: boolean;
+      uniformArrayLengthMultiplier?: number;
     }
   ) {
     if (!Component.__memberInfo.has(this)) {
@@ -456,6 +466,7 @@ export class Component extends RnObject {
       componentType: componentType,
       initValues: initValues,
       convertToBool: convertToBool,
+      uniformArrayLengthMultiplier: uniformArrayLengthMultiplier,
     });
 
     if (arrayLength != null && componentSID != null) {
@@ -485,6 +496,7 @@ export class Component extends RnObject {
     registry.setComponentCountPerBufferView(componentClass, componentCountPerBufferView);
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
     const engine = this.__engine;
+    const getArrayLengthForAllocation = (memberName: string) => this._getArrayLengthForAllocation(memberName);
 
     // Do this only for the first entity of the component
     const indexOfTheBufferView = Math.floor(this._component_sid / componentCountPerBufferView);
@@ -509,7 +521,9 @@ export class Component extends RnObject {
       // for each member field, take a BufferView for all entities' the member field.
       // take a Accessor for all entities for each member fields (same as BufferView)
       memberInfoArray.forEach(info => {
-        const arrayLength = Component.__arrayLengthMap.get(componentClass)?.get(info.memberName);
+        const arrayLength =
+          getArrayLengthForAllocation(info.memberName) ??
+          Component.__arrayLengthMap.get(componentClass)?.get(info.memberName);
         const accessorResult = Component.__takeAccessor(
           engine,
           info.bufferUse,
@@ -533,6 +547,21 @@ export class Component extends RnObject {
         registry.setByteOffset(componentClass, info.memberName, indexOfTheBufferView, byteOffset);
       });
     }
+  }
+
+  /**
+   * Returns the array length to allocate for an array-type member of this component instance.
+   * Override this to allocate a per-instance size. When undefined is returned, the maximum
+   * array length registered for the component class is used.
+   *
+   * Note: when multiple components share a buffer view (componentCountPerBufferView > 1),
+   * the returned value must be the same for all of them.
+   *
+   * @param _memberName - The name of the member field
+   * @returns The array length, or undefined to use the class-wide value
+   */
+  protected _getArrayLengthForAllocation(_memberName: string): Count | undefined {
+    return undefined;
   }
 
   /**

@@ -33,7 +33,6 @@ import { vertexOutputWgsl } from '../../../webgpu/shaderity_shaders/common/verte
 import { wireframeWgsl } from '../../../webgpu/shaderity_shaders/common/wireframe';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 import { Component } from '../../core/Component';
-import { BoneDataType } from '../../definitions/BoneDataType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type {
   getShaderPropertyFuncOfGlobalDataRepository,
@@ -411,14 +410,6 @@ export function _setupGlobalShaderDefinitionWebGL(engine: Engine, materialTypeNa
   if (glw.isWebGL2 || glw.webgl1ExtDRV) {
     definitions += '#define RN_IS_SUPPORTING_STANDARD_DERIVATIVES\n';
   }
-  if (engine.config.boneDataType === BoneDataType.Mat43x1) {
-    definitions += '#define RN_BONE_DATA_TYPE_Mat43x1\n';
-  } else if (engine.config.boneDataType === BoneDataType.Vec4x2) {
-    definitions += '#define RN_BONE_DATA_TYPE_VEC4X2\n';
-  } else if (engine.config.boneDataType === BoneDataType.Vec4x1) {
-    definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
-  }
-
   return definitions;
 }
 
@@ -491,14 +482,6 @@ export function _createProgramAsSingleOperationWebGpu(
     propertySetterOfGlobalDataRepository,
     propertySetterOfMaterial
   );
-
-  if (engine.config.boneDataType === BoneDataType.Mat43x1) {
-    definitions += '#define RN_BONE_DATA_TYPE_Mat43x1\n';
-  } else if (engine.config.boneDataType === BoneDataType.Vec4x2) {
-    definitions += '#define RN_BONE_DATA_TYPE_VEC4X2\n';
-  } else if (engine.config.boneDataType === BoneDataType.Vec4x1) {
-    definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
-  }
 
   const vertexShaderityObject = ShaderityUtilityWebGPU.fillTemplate(
     engine,
