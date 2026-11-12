@@ -1,11 +1,10 @@
-import type { Array16, ArrayType } from '../../types/CommonTypes';
+import type { Array16, ArrayType, FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
 import { type CompositionTypeEnum } from '../definitions/CompositionType';
 import { AbstractMatrix } from './AbstractMatrix';
 import { IdentityMatrix44 } from './IdentityMatrix44';
-import type { IMatrix, IMatrix33, IMatrix44 } from './IMatrix';
+import type { IMatrix, IMatrix33, IMatrix44, IMutableMatrix44 } from './IMatrix';
 import type { IQuaternion } from './IQuaternion';
 import type { IVector3, IVector4 } from './IVector';
-import type { MutableMatrix44 } from './MutableMatrix44';
 import type { MutableVector3 } from './MutableVector3';
 import type { MutableVector4 } from './MutableVector4';
 import { Vector3 } from './Vector3';
@@ -22,12 +21,15 @@ import { Vector4 } from './Vector4';
  * const result = Matrix44.multiply(identity, translation);
  * ```
  */
-export declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
+export declare class Matrix44_<T extends FloatTypedArrayConstructor> extends AbstractMatrix implements IMatrix, IMatrix44 {
     /**
-     * Creates a new Matrix44 instance.
-     * @param m - A Float32Array containing 16 matrix elements in column-major order
+     * Creates a new Matrix44_ instance.
+     * @param m - A typed array containing 16 matrix elements in column-major order
+     * @param _options - Configuration object containing the typed array constructor
      */
-    constructor(m: Float32Array);
+    constructor(m: TypedArray, _options: {
+        type: T;
+    });
     /**
      * Gets the matrix element at row 0, column 0.
      * @returns The m00 component of the matrix
@@ -152,65 +154,96 @@ export declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
      * Creates a zero matrix (all elements are 0).
      * @returns A new Matrix44 instance with all elements set to 0
      */
-    static zero(): Matrix44;
+    static _zero(type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a 4x4 identity matrix.
      * @returns A new IdentityMatrix44 instance representing the identity matrix
      */
-    static identity(): IdentityMatrix44;
+    static _identity(type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a dummy matrix with zero-length array (for placeholder purposes).
      * @returns A new Matrix44 instance with an empty array
      */
-    static dummy(): Matrix44;
+    static _dummy(type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a transpose matrix from the given matrix.
      * For identity matrices, returns the same matrix since transpose of identity is identity.
      * @param mat - The matrix to transpose
      * @returns A new Matrix44 instance representing the transposed matrix
      */
-    static transpose(mat: IMatrix44): Matrix44;
+    static _transpose(mat: IMatrix44, type: FloatTypedArrayConstructor): IMatrix44;
+    /**
+     * Attempts to create the inverse of the given matrix.
+     * Uses optimized computation for 4x4 matrix inversion.
+     *
+     * Returns null instead of dividing by zero when the matrix is numerically
+     * singular (see {@link MathUtil.isSingularDet}).
+     *
+     * @param mat - The matrix to invert
+     * @returns A new Matrix44 instance representing the inverted matrix,
+     *          or null if the matrix is not invertible
+     */
+    static _tryInvert(mat: IMatrix44, type: FloatTypedArrayConstructor): IMatrix44 | null;
     /**
      * Creates an inverse matrix from the given matrix.
      * Uses optimized computation for 4x4 matrix inversion.
+     *
+     * If the matrix is numerically singular, an identity matrix is returned
+     * instead of dividing by zero. Use {@link Matrix44.tryInvert} when the
+     * caller needs to detect the failure.
+     *
      * @param mat - The matrix to invert
-     * @returns A new Matrix44 instance representing the inverted matrix
-     * @throws Logs an error if the matrix is not invertible (determinant is 0)
+     * @returns A new Matrix44 instance representing the inverted matrix,
+     *          or the identity matrix if the input is singular
      */
-    static invert(mat: IMatrix44): Matrix44;
+    static _invert(mat: IMatrix44, type: FloatTypedArrayConstructor): IMatrix44;
+    /**
+     * Attempts to compute the inverse of a matrix and store the result in an output matrix.
+     * The output matrix is left untouched when the input is numerically singular,
+     * which lets callers keep the previous valid value.
+     *
+     * @param mat - The matrix to invert
+     * @param outMat - The output matrix to store the result
+     * @returns True if the inversion succeeded, false if the matrix is singular
+     */
+    static _tryInvertTo(mat: IMatrix44, outMat: IMutableMatrix44): boolean;
     /**
      * Computes the inverse of a matrix and stores the result in an output matrix.
      * This is the mutable version of the invert method for performance optimization.
+     *
+     * If the matrix is numerically singular, the output matrix is set to the
+     * identity matrix instead of being filled with `Infinity`/`NaN`.
+     * Use {@link Matrix44.tryInvertTo} when the caller needs to detect the failure.
+     *
      * @param mat - The matrix to invert
      * @param outMat - The output matrix to store the result
-     * @returns The output matrix containing the inverted matrix
-     * @throws Logs an error if the matrix is not invertible (determinant is 0)
+     * @returns The output matrix containing the inverted matrix, or the identity matrix if the input is singular
      */
-    static invertTo(mat: IMatrix44, outMat: MutableMatrix44): MutableMatrix44;
+    static _invertTo(mat: IMatrix44, outMat: IMutableMatrix44): IMutableMatrix44;
     /**
      * Creates a translation matrix from a 3D vector.
      * @param vec - The translation vector
      * @returns A new Matrix44 instance representing the translation transformation
      */
-    static translate(vec: Vector3): Matrix44;
+    static _translate(vec: IVector3, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a rotation matrix around the X-axis.
      * @param radian - The rotation angle in radians
      * @returns A new Matrix44 instance representing the X-axis rotation
      */
-    static rotateX(radian: number): Matrix44;
+    static _rotateX(radian: number, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a rotation matrix around the Y-axis.
      * @param radian - The rotation angle in radians
      * @returns A new Matrix44 instance representing the Y-axis rotation
      */
-    static rotateY(radian: number): Matrix44;
+    static _rotateY(radian: number, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a rotation matrix around the Z-axis.
      * @param radian - The rotation angle in radians
      * @returns A new Matrix44 instance representing the Z-axis rotation
      */
-    static rotateZ(radian: number): Matrix44;
+    static _rotateZ(radian: number, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a rotation matrix from Euler angles (XYZ order).
      * Applies rotations in the order: X, then Y, then Z.
@@ -219,19 +252,19 @@ export declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
      * @param z - Rotation around Z-axis in radians
      * @returns A new Matrix44 instance representing the combined rotation
      */
-    static rotateXYZ(x: number, y: number, z: number): Matrix44;
+    static _rotateXYZ(x: number, y: number, z: number, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a rotation matrix from a 3D vector containing Euler angles.
      * @param vec - A vector containing rotation angles [x, y, z] in radians
      * @returns A new Matrix44 instance representing the rotation
      */
-    static rotate(vec: IVector3): Matrix44;
+    static _rotate(vec: IVector3, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a scaling matrix from a 3D vector.
      * @param vec - The scaling factors for each axis [x, y, z]
      * @returns A new Matrix44 instance representing the scaling transformation
      */
-    static scale(vec: IVector3): Matrix44;
+    static _scale(vec: IVector3, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Multiplies two 4x4 matrices and returns the result.
      * Optimized to handle identity matrices efficiently.
@@ -239,7 +272,7 @@ export declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
      * @param r_mat - The right matrix in the multiplication
      * @returns A new Matrix44 instance representing the matrix product (l_mat * r_mat)
      */
-    static multiply(l_mat: IMatrix44, r_mat: IMatrix44): Matrix44;
+    static _multiply(l_mat: IMatrix44, r_mat: IMatrix44, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Multiplies two 4x4 matrices and stores the result in an output matrix.
      * This is the mutable version of the multiply method for performance optimization.
@@ -248,7 +281,7 @@ export declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
      * @param outMat - The output matrix to store the result
      * @returns The output matrix containing the multiplication result
      */
-    static multiplyTo(l_mat: IMatrix44, r_mat: IMatrix44, outMat: MutableMatrix44): MutableMatrix44;
+    static _multiplyTo(l_mat: IMatrix44, r_mat: IMatrix44, outMat: IMutableMatrix44): IMutableMatrix44;
     /**
      * Multiplies a matrix with data from a typed array and stores the result.
      * This method is optimized for working with raw array data.
@@ -258,14 +291,14 @@ export declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
      * @param offsetAsComposition - The offset in the array for composition data
      * @returns The output matrix containing the multiplication result
      */
-    static multiplyTypedArrayTo(l_mat: IMatrix44, r_array: ArrayType, outMat: MutableMatrix44, offsetAsComposition: number): MutableMatrix44;
+    static _multiplyTypedArrayTo(l_mat: IMatrix44, r_array: ArrayType, outMat: IMutableMatrix44, offsetAsComposition: number): IMutableMatrix44;
     /**
      * Creates a rotation matrix from a quaternion and stores it in an output matrix.
      * @param quat - The quaternion representing the rotation
      * @param outMat - The output matrix to store the result
      * @returns The output matrix containing the rotation matrix
      */
-    static fromQuaternionTo(quat: IQuaternion, outMat: MutableMatrix44): MutableMatrix44;
+    static _fromQuaternionTo(quat: IQuaternion, outMat: IMutableMatrix44): IMutableMatrix44;
     /**
      * Converts the matrix to a human-readable string representation.
      * Elements are displayed in row-major order for intuitive reading.
@@ -416,7 +449,7 @@ export declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
      * @param m33 - Element at row 3, column 3
      * @returns A new Matrix44 instance
      */
-    static fromCopy16RowMajor(m00: number, m01: number, m02: number, m03: number, m10: number, m11: number, m12: number, m13: number, m20: number, m21: number, m22: number, m23: number, m30: number, m31: number, m32: number, m33: number): Matrix44;
+    static _fromCopy16RowMajor(m00: number, m01: number, m02: number, m03: number, m10: number, m11: number, m12: number, m13: number, m20: number, m21: number, m22: number, m23: number, m30: number, m31: number, m32: number, m33: number, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a matrix from 16 individual values in column-major order.
      * This matches the internal storage format used by WebGL.
@@ -439,26 +472,26 @@ export declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
      * @param m33 - Element at row 3, column 3
      * @returns A new Matrix44 instance
      */
-    static fromCopy16ColumnMajor(m00: number, m10: number, m20: number, m30: number, m01: number, m11: number, m21: number, m31: number, m02: number, m12: number, m22: number, m32: number, m03: number, m13: number, m23: number, m33: number): Matrix44;
+    static _fromCopy16ColumnMajor(m00: number, m10: number, m20: number, m30: number, m01: number, m11: number, m21: number, m31: number, m02: number, m12: number, m22: number, m32: number, m03: number, m13: number, m23: number, m33: number, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a new matrix by copying another Matrix44 instance.
      * @param mat - The source matrix to copy
      * @returns A new Matrix44 instance with copied values
      */
-    static fromCopyMatrix44(mat: IMatrix44): Matrix44;
+    static _fromCopyMatrix44(mat: IMatrix44, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a matrix directly from a Float32Array in column-major order.
      * The array is used directly without copying (shares the same memory).
      * @param float32Array - A Float32Array containing 16 matrix elements
      * @returns A new Matrix44 instance using the provided array
      */
-    static fromFloat32ArrayColumnMajor(float32Array: Float32Array): Matrix44;
+    static _fromTypedArrayColumnMajor(array: TypedArray, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a matrix from a Float32Array in column-major order with copying.
      * @param float32Array - A Float32Array containing 16 matrix elements
      * @returns A new Matrix44 instance with copied values
      */
-    static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array): Matrix44;
+    static _fromCopyTypedArrayColumnMajor(array: TypedArray, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a matrix from a Float32Array in row-major order with copying.
      * The input array is assumed to be in row-major order and will be converted
@@ -466,7 +499,7 @@ export declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
      * @param array - A Float32Array containing 16 matrix elements in row-major order
      * @returns A new Matrix44 instance with converted values
      */
-    static fromCopyFloat32ArrayRowMajor(array: Float32Array): Matrix44;
+    static _fromCopyTypedArrayRowMajor(array: TypedArray, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a 4x4 matrix from a 3x3 matrix by embedding it in the upper-left corner.
      * The resulting matrix has the 3x3 matrix in the upper-left, with the bottom-right
@@ -474,37 +507,187 @@ export declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
      * @param mat - The 3x3 matrix to embed
      * @returns A new Matrix44 instance
      */
-    static fromCopyMatrix33(mat: IMatrix33): Matrix44;
+    static _fromCopyMatrix33(mat: IMatrix33, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a matrix from a fixed-size array (Array16) in column-major order.
      * @param array - An Array16 containing exactly 16 matrix elements
      * @returns A new Matrix44 instance with copied values
      */
-    static fromCopyArray16ColumnMajor(array: Array16<number>): Matrix44;
+    static _fromCopyArray16ColumnMajor(array: Array16<number>, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a matrix from a variable-length array in column-major order.
      * @param array - An array containing at least 16 matrix elements
      * @returns A new Matrix44 instance with copied values
      */
-    static fromCopyArrayColumnMajor(array: Array<number>): Matrix44;
+    static _fromCopyArrayColumnMajor(array: Array<number>, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a matrix from a fixed-size array (Array16) in row-major order.
      * The input array is converted from row-major to column-major order.
      * @param array - An Array16 containing exactly 16 matrix elements in row-major order
      * @returns A new Matrix44 instance with converted values
      */
-    static fromCopyArray16RowMajor(array: Array16<number>): Matrix44;
+    static _fromCopyArray16RowMajor(array: Array16<number>, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a matrix from a variable-length array in row-major order.
      * The input array is converted from row-major to column-major order.
      * @param array - An array containing at least 16 matrix elements in row-major order
      * @returns A new Matrix44 instance with converted values
      */
-    static fromCopyArrayRowMajor(array: Array<number>): Matrix44;
+    static _fromCopyArrayRowMajor(array: Array<number>, type: FloatTypedArrayConstructor): IMatrix44;
     /**
      * Creates a rotation matrix from a quaternion.
      * @param q - The quaternion representing the rotation
      * @returns A new Matrix44 instance representing the rotation transformation
      */
+    static _fromCopyQuaternion(q: IQuaternion, type: FloatTypedArrayConstructor): IMatrix44;
+}
+/**
+ * Immutable 4x4 matrix with 32-bit float components.
+ * This is the standard precision implementation for transforms, cameras, and projections.
+ */
+export declare class Matrix44 extends Matrix44_<Float32ArrayConstructor> {
+    /**
+     * Creates a new Matrix44 instance.
+     * @param m - The typed array containing the matrix components
+     */
+    constructor(m: TypedArray);
+    /** Creates a zero matrix. */
+    static zero(): Matrix44;
+    /** Creates an identity matrix (optimized IdentityMatrix44 instance). */
+    static identity(): IdentityMatrix44;
+    /** Creates a dummy matrix with an empty array. */
+    static dummy(): Matrix44;
+    /** Creates the transpose of the given matrix. */
+    static transpose(mat: IMatrix44): Matrix44;
+    /** Attempts to invert the given matrix, returning null when it is singular. */
+    static tryInvert(mat: IMatrix44): Matrix44 | null;
+    /** Creates the inverse of the given matrix (identity when singular). */
+    static invert(mat: IMatrix44): Matrix44;
+    /** Attempts to invert the given matrix into outMat. */
+    static tryInvertTo<T extends IMutableMatrix44>(mat: IMatrix44, outMat: T): boolean;
+    /** Inverts the given matrix into outMat (identity when singular). */
+    static invertTo<T extends IMutableMatrix44>(mat: IMatrix44, outMat: T): T;
+    /** Creates a translation matrix. */
+    static translate(vec: IVector3): Matrix44;
+    /** Creates a rotation matrix around the X-axis. */
+    static rotateX(radian: number): Matrix44;
+    /** Creates a rotation matrix around the Y-axis. */
+    static rotateY(radian: number): Matrix44;
+    /** Creates a rotation matrix around the Z-axis. */
+    static rotateZ(radian: number): Matrix44;
+    /** Creates a rotation matrix from Euler angles in XYZ order. */
+    static rotateXYZ(x: number, y: number, z: number): Matrix44;
+    /** Creates a rotation matrix from a vector containing Euler angles. */
+    static rotate(vec: IVector3): Matrix44;
+    /** Creates a scaling matrix. */
+    static scale(vec: IVector3): Matrix44;
+    /** Multiplies two matrices. */
+    static multiply(l_mat: IMatrix44, r_mat: IMatrix44): Matrix44;
+    /** Multiplies two matrices and stores the result in outMat. */
+    static multiplyTo<T extends IMutableMatrix44>(l_mat: IMatrix44, r_mat: IMatrix44, outMat: T): T;
+    /** Multiplies a matrix with typed array data and stores the result in outMat. */
+    static multiplyTypedArrayTo<T extends IMutableMatrix44>(l_mat: IMatrix44, r_array: ArrayType, outMat: T, offsetAsComposition: number): T;
+    /** Creates a rotation matrix from a quaternion and stores it in outMat. */
+    static fromQuaternionTo<T extends IMutableMatrix44>(quat: IQuaternion, outMat: T): T;
+    /** Creates a matrix from row-major components. */
+    static fromCopy16RowMajor(m00: number, m01: number, m02: number, m03: number, m10: number, m11: number, m12: number, m13: number, m20: number, m21: number, m22: number, m23: number, m30: number, m31: number, m32: number, m33: number): Matrix44;
+    /** Creates a matrix from column-major components. */
+    static fromCopy16ColumnMajor(m00: number, m10: number, m20: number, m30: number, m01: number, m11: number, m21: number, m31: number, m02: number, m12: number, m22: number, m32: number, m03: number, m13: number, m23: number, m33: number): Matrix44;
+    /** Creates a matrix by copying another matrix. */
+    static fromCopyMatrix44(mat: IMatrix44): Matrix44;
+    /** Creates a matrix that directly uses the given Float32Array. */
+    static fromFloat32ArrayColumnMajor(array: Float32Array): Matrix44;
+    /** Creates a matrix by copying a Float32Array in column-major order. */
+    static fromCopyFloat32ArrayColumnMajor(array: Float32Array): Matrix44;
+    /** Creates a matrix by copying a Float32Array in row-major order. */
+    static fromCopyFloat32ArrayRowMajor(array: Float32Array): Matrix44;
+    /** Creates a matrix from a 3x3 matrix embedded in the upper-left corner. */
+    static fromCopyMatrix33(mat: IMatrix33): Matrix44;
+    /** Creates a matrix from a 16-element array in column-major order. */
+    static fromCopyArray16ColumnMajor(array: Array16<number>): Matrix44;
+    /** Creates a matrix from an array in column-major order. */
+    static fromCopyArrayColumnMajor(array: Array<number>): Matrix44;
+    /** Creates a matrix from a 16-element array in row-major order. */
+    static fromCopyArray16RowMajor(array: Array16<number>): Matrix44;
+    /** Creates a matrix from an array in row-major order. */
+    static fromCopyArrayRowMajor(array: Array<number>): Matrix44;
+    /** Creates a rotation matrix from a quaternion. */
     static fromCopyQuaternion(q: IQuaternion): Matrix44;
 }
+/**
+ * Immutable 4x4 matrix with 64-bit float components.
+ * Use this implementation when higher numerical precision is required.
+ */
+export declare class Matrix44D extends Matrix44_<Float64ArrayConstructor> {
+    /**
+     * Creates a new Matrix44D instance.
+     * @param m - The typed array containing the matrix components
+     */
+    private constructor();
+    /** Creates a zero matrix. */
+    static zero(): Matrix44D;
+    /** Creates an identity matrix. */
+    static identity(): Matrix44D;
+    /** Creates a dummy matrix with an empty array. */
+    static dummy(): Matrix44D;
+    /** Creates the transpose of the given matrix. */
+    static transpose(mat: IMatrix44): Matrix44D;
+    /** Attempts to invert the given matrix, returning null when it is singular. */
+    static tryInvert(mat: IMatrix44): Matrix44D | null;
+    /** Creates the inverse of the given matrix (identity when singular). */
+    static invert(mat: IMatrix44): Matrix44D;
+    /** Attempts to invert the given matrix into outMat. */
+    static tryInvertTo<T extends IMutableMatrix44>(mat: IMatrix44, outMat: T): boolean;
+    /** Inverts the given matrix into outMat (identity when singular). */
+    static invertTo<T extends IMutableMatrix44>(mat: IMatrix44, outMat: T): T;
+    /** Creates a translation matrix. */
+    static translate(vec: IVector3): Matrix44D;
+    /** Creates a rotation matrix around the X-axis. */
+    static rotateX(radian: number): Matrix44D;
+    /** Creates a rotation matrix around the Y-axis. */
+    static rotateY(radian: number): Matrix44D;
+    /** Creates a rotation matrix around the Z-axis. */
+    static rotateZ(radian: number): Matrix44D;
+    /** Creates a rotation matrix from Euler angles in XYZ order. */
+    static rotateXYZ(x: number, y: number, z: number): Matrix44D;
+    /** Creates a rotation matrix from a vector containing Euler angles. */
+    static rotate(vec: IVector3): Matrix44D;
+    /** Creates a scaling matrix. */
+    static scale(vec: IVector3): Matrix44D;
+    /** Multiplies two matrices. */
+    static multiply(l_mat: IMatrix44, r_mat: IMatrix44): Matrix44D;
+    /** Multiplies two matrices and stores the result in outMat. */
+    static multiplyTo<T extends IMutableMatrix44>(l_mat: IMatrix44, r_mat: IMatrix44, outMat: T): T;
+    /** Multiplies a matrix with typed array data and stores the result in outMat. */
+    static multiplyTypedArrayTo<T extends IMutableMatrix44>(l_mat: IMatrix44, r_array: ArrayType, outMat: T, offsetAsComposition: number): T;
+    /** Creates a rotation matrix from a quaternion and stores it in outMat. */
+    static fromQuaternionTo<T extends IMutableMatrix44>(quat: IQuaternion, outMat: T): T;
+    /** Creates a matrix from row-major components. */
+    static fromCopy16RowMajor(m00: number, m01: number, m02: number, m03: number, m10: number, m11: number, m12: number, m13: number, m20: number, m21: number, m22: number, m23: number, m30: number, m31: number, m32: number, m33: number): Matrix44D;
+    /** Creates a matrix from column-major components. */
+    static fromCopy16ColumnMajor(m00: number, m10: number, m20: number, m30: number, m01: number, m11: number, m21: number, m31: number, m02: number, m12: number, m22: number, m32: number, m03: number, m13: number, m23: number, m33: number): Matrix44D;
+    /** Creates a matrix by copying another matrix. */
+    static fromCopyMatrix44(mat: IMatrix44): Matrix44D;
+    /** Creates a matrix that directly uses the given Float64Array. */
+    static fromFloat64ArrayColumnMajor(array: Float64Array): Matrix44D;
+    /** Creates a matrix by copying a Float64Array in column-major order. */
+    static fromCopyFloat64ArrayColumnMajor(array: Float64Array): Matrix44D;
+    /** Creates a matrix by copying a Float64Array in row-major order. */
+    static fromCopyFloat64ArrayRowMajor(array: Float64Array): Matrix44D;
+    /** Creates a matrix from a 3x3 matrix embedded in the upper-left corner. */
+    static fromCopyMatrix33(mat: IMatrix33): Matrix44D;
+    /** Creates a matrix from a 16-element array in column-major order. */
+    static fromCopyArray16ColumnMajor(array: Array16<number>): Matrix44D;
+    /** Creates a matrix from an array in column-major order. */
+    static fromCopyArrayColumnMajor(array: Array<number>): Matrix44D;
+    /** Creates a matrix from a 16-element array in row-major order. */
+    static fromCopyArray16RowMajor(array: Array16<number>): Matrix44D;
+    /** Creates a matrix from an array in row-major order. */
+    static fromCopyArrayRowMajor(array: Array<number>): Matrix44D;
+    /** Creates a rotation matrix from a quaternion. */
+    static fromCopyQuaternion(q: IQuaternion): Matrix44D;
+}
+/**
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
+ */
+export { Matrix44 as Matrix44F };

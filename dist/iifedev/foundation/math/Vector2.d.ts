@@ -533,9 +533,9 @@ export declare class Vector2 extends Vector2_<Float32ArrayConstructor> implement
  * This class provides high-precision vector operations for applications requiring double precision.
  * All operations return new vector instances, preserving immutability.
  */
-export declare class Vector2d extends Vector2_<Float64ArrayConstructor> {
+export declare class Vector2D extends Vector2_<Float64ArrayConstructor> {
     /**
-     * Creates a new Vector2d instance.
+     * Creates a new Vector2D instance.
      *
      * @param x - The typed array containing the vector components
      */
@@ -544,122 +544,118 @@ export declare class Vector2d extends Vector2_<Float64ArrayConstructor> {
      * Creates a vector from a 2-element array.
      *
      * @param array - The array containing [x, y] components
-     * @returns A new Vector2d instance
+     * @returns A new Vector2D instance
      */
-    static fromCopyArray2(array: Array2<number>): Vector2d;
+    static fromCopyArray2(array: Array2<number>): Vector2D;
     /**
      * Creates a vector from individual x and y components.
      *
      * @param x - The x component
      * @param y - The y component
-     * @returns A new Vector2d instance
+     * @returns A new Vector2D instance
      */
-    static fromCopy2(x: number, y: number): Vector2d;
+    static fromCopy2(x: number, y: number): Vector2D;
     /**
      * Creates a vector from an array, taking the first 2 elements.
      *
      * @param array - The array containing components
-     * @returns A new Vector2d instance
+     * @returns A new Vector2D instance
      */
-    static fromCopyArray(array: Array<number>): Vector2d;
+    static fromCopyArray(array: Array<number>): Vector2D;
     /**
      * Creates a vector from an ArrayBuffer.
      *
      * @param arrayBuffer - The ArrayBuffer containing the vector data
-     * @returns A new Vector2d instance
+     * @returns A new Vector2D instance
      */
-    static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector2d;
+    static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector2D;
     /**
      * Creates a vector from a Float64Array.
      *
      * @param float64Array - The Float64Array containing the vector data
-     * @returns A new Vector2d instance
+     * @returns A new Vector2D instance
      */
-    static fromFloat64Array(float64Array: Float64Array): Vector2d;
+    static fromFloat64Array(float64Array: Float64Array): Vector2D;
     /**
      * Creates a zero vector (0, 0).
      *
-     * @returns A new zero Vector2d instance
+     * @returns A new zero Vector2D instance
      */
-    static zero(): Vector2d;
+    static zero(): Vector2D;
     /**
      * Creates a one vector (1, 1).
      *
-     * @returns A new one Vector2d instance
+     * @returns A new one Vector2D instance
      */
-    static one(): Vector2d;
+    static one(): Vector2D;
     /**
      * Creates a dummy vector with no components.
      *
-     * @returns A new dummy Vector2d instance
+     * @returns A new dummy Vector2D instance
      */
-    static dummy(): Vector2d;
+    static dummy(): Vector2D;
     /**
      * Normalizes a vector to unit length.
      *
      * @param vec - The vector to normalize
-     * @returns A new normalized Vector2d instance
+     * @returns A new normalized Vector2D instance
      */
-    static normalize(vec: IVector2): Vector2d;
+    static normalize(vec: IVector2): Vector2D;
     /**
      * Adds two vectors component-wise.
      *
      * @param l_vec - The left vector operand
      * @param r_vec - The right vector operand
-     * @returns A new Vector2d instance containing the sum
+     * @returns A new Vector2D instance containing the sum
      */
-    static add(l_vec: IVector2, r_vec: IVector2): Vector2d;
+    static add(l_vec: IVector2, r_vec: IVector2): Vector2D;
     /**
      * Subtracts the right vector from the left vector component-wise.
      *
      * @param l_vec - The left vector operand
      * @param r_vec - The right vector operand
-     * @returns A new Vector2d instance containing the difference
+     * @returns A new Vector2D instance containing the difference
      */
-    static subtract(l_vec: IVector2, r_vec: IVector2): Vector2d;
+    static subtract(l_vec: IVector2, r_vec: IVector2): Vector2D;
     /**
      * Multiplies a vector by a scalar value.
      *
      * @param vec - The vector to multiply
      * @param value - The scalar value to multiply by
-     * @returns A new Vector2d instance containing the scaled result
+     * @returns A new Vector2D instance containing the scaled result
      */
-    static multiply(vec: IVector2, value: number): Vector2d;
+    static multiply(vec: IVector2, value: number): Vector2D;
     /**
      * Multiplies two vectors component-wise.
      *
      * @param l_vec - The left vector operand
      * @param r_vec - The right vector operand
-     * @returns A new Vector2d instance containing the component-wise product
+     * @returns A new Vector2D instance containing the component-wise product
      */
-    static multiplyVector(l_vec: IVector2, r_vec: IVector2): Vector2d;
+    static multiplyVector(l_vec: IVector2, r_vec: IVector2): Vector2D;
     /**
      * Divides a vector by a scalar value.
      *
      * @param vec - The vector to divide
      * @param value - The scalar value to divide by
-     * @returns A new Vector2d instance containing the divided result
+     * @returns A new Vector2D instance containing the divided result
      */
-    static divide(vec: IVector2, value: number): Vector2d;
+    static divide(vec: IVector2, value: number): Vector2D;
     /**
      * Divides the left vector by the right vector component-wise.
      *
      * @param l_vec - The left vector operand (dividend)
      * @param r_vec - The right vector operand (divisor)
-     * @returns A new Vector2d instance containing the component-wise division result
+     * @returns A new Vector2D instance containing the component-wise division result
      */
-    static divideVector(l_vec: IVector2, r_vec: IVector2): Vector2d;
+    static divideVector(l_vec: IVector2, r_vec: IVector2): Vector2D;
     /**
      * Creates a clone of this vector.
      *
-     * @returns A new Vector2d instance with the same components
+     * @returns A new Vector2D instance with the same components
      */
-    clone(): Vector2d;
+    clone(): Vector2D;
 }
-/**
- * Type alias for Vector2 using 32-bit float components.
- */
-export type Vector2f = Vector2;
 /**
  * Constant Vector2 instance representing (1, 1).
  */
@@ -668,3 +664,7 @@ export declare const ConstVector2_1_1: Vector2;
  * Constant Vector2 instance representing (0, 0).
  */
 export declare const ConstVector2_0_0: Vector2;
+/**
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
+ */
+export { Vector2 as Vector2F };

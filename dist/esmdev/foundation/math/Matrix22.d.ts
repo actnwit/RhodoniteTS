@@ -1,9 +1,8 @@
 import type { Array4 } from '../../types';
+import type { FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
 import { AbstractMatrix } from './AbstractMatrix';
-import type { IMatrix22 } from './IMatrix';
+import type { IMatrix22, IMutableMatrix22 } from './IMatrix';
 import type { IVector2 } from './IVector';
-import type { Matrix33 } from './Matrix33';
-import type { MutableMatrix22 } from './MutableMatrix22';
 import type { MutableVector2 } from './MutableVector2';
 import { Vector2 } from './Vector2';
 /**
@@ -31,13 +30,16 @@ import { Vector2 } from './Vector2';
  * const scale = Matrix22.scale(Vector2.fromCopyArray2([2, 3]));
  * ```
  */
-export declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
+export declare class Matrix22_<T extends FloatTypedArrayConstructor> extends AbstractMatrix implements IMatrix22 {
     /**
-     * Creates a new Matrix22 instance.
+     * Creates a new Matrix22_ instance.
      *
-     * @param m - Float32Array containing matrix values in column-major order
+     * @param m - Typed array containing matrix values in column-major order
+     * @param _options - Configuration object containing the typed array constructor
      */
-    constructor(m: Float32Array);
+    constructor(m: TypedArray, _options: {
+        type: T;
+    });
     /**
      * Gets the matrix element at row 0, column 0.
      *
@@ -109,7 +111,7 @@ export declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
      * // | 0 0 |
      * ```
      */
-    static zero(): Matrix22;
+    static _zero(type: FloatTypedArrayConstructor): IMatrix22;
     /**
      * Creates a 2x2 identity matrix.
      *
@@ -123,14 +125,14 @@ export declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
      * // | 0 1 |
      * ```
      */
-    static identity(): Matrix22;
+    static _identity(type: FloatTypedArrayConstructor): IMatrix22;
     /**
      * Creates a dummy matrix with empty data.
      * Used as a placeholder when no valid matrix data is available.
      *
      * @returns A new Matrix22 with empty Float32Array
      */
-    static dummy(): Matrix22;
+    static _dummy(type: FloatTypedArrayConstructor): IMatrix22;
     /**
      * Creates the transpose of the given matrix.
      * The transpose swaps rows and columns: (i,j) becomes (j,i).
@@ -147,7 +149,18 @@ export declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
      * // | 3 4 |      | 2 4 |
      * ```
      */
-    static transpose(mat: IMatrix22): Matrix22;
+    static _transpose(mat: IMatrix22, type: FloatTypedArrayConstructor): IMatrix22;
+    /**
+     * Attempts to create the inverse of the given matrix.
+     *
+     * Unlike `invert`, this method never returns a matrix filled with
+     * `Infinity`/`NaN`: it returns `null` when the matrix is numerically
+     * singular (see {@link MathUtil.isSingularDet}).
+     *
+     * @param mat - The matrix to invert
+     * @returns A new Matrix22, or null if the matrix is not invertible
+     */
+    static _tryInvert(mat: IMatrix22, type: FloatTypedArrayConstructor): IMatrix22 | null;
     /**
      * Creates the inverse of the given matrix.
      *
@@ -157,9 +170,13 @@ export declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
      * where A = | a b | and det(A) = ad - bc
      *           | c d |
      *
+     * If the matrix is numerically singular, an identity matrix is returned
+     * instead of dividing by zero. Use {@link Matrix22.tryInvert} when the
+     * caller needs to detect the failure.
+     *
      * @param mat - The matrix to invert
-     * @returns A new Matrix22 that is the inverse of the input matrix
-     * @throws Error if the matrix is singular (determinant is 0)
+     * @returns A new Matrix22 that is the inverse of the input matrix,
+     *          or the identity matrix if the input is singular
      *
      * @example
      * ```typescript
@@ -170,17 +187,32 @@ export declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
      * // |   0 0.5 |
      * ```
      */
-    static invert(mat: IMatrix22): Matrix22;
+    static _invert(mat: IMatrix22, type: FloatTypedArrayConstructor): IMatrix22;
+    /**
+     * Attempts to calculate the inverse of the given matrix and stores the
+     * result in the output matrix.
+     *
+     * The output matrix is left untouched when the input is numerically
+     * singular, which lets callers keep the previous valid value.
+     *
+     * @param mat - The matrix to invert
+     * @param outMat - The mutable matrix to store the result
+     * @returns True if the inversion succeeded, false if the matrix is singular
+     */
+    static _tryInvertTo(mat: IMatrix22, outMat: IMutableMatrix22): boolean;
     /**
      * Calculates the inverse of the given matrix and stores the result in the output matrix.
      * This method avoids creating a new matrix instance for better performance.
      *
+     * If the matrix is numerically singular, the output matrix is set to the
+     * identity matrix instead of being filled with `Infinity`/`NaN`.
+     * Use {@link Matrix22.tryInvertTo} when the caller needs to detect the failure.
+     *
      * @param mat - The matrix to invert
      * @param outMat - The mutable matrix to store the result
-     * @returns The output matrix containing the inverse
-     * @throws Error if the matrix is singular (determinant is 0)
+     * @returns The output matrix containing the inverse, or the identity matrix if the input is singular
      */
-    static invertTo(mat: Matrix22, outMat: MutableMatrix22): MutableMatrix22;
+    static _invertTo(mat: IMatrix22, outMat: IMutableMatrix22): IMutableMatrix22;
     /**
      * Creates a 2D rotation matrix for the given angle.
      *
@@ -197,7 +229,7 @@ export declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
      * const rotation = Matrix22.rotate(Math.PI / 2);
      * ```
      */
-    static rotate(radian: number): Matrix22;
+    static _rotate(radian: number, type: FloatTypedArrayConstructor): IMatrix22;
     /**
      * Creates a 2D scaling matrix from a 2D vector.
      *
@@ -214,7 +246,7 @@ export declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
      * // Creates a matrix that scales x by 2 and y by 3
      * ```
      */
-    static scale(vec: IVector2): Matrix22;
+    static _scale(vec: IVector2, type: FloatTypedArrayConstructor): IMatrix22;
     /**
      * Multiplies two 2x2 matrices and returns the result.
      * Matrix multiplication is not commutative: A * B ≠ B * A in general.
@@ -230,7 +262,7 @@ export declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
      * const result = Matrix22.multiply(a, b); // Scale then rotate
      * ```
      */
-    static multiply(l_mat: IMatrix22, r_mat: IMatrix22): Matrix22;
+    static _multiply(l_mat: IMatrix22, r_mat: IMatrix22, type: FloatTypedArrayConstructor): IMatrix22;
     /**
      * Multiplies two matrices and stores the result in the output matrix.
      * This method avoids creating a new matrix instance for better performance.
@@ -243,7 +275,7 @@ export declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
      * @param outMat - The mutable matrix to store the result
      * @returns The output matrix containing the product
      */
-    static multiplyTo(l_mat: Matrix33, r_mat: Matrix33, outMat: MutableMatrix22): MutableMatrix22;
+    static _multiplyTo(l_mat: IMatrix22, r_mat: IMatrix22, outMat: IMutableMatrix22): IMutableMatrix22;
     /**
      * Returns a string representation of the matrix in a readable format.
      *
@@ -401,7 +433,7 @@ export declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
      * // | 3 4 |
      * ```
      */
-    static fromCopy4RowMajor(m00: number, m01: number, m10: number, m11: number): Matrix22;
+    static _fromCopy4RowMajor(m00: number, m01: number, m10: number, m11: number, type: FloatTypedArrayConstructor): IMatrix22;
     /**
      * Creates a new Matrix22 from individual components in column-major order.
      *
@@ -417,7 +449,7 @@ export declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
      * @param m11 - Element at row 1, column 1
      * @returns A new Matrix22 with the specified values
      */
-    static fromCopy4ColumnMajor(m00: number, m10: number, m01: number, m11: number): Matrix22;
+    static _fromCopy4ColumnMajor(m00: number, m10: number, m01: number, m11: number, type: FloatTypedArrayConstructor): IMatrix22;
     /**
      * Creates a new Matrix22 that directly uses the provided Float32Array.
      * The array is used as-is without copying, so modifications to the array
@@ -426,35 +458,35 @@ export declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
      * @param float32Array - Float32Array containing matrix values in column-major order
      * @returns A new Matrix22 using the provided array
      */
-    static fromFloat32ArrayColumnMajor(float32Array: Float32Array): Matrix22;
+    static _fromTypedArrayColumnMajor(array: TypedArray, type: FloatTypedArrayConstructor): IMatrix22;
     /**
      * Creates a new Matrix22 by copying values from a Float32Array in column-major order.
      *
      * @param float32Array - Float32Array containing matrix values in column-major order
      * @returns A new Matrix22 with copied values
      */
-    static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array): Matrix22;
+    static _fromCopyTypedArrayColumnMajor(array: TypedArray, type: FloatTypedArrayConstructor): IMatrix22;
     /**
      * Creates a new Matrix22 by copying values from a Float32Array in row-major order.
      *
      * @param array - Float32Array containing matrix values in row-major order
      * @returns A new Matrix22 with values converted to column-major order
      */
-    static fromCopyFloat32ArrayRowMajor(array: Float32Array): Matrix22;
+    static _fromCopyTypedArrayRowMajor(array: TypedArray, type: FloatTypedArrayConstructor): IMatrix22;
     /**
      * Creates a new Matrix22 by copying values from another IMatrix22.
      *
      * @param mat - The matrix to copy from
      * @returns A new Matrix22 with copied values
      */
-    static fromCopyMatrix22(mat: IMatrix22): Matrix22;
+    static _fromCopyMatrix22(mat: IMatrix22, type: FloatTypedArrayConstructor): IMatrix22;
     /**
      * Creates a new Matrix22 from a 4-element array in column-major order.
      *
      * @param array - Array4 containing exactly 4 numbers in column-major order
      * @returns A new Matrix22 with the array values
      */
-    static fromCopyArray9ColumnMajor(array: Array4<number>): Matrix22;
+    static _fromCopyArray4ColumnMajor(array: Array4<number>, type: FloatTypedArrayConstructor): IMatrix22;
     /**
      * Creates a new Matrix22 from a variable-length array in column-major order.
      * Only the first 4 elements are used.
@@ -462,14 +494,14 @@ export declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
      * @param array - Array containing matrix values in column-major order
      * @returns A new Matrix22 with the first 4 array values
      */
-    static fromCopyArrayColumnMajor(array: Array<number>): Matrix22;
+    static _fromCopyArrayColumnMajor(array: Array<number>, type: FloatTypedArrayConstructor): IMatrix22;
     /**
      * Creates a new Matrix22 from a 4-element array in row-major order.
      *
      * @param array - Array4 containing exactly 4 numbers in row-major order
      * @returns A new Matrix22 with values converted to column-major order
      */
-    static fromCopyArray9RowMajor(array: Array4<number>): Matrix22;
+    static _fromCopyArray4RowMajor(array: Array4<number>, type: FloatTypedArrayConstructor): IMatrix22;
     /**
      * Creates a new Matrix22 from a variable-length array in row-major order.
      * Only the first 4 elements are used.
@@ -477,5 +509,119 @@ export declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
      * @param array - Array containing matrix values in row-major order
      * @returns A new Matrix22 with values converted to column-major order
      */
+    static _fromCopyArrayRowMajor(array: Array<number>, type: FloatTypedArrayConstructor): IMatrix22;
+}
+/**
+ * Immutable 2x2 matrix with 32-bit float components.
+ * This is the standard precision implementation for most 2D graphics operations.
+ */
+export declare class Matrix22 extends Matrix22_<Float32ArrayConstructor> {
+    /**
+     * Creates a new Matrix22 instance.
+     * @param m - The typed array containing the matrix components
+     */
+    constructor(m: TypedArray);
+    /** Creates a zero matrix. */
+    static zero(): Matrix22;
+    /** Creates an identity matrix. */
+    static identity(): Matrix22;
+    /** Creates a dummy matrix with an empty array. */
+    static dummy(): Matrix22;
+    /** Creates the transpose of the given matrix. */
+    static transpose(mat: IMatrix22): Matrix22;
+    /** Attempts to invert the given matrix, returning null when it is singular. */
+    static tryInvert(mat: IMatrix22): Matrix22 | null;
+    /** Creates the inverse of the given matrix (identity when singular). */
+    static invert(mat: IMatrix22): Matrix22;
+    /** Attempts to invert the given matrix into outMat. */
+    static tryInvertTo<T extends IMutableMatrix22>(mat: IMatrix22, outMat: T): boolean;
+    /** Inverts the given matrix into outMat (identity when singular). */
+    static invertTo<T extends IMutableMatrix22>(mat: IMatrix22, outMat: T): T;
+    /** Creates a 2D rotation matrix. */
+    static rotate(radian: number): Matrix22;
+    /** Creates a 2D scaling matrix. */
+    static scale(vec: IVector2): Matrix22;
+    /** Multiplies two 2x2 matrices. */
+    static multiply(l_mat: IMatrix22, r_mat: IMatrix22): Matrix22;
+    /** Multiplies two matrices and stores the result in outMat. */
+    static multiplyTo<T extends IMutableMatrix22>(l_mat: IMatrix22, r_mat: IMatrix22, outMat: T): T;
+    /** Creates a matrix from row-major components. */
+    static fromCopy4RowMajor(m00: number, m01: number, m10: number, m11: number): Matrix22;
+    /** Creates a matrix from column-major components. */
+    static fromCopy4ColumnMajor(m00: number, m10: number, m01: number, m11: number): Matrix22;
+    /** Creates a matrix that directly uses the given Float32Array. */
+    static fromFloat32ArrayColumnMajor(array: Float32Array): Matrix22;
+    /** Creates a matrix by copying a Float32Array in column-major order. */
+    static fromCopyFloat32ArrayColumnMajor(array: Float32Array): Matrix22;
+    /** Creates a matrix by copying a Float32Array in row-major order. */
+    static fromCopyFloat32ArrayRowMajor(array: Float32Array): Matrix22;
+    /** Creates a matrix by copying another matrix. */
+    static fromCopyMatrix22(mat: IMatrix22): Matrix22;
+    /** Creates a matrix from a 4-element array in column-major order. */
+    static fromCopyArray9ColumnMajor(array: Array4<number>): Matrix22;
+    /** Creates a matrix from an array in column-major order. */
+    static fromCopyArrayColumnMajor(array: Array<number>): Matrix22;
+    /** Creates a matrix from a 4-element array in row-major order. */
+    static fromCopyArray9RowMajor(array: Array4<number>): Matrix22;
+    /** Creates a matrix from an array in row-major order. */
     static fromCopyArrayRowMajor(array: Array<number>): Matrix22;
 }
+/**
+ * Immutable 2x2 matrix with 64-bit float components.
+ * Use this implementation when higher numerical precision is required.
+ */
+export declare class Matrix22D extends Matrix22_<Float64ArrayConstructor> {
+    /**
+     * Creates a new Matrix22D instance.
+     * @param m - The typed array containing the matrix components
+     */
+    private constructor();
+    /** Creates a zero matrix. */
+    static zero(): Matrix22D;
+    /** Creates an identity matrix. */
+    static identity(): Matrix22D;
+    /** Creates a dummy matrix with an empty array. */
+    static dummy(): Matrix22D;
+    /** Creates the transpose of the given matrix. */
+    static transpose(mat: IMatrix22): Matrix22D;
+    /** Attempts to invert the given matrix, returning null when it is singular. */
+    static tryInvert(mat: IMatrix22): Matrix22D | null;
+    /** Creates the inverse of the given matrix (identity when singular). */
+    static invert(mat: IMatrix22): Matrix22D;
+    /** Attempts to invert the given matrix into outMat. */
+    static tryInvertTo<T extends IMutableMatrix22>(mat: IMatrix22, outMat: T): boolean;
+    /** Inverts the given matrix into outMat (identity when singular). */
+    static invertTo<T extends IMutableMatrix22>(mat: IMatrix22, outMat: T): T;
+    /** Creates a 2D rotation matrix. */
+    static rotate(radian: number): Matrix22D;
+    /** Creates a 2D scaling matrix. */
+    static scale(vec: IVector2): Matrix22D;
+    /** Multiplies two 2x2 matrices. */
+    static multiply(l_mat: IMatrix22, r_mat: IMatrix22): Matrix22D;
+    /** Multiplies two matrices and stores the result in outMat. */
+    static multiplyTo<T extends IMutableMatrix22>(l_mat: IMatrix22, r_mat: IMatrix22, outMat: T): T;
+    /** Creates a matrix from row-major components. */
+    static fromCopy4RowMajor(m00: number, m01: number, m10: number, m11: number): Matrix22D;
+    /** Creates a matrix from column-major components. */
+    static fromCopy4ColumnMajor(m00: number, m10: number, m01: number, m11: number): Matrix22D;
+    /** Creates a matrix that directly uses the given Float64Array. */
+    static fromFloat64ArrayColumnMajor(array: Float64Array): Matrix22D;
+    /** Creates a matrix by copying a Float64Array in column-major order. */
+    static fromCopyFloat64ArrayColumnMajor(array: Float64Array): Matrix22D;
+    /** Creates a matrix by copying a Float64Array in row-major order. */
+    static fromCopyFloat64ArrayRowMajor(array: Float64Array): Matrix22D;
+    /** Creates a matrix by copying another matrix. */
+    static fromCopyMatrix22(mat: IMatrix22): Matrix22D;
+    /** Creates a matrix from a 4-element array in column-major order. */
+    static fromCopyArray9ColumnMajor(array: Array4<number>): Matrix22D;
+    /** Creates a matrix from an array in column-major order. */
+    static fromCopyArrayColumnMajor(array: Array<number>): Matrix22D;
+    /** Creates a matrix from a 4-element array in row-major order. */
+    static fromCopyArray9RowMajor(array: Array4<number>): Matrix22D;
+    /** Creates a matrix from an array in row-major order. */
+    static fromCopyArrayRowMajor(array: Array<number>): Matrix22D;
+}
+/**
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
+ */
+export { Matrix22 as Matrix22F };

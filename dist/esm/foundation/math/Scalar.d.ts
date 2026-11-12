@@ -161,7 +161,7 @@ export declare class Scalar extends Scalar_<Float32ArrayConstructor> implements 
  * Provides higher precision than the standard Scalar class for applications
  * requiring double-precision arithmetic.
  */
-export declare class Scalard extends Scalar_<Float64ArrayConstructor> {
+export declare class ScalarD extends Scalar_<Float64ArrayConstructor> {
     /**
      * Creates a new 64-bit float scalar instance.
      * @param x - The typed array containing the scalar value
@@ -170,32 +170,31 @@ export declare class Scalard extends Scalar_<Float64ArrayConstructor> {
     /**
      * Creates a new double-precision scalar from a numeric value.
      * @param value - The numeric value to create the scalar from
-     * @returns A new Scalard instance
+     * @returns A new ScalarD instance
      */
-    static fromCopyNumber(value: number): Scalard;
+    static fromCopyNumber(value: number): ScalarD;
     /**
      * Creates a double-precision scalar with value zero.
-     * @returns A new Scalard instance with value 0
+     * @returns A new ScalarD instance with value 0
      */
-    static zero(): Scalard;
+    static zero(): ScalarD;
     /**
      * Creates a double-precision scalar with value one.
-     * @returns A new Scalard instance with value 1
+     * @returns A new ScalarD instance with value 1
      */
-    static one(): Scalard;
+    static one(): ScalarD;
     /**
      * Creates a dummy (uninitialized) double-precision scalar instance.
-     * @returns A new dummy Scalard instance
+     * @returns A new dummy ScalarD instance
      */
-    static dummy(): Scalard;
+    static dummy(): ScalarD;
     /**
      * Creates a deep copy of this double-precision scalar.
-     * @returns A new Scalard instance with the same value
+     * @returns A new ScalarD instance with the same value
      */
-    clone(): Scalard;
+    clone(): ScalarD;
 }
 /**
- * Type alias for the standard 32-bit float Scalar class.
- * Provides convenient naming for float-precision scalar operations.
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
  */
-export type Scalarf = Scalar;
+export { Scalar as ScalarF };

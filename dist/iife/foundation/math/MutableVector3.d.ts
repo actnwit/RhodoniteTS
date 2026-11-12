@@ -106,6 +106,8 @@ export declare class MutableVector3_<T extends FloatTypedArrayConstructor> exten
     /**
      * Normalizes this vector to unit length.
      * Modifies the vector in place to have a magnitude of 1.
+     * A zero-length vector stays a zero vector (an error is logged) instead of
+     * becoming `Infinity`/`NaN`.
      *
      * @returns This vector instance for method chaining
      */
@@ -145,7 +147,7 @@ export declare class MutableVector3_<T extends FloatTypedArrayConstructor> exten
     /**
      * Divides this vector by a scalar value.
      * Scales all components by 1/value and modifies this vector in place.
-     * If value is 0, sets all components to Infinity and logs an error.
+     * If value is 0, sets all components to 0 and logs an error.
      *
      * @param value - The scalar value to divide by
      * @returns This vector instance for method chaining
@@ -154,7 +156,7 @@ export declare class MutableVector3_<T extends FloatTypedArrayConstructor> exten
     /**
      * Divides this vector by another vector component-wise.
      * Performs element-wise division and modifies this vector in place.
-     * If any component of the divisor vector is 0, sets the corresponding component to Infinity.
+     * If any component of the divisor vector is 0, sets the corresponding component to 0.
      *
      * @param vec - The vector to divide by
      * @returns This vector instance for method chaining
@@ -400,9 +402,9 @@ export declare class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
  * Provides higher precision vector operations for applications requiring
  * greater numerical accuracy than 32-bit floats.
  */
-export declare class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
+export declare class MutableVector3D extends MutableVector3_<Float64ArrayConstructor> {
     /**
-     * Creates a new MutableVector3d instance.
+     * Creates a new MutableVector3D instance.
      *
      * @param x - The typed array containing the vector components
      */
@@ -412,26 +414,26 @@ export declare class MutableVector3d extends MutableVector3_<Float64ArrayConstru
      *
      * @returns A new zero vector
      */
-    static zero(): MutableVector3d;
+    static zero(): MutableVector3D;
     /**
      * Creates a unit vector (1, 1, 1) with double precision.
      *
      * @returns A new unit vector
      */
-    static one(): MutableVector3d;
+    static one(): MutableVector3D;
     /**
      * Creates a dummy vector for initialization purposes with double precision.
      *
      * @returns A new dummy vector
      */
-    static dummy(): MutableVector3d;
+    static dummy(): MutableVector3D;
     /**
      * Creates a normalized copy of the given vector with double precision.
      *
      * @param vec - The vector to normalize
      * @returns A new normalized vector
      */
-    static normalize(vec: IVector3): MutableVector3d;
+    static normalize(vec: IVector3): MutableVector3D;
     /**
      * Creates a new vector that is the sum of two vectors with double precision.
      *
@@ -439,7 +441,7 @@ export declare class MutableVector3d extends MutableVector3_<Float64ArrayConstru
      * @param r_vec - The right vector
      * @returns A new vector containing the sum
      */
-    static add(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
+    static add(l_vec: IVector3, r_vec: IVector3): MutableVector3D;
     /**
      * Creates a new vector that is the difference of two vectors with double precision.
      *
@@ -447,7 +449,7 @@ export declare class MutableVector3d extends MutableVector3_<Float64ArrayConstru
      * @param r_vec - The right vector (subtrahend)
      * @returns A new vector containing the difference
      */
-    static subtract(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
+    static subtract(l_vec: IVector3, r_vec: IVector3): MutableVector3D;
     /**
      * Creates a new vector that is the scalar multiplication of a vector with double precision.
      *
@@ -455,7 +457,7 @@ export declare class MutableVector3d extends MutableVector3_<Float64ArrayConstru
      * @param value - The scalar value
      * @returns A new scaled vector
      */
-    static multiply(vec: IVector3, value: number): MutableVector3d;
+    static multiply(vec: IVector3, value: number): MutableVector3D;
     /**
      * Creates a new vector that is the component-wise multiplication of two vectors with double precision.
      *
@@ -463,7 +465,7 @@ export declare class MutableVector3d extends MutableVector3_<Float64ArrayConstru
      * @param r_vec - The right vector
      * @returns A new vector containing the component-wise product
      */
-    static multiplyVector(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
+    static multiplyVector(l_vec: IVector3, r_vec: IVector3): MutableVector3D;
     /**
      * Creates a new vector that is the scalar division of a vector with double precision.
      *
@@ -471,7 +473,7 @@ export declare class MutableVector3d extends MutableVector3_<Float64ArrayConstru
      * @param value - The scalar divisor
      * @returns A new divided vector
      */
-    static divide(vec: IVector3, value: number): MutableVector3d;
+    static divide(vec: IVector3, value: number): MutableVector3D;
     /**
      * Creates a new vector that is the component-wise division of two vectors with double precision.
      *
@@ -479,7 +481,7 @@ export declare class MutableVector3d extends MutableVector3_<Float64ArrayConstru
      * @param r_vec - The divisor vector
      * @returns A new vector containing the component-wise quotient
      */
-    static divideVector(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
+    static divideVector(l_vec: IVector3, r_vec: IVector3): MutableVector3D;
     /**
      * Creates a new vector that is the cross product of two vectors with double precision.
      *
@@ -487,7 +489,7 @@ export declare class MutableVector3d extends MutableVector3_<Float64ArrayConstru
      * @param r_vec - The right vector
      * @returns A new vector containing the cross product
      */
-    static cross(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
+    static cross(l_vec: IVector3, r_vec: IVector3): MutableVector3D;
     /**
      * Creates a new vector by applying a quaternion rotation to a vector with double precision.
      *
@@ -495,7 +497,7 @@ export declare class MutableVector3d extends MutableVector3_<Float64ArrayConstru
      * @param vec - The vector to rotate
      * @returns A new rotated vector
      */
-    static multiplyQuaternion(quat: IQuaternion, vec: IVector3): MutableVector3d;
+    static multiplyQuaternion(quat: IQuaternion, vec: IVector3): MutableVector3D;
     /**
      * Creates a vector from three component values with double precision.
      *
@@ -504,28 +506,28 @@ export declare class MutableVector3d extends MutableVector3_<Float64ArrayConstru
      * @param z - The z component
      * @returns A new vector instance
      */
-    static fromCopy3(x: number, y: number, z: number): MutableVector3d;
+    static fromCopy3(x: number, y: number, z: number): MutableVector3D;
     /**
      * Creates a vector with all components set to the same value with double precision.
      *
      * @param val - The value for all components
      * @returns A new vector instance
      */
-    static fromCopy1(val: number): MutableVector3d;
+    static fromCopy1(val: number): MutableVector3D;
     /**
      * Creates a vector from a 3-element array with double precision.
      *
      * @param array - The array containing x, y, z values
      * @returns A new vector instance
      */
-    static fromCopyArray3(array: Array3<number>): MutableVector3d;
+    static fromCopyArray3(array: Array3<number>): MutableVector3D;
     /**
      * Creates a vector from an array, taking the first 3 elements with double precision.
      *
      * @param array - The array containing at least 3 values
      * @returns A new vector instance
      */
-    static fromCopyArray(array: Array<number>): MutableVector3d;
+    static fromCopyArray(array: Array<number>): MutableVector3D;
     /**
      * Rotates a vector around the X-axis and stores the result in the output vector with double precision.
      * Only the Y and Z components are affected by X-axis rotation.
@@ -534,7 +536,7 @@ export declare class MutableVector3d extends MutableVector3_<Float64ArrayConstru
      * @param radian - The rotation angle in radians
      * @param outVec - The output vector to store the result
      */
-    static rotateX(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
+    static rotateX(vec3: IVector3, radian: number, outVec: MutableVector3D): void;
     /**
      * Rotates a vector around the Y-axis and stores the result in the output vector with double precision.
      * Only the X and Z components are affected by Y-axis rotation.
@@ -543,7 +545,7 @@ export declare class MutableVector3d extends MutableVector3_<Float64ArrayConstru
      * @param radian - The rotation angle in radians
      * @param outVec - The output vector to store the result
      */
-    static rotateY(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
+    static rotateY(vec3: IVector3, radian: number, outVec: MutableVector3D): void;
     /**
      * Rotates a vector around the Z-axis and stores the result in the output vector with double precision.
      * Only the X and Y components are affected by Z-axis rotation.
@@ -552,15 +554,15 @@ export declare class MutableVector3d extends MutableVector3_<Float64ArrayConstru
      * @param radian - The rotation angle in radians
      * @param outVec - The output vector to store the result
      */
-    static rotateZ(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
+    static rotateZ(vec3: IVector3, radian: number, outVec: MutableVector3D): void;
     /**
      * Creates a copy of this vector with double precision.
      *
      * @returns A new vector instance with the same values
      */
-    clone(): MutableVector3d;
+    clone(): MutableVector3D;
 }
 /**
- * Type alias for MutableVector3 with single precision (32-bit) floating point components.
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
  */
-export type MutableVector3f = MutableVector3;
+export { MutableVector3 as MutableVector3F };

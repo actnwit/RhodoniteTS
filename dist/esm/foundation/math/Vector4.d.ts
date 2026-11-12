@@ -309,7 +309,7 @@ export declare class Vector4_<T extends FloatTypedArrayConstructor> extends Abst
     static multiplyVectorTo(l_vec: IVector4, r_vec: IVector4, out: IMutableVector4): IMutableVector4;
     /**
      * Divides a vector by a scalar value and returns a new vector.
-     * If the divisor is zero, the result components will be set to Infinity and an error will be logged.
+     * If the divisor is zero, the result components will be set to 0 and an error will be logged.
      *
      * @param vec - The vector to divide
      * @param value - The scalar value to divide by
@@ -320,7 +320,7 @@ export declare class Vector4_<T extends FloatTypedArrayConstructor> extends Abst
     static _divide(vec: IVector4, value: number, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
     /**
      * Divides a vector by a scalar value and stores the result in the output vector.
-     * If the divisor is zero, the result components will be set to Infinity and an error will be logged.
+     * If the divisor is zero, the result components will be set to 0 and an error will be logged.
      * This method modifies the output vector in-place for better performance.
      *
      * @param vec - The vector to divide
@@ -332,7 +332,7 @@ export declare class Vector4_<T extends FloatTypedArrayConstructor> extends Abst
     static divideTo(vec: IVector4, value: number, out: IMutableVector4): IMutableVector4;
     /**
      * Divides the left vector by the right vector component-wise and returns a new vector.
-     * If any component of the right vector is zero, the corresponding result component will be set to Infinity.
+     * If any component of the right vector is zero, the corresponding result component will be set to 0.
      *
      * @param l_vec - The left operand vector (dividend)
      * @param r_vec - The right operand vector (divisor)
@@ -343,7 +343,7 @@ export declare class Vector4_<T extends FloatTypedArrayConstructor> extends Abst
     static _divideVector(l_vec: IVector4, r_vec: IVector4, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
     /**
      * Divides the left vector by the right vector component-wise and stores the result in the output vector.
-     * If any component of the right vector is zero, the corresponding result component will be set to Infinity.
+     * If any component of the right vector is zero, the corresponding result component will be set to 0.
      * This method modifies the output vector in-place for better performance.
      *
      * @param l_vec - The left operand vector (dividend)
@@ -635,7 +635,7 @@ export declare class Vector4 extends Vector4_<Float32ArrayConstructor> {
     static multiplyVector(l_vec: IVector4, r_vec: IVector4): Vector4;
     /**
      * Divides a vector by a scalar value and returns a new vector.
-     * If the divisor is zero, the result components will be set to Infinity and an error will be logged.
+     * If the divisor is zero, the result components will be set to 0 and an error will be logged.
      *
      * @param vec - The vector to divide
      * @param value - The scalar value to divide by
@@ -645,7 +645,7 @@ export declare class Vector4 extends Vector4_<Float32ArrayConstructor> {
     static divide(vec: IVector4, value: number): Vector4;
     /**
      * Divides the left vector by the right vector component-wise and returns a new vector.
-     * If any component of the right vector is zero, the corresponding result component will be set to Infinity.
+     * If any component of the right vector is zero, the corresponding result component will be set to 0.
      *
      * @param l_vec - The left operand vector (dividend)
      * @param r_vec - The right operand vector (divisor)
@@ -669,168 +669,163 @@ export declare class Vector4 extends Vector4_<Float32ArrayConstructor> {
  *
  * @example Basic usage:
  * ```typescript
- * const vec1 = Vector4d.fromCopy4(1.0, 2.0, 3.0, 1.0);
- * const vec2 = Vector4d.fromCopyArray4([2.0, 3.0, 3.0, 1.0]);
+ * const vec1 = Vector4D.fromCopy4(1.0, 2.0, 3.0, 1.0);
+ * const vec2 = Vector4D.fromCopyArray4([2.0, 3.0, 3.0, 1.0]);
  * const dotProduct = vec1.dot(vec2);
- * const sum = Vector4d.add(vec1, vec2);
+ * const sum = Vector4D.add(vec1, vec2);
  * ```
  */
-export declare class Vector4d extends Vector4_<Float64ArrayConstructor> {
+export declare class Vector4D extends Vector4_<Float64ArrayConstructor> {
     /**
-     * Creates a new Vector4d instance from a Float64Array.
+     * Creates a new Vector4D instance from a Float64Array.
      *
      * @param x - The Float64Array containing vector components
      * @private This constructor is private to prevent direct instantiation
      */
     private constructor();
     /**
-     * Creates a new Vector4d from a 4-element array by copying the values.
+     * Creates a new Vector4D from a 4-element array by copying the values.
      *
      * @param array - Array containing exactly 4 numeric values [x, y, z, w]
-     * @returns A new Vector4d instance with the copied values
+     * @returns A new Vector4D instance with the copied values
      * @static
      */
-    static fromCopyArray4(array: Array4<number>): Vector4d;
+    static fromCopyArray4(array: Array4<number>): Vector4D;
     /**
-     * Creates a new Vector4d from individual component values.
+     * Creates a new Vector4D from individual component values.
      *
      * @param x - The X component value
      * @param y - The Y component value
      * @param z - The Z component value
      * @param w - The W component value
-     * @returns A new Vector4d instance with the specified component values
+     * @returns A new Vector4D instance with the specified component values
      * @static
      */
-    static fromCopy4(x: number, y: number, z: number, w: number): Vector4d;
+    static fromCopy4(x: number, y: number, z: number, w: number): Vector4D;
     /**
-     * Creates a new Vector4d by copying values from an array.
+     * Creates a new Vector4D by copying values from an array.
      * Takes the first 4 elements from the array. If the array has fewer than 4 elements,
      * the remaining components will be undefined.
      *
      * @param array - Array containing numeric values (at least 4 elements recommended)
-     * @returns A new Vector4d instance with copied values
+     * @returns A new Vector4D instance with copied values
      * @static
      */
-    static fromCopyArray(array: Array4<number>): Vector4d;
+    static fromCopyArray(array: Array4<number>): Vector4D;
     /**
-     * Creates a new Vector4d from an ArrayBuffer.
+     * Creates a new Vector4D from an ArrayBuffer.
      * The ArrayBuffer should contain at least 32 bytes (4 float64 values).
      *
      * @param arrayBuffer - The ArrayBuffer containing vector data
-     * @returns A new Vector4d instance using the ArrayBuffer data
+     * @returns A new Vector4D instance using the ArrayBuffer data
      * @static
      */
-    static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector4d;
+    static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector4D;
     /**
-     * Creates a new Vector4d from a Float64Array.
+     * Creates a new Vector4D from a Float64Array.
      * The Float64Array is used directly without copying.
      *
      * @param float64Array - The Float64Array containing vector components
-     * @returns A new Vector4d instance using the provided Float64Array
+     * @returns A new Vector4D instance using the provided Float64Array
      * @static
      */
-    static fromFloat64Array(float64Array: Float64Array): Vector4d;
+    static fromFloat64Array(float64Array: Float64Array): Vector4D;
     /**
      * Creates a zero vector (0, 0, 0, 0).
      *
-     * @returns A new Vector4d with all components set to zero
+     * @returns A new Vector4D with all components set to zero
      * @static
      */
-    static zero(): Vector4d;
+    static zero(): Vector4D;
     /**
      * Creates a vector with all components set to 1 (1, 1, 1, 1).
      *
-     * @returns A new Vector4d with all components set to 1
+     * @returns A new Vector4D with all components set to 1
      * @static
      */
-    static one(): Vector4d;
+    static one(): Vector4D;
     /**
      * Creates a dummy vector with no components (empty array).
      * This is used as a placeholder when a vector is needed but not yet initialized.
      *
-     * @returns A new dummy Vector4d with empty components
+     * @returns A new dummy Vector4D with empty components
      * @static
      */
-    static dummy(): Vector4d;
+    static dummy(): Vector4D;
     /**
      * Creates a normalized version of the given vector.
      * A normalized vector has a length of 1 while maintaining its direction.
      *
      * @param vec - The vector to normalize
-     * @returns A new normalized Vector4d
+     * @returns A new normalized Vector4D
      * @static
      */
-    static normalize(vec: IVector4): Vector4d;
+    static normalize(vec: IVector4): Vector4D;
     /**
      * Adds two vectors component-wise and returns a new vector.
      *
      * @param l_vec - The left operand vector
      * @param r_vec - The right operand vector
-     * @returns A new Vector4d containing the sum (l_vec + r_vec)
+     * @returns A new Vector4D containing the sum (l_vec + r_vec)
      * @static
      */
-    static add(l_vec: IVector4, r_vec: IVector4): Vector4d;
+    static add(l_vec: IVector4, r_vec: IVector4): Vector4D;
     /**
      * Subtracts the right vector from the left vector component-wise and returns a new vector.
      *
      * @param l_vec - The left operand vector (minuend)
      * @param r_vec - The right operand vector (subtrahend)
-     * @returns A new Vector4d containing the difference (l_vec - r_vec)
+     * @returns A new Vector4D containing the difference (l_vec - r_vec)
      * @static
      */
-    static subtract(l_vec: IVector4, r_vec: IVector4): Vector4d;
+    static subtract(l_vec: IVector4, r_vec: IVector4): Vector4D;
     /**
      * Multiplies a vector by a scalar value and returns a new vector.
      * This operation scales the vector while preserving its direction.
      *
      * @param vec - The vector to multiply
      * @param value - The scalar value to multiply by
-     * @returns A new Vector4d with each component multiplied by the scalar
+     * @returns A new Vector4D with each component multiplied by the scalar
      * @static
      */
-    static multiply(vec: IVector4, value: number): Vector4d;
+    static multiply(vec: IVector4, value: number): Vector4D;
     /**
      * Multiplies two vectors component-wise and returns a new vector.
      * This is also known as the Hadamard product or element-wise multiplication.
      *
      * @param l_vec - The left operand vector
      * @param r_vec - The right operand vector
-     * @returns A new Vector4d with each component being the product of corresponding components
+     * @returns A new Vector4D with each component being the product of corresponding components
      * @static
      */
-    static multiplyVector(l_vec: IVector4, r_vec: IVector4): Vector4d;
+    static multiplyVector(l_vec: IVector4, r_vec: IVector4): Vector4D;
     /**
      * Divides a vector by a scalar value and returns a new vector.
-     * If the divisor is zero, the result components will be set to Infinity and an error will be logged.
+     * If the divisor is zero, the result components will be set to 0 and an error will be logged.
      *
      * @param vec - The vector to divide
      * @param value - The scalar value to divide by
-     * @returns A new Vector4d with each component divided by the scalar
+     * @returns A new Vector4D with each component divided by the scalar
      * @static
      */
-    static divide(vec: IVector4, value: number): Vector4d;
+    static divide(vec: IVector4, value: number): Vector4D;
     /**
      * Divides the left vector by the right vector component-wise and returns a new vector.
-     * If any component of the right vector is zero, the corresponding result component will be set to Infinity.
+     * If any component of the right vector is zero, the corresponding result component will be set to 0.
      *
      * @param l_vec - The left operand vector (dividend)
      * @param r_vec - The right operand vector (divisor)
-     * @returns A new Vector4d with component-wise division result
+     * @returns A new Vector4D with component-wise division result
      * @static
      */
-    static divideVector(l_vec: IVector4, r_vec: IVector4): Vector4d;
+    static divideVector(l_vec: IVector4, r_vec: IVector4): Vector4D;
     /**
      * Creates a deep copy of this vector.
      *
-     * @returns A new Vector4d instance with the same component values
+     * @returns A new Vector4D instance with the same component values
      */
-    clone(): Vector4d;
+    clone(): Vector4D;
 }
-/**
- * Type alias for Vector4 to provide a consistent naming convention.
- * Vector4f explicitly indicates 32-bit float precision.
- */
-export type Vector4f = Vector4;
 /**
  * Constant Vector4 with all components set to 1 (1, 1, 1, 1).
  * Useful for initialization and mathematical operations.
@@ -846,3 +841,7 @@ export declare const ConstVector4_0_0_0_1: Vector4;
  * Represents the zero vector or null vector.
  */
 export declare const ConstVector4_0_0_0_0: Vector4;
+/**
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
+ */
+export { Vector4 as Vector4F };

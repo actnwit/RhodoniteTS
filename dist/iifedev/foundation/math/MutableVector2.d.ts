@@ -132,7 +132,7 @@ export declare class MutableVector2_<T extends FloatTypedArrayConstructor> exten
     multiplyVector(vec: IVector2): this;
     /**
      * Divides this vector by a scalar value (modifies this vector in place).
-     * If the divisor is zero, sets components to Infinity and logs an error.
+     * If the divisor is zero, sets components to 0 and logs an error.
      *
      * @param value - The scalar value to divide by
      * @returns This vector instance for method chaining
@@ -140,7 +140,7 @@ export declare class MutableVector2_<T extends FloatTypedArrayConstructor> exten
     divide(value: number): this;
     /**
      * Divides this vector component-wise by another vector (modifies this vector in place).
-     * If any component of the divisor is zero, sets that component to Infinity and logs an error.
+     * If any component of the divisor is zero, sets that component to 0 and logs an error.
      *
      * @param vec - The vector to divide by
      * @returns This vector instance for method chaining
@@ -293,11 +293,11 @@ export declare class MutableVector2 extends MutableVector2_<Float32ArrayConstruc
  *
  * @example
  * ```typescript
- * const vec = MutableVector2d.zero();
+ * const vec = MutableVector2D.zero();
  * vec.setComponents(1.23456789012345, 2.34567890123456);
  * ```
  */
-export declare class MutableVector2d extends MutableVector2_<Float64ArrayConstructor> {
+export declare class MutableVector2D extends MutableVector2_<Float64ArrayConstructor> {
     /**
      * Creates a new mutable 2D vector with 64-bit float components.
      *
@@ -308,91 +308,90 @@ export declare class MutableVector2d extends MutableVector2_<Float64ArrayConstru
      * Creates a new vector from a 2-element array by copying the values.
      *
      * @param array - A 2-element array containing [x, y] components
-     * @returns A new MutableVector2d instance
+     * @returns A new MutableVector2D instance
      */
-    static fromCopyArray(array: Array2<number>): MutableVector2d;
+    static fromCopyArray(array: Array2<number>): MutableVector2D;
     /**
      * Creates a zero vector (0, 0) with double precision.
      *
-     * @returns A new MutableVector2d instance with zero components
+     * @returns A new MutableVector2D instance with zero components
      */
-    static zero(): MutableVector2d;
+    static zero(): MutableVector2D;
     /**
      * Creates a vector with all components set to one (1, 1) with double precision.
      *
-     * @returns A new MutableVector2d instance with components set to 1
+     * @returns A new MutableVector2D instance with components set to 1
      */
-    static one(): MutableVector2d;
+    static one(): MutableVector2D;
     /**
      * Creates a dummy vector for placeholder purposes with double precision.
      *
-     * @returns A new MutableVector2d instance
+     * @returns A new MutableVector2D instance
      */
-    static dummy(): MutableVector2d;
+    static dummy(): MutableVector2D;
     /**
      * Creates a normalized copy of the given vector with double precision.
      *
      * @param vec - The vector to normalize
-     * @returns A new normalized MutableVector2d instance
+     * @returns A new normalized MutableVector2D instance
      */
-    static normalize(vec: IVector2): MutableVector2d;
+    static normalize(vec: IVector2): MutableVector2D;
     /**
      * Creates a new vector by adding two vectors with double precision.
      *
      * @param l_vec - The left operand vector
      * @param r_vec - The right operand vector
-     * @returns A new MutableVector2d instance containing the sum
+     * @returns A new MutableVector2D instance containing the sum
      */
-    static add(l_vec: IVector2, r_vec: IVector2): MutableVector2d;
+    static add(l_vec: IVector2, r_vec: IVector2): MutableVector2D;
     /**
      * Creates a new vector by subtracting the second vector from the first with double precision.
      *
      * @param l_vec - The vector to subtract from
      * @param r_vec - The vector to subtract
-     * @returns A new MutableVector2d instance containing the difference
+     * @returns A new MutableVector2D instance containing the difference
      */
-    static subtract(l_vec: IVector2, r_vec: IVector2): MutableVector2d;
+    static subtract(l_vec: IVector2, r_vec: IVector2): MutableVector2D;
     /**
      * Creates a new vector by multiplying a vector by a scalar with double precision.
      *
      * @param vec - The vector to multiply
      * @param value - The scalar value to multiply by
-     * @returns A new MutableVector2d instance containing the scaled vector
+     * @returns A new MutableVector2D instance containing the scaled vector
      */
-    static multiply(vec: IVector2, value: number): MutableVector2d;
+    static multiply(vec: IVector2, value: number): MutableVector2D;
     /**
      * Creates a new vector by multiplying two vectors component-wise with double precision.
      *
      * @param l_vec - The left operand vector
      * @param r_vec - The right operand vector
-     * @returns A new MutableVector2d instance containing the component-wise product
+     * @returns A new MutableVector2D instance containing the component-wise product
      */
-    static multiplyVector(l_vec: IVector2, r_vec: IVector2): MutableVector2d;
+    static multiplyVector(l_vec: IVector2, r_vec: IVector2): MutableVector2D;
     /**
      * Creates a new vector by dividing a vector by a scalar with double precision.
      *
      * @param vec - The vector to divide
      * @param value - The scalar value to divide by
-     * @returns A new MutableVector2d instance containing the divided vector
+     * @returns A new MutableVector2D instance containing the divided vector
      */
-    static divide(vec: IVector2, value: number): MutableVector2d;
+    static divide(vec: IVector2, value: number): MutableVector2D;
     /**
      * Creates a new vector by dividing two vectors component-wise with double precision.
      *
      * @param l_vec - The dividend vector
      * @param r_vec - The divisor vector
-     * @returns A new MutableVector2d instance containing the component-wise quotient
+     * @returns A new MutableVector2D instance containing the component-wise quotient
      */
-    static divideVector(l_vec: IVector2, r_vec: IVector2): MutableVector2d;
+    static divideVector(l_vec: IVector2, r_vec: IVector2): MutableVector2D;
     /**
      * Creates a deep copy of this vector with double precision.
      *
-     * @returns A new MutableVector2d instance with the same component values
+     * @returns A new MutableVector2D instance with the same component values
      */
-    clone(): MutableVector2d;
+    clone(): MutableVector2D;
 }
 /**
- * Type alias for MutableVector2 using 32-bit float components.
- * Provides a more explicit name for single-precision mutable vectors.
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
  */
-export type MutableVector2f = MutableVector2;
+export { MutableVector2 as MutableVector2F };

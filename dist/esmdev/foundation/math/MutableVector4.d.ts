@@ -151,7 +151,7 @@ export declare class MutableVector4_<T extends FloatTypedArrayConstructor> exten
     multiplyVector(vec: IVector4): this;
     /**
      * Divides this vector by a scalar value.
-     * If the value is zero, sets components to Infinity and logs an error.
+     * If the value is zero, sets components to 0 and logs an error.
      *
      * @param value - The scalar value to divide by
      * @returns This vector instance for method chaining
@@ -159,7 +159,7 @@ export declare class MutableVector4_<T extends FloatTypedArrayConstructor> exten
     divide(value: number): this;
     /**
      * Divides this vector by another vector component-wise.
-     * If any component of the divisor is zero, sets the corresponding result to Infinity.
+     * If any component of the divisor is zero, sets the corresponding result to 0.
      *
      * @param vec - The vector to divide by
      * @returns This vector instance for method chaining
@@ -301,9 +301,9 @@ export declare class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
  * Mutable 4D vector class with 64-bit float components.
  * Provides higher precision arithmetic compared to MutableVector4.
  */
-export declare class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
+export declare class MutableVector4D extends MutableVector4_<Float64ArrayConstructor> {
     /**
-     * Creates a new MutableVector4d instance.
+     * Creates a new MutableVector4D instance.
      *
      * @param x - Float64Array containing the vector components [x, y, z, w]
      */
@@ -311,109 +311,109 @@ export declare class MutableVector4d extends MutableVector4_<Float64ArrayConstru
     /**
      * Creates a zero vector (0, 0, 0, 0) with 64-bit precision.
      *
-     * @returns A new MutableVector4d with all components set to 0
+     * @returns A new MutableVector4D with all components set to 0
      */
-    static zero(): MutableVector4d;
+    static zero(): MutableVector4D;
     /**
      * Creates a vector with all components set to 1 (1, 1, 1, 1) with 64-bit precision.
      *
-     * @returns A new MutableVector4d with all components set to 1
+     * @returns A new MutableVector4D with all components set to 1
      */
-    static one(): MutableVector4d;
+    static one(): MutableVector4D;
     /**
      * Creates a dummy vector for placeholder purposes with 64-bit precision.
      *
-     * @returns A new MutableVector4d dummy instance
+     * @returns A new MutableVector4D dummy instance
      */
-    static dummy(): MutableVector4d;
+    static dummy(): MutableVector4D;
     /**
      * Creates a normalized copy of the given vector with 64-bit precision.
      *
      * @param vec - The vector to normalize
-     * @returns A new normalized MutableVector4d
+     * @returns A new normalized MutableVector4D
      */
-    static normalize(vec: IVector4): MutableVector4d;
+    static normalize(vec: IVector4): MutableVector4D;
     /**
      * Creates a new vector by adding two vectors component-wise with 64-bit precision.
      *
      * @param l_vec - The left operand vector
      * @param r_vec - The right operand vector
-     * @returns A new MutableVector4d containing the sum
+     * @returns A new MutableVector4D containing the sum
      */
-    static add(l_vec: IVector4, r_vec: IVector4): MutableVector4d;
+    static add(l_vec: IVector4, r_vec: IVector4): MutableVector4D;
     /**
      * Creates a new vector by subtracting the second vector from the first with 64-bit precision.
      *
      * @param l_vec - The vector to subtract from
      * @param r_vec - The vector to subtract
-     * @returns A new MutableVector4d containing the difference
+     * @returns A new MutableVector4D containing the difference
      */
-    static subtract(l_vec: IVector4, r_vec: IVector4): MutableVector4d;
+    static subtract(l_vec: IVector4, r_vec: IVector4): MutableVector4D;
     /**
      * Creates a new vector by multiplying a vector by a scalar with 64-bit precision.
      *
      * @param vec - The vector to multiply
      * @param value - The scalar value to multiply by
-     * @returns A new MutableVector4d containing the scaled vector
+     * @returns A new MutableVector4D containing the scaled vector
      */
-    static multiply(vec: IVector4, value: number): MutableVector4d;
+    static multiply(vec: IVector4, value: number): MutableVector4D;
     /**
      * Creates a new vector by multiplying two vectors component-wise with 64-bit precision.
      *
      * @param l_vec - The left operand vector
      * @param r_vec - The right operand vector
-     * @returns A new MutableVector4d containing the component-wise product
+     * @returns A new MutableVector4D containing the component-wise product
      */
-    static multiplyVector(l_vec: IVector4, r_vec: IVector4): MutableVector4d;
+    static multiplyVector(l_vec: IVector4, r_vec: IVector4): MutableVector4D;
     /**
      * Creates a new vector by dividing a vector by a scalar with 64-bit precision.
      *
      * @param vec - The vector to divide
      * @param value - The scalar value to divide by
-     * @returns A new MutableVector4d containing the divided vector
+     * @returns A new MutableVector4D containing the divided vector
      */
-    static divide(vec: IVector4, value: number): MutableVector4d;
+    static divide(vec: IVector4, value: number): MutableVector4D;
     /**
      * Creates a new vector by dividing two vectors component-wise with 64-bit precision.
      *
      * @param l_vec - The dividend vector
      * @param r_vec - The divisor vector
-     * @returns A new MutableVector4d containing the component-wise quotient
+     * @returns A new MutableVector4D containing the component-wise quotient
      */
-    static divideVector(l_vec: IVector4, r_vec: IVector4): MutableVector4d;
+    static divideVector(l_vec: IVector4, r_vec: IVector4): MutableVector4D;
     /**
-     * Creates a new MutableVector4d from a 4-element array with 64-bit precision.
+     * Creates a new MutableVector4D from a 4-element array with 64-bit precision.
      *
      * @param array - Array of exactly 4 numbers [x, y, z, w]
-     * @returns A new MutableVector4d instance
+     * @returns A new MutableVector4D instance
      */
-    static fromCopyArray4(array: Array4<number>): MutableVector4d;
+    static fromCopyArray4(array: Array4<number>): MutableVector4D;
     /**
-     * Creates a new MutableVector4d from an array of numbers with 64-bit precision.
+     * Creates a new MutableVector4D from an array of numbers with 64-bit precision.
      * Takes up to 4 elements from the array.
      *
      * @param array - Array of numbers to copy from
-     * @returns A new MutableVector4d instance
+     * @returns A new MutableVector4D instance
      */
-    static fromCopyArray(array: Array<number>): MutableVector4d;
+    static fromCopyArray(array: Array<number>): MutableVector4D;
     /**
-     * Creates a new MutableVector4d from individual component values with 64-bit precision.
+     * Creates a new MutableVector4D from individual component values with 64-bit precision.
      *
      * @param x - The x component
      * @param y - The y component
      * @param z - The z component
      * @param w - The w component
-     * @returns A new MutableVector4d instance
+     * @returns A new MutableVector4D instance
      */
-    static fromCopy4(x: number, y: number, z: number, w: number): MutableVector4d;
+    static fromCopy4(x: number, y: number, z: number, w: number): MutableVector4D;
     /**
      * Creates a deep copy of this vector with 64-bit precision.
      *
-     * @returns A new MutableVector4d instance with copied values
+     * @returns A new MutableVector4D instance with copied values
      */
-    clone(): MutableVector4d;
+    clone(): MutableVector4D;
 }
 /**
- * Type alias for MutableVector4 to indicate 32-bit float precision.
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
  */
-export type MutableVector4f = MutableVector4;
+export { MutableVector4 as MutableVector4F };

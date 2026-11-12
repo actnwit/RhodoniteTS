@@ -14,6 +14,30 @@ declare function radianToDegree(rad: number): number;
  */
 declare function degreeToRadian(deg: number): number;
 /**
+ * Encode a quaternion (x, y, z, w) into a 64-bit log-quaternion.
+ * Returns [lo, hi] as unsigned 32-bit integers.
+ */
+export declare function encodeLogQuat(qx: number, qy: number, qz: number, qw: number): number[];
+/**
+ * Checks whether a determinant should be treated as zero.
+ *
+ * A plain `det === 0` test only catches exactly singular matrices. In practice
+ * a matrix whose determinant is tiny compared with its scale is just as
+ * dangerous, because its inverse amplifies rounding errors into garbage.
+ *
+ * @param det - The determinant of the matrix
+ * @param scale - The product of the row norms of the matrix (Hadamard bound)
+ * @param epsilon - The relative tolerance (defaults to the Float32 threshold)
+ * @returns True if the matrix should be considered singular
+ */
+declare function isSingularDet(det: number, scale: number, epsilon?: number): boolean;
+/**
+ * Returns the relative singularity tolerance for a typed array element size.
+ * @param bytesPerElement - 4 for Float32Array, 8 for Float64Array
+ * @returns The relative tolerance to use
+ */
+declare function getSingularEpsilon(bytesPerElement: number): number;
+/**
  * Converts a 32-bit floating point number to a 16-bit half-precision float.
  * This implementation is based on the OpenEXR half-precision format with additional rounding.
  * Implementation reference: https://gamedev.stackexchange.com/questions/17326/conversion-of-a-number-from-single-precision-floating-point-representation-to-a/17410#17410
@@ -44,6 +68,29 @@ declare function isPowerOfTwoTexture(width: Size, height: Size): boolean;
  * @returns A 2-element array containing the packed values
  */
 declare function packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, criteria: number): number[];
+declare function packSnormVec4ToUVec2(x: number, y: number, z: number, w: number): number[];
+/**
+ * Checks whether the given three scale components are (almost) uniform.
+ * The signs are ignored (only the magnitudes are compared).
+ *
+ * @param x - The x component of the scale
+ * @param y - The y component of the scale
+ * @param z - The z component of the scale
+ * @returns True if the scale is uniform
+ */
+declare function isUniformScale(x: number, y: number, z: number): boolean;
+/**
+ * Encodes the magnitude of a uniform scale for the Vec4x1 bone data type.
+ *
+ * The scale is stored as log2(scale) / 16 in a snorm16 value, and shaders decode it with exp2(value * 16).
+ * The relative error is therefore constant (at most about 1.7e-4) over 2^-16 .. 2^16, and 1.0 is exact.
+ * Scales out of the range are clamped by the snorm packing: a zero scale (often used to hide a part of a mesh)
+ * becomes 2^-16, which keeps the mesh invisible while keeping the skinning matrix invertible for normals.
+ *
+ * @param scale - The magnitude of the uniform scale (>= 0)
+ * @returns The value to be packed as snorm16 (it may be out of [-1, 1]; the packing clamps it)
+ */
+declare function encodeVec4x1Scale(scale: number): number;
 /**
  * Calculates the cumulative distribution function (CDF) for a Gaussian distribution.
  * @param x - The value at which to evaluate the CDF
@@ -138,10 +185,18 @@ declare function computeGaussianDistributionRatioWhoseSumIsOne({ kernelSize, var
 export declare const MathUtil: Readonly<{
     radianToDegree: typeof radianToDegree;
     degreeToRadian: typeof degreeToRadian;
+    encodeLogQuat: typeof encodeLogQuat;
+    isSingularDet: typeof isSingularDet;
+    getSingularEpsilon: typeof getSingularEpsilon;
+    SINGULAR_EPSILON: 0.000001;
+    SINGULAR_EPSILON_FLOAT64: 1e-12;
     toHalfFloat: typeof toHalfFloat;
     isPowerOfTwo: typeof isPowerOfTwo;
     isPowerOfTwoTexture: typeof isPowerOfTwoTexture;
     packNormalizedVec4ToVec2: typeof packNormalizedVec4ToVec2;
+    packSnormVec4ToUVec2: typeof packSnormVec4ToUVec2;
+    isUniformScale: typeof isUniformScale;
+    encodeVec4x1Scale: typeof encodeVec4x1Scale;
     convertToStringAsGLSLFloat: typeof convertToStringAsGLSLFloat;
     nearZeroToZero: typeof nearZeroToZero;
     gaussianCdf: typeof gaussianCdf;

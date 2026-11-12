@@ -1,4 +1,4 @@
-import type { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
+import { type ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import { type CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import type { ComponentSID, Count, EntityUID, IndexOf16Bytes } from '../../types/CommonTypes';
 import type { ComponentToComponentMethods } from '../components/ComponentTypes';
@@ -29,6 +29,15 @@ export type MemberInfo = {
     componentType: ComponentTypeEnum;
     initValues: number[] | VectorN;
     convertToBool?: boolean;
+    /**
+     * Multiplier applied to the uniform array length in uniform mode
+     * (the array length becomes Config.maxSkeletalBoneNumberForUniformMode * this value).
+     */
+    uniformArrayLengthMultiplier?: number;
+    /**
+     * Whether this array member has a per-instance length (see `Component.registerMember`).
+     */
+    isVariableLength?: boolean;
 };
 type MemberName = string;
 /**
@@ -165,12 +174,45 @@ export declare class Component extends RnObject {
      * @param memberName - The name of the member field
      * @param dataClassType - The data class type for the member
      * @param initValues - Initial values to set for the member
-     * @param isReUse - Whether to reuse an existing memory slot
+     * @param _isReUse - Whether this component is being reused (the existing slot is detected from the accessor)
      * @param componentSid - The component scoped ID
      * @param componentCountPerBufferView - The number of components per buffer view
      * @returns null on success
      */
     private __takeOne;
+    /**
+     * Allocates memory for a variable-length array member of this component instance.
+     *
+     * Unlike fixed members, the data is not placed in the slot layout shared by the components of a buffer view.
+     * Each instance gets its own chunk sized by `_getArrayLengthForAllocation`, and the location of the chunk
+     * (index of 16 bytes in the GPU data) is written to the `${memberName}Location` member so that shaders can find it.
+     * The chunk is kept per component SID and reused when it is large enough.
+     *
+     * @param info - The member info of the variable-length array member
+     * @param componentSid - The component scoped ID
+     */
+    private __takeVariableLengthOne;
+    /**
+     * Creates a new chunk of memory for a variable-length array member.
+     *
+     * @param engine - The engine instance
+     * @param bufferUse - The intended use of the buffer
+     * @param byteLength - The byte length of the chunk
+     * @returns The created chunk
+     */
+    private static __createVariableLengthChunk;
+    /**
+     * The radix used to split the location of a variable-length array member into two floats
+     * (`location = x * radix + y`), so that both are exactly representable as 32-bit floats.
+     */
+    static readonly _variableLengthLocationRadix = 65536;
+    /**
+     * Gets the name of the member which holds the location of a variable-length array member.
+     *
+     * @param memberName - The name of the variable-length array member
+     * @returns The name of the location member
+     */
+    static _getVariableLengthLocationMemberName(memberName: string): string;
     /**
      * Gets the ComponentMemoryRegistry for this component's engine.
      */
@@ -195,6 +237,11 @@ export declare class Component extends RnObject {
      * Registers a member field of the component class for memory allocation.
      * This method defines the memory layout and characteristics of component data members.
      *
+     * Variable-length array members (`isVariableLength: true`) are allocated per instance with the length
+     * returned by `_getArrayLengthForAllocation`, instead of the fixed slot layout shared by the components
+     * of a buffer view. Shaders find the data through a Vec4 member named `${memberName}Location`,
+     * which must be registered before the variable-length member.
+     *
      * @param bufferUse - The intended purpose/type of buffer use
      * @param memberName - The name of the member field
      * @param dataClassType - The class type of the data
@@ -202,8 +249,10 @@ export declare class Component extends RnObject {
      * @param componentType - The primitive data type (e.g., Float32, Int32)
      * @param initValues - Initial values for the member field
      * @param convertToBool - Whether to convert the member value to a boolean
+     * @param uniformArrayLengthMultiplier - Multiplier of the uniform array length in uniform mode
+     * @param isVariableLength - Whether the array member has a per-instance length
      */
-    static registerMember(this: typeof Component, { bufferUse, memberName, dataClassType, shaderType, compositionType, componentType, initValues, arrayLength, componentSID, convertToBool, }: {
+    static registerMember(this: typeof Component, { bufferUse, memberName, dataClassType, shaderType, compositionType, componentType, initValues, arrayLength, componentSID, convertToBool, uniformArrayLengthMultiplier, isVariableLength, }: {
         bufferUse: BufferUseEnum;
         memberName: string;
         dataClassType: DataClassType;
@@ -214,6 +263,8 @@ export declare class Component extends RnObject {
         arrayLength?: Count | undefined;
         componentSID?: ComponentSID;
         convertToBool?: boolean;
+        uniformArrayLengthMultiplier?: number;
+        isVariableLength?: boolean;
     }): void;
     /**
      * Allocates memory for all member fields of this component instance.
@@ -224,6 +275,15 @@ export declare class Component extends RnObject {
      * @param isReUse - Whether to reuse existing memory allocations
      */
     submitToAllocation(componentCountPerBufferView: Count, isReUse: boolean): void;
+    /**
+     * Returns the array length to allocate for a variable-length array member of this component instance
+     * (see `registerMember`). Override this to allocate a per-instance size. When undefined is returned,
+     * the maximum array length registered for the component class is used.
+     *
+     * @param _memberName - The name of the variable-length array member
+     * @returns The array length, or undefined to use the class-wide value
+     */
+    protected _getArrayLengthForAllocation(_memberName: string): Count | undefined;
     /**
      * Gets the entity that owns this component.
      * This provides access to the entity and its other components.

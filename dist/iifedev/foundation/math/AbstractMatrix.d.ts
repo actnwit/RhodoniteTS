@@ -1,3 +1,4 @@
+import type { TypedArray } from '../../types/CommonTypes';
 import type { IMatrix } from './IMatrix';
 /**
  * Abstract base class for matrix implementations.
@@ -9,8 +10,8 @@ import type { IMatrix } from './IMatrix';
  * @abstract
  */
 export declare abstract class AbstractMatrix implements IMatrix {
-    /** Internal Float32Array storage for matrix elements */
-    _v: Float32Array;
+    /** Internal typed array storage for matrix elements (Float32Array or Float64Array) */
+    _v: TypedArray;
     /**
      * Gets the matrix element at the specified row and column.
      *

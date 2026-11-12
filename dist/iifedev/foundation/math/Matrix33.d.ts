@@ -1,11 +1,10 @@
 import type { Array9 } from '../../types';
+import type { FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
 import { AbstractMatrix } from './AbstractMatrix';
-import type { IMatrix, IMatrix33 } from './IMatrix';
+import type { IMatrix, IMatrix33, IMatrix44, IMutableMatrix33 } from './IMatrix';
+import type { IQuaternion } from './IQuaternion';
 import type { IMutableVector3, IVector3 } from './IVector';
-import type { Matrix44 } from './Matrix44';
-import type { MutableMatrix33 } from './MutableMatrix33';
 import type { MutableVector3 } from './MutableVector3';
-import type { Quaternion } from './Quaternion';
 import { Vector3 } from './Vector3';
 /**
  * Immutable 3x3 matrix class for 3D transformations.
@@ -27,12 +26,15 @@ import { Vector3 } from './Vector3';
  * const result = Matrix33.multiply(rotation, scale);
  * ```
  */
-export declare class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
+export declare class Matrix33_<T extends FloatTypedArrayConstructor> extends AbstractMatrix implements IMatrix, IMatrix33 {
     /**
-     * Creates a new Matrix33 instance.
-     * @param m - Float32Array containing 9 matrix values in column-major order
+     * Creates a new Matrix33_ instance.
+     * @param m - Typed array containing 9 matrix values in column-major order
+     * @param _options - Configuration object containing the typed array constructor
      */
-    constructor(m: Float32Array);
+    constructor(m: TypedArray, _options: {
+        type: T;
+    });
     /**
      * Gets the matrix element at row 0, column 0.
      * @returns The m00 component
@@ -134,57 +136,85 @@ export declare class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
      * Creates a zero matrix (all elements are 0).
      * @returns A new Matrix33 with all zero elements
      */
-    static zero(): Matrix33;
+    static _zero(type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates an identity matrix.
      * @returns A new identity matrix (optimized IdentityMatrix33 instance)
      */
-    static identity(): IMatrix33;
+    static _identity(type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates a dummy matrix with empty data array.
      * Used for placeholder purposes.
      * @returns A new Matrix33 with empty Float32Array
      */
-    static dummy(): Matrix33;
+    static _dummy(type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates the transpose of the given matrix.
      * @param mat - The matrix to transpose
      * @returns A new transposed matrix
      */
-    static transpose(mat: IMatrix33): IMatrix33;
+    static _transpose(mat: IMatrix33, type: FloatTypedArrayConstructor): IMatrix33;
+    /**
+     * Attempts to create the inverse of the given matrix.
+     *
+     * Returns null instead of dividing by zero when the matrix is numerically
+     * singular (see {@link MathUtil.isSingularDet}).
+     *
+     * @param mat - The matrix to invert
+     * @returns A new inverted matrix, or null if the matrix is not invertible
+     */
+    static _tryInvert(mat: IMatrix33, type: FloatTypedArrayConstructor): IMatrix33 | null;
     /**
      * Creates the inverse of the given matrix.
+     *
+     * If the matrix is numerically singular, an identity matrix is returned
+     * instead of dividing by zero. Use {@link Matrix33.tryInvert} when the
+     * caller needs to detect the failure.
+     *
      * @param mat - The matrix to invert
-     * @returns A new inverted matrix
-     * @throws Will log an error if the matrix is not invertible (determinant is 0)
+     * @returns A new inverted matrix, or the identity matrix if the input is singular
      */
-    static invert(mat: IMatrix33): IMatrix33 | Matrix33;
+    static _invert(mat: IMatrix33, type: FloatTypedArrayConstructor): IMatrix33;
     /**
-     * Calculates the inverse of the given matrix and stores the result in the output matrix.
+     * Attempts to calculate the inverse of the given matrix and stores the
+     * result in the output matrix. The output matrix is left untouched when the
+     * input is numerically singular.
+     *
      * @param mat - The matrix to invert
      * @param outMat - The output mutable matrix to store the result
-     * @returns The output matrix containing the inverted matrix
-     * @throws Will log an error if the matrix is not invertible (determinant is 0)
+     * @returns True if the inversion succeeded, false if the matrix is singular
      */
-    static invertTo(mat: IMatrix33, outMat: MutableMatrix33): MutableMatrix33;
+    static _tryInvertTo(mat: IMatrix33, outMat: IMutableMatrix33): boolean;
+    /**
+     * Calculates the inverse of the given matrix and stores the result in the output matrix.
+     *
+     * If the matrix is numerically singular, the output matrix is set to the
+     * identity matrix instead of being filled with `Infinity`/`NaN`.
+     * Use {@link Matrix33.tryInvertTo} when the caller needs to detect the failure.
+     *
+     * @param mat - The matrix to invert
+     * @param outMat - The output mutable matrix to store the result
+     * @returns The output matrix containing the inverted matrix, or the identity matrix if the input is singular
+     */
+    static _invertTo(mat: IMatrix33, outMat: IMutableMatrix33): IMutableMatrix33;
     /**
      * Creates a rotation matrix around the X-axis.
      * @param radian - The rotation angle in radians
      * @returns A new rotation matrix
      */
-    static rotateX(radian: number): Matrix33;
+    static _rotateX(radian: number, type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates a rotation matrix around the Y-axis.
      * @param radian - The rotation angle in radians
      * @returns A new rotation matrix
      */
-    static rotateY(radian: number): Matrix33;
+    static _rotateY(radian: number, type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates a rotation matrix around the Z-axis.
      * @param radian - The rotation angle in radians
      * @returns A new rotation matrix
      */
-    static rotateZ(radian: number): Matrix33;
+    static _rotateZ(radian: number, type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates a rotation matrix from Euler angles in XYZ order.
      * @param x - Rotation around X-axis in radians
@@ -192,26 +222,26 @@ export declare class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
      * @param z - Rotation around Z-axis in radians
      * @returns A new rotation matrix representing the combined rotations
      */
-    static rotateXYZ(x: number, y: number, z: number): Matrix33;
+    static _rotateXYZ(x: number, y: number, z: number, type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates a rotation matrix from a Vector3 containing Euler angles.
      * @param vec - Vector3 containing rotation angles (x, y, z) in radians
      * @returns A new rotation matrix
      */
-    static rotate(vec: Vector3): Matrix33;
+    static _rotate(vec: IVector3, type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates a scaling matrix.
      * @param vec - Vector3 containing scale factors for each axis
      * @returns A new scaling matrix
      */
-    static scale(vec: IVector3): Matrix33;
+    static _scale(vec: IVector3, type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Multiplies two matrices together.
      * @param l_mat - The left matrix
      * @param r_mat - The right matrix
      * @returns A new matrix representing l_mat * r_mat
      */
-    static multiply(l_mat: IMatrix33, r_mat: IMatrix33): IMatrix33;
+    static _multiply(l_mat: IMatrix33, r_mat: IMatrix33, type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Multiplies two matrices and stores the result in an output matrix.
      * @param l_mat - The left matrix
@@ -219,7 +249,7 @@ export declare class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
      * @param outMat - The output mutable matrix to store the result
      * @returns The output matrix containing l_mat * r_mat
      */
-    static multiplyTo(l_mat: IMatrix33, r_mat: IMatrix33, outMat: MutableMatrix33): MutableMatrix33;
+    static _multiplyTo(l_mat: IMatrix33, r_mat: IMatrix33, outMat: IMutableMatrix33): IMutableMatrix33;
     /**
      * Converts the matrix to a human-readable string representation.
      * @returns A formatted string showing the matrix in 3x3 layout
@@ -314,7 +344,7 @@ export declare class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
      * @param m22 - Element at row 2, column 2
      * @returns A new Matrix33 instance
      */
-    static fromCopy9RowMajor(m00: number, m01: number, m02: number, m10: number, m11: number, m12: number, m20: number, m21: number, m22: number): Matrix33;
+    static _fromCopy9RowMajor(m00: number, m01: number, m02: number, m10: number, m11: number, m12: number, m20: number, m21: number, m22: number, type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates a Matrix33 from 9 values in column-major order.
      * @param m00 - Element at row 0, column 0
@@ -328,65 +358,203 @@ export declare class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
      * @param m22 - Element at row 2, column 2
      * @returns A new Matrix33 instance
      */
-    static fromCopy9ColumnMajor(m00: number, m10: number, m20: number, m01: number, m11: number, m21: number, m02: number, m12: number, m22: number): Matrix33;
+    static _fromCopy9ColumnMajor(m00: number, m10: number, m20: number, m01: number, m11: number, m21: number, m02: number, m12: number, m22: number, type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates a Matrix33 from the upper-left 3x3 portion of a Matrix44.
      * @param mat - The Matrix44 to extract from
      * @returns A new Matrix33 instance
      */
-    static fromCopyMatrix44(mat: Matrix44): Matrix33;
+    static _fromCopyMatrix44(mat: IMatrix44, type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates a Matrix33 using the provided Float32Array directly (no copy).
      * @param float32Array - The Float32Array in column-major order
      * @returns A new Matrix33 instance
      */
-    static fromFloat32ArrayColumnMajor(float32Array: Float32Array): Matrix33;
+    static _fromTypedArrayColumnMajor(array: TypedArray, type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates a Matrix33 by copying from a Float32Array in column-major order.
      * @param float32Array - The Float32Array to copy from
      * @returns A new Matrix33 instance
      */
-    static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array): Matrix33;
+    static _fromCopyTypedArrayColumnMajor(array: TypedArray, type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates a Matrix33 by copying from a Float32Array in row-major order.
      * @param array - The Float32Array in row-major order
      * @returns A new Matrix33 instance
      */
-    static fromCopyFloat32ArrayRowMajor(array: Float32Array): Matrix33;
+    static _fromCopyTypedArrayRowMajor(array: TypedArray, type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates a Matrix33 by copying from another IMatrix33.
      * @param mat - The matrix to copy from
      * @returns A new Matrix33 instance
      */
-    static fromCopyMatrix33(mat: IMatrix33): Matrix33;
+    static _fromCopyMatrix33(mat: IMatrix33, type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates a Matrix33 from an Array9 in column-major order.
      * @param array - The Array9 containing 9 numbers
      * @returns A new Matrix33 instance
      */
-    static fromCopyArray9ColumnMajor(array: Array9<number>): Matrix33;
+    static _fromCopyArray9ColumnMajor(array: Array9<number>, type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates a Matrix33 from a regular array in column-major order.
      * @param array - The array containing at least 9 numbers
      * @returns A new Matrix33 instance
      */
-    static fromCopyArrayColumnMajor(array: Array<number>): Matrix33;
+    static _fromCopyArrayColumnMajor(array: Array<number>, type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates a Matrix33 from an Array9 in row-major order.
      * @param array - The Array9 containing 9 numbers in row-major order
      * @returns A new Matrix33 instance
      */
-    static fromCopyArray9RowMajor(array: Array9<number>): Matrix33;
+    static _fromCopyArray9RowMajor(array: Array9<number>, type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates a Matrix33 from a regular array in row-major order.
      * @param array - The array containing at least 9 numbers in row-major order
      * @returns A new Matrix33 instance
      */
-    static fromCopyArrayRowMajor(array: Array<number>): Matrix33;
+    static _fromCopyArrayRowMajor(array: Array<number>, type: FloatTypedArrayConstructor): IMatrix33;
     /**
      * Creates a Matrix33 from a quaternion representing rotation.
      * @param q - The quaternion to convert
      * @returns A new Matrix33 representing the rotation
      */
-    static fromCopyQuaternion(q: Quaternion): Matrix33;
+    static _fromCopyQuaternion(q: IQuaternion, type: FloatTypedArrayConstructor): IMatrix33;
 }
+/**
+ * Immutable 3x3 matrix with 32-bit float components.
+ * This is the standard precision implementation for normal matrices and other 3D math.
+ */
+export declare class Matrix33 extends Matrix33_<Float32ArrayConstructor> {
+    /**
+     * Creates a new Matrix33 instance.
+     * @param m - The typed array containing the matrix components
+     */
+    constructor(m: TypedArray);
+    /** Creates a zero matrix. */
+    static zero(): Matrix33;
+    /** Creates an identity matrix (optimized IdentityMatrix33 instance). */
+    static identity(): IMatrix33;
+    /** Creates a dummy matrix with an empty array. */
+    static dummy(): Matrix33;
+    /** Creates the transpose of the given matrix. */
+    static transpose(mat: IMatrix33): Matrix33;
+    /** Attempts to invert the given matrix, returning null when it is singular. */
+    static tryInvert(mat: IMatrix33): Matrix33 | null;
+    /** Creates the inverse of the given matrix (identity when singular). */
+    static invert(mat: IMatrix33): Matrix33;
+    /** Attempts to invert the given matrix into outMat. */
+    static tryInvertTo<T extends IMutableMatrix33>(mat: IMatrix33, outMat: T): boolean;
+    /** Inverts the given matrix into outMat (identity when singular). */
+    static invertTo<T extends IMutableMatrix33>(mat: IMatrix33, outMat: T): T;
+    /** Creates a rotation matrix around the X-axis. */
+    static rotateX(radian: number): Matrix33;
+    /** Creates a rotation matrix around the Y-axis. */
+    static rotateY(radian: number): Matrix33;
+    /** Creates a rotation matrix around the Z-axis. */
+    static rotateZ(radian: number): Matrix33;
+    /** Creates a rotation matrix from Euler angles in XYZ order. */
+    static rotateXYZ(x: number, y: number, z: number): Matrix33;
+    /** Creates a rotation matrix from a Vector3 containing Euler angles. */
+    static rotate(vec: IVector3): Matrix33;
+    /** Creates a scaling matrix. */
+    static scale(vec: IVector3): Matrix33;
+    /** Multiplies two matrices. */
+    static multiply(l_mat: IMatrix33, r_mat: IMatrix33): Matrix33;
+    /** Multiplies two matrices and stores the result in outMat. */
+    static multiplyTo<T extends IMutableMatrix33>(l_mat: IMatrix33, r_mat: IMatrix33, outMat: T): T;
+    /** Creates a matrix from row-major components. */
+    static fromCopy9RowMajor(m00: number, m01: number, m02: number, m10: number, m11: number, m12: number, m20: number, m21: number, m22: number): Matrix33;
+    /** Creates a matrix from column-major components. */
+    static fromCopy9ColumnMajor(m00: number, m10: number, m20: number, m01: number, m11: number, m21: number, m02: number, m12: number, m22: number): Matrix33;
+    /** Creates a matrix from the upper-left 3x3 portion of a 4x4 matrix. */
+    static fromCopyMatrix44(mat: IMatrix44): Matrix33;
+    /** Creates a matrix that directly uses the given Float32Array. */
+    static fromFloat32ArrayColumnMajor(array: Float32Array): Matrix33;
+    /** Creates a matrix by copying a Float32Array in column-major order. */
+    static fromCopyFloat32ArrayColumnMajor(array: Float32Array): Matrix33;
+    /** Creates a matrix by copying a Float32Array in row-major order. */
+    static fromCopyFloat32ArrayRowMajor(array: Float32Array): Matrix33;
+    /** Creates a matrix by copying another matrix. */
+    static fromCopyMatrix33(mat: IMatrix33): Matrix33;
+    /** Creates a matrix from a 9-element array in column-major order. */
+    static fromCopyArray9ColumnMajor(array: Array9<number>): Matrix33;
+    /** Creates a matrix from an array in column-major order. */
+    static fromCopyArrayColumnMajor(array: Array<number>): Matrix33;
+    /** Creates a matrix from a 9-element array in row-major order. */
+    static fromCopyArray9RowMajor(array: Array9<number>): Matrix33;
+    /** Creates a matrix from an array in row-major order. */
+    static fromCopyArrayRowMajor(array: Array<number>): Matrix33;
+    /** Creates a matrix from a quaternion representing a rotation. */
+    static fromCopyQuaternion(q: IQuaternion): Matrix33;
+}
+/**
+ * Immutable 3x3 matrix with 64-bit float components.
+ * Use this implementation when higher numerical precision is required.
+ */
+export declare class Matrix33D extends Matrix33_<Float64ArrayConstructor> {
+    /**
+     * Creates a new Matrix33D instance.
+     * @param m - The typed array containing the matrix components
+     */
+    private constructor();
+    /** Creates a zero matrix. */
+    static zero(): Matrix33D;
+    /** Creates an identity matrix. */
+    static identity(): Matrix33D;
+    /** Creates a dummy matrix with an empty array. */
+    static dummy(): Matrix33D;
+    /** Creates the transpose of the given matrix. */
+    static transpose(mat: IMatrix33): Matrix33D;
+    /** Attempts to invert the given matrix, returning null when it is singular. */
+    static tryInvert(mat: IMatrix33): Matrix33D | null;
+    /** Creates the inverse of the given matrix (identity when singular). */
+    static invert(mat: IMatrix33): Matrix33D;
+    /** Attempts to invert the given matrix into outMat. */
+    static tryInvertTo<T extends IMutableMatrix33>(mat: IMatrix33, outMat: T): boolean;
+    /** Inverts the given matrix into outMat (identity when singular). */
+    static invertTo<T extends IMutableMatrix33>(mat: IMatrix33, outMat: T): T;
+    /** Creates a rotation matrix around the X-axis. */
+    static rotateX(radian: number): Matrix33D;
+    /** Creates a rotation matrix around the Y-axis. */
+    static rotateY(radian: number): Matrix33D;
+    /** Creates a rotation matrix around the Z-axis. */
+    static rotateZ(radian: number): Matrix33D;
+    /** Creates a rotation matrix from Euler angles in XYZ order. */
+    static rotateXYZ(x: number, y: number, z: number): Matrix33D;
+    /** Creates a rotation matrix from a Vector3 containing Euler angles. */
+    static rotate(vec: IVector3): Matrix33D;
+    /** Creates a scaling matrix. */
+    static scale(vec: IVector3): Matrix33D;
+    /** Multiplies two matrices. */
+    static multiply(l_mat: IMatrix33, r_mat: IMatrix33): Matrix33D;
+    /** Multiplies two matrices and stores the result in outMat. */
+    static multiplyTo<T extends IMutableMatrix33>(l_mat: IMatrix33, r_mat: IMatrix33, outMat: T): T;
+    /** Creates a matrix from row-major components. */
+    static fromCopy9RowMajor(m00: number, m01: number, m02: number, m10: number, m11: number, m12: number, m20: number, m21: number, m22: number): Matrix33D;
+    /** Creates a matrix from column-major components. */
+    static fromCopy9ColumnMajor(m00: number, m10: number, m20: number, m01: number, m11: number, m21: number, m02: number, m12: number, m22: number): Matrix33D;
+    /** Creates a matrix from the upper-left 3x3 portion of a 4x4 matrix. */
+    static fromCopyMatrix44(mat: IMatrix44): Matrix33D;
+    /** Creates a matrix that directly uses the given Float64Array. */
+    static fromFloat64ArrayColumnMajor(array: Float64Array): Matrix33D;
+    /** Creates a matrix by copying a Float64Array in column-major order. */
+    static fromCopyFloat64ArrayColumnMajor(array: Float64Array): Matrix33D;
+    /** Creates a matrix by copying a Float64Array in row-major order. */
+    static fromCopyFloat64ArrayRowMajor(array: Float64Array): Matrix33D;
+    /** Creates a matrix by copying another matrix. */
+    static fromCopyMatrix33(mat: IMatrix33): Matrix33D;
+    /** Creates a matrix from a 9-element array in column-major order. */
+    static fromCopyArray9ColumnMajor(array: Array9<number>): Matrix33D;
+    /** Creates a matrix from an array in column-major order. */
+    static fromCopyArrayColumnMajor(array: Array<number>): Matrix33D;
+    /** Creates a matrix from a 9-element array in row-major order. */
+    static fromCopyArray9RowMajor(array: Array9<number>): Matrix33D;
+    /** Creates a matrix from an array in row-major order. */
+    static fromCopyArrayRowMajor(array: Array<number>): Matrix33D;
+    /** Creates a matrix from a quaternion representing a rotation. */
+    static fromCopyQuaternion(q: IQuaternion): Matrix33D;
+}
+/**
+ * Alias for the 32-bit (Float32Array) implementation, making the precision explicit.
+ */
+export { Matrix33 as Matrix33F };

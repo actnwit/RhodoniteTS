@@ -2,6 +2,7 @@ import type { ComponentSID, ComponentTID, EntityUID, Index, TypedArray } from '.
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
 import { type EntityRepository } from '../../core/EntityRepository';
+import { type BoneDataTypeEnum } from '../../definitions/BoneDataType';
 import type { ISkeletalEntity } from '../../helpers/EntityHelper';
 import type { IMatrix44 } from '../../math/IMatrix';
 import { Matrix44 } from '../../math/Matrix44';
@@ -24,13 +25,36 @@ export declare class SkeletalComponent extends Component {
     private __jointMatrices?;
     topOfJointsHierarchy?: SceneGraphComponent;
     isSkinning: boolean;
-    private __qtsInfo;
-    private _boneMatrix;
-    private _boneTranslatePackedQuat;
-    private _boneScalePackedQuat;
-    private _boneQuaternion;
-    private _boneTranslateScale;
-    private _boneCompressedChunk;
+    /**
+     * GPU bone data of all joints. The layout per joint depends on the bone data type:
+     * - Mat43x1: 3 vec4 per joint (4x3 matrix, column-major)
+     * - Vec4x2: 2 vec4 per joint ([translation.xyz, logQuat.lo], [scale.xyz, logQuat.hi]).
+     *   The x scale is negative for a mirrored joint matrix.
+     * - Vec4x1: 1 vec4 per joint ([logQuat.lo, logQuat.hi, packedTranslateScale.lo, packedTranslateScale.hi]).
+     *   packedTranslateScale is snorm16 x 4: the translation divided by `_boneDataInfo.xyz`, and
+     *   log2(|uniform scale|) / 16 (see MathUtil.encodeVec4x1Scale). Bit 31 of logQuat.hi is the sign of the scale.
+     *
+     * This is a variable-length member: each component gets exactly (joint count) x (vec4 per joint) vec4s,
+     * even though skeletal components share buffer views, and shaders find it through `_boneDataLocation`.
+     */
+    private _boneData;
+    /**
+     * The location of `_boneData` in the GPU data (written by the memory allocation of Component).
+     */
+    private _boneDataLocation;
+    /**
+     * Per-component bone data info: xyz = dequantization factors of translation (Vec4x1 only),
+     * w = bone data type index (used by shaders to select the decoding path).
+     */
+    private _boneDataInfo;
+    private __boneDataUint32?;
+    private __boneDataType;
+    /** Whether __boneDataType was chosen automatically (an automatic Vec4x1 may be switched to Vec4x2) */
+    private __isBoneDataTypeAutoSelected;
+    private __hasWarnedNonUniformScale;
+    private __allocatedBoneDataType?;
+    private __boneDataArrayLength;
+    private __boneTranslateScaleWork;
     private __jointMatrix;
     private __isWorldMatrixVanilla;
     _isCulled: boolean;
@@ -41,7 +65,6 @@ export declare class SkeletalComponent extends Component {
     private __skinCacheKey?;
     private __inverseBindMatricesSignature?;
     private static __tookGlobalDataNum;
-    private static __tmpVec3_0;
     private static __tmp_mat4;
     private static __tmp_q;
     private static __tmp_mat4_2;
@@ -90,6 +113,49 @@ export declare class SkeletalComponent extends Component {
      */
     setJoints(joints: SceneGraphComponent[]): void;
     /**
+     * Gets the effective bone data type of this component.
+     * If Config.boneDataType is set, it overrides the bone data type of each component.
+     *
+     * @returns The effective bone data type
+     */
+    get boneDataType(): BoneDataTypeEnum;
+    /**
+     * Sets the bone data type of this component.
+     * Mat43x1 is the most precise (and the largest), Vec4x2 supports non-uniform scale,
+     * and Vec4x1 is the most compact but supports only uniform scale.
+     * If joints are already set and the GPU data layout changes, the bone data is re-allocated.
+     * Note that Config.boneDataType, if set, takes precedence over this value.
+     *
+     * If a non-uniform scale is found at runtime with Vec4x1, an automatically selected Vec4x1 is switched to Vec4x2,
+     * while an explicitly specified Vec4x1 is kept (the largest scale is used, and a warning is logged once).
+     *
+     * @param boneDataType - The bone data type to use
+     * @param isAutoSelected - True if the type was chosen automatically (e.g. by the glTF importer) rather than
+     *   specified by the user
+     */
+    setBoneDataType(boneDataType: BoneDataTypeEnum, isAutoSelected?: boolean): void;
+    /**
+     * Re-allocates the bone data if the effective bone data type differs from the allocated layout.
+     */
+    private __ensureBoneDataLayout;
+    /**
+     * Calculates the array length (in vec4) of the bone data.
+     * The bone data is a variable-length member, so this is exact regardless of skeletalComponentCountPerBufferView.
+     *
+     * @param boneDataType - The bone data type
+     * @param jointCount - The number of joints
+     * @returns The array length in vec4
+     */
+    private static __calcBoneDataArrayLength;
+    /**
+     * Returns the per-instance array length of the bone data for memory allocation.
+     *
+     * @param memberName - The name of the member field
+     * @returns The array length, or undefined for other members
+     */
+    protected _getArrayLengthForAllocation(memberName: string): number | undefined;
+    private __setBoneDataInfo;
+    /**
      * Lightweight joint update for remapping during shallow copy.
      * Only updates joint references without reinitializing buffers.
      * Used when joints are remapped to new entities during shallow copy.
@@ -114,47 +180,18 @@ export declare class SkeletalComponent extends Component {
      */
     get jointMatrices(): number[] | undefined;
     /**
-     * Gets the quaternion array for joints (used in Vec4x2Old bone data type).
+     * Gets the GPU bone data array of all joints.
+     * The layout depends on the bone data type (see the `boneDataType` getter).
      *
-     * @returns The Float32Array containing joint quaternions
+     * @returns The Float32Array containing the bone data
      */
-    get jointQuaternionArray(): TypedArray;
+    get boneDataArray(): TypedArray;
     /**
-     * Gets the translate-scale array for joints.
+     * Gets the bone data info (xyz: translation dequantization factors for Vec4x1, w: bone data type index).
      *
-     * @returns The Float32Array containing joint translation and scale data
+     * @returns The bone data info vector
      */
-    get jointTranslateScaleArray(): TypedArray;
-    /**
-     * Gets the translate-packed quaternion array for joints (used in Vec4x2 bone data type).
-     *
-     * @returns The Float32Array containing translation and packed quaternion data
-     */
-    get jointTranslatePackedQuat(): TypedArray;
-    /**
-     * Gets the scale-packed quaternion array for joints (used in Vec4x2 bone data type).
-     *
-     * @returns The Float32Array containing scale and packed quaternion data
-     */
-    get jointScalePackedQuat(): TypedArray;
-    /**
-     * Gets the joint matrices array (used in Mat43x1 bone data type).
-     *
-     * @returns The Float32Array containing joint matrices
-     */
-    get jointMatricesArray(): TypedArray;
-    /**
-     * Gets the compressed joint data chunk (used in Vec4x1 bone data type).
-     *
-     * @returns The Float32Array containing compressed joint data
-     */
-    get jointCompressedChunk(): TypedArray;
-    /**
-     * Gets the compression information for joint data (used in Vec4x1 bone data type).
-     *
-     * @returns The compression information vector
-     */
-    get jointCompressedInfo(): MutableVector4;
+    get boneDataInfo(): MutableVector4;
     /**
      * Gets a copy of the world matrix.
      *
@@ -210,6 +247,53 @@ export declare class SkeletalComponent extends Component {
      * Only follower joints are registered for early return (__currentFrameCachedEntityUIDs).
      */
     $logic(): void;
+    /**
+     * Calculates the determinant of the upper-left 3x3 part of a column-major 4x4 matrix.
+     *
+     * @param v - The matrix elements (column-major)
+     * @returns The determinant
+     */
+    private static __determinant3x3;
+    /**
+     * Extracts the rotation R of M = T * R * S, given the (signed) scales of S.
+     * The columns of the upper-left 3x3 of `m` are divided by the scales in place.
+     *
+     * If the rotation cannot be extracted (e.g. a zero scale used to hide a part of a mesh), the identity is
+     * returned without logging an error, since the rotation does not affect the result in that case.
+     *
+     * @param m - The matrix to decompose (overwritten)
+     * @param sx - The x scale (negative for a mirrored axis)
+     * @param sy - The y scale (negative for a mirrored axis)
+     * @param sz - The z scale (negative for a mirrored axis)
+     * @returns The rotation (a shared temporary quaternion)
+     */
+    private static __extractRotation;
+    /**
+     * Handles a non-uniform scale found with the Vec4x1 bone data type, which supports only uniform scale.
+     * An automatically selected Vec4x1 is switched to Vec4x2. An explicitly specified Vec4x1 (setBoneDataType or
+     * Config.boneDataType) is kept, and a warning is logged once (the largest scale of each joint is used).
+     *
+     * The components sharing the skinning cache with this one are switched together. Otherwise they would get
+     * a different cache key and lose the shared result, and a follower would fall back to its own joints, which
+     * may not be animated (see the AnimationComponent early return). If any of them specifies Vec4x1 explicitly,
+     * none of them is switched.
+     *
+     * @returns True if the bone data type has been switched to Vec4x2
+     */
+    private __handleNonUniformScaleOfVec4x1;
+    /**
+     * Gets the skeletal components that share the skinning cache with this component (including this one).
+     *
+     * @returns The components with the same skinning cache key
+     */
+    private __getComponentsSharingSkinCache;
+    /**
+     * Gets a CPU-side work buffer for translation and scale (used only in Vec4x1 bone data type).
+     *
+     * @param boneDataType - The bone data type
+     * @returns The work buffer (empty unless Vec4x1)
+     */
+    private __getTranslateScaleWork;
     /**
      * Copies matrix data to the matrix array in a specific format.
      * Extracts the first 3 rows of a 4x4 matrix (Mat43 format) for efficient GPU storage.
@@ -280,7 +364,16 @@ export declare class SkeletalComponent extends Component {
      */
     _getInverseBindMatrices(sg: SceneGraphComponent): IMatrix44;
     private __copyBoneBuffersFrom;
-    private __registerBoneDataMembers;
+    /**
+     * Registers the bone data member and its location member.
+     * The bone data is a variable-length member, so its size is decided per component
+     * (see `_getArrayLengthForAllocation`).
+     */
+    static _registerBoneDataMember(): void;
+    /**
+     * Registers the bone data info member (one vec4 per component).
+     */
+    static _registerBoneDataInfoMember(): void;
     private static __buildJointListKey;
     private static __hashBytes;
     private static __getAccessorSignature;

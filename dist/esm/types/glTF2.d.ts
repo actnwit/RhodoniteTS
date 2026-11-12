@@ -1,4 +1,5 @@
 import type { CameraComponent } from '../foundation/components/Camera/CameraComponent';
+import type { BoneDataTypeEnum } from '../foundation/definitions/BoneDataType';
 import type { ShaderSemanticsEnum } from '../foundation/definitions/ShaderSemantics';
 import type { ILoaderExtension } from '../foundation/importer/ILoaderExtension';
 import type { Expression } from '../foundation/renderer/Expression';
@@ -352,6 +353,12 @@ export type GltfLoadOption = {
     expression?: Expression;
     transmission?: boolean;
     shadow?: boolean;
+    /**
+     * Bone data type of the SkeletalComponents created by the importer.
+     * If not specified, Vec4x1 is chosen when all scales of the skeleton are uniform (or not specified),
+     * otherwise Vec4x2 is chosen. Specify BoneDataType.Mat43x1 explicitly to use 4x3 matrices.
+     */
+    boneDataType?: BoneDataTypeEnum;
     __isImportVRM0x?: boolean;
     __importedType?: 'gltf2' | 'glb2' | 'vrm0x' | 'vrm1' | 'draco' | 'undefined';
 };

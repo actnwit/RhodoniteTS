@@ -1,8 +1,20 @@
-import type { Byte, Count } from '../../types/CommonTypes';
+import type { Byte, ComponentSID, Count, IndexOf16Bytes } from '../../types/CommonTypes';
 import type { Accessor } from '../memory/Accessor';
+import type { BufferView } from '../memory/BufferView';
 import type { Component } from './Component';
 type MemberName = string;
 type IndexOfTheBufferView = number;
+/**
+ * A chunk of memory allocated for a variable-length array member of a component.
+ */
+export type VariableLengthChunk = {
+    /** The buffer view which owns the memory of the chunk */
+    bufferView: BufferView;
+    /** The capacity of the chunk in bytes */
+    byteCapacity: Byte;
+    /** The location of the chunk in the GPU data (index of 16 bytes) */
+    location: IndexOf16Bytes;
+};
 /**
  * ComponentMemoryRegistry manages memory-related data for components per Engine instance.
  *
@@ -41,6 +53,16 @@ export declare class ComponentMemoryRegistry {
      * Tracks which byte offset keys exist for each component class and member name.
      */
     private __byteOffsetKeysByMember;
+    /**
+     * Chunks of variable-length array members, per component SID.
+     * Key format: "ComponentTID:MemberName:ComponentSID"
+     */
+    private __variableLengthChunks;
+    /**
+     * Chunks of variable-length array members which are no longer used, per member.
+     * Key format: "ComponentTID:MemberName"
+     */
+    private __freeVariableLengthChunks;
     /**
      * The state version, incremented when component memory layout changes.
      */
@@ -137,6 +159,42 @@ export declare class ComponentMemoryRegistry {
      * @returns True if byte offset data exists
      */
     hasByteOffsetsForComponent(componentClass: typeof Component): boolean;
+    /**
+     * Gets the chunk of a variable-length array member of a component.
+     *
+     * @param componentClass - The component class
+     * @param memberName - The name of the variable-length array member
+     * @param componentSID - The component SID
+     * @returns The chunk or undefined if not allocated yet
+     */
+    getVariableLengthChunk(componentClass: typeof Component, memberName: MemberName, componentSID: ComponentSID): VariableLengthChunk | undefined;
+    /**
+     * Sets the chunk of a variable-length array member of a component.
+     * Note that this does not change the state version, since shaders read the locations of chunks at runtime.
+     *
+     * @param componentClass - The component class
+     * @param memberName - The name of the variable-length array member
+     * @param componentSID - The component SID
+     * @param chunk - The chunk to set
+     */
+    setVariableLengthChunk(componentClass: typeof Component, memberName: MemberName, componentSID: ComponentSID, chunk: VariableLengthChunk): void;
+    /**
+     * Puts a chunk which is no longer used into the free list so that it can be reused.
+     *
+     * @param componentClass - The component class
+     * @param memberName - The name of the variable-length array member
+     * @param chunk - The chunk to release
+     */
+    releaseVariableLengthChunk(componentClass: typeof Component, memberName: MemberName, chunk: VariableLengthChunk): void;
+    /**
+     * Takes the smallest free chunk which has enough capacity.
+     *
+     * @param componentClass - The component class
+     * @param memberName - The name of the variable-length array member
+     * @param byteLength - The required byte length
+     * @returns The chunk, or undefined if there is no suitable free chunk
+     */
+    takeFreeVariableLengthChunk(componentClass: typeof Component, memberName: MemberName, byteLength: Byte): VariableLengthChunk | undefined;
     /**
      * Gets the current state version.
      * This is incremented whenever the memory layout changes.

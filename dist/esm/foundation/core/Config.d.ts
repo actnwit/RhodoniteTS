@@ -1,7 +1,7 @@
 /**
  * Config.ts is a configuration file that contains the configuration for the library.
  */
-import { type BoneDataTypeEnum } from '../definitions/BoneDataType';
+import type { BoneDataTypeEnum } from '../definitions/BoneDataType';
 import { LogLevel } from '../misc/Logger';
 type ConfigInitDescription = {
     scenegraphComponentCountPerBufferView?: number;
@@ -9,7 +9,6 @@ type ConfigInitDescription = {
     cameraComponentCountPerBufferView?: number;
     lightComponentCountPerBufferView?: number;
     maxLightNumber?: number;
-    maxBoneNumberForMemoryBoostMode?: number;
     materialCountPerBufferView?: number;
     boneDataType?: BoneDataTypeEnum;
     maxSkeletalBoneNumberForUniformMode?: number;
@@ -37,16 +36,19 @@ export declare class Config {
     lightComponentCountPerBufferView: number;
     /**　The maximum number of lights that Rhodonite can handle */
     maxLightNumber: number;
-    /**　The maximum number of bones that Rhodonite can handle for Memory Boost Mode */
-    maxBoneNumberForMemoryBoostMode: number;
     /**
      * Number of instances of each material type to be placed consecutively in memory.
      * This is on the memory layout, and the number of material instances that can be generated is not limited by this setting.
      * If this limit is exceeded, the material type is internally treated as a separate material type.
      */
     materialCountPerBufferView: number;
-    /**　The data type of the bone */
-    boneDataType: import("..").EnumIO;
+    /**
+     * Forces the bone data type of all SkeletalComponents.
+     * When undefined (default), each SkeletalComponent uses its own bone data type
+     * (see SkeletalComponent.setBoneDataType). Importers choose Vec4x1 or Vec4x2 automatically,
+     * and other SkeletalComponents default to Vec4x2.
+     */
+    boneDataType: BoneDataTypeEnum | undefined;
     /**　The maximum number of bones of each skeleton that Rhodonite can handle for Uniform Mode */
     maxSkeletalBoneNumberForUniformMode: number;
     /**　Whether the UBO is enabled */
@@ -68,6 +70,5 @@ export declare class Config {
     /** The minimum log level that will be output. Messages below this level are ignored. */
     logLevel: LogLevel;
     constructor(initDescription?: ConfigInitDescription);
-    setUpAsMemoryBoostMode(): void;
 }
 export {};
