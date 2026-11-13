@@ -44,6 +44,7 @@ import { ModuleManager } from './ModuleManager';
 
 declare const spector: any;
 
+import { WebGLGpuTimer } from '../../webgl/WebGLGpuTimer';
 import { _cleanupWebGLStatesCacheForEngine } from '../../webgl/WebGLStrategyCommonMethod';
 import type { WebARSystem } from '../../xr/WebARSystem';
 import type { WebXRSystem } from '../../xr/WebXRSystem';
@@ -126,6 +127,8 @@ export class Engine extends RnObject {
   private __lastPrimitiveCount = -1;
   /** Shader program cache map for this engine instance. Maps shader text to program UIDs. */
   private __shaderProgramCache: Map<string, number> = new Map();
+  private __gpuTimerEnabled = false;
+  private __webglGpuTimer?: WebGLGpuTimer;
   private static __engines: Map<ObjectUID, Engine> = new Map();
   private static __engineCount = 0;
   private __engineUid: Index = -1;
@@ -276,6 +279,9 @@ export class Engine extends RnObject {
 
     // Clean up WebGL state cache for this engine (blend modes, cull face, etc.)
     _cleanupWebGLStatesCacheForEngine(this);
+
+    this.__webglGpuTimer?.destroy();
+    this.__webglGpuTimer = undefined;
 
     // Clear component memory registry
     this.__componentMemoryRegistry.destroy();
@@ -440,6 +446,10 @@ export class Engine extends RnObject {
   public process(frame: Frame): void;
   public process(expressions: Expression[]): void;
   public process(value: any) {
+    const gpuTimerEnabled = this.__gpuTimerEnabled;
+    if (gpuTimerEnabled) {
+      this.__beginGpuTimer();
+    }
     Time._processBegin(this);
     AnimationStateRepository.beginProcessFrame(this);
     let expressions: Expression[] = value;
@@ -461,6 +471,81 @@ export class Engine extends RnObject {
     }
 
     Time._processEnd();
+    if (gpuTimerEnabled) {
+      this.__endGpuTimer();
+    }
+  }
+
+  /**
+   * Whether the GPU time of each process() call is measured.
+   *
+   * @remarks
+   * Disabled by default. Measuring uses GPU timer queries (EXT_disjoint_timer_query_webgl2 in WebGL2, the
+   * `timestamp-query` feature in WebGPU), which add a small overhead. See {@link gpuTimeMilliseconds}.
+   */
+  public get gpuTimerEnabled(): boolean {
+    return this.__gpuTimerEnabled;
+  }
+
+  public set gpuTimerEnabled(flag: boolean) {
+    this.__gpuTimerEnabled = flag;
+  }
+
+  /**
+   * Whether the GPU time can be measured in this environment.
+   * Browsers may not expose GPU timer queries (e.g. for privacy reasons or on some platforms).
+   */
+  public get isGpuTimerSupported(): boolean {
+    if (this.__processApproach === ProcessApproach.WebGPU) {
+      return this.webGpuResourceRepository._getGpuTimer().isSupported;
+    }
+    return this.__getWebGLGpuTimer()?.isSupported ?? false;
+  }
+
+  /**
+   * The GPU time spent on the latest measured process() call, in milliseconds.
+   *
+   * @remarks
+   * Undefined until a result is available, or when {@link gpuTimerEnabled} is false or the environment does
+   * not support GPU timer queries. GPU results arrive asynchronously, so the value lags behind by a few
+   * frames. In WebGPU it is the sum of the durations of the render passes; in WebGL2 it is the time the GPU
+   * spent on all the commands issued during process().
+   */
+  public get gpuTimeMilliseconds(): number | undefined {
+    if (!this.__gpuTimerEnabled) {
+      return undefined;
+    }
+    if (this.__processApproach === ProcessApproach.WebGPU) {
+      return this.__webGpuResourceRepository?._getGpuTimer().lastGpuTimeMilliseconds;
+    }
+    return this.__webglGpuTimer?.lastGpuTimeMilliseconds;
+  }
+
+  private __getWebGLGpuTimer(): WebGLGpuTimer | undefined {
+    if (this.__webglGpuTimer == null) {
+      const glw = this.__webglResourceRepository?.currentWebGLContextWrapper;
+      if (glw == null) {
+        return undefined;
+      }
+      this.__webglGpuTimer = new WebGLGpuTimer(glw.getRawContextAsWebGL2());
+    }
+    return this.__webglGpuTimer;
+  }
+
+  private __beginGpuTimer() {
+    if (this.__processApproach === ProcessApproach.WebGPU) {
+      this.__webGpuResourceRepository?._getGpuTimer().beginFrame();
+    } else {
+      this.__getWebGLGpuTimer()?.begin();
+    }
+  }
+
+  private __endGpuTimer() {
+    if (this.__processApproach === ProcessApproach.WebGPU) {
+      this.__webGpuResourceRepository?._getGpuTimer().endFrame();
+    } else {
+      this.__webglGpuTimer?.end();
+    }
   }
 
   private __processRenderPassWebGPU({
@@ -988,6 +1073,8 @@ export class Engine extends RnObject {
       addFeature('texture-compression-bc');
       addFeature('texture-compression-etc2');
       addFeature('texture-compression-astc');
+      // Used by the GPU timer (Engine.gpuTimerEnabled). Enabling the feature has no cost until it is used.
+      addFeature('timestamp-query');
 
       const device = await adapter!.requestDevice({
         requiredFeatures: features,

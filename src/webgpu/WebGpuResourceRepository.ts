@@ -46,6 +46,7 @@ import type { Count, Index, Size, TypedArray, WebGLResourceHandle, WebGPUResourc
 import type { TextureData, VertexHandles } from '../webgl/WebGLResourceRepository';
 import { WebGpuBufferArena, type WebGpuBufferRange } from './WebGpuBufferArena';
 import type { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
+import { WebGpuGpuTimer } from './WebGpuGpuTimer';
 
 export type WebGpuResource =
   | GPUTexture
@@ -176,6 +177,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    */
   private __vertexBufferArena?: WebGpuBufferArena;
   private __vertexBufferRanges: Map<WebGPUResourceHandle, WebGpuBufferRange> = new Map();
+  /** Measures the GPU time of frames; created on first use (see Engine.gpuTimerEnabled). */
+  private __gpuTimer?: WebGpuGpuTimer;
   private __bundleIndexFormat?: GPUIndexFormat;
   private __commandEncoder?: GPUCommandEncoder;
   /** Cached `gpuDevice.queue` ([SameObject]), read on every frame by flush(). */
@@ -1922,6 +1925,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       colorAttachments,
       label: `${renderPass.uniqueName}_EffekseerExternal`,
     };
+    this.__addTimestampWrites(renderPassDescriptor);
     this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
     return this.__renderPassEncoder;
   }
@@ -2148,7 +2152,31 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         this.__deferredSystemDepthClearValue = undefined;
       }
     }
+    this.__addTimestampWrites(renderPassDescriptor);
     return this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
+  }
+
+  /** Lets the GPU timer measure the render pass while a frame is being measured. */
+  private __addTimestampWrites(renderPassDescriptor: GPURenderPassDescriptor) {
+    const gpuTimer = this.__gpuTimer;
+    if (gpuTimer == null || renderPassDescriptor.timestampWrites != null) {
+      return;
+    }
+    const timestampWrites = gpuTimer.getTimestampWrites();
+    if (timestampWrites != null) {
+      renderPassDescriptor.timestampWrites = timestampWrites;
+    }
+  }
+
+  /**
+   * Returns the GPU timer, creating it on first use.
+   * @internal Use Engine.gpuTimerEnabled and Engine.gpuTimeMilliseconds instead.
+   */
+  _getGpuTimer(): WebGpuGpuTimer {
+    if (this.__gpuTimer == null) {
+      this.__gpuTimer = new WebGpuGpuTimer(this.__webGpuDeviceWrapper!.gpuDevice);
+    }
+    return this.__gpuTimer;
   }
 
   /**
@@ -2740,7 +2768,10 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       this.__resetPendingClear();
     }
     this.__flushRenderPassWork();
+    const gpuTimer = this.__gpuTimer;
+    gpuTimer?.encodeResolve(this.__commandEncoder!);
     this.__gpuQueue!.submit([this.__commandEncoder!.finish()]);
+    gpuTimer?.afterSubmit();
     this.__commandEncoder = gpuDevice.createCommandEncoder();
 
     if (this.__contextCurrentTextureView != null) {
