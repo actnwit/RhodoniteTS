@@ -14,11 +14,20 @@ import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
  */
 export class BlendShapeComponent extends Component {
   private __weights: number[] = [];
+  /**
+   * True when `__weights` is an array owned by this component.
+   * Importers and the `weights` setter may hand over arrays shared with the parsed glTF data or
+   * with other nodes, so mutations must clone first (see __ensureOwnWeights).
+   */
+  private __ownsWeights = false;
   private __targetNames: string[] = [];
 
   private static __updateCount = 0;
   // Keep weight lengths per componentSID so offsets stay consistent even if a slot becomes undefined
   private static __weightsLengthBySid: number[] = [];
+  /** Incremented whenever the weight layout (lengths or slot count) may have changed. */
+  private static __layoutVersion = 0;
+  private static __offsetsCache = new WeakMap<Engine, { layoutVersion: number; offsets: Offset[] }>();
 
   /**
    * Creates a new BlendShapeComponent instance.
@@ -37,6 +46,7 @@ export class BlendShapeComponent extends Component {
   ) {
     super(engine, entityUid, componentSid, entityComponent, isReUse);
 
+    BlendShapeComponent.__layoutVersion++;
     this.moveStageTo(ProcessStage.Logic);
   }
 
@@ -73,7 +83,11 @@ export class BlendShapeComponent extends Component {
    * @param weights - Array of weight values for blend shape targets
    */
   set weights(weights: number[]) {
+    if (this.__weights.length !== weights.length) {
+      BlendShapeComponent.__layoutVersion++;
+    }
     this.__weights = weights;
+    this.__ownsWeights = false;
     BlendShapeComponent.__weightsLengthBySid[this.componentSID] = weights.length;
     BlendShapeComponent.__updateCount++;
   }
@@ -105,16 +119,75 @@ export class BlendShapeComponent extends Component {
   }
 
   /**
+   * Ensures that `__weights` is an array this component owns before mutating it in place.
+   * Arrays passed to the `weights` setter may be shared with the parsed glTF data or with other
+   * nodes, so the first in-place write clones them.
+   */
+  private __ensureOwnWeights() {
+    if (!this.__ownsWeights) {
+      this.__weights = this.__weights.slice();
+      this.__ownsWeights = true;
+    }
+  }
+
+  /**
+   * Copies weights from any array-like source, skipping the update when all values are unchanged.
+   * This is the allocation-free path used by animation each frame.
+   * @param source - Array-like source of weight values
+   */
+  setWeightsFromArrayLike(source: ArrayLike<number>) {
+    const length = source.length;
+    if (this.__weights.length !== length) {
+      const next = new Array<number>(length);
+      for (let i = 0; i < length; i++) {
+        next[i] = source[i];
+      }
+      this.__weights = next;
+      this.__ownsWeights = true;
+      BlendShapeComponent.__weightsLengthBySid[this.componentSID] = length;
+      BlendShapeComponent.__layoutVersion++;
+      BlendShapeComponent.__updateCount++;
+      return;
+    }
+
+    this.__ensureOwnWeights();
+    let changed = false;
+    for (let i = 0; i < length; i++) {
+      const value = source[i];
+      if (this.__weights[i] !== value) {
+        this.__weights[i] = value;
+        changed = true;
+      }
+    }
+    if (changed) {
+      BlendShapeComponent.__updateCount++;
+    }
+  }
+
+  /**
    * Sets the weight value for a specific blend shape target by index.
    * @param index - The index of the blend shape target
    * @param weight - The weight value to set (typically between 0.0 and 1.0)
    */
   setWeightByIndex(index: Index, weight: number) {
+    if (this.__weights[index] === weight) {
+      return;
+    }
+    this.__ensureOwnWeights();
+    if (index >= this.__weights.length) {
+      BlendShapeComponent.__layoutVersion++;
+    }
     this.__weights[index] = weight;
+    BlendShapeComponent.__weightsLengthBySid[this.componentSID] = this.__weights.length;
     BlendShapeComponent.__updateCount++;
   }
 
   static getOffsetsInUniform(engine: Engine): Offset[] {
+    const cached = BlendShapeComponent.__offsetsCache.get(engine);
+    if (cached !== undefined && cached.layoutVersion === BlendShapeComponent.__layoutVersion) {
+      return cached.offsets;
+    }
+
     const blendShapeComponents = engine.componentRepository.getComponentsWithTypeWithoutFiltering(
       BlendShapeComponent
     ) as (BlendShapeComponent | undefined)[];
@@ -128,6 +201,10 @@ export class BlendShapeComponent extends Component {
       offsets.push(offsets[offsets.length - 1] + len);
     }
 
+    BlendShapeComponent.__offsetsCache.set(engine, {
+      layoutVersion: BlendShapeComponent.__layoutVersion,
+      offsets,
+    });
     return offsets;
   }
 
@@ -149,6 +226,7 @@ export class BlendShapeComponent extends Component {
    * @override
    */
   _destroy(): void {
+    BlendShapeComponent.__layoutVersion++;
     super._destroy();
   }
 

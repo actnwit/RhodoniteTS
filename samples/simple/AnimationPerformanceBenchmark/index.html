@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Animation Performance Benchmark</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, user-scalable=no" />
+  <style>
+    body { font-family: monospace; margin: 16px; }
+    main { display: flex; gap: 24px; align-items: flex-start; }
+    canvas { border: 1px solid #888; }
+    pre { max-width: 720px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Animation Performance Benchmark</h1>
+  <p>
+    Query parameters: <code>scenario</code> (playing-vrm | paused-vrm | many-vrm | blend | many-models | morph | cubic),
+    <code>frames</code> (default 300), <code>copies</code> (default 4), <code>anim=off</code>, <code>gpu=1</code>.
+  </p>
+  <main>
+    <canvas id="world" width="600" height="600"></canvas>
+    <pre id="result">Measuring...</pre>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

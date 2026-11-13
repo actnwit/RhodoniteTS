@@ -94,6 +94,16 @@ export class SkeletalComponent extends Component {
   private __skinCacheKeyAnimationBindingVersion = -1;
   private __skinCacheKeyHierarchyVersion = -1;
   private __inverseBindMatricesSignature?: string;
+  /**
+   * Memoized input signature of the last skinning computation. When the skin cache key, the joint
+   * world matrices, the skinned node world matrix and the bind shape matrix are unchanged, the
+   * whole skinning loop can be skipped and the previous bone data reused.
+   */
+  private __hasSkinComputeSignature = false;
+  private __lastSkinComputeCacheKey?: string;
+  private __lastSkinComputeJointVersionSum = -1;
+  private __lastSkinComputeOwnVersion = -1;
+  private __lastSkinComputeBindShapeMatrix?: Matrix44;
   private static __tookGlobalDataNum = 0;
   private static __tmp_mat4 = MutableMatrix44.identity();
   private static __tmp_q: MutableQuaternion = MutableQuaternion.fromCopy4(0, 0, 0, 1);
@@ -201,6 +211,7 @@ export class SkeletalComponent extends Component {
    * @param joints - Array of SceneGraphComponents representing the joints/bones
    */
   setJoints(joints: SceneGraphComponent[]) {
+    this.__invalidateSkinComputeSignature();
     this.__joints = joints;
     this.__jointListKey = SkeletalComponent.__buildJointListKey(joints);
     this.__resetBoneDataBuffers();
@@ -305,6 +316,7 @@ export class SkeletalComponent extends Component {
    * Used when joints are remapped to new entities during shallow copy.
    */
   updateJointsLightweight(joints: SceneGraphComponent[]) {
+    this.__invalidateSkinComputeSignature();
     this.__joints = joints;
     this.__jointListKey = SkeletalComponent.__buildJointListKey(joints);
     this.__updateSkinCacheKey();
@@ -450,6 +462,8 @@ export class SkeletalComponent extends Component {
     }
 
     if (this._isCulled) {
+      // Force a recomputation when this component becomes visible again.
+      this.__invalidateSkinComputeSignature();
       // A culled skin is neither computed nor drawn. Let its joints skip animation while a visible
       // SkeletalComponent with the same cache key (the leader) computes the shared skinning result.
       // Otherwise, culled models would keep animating all their joints every frame.
@@ -521,6 +535,9 @@ export class SkeletalComponent extends Component {
 
         // Apply cached skinning result and return early
         this.__applySkinningCache(cache);
+        // A follower must copy the leader's result every frame, so it never uses the input
+        // signature skip until it has computed skinning itself.
+        this.__invalidateSkinComputeSignature();
         return;
       }
 
@@ -534,6 +551,14 @@ export class SkeletalComponent extends Component {
       for (const joint of this.__joints) {
         leaderJointIndexToEntityUID.set(joint.jointIndex, joint.entityUID);
       }
+    }
+
+    if (this.__isSkinComputeInputUnchanged(cacheKey)) {
+      // Publish this frame's cache entry so followers can still reuse the existing bone data.
+      if (cacheKey) {
+        SkeletalComponent.__skinCalculationCache.set(cacheKey, this.__createSkinningCache(currentProcessFrameToken));
+      }
+      return;
     }
 
     const boneDataType = this.__allocatedBoneDataType!;
@@ -664,6 +689,7 @@ export class SkeletalComponent extends Component {
     if (cacheKey) {
       SkeletalComponent.__skinCalculationCache.set(cacheKey, this.__createSkinningCache(currentProcessFrameToken));
     }
+    this.__recordSkinComputeSignature(cacheKey);
   }
 
   /**
@@ -836,6 +862,7 @@ export class SkeletalComponent extends Component {
       this.__copyBoneBuffersFrom(component);
     } else {
       this.__joints = [];
+      this.__invalidateSkinComputeSignature();
     }
 
     this.__inverseBindMatricesAccessor = component.__inverseBindMatricesAccessor;
@@ -866,6 +893,7 @@ export class SkeletalComponent extends Component {
    * @protected
    */
   _destroy(): void {
+    this.__invalidateSkinComputeSignature();
     super._destroy();
   }
 
@@ -1180,6 +1208,63 @@ export class SkeletalComponent extends Component {
       }
       this.__skinCacheKey = `${this.__jointListKey}|${this.__inverseBindMatricesSignature}|no_animation|${boneDataTypeIndex}`;
     }
+  }
+
+  /**
+   * Drops the memoized skinning input signature so the next $logic recomputes skinning.
+   */
+  private __invalidateSkinComputeSignature() {
+    this.__hasSkinComputeSignature = false;
+  }
+
+  /**
+   * Returns true when every input that affects the bone data is identical to the last computation.
+   *
+   * The joint version sum works as a change detector because `worldMatrixVersion` only increases:
+   * if any joint (or the skinned node) was marked dirty, the sum necessarily differs.
+   *
+   * Constraint: like the world matrix cache itself, this signature only observes changes made
+   * through the transform/renderer APIs. Writing `matrixInner` directly or mutating
+   * `_bindShapeMatrix` in place is not detected; callers must invalidate through the setters.
+   *
+   * @param cacheKey - The current skinning cache key
+   * @returns True when the skinning loop can be skipped
+   */
+  private __isSkinComputeInputUnchanged(cacheKey: string | undefined): boolean {
+    if (!this.__hasSkinComputeSignature) {
+      return false;
+    }
+    if (this.__lastSkinComputeCacheKey !== cacheKey) {
+      return false;
+    }
+    if (this.__lastSkinComputeBindShapeMatrix !== this._bindShapeMatrix) {
+      return false;
+    }
+    const entitySceneGraph = this.entity.getSceneGraph();
+    if (entitySceneGraph == null || entitySceneGraph.worldMatrixVersion !== this.__lastSkinComputeOwnVersion) {
+      return false;
+    }
+    let jointVersionSum = 0;
+    for (let i = 0; i < this.__joints.length; i++) {
+      jointVersionSum += this.__joints[i].worldMatrixVersion;
+    }
+    return jointVersionSum === this.__lastSkinComputeJointVersionSum;
+  }
+
+  /**
+   * Records the inputs that produced the current bone data.
+   * @param cacheKey - The skinning cache key used for this computation
+   */
+  private __recordSkinComputeSignature(cacheKey: string | undefined) {
+    let jointVersionSum = 0;
+    for (let i = 0; i < this.__joints.length; i++) {
+      jointVersionSum += this.__joints[i].worldMatrixVersion;
+    }
+    this.__lastSkinComputeCacheKey = cacheKey;
+    this.__lastSkinComputeJointVersionSum = jointVersionSum;
+    this.__lastSkinComputeOwnVersion = this.entity.getSceneGraph()?.worldMatrixVersion ?? -1;
+    this.__lastSkinComputeBindShapeMatrix = this._bindShapeMatrix;
+    this.__hasSkinComputeSignature = true;
   }
 
   private __createSkinningCache(processFrameToken: number): SkinningCache {

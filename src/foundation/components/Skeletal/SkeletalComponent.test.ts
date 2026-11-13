@@ -96,3 +96,54 @@ test('combines an ancestor fallback hash with the active child bone track hash',
   expect(walkHash).not.toBe(101);
   expect(runHash).not.toBe(walkHash);
 });
+
+function createSkinSignatureFixture(jointVersions: number[], ownVersion: number) {
+  const component = Object.create(SkeletalComponent.prototype) as any;
+  const state = { worldMatrixVersion: ownVersion };
+  component.__joints = jointVersions.map(version => ({ worldMatrixVersion: version }));
+  component._bindShapeMatrix = undefined;
+  component.__hasSkinComputeSignature = false;
+  Object.defineProperty(component, 'entity', {
+    value: { getSceneGraph: () => state },
+    configurable: true,
+  });
+  return { component, state };
+}
+
+test('detects unchanged skinning inputs from joint and node versions', () => {
+  const { component, state } = createSkinSignatureFixture([1, 2, 3], 5);
+  const helper = component as any;
+
+  expect(helper.__isSkinComputeInputUnchanged('key')).toBe(false);
+
+  helper.__recordSkinComputeSignature('key');
+  expect(helper.__isSkinComputeInputUnchanged('key')).toBe(true);
+
+  // A dirty joint changes the sum.
+  component.__joints[1].worldMatrixVersion = 3;
+  expect(helper.__isSkinComputeInputUnchanged('key')).toBe(false);
+  component.__joints[1].worldMatrixVersion = 2;
+
+  // The skinned node itself moving also invalidates.
+  state.worldMatrixVersion = 6;
+  expect(helper.__isSkinComputeInputUnchanged('key')).toBe(false);
+  state.worldMatrixVersion = 5;
+
+  // A different cache key (joint layout, bone type, bind matrices) invalidates.
+  expect(helper.__isSkinComputeInputUnchanged('other')).toBe(false);
+
+  // A replaced bind shape matrix invalidates.
+  component._bindShapeMatrix = {};
+  expect(helper.__isSkinComputeInputUnchanged('key')).toBe(false);
+});
+
+test('invalidateSkinComputeSignature forces recomputation', () => {
+  const { component } = createSkinSignatureFixture([1], 1);
+  const helper = component as any;
+
+  helper.__recordSkinComputeSignature('key');
+  expect(helper.__isSkinComputeInputUnchanged('key')).toBe(true);
+
+  helper.__invalidateSkinComputeSignature();
+  expect(helper.__isSkinComputeInputUnchanged('key')).toBe(false);
+});

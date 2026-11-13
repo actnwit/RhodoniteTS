@@ -1,8 +1,9 @@
 import type { AnimationSampler, AnimationSamplers, AnimationTrackName } from '../../types/AnimationTypes';
-import { __interpolate } from '../components/Animation/AnimationOps';
+import { __interpolate, __interpolateTo } from '../components/Animation/AnimationOps';
 import { AnimationStateRepository } from '../components/Animation/AnimationStateRepository';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
 import { Logger } from '../misc/Logger';
+import { AnimatedValueEvaluationState } from './AnimatedValueEvaluationState';
 import type { IAnimatedValue } from './IAnimatedValue';
 import type { IQuaternion } from './IQuaternion';
 import { Quaternion } from './Quaternion';
@@ -23,7 +24,7 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
   private __secondActiveAnimationSampler?: AnimationSampler;
   private __blendingRatio = 0;
   private __time?: number;
-  private __lastTime = -1;
+  private __evaluation = new AnimatedValueEvaluationState();
   public isLoop = true;
 
   /**
@@ -53,11 +54,45 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
   }
 
   /**
+   * Drops the memoized interpolation result. Call this after mutating sampler data directly.
+   */
+  invalidateAnimationCache() {
+    this.__evaluation.invalidate();
+  }
+
+  /**
+   * Number of actual interpolations performed. Intended for tests and benchmarks.
+   */
+  getEvaluationCount() {
+    return this.__evaluation.evaluationCount;
+  }
+
+  /**
+   * Gets the internal value array without allocating a copy. Do not mutate the returned array.
+   */
+  getValueArray() {
+    return this._v;
+  }
+
+  /**
+   * Sets the time and blending ratio and evaluates the value at most once.
+   */
+  setTimeAndBlendingRatio(time: number, blendingRatio: number) {
+    this.__time = time;
+    this.__blendingRatio = blendingRatio;
+    this.update();
+  }
+
+  /**
    * Sets the quaternion values from a Float32Array.
    * @param array - Float32Array containing the quaternion components [x, y, z, w]
    */
   setFloat32Array(array: Float32Array) {
+    if (array === this._v) {
+      return;
+    }
     this._v = array;
+    this.__evaluation.invalidate();
     this.update();
   }
 
@@ -86,7 +121,6 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
    */
   set blendingRatio(value: number) {
     this.__blendingRatio = value;
-    this.__lastTime = -1;
     this.update();
   }
 
@@ -155,17 +189,31 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
       }
       time = time % duration;
     }
-    if (this.__lastTime === time) {
+    const hasSecondSampler = this.__secondActiveAnimationSampler !== undefined;
+    if (!this.__evaluation.shouldEvaluate(time, this.__blendingRatio, hasSecondSampler)) {
       return;
     }
-    const firstValue = __interpolate(this.__firstActiveAnimationSampler, time, AnimationAttribute.Quaternion.index);
     if (this.__secondActiveAnimationSampler === undefined) {
-      this._v[0] = firstValue[0];
-      this._v[1] = firstValue[1];
-      this._v[2] = firstValue[2];
-      this._v[3] = firstValue[3];
+      __interpolateTo(
+        this.__firstActiveAnimationSampler,
+        time,
+        AnimationAttribute.Quaternion.index,
+        this._v,
+        this.__evaluation.firstCursor
+      );
     } else {
-      const secondValue = __interpolate(this.__secondActiveAnimationSampler, time, AnimationAttribute.Quaternion.index);
+      const firstValue = __interpolate(
+        this.__firstActiveAnimationSampler,
+        time,
+        AnimationAttribute.Quaternion.index,
+        this.__evaluation.firstCursor
+      );
+      const secondValue = __interpolate(
+        this.__secondActiveAnimationSampler,
+        time,
+        AnimationAttribute.Quaternion.index,
+        this.__evaluation.secondCursor
+      );
       const q1 = Quaternion.fromCopy4(firstValue[0], firstValue[1], firstValue[2], firstValue[3]);
       const q2 = Quaternion.fromCopy4(secondValue[0], secondValue[1], secondValue[2], secondValue[3]);
       const q = Quaternion.qlerp(q1, q2, this.blendingRatio)._v;
@@ -174,7 +222,7 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
       this._v[2] = q[2];
       this._v[3] = q[3];
     }
-    this.__lastTime = time;
+    this.__evaluation.markEvaluated(time, this.__blendingRatio);
   }
 
   /**
@@ -183,6 +231,7 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
    */
   setFirstActiveAnimationTrackName(animationTrackName: AnimationTrackName) {
     AnimationStateRepository.markAnimationBindingChanged();
+    this.__evaluation.invalidate();
     this.__firstActiveAnimationTrackName = animationTrackName;
     const animationSampler = this.__animationSamplers.get(this.__firstActiveAnimationTrackName);
     if (animationSampler === undefined) {
@@ -199,6 +248,8 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
    * @param animationTrackName - The name of the animation track to set as the second active track
    */
   setSecondActiveAnimationTrackName(animationTrackName: AnimationTrackName) {
+    AnimationStateRepository.markAnimationBindingChanged();
+    this.__evaluation.invalidate();
     this.__secondActiveAnimationTrackName = animationTrackName;
     const animationSampler = this.__animationSamplers.get(this.__secondActiveAnimationTrackName);
     if (animationSampler === undefined) {
@@ -290,6 +341,7 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
    */
   deleteAnimationSampler(trackName: AnimationTrackName) {
     AnimationStateRepository.markAnimationBindingChanged();
+    this.__evaluation.invalidate();
     this.__animationSamplers.delete(trackName);
   }
 
@@ -301,5 +353,20 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
   setAnimationSampler(animationTrackName: AnimationTrackName, animationSampler: AnimationSampler) {
     AnimationStateRepository.markAnimationBindingChanged();
     this.__animationSamplers.set(animationTrackName, animationSampler);
+    if (
+      animationTrackName === this.__firstActiveAnimationSamplerTrackName ||
+      animationTrackName === this.__firstActiveAnimationTrackName
+    ) {
+      this.__firstActiveAnimationSampler = animationSampler;
+      this.__firstActiveAnimationSamplerTrackName = animationTrackName;
+    }
+    if (
+      animationTrackName === this.__secondActiveAnimationSamplerTrackName ||
+      animationTrackName === this.__secondActiveAnimationTrackName
+    ) {
+      this.__secondActiveAnimationSampler = animationSampler;
+      this.__secondActiveAnimationSamplerTrackName = animationTrackName;
+    }
+    this.__evaluation.invalidate();
   }
 }

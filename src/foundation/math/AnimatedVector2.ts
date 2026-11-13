@@ -1,8 +1,9 @@
 import type { AnimationSampler, AnimationSamplers, AnimationTrackName } from '../../types/AnimationTypes';
-import { __interpolate } from '../components/Animation/AnimationOps';
+import { __interpolateTo } from '../components/Animation/AnimationOps';
 import { AnimationStateRepository } from '../components/Animation/AnimationStateRepository';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
 import { Logger } from '../misc/Logger';
+import { AnimatedValueEvaluationState } from './AnimatedValueEvaluationState';
 import type { IAnimatedValue } from './IAnimatedValue';
 import type { IVector2 } from './IVector';
 import { Vector2 } from './Vector2';
@@ -22,7 +23,7 @@ export class AnimatedVector2 extends Vector2 implements IVector2, IAnimatedValue
   private __secondActiveAnimationSampler?: AnimationSampler;
   private __blendingRatio = 0;
   private __time?: number;
-  private __lastTime = -1;
+  private __evaluation = new AnimatedValueEvaluationState();
   public isLoop = true;
 
   /**
@@ -52,11 +53,45 @@ export class AnimatedVector2 extends Vector2 implements IVector2, IAnimatedValue
   }
 
   /**
+   * Drops the memoized interpolation result. Call this after mutating sampler data directly.
+   */
+  invalidateAnimationCache() {
+    this.__evaluation.invalidate();
+  }
+
+  /**
+   * Number of actual interpolations performed. Intended for tests and benchmarks.
+   */
+  getEvaluationCount() {
+    return this.__evaluation.evaluationCount;
+  }
+
+  /**
+   * Gets the internal value array without allocating a copy. Do not mutate the returned array.
+   */
+  getValueArray() {
+    return this._v;
+  }
+
+  /**
+   * Sets the time and blending ratio and evaluates the value at most once.
+   */
+  setTimeAndBlendingRatio(time: number, blendingRatio: number) {
+    this.__time = time;
+    this.__blendingRatio = blendingRatio;
+    this.update();
+  }
+
+  /**
    * Sets the internal Float32Array and triggers an update.
    * @param array - The new Float32Array to use for the vector components
    */
   setFloat32Array(array: Float32Array) {
+    if (array === this._v) {
+      return;
+    }
     this._v = array;
+    this.__evaluation.invalidate();
     this.update();
   }
 
@@ -84,7 +119,6 @@ export class AnimatedVector2 extends Vector2 implements IVector2, IAnimatedValue
    */
   set blendingRatio(value: number) {
     this.__blendingRatio = value;
-    this.__lastTime = -1;
     this.update();
   }
 
@@ -140,19 +174,47 @@ export class AnimatedVector2 extends Vector2 implements IVector2, IAnimatedValue
       }
       time = time % duration;
     }
-    if (this.__lastTime === time) {
+    const hasSecondSampler = this.__secondActiveAnimationSampler !== undefined;
+    if (!this.__evaluation.shouldEvaluate(time, this.__blendingRatio, hasSecondSampler)) {
       return;
     }
-    const firstValue = __interpolate(this.__firstActiveAnimationSampler, time, AnimationAttribute.Vector2.index);
     if (this.__secondActiveAnimationSampler === undefined) {
-      this._v[0] = firstValue[0];
-      this._v[1] = firstValue[1];
+      __interpolateTo(
+        this.__firstActiveAnimationSampler,
+        time,
+        AnimationAttribute.Vector2.index,
+        this._v,
+        this.__evaluation.firstCursor
+      );
     } else {
-      const secondValue = __interpolate(this.__secondActiveAnimationSampler, time, AnimationAttribute.Vector2.index);
+      const evaluation = this.__evaluation;
+      evaluation.ensureScratch(
+        Math.max(
+          this._v.length,
+          this.__firstActiveAnimationSampler.outputComponentN,
+          this.__secondActiveAnimationSampler!.outputComponentN
+        )
+      );
+      const firstValue = evaluation.scratchFirst;
+      const secondValue = evaluation.scratchSecond;
+      __interpolateTo(
+        this.__firstActiveAnimationSampler,
+        time,
+        AnimationAttribute.Vector2.index,
+        firstValue,
+        evaluation.firstCursor
+      );
+      __interpolateTo(
+        this.__secondActiveAnimationSampler,
+        time,
+        AnimationAttribute.Vector2.index,
+        secondValue,
+        evaluation.secondCursor
+      );
       this._v[0] = firstValue[0] * (1 - this.blendingRatio) + secondValue[0] * this.blendingRatio;
       this._v[1] = firstValue[1] * (1 - this.blendingRatio) + secondValue[1] * this.blendingRatio;
     }
-    this.__lastTime = time;
+    this.__evaluation.markEvaluated(time, this.__blendingRatio);
   }
 
   /**
@@ -162,6 +224,7 @@ export class AnimatedVector2 extends Vector2 implements IVector2, IAnimatedValue
    */
   setFirstActiveAnimationTrackName(animationTrackName: AnimationTrackName) {
     AnimationStateRepository.markAnimationBindingChanged();
+    this.__evaluation.invalidate();
     this.__firstActiveAnimationTrackName = animationTrackName;
     const animationSampler = this.__animationSamplers.get(this.__firstActiveAnimationTrackName);
     if (animationSampler === undefined) {
@@ -179,6 +242,8 @@ export class AnimatedVector2 extends Vector2 implements IVector2, IAnimatedValue
    * @throws {Error} When the specified animation track is not found (logged as info instead)
    */
   setSecondActiveAnimationTrackName(animationTrackName: AnimationTrackName) {
+    AnimationStateRepository.markAnimationBindingChanged();
+    this.__evaluation.invalidate();
     this.__secondActiveAnimationTrackName = animationTrackName;
     const animationSampler = this.__animationSamplers.get(this.__secondActiveAnimationTrackName);
     if (animationSampler === undefined) {
@@ -270,6 +335,7 @@ export class AnimatedVector2 extends Vector2 implements IVector2, IAnimatedValue
    */
   deleteAnimationSampler(trackName: AnimationTrackName) {
     AnimationStateRepository.markAnimationBindingChanged();
+    this.__evaluation.invalidate();
     this.__animationSamplers.delete(trackName);
   }
 
@@ -281,5 +347,20 @@ export class AnimatedVector2 extends Vector2 implements IVector2, IAnimatedValue
   setAnimationSampler(animationTrackName: AnimationTrackName, animationSampler: AnimationSampler) {
     AnimationStateRepository.markAnimationBindingChanged();
     this.__animationSamplers.set(animationTrackName, animationSampler);
+    if (
+      animationTrackName === this.__firstActiveAnimationSamplerTrackName ||
+      animationTrackName === this.__firstActiveAnimationTrackName
+    ) {
+      this.__firstActiveAnimationSampler = animationSampler;
+      this.__firstActiveAnimationSamplerTrackName = animationTrackName;
+    }
+    if (
+      animationTrackName === this.__secondActiveAnimationSamplerTrackName ||
+      animationTrackName === this.__secondActiveAnimationTrackName
+    ) {
+      this.__secondActiveAnimationSampler = animationSampler;
+      this.__secondActiveAnimationSamplerTrackName = animationTrackName;
+    }
+    this.__evaluation.invalidate();
   }
 }

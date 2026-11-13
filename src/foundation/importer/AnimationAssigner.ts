@@ -730,6 +730,8 @@ export class AnimationAssigner {
       for (const [trackName, trackTimeRange] of trackTimeRanges) {
         if (existingTrackNames.has(trackName)) {
           extendSamplerToEnd(channel.animatedValue.getAnimationSampler(trackName), trackTimeRange.maxEndInputTime);
+          // The sampler input/output arrays were replaced; drop any memoized interpolation result.
+          channel.animatedValue.invalidateAnimationCache?.();
           continue;
         }
 
