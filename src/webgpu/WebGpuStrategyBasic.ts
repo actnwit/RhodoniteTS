@@ -904,13 +904,7 @@ ${indexStr}
 
     const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
     const cameraSID = this.__getAppropriateCameraComponentSID(renderPass, 0, false);
-    webGpuResourceRepository.updateUniformBufferForDrawParameters(
-      `${renderPass.renderPassUID}-${primitive.primitiveUid}-${0}`,
-      material.materialSID,
-      cameraSID,
-      0,
-      0
-    );
+    webGpuResourceRepository.setDrawParameters(material.materialSID, cameraSID, 0, 0);
     const isZWrite = renderPass.isDepthTest && renderPass.depthWriteMask;
     webGpuResourceRepository.draw(this.__engine, primitive, material, renderPass, cameraSID, isZWrite, 0);
   }
@@ -948,8 +942,7 @@ ${indexStr}
     );
 
     const primitiveIdxHasMorph = Primitive.getPrimitiveIdxHasMorph(primitive.primitiveUid) ?? 0;
-    webGpuResourceRepository.updateUniformBufferForDrawParameters(
-      `${renderPass.renderPassUID}-${primitive.primitiveUid}-${displayIdx}`,
+    webGpuResourceRepository.setDrawParameters(
       material.materialSID,
       cameraSID,
       primitiveIdxHasMorph,
