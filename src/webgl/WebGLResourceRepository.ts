@@ -426,6 +426,32 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
   }
 
   /**
+   * Overwrites the beginning of an existing vertex buffer with the given typed array.
+   *
+   * The vertex array binding is left untouched: the ARRAY_BUFFER binding is not part of the VAO state,
+   * so this can be called between draw calls without disturbing the bound VAO.
+   *
+   * @param resourceHandle - The handle of the vertex buffer to update
+   * @param typedArray - The data written from the beginning of the buffer
+   * @throws Error if no WebGL context is available or VBO not found
+   */
+  updateVertexBufferWithTypedArray(resourceHandle: WebGLResourceHandle, typedArray: TypedArray) {
+    const gl = this.__glw?.getRawContext();
+    if (!Is.exist(gl)) {
+      throw new Error('No WebGLRenderingContext set as Default.');
+    }
+
+    const vbo = this.__webglResources.get(resourceHandle) as WebGLBuffer;
+    if (!Is.exist(vbo)) {
+      throw new Error('Not found VBO.');
+    }
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, typedArray);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  }
+
+  /**
    * Creates a new vertex array object (VAO).
    *
    * @returns The handle of the created VAO or undefined if creation failed

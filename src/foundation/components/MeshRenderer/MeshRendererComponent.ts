@@ -47,6 +47,23 @@ type MeshRendererSortScratch = {
   stamp: Uint32Array;
   /** Current stamp value; a primitive is a duplicate while `stamp[uid] === stampTick`. */
   stampTick: number;
+  /** Per-EntityUID stamp; an entity was culled by the latest culling while `culledEntityStamp[uid] === cullTick`. */
+  culledEntityStamp: Uint32Array;
+  /** Per-EntityUID stamp; an entity was handled by the latest culling while `handledEntityStamp[uid] === cullTick`. */
+  handledEntityStamp: Uint32Array;
+  /** Per-mesh stamp; the instances sharing a mesh were culled by the latest culling while it equals `cullTick`. */
+  meshCullTick: WeakMap<object, number>;
+  /** Stamp value of the latest culling of this render pass (0 means no culling has run yet). */
+  cullTick: number;
+};
+
+/**
+ * Culling result of a render pass for per-instance culling of instanced draw calls.
+ * An entity was culled in the render pass while `culledEntityStamp[entityUID] === cullTick`.
+ */
+export type InstanceCullingState = {
+  readonly culledEntityStamp: Uint32Array;
+  readonly cullTick: number;
 };
 
 /**
@@ -334,7 +351,8 @@ export class MeshRendererComponent extends Component {
     const primitives = MeshRendererComponent.__cullingWithViewFrustum(
       cameraComponent,
       renderPass._optimizedMeshComponents,
-      scratch.primitives
+      scratch.primitives,
+      scratch
     );
 
     // After Frustum Culling, remove duplicated Primitives
@@ -443,14 +461,27 @@ export class MeshRendererComponent extends Component {
    * @param cameraComponent - The camera component used for frustum culling
    * @param meshComponents - Array of mesh components to be culled
    * @param outPrimitives - Reusable output array. It is cleared and filled with the primitives that passed culling
+   * @param scratch - The scratch of the render pass. The entities culled in this pass are stamped into it
+   *                  so that instanced draw calls can skip their instances
    * @returns The `outPrimitives` array (same reference) for convenience
    */
   private static __cullingWithViewFrustum(
     cameraComponent: CameraComponent,
     meshComponents: MeshComponent[],
-    outPrimitives: Primitive[]
+    outPrimitives: Primitive[],
+    scratch: MeshRendererSortScratch
   ): Primitive[] {
     outPrimitives.length = 0;
+
+    let cullTick = scratch.cullTick + 1;
+    if (cullTick === 0xffffffff) {
+      // Wrap around: clear the stamps so that old values cannot be mistaken for the current tick.
+      scratch.culledEntityStamp.fill(0);
+      scratch.handledEntityStamp.fill(0);
+      scratch.meshCullTick = new WeakMap();
+      cullTick = 1;
+    }
+    scratch.cullTick = cullTick;
 
     // A single pass over the mesh components: cull, update visibility flags and
     // collect primitives. The previous implementation allocated a filtered array
@@ -465,7 +496,16 @@ export class MeshRendererComponent extends Component {
     for (let i = 0; i < meshComponents.length; i++) {
       const meshComponent = meshComponents[i];
       const sceneGraph = meshComponent.entity.getSceneGraph();
-      if (!meshComponent._isAlive || !sceneGraph.isVisible) {
+      if (!meshComponent._isAlive) {
+        continue;
+      }
+      scratch.handledEntityStamp = MeshRendererComponent.__stampEntity(
+        scratch.handledEntityStamp,
+        meshComponent.entityUID,
+        cullTick
+      );
+      if (!sceneGraph.isVisible) {
+        MeshRendererComponent.__stampCulledEntity(scratch, meshComponent.entityUID, cullTick);
         continue;
       }
 
@@ -478,6 +518,7 @@ export class MeshRendererComponent extends Component {
           skeletal._isCulled = !visible;
         }
         if (!visible) {
+          MeshRendererComponent.__stampCulledEntity(scratch, meshComponent.entityUID, cullTick);
           continue;
         }
       }
@@ -485,7 +526,89 @@ export class MeshRendererComponent extends Component {
       MeshRendererComponent.__appendPrimitivesOfMeshComponent(meshComponent, cameraComponent, outPrimitives);
     }
 
+    MeshRendererComponent.__cullSiblingInstances(meshComponents, frustum, scratch, cullTick);
+
     return outPrimitives;
+  }
+
+  /**
+   * Culls the instances that share a mesh with the mesh components of the render pass but are not
+   * registered in the render pass themselves.
+   *
+   * Instanced draw calls render every entity sharing a mesh. For example, the VRM outline pass only holds
+   * the original model, while its shallow copies are drawn through instancing. Such sibling instances are
+   * culled with the camera of this render pass as well, once per mesh. Their visibility flags are left
+   * untouched because they belong to the render passes the entities are registered in.
+   */
+  private static __cullSiblingInstances(
+    meshComponents: MeshComponent[],
+    frustum: CameraComponent['frustum'] | undefined,
+    scratch: MeshRendererSortScratch,
+    cullTick: number
+  ) {
+    for (let i = 0; i < meshComponents.length; i++) {
+      const meshComponent = meshComponents[i];
+      if (!meshComponent._isAlive) {
+        continue;
+      }
+      const mesh = meshComponent.mesh;
+      if (mesh === undefined) {
+        continue;
+      }
+      const siblings = mesh.meshEntitiesInner;
+      if (siblings.length <= 1 || scratch.meshCullTick.get(mesh) === cullTick) {
+        continue;
+      }
+      scratch.meshCullTick.set(mesh, cullTick);
+
+      for (let j = 0; j < siblings.length; j++) {
+        const sibling = siblings[j];
+        const entityUID = sibling.entityUID;
+        if (entityUID < scratch.handledEntityStamp.length && scratch.handledEntityStamp[entityUID] === cullTick) {
+          continue;
+        }
+        let visible = sibling.getSceneGraph().isVisible;
+        if (visible && frustum != null && sibling.getTagValue('type') !== 'background-assets') {
+          visible = frustum.culling(sibling.getMesh());
+        }
+        if (!visible) {
+          MeshRendererComponent.__stampCulledEntity(scratch, entityUID, cullTick);
+        }
+      }
+    }
+  }
+
+  private static __stampCulledEntity(scratch: MeshRendererSortScratch, entityUID: EntityUID, cullTick: number) {
+    scratch.culledEntityStamp = MeshRendererComponent.__stampEntity(scratch.culledEntityStamp, entityUID, cullTick);
+  }
+
+  /**
+   * Writes `cullTick` into `stamp[entityUID]`, growing the array up to the largest EntityUID seen so far.
+   * @returns The stamp array, which is a new array when it has grown
+   */
+  private static __stampEntity(stamp: Uint32Array, entityUID: EntityUID, cullTick: number): Uint32Array {
+    let result = stamp;
+    if (entityUID >= stamp.length) {
+      result = new Uint32Array(Math.max(entityUID + 1, stamp.length * 2, 64));
+      result.set(stamp);
+    }
+    result[entityUID] = cullTick;
+    return result;
+  }
+
+  /**
+   * Gets the latest culling result of a render pass for per-instance culling of instanced draw calls.
+   * The result stays valid while `sort_$render` reuses its cached primitive list for the render pass.
+   * @param renderPass - The render pass
+   * @returns The culling state, or undefined if no culling has run for the render pass
+   * @internal
+   */
+  static _getInstanceCullingState(renderPass: RenderPass): InstanceCullingState | undefined {
+    const scratch = MeshRendererComponent.__sortScratchMap.get(renderPass);
+    if (scratch === undefined || scratch.cullTick === 0) {
+      return undefined;
+    }
+    return scratch;
   }
 
   /**
@@ -590,7 +713,15 @@ export class MeshRendererComponent extends Component {
   private static __getSortScratch(renderPass: RenderPass): MeshRendererSortScratch {
     let scratch = MeshRendererComponent.__sortScratchMap.get(renderPass);
     if (scratch === undefined) {
-      scratch = { primitives: [], stamp: new Uint32Array(64), stampTick: 0 };
+      scratch = {
+        primitives: [],
+        stamp: new Uint32Array(64),
+        stampTick: 0,
+        culledEntityStamp: new Uint32Array(64),
+        handledEntityStamp: new Uint32Array(64),
+        meshCullTick: new WeakMap(),
+        cullTick: 0,
+      };
       MeshRendererComponent.__sortScratchMap.set(renderPass, scratch);
     }
     return scratch;
