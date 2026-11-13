@@ -32,6 +32,9 @@ export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStr
     private __lastRenderPassTickCount;
     private __lightComponents?;
     private __currentComponentSIDs?;
+    /** Program and values of the last currentComponentSIDs upload, used to skip redundant uploads. */
+    private __lastComponentSIDsProgram?;
+    private __lastUploadedComponentSIDs?;
     _totalSizeOfGPUShaderDataStorageExceptMorphData: number;
     private static __isDebugOperationToDataTextureBufferDone;
     private __uniformMorphOffsetsTypedArray?;
@@ -424,6 +427,12 @@ export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStr
      * between draw calls and only updating GPU state when necessary.
      */
     private __renderInner;
+    /**
+     * Uploads the currentComponentSIDs uniform unless the same values were already uploaded to the
+     * same program by the previous upload. Uniform values persist in the program object, so
+     * consecutive draws of the same material (e.g. a shadow pass) do not need to upload again.
+     */
+    private __uploadCurrentComponentSIDs;
     /**
      * Binds the data texture to the WebGL context for shader access.
      * This method sets up the texture binding and sampler configuration

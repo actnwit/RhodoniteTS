@@ -45,6 +45,19 @@ export declare class OimoPhysicsStrategy implements PhysicsStrategy {
     private __usesShapeInstance;
     private __shapeType?;
     private __warnedScaleApproximation;
+    /** Reusable quaternion for world-rotation lookups (avoids per-frame allocations) */
+    private __tmpWorldRotation;
+    /** Reusable Euler angles for rotation conversions (avoids per-frame allocations) */
+    private __tmpEuler;
+    /** Reusable temporaries for body pose calculation (avoids per-frame allocations) */
+    private __tmpShapeScaledOffset;
+    private __tmpBodyWorldOffset;
+    private __tmpBodyPose;
+    /** Reusable temporaries for the per-frame physics sync */
+    private __tmpBodyRotation;
+    private __tmpEntityRotation;
+    private __tmpInverseLocalRotation;
+    private __tmpUpdatePosition;
     /**
      * Creates a new OimoPhysicsStrategy instance.
      * Initializes the shared Oimo physics world if it doesn't exist yet.
@@ -93,6 +106,15 @@ export declare class OimoPhysicsStrategy implements PhysicsStrategy {
     private __resolveScaledShape;
     private __createLegacyScaledSize;
     private __toBodyPose;
+    /**
+     * Fills the reusable body pose with the given position and rotation.
+     * Accepts plain `{ x, y, z }` objects as well as vector/quaternion instances
+     * (Oimo.js returns plain objects from its body getters).
+     * @param position - The body position to copy
+     * @param rotation - The body rotation to copy
+     * @returns The reusable body pose
+     */
+    private __reuseBodyPose;
     /**
      * Advances the physics simulation by one time step.
      * This static method should be called once per frame to update all physics bodies

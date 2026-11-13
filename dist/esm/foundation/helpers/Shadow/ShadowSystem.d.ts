@@ -15,6 +15,15 @@ export declare class ShadowSystem {
     private __lightTypes;
     private __lightEnables;
     private __lightCastShadows;
+    /** Reused by setDepthBiasPV() on every frame. */
+    private __depthBiasPVArray?;
+    private __depthBiasPV?;
+    /** Scratch buffer used to detect whether the bias matrices changed since the last frame. */
+    private __depthBiasPVScratch?;
+    /** Incremented whenever the content of the depth bias matrices changes. */
+    private __depthBiasPVVersion;
+    /** `__depthBiasPVVersion` last written to each material, indexed by material UID. */
+    private __depthBiasPVVersionOfMaterials;
     private __lastTransformUpdateCountForAutoFit;
     private __lastEntityCountForAutoFit;
     private __lastAutoFitCenter;
@@ -64,6 +73,11 @@ export declare class ShadowSystem {
      * @param entities - Array of scene graph entities to apply the bias matrices to
      */
     setDepthBiasPV(entities: ISceneGraphEntity[]): void;
+    /**
+     * Background assets (tagged `type: background-assets`, e.g. the environment cube and the grid
+     * in RhodoniteEditor2) do not cast shadows. The shadow volume auto-fit excludes them as well.
+     */
+    private static __isShadowCaster;
     private __autoFitDirectionalLightShadowVolume;
     private __applyAutoFitToDirectionalLights;
     /**

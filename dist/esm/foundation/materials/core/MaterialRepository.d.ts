@@ -23,6 +23,12 @@ export declare class MaterialRepository {
     _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsName, ShaderVariable>>;
     /** State version counter for tracking material changes (engine-specific) */
     private __stateVersion;
+    /**
+     * State version counter for changes that invalidate WebGPU bind groups and
+     * render bundles (texture bindings, pipelines). Uniform-only updates do not
+     * bump this, so render bundles stay reusable across frames.
+     */
+    private __bindingStateVersion;
     private static __materialTidCount;
     private static __materialUidCount;
     /**
@@ -160,9 +166,20 @@ export declare class MaterialRepository {
      */
     get stateVersion(): number;
     /**
+     * Gets the state version that invalidates GPU bind groups and render bundles.
+     * @returns The binding state version number
+     */
+    get bindingStateVersion(): number;
+    /**
      * Increments the state version counter.
      * Called when a material's state changes.
      * @internal
      */
     _incrementStateVersion(): void;
+    /**
+     * Increments the state version that invalidates WebGPU bind groups and
+     * render bundles.
+     * @internal
+     */
+    _incrementBindingStateVersion(): void;
 }

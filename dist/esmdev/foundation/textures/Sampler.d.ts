@@ -87,3 +87,17 @@ export declare class Sampler {
      */
     destroy(): void;
 }
+/**
+ * Returns a sampler shared per engine for the given descriptor, creating it on first use.
+ *
+ * Use this for default samplers that are set on many materials. Creating a new Sampler per material
+ * creates one GPU sampler object per material, and the renderer then has to rebind the sampler on
+ * every draw because no two consecutive materials share one. Samplers are immutable after creation,
+ * so sharing them is safe.
+ *
+ * @param engine - The engine that owns the sampler
+ * @param desc - The sampler descriptor
+ * @returns The shared sampler (already created)
+ * @internal
+ */
+export declare function getSharedSampler(engine: Engine, desc: SamplerDescriptor): Sampler;

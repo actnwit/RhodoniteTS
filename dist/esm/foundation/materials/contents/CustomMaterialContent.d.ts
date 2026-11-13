@@ -12,6 +12,10 @@ import type { Material } from '../core/Material';
 export declare class CustomMaterialContent extends AbstractMaterialContent {
     private __diffuseIblCubeMapSampler;
     private __specularIblCubeMapSampler;
+    /** Material and values of the last IBL parameter write (WebGL DataTexture mode). */
+    private __lastIblMaterial?;
+    private __lastIblMaterialStateVersion;
+    private __lastIblValues;
     /**
      * Creates a new CustomMaterialContent instance with custom shaders and configuration.
      *

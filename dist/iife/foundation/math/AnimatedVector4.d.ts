@@ -25,7 +25,7 @@ export declare class AnimatedVector4 extends Vector4 implements IVector4, IAnima
     private __secondActiveAnimationSampler?;
     private __blendingRatio;
     private __time?;
-    private __lastTime;
+    private __evaluation;
     isLoop: boolean;
     /**
      * Creates a new AnimatedVector4 instance.
@@ -41,6 +41,22 @@ export declare class AnimatedVector4 extends Vector4 implements IVector4, IAnima
      * @returns An array containing the x, y, z, and w components
      */
     getNumberArray(): number[];
+    /**
+     * Drops the memoized interpolation result. Call this after mutating sampler data directly.
+     */
+    invalidateAnimationCache(): void;
+    /**
+     * Number of actual interpolations performed. Intended for tests and benchmarks.
+     */
+    getEvaluationCount(): number;
+    /**
+     * Gets the internal value array without allocating a copy. Do not mutate the returned array.
+     */
+    getValueArray(): import("../../types").TypedArray;
+    /**
+     * Sets the time and blending ratio and evaluates the value at most once.
+     */
+    setTimeAndBlendingRatio(time: number, blendingRatio: number): void;
     /**
      * Sets the internal Float32Array data and triggers an update.
      *

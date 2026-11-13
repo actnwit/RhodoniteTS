@@ -18,7 +18,7 @@ export declare class AnimatedQuaternion extends Quaternion implements IQuaternio
     private __secondActiveAnimationSampler?;
     private __blendingRatio;
     private __time?;
-    private __lastTime;
+    private __evaluation;
     isLoop: boolean;
     /**
      * Creates a new AnimatedQuaternion instance.
@@ -32,6 +32,22 @@ export declare class AnimatedQuaternion extends Quaternion implements IQuaternio
      * @returns Array containing the x, y, z, w components of the quaternion
      */
     getNumberArray(): number[];
+    /**
+     * Drops the memoized interpolation result. Call this after mutating sampler data directly.
+     */
+    invalidateAnimationCache(): void;
+    /**
+     * Number of actual interpolations performed. Intended for tests and benchmarks.
+     */
+    getEvaluationCount(): number;
+    /**
+     * Gets the internal value array without allocating a copy. Do not mutate the returned array.
+     */
+    getValueArray(): import("../../types").TypedArray;
+    /**
+     * Sets the time and blending ratio and evaluates the value at most once.
+     */
+    setTimeAndBlendingRatio(time: number, blendingRatio: number): void;
     /**
      * Sets the quaternion values from a Float32Array.
      * @param array - Float32Array containing the quaternion components [x, y, z, w]

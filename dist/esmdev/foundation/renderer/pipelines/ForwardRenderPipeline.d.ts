@@ -57,37 +57,37 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __isBloom;
     private __isSimple;
     private __shadowMapSize;
-    private __oFrame;
-    private __oFrameBufferMultiView;
-    private __oFrameBufferMultiViewBlit;
-    private __oFrameBufferMultiViewBlitBackBuffer;
-    private __oFrameBufferMsaa;
-    private __oFrameBufferResolve;
-    private __oFrameBufferResolveForReference;
-    private __oInitialExpression;
+    private __frame?;
+    private __frameBufferMultiView?;
+    private __frameBufferMultiViewBlit?;
+    private __frameBufferMultiViewBlitBackBuffer?;
+    private __frameBufferMsaa?;
+    private __frameBufferResolve?;
+    private __frameBufferResolveForReference?;
+    private __initialExpression?;
     /** main expressions */
     private __expressions;
     private __gizmoExpression;
-    private __oGenerateMipmapsExpression;
-    private __oMultiViewBlitBackBufferExpression;
-    private __oMultiViewBlitExpression;
-    private __oBloomExpression;
-    private __oToneMappingExpression;
-    private __oToneMappingMaterial;
+    private __generateMipmapsExpression?;
+    private __multiViewBlitBackBufferExpression?;
+    private __multiViewBlitExpression?;
+    private __bloomExpression?;
+    private __toneMappingExpression?;
+    private __toneMappingMaterial?;
     private __transparentOnlyExpressions;
-    private __oWebXRSystem;
-    private __oDrawFunc;
-    private __oDiffuseCubeTexture;
-    private __oSpecularCubeTexture;
-    private __oSheenCubeTexture;
-    private __oSamplerForBackBuffer;
+    private __webXRSystem?;
+    private __drawFunc?;
+    private __diffuseCubeTexture?;
+    private __specularCubeTexture?;
+    private __sheenCubeTexture?;
+    private __samplerForBackBuffer?;
     private __toneMappingType;
     private __bloomHelper;
-    private __oShadowSystem;
+    private __shadowSystem?;
     private __shadowExpressions;
     private __entitiesForShadow;
-    private __oRaymarchingExpression;
-    private __oRaymarchingRenderPass;
+    private __raymarchingExpression?;
+    private __raymarchingRenderPass?;
     private __engine;
     constructor(engine: Engine);
     /**
@@ -142,7 +142,7 @@ export declare class ForwardRenderPipeline extends RnObject {
     /**
      * Gets the main frame buffer used for back buffer operations.
      *
-     * @returns The frame buffer for back buffer operations, or None if not available
+     * @returns The frame buffer for back buffer operations, or undefined if not available
      *
      * @internal
      */
@@ -150,7 +150,7 @@ export declare class ForwardRenderPipeline extends RnObject {
     /**
      * Gets the main frame buffer used for resolve operations.
      *
-     * @returns The frame buffer for resolve operations, or None if not available
+     * @returns The frame buffer for resolve operations, or undefined if not available
      *
      * @internal
      */
@@ -158,7 +158,7 @@ export declare class ForwardRenderPipeline extends RnObject {
     /**
      * Gets the main frame buffer used for rendering operations.
      *
-     * @returns The main frame buffer, or None if not available
+     * @returns The main frame buffer, or undefined if not available
      *
      * @internal
      */

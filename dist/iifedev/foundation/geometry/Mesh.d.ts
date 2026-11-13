@@ -26,6 +26,19 @@ export declare class Mesh implements IMesh {
     private __localAABB;
     private __vaoUids;
     private __variationVBOUid;
+    /** Instance variation data of all the entities, in the order of `__variationEntityUIDs`. */
+    private __variationEntityInfo?;
+    /** EntityUIDs of the instances stored in `__variationEntityInfo`. */
+    private __variationEntityUIDs?;
+    /** Mirror of the current content of the variation VBO (WebGL). */
+    private __variationVBOContent?;
+    /** Scratch buffer to pack the instance variation data of the visible instances. */
+    private __packedVariationEntityInfo?;
+    /** Number of the instances packed at the front of the variation VBO. */
+    private __variationVBOInstanceCount;
+    /** Culling state the variation VBO content was packed for; used to skip redundant packing. */
+    private __variationVBOCulledEntityStamp?;
+    private __variationVBOCullTick;
     private __latestPrimitivePositionAccessorVersionForAABB;
     private __latestPrimitivePositionAccessorVersionForSetUpDone;
     private __belongToEntities;
@@ -136,6 +149,20 @@ export declare class Mesh implements IMesh {
      * @internal
      */
     updateVariationVBO(): boolean;
+    /**
+     * Packs the instance variation data of the instances that were not culled in a render pass
+     * into the front of the variation VBO, so that an instanced draw call renders only them.
+     * The VBO is rewritten only when its content changes. WebGL only.
+     *
+     * Instances whose entities are not handled by the render pass's culling keep being drawn.
+     *
+     * @param culledEntityStamp - Per-EntityUID stamps written by the culling of the render pass
+     *                            (undefined: draw all the instances)
+     * @param cullTick - The stamp value of the latest culling of the render pass
+     * @returns The number of the instances to draw
+     * @internal
+     */
+    _packVisibleInstancesToVariationVBO(culledEntityStamp: Uint32Array | undefined, cullTick: number): number;
     /**
      * Deletes the variation VBO (Vertex Buffer Object).
      * @returns True if updated, false if not changed (not dirty)

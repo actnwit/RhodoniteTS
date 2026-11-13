@@ -22,6 +22,13 @@ export declare class ScaleGizmo extends Gizmo {
     private __onPointerDownFunc;
     private __onPointerMoveFunc;
     private __onPointerUpFunc;
+    /** Reusable quaternion for world-rotation calculations (avoids per-frame allocations) */
+    private static readonly __tmpQuaternion_0;
+    /** Reusable vectors for drag calculations (avoids per-frame allocations) */
+    private static readonly __tmpVector3_0;
+    private static readonly __tmpVector3_1;
+    private static readonly __tmpVector3_2;
+    private static readonly __tmpVector3_3;
     /**
      * Gets the resources for a specific engine, or undefined if not initialized.
      */

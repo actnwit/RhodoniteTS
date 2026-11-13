@@ -11,9 +11,18 @@ import type { ComponentToComponentMethods } from '../ComponentTypes';
  */
 export declare class BlendShapeComponent extends Component {
     private __weights;
+    /**
+     * True when `__weights` is an array owned by this component.
+     * Importers and the `weights` setter may hand over arrays shared with the parsed glTF data or
+     * with other nodes, so mutations must clone first (see __ensureOwnWeights).
+     */
+    private __ownsWeights;
     private __targetNames;
     private static __updateCount;
     private static __weightsLengthBySid;
+    /** Incremented whenever the weight layout (lengths or slot count) may have changed. */
+    private static __layoutVersion;
+    private static __offsetsCache;
     /**
      * Creates a new BlendShapeComponent instance.
      * @param engine - The engine instance
@@ -63,6 +72,18 @@ export declare class BlendShapeComponent extends Component {
      * @returns Array of target names for blend shapes
      */
     get targetNames(): string[];
+    /**
+     * Ensures that `__weights` is an array this component owns before mutating it in place.
+     * Arrays passed to the `weights` setter may be shared with the parsed glTF data or with other
+     * nodes, so the first in-place write clones them.
+     */
+    private __ensureOwnWeights;
+    /**
+     * Copies weights from any array-like source, skipping the update when all values are unchanged.
+     * This is the allocation-free path used by animation each frame.
+     * @param source - Array-like source of weight values
+     */
+    setWeightsFromArrayLike(source: ArrayLike<number>): void;
     /**
      * Sets the weight value for a specific blend shape target by index.
      * @param index - The index of the blend shape target

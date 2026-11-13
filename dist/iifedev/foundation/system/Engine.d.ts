@@ -56,6 +56,8 @@ export declare class Engine extends RnObject {
     private __engineState;
     private __renderPassTickCount;
     private __animationFrameId;
+    /** The object (Window or XRSession) that owns the current animation frame callback. */
+    private __animationFrameObject?;
     private __renderLoopFunc?;
     private __args;
     private __webXRSystem;
@@ -75,6 +77,8 @@ export declare class Engine extends RnObject {
     private __lastPrimitiveCount;
     /** Shader program cache map for this engine instance. Maps shader text to program UIDs. */
     private __shaderProgramCache;
+    private __gpuTimerEnabled;
+    private __webglGpuTimer?;
     private static __engines;
     private static __engineCount;
     private __engineUid;
@@ -166,6 +170,33 @@ export declare class Engine extends RnObject {
      */
     process(frame: Frame): void;
     process(expressions: Expression[]): void;
+    /**
+     * Whether the GPU time of each process() call is measured.
+     *
+     * @remarks
+     * Disabled by default. Measuring uses GPU timer queries (EXT_disjoint_timer_query_webgl2 in WebGL2, the
+     * `timestamp-query` feature in WebGPU), which add a small overhead. See {@link gpuTimeMilliseconds}.
+     */
+    get gpuTimerEnabled(): boolean;
+    set gpuTimerEnabled(flag: boolean);
+    /**
+     * Whether the GPU time can be measured in this environment.
+     * Browsers may not expose GPU timer queries (e.g. for privacy reasons or on some platforms).
+     */
+    get isGpuTimerSupported(): boolean;
+    /**
+     * The GPU time spent on the latest measured process() call, in milliseconds.
+     *
+     * @remarks
+     * Undefined until a result is available, or when {@link gpuTimerEnabled} is false or the environment does
+     * not support GPU timer queries. GPU results arrive asynchronously, so the value lags behind by a few
+     * frames. In WebGPU it is the sum of the durations of the render passes; in WebGL2 it is the time the GPU
+     * spent on all the commands issued during process().
+     */
+    get gpuTimeMilliseconds(): number | undefined;
+    private __getWebGLGpuTimer;
+    private __beginGpuTimer;
+    private __endGpuTimer;
     private __processRenderPassWebGPU;
     private __renderDeferredEffekseerEffectsAfterResolveWebGPU;
     private __renderMeshesWebGPU;

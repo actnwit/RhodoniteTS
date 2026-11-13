@@ -6,7 +6,7 @@ import type { RaycastResultEx2 } from '../../geometry/types/GeometryTypes';
 import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
 import { AABB } from '../../math/AABB';
 import type { IMatrix44 } from '../../math/IMatrix';
-import type { IQuaternion } from '../../math/IQuaternion';
+import type { IMutableQuaternion, IQuaternion } from '../../math/IQuaternion';
 import type { IVector3 } from '../../math/IVector';
 import { MutableMatrix33 } from '../../math/MutableMatrix33';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
@@ -27,12 +27,20 @@ export declare class SceneGraphComponent extends Component {
     private __parent?;
     private __children;
     private __gizmoChildren;
+    /** True while this node is attached to its parent as a gizmo child (see _addGizmoChild). */
+    private __isGizmoChild;
     private __physicsComponentCountInSubtree;
+    private static __hierarchyVersion;
     private _worldMatrix;
     private _worldMatrixRest;
     private _normalMatrix;
     private _worldRotation;
     private __isWorldMatrixUpToDate;
+    /**
+     * Monotonically increasing counter that advances whenever this node's world matrix is invalidated.
+     * Consumers such as SkeletalComponent sum these counters to detect whether any input changed.
+     */
+    private __worldMatrixVersion;
     private __isWorldMatrixRestUpToDate;
     private __isNormalMatrixUpToDate;
     private __isWorldRotationUpToDate;
@@ -61,11 +69,19 @@ export declare class SceneGraphComponent extends Component {
     private static __sceneGraphs;
     private static invertedMatrix44;
     private static __tmp_mat4;
-    private static __tmp_mat4_2;
     private static __tmp_mat4_3;
     private static __tmp_mat4_4;
     private static __tmp_quat_0;
     private static __tmp_quat_1;
+    private static __tmp_quat_2;
+    private static __tmp_quat_3;
+    private static __tmp_vec3_0;
+    private static __tmp_vec3_1;
+    private static __tmp_vec3_2;
+    private static __tmp_matrixScale;
+    private static __tmp_physicsWorldScale;
+    private static __tmp_euler;
+    private static __tmp_translate;
     /** Map to store update count per Engine instance for multi-engine support */
     private static __updateCountMap;
     private static __tmpAABB;
@@ -195,6 +211,12 @@ export declare class SceneGraphComponent extends Component {
      * Gets the component type identifier for SceneGraphComponent.
      * @returns The component type ID
      */
+    /**
+     * Gets the version counter of the scene graph hierarchy.
+     * It changes whenever a parent-child relationship of any SceneGraphComponent may have changed.
+     * @returns The hierarchy version counter
+     */
+    static get hierarchyVersion(): number;
     static get componentTID(): 4;
     /**
      * Gets the component type identifier for this instance.
@@ -209,6 +231,13 @@ export declare class SceneGraphComponent extends Component {
      * Recursively marks the world matrix rest state as dirty for this node and all children.
      */
     setWorldMatrixRestDirtyRecursively(): void;
+    /**
+     * Gets the monotonically increasing world matrix version of this node.
+     * The value changes whenever the node is marked dirty, so summing it over a set of nodes detects
+     * whether any of them may need to be recomputed.
+     * @returns The world matrix version
+     */
+    get worldMatrixVersion(): number;
     /**
      * Marks the world matrix as dirty and propagates changes up the hierarchy.
      */
@@ -325,7 +354,12 @@ export declare class SceneGraphComponent extends Component {
     isWorldMatrixUpToDateRecursively(): boolean;
     /**
      * Recursively calculates the world matrix from this node up to the root.
-     * @returns The calculated world matrix
+     *
+     * The result is memoized into `_worldMatrix` for every node visited by the recursion, not only the
+     * node that was requested. Without the write-back, processing children before their parents would
+     * recompute the same ancestor matrices once per descendant.
+     *
+     * @returns The cached world matrix of this node
      */
     private __calcWorldMatrixRecursively;
     /**
@@ -335,9 +369,18 @@ export declare class SceneGraphComponent extends Component {
     private __calcWorldMatrixRestRecursively;
     /**
      * Gets the world rotation quaternion by recursively combining local rotations.
+     * This allocates a new quaternion. Use {@link getQuaternionRecursivelyTo}
+     * when a pre-allocated output quaternion is available (e.g. in hot per-frame paths).
      * @returns The world rotation quaternion
      */
     getQuaternionRecursively(): IQuaternion;
+    /**
+     * Gets the world rotation quaternion by recursively combining local rotations
+     * and stores the result in the given output quaternion without allocating.
+     * @param out - The output quaternion to store the result
+     * @returns The output quaternion containing the world rotation
+     */
+    getQuaternionRecursivelyTo(out: IMutableQuaternion): IMutableQuaternion;
     /**
      * Gets the world position of this node.
      * @returns The world position as a Vector3
@@ -548,9 +591,12 @@ export declare class SceneGraphComponent extends Component {
     /**
      * Resolves world-scale magnitudes with signs relative to the entity's proper world rotation.
      * Physics bodies use that rotation separately, so reflected local offsets need these signs.
+     *
+     * The returned vector is a shared reusable instance, so callers must copy it
+     * when they need to keep the values around.
      * @internal
      */
-    _getPhysicsWorldScale(matrix?: IMatrix44): Vector3;
+    _getPhysicsWorldScale(matrix?: IMatrix44): IVector3;
     /**
      * Creates a shallow copy of a child scene graph component.
      * @param child - The child component to copy

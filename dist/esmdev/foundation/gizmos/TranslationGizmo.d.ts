@@ -23,6 +23,13 @@ export declare class TranslationGizmo extends Gizmo {
     private __onPointerUpFunc;
     private __isCameraControllerDisabled;
     private static __length;
+    /** Reusable quaternions for world-rotation calculations (avoids per-frame allocations) */
+    private static readonly __tmpQuaternion_0;
+    private static readonly __tmpQuaternion_1;
+    /** Reusable vectors for drag calculations (avoids per-frame allocations) */
+    private static readonly __tmpVector3_0;
+    private static readonly __tmpVector3_1;
+    private static readonly __tmpVector3_2;
     /**
      * Gets the resources for a specific engine, or undefined if not initialized.
      */

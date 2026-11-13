@@ -11,7 +11,7 @@ import type { Material } from '../materials/core/Material';
 import type { RenderPass } from '../renderer/RenderPass';
 import type { Engine } from '../system/Engine';
 import type { AbstractTexture } from '../textures/AbstractTexture';
-import { Sampler } from '../textures/Sampler';
+import { type Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';
 /**
  * Creates a new material with the specified material content and maximum instances.

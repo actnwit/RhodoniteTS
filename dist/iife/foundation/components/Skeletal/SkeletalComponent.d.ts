@@ -11,7 +11,7 @@ import { MutableVector4 } from '../../math/MutableVector4';
 import type { Accessor } from '../../memory/Accessor';
 import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
-import type { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
+import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 /**
  * SkeletalComponent manages skeletal animation for entities.
  * This component handles bone transformations, joint matrices, and skinning calculations
@@ -63,7 +63,19 @@ export declare class SkeletalComponent extends Component {
     private static __bindShapeSignatureMap;
     private __jointListKey?;
     private __skinCacheKey?;
+    private __skinCacheKeyAnimationBindingVersion;
+    private __skinCacheKeyHierarchyVersion;
     private __inverseBindMatricesSignature?;
+    /**
+     * Memoized input signature of the last skinning computation. When the skin cache key, the joint
+     * world matrices, the skinned node world matrix and the bind shape matrix are unchanged, the
+     * whole skinning loop can be skipped and the previous bone data reused.
+     */
+    private __hasSkinComputeSignature;
+    private __lastSkinComputeCacheKey?;
+    private __lastSkinComputeJointVersionSum;
+    private __lastSkinComputeOwnVersion;
+    private __lastSkinComputeBindShapeMatrix?;
     private static __tookGlobalDataNum;
     private static __tmp_mat4;
     private static __tmp_q;
@@ -381,6 +393,15 @@ export declare class SkeletalComponent extends Component {
     private __getAnimationTrackFeatureHash;
     private __findAnimationTrackFeatureHash;
     /**
+     * Updates the skinning cache key only when animation bindings or the scene graph hierarchy
+     * may have changed since the key was last computed.
+     * Searching animation track feature hashes walks the whole model hierarchy, so doing it
+     * every frame for every SkeletalComponent is too expensive when many models are animated.
+     * Other inputs of the key (joints, inverse bind matrices, bone data type) update the key
+     * immediately in their setters.
+     */
+    private __updateSkinCacheKeyIfNeeded;
+    /**
      * Updates the skinning cache key based on current animation state.
      *
      * The cache key determines which SkeletalComponents can share skinning results:
@@ -397,6 +418,29 @@ export declare class SkeletalComponent extends Component {
      * - Each model maintains its own cache
      */
     private __updateSkinCacheKey;
+    /**
+     * Drops the memoized skinning input signature so the next $logic recomputes skinning.
+     */
+    private __invalidateSkinComputeSignature;
+    /**
+     * Returns true when every input that affects the bone data is identical to the last computation.
+     *
+     * The joint version sum works as a change detector because `worldMatrixVersion` only increases:
+     * if any joint (or the skinned node) was marked dirty, the sum necessarily differs.
+     *
+     * Constraint: like the world matrix cache itself, this signature only observes changes made
+     * through the transform/renderer APIs. Writing `matrixInner` directly or mutating
+     * `_bindShapeMatrix` in place is not detected; callers must invalidate through the setters.
+     *
+     * @param cacheKey - The current skinning cache key
+     * @returns True when the skinning loop can be skipped
+     */
+    private __isSkinComputeInputUnchanged;
+    /**
+     * Records the inputs that produced the current bone data.
+     * @param cacheKey - The skinning cache key used for this computation
+     */
+    private __recordSkinComputeSignature;
     private __createSkinningCache;
     private __applySkinningCache;
 }

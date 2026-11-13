@@ -9,6 +9,14 @@ import type { CubeTexture } from '../../textures/CubeTexture';
 import type { RenderTargetTextureCube } from '../../textures/RenderTargetTextureCube';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 /**
+ * Culling result of a render pass for per-instance culling of instanced draw calls.
+ * An entity was culled in the render pass while `culledEntityStamp[entityUID] === cullTick`.
+ */
+export type InstanceCullingState = {
+    readonly culledEntityStamp: Uint32Array;
+    readonly cullTick: number;
+};
+/**
  * MeshRendererComponent is a component that manages the rendering of a mesh entity.
  * It handles mesh rendering pipeline, IBL (Image-Based Lighting) cube maps, frustum culling,
  * and rendering optimization through various strategies.
@@ -26,6 +34,11 @@ export declare class MeshRendererComponent extends Component {
     private static __updateCount;
     static _isFrustumCullingEnabled: boolean;
     private __fingerPrint;
+    /** Per-render-pass scratch buffers reused by sort_$render to avoid per-frame allocations. */
+    private static __sortScratchMap;
+    /** Memoized rendering strategy for common_$prerender (the hot path runs once per frame). */
+    private static __prerenderStrategyEngineUid;
+    private static __prerenderStrategy;
     /**
      * Creates a new MeshRendererComponent instance.
      * @param engine - The engine instance
@@ -144,9 +157,56 @@ export declare class MeshRendererComponent extends Component {
      * Filters out mesh components that are not visible from the camera's perspective.
      * @param cameraComponent - The camera component used for frustum culling
      * @param meshComponents - Array of mesh components to be culled
-     * @returns Array of primitives that passed the frustum culling test
+     * @param outPrimitives - Reusable output array. It is cleared and filled with the primitives that passed culling
+     * @param scratch - The scratch of the render pass. The entities culled in this pass are stamped into it
+     *                  so that instanced draw calls can skip their instances
+     * @returns The `outPrimitives` array (same reference) for convenience
      */
     private static __cullingWithViewFrustum;
+    /**
+     * Culls the instances that share a mesh with the mesh components of the render pass but are not
+     * registered in the render pass themselves.
+     *
+     * Instanced draw calls render every entity sharing a mesh. For example, the VRM outline pass only holds
+     * the original model, while its shallow copies are drawn through instancing. Such sibling instances are
+     * culled with the camera of this render pass as well, once per mesh. Their visibility flags are left
+     * untouched because they belong to the render passes the entities are registered in.
+     */
+    private static __cullSiblingInstances;
+    private static __stampCulledEntity;
+    /**
+     * Writes `cullTick` into `stamp[entityUID]`, growing the array up to the largest EntityUID seen so far.
+     * @returns The stamp array, which is a new array when it has grown
+     */
+    private static __stampEntity;
+    /**
+     * Gets the latest culling result of a render pass for per-instance culling of instanced draw calls.
+     * The result stays valid while `sort_$render` reuses its cached primitive list for the render pass.
+     * @param renderPass - The render pass
+     * @returns The culling state, or undefined if no culling has run for the render pass
+     * @internal
+     */
+    static _getInstanceCullingState(renderPass: RenderPass): InstanceCullingState | undefined;
+    /**
+     * Appends the primitives of a mesh component to `outPrimitives` and computes the
+     * view depth for blended primitives.
+     */
+    private static __appendPrimitivesOfMeshComponent;
+    /**
+     * Removes duplicated primitives in place without allocating a `Set` or a new array.
+     * A primitive UID is unique, so a stamp array indexed by the UID is enough to detect
+     * duplicates. `primitives.length` is updated to the deduplicated length.
+     */
+    private static __removeDuplicatedPrimitives;
+    /** Sort comparator shared by every render pass (avoids allocating a closure per frame). */
+    private static __comparePrimitives;
+    /**
+     * Builds the primitive UID list used for drawing. The trailing `-1` is the sentinel
+     * that terminates the list.
+     */
+    private static __createPrimitiveUids;
+    /** Returns (and lazily creates) the reusable scratch buffers of a render pass. */
+    private static __getSortScratch;
     /**
      * Common pre-rendering setup method that prepares the rendering strategy.
      * Initializes the rendering strategy if not already set and calls its prerender method.

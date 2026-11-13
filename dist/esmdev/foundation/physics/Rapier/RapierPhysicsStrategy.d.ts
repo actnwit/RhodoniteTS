@@ -166,6 +166,18 @@ export declare class RapierPhysicsStrategy implements PhysicsStrategy {
     private __warnedAsymmetricRadius;
     private __warnedNonUniformScale;
     private __warnedShearedBoxApproximation;
+    /** Reusable quaternion for world-rotation lookups (avoids per-frame allocations) */
+    private __tmpWorldRotation;
+    /** Reusable Euler angles for rotation conversions (avoids per-frame allocations) */
+    private __tmpEuler;
+    /** Reusable Euler angles stored in the cached physics property */
+    private __tmpPropertyRotation;
+    /** Reusable vectors for converting motion velocities */
+    private __tmpLinearVelocity;
+    private __tmpAngularVelocity;
+    /** Reusable temporaries for the per-frame physics sync */
+    private __tmpUpdatePosition;
+    private __tmpUpdateRotation;
     /**
      * Injects Rapier.js bindings. Physics worlds are created lazily per Engine.
      * @param rapierModule - Rapier module or compat module default export

@@ -51,6 +51,11 @@ export declare class AnimationStateComponent extends Component {
      */
     $logic(): void;
     /**
+     * Propagates the blending ratio to all descendants without evaluating the animation channels.
+     * @param ratio - The blending ratio value between 0.0 and 1.0
+     */
+    private __setAnimationBlendingRatioWithoutApplying;
+    /**
      * Sets the first active animation track without blending.
      * This is typically used for initial animation setup.
      * @param trackName - The name of the animation track to activate

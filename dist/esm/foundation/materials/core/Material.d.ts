@@ -88,6 +88,8 @@ export declare class Material extends RnObject {
     private __blendFuncAlphaSrcFactor;
     private __blendFuncAlphaDstFactor;
     private __stateVersion;
+    private __pipelineStateVersion;
+    private __textureStateVersion;
     private __fingerPrint;
     private __shaderDefines;
     private __shaderNodeJson?;
@@ -131,6 +133,7 @@ export declare class Material extends RnObject {
      * @internal
      */
     calcFingerPrint(): void;
+    private __incrementPipelineStateVersion;
     /**
      * Gets the current fingerprint of the material.
      * @returns The material's fingerprint string
@@ -499,6 +502,19 @@ export declare class Material extends RnObject {
      */
     makeShadersInvalidate(): void;
     updateStateVersion(): void;
+    /**
+     * Gets the version that is bumped only when the render pipeline
+     * configuration changes (shader program, blend state, cull mode, ...).
+     * Uniform parameter updates do not affect this version.
+     * @returns The pipeline state version number
+     */
+    get pipelineStateVersion(): number;
+    /**
+     * Gets the version that is bumped only when texture or sampler bindings
+     * change. Used to invalidate WebGPU bind groups and render bundles.
+     * @returns The texture binding state version number
+     */
+    get textureStateVersion(): number;
     /**
      * Gets the shader node JSON data for node-based materials.
      * This is used by RHODONITE_materials_node extension.

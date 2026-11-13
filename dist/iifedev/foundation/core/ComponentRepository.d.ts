@@ -115,6 +115,23 @@ export declare class ComponentRepository {
      */
     getComponentFromComponentTID(componentTid: ComponentTID, componentSid: ComponentSID): Component | undefined;
     /**
+     * Checks whether at least one live component of the given type exists.
+     * This is allocation-free and is intended for hot paths such as the render
+     * loop, where building a filtered component list every frame is wasteful.
+     *
+     * @param componentTID - The ComponentTID to check
+     * @returns True if at least one live component of the type exists
+     */
+    hasAnyComponent(componentTID: ComponentTID): boolean;
+    /**
+     * Counts live components of the given type without allocating a filtered
+     * array. Intended for per-frame checks in the render loop.
+     *
+     * @param componentTID - The ComponentTID to count
+     * @returns The number of live components of the type
+     */
+    getComponentCount(componentTID: ComponentTID): number;
+    /**
      * Gets an array of all component instances of the specified type.
      * This is an internal method that includes undefined slots in the array.
      *

@@ -20,6 +20,10 @@ export declare class AnimationComponent extends Component {
     /** Map to store animation global info per Engine instance for multi-engine support */
     private static __animationGlobalInfoMap;
     private __isEffekseerState;
+    /** Reused map for VRM expression weights to avoid a per-frame allocation. */
+    private __vrmExpressionWeights;
+    /** Cache of the leaf parameter name of `material/...` animation paths. */
+    private __materialParameterNameCache;
     private __isAnimating;
     isLoop: boolean;
     useGlobalTime: boolean;
@@ -80,11 +84,25 @@ export declare class AnimationComponent extends Component {
     private __applyAnimation;
     private __applyChannelAnimation;
     private __applyTransformAnimation;
+    /**
+     * Returns true when the animated value differs from the value already stored in the transform.
+     *
+     * Writing an identical value would still increment the transform update count and invalidate the
+     * world matrix and skinning caches downstream, so identical writes are skipped. The comparison is
+     * against the target value (not the last applied value), so external transform edits are still
+     * overwritten by the animation on the next frame.
+     *
+     * Physics subtrees set `canSkipIdenticalTransformWrite` to false: their setters also notify the
+     * physics strategies with the parent world transform, which must keep running even when the local
+     * value is unchanged.
+     */
+    private __shouldWriteTransformValue;
     private __applyBlendShapeAnimation;
     private __applyVisibilityAnimation;
     private __applyEffectiveVisibility;
     private __getLocalVisibility;
     private __applyMaterialAnimation;
+    private __getMaterialParameterName;
     private __applyLightAnimation;
     private __applyCameraAnimation;
     private __applyEffekseerAnimation;

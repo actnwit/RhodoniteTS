@@ -23,6 +23,20 @@ export type VrmExpression = {
 export declare class VrmComponent extends Component {
     private __expressions;
     private __weights;
+    /** morph target key -> expressions that contribute to it (rebuilt when expressions change). */
+    private __morphTargetContributors;
+    /** expression name -> morph target keys it affects (rebuilt when expressions change). */
+    private __expressionMorphTargetKeys;
+    /** Reused scratch set of morph target keys affected by the current update. */
+    private __changedMorphTargetKeys;
+    /** True until all morph targets have been written once after the expression set changed. */
+    private __needsFullMorphTargetUpdate;
+    /**
+     * BlendShapeComponent.updateCount observed after the last morph target application.
+     * If the counter moved without this component writing, another writer (a weights animation
+     * channel, an editor slider, ...) changed morph weights and they must be recomputed.
+     */
+    private __lastAppliedBlendShapeUpdateCount;
     _version: string;
     /**
      * Creates a new VrmComponent instance.
@@ -50,6 +64,11 @@ export declare class VrmComponent extends Component {
      */
     setVrmExpressions(expressions: VrmExpression[]): void;
     /**
+     * Builds the reverse index used for differential morph target updates.
+     * Called only when the expression set changes, never per frame.
+     */
+    private __rebuildMorphTargetContributors;
+    /**
      * Sets the weight for a specific VRM expression.
      * This method clamps the input, applies binary-expression behavior, and updates
      * all associated blend shape binds using the accumulated contribution from every expression.
@@ -58,19 +77,30 @@ export declare class VrmComponent extends Component {
      */
     setExpressionWeight(expressionName: VrmExpressionName, weight: number): void;
     /**
-     * Sets multiple VRM expression weights and updates morph targets in one pass.
+     * Sets multiple VRM expression weights and updates only the morph targets whose total changed.
      * This is used when several expression animation channels are evaluated together.
      * @param expressionWeights - Expression names and their evaluated weights
      */
     setExpressionWeights(expressionWeights: ReadonlyMap<VrmExpressionName, number>): void;
+    /**
+     * Applies one expression weight.
+     * @param expressionName - The expression to update
+     * @param weight - The requested weight
+     * @param changedKeys - Receives the morph target keys affected by a change
+     * @returns True when the applied weight actually changed
+     */
     private __setExpressionWeight;
     /**
-     * Recomputes morph target weights from all expression contributions.
+     * Recomputes the given morph targets from all expression contributions.
      *
      * Multiple VRM expressions may bind the same morph target. Applying each expression directly
      * would make the result depend on map insertion order, so contributions are accumulated first.
+     * The total is recomputed from the contributing expressions (not accumulated as a delta) to avoid
+     * floating point drift.
+     *
+     * @param morphTargetKeys - Keys of the morph targets to recompute
      */
-    private __applyExpressionWeightsToMorphTargets;
+    private __applyMorphTargets;
     /**
      * Gets the current weight of a specific VRM expression.
      * @param expressionName - The name of the expression to query

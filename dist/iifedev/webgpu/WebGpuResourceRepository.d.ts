@@ -14,16 +14,15 @@ import { CGAPIResourceRepository, type DirectTextureData, type ICGAPIResourceRep
 import type { FrameBuffer } from '../foundation/renderer/FrameBuffer';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import type { Engine } from '../foundation/system/Engine';
-import { CubeTexture } from '../foundation/textures/CubeTexture';
 import type { IRenderable } from '../foundation/textures/IRenderable';
-import { RenderTargetTextureCube } from '../foundation/textures/RenderTargetTextureCube';
 import { Sampler } from '../foundation/textures/Sampler';
 import type { BasisFile } from '../types/BasisTexture';
 import type { Count, Index, Size, TypedArray, WebGLResourceHandle, WebGPUResourceHandle } from '../types/CommonTypes';
 import type { TextureData, VertexHandles } from '../webgl/WebGLResourceRepository';
+import { type WebGpuBufferRange } from './WebGpuBufferArena';
 import type { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
+import { WebGpuGpuTimer } from './WebGpuGpuTimer';
 export type WebGpuResource = GPUTexture | GPUBuffer | GPUSampler | GPUTextureView | GPUBufferBinding | GPURenderPipeline | GPUComputePipeline | GPUBindGroupLayout | GPUBindGroup | GPUShaderModule | GPUCommandEncoder | GPUComputePassEncoder | GPURenderPassEncoder | GPUComputePipeline | GPURenderPipeline | GPUQuerySet | object;
-type DRAW_PARAMETERS_IDENTIFIER = string;
 /**
  * WebGPU Resource Repository that manages WebGPU resources and provides rendering functionality.
  * This class serves as a central hub for creating, managing, and utilizing WebGPU resources
@@ -38,18 +37,60 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     private __webGpuDeviceWrapper?;
     private __storageBuffer?;
     private __storageBlendShapeBuffer?;
+    /** Group 0: the storage buffer, the blend shape buffer and the morph uniform buffers. */
     private __bindGroupStorageBuffer?;
     private __bindGroupLayoutStorageBuffer?;
+    private __bindGroupLayoutKeyStorageBuffer;
+    /** The buffers bound by `__bindGroupStorageBuffer`, used to detect when it must be recreated. */
+    private __storageBindGroupBuffers;
+    /** Bound to the blend shape slot of group 0 when there is no blend shape buffer. */
+    private __dummyBlendShapeBuffer?;
     private __webGpuRenderPipelineMap;
     private __materialStateVersionMap;
-    private __bindGroupTextureMap;
-    private __bindGroupLayoutTextureMap;
-    private __bindGroupSamplerMap;
-    private __bindGroupLayoutSamplerMap;
-    private __bindGroupsUniformDrawParameters;
+    private __bindGroupLayoutCache;
+    private __pipelineLayoutCache;
+    /** Group 1 (textures), keyed by layout and bound texture views. */
+    private __textureBindGroupCache;
+    /** Group 2 (samplers), keyed by layout and bound samplers. */
+    private __samplerBindGroupCache;
+    /** Group 3 (draw parameters), keyed by the parameter values. The uniform buffers are immutable. */
+    private __drawParametersBindGroupCache;
+    /**
+     * Uniform buffers holding the draw parameters. Each buffer holds many entries at the uniform offset
+     * alignment: the browser's GPU process and the driver track every distinct buffer referenced by a
+     * frame, so one small buffer per entry costs much more than offsets into a few large buffers.
+     */
+    private __drawParametersBuffers;
+    private __drawParametersEntryCountInLastBuffer;
+    private static readonly __drawParametersEntriesPerBuffer;
+    private static __drawParametersValues;
     private __bindGroupLayoutUniformDrawParameters?;
-    private __uniformDrawParametersBuffers;
+    /** The group 3 bind group selected by setDrawParameters() for the next draw(). */
+    private __currentDrawParametersBindGroup?;
+    /** Views created for dummy textures when a texture has no view yet, by texture and dimension. */
+    private __dummyTextureViews;
+    /** Identifiers of GPU objects used to build cache keys. */
+    private __gpuObjectIds;
+    private __gpuObjectIdCount;
+    private __textureSamplerBindings;
+    private __drawBindGroups;
+    /** State last recorded into the current render bundle encoder, used to skip redundant commands. */
+    private __bundlePipeline?;
+    private __bundleBindGroups;
+    private __bundleVertexBuffers;
+    private __bundleIndexBuffer?;
+    /**
+     * Vertex and index data of all primitives (and the per-mesh instance buffers), packed into a few
+     * large GPU buffers. Each handle maps to a range of one of them.
+     */
+    private __vertexBufferArena?;
+    private __vertexBufferRanges;
+    /** Measures the GPU time of frames; created on first use (see Engine.gpuTimerEnabled). */
+    private __gpuTimer?;
+    private __bundleIndexFormat?;
     private __commandEncoder?;
+    /** Cached `gpuDevice.queue` ([SameObject]), read on every frame by flush(). */
+    private __gpuQueue?;
     private __renderBundles;
     private __renderBundleEncoder?;
     private __renderBundleEncoderKey?;
@@ -58,13 +99,38 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     private __uniformMorphOffsetsBuffer?;
     private __uniformMorphWeightsBuffer?;
     private __renderPassEncoder?;
+    /**
+     * The render pass encoder is kept open after a render pass has been recorded so that following
+     * render passes drawing into the same attachments (without clearing) can be merged into it.
+     * Every beginRenderPass/end pair is a comparatively expensive native call, and on tile-based GPUs
+     * each extra pass also costs a load/store of the attachments.
+     * These fields describe the currently open encoder.
+     */
+    private __renderPassEncoderOwner?;
+    private __renderPassEncoderDisplayIdx;
+    private __renderPassEncoderTargetKind;
+    private __renderPassEncoderTargetViews;
+    /** Scratch array swapped with `__renderPassEncoderTargetViews` to avoid per-pass allocations. */
+    private __candidateRenderPassTargetViews;
+    /** Render bundles waiting to be executed in the open render pass. See __executeRenderBundle(). */
+    private __pendingRenderBundles;
+    /**
+     * The clear of a render pass that draws nothing, not encoded yet. See clearFrameBuffer().
+     * The object is reused to keep the per-frame path free of allocations.
+     */
+    private __pendingClear;
+    /** A depth clear of the system depth texture deferred to the next render pass attaching it. See flush(). */
+    private __deferredSystemDepthClearValue;
+    /** The render pass (and display) the pending render bundle encoder is recording for. */
+    private __renderBundleEncoderOwner?;
+    private __renderBundleEncoderDisplayIdx;
     private __generateMipmapsShaderModule?;
     private __generateMipmapsPipeline?;
     private __generateMipmapsFormat?;
     private __generateMipmapsSampler?;
     private __generateMipmapsBindGroupLayout?;
     private __contextCurrentTextureView?;
-    private __lastMaterialsUpdateCount;
+    private __lastBindingStateVersion;
     private __lastCurrentCameraComponentSid;
     private __lastEntityRepositoryUpdateCount;
     private __lastPrimitivesMaterialVariantUpdateCount;
@@ -72,7 +138,6 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     private __srcTextureViewsForGeneratingMipmaps;
     private __dstTextureViewsForGeneratingMipmaps;
     private __bindGroupsForGeneratingMipmaps;
-    private static __drawParametersUint32Array;
     private constructor();
     private static __assertArrayBufferView;
     /**
@@ -275,8 +340,24 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
      */
     createIndexBuffer(accessor: Accessor): WebGPUResourceHandle;
     /**
+     * Returns the index data of an accessor in a format WebGPU accepts.
+     * WebGPU does not support 8-bit indices, so they are widened to 16 bits.
+     */
+    private static __getIndexData;
+    private __getVertexBufferArena;
+    /**
+     * Uploads vertex or index data into the shared vertex buffer arena and returns a handle to the range.
+     */
+    private __allocateVertexBufferRange;
+    /**
+     * Returns the buffer range of a vertex or index buffer handle.
+     * @internal
+     */
+    _getVertexBufferRange(resourceHandle: WebGPUResourceHandle): WebGpuBufferRange | undefined;
+    private __releaseVertexBufferRange;
+    /**
      * Updates the data in an existing vertex buffer with new data from an accessor.
-     * This method maps the buffer for writing and uploads the new data.
+     * The data must not be larger than the data the buffer was created with.
      *
      * @param accessor - Accessor containing the new vertex data
      * @param resourceHandle - Handle to the existing vertex buffer to update
@@ -293,8 +374,7 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
      */
     updateIndexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle): void;
     /**
-     * Deletes a vertex buffer and removes it from the resource registry.
-     * This destroys the GPU buffer and frees its memory.
+     * Deletes a vertex buffer and releases its range of the vertex buffer arena.
      *
      * @param resourceHandle - Handle to the vertex buffer to delete
      * @throws Error if the vertex buffer is not found
@@ -398,6 +478,11 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     getOrCreateRenderPassEncoderForEffekseerExternalRendering(engine: Engine, renderPass: RenderPass, displayIdx: number): GPURenderPassEncoder | undefined;
     createRenderBundleEncoder(engine: Engine, renderPass: RenderPass, displayIdx: number): void;
     /**
+     * Forgets the state recorded into the render bundle encoder. A new encoder starts without any
+     * pipeline, bind group or buffer set.
+     */
+    private __resetBundleEncoderState;
+    /**
      * Creates a render pass encoder for immediate rendering commands.
      * This encoder is used for recording rendering commands that will be executed immediately.
      *
@@ -406,6 +491,69 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
      * @param displayIdx - The display index for stereo rendering (0 for left eye, 1 for right eye)
      */
     private createRenderPassEncoder;
+    /**
+     * Collects the attachment views `__beginRenderPassEncoder` would use for the render pass.
+     * Must be kept in sync with the attachment selection in `__beginRenderPassEncoder`.
+     *
+     * @returns The kind of the target, or `RENDER_PASS_TARGET_KIND_NONE` if the render pass must not be merged.
+     */
+    private __collectRenderPassTargetViews;
+    /**
+     * Returns the attachment for the current canvas texture of this frame.
+     *
+     * When the browser accepts a GPUTexture where a GPUTextureView is expected (the texture's default
+     * view is used), the texture itself is returned. This saves a `createView()` call per frame.
+     */
+    private __getContextCurrentTextureView;
+    private static __textureAsAttachmentViewSupport;
+    /**
+     * Detects once whether a GPUTexture can be passed as a render pass attachment view.
+     * Browsers that do not support it throw a TypeError while converting the descriptor.
+     */
+    private static __isTextureAsAttachmentViewSupported;
+    /**
+     * Begins a render pass on the frame's command encoder. A deferred clear of the system depth
+     * texture (see flush()) is applied here to the first render pass that attaches it.
+     */
+    private __beginRenderPass;
+    /** Lets the GPU timer measure the render pass while a frame is being measured. */
+    private __addTimestampWrites;
+    /**
+     * Returns the GPU timer, creating it on first use.
+     * @internal Use Engine.gpuTimerEnabled and Engine.gpuTimeMilliseconds instead.
+     */
+    _getGpuTimer(): WebGpuGpuTimer;
+    /**
+     * Encodes the pending clear (see clearFrameBuffer) as a render pass of its own.
+     * Anything recorded in the open render pass happened before the clear, so it is ended first.
+     */
+    private __encodePendingClear;
+    private __resetPendingClear;
+    /**
+     * Ends the open render pass (if any) and encodes a pending clear, so that commands can be recorded
+     * directly on the command encoder (copies, mipmap generation, external rendering, submission).
+     */
+    private __flushRenderPassWork;
+    /**
+     * Executes a render bundle in the open render pass. Bundles are batched and executed with a
+     * single executeBundles() call when the pass is ended or handed out for direct drawing.
+     */
+    private __executeRenderBundle;
+    private __executePendingRenderBundles;
+    private static __isSameTargetViews;
+    /**
+     * Ends the open render pass encoder, if any.
+     *
+     * A pending render bundle encoder is executed into the pass only when it was recorded for the
+     * same render pass. Otherwise it belongs to a render pass that is still being recorded (the open
+     * encoder is just being kept for merging) and must stay pending.
+     */
+    private __endRenderPassEncoder;
+    private __clearRenderBundleEncoder;
+    /**
+     * Begins a new render pass encoder for the render pass. The caller must have ended any open encoder.
+     */
+    private __beginRenderPassEncoder;
     private __toClearRenderBundles;
     renderWithRenderBundle(engine: Engine, renderPass: RenderPass, displayIdx: number): boolean;
     renderWithRenderBundleAndKeepRenderPass(engine: Engine, renderPass: RenderPass, displayIdx: number): GPURenderPassEncoder | undefined;
@@ -413,7 +561,7 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     finishRenderBundleEncoderAndKeepRenderPass(engine: Engine, renderPass: RenderPass, displayIdx: number): GPURenderPassEncoder | undefined;
     getOrCreateRenderPassEncoderForExternalRendering(engine: Engine, renderPass: RenderPass, displayIdx: number): GPURenderPassEncoder | undefined;
     endRenderPassEncoderForExternalRendering(): void;
-    getOrCreateRenderPipeline(renderPipelineId: string, bindGroupId: string, primitive: Primitive, material: Material, renderPass: RenderPass, zWrite: boolean, _diffuseCubeMap?: CubeTexture | RenderTargetTextureCube, _specularCubeMap?: CubeTexture | RenderTargetTextureCube, _sheenCubeMap?: CubeTexture | RenderTargetTextureCube): [GPURenderPipeline, boolean];
+    getOrCreateRenderPipeline(renderPipelineId: string, pipelineLayoutKey: string, pipelineLayout: GPUPipelineLayout, primitive: Primitive, material: Material, renderPass: RenderPass, zWrite: boolean): [GPURenderPipeline, boolean];
     /**
      * Submits all recorded commands to the GPU queue and resets the command encoder.
      * This method must be called to execute any recorded rendering commands.
@@ -488,13 +636,60 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     deleteStorageBlendShapeBuffer(storageBufferHandle: WebGPUResourceHandle): void;
     updateStorageBlendShapeBuffer(storageBufferHandle: WebGPUResourceHandle, inputArray: Float32Array, updateComponentSize: Count): void;
     createBindGroupLayoutForDrawParameters(): void;
-    updateUniformBufferForDrawParameters(identifier: DRAW_PARAMETERS_IDENTIFIER, materialSid: Index, cameraSID: Index, currentPrimitiveIdx: Index, morphTargetNumber: Count): void;
+    /**
+     * Selects the draw parameters (group 3) for the next draw().
+     *
+     * The parameters are stored in an immutable uniform buffer shared by every draw with the same values,
+     * so consecutive draws of the same material and camera keep the same bind group.
+     *
+     * @param materialSid - The material SID
+     * @param cameraSID - The camera component SID
+     * @param currentPrimitiveIdx - The index of the primitive among the primitives with morph targets
+     * @param morphTargetNumber - The number of morph targets of the primitive
+     */
+    setDrawParameters(materialSid: Index, cameraSID: Index, currentPrimitiveIdx: Index, morphTargetNumber: Count): void;
     createUniformMorphOffsetsBuffer(sizeInByte: Count): number;
     updateUniformMorphOffsetsBuffer(inputArray: Uint32Array, elementNum: Count): void;
     createUniformMorphWeightsBuffer(sizeInByte: Count): number;
     updateUniformMorphWeightsBuffer(inputArray: Float32Array, elementNum: Count): void;
     deleteUniformBuffer(uniformBufferHandle: WebGPUResourceHandle): void;
-    private __createBindGroup;
+    /**
+     * Returns a stable identifier of a GPU object for cache keys.
+     */
+    private __getGpuObjectId;
+    /**
+     * Returns the bind group layout for the given descriptor, shared by every bind group and pipeline
+     * layout with the same descriptor.
+     */
+    private __getOrCreateBindGroupLayout;
+    /**
+     * Returns the view of a dummy texture with the given dimension. The view is created once per texture.
+     */
+    private __getDummyTextureView;
+    /**
+     * Returns the group 0 bind group (storage buffer, blend shape buffer and morph uniform buffers).
+     * It is recreated only when one of those buffers is replaced.
+     */
+    private __getStorageBindGroup;
+    /**
+     * Appends a texture binding and its sampler to `__textureSamplerBindings`.
+     */
+    private __pushTextureSamplerBinding;
+    /**
+     * Collects the textures and samplers bound by a material into `__textureSamplerBindings`.
+     * The IBL cube maps come from the mesh renderer component, not from the material.
+     */
+    private __collectTextureSamplerBindings;
+    /**
+     * Returns the bind groups and the pipeline layout for drawing with a material.
+     *
+     * The texture (group 1) and sampler (group 2) bind groups are looked up by the resources they bind,
+     * so materials binding the same textures and samplers share them. They do not depend on the render
+     * pipeline, so a pipeline can be recreated without recreating bind groups and vice versa.
+     */
+    private __getDrawBindGroups;
+    private __getTextureBindGroupLayout;
+    private __getSamplerBindGroupLayout;
     /**
      * create a Texture
      * @param imageData
@@ -750,4 +945,3 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
      */
     isSupportMultiViewVRRendering(): boolean;
 }
-export {};

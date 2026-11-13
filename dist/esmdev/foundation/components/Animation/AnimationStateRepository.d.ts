@@ -4,11 +4,33 @@ import type { Engine } from '../../system/Engine';
  * Repository for managing shared animation state between AnimationComponent and SkeletalComponent.
  * This module exists to break the circular dependency between these two components.
  */
+/**
+ * Joint information needed to decide whether a joint can skip animation.
+ */
+type JointForEarlyReturn = {
+    readonly jointIndex: number;
+    readonly entityUID: EntityUID;
+};
 export declare class AnimationStateRepository {
     /** Map to store globalTime per Engine instance for multi-engine support */
     private static __globalTimeMap;
     /** Map to store isAnimating flag per Engine instance for multi-engine support */
     private static __isAnimatingMap;
+    /**
+     * Version counter of animation bindings (channels, samplers and active tracks).
+     * Incremented whenever data that affects animation track feature hashes may change,
+     * so that consumers (e.g. SkeletalComponent skin cache keys) can avoid recomputing every frame.
+     */
+    private static __animationBindingVersion;
+    /**
+     * Marks that animation bindings (channels, samplers or active tracks) may have changed.
+     */
+    static markAnimationBindingChanged(): void;
+    /**
+     * Gets the current version of animation bindings.
+     * @returns The version counter, which changes whenever animation bindings may have changed
+     */
+    static getAnimationBindingVersion(): number;
     /**
      * Joint EntityUIDs that can skip animation in the CURRENT frame.
      * Populated during SkeletalComponent.$logic when cache hits occur.
@@ -49,6 +71,13 @@ export declare class AnimationStateRepository {
      * Managed per Engine instance for multi-engine support.
      */
     private static __leaderJointIndexToEntityUIDMap;
+    /**
+     * Joints of frustum-culled SkeletalComponents collected during the current frame.
+     * They are resolved at the next frame transition, after the leaders of the frame are decided,
+     * so that leader joints are never registered for early return.
+     * Managed per Engine instance for multi-engine support.
+     */
+    private static __pendingCulledSkeletonJointsMap;
     /**
      * Sets the global animation time for the specified engine.
      * @param engine - The engine instance to set the global time for
@@ -100,6 +129,25 @@ export declare class AnimationStateRepository {
      */
     static handleFrameTransitionIfNeeded(engine: Engine, currentProcessFrameToken: number): boolean;
     /**
+     * Registers the joints of a frustum-culled SkeletalComponent as candidates for early return.
+     *
+     * A culled SkeletalComponent neither computes nor applies skinning, so its joints do not need to
+     * be animated as long as another (visible) SkeletalComponent with the same cache key is the leader.
+     * The candidates are resolved at the next frame transition, when the leaders of this frame are known:
+     * joints that are the same entities as the leader's joints (e.g. a culled Face mesh sharing joints
+     * with a visible Body mesh) keep animating.
+     *
+     * @param engine - The engine instance for multi-engine support
+     * @param cacheKey - The skinning cache key of the culled SkeletalComponent
+     * @param joints - The joints of the culled SkeletalComponent
+     */
+    static addCulledSkeletonJoints(engine: Engine, cacheKey: string, joints: readonly JointForEarlyReturn[]): void;
+    /**
+     * Moves the joints of culled SkeletalComponents whose cache key had a leader in the finished frame
+     * into the given cached EntityUID set, excluding the leader joints.
+     */
+    private static __resolvePendingCulledSkeletonJoints;
+    /**
      * Handles frame transition and clears leader tracking.
      * Used by SkeletalComponent.isEntityCached which runs before SkeletalComponent.$logic.
      * @param engine - The engine instance
@@ -126,3 +174,4 @@ export declare class AnimationStateRepository {
      */
     static _cleanupForEngine(engine: Engine): void;
 }
+export {};

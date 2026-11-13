@@ -31,6 +31,8 @@ export declare class RotationGizmo extends Gizmo {
     private static readonly __tmpVector3_7;
     private static readonly __tmpVector3_8;
     private static readonly __tmpVector3_9;
+    /** Reusable quaternion for world-rotation calculations (avoids per-frame allocations) */
+    private static readonly __tmpQuaternion_0;
     private __isPointerDown;
     private __startVector;
     private __deltaQuaternion;

@@ -702,10 +702,22 @@ export interface IMatrix44 extends IMatrix {
      */
     getTranslate(): IVector3;
     /**
+     * Extracts the translation part of this matrix and stores it in an output vector.
+     * @param outVec - The output vector to store the translation
+     * @returns The output vector containing the translation components
+     */
+    getTranslateTo(outVec: IMutableVector3): IMutableVector3;
+    /**
      * Extracts the scale factors from this matrix.
      * @returns 3D vector containing scale factors
      */
     getScale(): IVector3;
+    /**
+     * Extracts the scale factors from this matrix and stores them in an output vector.
+     * @param outVec - The output vector to store the scale factors
+     * @returns The output vector containing the scale components
+     */
+    getScaleTo(outVec: IMutableVector3): IMutableVector3;
     /**
      * Multiplies this matrix by a 3D vector (treating it as a 4D vector with w=1).
      * @param vec - 3D vector to multiply

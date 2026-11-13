@@ -27,7 +27,7 @@ export declare class AnimatedVector3 extends Vector3 implements IVector3, IAnima
     private __secondActiveAnimationSampler?;
     private __blendingRatio;
     private __time?;
-    private __lastTime;
+    private __evaluation;
     isLoop: boolean;
     /**
      * Creates a new AnimatedVector3 instance.
@@ -49,6 +49,22 @@ export declare class AnimatedVector3 extends Vector3 implements IVector3, IAnima
      * @param array - A Float32Array containing the new x, y, z values
      */
     setFloat32Array(array: Float32Array): void;
+    /**
+     * Drops the memoized interpolation result. Call this after mutating sampler data directly.
+     */
+    invalidateAnimationCache(): void;
+    /**
+     * Number of actual interpolations performed. Intended for tests and benchmarks.
+     */
+    getEvaluationCount(): number;
+    /**
+     * Gets the internal value array without allocating a copy. Do not mutate the returned array.
+     */
+    getValueArray(): import("../../types").TypedArray;
+    /**
+     * Sets the time and blending ratio and evaluates the value at most once.
+     */
+    setTimeAndBlendingRatio(time: number, blendingRatio: number): void;
     /**
      * Sets the current animation time and triggers an update.
      *

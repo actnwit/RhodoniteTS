@@ -121,6 +121,9 @@ export type WebGLResource = WebGLBuffer | WebGLFramebuffer | WebGLProgram | WebG
 export declare class WebGLResourceRepository extends CGAPIResourceRepository implements ICGAPIResourceRepository {
     private __webglContexts;
     private __glw?;
+    /** See __getCanvasContextAttributes(). */
+    private __canvasContextAttributes?;
+    private __canvasContextAttributesOwner?;
     private __resourceCounter;
     private __webglResources;
     private __samplerClampToEdgeLinearUid;
@@ -222,6 +225,17 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
      * @throws Error if no WebGL context is available or VBO not found
      */
     updateVertexBuffer(accessor: Accessor, resourceHandle: number): void;
+    /**
+     * Overwrites the beginning of an existing vertex buffer with the given typed array.
+     *
+     * The vertex array binding is left untouched: the ARRAY_BUFFER binding is not part of the VAO state,
+     * so this can be called between draw calls without disturbing the bound VAO.
+     *
+     * @param resourceHandle - The handle of the vertex buffer to update
+     * @param typedArray - The data written from the beginning of the buffer
+     * @throws Error if no WebGL context is available or VBO not found
+     */
+    updateVertexBufferWithTypedArray(resourceHandle: WebGLResourceHandle, typedArray: TypedArray): void;
     /**
      * Creates a new vertex array object (VAO).
      *
@@ -893,7 +907,13 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
     createTransformFeedback(): number;
     deleteTransformFeedback(transformFeedbackUid: WebGLResourceHandle): void;
     setViewport(engine: Engine, viewport?: Vector4): void;
-    clearFrameBuffer(_engine: Engine, renderPass: RenderPass, _?: number): void;
+    clearFrameBuffer(engine: Engine, renderPass: RenderPass, _?: number): void;
+    /**
+     * Whether the canvas (default framebuffer) has a depth / stencil buffer. Cached because
+     * getContextAttributes() allocates a new object on every call. While the context is lost the
+     * attributes are unknown, so both are reported as present and nothing is skipped.
+     */
+    private __getCanvasContextAttributes;
     deleteVertexDataResources(vertexHandles: VertexHandles): void;
     deleteVertexArray(vaoHandle: WebGLResourceHandle): void;
     deleteVertexBuffer(vboUid: WebGLResourceHandle): void;

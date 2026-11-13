@@ -31,6 +31,8 @@ export declare class RapierCharacterControllerStrategy implements CharacterContr
     private __worldScale;
     private __isGroundProbeRadiusDerived;
     private __warnedNonUniformScale;
+    /** Reusable quaternion for world-rotation lookups (avoids per-frame allocations) */
+    private __tmpWorldRotation;
     setup(entity: ISceneGraphEntity, shapeInstance: ShapeInstance, options?: CharacterControllerOptions): void;
     setDesiredHorizontalVelocity(velocity: IVector3): void;
     requestJump(): void;
