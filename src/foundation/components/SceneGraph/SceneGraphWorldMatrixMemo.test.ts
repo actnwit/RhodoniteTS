@@ -1,8 +1,10 @@
 import { describe, expect, test, vi } from 'vitest';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { Matrix44 } from '../../math/Matrix44';
+import { Quaternion } from '../../math/Quaternion';
 import { Vector3 } from '../../math/Vector3';
 import { Engine } from '../../system/Engine';
+import { createMeshEntity } from '../MeshRenderer/createMeshEntity';
 import { createGroupEntity } from './createGroupEntity';
 
 describe('SceneGraph world matrix memoization', async () => {
@@ -117,5 +119,15 @@ describe('SceneGraph world matrix memoization', async () => {
     const normalMatrix = sceneGraph.normalMatrixInner;
     expect((sceneGraph as any).__isNormalMatrixUpToDate).toBe(true);
     expect(normalMatrix).toBe(sceneGraph.normalMatrixInner);
+  });
+
+  test('logicForce refreshes the normal matrix of drawable meshes for the GPU instance data', () => {
+    const meshEntity = createMeshEntity(engine);
+    meshEntity.getTransform().localRotation = Quaternion.axisAngle(Vector3.fromCopy3(1, 0, 0), Math.PI / 2);
+    const sceneGraph = meshEntity.getSceneGraph();
+
+    expect((sceneGraph as any).__isNormalMatrixUpToDate).toBe(false);
+    sceneGraph.logicForce();
+    expect((sceneGraph as any).__isNormalMatrixUpToDate).toBe(true);
   });
 });

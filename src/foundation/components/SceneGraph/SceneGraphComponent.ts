@@ -1209,6 +1209,12 @@ export class SceneGraphComponent extends Component {
 
   logicForce() {
     this.matrixInner;
+    // `normalMatrix` is a GPU instance data member, so it must be up to date before the instance
+    // data buffer is uploaded. Only drawable entities need it; skipping bones and group nodes
+    // avoids an inverse-transpose per skeleton node.
+    if (this.entity.tryToGetMesh() != null) {
+      this.normalMatrixInner;
+    }
     this.__updateGizmos();
   }
 
