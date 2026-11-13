@@ -72,6 +72,9 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private __lastRenderPassTickCount = -1;
   private __lightComponents?: LightComponent[];
   private __currentComponentSIDs?: VectorN;
+  /** Program and values of the last currentComponentSIDs upload, used to skip redundant uploads. */
+  private __lastComponentSIDsProgram?: WebGLProgram;
+  private __lastUploadedComponentSIDs?: Float32Array;
   public _totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
   private static __isDebugOperationToDataTextureBufferDone = true;
 
@@ -1313,6 +1316,9 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     if (vao != null) {
       glw.bindVertexArray(vao);
     } else {
+      // The previous draw may have left its VAO bound. Unbind it so that the attribute setup below
+      // goes to the default vertex array instead of overwriting that VAO.
+      glw.bindVertexArray(null);
       const vertexHandles = primitive.vertexHandles!;
       this.__engine.webglResourceRepository.setVertexDataToPipeline(vertexHandles, primitive, mesh._variationVBOUid);
       const ibo = this.__engine.webglResourceRepository.getWebGLResource(vertexHandles.iboHandle!) as WebGLBuffer;
@@ -1508,6 +1514,10 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
 
     gl.depthMask(true);
 
+    // Draws leave their VAO bound (see __renderInner), so detach once per pass to keep the VAO state
+    // isolated from external renderers (e.g. Effekseer) and from other passes.
+    this.dettachVertexData(glw);
+
     this.__lastRenderPassTickCount = renderPassTickCount;
 
     // this.__webglResourceRepository.unbindTextureSamplers();
@@ -1548,7 +1558,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     this.__setCurrentComponentSIDsForEachPrimitive(gl, material, shaderProgram);
     this.__setCurrentComponentSIDsForEachDisplayIdx(renderPass, 0, isVRMainPass);
 
-    gl.uniform1fv((shaderProgram as any).currentComponentSIDs, this.__currentComponentSIDs!._v as Float32Array);
+    this.__uploadCurrentComponentSIDs(gl, shaderProgram);
 
     if ((shaderProgram as any).vrState != null && isVRMainPass) {
       const vrState = this.__engine.globalDataRepository.getValue('vrState', 0) as Vector2;
@@ -1723,10 +1733,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       }
       this.__setCurrentComponentSIDsForEachDisplayIdx(renderPass, displayIdx as 0 | 1, isVRMainPass);
 
-      gl.uniform1fv(
-        (this.__shaderProgram as any).currentComponentSIDs,
-        this.__currentComponentSIDs!._v as Float32Array
-      );
+      this.__uploadCurrentComponentSIDs(gl, this.__shaderProgram!);
 
       if ((this.__shaderProgram as any).vrState != null && isVRMainPass && displayCount > 1) {
         const vrState = this.__engine.globalDataRepository.getValue('vrState', 0) as Vector2;
@@ -1754,9 +1761,46 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     }
 
     this.__lastShader = shaderProgramUid;
-    this.dettachVertexData(glw);
+    // The VAO is left bound on purpose: unbinding it after every draw issued three extra GL calls
+    // per draw. The next draw binds its own VAO, and common_$render() detaches once at the end.
 
     return true;
+  }
+
+  /**
+   * Uploads the currentComponentSIDs uniform unless the same values were already uploaded to the
+   * same program by the previous upload. Uniform values persist in the program object, so
+   * consecutive draws of the same material (e.g. a shadow pass) do not need to upload again.
+   */
+  private __uploadCurrentComponentSIDs(
+    gl: WebGLRenderingContext | WebGL2RenderingContext,
+    shaderProgram: WebGLProgram
+  ) {
+    const values = this.__currentComponentSIDs!._v as Float32Array;
+    let lastValues = this.__lastUploadedComponentSIDs;
+    if (
+      this.__lastComponentSIDsProgram === shaderProgram &&
+      lastValues != null &&
+      lastValues.length === values.length
+    ) {
+      let isSame = true;
+      for (let i = 0; i < values.length; i++) {
+        if (lastValues[i] !== values[i]) {
+          isSame = false;
+          break;
+        }
+      }
+      if (isSame) {
+        return;
+      }
+    }
+    gl.uniform1fv((shaderProgram as any).currentComponentSIDs, values);
+    if (lastValues == null || lastValues.length !== values.length) {
+      lastValues = new Float32Array(values.length);
+      this.__lastUploadedComponentSIDs = lastValues;
+    }
+    lastValues.set(values);
+    this.__lastComponentSIDsProgram = shaderProgram;
   }
 
   /**

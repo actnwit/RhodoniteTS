@@ -89,7 +89,7 @@ import { Is } from '../misc/Is';
 import type { RenderPass } from '../renderer/RenderPass';
 import type { Engine } from '../system/Engine';
 import type { AbstractTexture } from '../textures/AbstractTexture';
-import { Sampler } from '../textures/Sampler';
+import { getSharedSampler, type Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';
 
 /**
@@ -253,14 +253,12 @@ function createPbrUberMaterial(
 
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
 
-  const sampler = new Sampler(engine, {
+  const sampler = getSharedSampler(engine, {
     minFilter: TextureParameter.Linear,
     magFilter: TextureParameter.Linear,
     wrapS: TextureParameter.ClampToEdge,
     wrapT: TextureParameter.ClampToEdge,
   });
-
-  sampler.create();
 
   if (isClearcoat) {
     additionalShaderSemanticInfo.push({
@@ -583,13 +581,12 @@ function createClassicUberMaterial(
   const materialName = `ClassicUber_${additionalName}_`;
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
 
-  const sampler = new Sampler(engine, {
+  const sampler = getSharedSampler(engine, {
     minFilter: TextureParameter.Linear,
     magFilter: TextureParameter.Linear,
     wrapS: TextureParameter.ClampToEdge,
     wrapT: TextureParameter.ClampToEdge,
   });
-  sampler.create();
 
   if (isShadow) {
     additionalShaderSemanticInfo.push({
@@ -1712,14 +1709,12 @@ function reuseOrRecreateCustomMaterial(
     if (options.isShadow) {
       definitions.add('RN_USE_SHADOW_MAPPING');
 
-      const sampler = new Sampler(engine, {
+      const sampler = getSharedSampler(engine, {
         minFilter: TextureParameter.Linear,
         magFilter: TextureParameter.Linear,
         wrapS: TextureParameter.ClampToEdge,
         wrapT: TextureParameter.ClampToEdge,
       });
-
-      sampler.create();
 
       additionalShaderSemanticInfo.push({
         semantic: 'depthTexture',
@@ -1923,13 +1918,12 @@ function buildTextureSemanticInfo(
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
 
   // Create a default sampler for textures
-  const sampler = new Sampler(engine, {
+  const sampler = getSharedSampler(engine, {
     minFilter: TextureParameter.LinearMipmapLinear,
     magFilter: TextureParameter.Linear,
     wrapS: TextureParameter.Repeat,
     wrapT: TextureParameter.Repeat,
   });
-  sampler.create();
 
   for (const textureInfo of textureInfos) {
     // Map shader stage string to Rhodonite ShaderType
@@ -1982,14 +1976,13 @@ function buildTextureSemanticInfo(
  */
 function addPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: ShaderSemanticsInfo[]) {
   // Create a sampler for cube textures
-  const sampler = new Sampler(engine, {
+  const sampler = getSharedSampler(engine, {
     minFilter: TextureParameter.LinearMipmapLinear,
     magFilter: TextureParameter.Linear,
     wrapS: TextureParameter.ClampToEdge,
     wrapT: TextureParameter.ClampToEdge,
     wrapR: TextureParameter.ClampToEdge,
   });
-  sampler.create();
 
   const shaderStage = ShaderType.VertexAndPixelShader;
 
@@ -2066,13 +2059,12 @@ function addPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: Sha
  */
 function addPbrSheenSemanticInfo(engine: Engine, additionalShaderSemanticInfo: ShaderSemanticsInfo[]) {
   // Create a sampler for sheen LUT texture
-  const sampler = new Sampler(engine, {
+  const sampler = getSharedSampler(engine, {
     minFilter: TextureParameter.Linear,
     magFilter: TextureParameter.Linear,
     wrapS: TextureParameter.ClampToEdge,
     wrapT: TextureParameter.ClampToEdge,
   });
-  sampler.create();
 
   additionalShaderSemanticInfo.push({
     semantic: 'sheenLutTexture',
@@ -2085,14 +2077,13 @@ function addPbrSheenSemanticInfo(engine: Engine, additionalShaderSemanticInfo: S
   });
 
   // Create a sampler for sheen environment texture (cube map)
-  const cubeSampler = new Sampler(engine, {
+  const cubeSampler = getSharedSampler(engine, {
     minFilter: TextureParameter.LinearMipmapLinear,
     magFilter: TextureParameter.Linear,
     wrapS: TextureParameter.ClampToEdge,
     wrapT: TextureParameter.ClampToEdge,
     wrapR: TextureParameter.ClampToEdge,
   });
-  cubeSampler.create();
 
   // Add sheenEnvTexture for IBL sheen calculations
   additionalShaderSemanticInfo.push({

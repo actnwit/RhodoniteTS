@@ -45,6 +45,8 @@ export class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
   private __children: SceneGraphComponent[] = [];
   private __gizmoChildren: SceneGraphComponent[] = [];
+  /** True while this node is attached to its parent as a gizmo child (see _addGizmoChild). */
+  private __isGizmoChild = false;
   private __physicsComponentCountInSubtree = 0;
   private static __hierarchyVersion = 0;
   private _worldMatrix: MutableMatrix44 = MutableMatrix44.dummy();
@@ -456,7 +458,12 @@ export class SceneGraphComponent extends Component {
    */
   setWorldMatrixDirty() {
     this.setWorldMatrixDirtyRecursively();
-    this.parent?.setWorldAABBDirtyParentRecursively();
+    // Gizmo children are excluded from the parent's merged AABB, so moving them must not invalidate it.
+    // Otherwise the AABB gizmo invalidates its target's AABB in its own update and forces a full
+    // recomputation of the merged AABB of the whole subtree on every frame the scene is updated.
+    if (!this.__isGizmoChild) {
+      this.parent?.setWorldAABBDirtyParentRecursively();
+    }
   }
 
   /**
@@ -543,6 +550,7 @@ export class SceneGraphComponent extends Component {
       this.__gizmoChildren.splice(gizmoIndex, 1);
     }
     sg.__parent = undefined;
+    sg.__isGizmoChild = false;
     SceneGraphComponent.__hierarchyVersion++;
   }
 
@@ -552,6 +560,7 @@ export class SceneGraphComponent extends Component {
    */
   _addGizmoChild(sg: SceneGraphComponent): void {
     sg.__parent = this;
+    sg.__isGizmoChild = true;
     this.__gizmoChildren.push(sg);
     SceneGraphComponent.__hierarchyVersion++;
   }
@@ -1556,6 +1565,7 @@ export class SceneGraphComponent extends Component {
     }
 
     this.__gizmoChildren = component.__gizmoChildren.concat();
+    this.__isGizmoChild = component.__isGizmoChild;
     this._worldMatrix.copyComponents(component._worldMatrix);
     this._worldMatrixRest.copyComponents(component._worldMatrixRest);
     this._normalMatrix.copyComponents(component._normalMatrix);

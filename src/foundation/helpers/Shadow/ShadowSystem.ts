@@ -7,6 +7,7 @@ import { LightType, type LightTypeEnum } from '../../definitions/LightType';
 import { PixelFormat } from '../../definitions/PixelFormat';
 import { TextureFormat } from '../../definitions/TextureFormat';
 import { TextureParameter } from '../../definitions/TextureParameter';
+import type { Material } from '../../materials/core/Material';
 import { AABB } from '../../math/AABB';
 import { Vector3 } from '../../math/Vector3';
 import { VectorN } from '../../math/VectorN';
@@ -38,6 +39,12 @@ export class ShadowSystem {
   /** Reused by setDepthBiasPV() on every frame. */
   private __depthBiasPVArray?: Float32Array;
   private __depthBiasPV?: VectorN;
+  /** Scratch buffer used to detect whether the bias matrices changed since the last frame. */
+  private __depthBiasPVScratch?: Float32Array;
+  /** Incremented whenever the content of the depth bias matrices changes. */
+  private __depthBiasPVVersion = 0;
+  /** `__depthBiasPVVersion` last written to each material, indexed by material UID. */
+  private __depthBiasPVVersionOfMaterials: number[] = [];
   private __lastTransformUpdateCountForAutoFit = -1;
   private __lastEntityCountForAutoFit = -1;
   private __lastAutoFitCenter = Vector3.fromCopy3(0, 0, 0);
@@ -269,18 +276,23 @@ export class ShadowSystem {
     // Note: This does not move the light; it only adjusts shadowAreaSizeForDirectionalLight and range.
     this.__autoFitDirectionalLightShadowVolume(entities);
 
-    // This runs every frame, so the array and the VectorN are reused. setParameter() copies the
+    // This runs every frame, so the arrays and the VectorN are reused. setParameter() copies the
     // values into the material's own variable, so sharing one VectorN between materials is safe.
+    // The matrices are computed into a scratch buffer first so that a change can be detected.
     const arrayLength = this.__engine.config.maxLightNumber * 16;
     let float32Array = this.__depthBiasPVArray;
     let depthBiasPV = this.__depthBiasPV;
-    if (float32Array == null || depthBiasPV == null || float32Array.length !== arrayLength) {
+    let scratch = this.__depthBiasPVScratch;
+    if (float32Array == null || depthBiasPV == null || scratch == null || float32Array.length !== arrayLength) {
       float32Array = new Float32Array(arrayLength);
       depthBiasPV = new VectorN(float32Array);
+      scratch = new Float32Array(arrayLength);
       this.__depthBiasPVArray = float32Array;
       this.__depthBiasPV = depthBiasPV;
+      this.__depthBiasPVScratch = scratch;
+      this.__depthBiasPVVersion++;
     } else {
-      float32Array.fill(0);
+      scratch.fill(0);
     }
 
     // Iterate the internal component array instead of getComponentsWithType(), which allocates a
@@ -300,20 +312,44 @@ export class ShadowSystem {
           const cameraComponent = lightEntity.tryToGetCamera();
           if (cameraComponent != null) {
             const biasViewProjectionMatrix = cameraComponent.biasViewProjectionMatrix;
-            float32Array.set(biasViewProjectionMatrix._v, lightIndex * 16);
+            scratch.set(biasViewProjectionMatrix._v, lightIndex * 16);
           }
         }
         lightIndex++;
       }
     }
 
+    for (let i = 0; i < arrayLength; i++) {
+      if (scratch[i] !== float32Array[i]) {
+        float32Array.set(scratch);
+        this.__depthBiasPVVersion++;
+        break;
+      }
+    }
+
+    // Writing the parameter costs a comparison of maxLightNumber * 16 floats per material, which
+    // dominates the frame in scenes with thousands of materials. Each material is written only
+    // when the matrices changed or when the material has not received the current values yet
+    // (e.g. a newly created or newly assigned material).
+    const version = this.__depthBiasPVVersion;
+    const versionOfMaterials = this.__depthBiasPVVersionOfMaterials;
     for (let i = 0; i < entities.length; i++) {
       const meshComponent = entities[i].tryToGetMesh();
       const mesh = meshComponent?.mesh;
       if (mesh != null) {
         const primitiveNumber = mesh.getPrimitiveNumber();
         for (let j = 0; j < primitiveNumber; j++) {
-          mesh.getPrimitiveAt(j).material.setParameter('depthBiasPV', depthBiasPV);
+          const material: Material = mesh.getPrimitiveAt(j).material;
+          const materialUid = material.materialUID;
+          if (versionOfMaterials[materialUid] === version) {
+            continue;
+          }
+          material.setParameter('depthBiasPV', depthBiasPV);
+          // Materials without the parameter are left unmarked: material fields are fixed at
+          // creation, so this only re-checks a cheap map lookup for them.
+          if (material._allFieldsInfo.has('depthBiasPV')) {
+            versionOfMaterials[materialUid] = version;
+          }
         }
       }
     }

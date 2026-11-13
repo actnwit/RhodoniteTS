@@ -135,3 +135,45 @@ export class Sampler {
     this.__samplerResourceUid = -1;
   }
 }
+
+const __sharedSamplers = new WeakMap<Engine, Map<string, Sampler>>();
+
+/**
+ * Returns a sampler shared per engine for the given descriptor, creating it on first use.
+ *
+ * Use this for default samplers that are set on many materials. Creating a new Sampler per material
+ * creates one GPU sampler object per material, and the renderer then has to rebind the sampler on
+ * every draw because no two consecutive materials share one. Samplers are immutable after creation,
+ * so sharing them is safe.
+ *
+ * @param engine - The engine that owns the sampler
+ * @param desc - The sampler descriptor
+ * @returns The shared sampler (already created)
+ * @internal
+ */
+export function getSharedSampler(engine: Engine, desc: SamplerDescriptor): Sampler {
+  let samplers = __sharedSamplers.get(engine);
+  if (samplers == null) {
+    samplers = new Map();
+    __sharedSamplers.set(engine, samplers);
+  }
+  const key = [
+    desc.minFilter.index,
+    desc.magFilter.index,
+    desc.wrapS.index,
+    desc.wrapT.index,
+    desc.wrapR?.index ?? -1,
+    desc.anisotropy ?? -1,
+    desc.shadowCompareMode ?? -1,
+  ].join(',');
+  let sampler = samplers.get(key);
+  if (sampler == null) {
+    sampler = new Sampler(engine, desc);
+    samplers.set(key, sampler);
+  }
+  if (!sampler.created) {
+    // Also re-creates the GPU resource after destroy() reset it.
+    sampler.create();
+  }
+  return sampler;
+}
