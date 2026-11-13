@@ -1,4 +1,5 @@
 import type { AnimationSampler, AnimationTrackName } from '../../types/AnimationTypes';
+import type { TypedArray } from '../../types/CommonTypes';
 
 /**
  * Interface for animated values that can be controlled by animation tracks.
@@ -90,6 +91,27 @@ export interface IAnimatedValue {
    * Updates the animated value based on the current time and active animation tracks.
    */
   update(): void;
+
+  /**
+   * Drops the memoized interpolation result.
+   * Implementations must call this after their sampler data has been mutated externally.
+   */
+  invalidateAnimationCache?(): void;
+
+  /**
+   * Number of actual interpolations performed. Intended for tests and benchmarks.
+   */
+  getEvaluationCount?(): number;
+
+  /**
+   * Gets the internal value array without allocating a copy. Do not mutate the returned array.
+   */
+  getValueArray?(): TypedArray;
+
+  /**
+   * Sets the time and blending ratio, then evaluates the value at most once.
+   */
+  setTimeAndBlendingRatio?(time: number, blendingRatio: number): void;
 
   /**
    * Gets all available animation track names.

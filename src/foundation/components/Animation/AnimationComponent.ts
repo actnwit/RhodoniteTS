@@ -8,7 +8,7 @@ import type {
   AnimationTrack,
   AnimationTrackName,
 } from '../../../types/AnimationTypes';
-import type { ComponentTID, Index, Second } from '../../../types/CommonTypes';
+import type { ComponentTID, Index, Second, TypedArray } from '../../../types/CommonTypes';
 import { TagKhrNodeVisibilityVisible } from '../../../types/glTF2';
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
@@ -67,6 +67,12 @@ export class AnimationComponent extends Component {
   private static __animationGlobalInfoMap: Map<Engine, Map<AnimationTrackName, AnimationInfo>> = new Map();
 
   private __isEffekseerState = -1;
+
+  /** Reused map for VRM expression weights to avoid a per-frame allocation. */
+  private __vrmExpressionWeights = new Map<string, number>();
+
+  /** Cache of the leaf parameter name of `material/...` animation paths. */
+  private __materialParameterNameCache = new Map<string, string>();
 
   /// flags ///
   private __isAnimating = true;
@@ -196,21 +202,44 @@ export class AnimationComponent extends Component {
     }
 
     const transformComponent = (this.entity as unknown as ISceneGraphEntity).getTransform();
+    // Physics subtrees must always receive the local transform because their setters notify the
+    // physics strategies with the parent world transform (see __shouldWriteTransformValue).
+    const canSkipIdenticalTransformWrite = !(this.entity as unknown as ISceneGraphEntity).getSceneGraph()
+      ._hasPhysicsComponentInSubtree;
     const blendShapeComponent = this.entity.tryToGetBlendShape();
     const effekseerComponent = this.entity.tryToGetEffekseer();
     let vrmExpressionWeights: Map<string, number> | undefined;
+    const blendingRatio = this.__animationBlendingRatio;
 
     for (const [pathName, channel] of this.__animationTrack) {
-      channel.animatedValue.setTime(time);
-      channel.animatedValue.blendingRatio = this.__animationBlendingRatio;
+      const animatedValue = channel.animatedValue;
+      // Evaluate the value once with both the time and the blending ratio set.
+      const setTimeAndBlendingRatio = animatedValue.setTimeAndBlendingRatio;
+      if (setTimeAndBlendingRatio != null) {
+        setTimeAndBlendingRatio.call(animatedValue, time, blendingRatio);
+      } else {
+        animatedValue.setTime(time);
+        animatedValue.blendingRatio = blendingRatio;
+      }
 
       if (pathName.startsWith(VrmExpressionPathPrefix)) {
-        vrmExpressionWeights ??= new Map();
+        if (vrmExpressionWeights === undefined) {
+          this.__vrmExpressionWeights ??= new Map();
+          vrmExpressionWeights = this.__vrmExpressionWeights;
+          vrmExpressionWeights.clear();
+        }
         const expressionName = pathName.substring(VrmExpressionPathPrefix.length);
         vrmExpressionWeights.set(expressionName, (channel.animatedValue as unknown as Scalar).x);
         continue;
       }
-      this.__applyChannelAnimation(pathName, channel, transformComponent, blendShapeComponent, effekseerComponent);
+      this.__applyChannelAnimation(
+        pathName,
+        channel,
+        transformComponent,
+        canSkipIdenticalTransformWrite,
+        blendShapeComponent,
+        effekseerComponent
+      );
     }
 
     if (Is.exist(vrmExpressionWeights)) {
@@ -225,10 +254,11 @@ export class AnimationComponent extends Component {
     pathName: string,
     channel: AnimationChannel,
     transformComponent: TransformComponent,
+    canSkipIdenticalTransformWrite: boolean,
     blendShapeComponent?: BlendShapeComponent,
     effekseerComponent?: EffekseerComponent
   ) {
-    if (this.__applyTransformAnimation(pathName, channel, transformComponent)) return;
+    if (this.__applyTransformAnimation(pathName, channel, transformComponent, canSkipIdenticalTransformWrite)) return;
     if (this.__applyBlendShapeAnimation(pathName, channel, blendShapeComponent)) return;
     if (this.__applyVisibilityAnimation(pathName, channel)) return;
     if (this.__applyMaterialAnimation(pathName, channel)) return;
@@ -240,19 +270,77 @@ export class AnimationComponent extends Component {
   private __applyTransformAnimation(
     pathName: string,
     channel: AnimationChannel,
-    transformComponent: TransformComponent
+    transformComponent: TransformComponent,
+    canSkipIdenticalTransformWrite: boolean
   ): boolean {
+    const animatedValue = channel.animatedValue;
     if (pathName === 'translate') {
-      transformComponent.localPosition = channel.animatedValue as unknown as Vector3;
+      if (
+        this.__shouldWriteTransformValue(
+          animatedValue,
+          transformComponent.localPositionInner._v,
+          canSkipIdenticalTransformWrite
+        )
+      ) {
+        transformComponent.localPosition = animatedValue as unknown as Vector3;
+      }
       return true;
     }
     if (pathName === 'quaternion') {
-      transformComponent.localRotation = channel.animatedValue as unknown as Quaternion;
+      if (
+        this.__shouldWriteTransformValue(
+          animatedValue,
+          transformComponent.localRotationInner._v,
+          canSkipIdenticalTransformWrite
+        )
+      ) {
+        transformComponent.localRotation = animatedValue as unknown as Quaternion;
+      }
       return true;
     }
     if (pathName === 'scale') {
-      transformComponent.localScale = channel.animatedValue as unknown as Vector3;
+      if (
+        this.__shouldWriteTransformValue(
+          animatedValue,
+          transformComponent.localScaleInner._v,
+          canSkipIdenticalTransformWrite
+        )
+      ) {
+        transformComponent.localScale = animatedValue as unknown as Vector3;
+      }
       return true;
+    }
+    return false;
+  }
+
+  /**
+   * Returns true when the animated value differs from the value already stored in the transform.
+   *
+   * Writing an identical value would still increment the transform update count and invalidate the
+   * world matrix and skinning caches downstream, so identical writes are skipped. The comparison is
+   * against the target value (not the last applied value), so external transform edits are still
+   * overwritten by the animation on the next frame.
+   *
+   * Physics subtrees set `canSkipIdenticalTransformWrite` to false: their setters also notify the
+   * physics strategies with the parent world transform, which must keep running even when the local
+   * value is unchanged.
+   */
+  private __shouldWriteTransformValue(
+    animatedValue: IAnimatedValue,
+    currentValue: TypedArray,
+    canSkipIdenticalTransformWrite: boolean
+  ): boolean {
+    if (!canSkipIdenticalTransformWrite) {
+      return true;
+    }
+    const animated = animatedValue.getValueArray?.();
+    if (animated === undefined || animated.length !== currentValue.length) {
+      return true;
+    }
+    for (let i = 0; i < animated.length; i++) {
+      if (animated[i] !== currentValue[i]) {
+        return true;
+      }
     }
     return false;
   }
@@ -263,7 +351,13 @@ export class AnimationComponent extends Component {
     blendShapeComponent?: BlendShapeComponent
   ): boolean {
     if (pathName === 'weights') {
-      blendShapeComponent!.weights = (channel.animatedValue as AnimatedVectorN).getNumberArray();
+      const animatedValue = channel.animatedValue as AnimatedVectorN;
+      const value = animatedValue.getValueArray?.();
+      if (value !== undefined) {
+        blendShapeComponent!.setWeightsFromArrayLike(value);
+      } else {
+        blendShapeComponent!.weights = animatedValue.getNumberArray();
+      }
       return true;
     }
     return false;
@@ -276,7 +370,9 @@ export class AnimationComponent extends Component {
 
     const sceneGraph = (this.entity as unknown as ISceneGraphEntity).getSceneGraph();
     const localVisible = (channel.animatedValue as unknown as Scalar).x > 0.5;
-    sceneGraph.entity.tryToSetTag({ tag: TagKhrNodeVisibilityVisible, value: localVisible });
+    if (sceneGraph.entity.getTagValue(TagKhrNodeVisibilityVisible) !== localVisible) {
+      sceneGraph.entity.tryToSetTag({ tag: TagKhrNodeVisibilityVisible, value: localVisible });
+    }
     this.__applyEffectiveVisibility(sceneGraph, sceneGraph.parent?.isVisible ?? true);
     return true;
   }
@@ -284,7 +380,9 @@ export class AnimationComponent extends Component {
   private __applyEffectiveVisibility(sceneGraph: SceneGraphComponent, parentVisible: boolean): void {
     const localVisible = this.__getLocalVisibility(sceneGraph);
     const effectiveVisible = parentVisible && localVisible;
-    sceneGraph.isVisible = effectiveVisible;
+    if (sceneGraph.isVisible !== effectiveVisible) {
+      sceneGraph.isVisible = effectiveVisible;
+    }
 
     for (const child of sceneGraph.children) {
       this.__applyEffectiveVisibility(child, effectiveVisible);
@@ -301,17 +399,27 @@ export class AnimationComponent extends Component {
       const meshComponent = this.entity.tryToGetMesh();
       if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
         const mesh = meshComponent.mesh;
+        const parameterName = this.__getMaterialParameterName(pathName);
         for (let i = 0; i < mesh.getPrimitiveNumber(); i++) {
           const primitive = mesh.getPrimitiveAt(i);
           const material = primitive.material;
           if (Is.exist(material)) {
-            material.setParameter(pathName.split('/').pop()!, channel.animatedValue);
+            material.setParameter(parameterName, channel.animatedValue);
           }
         }
       }
       return true;
     }
     return false;
+  }
+
+  private __getMaterialParameterName(pathName: string): string {
+    let name = this.__materialParameterNameCache.get(pathName);
+    if (name === undefined) {
+      name = pathName.split('/').pop()!;
+      this.__materialParameterNameCache.set(pathName, name);
+    }
+    return name;
   }
 
   private __applyLightAnimation(pathName: string, channel: AnimationChannel): boolean {
@@ -709,6 +817,8 @@ export class AnimationComponent extends Component {
     }
 
     const animatedValue = channel.animatedValue;
+    // The sampler arrays are rewritten below; drop any memoized interpolation result.
+    animatedValue.invalidateAnimationCache?.();
 
     const i = AnimationAttribute.fromString(pathName).index;
     const globalTime = AnimationComponent.getGlobalTime(this.__engine);
@@ -800,6 +910,8 @@ export class AnimationComponent extends Component {
     }
 
     const animatedValue = channel.animatedValue;
+    // The sampler arrays are rewritten below; drop any memoized interpolation result.
+    animatedValue.invalidateAnimationCache?.();
 
     if (animatedValue.getAnimationSampler(trackName).input.length === 0) {
       const inputArray = Array.from(animatedValue.getAnimationSampler(trackName).input);
@@ -879,6 +991,8 @@ export class AnimationComponent extends Component {
     }
 
     const animatedValue = channel.animatedValue;
+    // The sampler arrays are rewritten below; drop any memoized interpolation result.
+    animatedValue.invalidateAnimationCache?.();
 
     for (let i = 0; i < animatedValue.getAnimationSampler(trackName).input.length; i++) {
       const input = animatedValue.getAnimationSampler(trackName).input[i];

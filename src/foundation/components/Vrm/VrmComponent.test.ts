@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import { AnimationComponent } from '../Animation/AnimationComponent';
+import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 import { VrmComponent, type VrmExpression } from './VrmComponent';
 
 function createVrmComponentFixture(expressionOrExpressions: VrmExpression | VrmExpression[]) {
@@ -15,8 +16,13 @@ function createVrmComponentFixture(expressionOrExpressions: VrmExpression | VrmE
     },
     __expressions: new Map(expressions.map(expression => [expression.name, expression])),
     __weights: new Map(expressions.map(expression => [expression.name, 0])),
+    __morphTargetContributors: new Map(),
+    __expressionMorphTargetKeys: new Map(),
+    __changedMorphTargetKeys: new Set(),
+    __needsFullMorphTargetUpdate: true,
   };
   Object.setPrototypeOf(component, VrmComponent.prototype);
+  VrmComponent.prototype.setVrmExpressions.call(component as any, expressions);
   return { component, setWeightByIndex };
 }
 
@@ -81,6 +87,61 @@ describe('VrmComponent expressions', () => {
     }
   });
 
+  test('updates only the morph targets affected by changed expressions', () => {
+    const { component, setWeightByIndex } = createVrmComponentFixture([
+      { name: 'happy', isBinary: false, binds: [{ entityIdx: 1, blendShapeIdx: 2, weight: 0.4 }] },
+      { name: 'relaxed', isBinary: false, binds: [{ entityIdx: 1, blendShapeIdx: 3, weight: 0.6 }] },
+    ]);
+
+    VrmComponent.prototype.setExpressionWeights.call(
+      component as any,
+      new Map([
+        ['happy', 0.5],
+        ['relaxed', 0.25],
+      ])
+    );
+    expect(setWeightByIndex).toHaveBeenCalledTimes(2);
+
+    setWeightByIndex.mockClear();
+    VrmComponent.prototype.setExpressionWeights.call(
+      component as any,
+      new Map([
+        ['happy', 0.5],
+        ['relaxed', 0.25],
+      ])
+    );
+    expect(setWeightByIndex).not.toHaveBeenCalled();
+
+    VrmComponent.prototype.setExpressionWeights.call(
+      component as any,
+      new Map([
+        ['happy', 0.75],
+        ['relaxed', 0.25],
+      ])
+    );
+    expect(setWeightByIndex).toHaveBeenCalledTimes(1);
+    expect(setWeightByIndex.mock.calls[0][0]).toBe(2);
+    expect(setWeightByIndex.mock.calls[0][1]).toBeCloseTo(0.3);
+  });
+
+  test('reapplies morph targets after another writer changed blend shape weights', () => {
+    const { component, setWeightByIndex } = createVrmComponentFixture([
+      { name: 'happy', isBinary: false, binds: [{ entityIdx: 1, blendShapeIdx: 2, weight: 0.4 }] },
+    ]);
+
+    VrmComponent.prototype.setExpressionWeights.call(component as any, new Map([['happy', 0.5]]));
+    expect(setWeightByIndex).toHaveBeenCalledTimes(1);
+    expect(setWeightByIndex).toHaveBeenCalledWith(2, 0.2);
+
+    setWeightByIndex.mockClear();
+    // Simulate a weights animation channel or an editor slider writing morph weights.
+    (BlendShapeComponent as any).__updateCount++;
+
+    VrmComponent.prototype.setExpressionWeights.call(component as any, new Map([['happy', 0.5]]));
+    expect(setWeightByIndex).toHaveBeenCalledTimes(1);
+    expect(setWeightByIndex).toHaveBeenCalledWith(2, 0.2);
+  });
+
   test('applies all VRM expression animation channels in one morph target pass', () => {
     const { component: vrmComponent, setWeightByIndex } = createVrmComponentFixture([
       {
@@ -112,6 +173,7 @@ describe('VrmComponent expressions', () => {
       ]),
       entity: {
         getTransform: () => ({}),
+        getSceneGraph: () => ({ _hasPhysicsComponentInSubtree: false }),
         tryToGetBlendShape: () => undefined,
         tryToGetEffekseer: () => undefined,
         tryToGetVrm: () => vrmComponent,

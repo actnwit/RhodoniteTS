@@ -86,8 +86,28 @@ export class AnimationStateComponent extends Component {
       this.__isBlending = false;
     }
     const ratio = Math.min(blendingTime, 1);
-    this.setAnimationBlendingRatio(ratio);
+    // Only update the ratio here. AnimationComponent (TID 2) applies it in the same Logic stage,
+    // so evaluating immediately would run the animation twice per frame and bypass the early-return
+    // optimization for cached follower joints.
+    this.__setAnimationBlendingRatioWithoutApplying(ratio);
     this.__blendingRatio = ratio;
+  }
+
+  /**
+   * Propagates the blending ratio to all descendants without evaluating the animation channels.
+   * @param ratio - The blending ratio value between 0.0 and 1.0
+   */
+  private __setAnimationBlendingRatioWithoutApplying(ratio: number) {
+    function processRecursively(entity: ISceneGraphEntity) {
+      const anim = entity.tryToGetAnimation();
+      if (anim != null) {
+        anim._setAnimationBlendingRatioWithoutApplying(ratio);
+      }
+      for (const child of entity.children) {
+        processRecursively(child.entity);
+      }
+    }
+    processRecursively(this.entity);
   }
 
   /**

@@ -54,6 +54,11 @@ export class SceneGraphComponent extends Component {
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
   private _worldRotation: MutableQuaternion = MutableQuaternion.identity();
   private __isWorldMatrixUpToDate = false;
+  /**
+   * Monotonically increasing counter that advances whenever this node's world matrix is invalidated.
+   * Consumers such as SkeletalComponent sum these counters to detect whether any input changed.
+   */
+  private __worldMatrixVersion = 0;
   private __isWorldMatrixRestUpToDate = false;
   private __isNormalMatrixUpToDate = false;
   private __isWorldRotationUpToDate = false;
@@ -86,7 +91,6 @@ export class SceneGraphComponent extends Component {
   ]);
 
   private static __tmp_mat4 = MutableMatrix44.identity();
-  private static __tmp_mat4_2 = MutableMatrix44.identity();
   private static __tmp_mat4_3 = MutableMatrix44.identity();
   private static __tmp_mat4_4 = MutableMatrix44.identity();
   private static __tmp_quat_0 = MutableQuaternion.identity();
@@ -454,6 +458,16 @@ export class SceneGraphComponent extends Component {
   }
 
   /**
+   * Gets the monotonically increasing world matrix version of this node.
+   * The value changes whenever the node is marked dirty, so summing it over a set of nodes detects
+   * whether any of them may need to be recomputed.
+   * @returns The world matrix version
+   */
+  get worldMatrixVersion(): number {
+    return this.__worldMatrixVersion;
+  }
+
+  /**
    * Marks the world matrix as dirty and propagates changes up the hierarchy.
    */
   setWorldMatrixDirty() {
@@ -486,6 +500,7 @@ export class SceneGraphComponent extends Component {
       return;
     }
 
+    this.__worldMatrixVersion++;
     this.__isWorldMatrixUpToDate = false;
     this.__isNormalMatrixUpToDate = false;
     this.__isWorldRotationUpToDate = false;
@@ -595,8 +610,7 @@ export class SceneGraphComponent extends Component {
    */
   get matrixInner() {
     if (!this.__isWorldMatrixUpToDate) {
-      this._worldMatrix.copyComponents(this.__calcWorldMatrixRecursively());
-      this.__isWorldMatrixUpToDate = true;
+      this.__calcWorldMatrixRecursively();
     }
 
     return this._worldMatrix;
@@ -730,8 +744,7 @@ export class SceneGraphComponent extends Component {
    */
   get matrixRestInner() {
     if (!this.__isWorldMatrixRestUpToDate) {
-      this._worldMatrixRest.copyComponents(this.__calcWorldMatrixRestRecursively());
-      this.__isWorldMatrixRestUpToDate = true;
+      this.__calcWorldMatrixRestRecursively();
     }
 
     return this._worldMatrixRest;
@@ -804,7 +817,12 @@ export class SceneGraphComponent extends Component {
 
   /**
    * Recursively calculates the world matrix from this node up to the root.
-   * @returns The calculated world matrix
+   *
+   * The result is memoized into `_worldMatrix` for every node visited by the recursion, not only the
+   * node that was requested. Without the write-back, processing children before their parents would
+   * recompute the same ancestor matrices once per descendant.
+   *
+   * @returns The cached world matrix of this node
    */
   private __calcWorldMatrixRecursively(): MutableMatrix44 {
     if (this.__isWorldMatrixUpToDate) {
@@ -814,17 +832,14 @@ export class SceneGraphComponent extends Component {
     const transform = this.entity.getTransform()!;
 
     if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
-      transform.getLocalMatrixInnerTo(SceneGraphComponent.__tmp_mat4_2);
-      return SceneGraphComponent.__tmp_mat4_2;
+      transform.getLocalMatrixInnerTo(this._worldMatrix);
+    } else {
+      const matrixFromAncestorToParent = this.__parent.__calcWorldMatrixRecursively();
+      transform.getLocalMatrixInnerTo(SceneGraphComponent.__tmp_mat4_3);
+      MutableMatrix44.multiplyTo(matrixFromAncestorToParent, SceneGraphComponent.__tmp_mat4_3, this._worldMatrix);
     }
-
-    const matrixFromAncestorToParent = this.__parent.__calcWorldMatrixRecursively();
-    transform.getLocalMatrixInnerTo(SceneGraphComponent.__tmp_mat4_3);
-    return MutableMatrix44.multiplyTo(
-      matrixFromAncestorToParent,
-      SceneGraphComponent.__tmp_mat4_3,
-      SceneGraphComponent.__tmp_mat4
-    );
+    this.__isWorldMatrixUpToDate = true;
+    return this._worldMatrix;
   }
 
   /**
@@ -839,17 +854,14 @@ export class SceneGraphComponent extends Component {
     const transform = this.entity.getTransform()!;
 
     if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
-      transform.getLocalMatrixInnerTo(SceneGraphComponent.__tmp_mat4_2);
-      return SceneGraphComponent.__tmp_mat4_2;
+      transform.getLocalMatrixInnerTo(this._worldMatrixRest);
+    } else {
+      const matrixFromAncestorToParent = this.__parent.__calcWorldMatrixRestRecursively();
+      transform.getLocalMatrixInnerTo(SceneGraphComponent.__tmp_mat4_3);
+      MutableMatrix44.multiplyTo(matrixFromAncestorToParent, SceneGraphComponent.__tmp_mat4_3, this._worldMatrixRest);
     }
-
-    const matrixFromAncestorToParent = this.__parent.__calcWorldMatrixRestRecursively();
-    transform.getLocalMatrixInnerTo(SceneGraphComponent.__tmp_mat4_3);
-    return MutableMatrix44.multiplyTo(
-      matrixFromAncestorToParent,
-      SceneGraphComponent.__tmp_mat4_3,
-      SceneGraphComponent.__tmp_mat4
-    );
+    this.__isWorldMatrixRestUpToDate = true;
+    return this._worldMatrixRest;
   }
 
   /**
@@ -1197,7 +1209,6 @@ export class SceneGraphComponent extends Component {
 
   logicForce() {
     this.matrixInner;
-    this.normalMatrixInner;
     this.__updateGizmos();
   }
 
@@ -1573,6 +1584,7 @@ export class SceneGraphComponent extends Component {
     this.__isWorldMatrixRestUpToDate = false;
     this.__isNormalMatrixUpToDate = false;
     this.__isWorldRotationUpToDate = false;
+    this.__worldMatrixVersion++;
     this.__worldMergedAABBWithSkeletal = component.__worldMergedAABBWithSkeletal.clone();
     this.__isWorldAABBDirty = true;
     this._isVisible.copyComponents(component._isVisible);
