@@ -120,10 +120,28 @@ const UPDATE_ALL_SNAPSHOTS = process.env.E2E_UPDATE_ALL_SNAPSHOTS === '1';
  * tolerance). Test files that take screenshots themselves should use this
  * instead of calling `toMatchImageSnapshot` directly.
  */
+/**
+ * Keeps the snapshot name stable across Vitest retries.
+ *
+ * jest-image-snapshot derives the default identifier from a per-test assertion counter. A Vitest
+ * retry increments that counter, so the retry would look for a `-2` snapshot instead of the
+ * committed `-1` reference. In CI (which refuses to write new snapshots) that turns every first
+ * failure into a fatal "New snapshot was not written" error and makes `retry: 1` useless.
+ * Every E2E test currently takes one screenshot, so always use the first snapshot name.
+ */
+const stableSnapshotIdentifier = ({ defaultIdentifier, counter }) => {
+  const counterSuffix = `-${counter}`;
+  const base = defaultIdentifier.endsWith(counterSuffix)
+    ? defaultIdentifier.slice(0, -counterSuffix.length)
+    : defaultIdentifier;
+  return `${base}-1-snap`;
+};
+
 export const matchCanvasImageSnapshot = (expect, image, threshold = 0, noParam = false) => {
   expect.extend({ toMatchImageSnapshot });
   expect(image).toMatchImageSnapshot({
     customDiffConfig: { threshold: SNAPSHOT_PIXEL_THRESHOLD },
+    customSnapshotIdentifier: stableSnapshotIdentifier,
     failureThreshold: resolveFailureThreshold(threshold, noParam),
     failureThresholdType: 'percent',
     updatePassedSnapshot: UPDATE_ALL_SNAPSHOTS,
