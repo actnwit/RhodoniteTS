@@ -44,6 +44,7 @@ import { TextureArray } from '../foundation/textures/TextureArray';
 import type { BasisFile } from '../types/BasisTexture';
 import type { Count, Index, Size, TypedArray, WebGLResourceHandle, WebGPUResourceHandle } from '../types/CommonTypes';
 import type { TextureData, VertexHandles } from '../webgl/WebGLResourceRepository';
+import { WebGpuBufferArena, type WebGpuBufferRange } from './WebGpuBufferArena';
 import type { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 
 export type WebGpuResource =
@@ -167,8 +168,14 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   /** State last recorded into the current render bundle encoder, used to skip redundant commands. */
   private __bundlePipeline?: GPURenderPipeline;
   private __bundleBindGroups: (GPUBindGroup | undefined)[] = [];
-  private __bundleVertexBuffers: (GPUBuffer | undefined)[] = [];
-  private __bundleIndexBuffer?: GPUBuffer;
+  private __bundleVertexBuffers: (WebGpuBufferRange | undefined)[] = [];
+  private __bundleIndexBuffer?: WebGpuBufferRange;
+  /**
+   * Vertex and index data of all primitives (and the per-mesh instance buffers), packed into a few
+   * large GPU buffers. Each handle maps to a range of one of them.
+   */
+  private __vertexBufferArena?: WebGpuBufferArena;
+  private __vertexBufferRanges: Map<WebGPUResourceHandle, WebGpuBufferRange> = new Map();
   private __bundleIndexFormat?: GPUIndexFormat;
   private __commandEncoder?: GPUCommandEncoder;
   /** Cached `gpuDevice.queue` ([SameObject]), read on every frame by flush(). */
@@ -1091,19 +1098,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @returns Handle to the created vertex buffer
    */
   public createVertexBuffer(accessor: Accessor): WebGPUResourceHandle {
-    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    const vertexBuffer = gpuDevice.createBuffer({
-      size: accessor.byteLength,
-      usage: GPUBufferUsage.VERTEX,
-      mappedAtCreation: true,
-    });
-
-    new Uint8Array(vertexBuffer.getMappedRange()).set(accessor.getUint8Array());
-    vertexBuffer.unmap();
-
-    const bufferHandle = this.__registerResource(vertexBuffer);
-
-    return bufferHandle;
+    return this.__allocateVertexBufferRange(accessor.getUint8Array());
   }
 
   /**
@@ -1114,19 +1109,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @returns Handle to the created vertex buffer resource
    */
   createVertexBufferFromTypedArray(typedArray: TypedArray): WebGPUResourceHandle {
-    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    const vertexBuffer = gpuDevice.createBuffer({
-      size: typedArray.byteLength,
-      usage: GPUBufferUsage.VERTEX,
-      mappedAtCreation: true,
-    });
-
-    new Uint8Array(vertexBuffer.getMappedRange()).set(new Uint8Array(typedArray.buffer));
-    vertexBuffer.unmap();
-
-    const resourceHandle = this.__registerResource(vertexBuffer);
-
-    return resourceHandle;
+    return this.__allocateVertexBufferRange(
+      new Uint8Array(typedArray.buffer, typedArray.byteOffset, typedArray.byteLength)
+    );
   }
 
   /**
@@ -1138,53 +1123,81 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @returns Handle to the created index buffer resource
    */
   public createIndexBuffer(accessor: Accessor): WebGPUResourceHandle {
-    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    return this.__allocateVertexBufferRange(WebGpuResourceRepository.__getIndexData(accessor));
+  }
 
-    let uint8Array = accessor.getUint8Array();
-    if (accessor.componentType === ComponentType.UnsignedByte) {
-      // WebGPU does not support uint8 for index buffer.
-      // So we need to convert uint8 to uint16.
-      const uint16Array = new Uint16Array(accessor.byteLength);
-      const typedArray = accessor.getTypedArray();
-      for (let i = 0; i < typedArray.length; i++) {
-        uint16Array[i] = typedArray[i];
-      }
-      uint8Array = new Uint8Array(uint16Array.buffer);
+  /**
+   * Returns the index data of an accessor in a format WebGPU accepts.
+   * WebGPU does not support 8-bit indices, so they are widened to 16 bits.
+   */
+  private static __getIndexData(accessor: Accessor): Uint8Array {
+    if (accessor.componentType !== ComponentType.UnsignedByte) {
+      return accessor.getUint8Array();
     }
+    const typedArray = accessor.getTypedArray();
+    const uint16Array = new Uint16Array(typedArray.length);
+    for (let i = 0; i < typedArray.length; i++) {
+      uint16Array[i] = typedArray[i];
+    }
+    return new Uint8Array(uint16Array.buffer);
+  }
 
-    const size = DataUtil.addPaddingBytes(uint8Array.byteLength, 4);
-    const indexBuffer = gpuDevice.createBuffer({
-      size: size,
-      usage: GPUBufferUsage.INDEX,
-      mappedAtCreation: true,
-    });
+  private __getVertexBufferArena(): WebGpuBufferArena {
+    if (this.__vertexBufferArena == null) {
+      this.__vertexBufferArena = new WebGpuBufferArena(
+        this.__webGpuDeviceWrapper!.gpuDevice,
+        GPUBufferUsage.VERTEX | GPUBufferUsage.INDEX
+      );
+    }
+    return this.__vertexBufferArena;
+  }
 
-    new Uint8Array(indexBuffer.getMappedRange()).set(uint8Array);
-    indexBuffer.unmap();
+  /**
+   * Uploads vertex or index data into the shared vertex buffer arena and returns a handle to the range.
+   */
+  private __allocateVertexBufferRange(data: Uint8Array): WebGPUResourceHandle {
+    const range = this.__getVertexBufferArena().allocate(data);
+    const handle = this.getResourceNumber();
+    this.__vertexBufferRanges.set(handle, range);
+    return handle;
+  }
 
-    const bufferHandle = this.__registerResource(indexBuffer);
+  /**
+   * Returns the buffer range of a vertex or index buffer handle.
+   * @internal
+   */
+  _getVertexBufferRange(resourceHandle: WebGPUResourceHandle): WebGpuBufferRange | undefined {
+    return this.__vertexBufferRanges.get(resourceHandle);
+  }
 
-    return bufferHandle;
+  private __releaseVertexBufferRange(resourceHandle: WebGPUResourceHandle): boolean {
+    const range = this.__vertexBufferRanges.get(resourceHandle);
+    if (range == null) {
+      return false;
+    }
+    this.__vertexBufferArena!.release(range);
+    this.__vertexBufferRanges.delete(resourceHandle);
+    // A released range can be reused for other data right away. Recorded render bundles may still bind
+    // it, so drop them; they are re-recorded on the next frame. Releases are rare (meshes or instances
+    // being replaced), so this does not affect static scenes.
+    this.__renderBundles.clear();
+    return true;
   }
 
   /**
    * Updates the data in an existing vertex buffer with new data from an accessor.
-   * This method maps the buffer for writing and uploads the new data.
+   * The data must not be larger than the data the buffer was created with.
    *
    * @param accessor - Accessor containing the new vertex data
    * @param resourceHandle - Handle to the existing vertex buffer to update
    * @throws Error if the vertex buffer is not found
    */
   updateVertexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle) {
-    const vertexBuffer = this.__webGpuResources.get(resourceHandle) as GPUBuffer;
-    if (Is.not.exist(vertexBuffer)) {
+    const range = this.__vertexBufferRanges.get(resourceHandle);
+    if (Is.not.exist(range)) {
       throw new Error('Not found VBO.');
     }
-
-    vertexBuffer.mapAsync(GPUMapMode.WRITE).then(() => {
-      new Uint8Array(vertexBuffer.getMappedRange()).set(accessor.bufferView.getUint8Array());
-      vertexBuffer.unmap();
-    });
+    this.__vertexBufferArena!.write(range, accessor.getUint8Array());
   }
 
   /**
@@ -1196,43 +1209,23 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @throws Error if the index buffer is not found
    */
   updateIndexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle) {
-    const indexBuffer = this.__webGpuResources.get(resourceHandle) as GPUBuffer;
-    if (Is.not.exist(indexBuffer)) {
+    const range = this.__vertexBufferRanges.get(resourceHandle);
+    if (Is.not.exist(range)) {
       throw new Error('Not found IBO.');
     }
-
-    indexBuffer.mapAsync(GPUMapMode.WRITE).then(() => {
-      let uint8Array = accessor.getUint8Array();
-      if (accessor.componentType === ComponentType.UnsignedByte) {
-        // WebGPU does not support uint8 for index buffer.
-        // So we need to convert uint8 to uint16.
-        const uint16Array = new Uint16Array(accessor.byteLength);
-        const typedArray = accessor.getTypedArray();
-        for (let i = 0; i < typedArray.length; i++) {
-          uint16Array[i] = typedArray[i];
-        }
-        uint8Array = new Uint8Array(uint16Array.buffer);
-      }
-      new Uint8Array(indexBuffer.getMappedRange()).set(uint8Array);
-      indexBuffer.unmap();
-    });
+    this.__vertexBufferArena!.write(range, WebGpuResourceRepository.__getIndexData(accessor));
   }
 
   /**
-   * Deletes a vertex buffer and removes it from the resource registry.
-   * This destroys the GPU buffer and frees its memory.
+   * Deletes a vertex buffer and releases its range of the vertex buffer arena.
    *
    * @param resourceHandle - Handle to the vertex buffer to delete
    * @throws Error if the vertex buffer is not found
    */
   deleteVertexBuffer(resourceHandle: WebGPUResourceHandle) {
-    const vertexBuffer = this.__webGpuResources.get(resourceHandle) as GPUBuffer;
-    if (Is.not.exist(vertexBuffer)) {
+    if (!this.__releaseVertexBufferRange(resourceHandle)) {
       throw new Error('Not found VBO.');
     }
-
-    vertexBuffer.destroy();
-    this.__webGpuResources.delete(resourceHandle);
   }
 
   /**
@@ -1296,17 +1289,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    */
   deleteVertexDataResources(vertexHandles: VertexHandles) {
     if (Is.exist(vertexHandles.iboHandle)) {
-      const indexBuffer = this.__webGpuResources.get(vertexHandles.iboHandle) as GPUBuffer;
-      if (Is.exist(indexBuffer)) {
-        indexBuffer.destroy();
-      }
+      this.__releaseVertexBufferRange(vertexHandles.iboHandle);
     }
 
     for (const vboHandle of vertexHandles.vboHandles) {
-      const vertexBuffer = this.__webGpuResources.get(vboHandle) as GPUBuffer;
-      if (Is.exist(vertexBuffer)) {
-        vertexBuffer.destroy();
-      }
+      this.__releaseVertexBufferRange(vboHandle);
     }
   }
 
@@ -1703,26 +1690,33 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       renderBundleEncoder.draw(renderPass._drawVertexNumberForBufferLessRendering);
     } else {
       const mesh = primitive.mesh as Mesh;
+      // Vertex and index data are ranges of a few shared buffers (see WebGpuBufferArena).
+      const vertexBufferRanges = this.__vertexBufferRanges;
       const boundVertexBuffers = this.__bundleVertexBuffers;
-      const variationVBO = this.__webGpuResources.get(mesh._variationVBOUid) as GPUBuffer;
+      const variationVBO = vertexBufferRanges.get(mesh._variationVBOUid)!;
       if (boundVertexBuffers[0] !== variationVBO) {
-        renderBundleEncoder.setVertexBuffer(0, variationVBO);
+        renderBundleEncoder.setVertexBuffer(0, variationVBO.buffer, variationVBO.offset, variationVBO.size);
         boundVertexBuffers[0] = variationVBO;
       }
       const vboHandles = VertexHandles!.vboHandles;
       for (let i = 0; i < vboHandles.length; i++) {
-        const vertexBuffer = this.__webGpuResources.get(vboHandles[i]) as GPUBuffer;
+        const vertexBuffer = vertexBufferRanges.get(vboHandles[i])!;
         if (boundVertexBuffers[i + 1] !== vertexBuffer) {
-          renderBundleEncoder.setVertexBuffer(i + 1, vertexBuffer);
+          renderBundleEncoder.setVertexBuffer(i + 1, vertexBuffer.buffer, vertexBuffer.offset, vertexBuffer.size);
           boundVertexBuffers[i + 1] = vertexBuffer;
         }
       }
 
       if (primitive.hasIndices()) {
-        const indicesBuffer = this.__webGpuResources.get(VertexHandles!.iboHandle!) as GPUBuffer;
+        const indicesBuffer = vertexBufferRanges.get(VertexHandles!.iboHandle!)!;
         const indexBitSize = primitive.getIndexBitSize();
         if (this.__bundleIndexBuffer !== indicesBuffer || this.__bundleIndexFormat !== indexBitSize) {
-          renderBundleEncoder.setIndexBuffer(indicesBuffer, indexBitSize);
+          renderBundleEncoder.setIndexBuffer(
+            indicesBuffer.buffer,
+            indexBitSize,
+            indicesBuffer.offset,
+            indicesBuffer.size
+          );
           this.__bundleIndexBuffer = indicesBuffer;
           this.__bundleIndexFormat = indexBitSize;
         }
