@@ -145,72 +145,52 @@ export class Frustum {
    */
   culling(meshComponent: MeshComponent) {
     const aabb = meshComponent.entity.getSceneGraph().worldMergedAABBWithSkeletal;
+    const min = aabb.minPoint._v;
+    const max = aabb.maxPoint._v;
+    const minX = min[0];
+    const minY = min[1];
+    const minZ = min[2];
+    const maxX = max[0];
+    const maxY = max[1];
+    const maxZ = max[2];
 
-    // check box outside/inside of frustum
+    // Check whether the box is completely outside of one of the frustum planes.
+    // All the 8 corners are outside of a plane exactly when the corner farthest along the plane
+    // normal (the "positive vertex") is outside, so only that corner is tested.
     for (let i = 0; i < 6; i++) {
-      let out = 0;
-      const plane = this.getPlane(i);
-      out += plane.x * aabb.minPoint.x + plane.y * aabb.minPoint.y + plane.z * aabb.minPoint.z + plane.w < 0 ? 1 : 0;
-      out += plane.x * aabb.maxPoint.x + plane.y * aabb.minPoint.y + plane.z * aabb.minPoint.z + plane.w < 0 ? 1 : 0;
-      out += plane.x * aabb.minPoint.x + plane.y * aabb.maxPoint.y + plane.z * aabb.minPoint.z + plane.w < 0 ? 1 : 0;
-      out += plane.x * aabb.maxPoint.x + plane.y * aabb.maxPoint.y + plane.z * aabb.minPoint.z + plane.w < 0 ? 1 : 0;
-      out += plane.x * aabb.minPoint.x + plane.y * aabb.minPoint.y + plane.z * aabb.maxPoint.z + plane.w < 0 ? 1 : 0;
-      out += plane.x * aabb.maxPoint.x + plane.y * aabb.minPoint.y + plane.z * aabb.maxPoint.z + plane.w < 0 ? 1 : 0;
-      out += plane.x * aabb.minPoint.x + plane.y * aabb.maxPoint.y + plane.z * aabb.maxPoint.z + plane.w < 0 ? 1 : 0;
-      out += plane.x * aabb.maxPoint.x + plane.y * aabb.maxPoint.y + plane.z * aabb.maxPoint.z + plane.w < 0 ? 1 : 0;
-      if (out === 8) {
+      const plane = this.getPlane(i)._v;
+      const px = plane[0];
+      const py = plane[1];
+      const pz = plane[2];
+      const x = px >= 0 ? maxX : minX;
+      const y = py >= 0 ? maxY : minY;
+      const z = pz >= 0 ? maxZ : minZ;
+      if (px * x + py * y + pz * z + plane[3] < 0) {
         return false;
       }
     }
 
-    // check frustum outside/inside box
-    let out = 0;
-    out = 0;
+    // Check whether the frustum is completely outside of one of the box faces.
+    const corners = this.corners;
+    let outMinX = 0;
+    let outMaxX = 0;
+    let outMinY = 0;
+    let outMaxY = 0;
+    let outMinZ = 0;
+    let outMaxZ = 0;
     for (let i = 0; i < 8; i++) {
-      const plane = this.corners[i];
-      out += plane.x > aabb.maxPoint.x ? 1 : 0;
+      const corner = corners[i]._v;
+      const cx = corner[0];
+      const cy = corner[1];
+      const cz = corner[2];
+      outMaxX += cx > maxX ? 1 : 0;
+      outMinX += cx < minX ? 1 : 0;
+      outMaxY += cy > maxY ? 1 : 0;
+      outMinY += cy < minY ? 1 : 0;
+      outMaxZ += cz > maxZ ? 1 : 0;
+      outMinZ += cz < minZ ? 1 : 0;
     }
-    if (out === 8) {
-      return false;
-    }
-    out = 0;
-    for (let i = 0; i < 8; i++) {
-      const plane = this.corners[i];
-      out += plane.x < aabb.minPoint.x ? 1 : 0;
-    }
-    if (out === 8) {
-      return false;
-    }
-    out = 0;
-    for (let i = 0; i < 8; i++) {
-      const plane = this.corners[i];
-      out += plane.y > aabb.maxPoint.y ? 1 : 0;
-    }
-    if (out === 8) {
-      return false;
-    }
-    out = 0;
-    for (let i = 0; i < 8; i++) {
-      const plane = this.corners[i];
-      out += plane.y < aabb.minPoint.y ? 1 : 0;
-    }
-    if (out === 8) {
-      return false;
-    }
-    out = 0;
-    for (let i = 0; i < 8; i++) {
-      const plane = this.corners[i];
-      out += plane.z > aabb.maxPoint.z ? 1 : 0;
-    }
-    if (out === 8) {
-      return false;
-    }
-    out = 0;
-    for (let i = 0; i < 8; i++) {
-      const plane = this.corners[i];
-      out += plane.z < aabb.minPoint.z ? 1 : 0;
-    }
-    if (out === 8) {
+    if (outMaxX === 8 || outMinX === 8 || outMaxY === 8 || outMinY === 8 || outMaxZ === 8 || outMinZ === 8) {
       return false;
     }
 

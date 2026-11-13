@@ -44,7 +44,9 @@ import { TextureArray } from '../foundation/textures/TextureArray';
 import type { BasisFile } from '../types/BasisTexture';
 import type { Count, Index, Size, TypedArray, WebGLResourceHandle, WebGPUResourceHandle } from '../types/CommonTypes';
 import type { TextureData, VertexHandles } from '../webgl/WebGLResourceRepository';
+import { WebGpuBufferArena, type WebGpuBufferRange } from './WebGpuBufferArena';
 import type { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
+import { WebGpuGpuTimer } from './WebGpuGpuTimer';
 
 export type WebGpuResource =
   | GPUTexture
@@ -78,7 +80,24 @@ const RENDER_PASS_TARGET_KIND_MSAA_RESOLVE = 1;
 const RENDER_PASS_TARGET_KIND_FRAMEBUFFER = 2;
 const RENDER_PASS_TARGET_KIND_CANVAS = 3;
 
-type DRAW_PARAMETERS_IDENTIFIER = string;
+/** Bindings collected for the texture (group 1) and sampler (group 2) bind groups of a draw. */
+type TextureSamplerBindings = {
+  count: number;
+  slots: number[];
+  dimensions: GPUTextureViewDimension[];
+  visibilities: number[];
+  views: GPUTextureView[];
+  samplers: GPUSampler[];
+};
+
+/** Bind groups and their layouts used by a draw, shared by every draw with the same content. */
+type DrawBindGroups = {
+  storage: GPUBindGroup;
+  texture: GPUBindGroup;
+  sampler: GPUBindGroup;
+  pipelineLayout: GPUPipelineLayout;
+  pipelineLayoutKey: string;
+};
 
 /**
  * WebGPU Resource Repository that manages WebGPU resources and provides rendering functionality.
@@ -94,17 +113,73 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   private __webGpuDeviceWrapper?: WebGpuDeviceWrapper;
   private __storageBuffer?: GPUBuffer;
   private __storageBlendShapeBuffer?: GPUBuffer;
+  // Bind groups and pipelines are cached independently of each other:
+  // - Bind group layouts and pipeline layouts are keyed by their descriptors, so every pipeline and
+  //   bind group with the same layout shares one object.
+  // - Bind groups are keyed by their layout and the resources they bind, so draws binding the same
+  //   resources share one bind group regardless of the pipeline, material or render pass. Sharing lets
+  //   draw() skip a setBindGroup() that would rebind the same group, which is otherwise replayed by the
+  //   browser's GPU process for every draw of a render bundle on every frame.
+  // - Pipelines are keyed by their render state and pipeline layout, so recreating a pipeline does not
+  //   recreate bind groups and vice versa.
+  /** Group 0: the storage buffer, the blend shape buffer and the morph uniform buffers. */
   private __bindGroupStorageBuffer?: GPUBindGroup;
   private __bindGroupLayoutStorageBuffer?: GPUBindGroupLayout;
+  private __bindGroupLayoutKeyStorageBuffer = '';
+  /** The buffers bound by `__bindGroupStorageBuffer`, used to detect when it must be recreated. */
+  private __storageBindGroupBuffers: (GPUBuffer | undefined)[] = [];
+  /** Bound to the blend shape slot of group 0 when there is no blend shape buffer. */
+  private __dummyBlendShapeBuffer?: GPUBuffer;
   private __webGpuRenderPipelineMap: Map<RenderPipelineId, GPURenderPipeline> = new Map();
   private __materialStateVersionMap: Map<RenderPipelineId, number> = new Map();
-  private __bindGroupTextureMap: Map<RenderPipelineId, GPUBindGroup> = new Map();
-  private __bindGroupLayoutTextureMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
-  private __bindGroupSamplerMap: Map<RenderPipelineId, GPUBindGroup> = new Map();
-  private __bindGroupLayoutSamplerMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
-  private __bindGroupsUniformDrawParameters: Map<DRAW_PARAMETERS_IDENTIFIER, GPUBindGroup> = new Map();
+  private __bindGroupLayoutCache: Map<string, GPUBindGroupLayout> = new Map();
+  private __pipelineLayoutCache: Map<string, GPUPipelineLayout> = new Map();
+  /** Group 1 (textures), keyed by layout and bound texture views. */
+  private __textureBindGroupCache: Map<string, GPUBindGroup> = new Map();
+  /** Group 2 (samplers), keyed by layout and bound samplers. */
+  private __samplerBindGroupCache: Map<string, GPUBindGroup> = new Map();
+  /** Group 3 (draw parameters), keyed by the parameter values. The uniform buffers are immutable. */
+  private __drawParametersBindGroupCache: Map<string, GPUBindGroup> = new Map();
+  /**
+   * Uniform buffers holding the draw parameters. Each buffer holds many entries at the uniform offset
+   * alignment: the browser's GPU process and the driver track every distinct buffer referenced by a
+   * frame, so one small buffer per entry costs much more than offsets into a few large buffers.
+   */
+  private __drawParametersBuffers: GPUBuffer[] = [];
+  private __drawParametersEntryCountInLastBuffer = 0;
+  private static readonly __drawParametersEntriesPerBuffer = 1024;
+  private static __drawParametersValues = new Uint32Array(4);
   private __bindGroupLayoutUniformDrawParameters?: GPUBindGroupLayout;
-  private __uniformDrawParametersBuffers: Map<DRAW_PARAMETERS_IDENTIFIER, GPUBuffer> = new Map();
+  /** The group 3 bind group selected by setDrawParameters() for the next draw(). */
+  private __currentDrawParametersBindGroup?: GPUBindGroup;
+  /** Views created for dummy textures when a texture has no view yet, by texture and dimension. */
+  private __dummyTextureViews: WeakMap<GPUTexture, Map<GPUTextureViewDimension, GPUTextureView>> = new WeakMap();
+  /** Identifiers of GPU objects used to build cache keys. */
+  private __gpuObjectIds: WeakMap<object, number> = new WeakMap();
+  private __gpuObjectIdCount = 0;
+  private __textureSamplerBindings: TextureSamplerBindings = {
+    count: 0,
+    slots: [],
+    dimensions: [],
+    visibilities: [],
+    views: [],
+    samplers: [],
+  };
+  private __drawBindGroups: DrawBindGroups | undefined;
+  /** State last recorded into the current render bundle encoder, used to skip redundant commands. */
+  private __bundlePipeline?: GPURenderPipeline;
+  private __bundleBindGroups: (GPUBindGroup | undefined)[] = [];
+  private __bundleVertexBuffers: (WebGpuBufferRange | undefined)[] = [];
+  private __bundleIndexBuffer?: WebGpuBufferRange;
+  /**
+   * Vertex and index data of all primitives (and the per-mesh instance buffers), packed into a few
+   * large GPU buffers. Each handle maps to a range of one of them.
+   */
+  private __vertexBufferArena?: WebGpuBufferArena;
+  private __vertexBufferRanges: Map<WebGPUResourceHandle, WebGpuBufferRange> = new Map();
+  /** Measures the GPU time of frames; created on first use (see Engine.gpuTimerEnabled). */
+  private __gpuTimer?: WebGpuGpuTimer;
+  private __bundleIndexFormat?: GPUIndexFormat;
   private __commandEncoder?: GPUCommandEncoder;
   /** Cached `gpuDevice.queue` ([SameObject]), read on every frame by flush(). */
   private __gpuQueue?: GPUQueue;
@@ -169,8 +244,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   private __dstTextureViewsForGeneratingMipmaps: Map<GPUTexture, Array<Array<GPUTextureView>>> = new Map();
   private __bindGroupsForGeneratingMipmaps: Map<GPUTexture, Array<Array<GPUBindGroup>>> = new Map();
 
-  private static __drawParametersUint32Array: Uint32Array = new Uint32Array(4);
-
   private constructor() {
     super();
   }
@@ -190,10 +263,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   clearCache() {
     this.__webGpuRenderPipelineMap.clear();
     this.__materialStateVersionMap.clear();
-    this.__bindGroupTextureMap.clear();
-    this.__bindGroupLayoutTextureMap.clear();
-    this.__bindGroupSamplerMap.clear();
-    this.__bindGroupLayoutSamplerMap.clear();
+    // Called when textures are deleted, so drop every bind group that may bind one of them.
+    this.__textureBindGroupCache.clear();
+    this.__samplerBindGroupCache.clear();
+    this.__bindGroupStorageBuffer = undefined;
+    this.__storageBindGroupBuffers.length = 0;
     this.__renderBundles.clear();
   }
 
@@ -1027,19 +1101,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @returns Handle to the created vertex buffer
    */
   public createVertexBuffer(accessor: Accessor): WebGPUResourceHandle {
-    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    const vertexBuffer = gpuDevice.createBuffer({
-      size: accessor.byteLength,
-      usage: GPUBufferUsage.VERTEX,
-      mappedAtCreation: true,
-    });
-
-    new Uint8Array(vertexBuffer.getMappedRange()).set(accessor.getUint8Array());
-    vertexBuffer.unmap();
-
-    const bufferHandle = this.__registerResource(vertexBuffer);
-
-    return bufferHandle;
+    return this.__allocateVertexBufferRange(accessor.getUint8Array());
   }
 
   /**
@@ -1050,19 +1112,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @returns Handle to the created vertex buffer resource
    */
   createVertexBufferFromTypedArray(typedArray: TypedArray): WebGPUResourceHandle {
-    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    const vertexBuffer = gpuDevice.createBuffer({
-      size: typedArray.byteLength,
-      usage: GPUBufferUsage.VERTEX,
-      mappedAtCreation: true,
-    });
-
-    new Uint8Array(vertexBuffer.getMappedRange()).set(new Uint8Array(typedArray.buffer));
-    vertexBuffer.unmap();
-
-    const resourceHandle = this.__registerResource(vertexBuffer);
-
-    return resourceHandle;
+    return this.__allocateVertexBufferRange(
+      new Uint8Array(typedArray.buffer, typedArray.byteOffset, typedArray.byteLength)
+    );
   }
 
   /**
@@ -1074,53 +1126,81 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @returns Handle to the created index buffer resource
    */
   public createIndexBuffer(accessor: Accessor): WebGPUResourceHandle {
-    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    return this.__allocateVertexBufferRange(WebGpuResourceRepository.__getIndexData(accessor));
+  }
 
-    let uint8Array = accessor.getUint8Array();
-    if (accessor.componentType === ComponentType.UnsignedByte) {
-      // WebGPU does not support uint8 for index buffer.
-      // So we need to convert uint8 to uint16.
-      const uint16Array = new Uint16Array(accessor.byteLength);
-      const typedArray = accessor.getTypedArray();
-      for (let i = 0; i < typedArray.length; i++) {
-        uint16Array[i] = typedArray[i];
-      }
-      uint8Array = new Uint8Array(uint16Array.buffer);
+  /**
+   * Returns the index data of an accessor in a format WebGPU accepts.
+   * WebGPU does not support 8-bit indices, so they are widened to 16 bits.
+   */
+  private static __getIndexData(accessor: Accessor): Uint8Array {
+    if (accessor.componentType !== ComponentType.UnsignedByte) {
+      return accessor.getUint8Array();
     }
+    const typedArray = accessor.getTypedArray();
+    const uint16Array = new Uint16Array(typedArray.length);
+    for (let i = 0; i < typedArray.length; i++) {
+      uint16Array[i] = typedArray[i];
+    }
+    return new Uint8Array(uint16Array.buffer);
+  }
 
-    const size = DataUtil.addPaddingBytes(uint8Array.byteLength, 4);
-    const indexBuffer = gpuDevice.createBuffer({
-      size: size,
-      usage: GPUBufferUsage.INDEX,
-      mappedAtCreation: true,
-    });
+  private __getVertexBufferArena(): WebGpuBufferArena {
+    if (this.__vertexBufferArena == null) {
+      this.__vertexBufferArena = new WebGpuBufferArena(
+        this.__webGpuDeviceWrapper!.gpuDevice,
+        GPUBufferUsage.VERTEX | GPUBufferUsage.INDEX
+      );
+    }
+    return this.__vertexBufferArena;
+  }
 
-    new Uint8Array(indexBuffer.getMappedRange()).set(uint8Array);
-    indexBuffer.unmap();
+  /**
+   * Uploads vertex or index data into the shared vertex buffer arena and returns a handle to the range.
+   */
+  private __allocateVertexBufferRange(data: Uint8Array): WebGPUResourceHandle {
+    const range = this.__getVertexBufferArena().allocate(data);
+    const handle = this.getResourceNumber();
+    this.__vertexBufferRanges.set(handle, range);
+    return handle;
+  }
 
-    const bufferHandle = this.__registerResource(indexBuffer);
+  /**
+   * Returns the buffer range of a vertex or index buffer handle.
+   * @internal
+   */
+  _getVertexBufferRange(resourceHandle: WebGPUResourceHandle): WebGpuBufferRange | undefined {
+    return this.__vertexBufferRanges.get(resourceHandle);
+  }
 
-    return bufferHandle;
+  private __releaseVertexBufferRange(resourceHandle: WebGPUResourceHandle): boolean {
+    const range = this.__vertexBufferRanges.get(resourceHandle);
+    if (range == null) {
+      return false;
+    }
+    this.__vertexBufferArena!.release(range);
+    this.__vertexBufferRanges.delete(resourceHandle);
+    // A released range can be reused for other data right away. Recorded render bundles may still bind
+    // it, so drop them; they are re-recorded on the next frame. Releases are rare (meshes or instances
+    // being replaced), so this does not affect static scenes.
+    this.__renderBundles.clear();
+    return true;
   }
 
   /**
    * Updates the data in an existing vertex buffer with new data from an accessor.
-   * This method maps the buffer for writing and uploads the new data.
+   * The data must not be larger than the data the buffer was created with.
    *
    * @param accessor - Accessor containing the new vertex data
    * @param resourceHandle - Handle to the existing vertex buffer to update
    * @throws Error if the vertex buffer is not found
    */
   updateVertexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle) {
-    const vertexBuffer = this.__webGpuResources.get(resourceHandle) as GPUBuffer;
-    if (Is.not.exist(vertexBuffer)) {
+    const range = this.__vertexBufferRanges.get(resourceHandle);
+    if (Is.not.exist(range)) {
       throw new Error('Not found VBO.');
     }
-
-    vertexBuffer.mapAsync(GPUMapMode.WRITE).then(() => {
-      new Uint8Array(vertexBuffer.getMappedRange()).set(accessor.bufferView.getUint8Array());
-      vertexBuffer.unmap();
-    });
+    this.__vertexBufferArena!.write(range, accessor.getUint8Array());
   }
 
   /**
@@ -1132,43 +1212,23 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @throws Error if the index buffer is not found
    */
   updateIndexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle) {
-    const indexBuffer = this.__webGpuResources.get(resourceHandle) as GPUBuffer;
-    if (Is.not.exist(indexBuffer)) {
+    const range = this.__vertexBufferRanges.get(resourceHandle);
+    if (Is.not.exist(range)) {
       throw new Error('Not found IBO.');
     }
-
-    indexBuffer.mapAsync(GPUMapMode.WRITE).then(() => {
-      let uint8Array = accessor.getUint8Array();
-      if (accessor.componentType === ComponentType.UnsignedByte) {
-        // WebGPU does not support uint8 for index buffer.
-        // So we need to convert uint8 to uint16.
-        const uint16Array = new Uint16Array(accessor.byteLength);
-        const typedArray = accessor.getTypedArray();
-        for (let i = 0; i < typedArray.length; i++) {
-          uint16Array[i] = typedArray[i];
-        }
-        uint8Array = new Uint8Array(uint16Array.buffer);
-      }
-      new Uint8Array(indexBuffer.getMappedRange()).set(uint8Array);
-      indexBuffer.unmap();
-    });
+    this.__vertexBufferArena!.write(range, WebGpuResourceRepository.__getIndexData(accessor));
   }
 
   /**
-   * Deletes a vertex buffer and removes it from the resource registry.
-   * This destroys the GPU buffer and frees its memory.
+   * Deletes a vertex buffer and releases its range of the vertex buffer arena.
    *
    * @param resourceHandle - Handle to the vertex buffer to delete
    * @throws Error if the vertex buffer is not found
    */
   deleteVertexBuffer(resourceHandle: WebGPUResourceHandle) {
-    const vertexBuffer = this.__webGpuResources.get(resourceHandle) as GPUBuffer;
-    if (Is.not.exist(vertexBuffer)) {
+    if (!this.__releaseVertexBufferRange(resourceHandle)) {
       throw new Error('Not found VBO.');
     }
-
-    vertexBuffer.destroy();
-    this.__webGpuResources.delete(resourceHandle);
   }
 
   /**
@@ -1232,17 +1292,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    */
   deleteVertexDataResources(vertexHandles: VertexHandles) {
     if (Is.exist(vertexHandles.iboHandle)) {
-      const indexBuffer = this.__webGpuResources.get(vertexHandles.iboHandle) as GPUBuffer;
-      if (Is.exist(indexBuffer)) {
-        indexBuffer.destroy();
-      }
+      this.__releaseVertexBufferRange(vertexHandles.iboHandle);
     }
 
     for (const vboHandle of vertexHandles.vboHandles) {
-      const vertexBuffer = this.__webGpuResources.get(vboHandle) as GPUBuffer;
-      if (Is.exist(vertexBuffer)) {
-        vertexBuffer.destroy();
-      }
+      this.__releaseVertexBufferRange(vboHandle);
     }
   }
 
@@ -1596,48 +1650,79 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const renderPipelineId = `${primitive._getFingerPrint()} ${material._getFingerPrint()} ${material.__materialTypeName} ${
       renderPass.renderPassUID
     } ${meshRendererComponentFingerPrint} ${zWrite} `;
-    const bindGroupId = `${renderPipelineId} ${material.textureStateVersion} ${material.__materialSid}`;
 
-    if (!this.__bindGroupTextureMap.has(bindGroupId)) {
-      this.__createBindGroup(engine, bindGroupId, material, diffuseCubeMap, specularCubeMap, sheenCubeMap);
-    }
+    const bindGroups = this.__getDrawBindGroups(engine, material, diffuseCubeMap, specularCubeMap, sheenCubeMap);
 
     const [pipeline, _recreated] = this.getOrCreateRenderPipeline(
       renderPipelineId,
-      bindGroupId,
+      bindGroups.pipelineLayoutKey,
+      bindGroups.pipelineLayout,
       primitive,
       material,
       renderPass,
-      zWrite,
-      diffuseCubeMap,
-      specularCubeMap,
-      sheenCubeMap
+      zWrite
     );
 
+    // The commands below are recorded into a render bundle that is replayed on every frame, and the
+    // browser processes each recorded command again on every replay. Skip commands that would set the
+    // state already set by the previous draw of the same bundle encoder.
     const renderBundleEncoder = this.__renderBundleEncoder!;
-    renderBundleEncoder.setBindGroup(0, this.__bindGroupStorageBuffer!);
-    renderBundleEncoder.setPipeline(pipeline);
-    renderBundleEncoder.setBindGroup(1, this.__bindGroupTextureMap.get(bindGroupId)!);
-    renderBundleEncoder.setBindGroup(2, this.__bindGroupSamplerMap.get(bindGroupId)!);
-    renderBundleEncoder.setBindGroup(
-      3,
-      this.__bindGroupsUniformDrawParameters.get(`${renderPass.renderPassUID}-${primitive.primitiveUid}-${displayIdx}`)!
-    );
+    const boundBindGroups = this.__bundleBindGroups;
+    if (boundBindGroups[0] !== bindGroups.storage) {
+      renderBundleEncoder.setBindGroup(0, bindGroups.storage);
+      boundBindGroups[0] = bindGroups.storage;
+    }
+    if (this.__bundlePipeline !== pipeline) {
+      renderBundleEncoder.setPipeline(pipeline);
+      this.__bundlePipeline = pipeline;
+    }
+    if (boundBindGroups[1] !== bindGroups.texture) {
+      renderBundleEncoder.setBindGroup(1, bindGroups.texture);
+      boundBindGroups[1] = bindGroups.texture;
+    }
+    if (boundBindGroups[2] !== bindGroups.sampler) {
+      renderBundleEncoder.setBindGroup(2, bindGroups.sampler);
+      boundBindGroups[2] = bindGroups.sampler;
+    }
+    const drawParametersBindGroup = this.__currentDrawParametersBindGroup!;
+    if (boundBindGroups[3] !== drawParametersBindGroup) {
+      renderBundleEncoder.setBindGroup(3, drawParametersBindGroup);
+      boundBindGroups[3] = drawParametersBindGroup;
+    }
     if (isBufferLessRendering) {
       renderBundleEncoder.draw(renderPass._drawVertexNumberForBufferLessRendering);
     } else {
       const mesh = primitive.mesh as Mesh;
-      const variationVBO = this.__webGpuResources.get(mesh._variationVBOUid) as GPUBuffer;
-      renderBundleEncoder.setVertexBuffer(0, variationVBO);
-      VertexHandles!.vboHandles.forEach((vboHandle, i) => {
-        const vertexBuffer = this.__webGpuResources.get(vboHandle) as GPUBuffer;
-        renderBundleEncoder.setVertexBuffer(i + 1, vertexBuffer);
-      });
+      // Vertex and index data are ranges of a few shared buffers (see WebGpuBufferArena).
+      const vertexBufferRanges = this.__vertexBufferRanges;
+      const boundVertexBuffers = this.__bundleVertexBuffers;
+      const variationVBO = vertexBufferRanges.get(mesh._variationVBOUid)!;
+      if (boundVertexBuffers[0] !== variationVBO) {
+        renderBundleEncoder.setVertexBuffer(0, variationVBO.buffer, variationVBO.offset, variationVBO.size);
+        boundVertexBuffers[0] = variationVBO;
+      }
+      const vboHandles = VertexHandles!.vboHandles;
+      for (let i = 0; i < vboHandles.length; i++) {
+        const vertexBuffer = vertexBufferRanges.get(vboHandles[i])!;
+        if (boundVertexBuffers[i + 1] !== vertexBuffer) {
+          renderBundleEncoder.setVertexBuffer(i + 1, vertexBuffer.buffer, vertexBuffer.offset, vertexBuffer.size);
+          boundVertexBuffers[i + 1] = vertexBuffer;
+        }
+      }
 
       if (primitive.hasIndices()) {
-        const indicesBuffer = this.__webGpuResources.get(VertexHandles!.iboHandle!) as GPUBuffer;
+        const indicesBuffer = vertexBufferRanges.get(VertexHandles!.iboHandle!)!;
         const indexBitSize = primitive.getIndexBitSize();
-        renderBundleEncoder.setIndexBuffer(indicesBuffer, indexBitSize);
+        if (this.__bundleIndexBuffer !== indicesBuffer || this.__bundleIndexFormat !== indexBitSize) {
+          renderBundleEncoder.setIndexBuffer(
+            indicesBuffer.buffer,
+            indexBitSize,
+            indicesBuffer.offset,
+            indicesBuffer.size
+          );
+          this.__bundleIndexBuffer = indicesBuffer;
+          this.__bundleIndexFormat = indexBitSize;
+        }
         const indicesAccessor = primitive.indicesAccessor!;
         renderBundleEncoder.drawIndexed(indicesAccessor.elementCount, mesh.meshEntitiesInner.length);
       } else {
@@ -1840,6 +1925,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       colorAttachments,
       label: `${renderPass.uniqueName}_EffekseerExternal`,
     };
+    this.__addTimestampWrites(renderPassDescriptor);
     this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
     return this.__renderPassEncoder;
   }
@@ -1861,6 +1947,19 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
 
     this.__renderBundleEncoder = gpuDevice.createRenderBundleEncoder(renderBundleDescriptor);
     this.__renderBundleEncoderKey = descriptorKey;
+    this.__resetBundleEncoderState();
+  }
+
+  /**
+   * Forgets the state recorded into the render bundle encoder. A new encoder starts without any
+   * pipeline, bind group or buffer set.
+   */
+  private __resetBundleEncoderState() {
+    this.__bundlePipeline = undefined;
+    this.__bundleBindGroups.length = 0;
+    this.__bundleVertexBuffers.length = 0;
+    this.__bundleIndexBuffer = undefined;
+    this.__bundleIndexFormat = undefined;
   }
 
   /**
@@ -2053,7 +2152,31 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         this.__deferredSystemDepthClearValue = undefined;
       }
     }
+    this.__addTimestampWrites(renderPassDescriptor);
     return this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
+  }
+
+  /** Lets the GPU timer measure the render pass while a frame is being measured. */
+  private __addTimestampWrites(renderPassDescriptor: GPURenderPassDescriptor) {
+    const gpuTimer = this.__gpuTimer;
+    if (gpuTimer == null || renderPassDescriptor.timestampWrites != null) {
+      return;
+    }
+    const timestampWrites = gpuTimer.getTimestampWrites();
+    if (timestampWrites != null) {
+      renderPassDescriptor.timestampWrites = timestampWrites;
+    }
+  }
+
+  /**
+   * Returns the GPU timer, creating it on first use.
+   * @internal Use Engine.gpuTimerEnabled and Engine.gpuTimeMilliseconds instead.
+   */
+  _getGpuTimer(): WebGpuGpuTimer {
+    if (this.__gpuTimer == null) {
+      this.__gpuTimer = new WebGpuGpuTimer(this.__webGpuDeviceWrapper!.gpuDevice);
+    }
+    return this.__gpuTimer;
   }
 
   /**
@@ -2152,6 +2275,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
 
   private __clearRenderBundleEncoder() {
     this.__renderBundleEncoder = undefined;
+    this.__resetBundleEncoderState();
     this.__renderBundleEncoderKey = undefined;
     this.__renderBundleEncoderOwner = undefined;
     this.__renderBundleEncoderDisplayIdx = -1;
@@ -2321,6 +2445,18 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   }
 
   private __toClearRenderBundles(engine: Engine) {
+    // Recorded bundles bind group 0, which must be rebuilt when one of its buffers was replaced.
+    const storageBindGroupBuffers = this.__storageBindGroupBuffers;
+    if (
+      this.__bindGroupStorageBuffer != null &&
+      (storageBindGroupBuffers[0] !== this.__storageBuffer ||
+        storageBindGroupBuffers[1] !== this.__storageBlendShapeBuffer ||
+        storageBindGroupBuffers[2] !== this.__uniformMorphOffsetsBuffer ||
+        storageBindGroupBuffers[3] !== this.__uniformMorphWeightsBuffer)
+    ) {
+      this.__renderBundles.clear();
+      engine.engineState.webgpuRenderBundleMode = false;
+    }
     if (
       engine.materialRepository.bindingStateVersion !== this.__lastBindingStateVersion ||
       CameraComponent.getCurrent(engine) !== this.__lastCurrentCameraComponentSid ||
@@ -2454,20 +2590,19 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
 
   getOrCreateRenderPipeline(
     renderPipelineId: string,
-    bindGroupId: string,
+    pipelineLayoutKey: string,
+    pipelineLayout: GPUPipelineLayout,
     primitive: Primitive,
     material: Material,
     renderPass: RenderPass,
-    zWrite: boolean,
-    _diffuseCubeMap?: CubeTexture | RenderTargetTextureCube,
-    _specularCubeMap?: CubeTexture | RenderTargetTextureCube,
-    _sheenCubeMap?: CubeTexture | RenderTargetTextureCube
+    zWrite: boolean
   ): [GPURenderPipeline, boolean] {
-    if (this.__webGpuRenderPipelineMap.has(renderPipelineId)) {
-      const pipelineStateVersion = this.__materialStateVersionMap.get(renderPipelineId);
-      if (pipelineStateVersion === material.pipelineStateVersion) {
-        return [this.__webGpuRenderPipelineMap.get(renderPipelineId)!, false];
-      }
+    // The pipeline layout is part of the key: pipelines are independent of bind group objects and only
+    // depend on their layouts, which are shared by every bind group with the same layout.
+    const pipelineKey = `${renderPipelineId}|${pipelineLayoutKey}`;
+    const cachedPipeline = this.__webGpuRenderPipelineMap.get(pipelineKey);
+    if (cachedPipeline != null && this.__materialStateVersionMap.get(pipelineKey) === material.pipelineStateVersion) {
+      return [cachedPipeline, false];
     }
 
     // const width = this.__webGpuDeviceWrapper!.canvas.width;
@@ -2478,11 +2613,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     // ) as Vector2;
     // backBufferTextureSize._v[0] = width;
     // backBufferTextureSize._v[1] = height;
-
-    this.__webGpuRenderPipelineMap.delete(renderPipelineId);
-    this.__materialStateVersionMap.delete(renderPipelineId);
-
-    // this.__createBindGroup(renderPipelineId, material, diffuseCubeMap, specularCubeMap, sheenCubeMap);
 
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
@@ -2522,15 +2652,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         arrayStride: primitive.attributeAccessors[i].actualByteStride,
         attributes: [attribute],
       });
-    });
-
-    const pipelineLayout = gpuDevice.createPipelineLayout({
-      bindGroupLayouts: [
-        this.__bindGroupLayoutStorageBuffer!,
-        this.__bindGroupLayoutTextureMap.get(bindGroupId)!,
-        this.__bindGroupLayoutSamplerMap.get(bindGroupId)!,
-        this.__bindGroupLayoutUniformDrawParameters!,
-      ],
     });
 
     let blend: GPUBlendState | undefined;
@@ -2620,8 +2741,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       },
     });
 
-    this.__webGpuRenderPipelineMap.set(renderPipelineId, pipeline);
-    this.__materialStateVersionMap.set(renderPipelineId, material.pipelineStateVersion);
+    this.__webGpuRenderPipelineMap.set(pipelineKey, pipeline);
+    this.__materialStateVersionMap.set(pipelineKey, material.pipelineStateVersion);
 
     return [pipeline, true];
   }
@@ -2647,7 +2768,10 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       this.__resetPendingClear();
     }
     this.__flushRenderPassWork();
+    const gpuTimer = this.__gpuTimer;
+    gpuTimer?.encodeResolve(this.__commandEncoder!);
     this.__gpuQueue!.submit([this.__commandEncoder!.finish()]);
+    gpuTimer?.afterSubmit();
     this.__commandEncoder = gpuDevice.createCommandEncoder();
 
     if (this.__contextCurrentTextureView != null) {
@@ -3147,42 +3271,57 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     }
   }
 
-  updateUniformBufferForDrawParameters(
-    identifier: DRAW_PARAMETERS_IDENTIFIER,
-    materialSid: Index,
-    cameraSID: Index,
-    currentPrimitiveIdx: Index,
-    morphTargetNumber: Count
-  ) {
-    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    let uniformBuffer = this.__uniformDrawParametersBuffers.get(identifier);
-    if (uniformBuffer == null) {
-      uniformBuffer = gpuDevice.createBuffer({
-        size: 4 /* uint32 */ * 4 /* 4 elements */,
-        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
-      });
-      this.__uniformDrawParametersBuffers.set(identifier, uniformBuffer);
+  /**
+   * Selects the draw parameters (group 3) for the next draw().
+   *
+   * The parameters are stored in an immutable uniform buffer shared by every draw with the same values,
+   * so consecutive draws of the same material and camera keep the same bind group.
+   *
+   * @param materialSid - The material SID
+   * @param cameraSID - The camera component SID
+   * @param currentPrimitiveIdx - The index of the primitive among the primitives with morph targets
+   * @param morphTargetNumber - The number of morph targets of the primitive
+   */
+  setDrawParameters(materialSid: Index, cameraSID: Index, currentPrimitiveIdx: Index, morphTargetNumber: Count) {
+    const key = `${materialSid},${cameraSID},${currentPrimitiveIdx},${morphTargetNumber}`;
+    let bindGroup = this.__drawParametersBindGroupCache.get(key);
+    if (bindGroup == null) {
+      const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+      const entriesPerBuffer = WebGpuResourceRepository.__drawParametersEntriesPerBuffer;
+      const stride = Math.max(gpuDevice.limits.minUniformBufferOffsetAlignment, 16);
+      let uniformBuffer = this.__drawParametersBuffers[this.__drawParametersBuffers.length - 1];
+      if (uniformBuffer == null || this.__drawParametersEntryCountInLastBuffer >= entriesPerBuffer) {
+        uniformBuffer = gpuDevice.createBuffer({
+          size: stride * entriesPerBuffer,
+          usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
+        });
+        this.__drawParametersBuffers.push(uniformBuffer);
+        this.__drawParametersEntryCountInLastBuffer = 0;
+      }
+      const offset = stride * this.__drawParametersEntryCountInLastBuffer++;
+      const values = WebGpuResourceRepository.__drawParametersValues;
+      values[0] = materialSid;
+      values[1] = cameraSID;
+      values[2] = currentPrimitiveIdx;
+      values[3] = morphTargetNumber;
+      gpuDevice.queue.writeBuffer(uniformBuffer, offset, values);
 
-      const bindGroup = gpuDevice.createBindGroup({
+      bindGroup = gpuDevice.createBindGroup({
         layout: this.__bindGroupLayoutUniformDrawParameters!,
         entries: [
           {
             binding: 0,
             resource: {
               buffer: uniformBuffer,
+              offset,
+              size: 16,
             },
           },
         ],
       });
-      this.__bindGroupsUniformDrawParameters.set(identifier, bindGroup);
+      this.__drawParametersBindGroupCache.set(key, bindGroup);
     }
-
-    WebGpuResourceRepository.__drawParametersUint32Array[0] = materialSid;
-    WebGpuResourceRepository.__drawParametersUint32Array[1] = cameraSID;
-    WebGpuResourceRepository.__drawParametersUint32Array[2] = currentPrimitiveIdx;
-    WebGpuResourceRepository.__drawParametersUint32Array[3] = morphTargetNumber;
-    WebGpuResourceRepository.__assertArrayBufferView(WebGpuResourceRepository.__drawParametersUint32Array);
-    gpuDevice.queue.writeBuffer(uniformBuffer, 0, WebGpuResourceRepository.__drawParametersUint32Array);
+    this.__currentDrawParametersBindGroup = bindGroup;
   }
 
   createUniformMorphOffsetsBuffer(sizeInByte: Count) {
@@ -3240,396 +3379,357 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     this.__webGpuResources.delete(uniformBufferHandle);
   }
 
-  private __createBindGroup(
+  /**
+   * Returns a stable identifier of a GPU object for cache keys.
+   */
+  private __getGpuObjectId(obj: object): number {
+    let id = this.__gpuObjectIds.get(obj);
+    if (id === undefined) {
+      id = ++this.__gpuObjectIdCount;
+      this.__gpuObjectIds.set(obj, id);
+    }
+    return id;
+  }
+
+  /**
+   * Returns the bind group layout for the given descriptor, shared by every bind group and pipeline
+   * layout with the same descriptor.
+   */
+  private __getOrCreateBindGroupLayout(key: string, entries: GPUBindGroupLayoutEntry[]): GPUBindGroupLayout {
+    let layout = this.__bindGroupLayoutCache.get(key);
+    if (layout == null) {
+      layout = this.__webGpuDeviceWrapper!.gpuDevice.createBindGroupLayout({ entries });
+      this.__bindGroupLayoutCache.set(key, layout);
+    }
+    return layout;
+  }
+
+  /**
+   * Returns the view of a dummy texture with the given dimension. The view is created once per texture.
+   */
+  private __getDummyTextureView(gpuTexture: GPUTexture, dimension: GPUTextureViewDimension): GPUTextureView {
+    let views = this.__dummyTextureViews.get(gpuTexture);
+    if (views == null) {
+      views = new Map();
+      this.__dummyTextureViews.set(gpuTexture, views);
+    }
+    let view = views.get(dimension);
+    if (view == null) {
+      view = dimension === '2d' ? gpuTexture.createView() : gpuTexture.createView({ dimension });
+      views.set(dimension, view);
+    }
+    return view;
+  }
+
+  /**
+   * Returns the group 0 bind group (storage buffer, blend shape buffer and morph uniform buffers).
+   * It is recreated only when one of those buffers is replaced.
+   */
+  private __getStorageBindGroup(): GPUBindGroup {
+    const buffers = this.__storageBindGroupBuffers;
+    if (
+      this.__bindGroupStorageBuffer != null &&
+      buffers[0] === this.__storageBuffer &&
+      buffers[1] === this.__storageBlendShapeBuffer &&
+      buffers[2] === this.__uniformMorphOffsetsBuffer &&
+      buffers[3] === this.__uniformMorphWeightsBuffer
+    ) {
+      return this.__bindGroupStorageBuffer;
+    }
+    buffers[0] = this.__storageBuffer;
+    buffers[1] = this.__storageBlendShapeBuffer;
+    buffers[2] = this.__uniformMorphOffsetsBuffer;
+    buffers[3] = this.__uniformMorphWeightsBuffer;
+
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT;
+    const entries: GPUBindGroupEntry[] = [];
+    const layoutEntries: GPUBindGroupLayoutEntry[] = [];
+    let layoutKey = '';
+    if (this.__storageBuffer != null) {
+      entries.push({ binding: 0, resource: { buffer: this.__storageBuffer } });
+      layoutEntries.push({ binding: 0, buffer: { type: 'read-only-storage' }, visibility });
+      layoutKey += 's';
+    }
+    let blendShapeBuffer = this.__storageBlendShapeBuffer;
+    if (blendShapeBuffer == null) {
+      this.__dummyBlendShapeBuffer ??= gpuDevice.createBuffer({
+        size: 16,
+        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE,
+      });
+      blendShapeBuffer = this.__dummyBlendShapeBuffer;
+    }
+    entries.push({ binding: 1, resource: { buffer: blendShapeBuffer } });
+    layoutEntries.push({ binding: 1, buffer: { type: 'read-only-storage' }, visibility });
+    layoutKey += 'b';
+    if (this.__uniformMorphOffsetsBuffer != null) {
+      entries.push({ binding: 2, resource: { buffer: this.__uniformMorphOffsetsBuffer } });
+      layoutEntries.push({ binding: 2, buffer: { type: 'uniform' }, visibility });
+      layoutKey += 'o';
+    }
+    if (this.__uniformMorphWeightsBuffer != null) {
+      entries.push({ binding: 3, resource: { buffer: this.__uniformMorphWeightsBuffer } });
+      layoutEntries.push({ binding: 3, buffer: { type: 'uniform' }, visibility });
+      layoutKey += 'w';
+    }
+    layoutKey = `storage:${layoutKey}`;
+
+    const layout = this.__getOrCreateBindGroupLayout(layoutKey, layoutEntries);
+    this.__bindGroupStorageBuffer = gpuDevice.createBindGroup({ layout, entries });
+    this.__bindGroupLayoutStorageBuffer = layout;
+    this.__bindGroupLayoutKeyStorageBuffer = layoutKey;
+    // Render bundles recorded before bind the previous group 0, whose buffers may have been destroyed.
+    this.__renderBundles.clear();
+    return this.__bindGroupStorageBuffer;
+  }
+
+  /**
+   * Appends a texture binding and its sampler to `__textureSamplerBindings`.
+   */
+  private __pushTextureSamplerBinding(
+    slot: number,
+    dimension: GPUTextureViewDimension,
+    visibility: number,
+    view: GPUTextureView,
+    sampler: GPUSampler
+  ) {
+    const bindings = this.__textureSamplerBindings;
+    const i = bindings.count++;
+    bindings.slots[i] = slot;
+    bindings.dimensions[i] = dimension;
+    bindings.visibilities[i] = visibility;
+    bindings.views[i] = view;
+    bindings.samplers[i] = sampler;
+  }
+
+  /**
+   * Collects the textures and samplers bound by a material into `__textureSamplerBindings`.
+   * The IBL cube maps come from the mesh renderer component, not from the material.
+   */
+  private __collectTextureSamplerBindings(
     engine: Engine,
-    bindGroupId: string,
     material: Material,
     diffuseCubeMap?: CubeTexture | RenderTargetTextureCube,
     specularCubeMap?: CubeTexture | RenderTargetTextureCube,
     sheenCubeMap?: CubeTexture | RenderTargetTextureCube
   ) {
-    this.__bindGroupTextureMap.delete(bindGroupId);
-    this.__bindGroupLayoutTextureMap.delete(bindGroupId);
-    this.__bindGroupSamplerMap.delete(bindGroupId);
-    this.__bindGroupLayoutSamplerMap.delete(bindGroupId);
+    this.__textureSamplerBindings.count = 0;
+    const resources = this.__webGpuResources;
+    const visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT;
+    const dummyTextures = engine.dummyTextures;
 
-    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    for (const value of material._autoTextureFieldVariablesOnly.values()) {
+      const info = value.info;
+      if (
+        info.semantic === 'diffuseEnvTexture' ||
+        info.semantic === 'specularEnvTexture' ||
+        info.semantic === 'sheenEnvTexture'
+      ) {
+        continue;
+      }
+      if (!CompositionType.isTexture(info.compositionType)) {
+        continue;
+      }
+      const slot = value.value[0];
+      const texture = value.value[1] as AbstractTexture;
+      const sampler = value.value[2] as Sampler;
 
-    // Group 0 (Storage Buffer, UniformMorph Buffer)
-    {
+      let dimension: GPUTextureViewDimension = '2d';
+      if (texture instanceof CubeTexture || texture instanceof RenderTargetTextureCube) {
+        dimension = 'cube';
+      } else if (texture instanceof TextureArray || texture instanceof RenderTargetTexture2DArray) {
+        dimension = '2d-array';
+      }
+
+      let gpuTextureView = resources.get(texture._textureViewResourceUid) as GPUTextureView | undefined;
+      if (gpuTextureView == null) {
+        const dummyTexture =
+          dimension === 'cube' ? dummyTextures.dummyBlackCubeTexture : dummyTextures.dummyWhiteTexture;
+        const gpuTexture = resources.get(dummyTexture._textureResourceUid) as GPUTexture;
+        gpuTextureView = this.__getDummyTextureView(gpuTexture, dimension);
+      }
+
+      if (!sampler.created) {
+        sampler.create();
+      }
+      const gpuSampler = resources.get(sampler._samplerResourceUid) as GPUSampler;
+      this.__pushTextureSamplerBinding(slot, dimension, visibility, gpuTextureView, gpuSampler);
+    }
+
+    const dummyCubeTexture = dummyTextures.dummyBlackCubeTexture;
+    const dummyCubeTextureView = (): GPUTextureView =>
+      resources.get(dummyCubeTexture._textureViewResourceUid) as GPUTextureView;
+    const dummyCubeSampler = (): GPUSampler => resources.get(dummyCubeTexture._samplerResourceUid) as GPUSampler;
+
+    // Diffuse IBL
+    const diffuseEnvValue = material.getTextureParameter(ShaderSemantics.DiffuseEnvTexture.str);
+    if (Is.exist(diffuseEnvValue)) {
+      const view = resources.get(Is.exist(diffuseCubeMap) ? diffuseCubeMap._textureViewResourceUid : -1) as
+        | GPUTextureView
+        | undefined;
+      const sampler = resources.get(Is.exist(diffuseCubeMap) ? diffuseCubeMap._samplerResourceUid : -1) as
+        | GPUSampler
+        | undefined;
+      this.__pushTextureSamplerBinding(
+        diffuseEnvValue[0],
+        'cube',
+        visibility,
+        view ?? dummyCubeTextureView(),
+        sampler ?? dummyCubeSampler()
+      );
+    }
+
+    // Specular IBL
+    const specularEnvValue = material.getTextureParameter(ShaderSemantics.SpecularEnvTexture.str);
+    if (Is.exist(specularEnvValue)) {
+      const view = resources.get(Is.exist(specularCubeMap) ? specularCubeMap._textureViewResourceUid : -1) as
+        | GPUTextureView
+        | undefined;
+      const sampler = resources.get(Is.exist(specularCubeMap) ? specularCubeMap._samplerResourceUid : -1) as
+        | GPUSampler
+        | undefined;
+      this.__pushTextureSamplerBinding(
+        specularEnvValue[0],
+        'cube',
+        visibility,
+        view ?? dummyCubeTextureView(),
+        sampler ?? dummyCubeSampler()
+      );
+    }
+
+    // Sheen IBL (the specular cube map is used when there is no sheen cube map)
+    const sheenEnvValue = material.getTextureParameter(ShaderSemantics.SheenEnvTexture.str);
+    if (Is.exist(sheenEnvValue)) {
+      const sheenSource = Is.exist(sheenCubeMap) ? sheenCubeMap : specularCubeMap;
+      const view = Is.exist(sheenSource)
+        ? (resources.get(sheenSource._textureViewResourceUid) as GPUTextureView | undefined)
+        : undefined;
+      const sampler = Is.exist(sheenSource)
+        ? (resources.get(sheenSource._samplerResourceUid) as GPUSampler | undefined)
+        : undefined;
+      this.__pushTextureSamplerBinding(
+        sheenEnvValue[0],
+        'cube',
+        GPUShaderStage.FRAGMENT,
+        view ?? dummyCubeTextureView(),
+        sampler ?? dummyCubeSampler()
+      );
+    }
+  }
+
+  /**
+   * Returns the bind groups and the pipeline layout for drawing with a material.
+   *
+   * The texture (group 1) and sampler (group 2) bind groups are looked up by the resources they bind,
+   * so materials binding the same textures and samplers share them. They do not depend on the render
+   * pipeline, so a pipeline can be recreated without recreating bind groups and vice versa.
+   */
+  private __getDrawBindGroups(
+    engine: Engine,
+    material: Material,
+    diffuseCubeMap?: CubeTexture | RenderTargetTextureCube,
+    specularCubeMap?: CubeTexture | RenderTargetTextureCube,
+    sheenCubeMap?: CubeTexture | RenderTargetTextureCube
+  ): DrawBindGroups {
+    const storage = this.__getStorageBindGroup();
+    this.__collectTextureSamplerBindings(engine, material, diffuseCubeMap, specularCubeMap, sheenCubeMap);
+
+    const bindings = this.__textureSamplerBindings;
+    let textureLayoutKey = 'texture:';
+    let samplerLayoutKey = 'sampler:';
+    let textureResourceKey = '';
+    let samplerResourceKey = '';
+    for (let i = 0; i < bindings.count; i++) {
+      textureLayoutKey += `${bindings.slots[i]}/${bindings.dimensions[i]}/${bindings.visibilities[i]},`;
+      samplerLayoutKey += `${bindings.slots[i]}/${bindings.visibilities[i]},`;
+      textureResourceKey += `${this.__getGpuObjectId(bindings.views[i])},`;
+      samplerResourceKey += `${this.__getGpuObjectId(bindings.samplers[i])},`;
+    }
+
+    const textureBindGroupKey = `${textureLayoutKey}|${textureResourceKey}`;
+    let texture = this.__textureBindGroupCache.get(textureBindGroupKey);
+    const textureLayout = this.__getTextureBindGroupLayout(textureLayoutKey);
+    if (texture == null) {
       const entries: GPUBindGroupEntry[] = [];
-      const bindGroupLayoutEntries: GPUBindGroupLayoutEntry[] = [];
-      if (this.__storageBuffer != null) {
-        entries.push({
-          binding: 0,
-          resource: {
-            buffer: this.__storageBuffer,
-          },
-        });
-        bindGroupLayoutEntries.push({
-          binding: 0,
-          buffer: {
-            type: 'read-only-storage',
-          },
-          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-        });
+      for (let i = 0; i < bindings.count; i++) {
+        entries.push({ binding: bindings.slots[i], resource: bindings.views[i] });
       }
-      if (this.__storageBlendShapeBuffer != null) {
-        entries.push({
-          binding: 1,
-          resource: {
-            buffer: this.__storageBlendShapeBuffer,
-          },
-        });
-        bindGroupLayoutEntries.push({
-          binding: 1,
-          buffer: {
-            type: 'read-only-storage',
-          },
-          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-        });
-      } else {
-        const dummyBuffer = gpuDevice.createBuffer({
-          size: 16,
-          usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE,
-        });
-        entries.push({
-          binding: 1,
-          resource: {
-            buffer: dummyBuffer,
-          },
-        });
-        bindGroupLayoutEntries.push({
-          binding: 1,
-          buffer: {
-            type: 'read-only-storage',
-          },
-          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-        });
-      }
-
-      if (this.__uniformMorphOffsetsBuffer != null) {
-        entries.push({
-          binding: 2,
-          resource: {
-            buffer: this.__uniformMorphOffsetsBuffer,
-          },
-        });
-        bindGroupLayoutEntries.push({
-          binding: 2,
-          buffer: {
-            type: 'uniform',
-          },
-          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-        });
-      }
-      if (this.__uniformMorphWeightsBuffer != null) {
-        entries.push({
-          binding: 3,
-          resource: {
-            buffer: this.__uniformMorphWeightsBuffer,
-          },
-        });
-        bindGroupLayoutEntries.push({
-          binding: 3,
-          buffer: {
-            type: 'uniform',
-          },
-          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-        });
-      }
-
-      const bindGroupLayoutDesc: GPUBindGroupLayoutDescriptor = {
-        entries: bindGroupLayoutEntries,
-      };
-      const bindGroupLayout = gpuDevice.createBindGroupLayout(bindGroupLayoutDesc);
-
-      const uniformBindGroup = gpuDevice.createBindGroup({
-        layout: bindGroupLayout,
-        entries: entries,
-      });
-
-      this.__bindGroupStorageBuffer = uniformBindGroup;
-      this.__bindGroupLayoutStorageBuffer = bindGroupLayout;
+      texture = this.__webGpuDeviceWrapper!.gpuDevice.createBindGroup({ layout: textureLayout, entries });
+      this.__textureBindGroupCache.set(textureBindGroupKey, texture);
     }
 
-    // Group 1 (Texture), Group 2 (Sampler)
-    {
-      const entriesForTexture: GPUBindGroupEntry[] = [];
-      const bindGroupLayoutEntriesForTexture: GPUBindGroupLayoutEntry[] = [];
-      const entriesForSampler: GPUBindGroupEntry[] = [];
-      const bindGroupLayoutEntriesForSampler: GPUBindGroupLayoutEntry[] = [];
-      material._autoTextureFieldVariablesOnly.forEach(value => {
-        const info = value.info;
-        if (
-          info.semantic === 'diffuseEnvTexture' ||
-          info.semantic === 'specularEnvTexture' ||
-          info.semantic === 'sheenEnvTexture'
-        ) {
-          return;
-        }
-
-        if (CompositionType.isTexture(info.compositionType)) {
-          const slot = value.value[0];
-          const texture = value.value[1] as AbstractTexture;
-          const sampler = value.value[2] as Sampler;
-
-          // Texture
-          let type = '2d' as GPUTextureViewDimension;
-          if (texture instanceof CubeTexture || texture instanceof RenderTargetTextureCube) {
-            type = 'cube';
-          } else if (texture instanceof TextureArray || texture instanceof RenderTargetTexture2DArray) {
-            type = '2d-array';
-          }
-
-          let gpuTextureView = this.__webGpuResources.get(texture._textureViewResourceUid) as GPUTextureView;
-          if (gpuTextureView == null) {
-            if (texture instanceof CubeTexture || texture instanceof RenderTargetTextureCube) {
-              const gpuTexture = this.__webGpuResources.get(
-                engine.dummyTextures.dummyBlackCubeTexture._textureResourceUid
-              ) as GPUTexture;
-              gpuTextureView = gpuTexture.createView({ dimension: 'cube' });
-            } else if (texture instanceof TextureArray || texture instanceof RenderTargetTexture2DArray) {
-              const gpuTexture = this.__webGpuResources.get(
-                engine.dummyTextures.dummyWhiteTexture._textureResourceUid
-              ) as GPUTexture;
-              gpuTextureView = gpuTexture.createView({ dimension: '2d-array' });
-            } else {
-              const gpuTexture = this.__webGpuResources.get(
-                engine.dummyTextures.dummyWhiteTexture._textureResourceUid
-              ) as GPUTexture;
-              gpuTextureView = gpuTexture.createView();
-            }
-          }
-          entriesForTexture.push({
-            binding: slot,
-            resource: gpuTextureView,
-          });
-          bindGroupLayoutEntriesForTexture.push({
-            binding: slot,
-            texture: {
-              viewDimension: type,
-            },
-            visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-          });
-
-          // Sampler
-          if (!sampler.created) {
-            sampler.create();
-          }
-          const gpuSampler = this.__webGpuResources.get(sampler._samplerResourceUid) as GPUSampler;
-          entriesForSampler.push({
-            binding: slot,
-            resource: gpuSampler,
-          });
-          bindGroupLayoutEntriesForSampler.push({
-            binding: slot,
-            sampler: {
-              type: 'filtering',
-            },
-            visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-          });
-        }
-      });
-
-      // Diffuse IBL
-      const diffuseEnvValue = material.getTextureParameter(ShaderSemantics.DiffuseEnvTexture.str);
-      if (Is.exist(diffuseEnvValue)) {
-        const diffuseEnvSlot = diffuseEnvValue[0];
-        const diffuseCubeTextureView = this.__webGpuResources.get(
-          Is.exist(diffuseCubeMap) ? diffuseCubeMap._textureViewResourceUid : -1
-        ) as GPUTextureView | undefined;
-        if (Is.exist(diffuseCubeTextureView)) {
-          entriesForTexture.push({
-            binding: diffuseEnvSlot,
-            resource: diffuseCubeTextureView,
-          });
-        } else {
-          const dummyCubeTextureView = this.__webGpuResources.get(
-            engine.dummyTextures.dummyBlackCubeTexture._textureViewResourceUid
-          ) as GPUTextureView;
-          entriesForTexture.push({
-            binding: diffuseEnvSlot,
-            resource: dummyCubeTextureView,
-          });
-        }
-        bindGroupLayoutEntriesForTexture.push({
-          binding: diffuseEnvSlot,
-          texture: {
-            viewDimension: 'cube',
-          },
-          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-        });
-        const diffuseCubeSampler = this.__webGpuResources.get(
-          Is.exist(diffuseCubeMap) ? diffuseCubeMap._samplerResourceUid : -1
-        ) as GPUSampler | undefined;
-        if (Is.exist(diffuseCubeSampler)) {
-          entriesForSampler.push({
-            binding: diffuseEnvSlot,
-            resource: diffuseCubeSampler,
-          });
-        } else {
-          const dummyCubeSampler = this.__webGpuResources.get(
-            engine.dummyTextures.dummyBlackCubeTexture._samplerResourceUid
-          ) as GPUSampler;
-          entriesForSampler.push({
-            binding: diffuseEnvSlot,
-            resource: dummyCubeSampler,
-          });
-        }
-        bindGroupLayoutEntriesForSampler.push({
-          binding: diffuseEnvSlot,
-          sampler: {
-            type: 'filtering',
-          },
-          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-        });
+    const samplerBindGroupKey = `${samplerLayoutKey}|${samplerResourceKey}`;
+    let sampler = this.__samplerBindGroupCache.get(samplerBindGroupKey);
+    const samplerLayout = this.__getSamplerBindGroupLayout(samplerLayoutKey);
+    if (sampler == null) {
+      const entries: GPUBindGroupEntry[] = [];
+      for (let i = 0; i < bindings.count; i++) {
+        entries.push({ binding: bindings.slots[i], resource: bindings.samplers[i] });
       }
-
-      // Specular IBL
-      const specularEnvValue = material.getTextureParameter(ShaderSemantics.SpecularEnvTexture.str);
-      if (Is.exist(specularEnvValue)) {
-        const specularEnvSlot = specularEnvValue[0];
-        const specularCubeTextureView = this.__webGpuResources.get(
-          Is.exist(specularCubeMap) ? specularCubeMap._textureViewResourceUid : -1
-        ) as GPUTextureView | undefined;
-        if (Is.exist(specularCubeTextureView)) {
-          entriesForTexture.push({
-            binding: specularEnvSlot,
-            resource: specularCubeTextureView,
-          });
-        } else {
-          const dummyCubeTextureView = this.__webGpuResources.get(
-            engine.dummyTextures.dummyBlackCubeTexture._textureViewResourceUid
-          ) as GPUTextureView;
-          entriesForTexture.push({
-            binding: specularEnvSlot,
-            resource: dummyCubeTextureView,
-          });
-        }
-        bindGroupLayoutEntriesForTexture.push({
-          binding: specularEnvSlot,
-          texture: {
-            viewDimension: 'cube',
-          },
-          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-        });
-        const specularCubeSampler = this.__webGpuResources.get(
-          Is.exist(specularCubeMap) ? specularCubeMap._samplerResourceUid : -1
-        ) as GPUSampler | undefined;
-        if (Is.exist(specularCubeSampler)) {
-          entriesForSampler.push({
-            binding: specularEnvSlot,
-            resource: specularCubeSampler,
-          });
-        } else {
-          const dummyCubeSampler = this.__webGpuResources.get(
-            engine.dummyTextures.dummyBlackCubeTexture._samplerResourceUid
-          ) as GPUSampler;
-          entriesForSampler.push({
-            binding: specularEnvSlot,
-            resource: dummyCubeSampler,
-          });
-        }
-        bindGroupLayoutEntriesForSampler.push({
-          binding: specularEnvSlot,
-          sampler: {
-            type: 'filtering',
-          },
-          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-        });
-      }
-
-      // Sheen IBL
-      const sheenEnvValue = material.getTextureParameter(ShaderSemantics.SheenEnvTexture.str);
-      if (Is.exist(sheenEnvValue)) {
-        const sheenEnvSlot = sheenEnvValue[0];
-        let sheenCubeTextureView: GPUTextureView | undefined;
-        if (Is.exist(sheenCubeMap)) {
-          sheenCubeTextureView = this.__webGpuResources.get(sheenCubeMap._textureViewResourceUid) as
-            | GPUTextureView
-            | undefined;
-        } else if (Is.exist(specularCubeMap)) {
-          // if sheenCubeMap is not exist, use specularCubeMap instead as sheenCubeMap
-          sheenCubeTextureView = this.__webGpuResources.get(specularCubeMap._textureViewResourceUid) as
-            | GPUTextureView
-            | undefined;
-        }
-        if (Is.exist(sheenCubeTextureView)) {
-          entriesForTexture.push({
-            binding: sheenEnvSlot,
-            resource: sheenCubeTextureView,
-          });
-        } else {
-          const dummyCubeTextureView = this.__webGpuResources.get(
-            engine.dummyTextures.dummyBlackCubeTexture._textureViewResourceUid
-          ) as GPUTextureView;
-          entriesForTexture.push({
-            binding: sheenEnvSlot,
-            resource: dummyCubeTextureView,
-          });
-        }
-        bindGroupLayoutEntriesForTexture.push({
-          binding: sheenEnvSlot,
-          texture: {
-            viewDimension: 'cube',
-          },
-          visibility: GPUShaderStage.FRAGMENT,
-        });
-        let sheenCubeSampler: GPUSampler | undefined;
-        if (Is.exist(sheenCubeMap)) {
-          sheenCubeSampler = this.__webGpuResources.get(sheenCubeMap._samplerResourceUid) as GPUSampler | undefined;
-        } else if (Is.exist(specularCubeMap)) {
-          // if sheenCubeMap is not exist, use specularCubeMap instead as sheenCubeMap
-          sheenCubeSampler = this.__webGpuResources.get(specularCubeMap._samplerResourceUid) as GPUSampler | undefined;
-        }
-        if (Is.exist(sheenCubeSampler)) {
-          entriesForSampler.push({
-            binding: sheenEnvSlot,
-            resource: sheenCubeSampler,
-          });
-        } else {
-          const dummyCubeSampler = this.__webGpuResources.get(
-            engine.dummyTextures.dummyBlackCubeTexture._samplerResourceUid
-          ) as GPUSampler;
-          entriesForSampler.push({
-            binding: sheenEnvSlot,
-            resource: dummyCubeSampler,
-          });
-        }
-        bindGroupLayoutEntriesForSampler.push({
-          binding: sheenEnvSlot,
-          sampler: {
-            type: 'filtering',
-          },
-          visibility: GPUShaderStage.FRAGMENT,
-        });
-      }
-
-      // Texture
-      const bindGroupLayoutDescForTexture: GPUBindGroupLayoutDescriptor = {
-        entries: bindGroupLayoutEntriesForTexture,
-      };
-      const bindGroupLayoutForTexture = gpuDevice.createBindGroupLayout(bindGroupLayoutDescForTexture);
-      const bindGroupForTexture = gpuDevice.createBindGroup({
-        layout: bindGroupLayoutForTexture,
-        entries: entriesForTexture,
-      });
-      this.__bindGroupTextureMap.set(bindGroupId, bindGroupForTexture);
-      this.__bindGroupLayoutTextureMap.set(bindGroupId, bindGroupLayoutForTexture);
-
-      // Sampler
-      const bindGroupLayoutDescForSampler: GPUBindGroupLayoutDescriptor = {
-        entries: bindGroupLayoutEntriesForSampler,
-      };
-      const bindGroupLayoutForSampler = gpuDevice.createBindGroupLayout(bindGroupLayoutDescForSampler);
-      const bindGroupForSampler = gpuDevice.createBindGroup({
-        layout: bindGroupLayoutForSampler,
-        entries: entriesForSampler,
-      });
-      this.__bindGroupSamplerMap.set(bindGroupId, bindGroupForSampler);
-      this.__bindGroupLayoutSamplerMap.set(bindGroupId, bindGroupLayoutForSampler);
+      sampler = this.__webGpuDeviceWrapper!.gpuDevice.createBindGroup({ layout: samplerLayout, entries });
+      this.__samplerBindGroupCache.set(samplerBindGroupKey, sampler);
     }
+
+    const pipelineLayoutKey = `${this.__bindGroupLayoutKeyStorageBuffer}#${textureLayoutKey}#${samplerLayoutKey}`;
+    let pipelineLayout = this.__pipelineLayoutCache.get(pipelineLayoutKey);
+    if (pipelineLayout == null) {
+      pipelineLayout = this.__webGpuDeviceWrapper!.gpuDevice.createPipelineLayout({
+        bindGroupLayouts: [
+          this.__bindGroupLayoutStorageBuffer!,
+          textureLayout,
+          samplerLayout,
+          this.__bindGroupLayoutUniformDrawParameters!,
+        ],
+      });
+      this.__pipelineLayoutCache.set(pipelineLayoutKey, pipelineLayout);
+    }
+
+    let result = this.__drawBindGroups;
+    if (result == null) {
+      result = { storage, texture, sampler, pipelineLayout, pipelineLayoutKey };
+      this.__drawBindGroups = result;
+    } else {
+      result.storage = storage;
+      result.texture = texture;
+      result.sampler = sampler;
+      result.pipelineLayout = pipelineLayout;
+      result.pipelineLayoutKey = pipelineLayoutKey;
+    }
+    return result;
+  }
+
+  private __getTextureBindGroupLayout(layoutKey: string): GPUBindGroupLayout {
+    const cached = this.__bindGroupLayoutCache.get(layoutKey);
+    if (cached != null) {
+      return cached;
+    }
+    const bindings = this.__textureSamplerBindings;
+    const entries: GPUBindGroupLayoutEntry[] = [];
+    for (let i = 0; i < bindings.count; i++) {
+      entries.push({
+        binding: bindings.slots[i],
+        texture: { viewDimension: bindings.dimensions[i] },
+        visibility: bindings.visibilities[i],
+      });
+    }
+    return this.__getOrCreateBindGroupLayout(layoutKey, entries);
+  }
+
+  private __getSamplerBindGroupLayout(layoutKey: string): GPUBindGroupLayout {
+    const cached = this.__bindGroupLayoutCache.get(layoutKey);
+    if (cached != null) {
+      return cached;
+    }
+    const bindings = this.__textureSamplerBindings;
+    const entries: GPUBindGroupLayoutEntry[] = [];
+    for (let i = 0; i < bindings.count; i++) {
+      entries.push({
+        binding: bindings.slots[i],
+        sampler: { type: 'filtering' },
+        visibility: bindings.visibilities[i],
+      });
+    }
+    return this.__getOrCreateBindGroupLayout(layoutKey, entries);
   }
 
   /**

@@ -8,7 +8,7 @@ import { TextureParameter } from '../../definitions/TextureParameter';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector4 } from '../../math/MutableVector4';
 import type { Engine } from '../../system/Engine';
-import { Sampler } from '../../textures/Sampler';
+import { getSharedSampler, type Sampler } from '../../textures/Sampler';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import type { Material } from '../core/Material';
 
@@ -20,6 +20,10 @@ import type { Material } from '../core/Material';
 export class CustomMaterialContent extends AbstractMaterialContent {
   private __diffuseIblCubeMapSampler: Sampler;
   private __specularIblCubeMapSampler: Sampler;
+  /** Material and values of the last IBL parameter write (WebGL DataTexture mode). */
+  private __lastIblMaterial?: Material;
+  private __lastIblMaterialStateVersion = -1;
+  private __lastIblValues = new Float64Array(6);
   /**
    * Creates a new CustomMaterialContent instance with custom shaders and configuration.
    *
@@ -73,27 +77,21 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       definitions
     );
 
-    this.__diffuseIblCubeMapSampler = new Sampler(engine, {
+    // Shared per engine: creating them per material created two GPU sampler objects per material.
+    this.__diffuseIblCubeMapSampler = getSharedSampler(engine, {
       minFilter: TextureParameter.Linear,
       magFilter: TextureParameter.Linear,
       wrapS: TextureParameter.ClampToEdge,
       wrapT: TextureParameter.ClampToEdge,
       wrapR: TextureParameter.ClampToEdge,
     });
-    this.__specularIblCubeMapSampler = new Sampler(engine, {
+    this.__specularIblCubeMapSampler = getSharedSampler(engine, {
       minFilter: TextureParameter.LinearMipmapLinear,
       magFilter: TextureParameter.Linear,
       wrapS: TextureParameter.ClampToEdge,
       wrapT: TextureParameter.ClampToEdge,
       wrapR: TextureParameter.ClampToEdge,
     });
-    if (!this.__diffuseIblCubeMapSampler.created) {
-      this.__diffuseIblCubeMapSampler.create();
-    }
-
-    if (!this.__specularIblCubeMapSampler.created) {
-      this.__specularIblCubeMapSampler.create();
-    }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo));
   }
@@ -236,16 +234,43 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     } else {
       const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
         CustomMaterialContent.__setupHdriParameters(args);
+      const diffuseContribution = meshRenderComponent!.diffuseCubeMapContribution;
+      const specularContribution = meshRenderComponent!.specularCubeMapContribution;
+      const rotationOfCubeMap = meshRenderComponent!.rotationOfCubeMap;
+      // This runs for every material on every frame. Skip the two setParameter() calls when this
+      // material already holds these values and nothing has changed the material since.
+      const last = this.__lastIblValues;
+      if (
+        this.__lastIblMaterial === material &&
+        this.__lastIblMaterialStateVersion === material.stateVersion &&
+        last[0] === mipmapLevelNumber &&
+        last[1] === diffuseContribution &&
+        last[2] === specularContribution &&
+        last[3] === rotationOfCubeMap &&
+        last[4] === diffuseHdriType &&
+        last[5] === specularHdriType
+      ) {
+        return;
+      }
       const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
       tmp_vector4.x = mipmapLevelNumber;
-      tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
-      tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
-      tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
+      tmp_vector4.y = diffuseContribution;
+      tmp_vector4.z = specularContribution;
+      tmp_vector4.w = rotationOfCubeMap;
       material.setParameter('iblParameter', tmp_vector4);
       const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
       tmp_vector2.x = diffuseHdriType;
       tmp_vector2.y = specularHdriType;
       material.setParameter('hdriFormat', tmp_vector2);
+
+      this.__lastIblMaterial = material;
+      this.__lastIblMaterialStateVersion = material.stateVersion;
+      last[0] = mipmapLevelNumber;
+      last[1] = diffuseContribution;
+      last[2] = specularContribution;
+      last[3] = rotationOfCubeMap;
+      last[4] = diffuseHdriType;
+      last[5] = specularHdriType;
     }
   }
 

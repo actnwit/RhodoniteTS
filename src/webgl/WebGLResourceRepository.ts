@@ -835,9 +835,21 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     if (info == null) {
       return;
     }
-    const gl = this.__glw!.getRawContext();
-    const loc: WebGLUniformLocation = (shaderProgram as any)[semanticStr];
-    gl.uniform1i(loc, value[0]);
+    // Sampler uniforms keep their value in the program object, and materials sharing a program
+    // usually use the same texture unit, so skip the GL call when the unit is unchanged.
+    // With thousands of materials this call was issued for every texture of every material per frame.
+    let textureUnits = shaderProgram._textureUnitsOfSamplers;
+    if (textureUnits == null) {
+      textureUnits = new Map();
+      shaderProgram._textureUnitsOfSamplers = textureUnits;
+    }
+    const textureUnit = value[0];
+    if (textureUnits.get(semanticStr) !== textureUnit) {
+      const gl = this.__glw!.getRawContext();
+      const loc: WebGLUniformLocation = (shaderProgram as any)[semanticStr];
+      gl.uniform1i(loc, textureUnit);
+      textureUnits.set(semanticStr, textureUnit);
+    }
     this.bindTexture(info, value);
   }
 

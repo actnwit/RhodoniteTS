@@ -14,6 +14,8 @@ export interface RnWebGLProgram extends WebGLProgram {
   __SPECTOR_rebuildProgram: unknown;
   _material: WeakRef<Material>;
   _primitive: WeakRef<Primitive>;
+  /** Texture unit last assigned to each sampler uniform of this program (uniform values persist per program). */
+  _textureUnitsOfSamplers?: Map<string, number>;
 }
 
 export interface RnWebGLTexture extends WebGLTexture {
