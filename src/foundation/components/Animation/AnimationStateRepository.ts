@@ -5,12 +5,44 @@ import type { Engine } from '../../system/Engine';
  * Repository for managing shared animation state between AnimationComponent and SkeletalComponent.
  * This module exists to break the circular dependency between these two components.
  */
+/**
+ * Joint information needed to decide whether a joint can skip animation.
+ */
+type JointForEarlyReturn = { readonly jointIndex: number; readonly entityUID: EntityUID };
+
+/**
+ * Joints of a frustum-culled SkeletalComponent, waiting for the frame's leaders to be decided.
+ */
+type CulledSkeletonJoints = { cacheKey: string; joints: readonly JointForEarlyReturn[] };
+
 export class AnimationStateRepository {
   /** Map to store globalTime per Engine instance for multi-engine support */
   private static __globalTimeMap: Map<Engine, number> = new Map();
 
   /** Map to store isAnimating flag per Engine instance for multi-engine support */
   private static __isAnimatingMap: Map<Engine, boolean> = new Map();
+
+  /**
+   * Version counter of animation bindings (channels, samplers and active tracks).
+   * Incremented whenever data that affects animation track feature hashes may change,
+   * so that consumers (e.g. SkeletalComponent skin cache keys) can avoid recomputing every frame.
+   */
+  private static __animationBindingVersion = 0;
+
+  /**
+   * Marks that animation bindings (channels, samplers or active tracks) may have changed.
+   */
+  static markAnimationBindingChanged(): void {
+    this.__animationBindingVersion++;
+  }
+
+  /**
+   * Gets the current version of animation bindings.
+   * @returns The version counter, which changes whenever animation bindings may have changed
+   */
+  static getAnimationBindingVersion(): number {
+    return this.__animationBindingVersion;
+  }
 
   // ============================================================================
   // AnimationComponent Early Return Optimization (moved from SkeletalComponent)
@@ -64,6 +96,14 @@ export class AnimationStateRepository {
    * Managed per Engine instance for multi-engine support.
    */
   private static __leaderJointIndexToEntityUIDMap: Map<Engine, Map<number, EntityUID>> = new Map();
+
+  /**
+   * Joints of frustum-culled SkeletalComponents collected during the current frame.
+   * They are resolved at the next frame transition, after the leaders of the frame are decided,
+   * so that leader joints are never registered for early return.
+   * Managed per Engine instance for multi-engine support.
+   */
+  private static __pendingCulledSkeletonJointsMap: Map<Engine, CulledSkeletonJoints[]> = new Map();
 
   // ============================================================================
   // Global Time Management
@@ -202,12 +242,61 @@ export class AnimationStateRepository {
     const lastCacheFrameToken = this.getLastCacheFrameToken(engine);
     if (lastCacheFrameToken !== currentProcessFrameToken) {
       const currentFrameSet = this.getOrCreateCurrentFrameCachedEntityUIDs(engine);
+      this.__resolvePendingCulledSkeletonJoints(engine, currentFrameSet);
       this.setPreviousFrameCachedEntityUIDs(engine, currentFrameSet);
       this.setCurrentFrameCachedEntityUIDs(engine, new Set());
       this.setLastCacheFrameToken(engine, currentProcessFrameToken);
       return true;
     }
     return false;
+  }
+
+  /**
+   * Registers the joints of a frustum-culled SkeletalComponent as candidates for early return.
+   *
+   * A culled SkeletalComponent neither computes nor applies skinning, so its joints do not need to
+   * be animated as long as another (visible) SkeletalComponent with the same cache key is the leader.
+   * The candidates are resolved at the next frame transition, when the leaders of this frame are known:
+   * joints that are the same entities as the leader's joints (e.g. a culled Face mesh sharing joints
+   * with a visible Body mesh) keep animating.
+   *
+   * @param engine - The engine instance for multi-engine support
+   * @param cacheKey - The skinning cache key of the culled SkeletalComponent
+   * @param joints - The joints of the culled SkeletalComponent
+   */
+  static addCulledSkeletonJoints(engine: Engine, cacheKey: string, joints: readonly JointForEarlyReturn[]): void {
+    let pending = this.__pendingCulledSkeletonJointsMap.get(engine);
+    if (!pending) {
+      pending = [];
+      this.__pendingCulledSkeletonJointsMap.set(engine, pending);
+    }
+    pending.push({ cacheKey, joints });
+  }
+
+  /**
+   * Moves the joints of culled SkeletalComponents whose cache key had a leader in the finished frame
+   * into the given cached EntityUID set, excluding the leader joints.
+   */
+  private static __resolvePendingCulledSkeletonJoints(engine: Engine, cachedEntityUIDs: Set<EntityUID>): void {
+    const pending = this.__pendingCulledSkeletonJointsMap.get(engine);
+    if (pending == null || pending.length === 0) {
+      return;
+    }
+    const cacheLeaders = this.getOrCreateCacheLeaders(engine);
+    const leaderJointIndexToEntityUID = this.getOrCreateLeaderJointIndexToEntityUID(engine);
+    for (const { cacheKey, joints } of pending) {
+      if (!cacheLeaders.has(cacheKey)) {
+        // No visible SkeletalComponent computed this skin; keep animating to stay safe.
+        continue;
+      }
+      for (const joint of joints) {
+        const leaderEntityUID = leaderJointIndexToEntityUID.get(joint.jointIndex);
+        if (leaderEntityUID !== undefined && leaderEntityUID !== joint.entityUID) {
+          cachedEntityUIDs.add(joint.entityUID);
+        }
+      }
+    }
+    pending.length = 0;
   }
 
   /**
@@ -267,5 +356,6 @@ export class AnimationStateRepository {
     this.__lastCacheFrameTokenMap.delete(engine);
     this.__cacheLeadersMap.delete(engine);
     this.__leaderJointIndexToEntityUIDMap.delete(engine);
+    this.__pendingCulledSkeletonJointsMap.delete(engine);
   }
 }

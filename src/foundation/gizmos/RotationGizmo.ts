@@ -8,10 +8,10 @@ import type { RaycastResultEx1 } from '../geometry/types/GeometryTypes';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
 import { MaterialHelper } from '../helpers/MaterialHelper';
 import type { Material } from '../materials/core/Material';
-import type { IQuaternion } from '../math/IQuaternion';
 import type { IVector3 } from '../math/IVector';
 import { Matrix33 } from '../math/Matrix33';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
+import { MutableQuaternion } from '../math/MutableQuaternion';
 import { MutableVector2 } from '../math/MutableVector2';
 import { MutableVector3 } from '../math/MutableVector3';
 import { MutableVector4 } from '../math/MutableVector4';
@@ -80,6 +80,8 @@ export class RotationGizmo extends Gizmo {
   private static readonly __tmpVector3_7 = MutableVector3.zero();
   private static readonly __tmpVector3_8 = MutableVector3.zero();
   private static readonly __tmpVector3_9 = MutableVector3.zero();
+  /** Reusable quaternion for world-rotation calculations (avoids per-frame allocations) */
+  private static readonly __tmpQuaternion_0 = MutableQuaternion.identity();
 
   private __isPointerDown = false;
   private __startVector = Vector3.zero();
@@ -333,14 +335,16 @@ export class RotationGizmo extends Gizmo {
     }
 
     if (RotationGizmo.__space === 'local') {
+      const quaternion = RotationGizmo.__tmpQuaternion_0;
       const parent = this.__target.getSceneGraph().parent;
-      let quaternion: IQuaternion = Quaternion.identity();
       if (Is.exist(parent)) {
-        quaternion = parent.getQuaternionRecursively();
+        parent.getQuaternionRecursivelyTo(quaternion);
+      } else {
+        quaternion.identity();
       }
       resources.groupEntity.getTransform().localRotation = quaternion;
     } else {
-      resources.groupEntity.getTransform().localRotation = Quaternion.fromCopy4(0, 0, 0, 1);
+      resources.groupEntity.getTransform().localRotation = RotationGizmo.__tmpQuaternion_0.identity();
     }
   }
 

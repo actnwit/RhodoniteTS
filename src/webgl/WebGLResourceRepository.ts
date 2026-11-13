@@ -192,6 +192,9 @@ export type WebGLResource =
 export class WebGLResourceRepository extends CGAPIResourceRepository implements ICGAPIResourceRepository {
   private __webglContexts: Map<string, WebGLContextWrapper> = new Map();
   private __glw?: WebGLContextWrapper;
+  /** See __getCanvasContextAttributes(). */
+  private __canvasContextAttributes?: { depth: boolean; stencil: boolean };
+  private __canvasContextAttributesOwner?: WebGLContextWrapper;
   private __resourceCounter: number = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __webglResources: Map<WebGLResourceHandle, WebGLResource> = new Map();
   private __samplerClampToEdgeLinearUid: WebGLResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -419,6 +422,32 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     glw.bindVertexArray(null);
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, accessor.bufferView.getUint8Array());
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  }
+
+  /**
+   * Overwrites the beginning of an existing vertex buffer with the given typed array.
+   *
+   * The vertex array binding is left untouched: the ARRAY_BUFFER binding is not part of the VAO state,
+   * so this can be called between draw calls without disturbing the bound VAO.
+   *
+   * @param resourceHandle - The handle of the vertex buffer to update
+   * @param typedArray - The data written from the beginning of the buffer
+   * @throws Error if no WebGL context is available or VBO not found
+   */
+  updateVertexBufferWithTypedArray(resourceHandle: WebGLResourceHandle, typedArray: TypedArray) {
+    const gl = this.__glw?.getRawContext();
+    if (!Is.exist(gl)) {
+      throw new Error('No WebGLRenderingContext set as Default.');
+    }
+
+    const vbo = this.__webglResources.get(resourceHandle) as WebGLBuffer;
+    if (!Is.exist(vbo)) {
+      throw new Error('Not found VBO.');
+    }
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, typedArray);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
   }
 
@@ -3406,24 +3435,50 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     }
   }
 
-  clearFrameBuffer(_engine: Engine, renderPass: RenderPass, _ = 0) {
+  clearFrameBuffer(engine: Engine, renderPass: RenderPass, _ = 0) {
     const gl = this.__glw!.getRawContext();
+    // When the render pass targets the canvas (see Engine.bindFramebufferWebGL) and the canvas was
+    // created without a depth/stencil buffer, clearing it is a no-op, so the bits are left out.
+    const isCanvasTarget =
+      renderPass.getFramebuffer() == null &&
+      !(engine.webXRSystem.isWebXRMode && renderPass.isOutputForVr) &&
+      !engine.webARSystem.isWebARMode;
     let bufferBit = 0;
     if (renderPass.toClearColorBuffer) {
       gl.clearColor(renderPass.clearColor.x, renderPass.clearColor.y, renderPass.clearColor.z, renderPass.clearColor.w);
       bufferBit |= gl.COLOR_BUFFER_BIT;
     }
-    if (renderPass.toClearDepthBuffer) {
+    if (renderPass.toClearDepthBuffer && !(isCanvasTarget && !this.__getCanvasContextAttributes().depth)) {
       gl.clearDepth(renderPass.clearDepth);
       bufferBit |= gl.DEPTH_BUFFER_BIT;
     }
-    if (renderPass.toClearStencilBuffer) {
+    if (renderPass.toClearStencilBuffer && !(isCanvasTarget && !this.__getCanvasContextAttributes().stencil)) {
       gl.clearStencil(renderPass.clearStencil);
       bufferBit |= gl.STENCIL_BUFFER_BIT;
     }
     if (bufferBit !== 0) {
       gl.clear(bufferBit);
     }
+  }
+
+  /**
+   * Whether the canvas (default framebuffer) has a depth / stencil buffer. Cached because
+   * getContextAttributes() allocates a new object on every call. While the context is lost the
+   * attributes are unknown, so both are reported as present and nothing is skipped.
+   */
+  private __getCanvasContextAttributes(): { depth: boolean; stencil: boolean } {
+    const glw = this.__glw!;
+    let attributes = this.__canvasContextAttributes;
+    if (attributes == null || this.__canvasContextAttributesOwner !== glw) {
+      const contextAttributes = glw.getRawContext().getContextAttributes();
+      if (contextAttributes == null) {
+        return { depth: true, stencil: true };
+      }
+      attributes = { depth: contextAttributes.depth !== false, stencil: contextAttributes.stencil === true };
+      this.__canvasContextAttributes = attributes;
+      this.__canvasContextAttributesOwner = glw;
+    }
+    return attributes;
   }
 
   deleteVertexDataResources(vertexHandles: VertexHandles) {

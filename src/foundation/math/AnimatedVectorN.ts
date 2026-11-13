@@ -1,5 +1,6 @@
 import type { AnimationSampler, AnimationSamplers, AnimationTrackName } from '../../types/AnimationTypes';
 import { __interpolate } from '../components/Animation/AnimationOps';
+import { AnimationStateRepository } from '../components/Animation/AnimationStateRepository';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
 import { Logger } from '../misc/Logger';
 import type { IAnimatedValue } from './IAnimatedValue';
@@ -132,6 +133,7 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
    * @param animationTrackName - The name of the animation track to set as first active
    */
   setFirstActiveAnimationTrackName(animationTrackName: AnimationTrackName) {
+    AnimationStateRepository.markAnimationBindingChanged();
     this.__firstActiveAnimationTrackName = animationTrackName;
     const animationSampler = this.__animationSamplers.get(this.__firstActiveAnimationTrackName);
     if (animationSampler === undefined) {
@@ -238,6 +240,7 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
    * @param trackName - The name of the animation track to remove
    */
   deleteAnimationSampler(trackName: AnimationTrackName) {
+    AnimationStateRepository.markAnimationBindingChanged();
     this.__animationSamplers.delete(trackName);
   }
 
@@ -247,6 +250,7 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
    * @param animationSampler - The animation sampler to set for the track
    */
   setAnimationSampler(animationTrackName: AnimationTrackName, animationSampler: AnimationSampler) {
+    AnimationStateRepository.markAnimationBindingChanged();
     this.__animationSamplers.set(animationTrackName, animationSampler);
   }
 }

@@ -126,6 +126,14 @@ export class Material extends RnObject {
   private __blendFuncAlphaDstFactor = Blend.OneMinusSrcAlpha; // gl.ONE_MINUS_SRC_ALPHA
 
   private __stateVersion = 0;
+  // Incremented only when the render pipeline configuration changes (shader
+  // program, blend state, cull mode, ...). Uniform value updates do not need a
+  // new pipeline, so they must not bump this version.
+  private __pipelineStateVersion = 0;
+  // Incremented only when texture/sampler bindings change. WebGPU bind groups
+  // must be recreated for these changes, while uniform updates are written to
+  // the storage buffer and leave the bind groups untouched.
+  private __textureStateVersion = 0;
   private __fingerPrint = '';
 
   private __shaderDefines: Set<string> = new Set();
@@ -224,7 +232,15 @@ export class Material extends RnObject {
     //   }
     // }
 
-    this.__fingerPrint = str;
+    if (str !== this.__fingerPrint) {
+      this.__fingerPrint = str;
+      this.__incrementPipelineStateVersion();
+    }
+  }
+
+  private __incrementPipelineStateVersion() {
+    this.__pipelineStateVersion++;
+    this.__engine.materialRepository._incrementBindingStateVersion();
   }
 
   /**
@@ -313,6 +329,13 @@ export class Material extends RnObject {
 
     if (this._allFieldsInfo.has(shaderSemantic)) {
       const array = this._allFieldVariables.get(shaderSemantic)!;
+      // Renderers call this every frame with the same texture/sampler (for
+      // example IBL environment maps). Reassigning identical bindings must not
+      // invalidate pipelines or bind groups, otherwise WebGPU recreates them
+      // every frame and render bundles can never be reused.
+      if (array.value[1] === texture && array.value[2] === sampler) {
+        return;
+      }
       const shaderVariable = {
         value: [array.value[0], texture, sampler],
         info: array.info,
@@ -330,7 +353,9 @@ export class Material extends RnObject {
         }
       }
       this.__stateVersion++;
+      this.__textureStateVersion++;
       this.__engine.materialRepository._incrementStateVersion();
+      this.__engine.materialRepository._incrementBindingStateVersion();
       this.calcFingerPrint();
     }
   }
@@ -358,6 +383,9 @@ export class Material extends RnObject {
     promise.then(texture => {
       if (this._allFieldsInfo.has(shaderSemantic)) {
         const array = this._allFieldVariables.get(shaderSemantic)!;
+        if (array.value[1] === texture) {
+          return;
+        }
         const shaderVariable = {
           value: [array.value[0], texture],
           info: array.info,
@@ -376,7 +404,9 @@ export class Material extends RnObject {
         }
       }
       this.__stateVersion++;
+      this.__textureStateVersion++;
       this.__engine.materialRepository._incrementStateVersion();
+      this.__engine.materialRepository._incrementBindingStateVersion();
       this.calcFingerPrint();
     });
   }
@@ -1161,12 +1191,36 @@ export class Material extends RnObject {
     this._shaderProgramUidMap.clear();
     this._shaderProgramComponentStateVersionMap.clear();
     this.__stateVersion++;
+    this.__incrementPipelineStateVersion();
     this.__engine.materialRepository._incrementStateVersion();
   }
 
   updateStateVersion() {
     this.__stateVersion++;
+    // Called when the shader program cache misses, so a new GPUShaderModule
+    // will be created. The render pipeline embeds the module and must be
+    // rebuilt as well.
+    this.__incrementPipelineStateVersion();
     this.__engine.materialRepository._incrementStateVersion();
+  }
+
+  /**
+   * Gets the version that is bumped only when the render pipeline
+   * configuration changes (shader program, blend state, cull mode, ...).
+   * Uniform parameter updates do not affect this version.
+   * @returns The pipeline state version number
+   */
+  get pipelineStateVersion(): number {
+    return this.__pipelineStateVersion;
+  }
+
+  /**
+   * Gets the version that is bumped only when texture or sampler bindings
+   * change. Used to invalidate WebGPU bind groups and render bundles.
+   * @returns The texture binding state version number
+   */
+  get textureStateVersion(): number {
+    return this.__textureStateVersion;
   }
 
   /**

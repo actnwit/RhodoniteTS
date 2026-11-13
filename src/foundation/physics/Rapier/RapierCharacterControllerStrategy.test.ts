@@ -1,5 +1,5 @@
 import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
-import { Quaternion, Vector3 } from '../../math';
+import { type IMutableQuaternion, Quaternion, Vector3 } from '../../math';
 import { PhysicsWorldQuery } from '../PhysicsWorldQuery';
 import { RapierCharacterControllerStrategy } from './RapierCharacterControllerStrategy';
 import {
@@ -251,6 +251,7 @@ function fakeEntity(rotation = Quaternion.identity(), scale = Vector3.one()) {
       },
       _getPhysicsWorldScale: () => state.scale,
       getQuaternionRecursively: () => state.rotation,
+      getQuaternionRecursivelyTo: (out: IMutableQuaternion) => out.copyComponents(state.rotation),
       setPositionWithoutPhysics(position: Vector3) {
         state.position = position;
       },

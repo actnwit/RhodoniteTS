@@ -1,5 +1,5 @@
 import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
-import { Matrix44, Quaternion, Vector3 } from '../../math';
+import { type IMutableQuaternion, Matrix44, Quaternion, Vector3 } from '../../math';
 
 let lastProperty: any;
 const bodies: FakeBody[] = [];
@@ -50,6 +50,7 @@ test('OimoPhysicsStrategy maps a local generic shape pose to and from the body p
         return state.position;
       },
       getQuaternionRecursively: () => state.rotation,
+      getQuaternionRecursivelyTo: (out: IMutableQuaternion) => out.copyComponents(state.rotation),
       setPositionWithoutPhysics: (position: Vector3) => {
         state.position = position;
       },
@@ -90,6 +91,7 @@ test('OimoPhysicsStrategy preserves mirrored local shape offsets', async () => {
         return state.position;
       },
       getQuaternionRecursively: () => state.rotation,
+      getQuaternionRecursivelyTo: (out: IMutableQuaternion) => out.copyComponents(state.rotation),
       setPositionWithoutPhysics: (position: Vector3) => {
         state.position = position;
       },
@@ -126,6 +128,7 @@ test('OimoPhysicsStrategy converts a generic cylinder and rejects capsules expli
     getSceneGraph: () => ({
       position: Vector3.zero(),
       getQuaternionRecursively: () => Quaternion.identity(),
+      getQuaternionRecursivelyTo: (out: IMutableQuaternion) => out.copyComponents(Quaternion.identity()),
     }),
   } as unknown as ISceneGraphEntity;
   const pose = {
@@ -166,6 +169,7 @@ test('OimoPhysicsStrategy scales a rotated cylinder along its transformed axis',
     getSceneGraph: () => ({
       position: Vector3.zero(),
       getQuaternionRecursively: () => Quaternion.identity(),
+      getQuaternionRecursivelyTo: (out: IMutableQuaternion) => out.copyComponents(Quaternion.identity()),
     }),
   } as unknown as ISceneGraphEntity;
   const strategy = new OimoPhysicsStrategy();
@@ -194,6 +198,7 @@ test('OimoPhysicsStrategy conservatively encloses a sheared box transform', asyn
     getSceneGraph: () => ({
       position: Vector3.zero(),
       getQuaternionRecursively: () => Quaternion.identity(),
+      getQuaternionRecursivelyTo: (out: IMutableQuaternion) => out.copyComponents(Quaternion.identity()),
     }),
   } as unknown as ISceneGraphEntity;
   const strategy = new OimoPhysicsStrategy();
@@ -224,6 +229,7 @@ test('OimoPhysicsStrategy conservatively scales a generic sphere by the largest 
     getSceneGraph: () => ({
       position: Vector3.zero(),
       getQuaternionRecursively: () => Quaternion.identity(),
+      getQuaternionRecursivelyTo: (out: IMutableQuaternion) => out.copyComponents(Quaternion.identity()),
     }),
   } as unknown as ISceneGraphEntity;
   const strategy = new OimoPhysicsStrategy();
@@ -252,6 +258,7 @@ test('OimoPhysicsStrategy preserves local shape rotation when repositioned', asy
     getSceneGraph: () => ({
       position: Vector3.zero(),
       getQuaternionRecursively: () => Quaternion.identity(),
+      getQuaternionRecursivelyTo: (out: IMutableQuaternion) => out.copyComponents(Quaternion.identity()),
     }),
   } as unknown as ISceneGraphEntity;
   const strategy = new OimoPhysicsStrategy();
@@ -282,6 +289,7 @@ test('OimoPhysicsStrategy disables and recreates a generic body across zero scal
     getSceneGraph: () => ({
       position: Vector3.zero(),
       getQuaternionRecursively: () => Quaternion.identity(),
+      getQuaternionRecursivelyTo: (out: IMutableQuaternion) => out.copyComponents(Quaternion.identity()),
     }),
   } as unknown as ISceneGraphEntity;
   const strategy = new OimoPhysicsStrategy();
@@ -321,6 +329,7 @@ test('OimoPhysicsStrategy defers initial generic body creation until scale becom
         return state.position;
       },
       getQuaternionRecursively: () => state.rotation,
+      getQuaternionRecursivelyTo: (out: IMutableQuaternion) => out.copyComponents(state.rotation),
     }),
   } as unknown as ISceneGraphEntity;
   const strategy = new OimoPhysicsStrategy();
@@ -359,6 +368,7 @@ test('OimoPhysicsStrategy removes the previous body when replacing a shape insta
     getSceneGraph: () => ({
       position: Vector3.zero(),
       getQuaternionRecursively: () => Quaternion.identity(),
+      getQuaternionRecursivelyTo: (out: IMutableQuaternion) => out.copyComponents(Quaternion.identity()),
     }),
   } as unknown as ISceneGraphEntity;
   const strategy = new OimoPhysicsStrategy();

@@ -2,7 +2,15 @@ import type { Config } from '../../core/Config';
 import { PhysicsShape } from '../../definitions/PhysicsShapeType';
 import type { ShapeDescriptor, ShapeInstance } from '../../geometry/Shape';
 import type { ISceneGraphEntity } from '../../helpers';
-import { type IQuaternion, type IVector3, MathUtil, Matrix44, Quaternion } from '../../math';
+import {
+  type IQuaternion,
+  type IVector3,
+  MathUtil,
+  Matrix44,
+  MutableQuaternion,
+  MutableVector3,
+  Quaternion,
+} from '../../math';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
 import { Logger } from '../../misc/Logger';
@@ -66,6 +74,22 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
   private __usesShapeInstance = false;
   private __shapeType?: ShapeDescriptor['type'];
   private __warnedScaleApproximation = false;
+  /** Reusable quaternion for world-rotation lookups (avoids per-frame allocations) */
+  private __tmpWorldRotation = MutableQuaternion.identity();
+  /** Reusable Euler angles for rotation conversions (avoids per-frame allocations) */
+  private __tmpEuler = MutableVector3.zero();
+  /** Reusable temporaries for body pose calculation (avoids per-frame allocations) */
+  private __tmpShapeScaledOffset = MutableVector3.zero();
+  private __tmpBodyWorldOffset = MutableVector3.zero();
+  private __tmpBodyPose = {
+    position: MutableVector3.zero(),
+    rotation: MutableQuaternion.identity(),
+  };
+  /** Reusable temporaries for the per-frame physics sync */
+  private __tmpBodyRotation = MutableQuaternion.identity();
+  private __tmpEntityRotation = MutableQuaternion.identity();
+  private __tmpInverseLocalRotation = MutableQuaternion.identity();
+  private __tmpUpdatePosition = MutableVector3.zero();
 
   /**
    * Creates a new OimoPhysicsStrategy instance.
@@ -190,8 +214,8 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     this.__entity = entity;
 
     const entityPosition = entity.getSceneGraph().position;
-    const entityRotation = entity.getSceneGraph().getQuaternionRecursively();
-    const entityEuler = entityRotation.toEulerAngles();
+    const entityRotation = entity.getSceneGraph().getQuaternionRecursivelyTo(this.__tmpWorldRotation);
+    const entityEuler = entityRotation.toEulerAnglesTo(this.__tmpEuler);
     this.__property = {
       type: physicsType,
       size: [localSize.x, localSize.y, localSize.z],
@@ -214,7 +238,7 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     const resolvedShape = this.__resolveScaledShape();
     this.__resolvedShapeLocalRotation = resolvedShape.rotation;
     const pose = this.__toBodyPose(entityPosition, entityRotation);
-    const bodyEuler = pose.rotation.toEulerAngles();
+    const bodyEuler = pose.rotation.toEulerAnglesTo(this.__tmpEuler);
     this.__property = {
       type: physicsType,
       size: resolvedShape.size,
@@ -252,19 +276,29 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     }
     const pos = this.__body.getPosition();
     const rot = this.__body.getQuaternion();
-    const bodyRotation = Quaternion.fromCopy4(rot.x, rot.y, rot.z, rot.w);
+    const bodyRotation = this.__tmpBodyRotation.setComponents(rot.x, rot.y, rot.z, rot.w);
     if (this.__usesShapeInstance) {
-      const entityRotation = Quaternion.multiply(bodyRotation, Quaternion.invert(this.__resolvedShapeLocalRotation));
-      const scaledOffset = Vector3.multiplyVector(this.__shapeLocalPosition, this.__worldSignedScale);
-      const worldOffset = Vector3.multiplyQuaternion(entityRotation, scaledOffset);
+      const inverseLocalRotation = Quaternion.invertTo(
+        this.__resolvedShapeLocalRotation,
+        this.__tmpInverseLocalRotation
+      );
+      const entityRotation = Quaternion.multiplyTo(bodyRotation, inverseLocalRotation, this.__tmpEntityRotation);
+      const scaledOffset = Vector3.multiplyVectorTo(
+        this.__shapeLocalPosition,
+        this.__worldSignedScale,
+        this.__tmpShapeScaledOffset
+      );
+      const worldOffset = Vector3.multiplyQuaternionTo(entityRotation, scaledOffset, this.__tmpBodyWorldOffset);
       this.__entity
         .getSceneGraph()
         .setPositionWithoutPhysics(
-          Vector3.fromCopy3(pos.x - worldOffset.x, pos.y - worldOffset.y, pos.z - worldOffset.z)
+          this.__tmpUpdatePosition.setComponents(pos.x - worldOffset.x, pos.y - worldOffset.y, pos.z - worldOffset.z)
         );
       this.__entity.getSceneGraph().setRotationWithoutPhysics(entityRotation);
     } else {
-      this.__entity.getSceneGraph().setPositionWithoutPhysics(Vector3.fromCopy3(pos.x, pos.y, pos.z));
+      this.__entity
+        .getSceneGraph()
+        .setPositionWithoutPhysics(this.__tmpUpdatePosition.setComponents(pos.x, pos.y, pos.z));
       this.__entity.getSceneGraph().setRotationWithoutPhysics(bodyRotation);
     }
   }
@@ -281,10 +315,11 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
       return;
     }
     const prop = this.__property;
+    const worldRotation = this.__entity.getSceneGraph().getQuaternionRecursivelyTo(this.__tmpWorldRotation);
     const pose = this.__usesShapeInstance
-      ? this.__toBodyPose(worldPosition, this.__entity.getSceneGraph().getQuaternionRecursively())
-      : { position: worldPosition, rotation: this.__entity.getSceneGraph().getQuaternionRecursively() };
-    const bodyEuler = pose.rotation.toEulerAngles();
+      ? this.__toBodyPose(worldPosition, worldRotation)
+      : this.__reuseBodyPose(worldPosition, worldRotation);
+    const bodyEuler = pose.rotation.toEulerAnglesTo(this.__tmpEuler);
     this.__property = {
       type: prop.type,
       size: [prop.size[0], prop.size[1], prop.size[2]],
@@ -320,8 +355,8 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     const entityRotation = Quaternion.fromMatrix(Matrix44.rotateXYZ(eulerAngles.x, eulerAngles.y, eulerAngles.z));
     const pose = this.__usesShapeInstance
       ? this.__toBodyPose(this.__entity.getSceneGraph().position, entityRotation)
-      : { position: this.__body.getPosition(), rotation: entityRotation };
-    const bodyEuler = pose.rotation.toEulerAngles();
+      : this.__reuseBodyPose(this.__body.getPosition(), entityRotation);
+    const bodyEuler = pose.rotation.toEulerAnglesTo(this.__tmpEuler);
     const prop = this.__property;
     this.__property = {
       type: prop.type,
@@ -366,16 +401,11 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     if (resolvedShape != null) {
       this.__resolvedShapeLocalRotation = resolvedShape.rotation;
     }
+    const worldRotation = this.__entity.getSceneGraph().getQuaternionRecursivelyTo(this.__tmpWorldRotation);
     const pose = this.__usesShapeInstance
-      ? this.__toBodyPose(
-          this.__entity.getSceneGraph().position,
-          this.__entity.getSceneGraph().getQuaternionRecursively()
-        )
-      : {
-          position: this.__body.getPosition(),
-          rotation: this.__entity.getSceneGraph().getQuaternionRecursively(),
-        };
-    const bodyEuler = pose.rotation.toEulerAngles();
+      ? this.__toBodyPose(this.__entity.getSceneGraph().position, worldRotation)
+      : this.__reuseBodyPose(this.__body.getPosition(), worldRotation);
+    const bodyEuler = pose.rotation.toEulerAnglesTo(this.__tmpEuler);
     const prop = this.__property;
     const scaledSize = resolvedShape?.size ?? this.__createLegacyScaledSize();
     this.__property = {
@@ -459,16 +489,33 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
   }
 
   private __toBodyPose(entityPosition: IVector3, entityRotation: IQuaternion) {
-    const scaledOffset = Vector3.multiplyVector(this.__shapeLocalPosition, this.__worldSignedScale);
-    const worldOffset = Vector3.multiplyQuaternion(entityRotation, scaledOffset);
-    return {
-      position: Vector3.fromCopy3(
-        entityPosition.x + worldOffset.x,
-        entityPosition.y + worldOffset.y,
-        entityPosition.z + worldOffset.z
-      ),
-      rotation: Quaternion.multiply(entityRotation, this.__resolvedShapeLocalRotation),
-    };
+    const scaledOffset = Vector3.multiplyVectorTo(
+      this.__shapeLocalPosition,
+      this.__worldSignedScale,
+      this.__tmpShapeScaledOffset
+    );
+    const worldOffset = Vector3.multiplyQuaternionTo(entityRotation, scaledOffset, this.__tmpBodyWorldOffset);
+    Quaternion.multiplyTo(entityRotation, this.__resolvedShapeLocalRotation, this.__tmpBodyPose.rotation);
+    this.__tmpBodyPose.position.setComponents(
+      entityPosition.x + worldOffset.x,
+      entityPosition.y + worldOffset.y,
+      entityPosition.z + worldOffset.z
+    );
+    return this.__tmpBodyPose;
+  }
+
+  /**
+   * Fills the reusable body pose with the given position and rotation.
+   * Accepts plain `{ x, y, z }` objects as well as vector/quaternion instances
+   * (Oimo.js returns plain objects from its body getters).
+   * @param position - The body position to copy
+   * @param rotation - The body rotation to copy
+   * @returns The reusable body pose
+   */
+  private __reuseBodyPose(position: { x: number; y: number; z: number }, rotation: IQuaternion) {
+    this.__tmpBodyPose.position.setComponents(position.x, position.y, position.z);
+    this.__tmpBodyPose.rotation.setComponents(rotation.x, rotation.y, rotation.z, rotation.w);
+    return this.__tmpBodyPose;
   }
 
   /**

@@ -49,6 +49,19 @@ export class Mesh implements IMesh {
   private __localAABB = new AABB();
   private __vaoUids: CGAPIResourceHandle[] = [];
   private __variationVBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  /** Instance variation data of all the entities, in the order of `__variationEntityUIDs`. */
+  private __variationEntityInfo?: Uint32Array;
+  /** EntityUIDs of the instances stored in `__variationEntityInfo`. */
+  private __variationEntityUIDs?: Int32Array;
+  /** Mirror of the current content of the variation VBO (WebGL). */
+  private __variationVBOContent?: Uint32Array;
+  /** Scratch buffer to pack the instance variation data of the visible instances. */
+  private __packedVariationEntityInfo?: Uint32Array;
+  /** Number of the instances packed at the front of the variation VBO. */
+  private __variationVBOInstanceCount = 0;
+  /** Culling state the variation VBO content was packed for; used to skip redundant packing. */
+  private __variationVBOCulledEntityStamp?: Uint32Array;
+  private __variationVBOCullTick = -1;
   private __latestPrimitivePositionAccessorVersionForAABB = 0;
   private __latestPrimitivePositionAccessorVersionForSetUpDone = 0;
   private __belongToEntities: IMeshEntity[] = [];
@@ -247,7 +260,9 @@ export class Mesh implements IMesh {
     const instanceNum = this.__belongToEntities.length;
     // const entityInfo = new Float32Array(instanceNum);
     const entityInfo = new Uint32Array(instanceNum * 4);
+    const entityUIDs = new Int32Array(instanceNum);
     for (let i = 0; i < instanceNum; i++) {
+      entityUIDs[i] = this.__belongToEntities[i].entityUID;
       entityInfo[4 * i + 0] = this.__belongToEntities[i].getSceneGraph().componentSID;
       const skeletal = this.__belongToEntities[i].tryToGetSkeletal();
       if (skeletal != null) {
@@ -263,8 +278,86 @@ export class Mesh implements IMesh {
       }
     }
     this.__variationVBOUid = cgApiResourceRepository.createVertexBufferFromTypedArray(entityInfo);
+    this.__variationEntityInfo = entityInfo;
+    this.__variationEntityUIDs = entityUIDs;
+    this.__variationVBOContent = entityInfo.slice();
+    this.__packedVariationEntityInfo = new Uint32Array(entityInfo.length);
+    this.__variationVBOInstanceCount = instanceNum;
+    this.__variationVBOCulledEntityStamp = undefined;
+    this.__variationVBOCullTick = -1;
 
     return true;
+  }
+
+  /**
+   * Packs the instance variation data of the instances that were not culled in a render pass
+   * into the front of the variation VBO, so that an instanced draw call renders only them.
+   * The VBO is rewritten only when its content changes. WebGL only.
+   *
+   * Instances whose entities are not handled by the render pass's culling keep being drawn.
+   *
+   * @param culledEntityStamp - Per-EntityUID stamps written by the culling of the render pass
+   *                            (undefined: draw all the instances)
+   * @param cullTick - The stamp value of the latest culling of the render pass
+   * @returns The number of the instances to draw
+   * @internal
+   */
+  _packVisibleInstancesToVariationVBO(culledEntityStamp: Uint32Array | undefined, cullTick: number): number {
+    const entityInfo = this.__variationEntityInfo;
+    const entityUIDs = this.__variationEntityUIDs;
+    const vboContent = this.__variationVBOContent;
+    const packed = this.__packedVariationEntityInfo;
+    if (
+      entityInfo === undefined ||
+      entityUIDs === undefined ||
+      vboContent === undefined ||
+      packed === undefined ||
+      this.__variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
+    ) {
+      return this.__belongToEntities.length;
+    }
+
+    // All the primitives of this mesh share the variation VBO, so it is packed once per culling result.
+    if (culledEntityStamp === this.__variationVBOCulledEntityStamp && cullTick === this.__variationVBOCullTick) {
+      return this.__variationVBOInstanceCount;
+    }
+    this.__variationVBOCulledEntityStamp = culledEntityStamp;
+    this.__variationVBOCullTick = cullTick;
+
+    const instanceNum = entityUIDs.length;
+    let count = 0;
+    for (let i = 0; i < instanceNum; i++) {
+      if (culledEntityStamp !== undefined) {
+        const entityUID = entityUIDs[i];
+        if (entityUID < culledEntityStamp.length && culledEntityStamp[entityUID] === cullTick) {
+          continue;
+        }
+      }
+      const src = 4 * i;
+      const dst = 4 * count;
+      packed[dst + 0] = entityInfo[src + 0];
+      packed[dst + 1] = entityInfo[src + 1];
+      packed[dst + 2] = entityInfo[src + 2];
+      packed[dst + 3] = entityInfo[src + 3];
+      count++;
+    }
+
+    const packedLength = 4 * count;
+    let changed = false;
+    for (let i = 0; i < packedLength; i++) {
+      if (packed[i] !== vboContent[i]) {
+        changed = true;
+        break;
+      }
+    }
+    if (changed) {
+      const packedData = packed.subarray(0, packedLength);
+      this.__engine.webglResourceRepository.updateVertexBufferWithTypedArray(this.__variationVBOUid, packedData);
+      vboContent.set(packedData);
+    }
+    this.__variationVBOInstanceCount = count;
+
+    return count;
   }
 
   ///
@@ -281,6 +374,10 @@ export class Mesh implements IMesh {
     if (this.__variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
       this.__variationVBOUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      this.__variationEntityInfo = undefined;
+      this.__variationEntityUIDs = undefined;
+      this.__variationVBOContent = undefined;
+      this.__packedVariationEntityInfo = undefined;
 
       return true;
     }

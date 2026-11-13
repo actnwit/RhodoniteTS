@@ -2,7 +2,7 @@ import { TriggerComponent } from '../../components/Trigger/TriggerComponent';
 import type { Config } from '../../core/Config';
 import { PhysicsShape } from '../../definitions/PhysicsShapeType';
 import type { ISceneGraphEntity } from '../../helpers';
-import { Quaternion, Vector3 } from '../../math';
+import { type IMutableQuaternion, Quaternion, Vector3 } from '../../math';
 import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
 import type { PhysicsPropertyInner } from '../PhysicsProperty';
@@ -378,6 +378,7 @@ function createSceneGraphEntity(entityUID = nextEntityUID++, engine = defaultEng
         eulerAngles: Vector3.zero(),
         scale: Vector3.one(),
         getQuaternionRecursively: () => state.rotation,
+        getQuaternionRecursivelyTo: (out: IMutableQuaternion) => out.copyComponents(state.rotation),
         setPositionWithoutPhysics: (position: Vector3) => {
           state.position = position;
         },

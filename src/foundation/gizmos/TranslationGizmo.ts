@@ -14,11 +14,13 @@ import { MaterialHelper } from '../helpers/MaterialHelper';
 import { MeshHelper } from '../helpers/MeshHelper';
 import type { Material } from '../materials/core/Material';
 import type { IMatrix44 } from '../math/IMatrix';
-import type { IQuaternion } from '../math/IQuaternion';
+import type { IVector3 } from '../math/IVector';
 import { MathUtil } from '../math/MathUtil';
 import { Matrix33 } from '../math/Matrix33';
 import { Matrix44 } from '../math/Matrix44';
 import { MutableMatrix33 } from '../math/MutableMatrix33';
+import { MutableQuaternion } from '../math/MutableQuaternion';
+import { MutableVector3 } from '../math/MutableVector3';
 import { Quaternion } from '../math/Quaternion';
 import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
@@ -79,7 +81,7 @@ export class TranslationGizmo extends Gizmo {
   private static __originalX = 0;
   private static __originalY = 0;
   private __pickStatedPoint = Vector3.zero();
-  private __deltaPoint = Vector3.zero();
+  private __deltaPoint: IVector3 = Vector3.zero();
   private __targetPointBackup = Vector3.zero();
   private __isPointerDown = false;
   private static __activeAxis: 'none' | 'x' | 'y' | 'z' = 'none';
@@ -91,6 +93,13 @@ export class TranslationGizmo extends Gizmo {
   private __isCameraControllerDisabled = false;
 
   private static __length = 1;
+  /** Reusable quaternions for world-rotation calculations (avoids per-frame allocations) */
+  private static readonly __tmpQuaternion_0 = MutableQuaternion.identity();
+  private static readonly __tmpQuaternion_1 = MutableQuaternion.identity();
+  /** Reusable vectors for drag calculations (avoids per-frame allocations) */
+  private static readonly __tmpVector3_0 = MutableVector3.zero();
+  private static readonly __tmpVector3_1 = MutableVector3.zero();
+  private static readonly __tmpVector3_2 = MutableVector3.zero();
 
   /**
    * Gets the resources for a specific engine, or undefined if not initialized.
@@ -182,14 +191,16 @@ export class TranslationGizmo extends Gizmo {
       this.__topEntity!.getSceneGraph().addChild(resources.groupEntity.getSceneGraph());
       this.__latestTargetEntity = this.__target;
       if (TranslationGizmo.__space === 'local') {
+        const quaternion = TranslationGizmo.__tmpQuaternion_0;
         const parent = this.__target.getSceneGraph().parent;
-        let quaternion: IQuaternion = Quaternion.identity();
         if (Is.exist(parent)) {
-          quaternion = parent.getQuaternionRecursively();
+          parent.getQuaternionRecursivelyTo(quaternion);
+        } else {
+          quaternion.identity();
         }
         resources.groupEntity.getTransform().localRotation = quaternion;
       } else if (TranslationGizmo.__space === 'world') {
-        resources.groupEntity.getTransform().localRotation = Quaternion.fromCopy4(0, 0, 0, 1);
+        resources.groupEntity.getTransform().localRotation = TranslationGizmo.__tmpQuaternion_0.identity();
       }
     }
 
@@ -491,7 +502,7 @@ export class TranslationGizmo extends Gizmo {
 
     if (this.__isPointerDown) {
       if (this.__latestTargetEntity === this.__target) {
-        this.__target.getTransform().localPosition = this.__deltaPoint.clone();
+        this.__target.getTransform().localPosition = this.__deltaPoint;
       }
     }
   }
@@ -708,7 +719,7 @@ export class TranslationGizmo extends Gizmo {
       }
     }
 
-    const deltaVector3 = Vector3.subtract(pickInMovingPoint, this.__pickStatedPoint);
+    const deltaVector3 = Vector3.subtractTo(pickInMovingPoint, this.__pickStatedPoint, TranslationGizmo.__tmpVector3_0);
 
     if (deltaVector3.length() === 0) {
       return;
@@ -717,16 +728,16 @@ export class TranslationGizmo extends Gizmo {
     Logger.default.debug(`${this.__target.uniqueName}: ${deltaVector3.toStringApproximately()}`);
 
     if (TranslationGizmo.__space === 'local') {
-      this.__deltaPoint = Vector3.add(deltaVector3, this.__targetPointBackup);
+      this.__deltaPoint = Vector3.addTo(deltaVector3, this.__targetPointBackup, TranslationGizmo.__tmpVector3_1);
     } else if (TranslationGizmo.__space === 'world') {
       const parent = this.__target.getSceneGraph().parent;
-      let deltaInLocal = deltaVector3;
+      let deltaInLocal: IVector3 = deltaVector3;
       if (Is.exist(parent)) {
-        const parentRotation = parent.getQuaternionRecursively();
-        const inverseParentRotation = Quaternion.invert(parentRotation);
-        deltaInLocal = inverseParentRotation.transformVector3(deltaVector3);
+        const parentRotation = parent.getQuaternionRecursivelyTo(TranslationGizmo.__tmpQuaternion_0);
+        const inverseParentRotation = Quaternion.invertTo(parentRotation, TranslationGizmo.__tmpQuaternion_1);
+        deltaInLocal = inverseParentRotation.transformVector3To(deltaVector3, TranslationGizmo.__tmpVector3_2);
       }
-      this.__deltaPoint = Vector3.add(this.__targetPointBackup, deltaInLocal);
+      this.__deltaPoint = Vector3.addTo(this.__targetPointBackup, deltaInLocal, TranslationGizmo.__tmpVector3_1);
     }
 
     this._update();

@@ -1021,6 +1021,7 @@ export class AnimationComponent extends Component {
 
     this.__animationTrack = new Map(component.__animationTrack);
     this.__animationTrackFeatureHashes = new Map(component.__animationTrackFeatureHashes);
+    AnimationStateRepository.markAnimationBindingChanged();
     this.__isEffekseerState = component.__isEffekseerState;
     this.__isAnimating = component.__isAnimating;
   }
@@ -1218,12 +1219,14 @@ export class AnimationComponent extends Component {
     this.__animationTrack.clear();
     this.__animationTrackFeatureHashes.clear();
     this.__isAnimating = false;
+    AnimationStateRepository.markAnimationBindingChanged();
     for (const trackName of trackNames) {
       AnimationComponent.__recalculateAnimationInfo(this.__engine, trackName);
     }
   }
 
   private __updateAnimationTrackFeatureHashes() {
+    AnimationStateRepository.markAnimationBindingChanged();
     const featureMap: Map<AnimationTrackName, AnimationTrackFeature> = new Map();
 
     for (const [pathName, channel] of this.__animationTrack) {

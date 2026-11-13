@@ -1,6 +1,6 @@
 import type { ShapeInstance } from '../../geometry/Shape';
 import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
-import { type IVector3, MutableVector3, Quaternion, Vector3 } from '../../math';
+import { type IVector3, MutableQuaternion, MutableVector3, Quaternion, Vector3 } from '../../math';
 import { Logger } from '../../misc/Logger';
 import type {
   CharacterControllerOptions,
@@ -88,6 +88,8 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
   private __worldScale = Vector3.one();
   private __isGroundProbeRadiusDerived = true;
   private __warnedNonUniformScale = false;
+  /** Reusable quaternion for world-rotation lookups (avoids per-frame allocations) */
+  private __tmpWorldRotation = MutableQuaternion.identity();
 
   setup(entity: ISceneGraphEntity, shapeInstance: ShapeInstance, options: CharacterControllerOptions = {}): void {
     if (this.__rigidBody != null) {
@@ -146,7 +148,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     const colliderDesc = this.__createCharacterColliderDesc(resolvedCapsule);
 
     const initialPosition = entity.getSceneGraph().position;
-    const initialRotation = entity.getSceneGraph().getQuaternionRecursively();
+    const initialRotation = entity.getSceneGraph().getQuaternionRecursivelyTo(this.__tmpWorldRotation);
     const rigidBodyDesc = rapier.RigidBodyDesc.kinematicPositionBased()
       .setTranslation(initialPosition.x, initialPosition.y, initialPosition.z)
       .setRotation({
@@ -248,7 +250,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     if (this.__rigidBody.setNextKinematicRotation == null) {
       throw new Error('The injected Rapier rigid body does not support kinematic rotation.');
     }
-    const worldRotation = this.__entity.getSceneGraph().getQuaternionRecursively();
+    const worldRotation = this.__entity.getSceneGraph().getQuaternionRecursivelyTo(this.__tmpWorldRotation);
     this.__rigidBody.setNextKinematicRotation({
       x: worldRotation.x,
       y: worldRotation.y,

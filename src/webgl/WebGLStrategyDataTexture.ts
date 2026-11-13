@@ -4,6 +4,7 @@ import { CameraComponent } from '../foundation/components/Camera/CameraComponent
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
 import { LightComponent } from '../foundation/components/Light/LightComponent';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
+import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
@@ -1622,6 +1623,19 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     setupShaderProgram(material, primitive, this);
 
     const meshRendererComponent = entity.getMeshRenderer()!;
+
+    // Per-instance culling: draw only the instances that were not culled in this render pass.
+    // Without this, every instance sharing the mesh is skinned and rasterized even when it is
+    // outside the view frustum, which dominates the GPU time of crowd scenes.
+    const instanceCullingState = MeshRendererComponent._getInstanceCullingState(renderPass);
+    const instanceCount = mesh._packVisibleInstancesToVariationVBO(
+      instanceCullingState?.culledEntityStamp,
+      instanceCullingState?.cullTick ?? 0
+    );
+    if (instanceCount === 0) {
+      return false;
+    }
+
     const primitiveIndex = mesh.getPrimitiveIndexInMesh(primitive);
     this.attachVertexDataInner(mesh, primitive, primitiveIndex, glw, mesh._variationVBOUid);
 
@@ -1727,14 +1741,14 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
           primitive.indicesAccessor.elementCount,
           primitive.indicesAccessor.componentType.index,
           0,
-          mesh.meshEntitiesInner.length
+          instanceCount
         );
       } else {
         gl.drawArraysInstanced(
           primitive.primitiveMode.index,
           0,
           primitive.getVertexCountAsVerticesBased(),
-          mesh.meshEntitiesInner.length
+          instanceCount
         );
       }
     }
