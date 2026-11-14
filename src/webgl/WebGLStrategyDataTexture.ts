@@ -43,7 +43,12 @@ import type {
   WebGLResourceHandle,
 } from '../types/CommonTypes';
 import { INSTANCE_REMAP_TEXTURE_UNIT, INSTANCE_SID_TEXTURE_UNIT } from './InstanceSidTable';
-import { type DeferredMultiDraw, makeMultiDrawRunKey, planMultiDrawRuns } from './MultiDraw';
+import {
+  type DeferredMultiDraw,
+  getPrimitiveMeshRendererFingerPrint,
+  makeMultiDrawRenderStateKey,
+  planMultiDrawRuns,
+} from './MultiDraw';
 import type { RenderingArgWebGL } from './types/CommonTypes';
 import type { WebGLContextWrapper } from './WebGLContextWrapper';
 import type { ShaderSources, WebGLStrategy } from './WebGLStrategy';
@@ -1661,6 +1666,46 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     );
   }
 
+  /** Whether the per-vertex materialSID / instanceBase attribute path is active. */
+  private __useMaterialSidAttribute(glw: WebGLContextWrapper): boolean {
+    return (
+      this.__engine.config.isMultiDrawEnabled &&
+      glw.webgl2ExtMD != null &&
+      this.__engine.webglResourceRepository.instanceSidTable.isSupported
+    );
+  }
+
+  /**
+   * Binds the VAO variant matching the effective material and sets the generic
+   * materialSID when the per-vertex materialSID buffer must not be used
+   * (non-grouped primitives and render-pass material overrides).
+   */
+  private __bindMultiDrawVertexDataForMaterial(
+    primitive: Primitive,
+    material: Material,
+    glw: WebGLContextWrapper
+  ): void {
+    const slot = VertexAttribute.MaterialSid.getAttributeSlot();
+    const group = primitive._multiDrawGroup;
+    const gl = glw.getRawContextAsWebGL2();
+    if (group == null || group.vertexHandles == null) {
+      // Legacy VAO: the attribute is disabled and reads the generic value.
+      gl.vertexAttribI4ui(slot, material.materialSID, 0, 0, 0);
+      return;
+    }
+    const isPerVertexMaterial = material === primitive.material;
+    const vaoHandle = isPerVertexMaterial ? group.vertexHandles.vaoHandle : group.genericMaterialSidVaoHandle;
+    if (vaoHandle != null) {
+      const vao = this.__engine.webglResourceRepository.getWebGLResource(vaoHandle) as WebGLVertexArrayObjectOES;
+      if (vao != null) {
+        glw.bindVertexArray(vao);
+      }
+    }
+    if (!isPerVertexMaterial) {
+      gl.vertexAttribI4ui(slot, material.materialSID, 0, 0, 0);
+    }
+  }
+
   /**
    * Renders a bucket range, batching consecutive primitives that share a multi-draw
    * group, material and shader program into one WEBGL_multi_draw call.
@@ -1704,7 +1749,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       if (!material._materialContent.isMultiDrawCompatible) {
         return null;
       }
-      return makeMultiDrawRunKey(primitive, material, material.getShaderProgramUid(primitive));
+      return makeMultiDrawRenderStateKey(primitive, material, getPrimitiveMeshRendererFingerPrint(primitive));
     };
 
     const runs = planMultiDrawRuns(start, end, step, getRunKey);
@@ -1792,6 +1837,13 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
         continue;
       }
       const material = renderPass.getAppropriateMaterial(primitive);
+      // A cross-material batch contains materials whose shader program has not been
+      // registered yet (the first primitive's __renderInner only registers its own
+      // material). Register the shared program before the draw; otherwise
+      // isSkipDrawing() would skip every other material.
+      if (material.getShaderProgramUid(primitive) === -1) {
+        setupShaderProgram(material, primitive, this);
+      }
       if (isSkipDrawing(material, primitive)) {
         continue;
       }
@@ -1898,6 +1950,9 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
 
     const primitiveIndex = mesh.getPrimitiveIndexInMesh(primitive);
     this.attachVertexDataInner(mesh, primitive, primitiveIndex, glw, mesh._variationVBOUid);
+    if (this.__useMaterialSidAttribute(glw)) {
+      this.__bindMultiDrawVertexDataForMaterial(primitive, material, glw);
+    }
 
     let firstTimeForShaderProgram = false;
     let firstTimeForMaterial = false;

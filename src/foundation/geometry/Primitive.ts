@@ -329,6 +329,7 @@ export class Primitive extends RnObject {
       translucencyType
     );
     mat._addBelongPrimitive(this);
+    this.__invalidateMultiDrawGroup();
   }
 
   /**

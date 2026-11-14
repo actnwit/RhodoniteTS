@@ -166,6 +166,10 @@ export class MultiDrawRepository {
           entry.primitive._clearMultiDrawGroup();
         }
       }
+      if (group.genericMaterialSidVaoHandle != null) {
+        repository.deleteVertexArray(group.genericMaterialSidVaoHandle);
+        group.genericMaterialSidVaoHandle = undefined;
+      }
       if (group.vertexHandles != null) {
         repository.deleteVertexDataResources(group.vertexHandles);
         group.vertexHandles = undefined;
@@ -173,6 +177,10 @@ export class MultiDrawRepository {
       if (group.instanceBaseVboHandle != null) {
         repository.deleteVertexBuffer(group.instanceBaseVboHandle);
         group.instanceBaseVboHandle = undefined;
+      }
+      if (group.materialSidVboHandle != null) {
+        repository.deleteVertexBuffer(group.materialSidVboHandle);
+        group.materialSidVboHandle = undefined;
       }
     }
     this.__groups.clear();
@@ -186,7 +194,9 @@ export class MultiDrawRepository {
     const iboHandle =
       merged.mergedIndices != null ? repository.createIndexBufferFromTypedArray(merged.mergedIndices) : undefined;
     const instanceBaseVboHandle = repository.createVertexBufferFromTypedArray(merged.instanceBases);
+    const materialSidVboHandle = repository.createVertexBufferFromTypedArray(merged.materialSids);
     const vaoHandle = repository.createVertexArray()!;
+    const genericMaterialSidVaoHandle = repository.createVertexArray()!;
 
     const attributesFlags: boolean[] = [];
     for (let i = 0; i < VertexAttribute.AttributeTypeNumber; i++) {
@@ -205,8 +215,13 @@ export class MultiDrawRepository {
       setComplete: false,
     };
     group.instanceBaseVboHandle = instanceBaseVboHandle;
+    group.materialSidVboHandle = materialSidVboHandle;
+    group.genericMaterialSidVaoHandle = genericMaterialSidVaoHandle;
     group.version++;
 
-    repository.setMultiDrawVertexDataToPipeline(group);
+    // Normal VAO: per-vertex materialSID (cross-material batching).
+    repository.setMultiDrawVertexDataToPipeline(group, vaoHandle, true);
+    // Override VAO: materialSID disabled, generic value set per draw.
+    repository.setMultiDrawVertexDataToPipeline(group, genericMaterialSidVaoHandle, false);
   }
 }

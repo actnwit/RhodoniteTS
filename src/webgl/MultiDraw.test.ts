@@ -95,6 +95,9 @@ function createPrimitive({
     hasIndices: () => indicesAccessor != null,
     getVertexCountAsVerticesBased: () => vertexCount,
     getRenderIndexBitSize: () => (indicesAccessor != null ? 'uint32' : 'uint16'),
+    material: {
+      materialSID: base,
+    },
     mesh: {
       _ensureInstanceSidBase: () => base,
     } as unknown as Mesh,
@@ -175,7 +178,7 @@ test('buildMultiDrawGroups concatenates attributes and rebases indices', () => {
   const merged = buildMultiDrawGroups([a, b]);
   expect(merged.length).toBe(1);
 
-  const { group, attributeBytes, mergedIndices, instanceBases } = merged[0];
+  const { group, attributeBytes, mergedIndices, instanceBases, materialSids } = merged[0];
   expect(group.entries.length).toBe(2);
   expect(group.totalVertexCount).toBe(6);
   expect(group.totalIndexCount).toBe(6);
@@ -189,6 +192,7 @@ test('buildMultiDrawGroups concatenates attributes and rebases indices', () => {
   expect(group.entries[1].indexByteOffset).toBe(12);
 
   expect(Array.from(instanceBases)).toEqual([5, 5, 5, 9, 9, 9]);
+  expect(Array.from(materialSids)).toEqual([5, 5, 5, 9, 9, 9]);
 });
 
 test('buildMultiDrawGroups keeps single-primitive groups unmerged', () => {

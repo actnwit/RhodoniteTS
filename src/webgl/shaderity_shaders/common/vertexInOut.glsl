@@ -26,6 +26,10 @@ in vec3 a_normal;
 #else
   in uvec4 a_instanceIds;
 #endif
+#if defined(RN_IS_DATATEXTURE_MODE) && defined(RN_USE_MATERIAL_SID_ATTRIBUTE)
+  in uint a_materialSid;
+  flat out uint v_materialSid;
+#endif
 in vec2 a_texcoord_0;
 in vec2 a_texcoord_1;
 in vec2 a_texcoord_2;

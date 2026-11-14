@@ -742,6 +742,8 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     // Only one of the two names exists in a given shader; binding an absent name is a no-op.
     bindAttribLocation(VertexAttribute.Instance.getAttributeSlot(), 'a_instanceBase');
     bindAttribLocation(VertexAttribute.Instance.getAttributeSlot(), 'a_instanceIds');
+    // Per-vertex materialSID used by cross-material multi-draw batching.
+    bindAttribLocation(VertexAttribute.MaterialSid.getAttributeSlot(), 'a_materialSid');
 
     gl.linkProgram(shaderProgram);
 
@@ -1301,13 +1303,17 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    *
    * @param group - The multi-draw group whose vertexHandles/vertices are already created
    */
-  setMultiDrawVertexDataToPipeline(group: MultiDrawGroup): void {
+  setMultiDrawVertexDataToPipeline(
+    group: MultiDrawGroup,
+    vaoHandle: WebGLResourceHandle = group.vertexHandles?.vaoHandle ?? CGAPIResourceRepository.InvalidCGAPIResourceUid,
+    useMaterialSidAttribute = true
+  ): void {
     const handles = group.vertexHandles;
     if (handles == null) {
       return;
     }
     const gl = this.__glw!.getRawContextAsWebGL2();
-    const vao = this.getWebGLResource(handles.vaoHandle) as WebGLVertexArrayObject;
+    const vao = this.getWebGLResource(vaoHandle) as WebGLVertexArrayObject;
     this.__glw!.bindVertexArray(vao);
 
     if (handles.iboHandle != null) {
@@ -1344,7 +1350,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     // Set default integer values for integer attributes not present in this layout.
     for (const intAttr of VertexAttribute.integerTypeAttributes) {
       const slot = intAttr.getAttributeSlot();
-      if (intAttr === VertexAttribute.Instance) {
+      if (intAttr === VertexAttribute.Instance || intAttr === VertexAttribute.MaterialSid) {
         continue;
       }
       const hasAttribute = group.attributes.some(
@@ -1363,6 +1369,20 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     gl.enableVertexAttribArray(instanceSlot);
     gl.vertexAttribIPointer(instanceSlot, 1, ComponentType.UnsignedInt.index, 4, 0);
     this.__glw!.vertexAttribDivisor(instanceSlot, 0);
+
+    // Per-vertex materialSID (uint32, divisor 0) or a disabled generic slot for
+    // material-override passes.
+    const materialSidSlot = VertexAttribute.MaterialSid.getAttributeSlot();
+    if (useMaterialSidAttribute) {
+      const materialSidVbo = this.getWebGLResource(group.materialSidVboHandle!) as WebGLBuffer;
+      gl.bindBuffer(gl.ARRAY_BUFFER, materialSidVbo);
+      gl.enableVertexAttribArray(materialSidSlot);
+      gl.vertexAttribIPointer(materialSidSlot, 1, ComponentType.UnsignedInt.index, 4, 0);
+      this.__glw!.vertexAttribDivisor(materialSidSlot, 0);
+    } else {
+      gl.disableVertexAttribArray(materialSidSlot);
+      gl.vertexAttribI4ui(materialSidSlot, 0, 0, 0, 0);
+    }
 
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     this.__glw!.bindVertexArray(null);

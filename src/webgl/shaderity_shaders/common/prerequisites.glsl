@@ -1,5 +1,11 @@
 precision highp sampler2DArray;
 
+// Fragment shaders that do not include vertexIn (e.g. depth encode) still read the
+// materialSID varying through mainPrerequisites, so declare it in this common include.
+#if defined(RN_USE_MATERIAL_SID_ATTRIBUTE) && !defined(RN_IS_VERTEX_SHADER)
+  flat in uint v_materialSid;
+#endif
+
 const float Epsilon = 0.0000001;
 
 float saturate(float x) {

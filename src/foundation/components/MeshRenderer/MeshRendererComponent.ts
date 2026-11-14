@@ -8,6 +8,7 @@ import type {
   ObjectUID,
   PrimitiveUID,
 } from '../../../types/CommonTypes';
+import { getPrimitiveMeshRendererFingerPrint, makeMultiDrawRenderStateKey } from '../../../webgl/MultiDraw';
 import type { RnWebGL, WebGLStrategy } from '../../../webgl/main';
 import type { RnWebGpu } from '../../../webgpu/main';
 import type { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
@@ -424,27 +425,21 @@ export class MeshRendererComponent extends Component {
       ProcessApproach.isDataTextureApproach(engine.engineState.currentProcessApproach)
     ) {
       const opaqueCount = _lastOpaqueIndex + 1;
-      const keyed = new Array<{ primitive: Primitive; materialUID: number; groupUID: number; index: number }>(
-        opaqueCount
-      );
+      const keyed = new Array<{ primitive: Primitive; stateKey: string; index: number }>(opaqueCount);
       for (let i = 0; i < opaqueCount; i++) {
         const primitive = primitives[i];
         const material = renderPass.getAppropriateMaterial(primitive);
-        keyed[i] = {
-          primitive,
-          materialUID: material.materialUID,
-          groupUID: primitive._multiDrawGroup?.uid ?? -1,
-          index: i,
-        };
+        const stateKey =
+          makeMultiDrawRenderStateKey(primitive, material, getPrimitiveMeshRendererFingerPrint(primitive)) ??
+          `material:${String(material.materialUID).padStart(10, '0')}`;
+        keyed[i] = { primitive, stateKey, index: i };
       }
       keyed.sort((a, b) => {
-        const materialDelta = a.materialUID - b.materialUID;
-        if (materialDelta !== 0) {
-          return materialDelta;
+        if (a.stateKey < b.stateKey) {
+          return -1;
         }
-        const groupDelta = a.groupUID - b.groupUID;
-        if (groupDelta !== 0) {
-          return groupDelta;
+        if (a.stateKey > b.stateKey) {
+          return 1;
         }
         return a.index - b.index;
       });

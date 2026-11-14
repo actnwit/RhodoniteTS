@@ -31,6 +31,8 @@ export type MultiDrawEntry = {
   indexCount: number;
   /** Byte offset of this primitive's indices in the merged index buffer. */
   indexByteOffset: number;
+  /** materialSID baked into the per-vertex materialSID buffer. */
+  materialSid: number;
 };
 
 /**
@@ -51,6 +53,12 @@ export class MultiDrawGroup {
   vertexHandles?: VertexHandles;
   /** WebGL handle of the per-vertex instanceBase buffer (bound separately from vboHandles). */
   instanceBaseVboHandle?: number;
+  /** WebGL handle of the per-vertex materialSID buffer. */
+  materialSidVboHandle?: number;
+  /** CPU mirror of the per-vertex materialSID buffer (for change detection). */
+  materialSids?: Uint32Array;
+  /** VAO variant with the materialSID attribute disabled (for material-override passes). */
+  genericMaterialSidVaoHandle?: number;
   version = 0;
   // WebGL scratch arrays reused by the strategy.
   counts?: Int32Array;
@@ -87,6 +95,7 @@ export type MergedMultiDrawGroup = {
   attributeBytes: Uint8Array[];
   mergedIndices?: Uint32Array;
   instanceBases: Uint32Array;
+  materialSids: Uint32Array;
 };
 
 const __bufferIds = new WeakMap<Buffer, number>();
@@ -219,6 +228,7 @@ export function buildMultiDrawGroups(primitives: Primitive[]): MergedMultiDrawGr
     });
     const mergedIndices = indexed ? new Uint32Array(totalIndexCount) : undefined;
     const instanceBases = new Uint32Array(totalVertexCount);
+    const materialSids = new Uint32Array(totalVertexCount);
 
     let vertexOffset = 0;
     let indexOffset = 0;
@@ -235,6 +245,8 @@ export function buildMultiDrawGroups(primitives: Primitive[]): MergedMultiDrawGr
         attributeBytes[i].set(src.subarray(0, copyLength), dstOffset);
       }
       instanceBases.fill(instanceBase, vertexOffset, vertexOffset + vertexCount);
+      const materialSid = primitive.material.materialSID;
+      materialSids.fill(materialSid, vertexOffset, vertexOffset + vertexCount);
 
       const indicesAccessor = primitive.indicesAccessor;
       const indexCount = indexed ? indicesAccessor!.elementCount : 0;
@@ -252,6 +264,7 @@ export function buildMultiDrawGroups(primitives: Primitive[]): MergedMultiDrawGr
         vertexCount,
         indexCount,
         indexByteOffset: indexOffset * 4,
+        materialSid,
       };
       group.entries.push(entry);
 
@@ -266,8 +279,9 @@ export function buildMultiDrawGroups(primitives: Primitive[]): MergedMultiDrawGr
     group.instanceCounts = new Int32Array(group.entries.length);
     group.firsts = new Int32Array(group.entries.length);
     group.vertexCounts = new Int32Array(group.entries.length);
+    group.materialSids = materialSids;
 
-    result.push({ group, attributeBytes, mergedIndices, instanceBases });
+    result.push({ group, attributeBytes, mergedIndices, instanceBases, materialSids });
   }
 
   return result;
@@ -277,12 +291,36 @@ export function buildMultiDrawGroups(primitives: Primitive[]): MergedMultiDrawGr
  * Key used to decide whether two consecutive primitives can be drawn with one
  * multi-draw call. `null` means the primitive must use the legacy draw path.
  */
-export function makeMultiDrawRunKey(primitive: Primitive, material: Material, shaderProgramUid: number): string | null {
+export function getPrimitiveMeshRendererFingerPrint(primitive: Primitive): string {
+  const mesh = primitive.mesh as Mesh | undefined;
+  const entity = mesh?.meshEntitiesInner[0];
+  return entity?.getMeshRenderer()?.getFingerPrint() ?? '';
+}
+
+/**
+ * Key used to decide whether two consecutive primitives can be drawn with one
+ * multi-draw call. Material parameters are read through the per-vertex materialSID,
+ * so different materials can share a run as long as their render state (program,
+ * pipeline state, texture bindings, IBL cube maps) is identical.
+ *
+ * `null` means the primitive must use the legacy draw path.
+ */
+export function makeMultiDrawRenderStateKey(
+  primitive: Primitive,
+  material: Material,
+  meshRendererFingerPrint: string
+): string | null {
   const group = primitive._multiDrawGroup;
   if (group == null) {
     return null;
   }
-  return `${group.uid}|${material.materialUID}|${material.stateVersion}|${shaderProgramUid}|${
+  const isPerVertexMaterial = material === primitive.material;
+  const materialPart = isPerVertexMaterial
+    ? material._getMultiDrawStateKey()
+    : // A material override uses the group VAO with a generic materialSID, so the whole
+      // run must use the same override material.
+      `${material.materialUID}|${material._getMultiDrawStateKey()}`;
+  return `${group.uid}|${isPerVertexMaterial ? 1 : 0}|${materialPart}|${meshRendererFingerPrint}|${
     primitive.primitiveMode.index
   }|${primitive.getRenderIndexBitSize()}|${primitive.hasIndices() ? 1 : 0}`;
 }
