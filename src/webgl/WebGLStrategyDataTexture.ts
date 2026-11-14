@@ -42,6 +42,14 @@ import type {
   PrimitiveUID,
   WebGLResourceHandle,
 } from '../types/CommonTypes';
+import type { InstanceSidTable } from './InstanceSidTable';
+import {
+  type DeferredMultiDraw,
+  getMultiDrawStateKeyId,
+  getPrimitiveMeshRendererFingerPrintId,
+  type MultiDrawRunPlan,
+  planMultiDrawRunsInto,
+} from './MultiDraw';
 import type { RenderingArgWebGL } from './types/CommonTypes';
 import type { WebGLContextWrapper } from './WebGLContextWrapper';
 import type { ShaderSources, WebGLStrategy } from './WebGLStrategy';
@@ -70,6 +78,25 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private __lastMaterialStateVersion = -1;
   private __shaderProgram?: WebGLProgram;
   private __lastRenderPassTickCount = -1;
+  /**
+   * 1 when every mesh drawn in the current pass shows all of its instances, which lets the
+   * vertex shader skip the remap texture fetch and read the SID texel directly.
+   */
+  private __instanceRemapIdentity = 1;
+  /** Reused numeric run plan of the current bucket (no per-frame allocation). */
+  private __runPlan: MultiDrawRunPlan = {
+    starts: new Int32Array(0),
+    counts: new Int32Array(0),
+    keys: new Int32Array(0),
+    count: 0,
+  };
+  /** Layout of the instance SID / remap regions inside the data texture. */
+  private __dataTextureWidth = 0;
+  private __instanceSidBaseRow = 0;
+  private __instanceRemapBaseRow = 0;
+  private __instanceSidBaseVec4 = 0;
+  private __instanceRemapBaseVec4 = 0;
+  private __instanceSidCapacity = 0;
   private __lightComponents?: LightComponent[];
   private __currentComponentSIDs?: VectorN;
   /** Program and values of the last currentComponentSIDs upload, used to skip redundant uploads. */
@@ -1065,10 +1092,34 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       );
       const instanceDataRegionTotalSize = instanceDataRegionSizes.reduce((acc, size) => acc + size, 0);
       const morphBufferByteLength = morphBuffers.reduce((acc, buffer) => acc + buffer.byteLength, 0);
-      const dataTextureHeight = Math.max(
+      const dataRows = Math.max(
         Math.ceil((instanceDataRegionTotalSize + morphBufferByteLength) / dataTextureWidthInByte),
         1
       );
+
+      // Append the instance SID / remap tables to the data texture so that multi-draw
+      // rendering does not consume extra texture units (mobile texture unit limits).
+      // The rows are only reserved while the feature is usable.
+      const isInstanceSidEnabled =
+        this.__engine.config.isMultiDrawEnabled && this.__engine.webglResourceRepository.isInstanceSidTextureCapable;
+      const sidTable = this.__engine.webglResourceRepository.instanceSidTable;
+      const sidSlotCapacity = isInstanceSidEnabled ? Math.max(sidTable.usedEnd, 1) : 0;
+      const sidRows = isInstanceSidEnabled ? Math.max(Math.ceil(sidSlotCapacity / dataTextureWidth), 1) : 0;
+      const remapRows = isInstanceSidEnabled
+        ? Math.max(Math.ceil(Math.ceil(sidSlotCapacity / 4) / dataTextureWidth), 1)
+        : 0;
+      const dataTextureHeight = dataRows + sidRows + remapRows;
+      this.__dataTextureWidth = dataTextureWidth;
+      this.__instanceSidBaseRow = dataRows;
+      this.__instanceRemapBaseRow = dataRows + sidRows;
+      this.__instanceSidBaseVec4 = this.__instanceSidBaseRow * dataTextureWidth;
+      this.__instanceRemapBaseVec4 = this.__instanceRemapBaseRow * dataTextureWidth;
+      this.__instanceSidCapacity = sidSlotCapacity;
+      if (isInstanceSidEnabled) {
+        // The new texture starts zeroed, so both regions must be uploaded again.
+        sidTable.markAllDirty();
+      }
+
       const dataTextureByteSize = dataTextureWidthInByte * dataTextureHeight;
       const finalUint8Array = new Uint8Array(dataTextureByteSize);
       let dstByteOffset = 0;
@@ -1114,6 +1165,11 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       this.__engine.webglResourceRepository.deleteTexture(this.__dataTextureUid);
       this.__dataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
+    this.__instanceSidCapacity = 0;
+    this.__dataTextureWidth = 0;
+    // The old texture object is gone, so the next draw must bind the program and the
+    // data texture again even if the same shader program is still current.
+    this.__lastShader = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   }
 
   /**
@@ -1131,13 +1187,28 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * provides optimal performance by updating only what has changed.
    */
   prerender(): void {
+    // The instance SID / remap regions are appended to the data texture. Recreate it
+    // when the number of stable instance slots outgrows the currently reserved rows.
+    const instanceSidEnabled =
+      this.__engine.config.isMultiDrawEnabled && this.__engine.webglResourceRepository.isInstanceSidTextureCapable;
+    if (instanceSidEnabled) {
+      const sidTable = this.__engine.webglResourceRepository.instanceSidTable;
+      if (
+        this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid &&
+        sidTable.usedEnd > this.__instanceSidCapacity
+      ) {
+        this.deleteDataTexture();
+      }
+    }
+
     if (
       AnimationComponent.getIsAnimating(this.__engine) ||
       TransformComponent.getUpdateCount(this.__engine) !== this.__lastTransformComponentsUpdateCount ||
       SceneGraphComponent.getUpdateCount(this.__engine) !== this.__lastSceneGraphComponentsUpdateCount ||
       CameraComponent.getCurrentCameraUpdateCount(this.__engine) !== this.__lastCameraComponentsUpdateCount ||
       CameraControllerComponent.getUpdateCount(this.__engine) !== this.__lastCameraControllerComponentsUpdateCount ||
-      this.__engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount
+      this.__engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount ||
+      this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
     ) {
       // Setup GPU Storage (Data Texture & UBO)
       this.__createAndUpdateDataTexture();
@@ -1426,6 +1497,128 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
   }
 
   /**
+   * Packs the visible instances of every mesh drawn in this pass into the engine-wide
+   * remap table and uploads the instance SID / remap textures once before drawing.
+   * This must happen before any draw so that a multi-draw batch spanning several meshes
+   * sees the remap entries of all its meshes.
+   */
+  private __uploadInstanceTables(
+    primitiveUids: PrimitiveUID[],
+    renderPass: RenderPass,
+    primitives: Primitive[] | null
+  ): void {
+    if (!this.__engine.config.isMultiDrawEnabled) {
+      return;
+    }
+    const webglResourceRepository = this.__engine.webglResourceRepository;
+    const glw = webglResourceRepository.currentWebGLContextWrapper;
+    if (glw == null || glw.webgl2ExtMD == null) {
+      return;
+    }
+    const table = webglResourceRepository.instanceSidTable;
+    if (!table.isSupported) {
+      return;
+    }
+
+    const cullingState = MeshRendererComponent._getInstanceCullingState(renderPass);
+    const anyCulled = cullingState != null && cullingState.culledEntityCount > 0;
+    // Every mesh shows all of its instances: the remap table is the identity, so the
+    // vertex shader can index the SID texel directly and skip a dependent fetch.
+    this.__instanceRemapIdentity = anyCulled ? 0 : 1;
+    if (!anyCulled) {
+      // Remap entries are unused and every drawn mesh's SID records are already written,
+      // so nothing has to be packed for this pass.
+      this.__uploadInstanceSidDataTexture(table);
+      return;
+    }
+
+    const culledEntityStamp = cullingState!.culledEntityStamp;
+    const cullTick = cullingState!.cullTick;
+    const cullingId = cullingState!.cullingId;
+    for (let i = 0; i < primitiveUids.length; i++) {
+      const primitiveUid = primitiveUids[i];
+      if (primitiveUid === -1) {
+        continue;
+      }
+      const primitive = primitives != null ? primitives[i] : Primitive.getPrimitive(primitiveUid);
+      if (primitive == null) {
+        continue;
+      }
+      const mesh = primitive.mesh as Mesh;
+      if (mesh == null || mesh._remapPrepassId === cullingId) {
+        continue;
+      }
+      mesh._remapPrepassId = cullingId;
+      mesh._packVisibleInstancesToVariationVBO(culledEntityStamp, cullTick);
+    }
+    this.__uploadInstanceSidDataTexture(table);
+  }
+
+  /**
+   * Uploads the dirty instance SID / remap rows into the engine data texture.
+   * The two tables are stored in reserved rows after the component data, so the
+   * shader can read them from texture unit 0 and no extra texture unit is consumed.
+   */
+  private __uploadInstanceSidDataTexture(table: InstanceSidTable): void {
+    if (this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid || this.__dataTextureWidth <= 0) {
+      return;
+    }
+    const usedEnd = table.usedEnd;
+    if (usedEnd <= 0) {
+      table.clearSidDirty();
+      table.clearRemapDirty();
+      return;
+    }
+
+    if (table.sidDirty) {
+      this.__uploadInstanceRegion(this.__instanceSidBaseRow, usedEnd, (dst, texelOffset, count) =>
+        table.writeSidTexels(dst, texelOffset, count)
+      );
+      table.clearSidDirty();
+    }
+    // When no instance is culled the shader skips the remap lookup, so a stale remap
+    // region is harmless and the upload can be deferred until a culled pass needs it.
+    if (table.remapDirty && this.__instanceRemapIdentity === 0) {
+      this.__uploadInstanceRegion(this.__instanceRemapBaseRow, Math.ceil(usedEnd / 4), (dst, texelOffset, count) =>
+        table.writeRemapTexels(dst, texelOffset, count)
+      );
+      table.clearRemapDirty();
+    }
+  }
+
+  /**
+   * Uploads `texelCount` texels starting at `baseRow` to the data texture. Rows are
+   * `this.__dataTextureWidth` texels wide, so the last row is uploaded partially.
+   */
+  private __uploadInstanceRegion(
+    baseRow: number,
+    texelCount: number,
+    fill: (dst: Float32Array, texelOffset: number, count: number) => void
+  ): void {
+    const width = this.__dataTextureWidth;
+    let remaining = texelCount;
+    let texelOffset = 0;
+    let row = baseRow;
+    while (remaining > 0) {
+      const count = Math.min(remaining, width);
+      const data = new Float32Array(count * 4);
+      fill(data, texelOffset, count);
+      this.__engine.webglResourceRepository.updateTexture(this.__dataTextureUid, data, {
+        level: 0,
+        offsetX: 0,
+        offsetY: row,
+        width: count,
+        height: 1,
+        format: PixelFormat.RGBA,
+        type: ComponentType.Float,
+      });
+      remaining -= count;
+      texelOffset += count;
+      row++;
+    }
+  }
+
+  /**
    * Main rendering method that processes all primitives in a render pass.
    * This method handles different primitive types (opaque, translucent, blend)
    * and manages VR/non-VR rendering modes.
@@ -1460,12 +1653,18 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
 
     const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(this.__engine, renderPass);
     const displayCount = WebGLStrategyCommonMethod.getDisplayCount(isVRMainPass, this.__engine.webXRSystem);
+    // The sort publishes the primitives in the same order as their uids, so the hot loops can
+    // skip a repository lookup per primitive. The check keeps this valid for callers that pass
+    // another array (e.g. a cloned render pass).
+    const primitives = renderPass._lastPrimitiveUids === primitiveUids ? renderPass._lastPrimitives : null;
 
     if (renderPass.isBufferLessRenderingMode()) {
       this.__renderWithoutBuffers(gl, renderPass, isVRMainPass);
       gl.depthMask(true);
       return true;
     }
+
+    this.__uploadInstanceTables(primitiveUids, renderPass, primitives);
 
     let renderedSomething = false;
 
@@ -1474,30 +1673,51 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       if (!renderPass.depthWriteMask) {
         gl.depthMask(false);
       }
-      for (let i = renderPass._lastOpaqueIndex; i >= 0; i--) {
-        // Drawing from the nearest object
-        const primitiveUid = primitiveUids[i];
-        const rendered = this.__renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayCount);
-        renderedSomething ||= rendered;
-      }
+      // Drawing from the nearest object
+      renderedSomething =
+        this.__renderBucket(
+          primitiveUids,
+          primitives,
+          renderPass._lastOpaqueIndex,
+          0,
+          -1,
+          glw,
+          renderPass,
+          isVRMainPass,
+          displayCount
+        ) || renderedSomething;
     }
 
     if (renderPass._toRenderTranslucentPrimitives) {
       // Draw Translucent primitives
-      for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTranslucentIndex; i++) {
-        const primitiveUid = primitiveUids[i];
-        const rendered = this.__renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayCount);
-        renderedSomething ||= rendered;
-      }
+      renderedSomething =
+        this.__renderBucket(
+          primitiveUids,
+          primitives,
+          renderPass._lastOpaqueIndex + 1,
+          renderPass._lastTranslucentIndex,
+          1,
+          glw,
+          renderPass,
+          isVRMainPass,
+          displayCount
+        ) || renderedSomething;
     }
 
     if (renderPass._toRenderBlendWithZWritePrimitives) {
       // Draw Blend primitives with ZWrite
-      for (let i = renderPass._lastTranslucentIndex + 1; i <= renderPass._lastBlendWithZWriteIndex; i++) {
-        const primitiveUid = primitiveUids[i];
-        const rendered = this.__renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayCount);
-        renderedSomething ||= rendered;
-      }
+      renderedSomething =
+        this.__renderBucket(
+          primitiveUids,
+          primitives,
+          renderPass._lastTranslucentIndex + 1,
+          renderPass._lastBlendWithZWriteIndex,
+          1,
+          glw,
+          renderPass,
+          isVRMainPass,
+          displayCount
+        ) || renderedSomething;
     }
 
     if (renderPass._toRenderBlendWithoutZWritePrimitives) {
@@ -1505,11 +1725,18 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       gl.depthMask(false);
 
       // Draw Blend primitives without ZWrite
-      for (let i = renderPass._lastBlendWithZWriteIndex + 1; i <= renderPass._lastBlendWithoutZWriteIndex; i++) {
-        const primitiveUid = primitiveUids[i];
-        const rendered = this.__renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayCount);
-        renderedSomething ||= rendered;
-      }
+      renderedSomething =
+        this.__renderBucket(
+          primitiveUids,
+          primitives,
+          renderPass._lastBlendWithZWriteIndex + 1,
+          renderPass._lastBlendWithoutZWriteIndex,
+          1,
+          glw,
+          renderPass,
+          isVRMainPass,
+          displayCount
+        ) || renderedSomething;
     }
 
     gl.depthMask(true);
@@ -1583,11 +1810,300 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
 
     this.__engine.webglResourceRepository.setViewport(this.__engine, renderPass.getViewport());
 
+    // A buffer-less draw binds no vertex buffer, so the shader reads the generic value of the
+    // materialSID attribute. Full-screen shaders (blur, luminance detection, tone mapping, ...)
+    // look up their parameters in the data texture by materialSID, so it must be set for this
+    // draw; otherwise they read another material's row (or an undefined value). The instance SID
+    // lookup is unused by these shaders, but prerequisites still declares its uniforms, so keep
+    // them defined as well.
+    const glw = this.__engine.webglResourceRepository.currentWebGLContextWrapper;
+    if (glw != null && this.__useMaterialSidAttribute(glw)) {
+      // The default VAO has no enabled attribute arrays, so the generic values are used.
+      gl.bindVertexArray(null);
+      gl.vertexAttribI4ui(VertexAttribute.MaterialSid.getAttributeSlot(), material.materialSID, 0, 0, 0);
+      gl.vertexAttribI4ui(VertexAttribute.Instance.getAttributeSlot(), 0, 0, 0, 0);
+      this.__setInstanceRemapIdentity(gl, shaderProgram);
+      this.__setInstanceSidDataTextureIndices(gl, shaderProgram);
+    }
+
     gl.drawArrays(
       renderPass._primitiveModeForBufferLessRendering.index,
       0,
       renderPass._drawVertexNumberForBufferLessRendering
     );
+  }
+
+  /** Whether the per-vertex materialSID / instanceBase attribute path is active. */
+  private __useMaterialSidAttribute(glw: WebGLContextWrapper): boolean {
+    return (
+      this.__engine.config.isMultiDrawEnabled &&
+      glw.webgl2ExtMD != null &&
+      this.__engine.webglResourceRepository.instanceSidTable.isSupported
+    );
+  }
+
+  /**
+   * Binds the VAO variant matching the effective material and sets the generic
+   * materialSID when the per-vertex materialSID buffer must not be used
+   * (non-grouped primitives and render-pass material overrides).
+   */
+  private __bindMultiDrawVertexDataForMaterial(
+    primitive: Primitive,
+    material: Material,
+    glw: WebGLContextWrapper
+  ): void {
+    const slot = VertexAttribute.MaterialSid.getAttributeSlot();
+    const group = primitive._multiDrawGroup;
+    const gl = glw.getRawContextAsWebGL2();
+    if (group == null || group.vertexHandles == null) {
+      // Legacy VAO: the attribute is disabled and reads the generic value.
+      gl.vertexAttribI4ui(slot, material.materialSID, 0, 0, 0);
+      return;
+    }
+    const isPerVertexMaterial = material === primitive.material;
+    const vaoHandle = isPerVertexMaterial ? group.vertexHandles.vaoHandle : group.genericMaterialSidVaoHandle;
+    if (vaoHandle != null) {
+      const vao = this.__engine.webglResourceRepository.getWebGLResource(vaoHandle) as WebGLVertexArrayObjectOES;
+      if (vao != null) {
+        glw.bindVertexArray(vao);
+      }
+    }
+    if (!isPerVertexMaterial) {
+      gl.vertexAttribI4ui(slot, material.materialSID, 0, 0, 0);
+    }
+  }
+
+  /**
+   * Renders a bucket range, batching consecutive primitives that share a multi-draw
+   * group, material and shader program into one WEBGL_multi_draw call.
+   */
+  private __renderBucket(
+    primitiveUids: PrimitiveUID[],
+    primitives: Primitive[] | null,
+    start: number,
+    end: number,
+    step: 1 | -1,
+    glw: WebGLContextWrapper,
+    renderPass: RenderPass,
+    isVRMainPass: boolean,
+    displayCount: number
+  ): boolean {
+    const useMultiDraw =
+      !isVRMainPass &&
+      displayCount === 1 &&
+      this.__engine.config.isMultiDrawEnabled &&
+      glw.webgl2ExtMD != null &&
+      this.__engine.webglResourceRepository.isInstanceSidTextureCapable;
+
+    let renderedSomething = false;
+    if (!useMultiDraw) {
+      for (let i = start; step > 0 ? i <= end : i >= end; i += step) {
+        renderedSomething =
+          this.__renderInner(
+            primitiveUids[i],
+            glw,
+            renderPass,
+            isVRMainPass,
+            displayCount,
+            undefined,
+            primitives?.[i]
+          ) || renderedSomething;
+      }
+      return renderedSomething;
+    }
+
+    const getRunKey = (index: number): number | null => {
+      const primitiveUid = primitiveUids[index];
+      if (primitiveUid === -1) {
+        return null;
+      }
+      const primitive = primitives != null ? primitives[index] : Primitive.getPrimitive(primitiveUid);
+      if (primitive == null || primitive._multiDrawGroup == null) {
+        return null;
+      }
+      const material = renderPass.getAppropriateMaterial(primitive);
+      if (!material._materialContent.isMultiDrawCompatible) {
+        return null;
+      }
+      return getMultiDrawStateKeyId(primitive, material, getPrimitiveMeshRendererFingerPrintId(primitive));
+    };
+
+    const plan = planMultiDrawRunsInto(start, end, step, getRunKey, this.__runPlan);
+    for (let r = 0; r < plan.count; r++) {
+      const runStart = plan.starts[r];
+      const runCount = plan.counts[r];
+      if (plan.keys[r] === -1 || runCount < 2) {
+        for (let k = 0; k < runCount; k++) {
+          const index = runStart + k * step;
+          renderedSomething =
+            this.__renderInner(
+              primitiveUids[index],
+              glw,
+              renderPass,
+              isVRMainPass,
+              displayCount,
+              undefined,
+              primitives?.[index]
+            ) || renderedSomething;
+        }
+      } else {
+        renderedSomething =
+          this.__renderMultiDrawBatch(
+            primitiveUids,
+            primitives,
+            runStart,
+            runCount,
+            step,
+            glw,
+            renderPass,
+            displayCount
+          ) || renderedSomething;
+      }
+    }
+    return renderedSomething;
+  }
+
+  /**
+   * Draws a run of grouped primitives with one multi-draw call. The render state
+   * (shader program, material, VAO, textures) is prepared by rendering the first
+   * primitive with a deferred draw.
+   */
+  private __renderMultiDrawBatch(
+    primitiveUids: PrimitiveUID[],
+    primitives: Primitive[] | null,
+    firstIndex: number,
+    runCount: number,
+    step: 1 | -1,
+    glw: WebGLContextWrapper,
+    renderPass: RenderPass,
+    displayCount: number
+  ): boolean {
+    const firstPrimitive =
+      primitives != null ? primitives[firstIndex] : Primitive.getPrimitive(primitiveUids[firstIndex]);
+    if (firstPrimitive == null || firstPrimitive._multiDrawGroup == null) {
+      return false;
+    }
+    const firstMesh = firstPrimitive.mesh as Mesh;
+
+    const deferred: DeferredMultiDraw = {
+      primitive: firstPrimitive,
+      mesh: firstMesh,
+      indexed: firstPrimitive.hasIndices(),
+      mode: firstPrimitive.primitiveMode.index,
+      indexBitSize: firstPrimitive.getRenderIndexBitSize(),
+      count: 0,
+      offset: 0,
+      instanceCount: 0,
+    };
+
+    const renderedFirst = this.__renderInner(
+      primitiveUids[firstIndex],
+      glw,
+      renderPass,
+      false,
+      displayCount,
+      deferred,
+      firstPrimitive
+    );
+    if (!renderedFirst) {
+      // The first primitive was skipped (hidden or no visible instance). Draw the rest individually.
+      let rendered = false;
+      for (let k = 1; k < runCount; k++) {
+        const index = firstIndex + k * step;
+        rendered =
+          this.__renderInner(
+            primitiveUids[index],
+            glw,
+            renderPass,
+            false,
+            displayCount,
+            undefined,
+            primitives?.[index]
+          ) || rendered;
+      }
+      return rendered;
+    }
+
+    const group = firstPrimitive._multiDrawGroup;
+    const counts = group.counts!;
+    const offsets = group.offsets!;
+    const instanceCounts = group.instanceCounts!;
+    const firsts = group.firsts!;
+    const vertexCounts = group.vertexCounts!;
+    const indexed = deferred.indexed;
+    const gl = glw.getRawContextAsWebGL2();
+
+    let drawCount = 0;
+    counts[drawCount] = deferred.count;
+    offsets[drawCount] = deferred.offset;
+    firsts[drawCount] = deferred.offset;
+    vertexCounts[drawCount] = deferred.count;
+    instanceCounts[drawCount] = deferred.instanceCount;
+    drawCount++;
+
+    const cullingState = MeshRendererComponent._getInstanceCullingState(renderPass);
+    const culledEntityStamp = cullingState?.culledEntityStamp;
+    const cullTick = cullingState?.cullTick ?? 0;
+
+    for (let k = 1; k < runCount; k++) {
+      const index = firstIndex + k * step;
+      const primitive = primitives != null ? primitives[index] : Primitive.getPrimitive(primitiveUids[index]);
+      if (primitive == null || primitive._multiDrawGroup !== group) {
+        continue;
+      }
+      const material = renderPass.getAppropriateMaterial(primitive);
+      // A cross-material batch contains materials whose shader program has not been
+      // registered yet (the first primitive's __renderInner only registers its own
+      // material). Register the shared program before the draw; otherwise
+      // isSkipDrawing() would skip every other material.
+      if (material.getShaderProgramUid(primitive) === -1) {
+        setupShaderProgram(material, primitive, this);
+      }
+      if (isSkipDrawing(material, primitive)) {
+        continue;
+      }
+      const mesh = primitive.mesh as Mesh;
+      const instanceCount = mesh._packVisibleInstancesToVariationVBO(culledEntityStamp, cullTick);
+      if (instanceCount === 0) {
+        continue;
+      }
+      const entry = primitive._multiDrawEntry;
+      if (entry == null) {
+        continue;
+      }
+      counts[drawCount] = entry.indexCount;
+      offsets[drawCount] = entry.indexByteOffset;
+      firsts[drawCount] = entry.vertexOffset;
+      vertexCounts[drawCount] = entry.vertexCount;
+      instanceCounts[drawCount] = instanceCount;
+      drawCount++;
+    }
+
+    if (drawCount >= 2) {
+      if (indexed) {
+        glw.multiDrawElementsInstanced(
+          deferred.mode,
+          counts,
+          0,
+          gl.UNSIGNED_INT,
+          offsets,
+          0,
+          instanceCounts,
+          0,
+          drawCount
+        );
+      } else {
+        glw.multiDrawArraysInstanced(deferred.mode, firsts, 0, vertexCounts, 0, instanceCounts, 0, drawCount);
+      }
+    } else if (drawCount === 1) {
+      if (indexed) {
+        gl.drawElementsInstanced(deferred.mode, counts[0], gl.UNSIGNED_INT, offsets[0], instanceCounts[0]);
+      } else {
+        gl.drawArraysInstanced(deferred.mode, firsts[0], vertexCounts[0], instanceCounts[0]);
+      }
+    }
+
+    return true;
   }
 
   /**
@@ -1619,10 +2135,12 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     glw: WebGLContextWrapper,
     renderPass: RenderPass,
     isVRMainPass: boolean,
-    displayCount: number
+    displayCount: number,
+    deferredDraw?: DeferredMultiDraw,
+    primitiveArg?: Primitive
   ) {
     const gl = glw.getRawContextAsWebGL2();
-    const primitive = Primitive.getPrimitive(primitiveUid);
+    const primitive = primitiveArg ?? Primitive.getPrimitive(primitiveUid);
     if (primitive == null) {
       return false;
     }
@@ -1648,6 +2166,9 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
 
     const primitiveIndex = mesh.getPrimitiveIndexInMesh(primitive);
     this.attachVertexDataInner(mesh, primitive, primitiveIndex, glw, mesh._variationVBOUid);
+    if (this.__useMaterialSidAttribute(glw)) {
+      this.__bindMultiDrawVertexDataForMaterial(primitive, material, glw);
+    }
 
     let firstTimeForShaderProgram = false;
     let firstTimeForMaterial = false;
@@ -1677,6 +2198,11 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     if (this.__lastMaterialStateVersion !== material.stateVersion) {
       firstTimeForMaterial = true;
       this.__lastMaterialStateVersion = material.stateVersion;
+    }
+
+    if (this.__useMaterialSidAttribute(glw) && this.__shaderProgram != null) {
+      this.__setInstanceRemapIdentity(gl, this.__shaderProgram);
+      this.__setInstanceSidDataTextureIndices(gl, this.__shaderProgram);
     }
 
     const renderingArg: RenderingArgWebGL = {
@@ -1742,18 +2268,47 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
         (this.__shaderProgram as any)._gl.uniform2iv((this.__shaderProgram as any).vrState, vrState._v);
       }
 
-      if (primitive.indicesAccessor) {
+      const useInstanceSidTexture =
+        this.__engine.config.isMultiDrawEnabled &&
+        glw.webgl2ExtMD != null &&
+        this.__engine.webglResourceRepository.instanceSidTable.isSupported;
+      if (useInstanceSidTexture && primitive._multiDrawGroup == null) {
+        // A grouped primitive draws with the multi-draw group VAO, which enables the
+        // per-vertex instanceBase attribute, so the generic value would be ignored.
+        // Only the legacy VAO needs it (its instance attribute is disabled).
+        // The shader adds gl_InstanceID and resolves the visible instance through the remap table.
+        gl.vertexAttribI4ui(VertexAttribute.Instance.getAttributeSlot(), Math.max(0, mesh._instanceSidBase), 0, 0, 0);
+      }
+
+      const indicesAccessor = primitive.indicesAccessor;
+      const indexed = indicesAccessor != null;
+      const indexBitSize = primitive.getRenderIndexBitSize();
+      const indexType = indexBitSize === 'uint32' ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT;
+      const multiDrawEntry = primitive._multiDrawEntry;
+      const indexByteOffset = multiDrawEntry?.indexByteOffset ?? 0;
+      const firstVertex = multiDrawEntry?.vertexOffset ?? 0;
+
+      if (deferredDraw != null) {
+        deferredDraw.primitive = primitive;
+        deferredDraw.mesh = mesh;
+        deferredDraw.indexed = indexed;
+        deferredDraw.mode = primitive.primitiveMode.index;
+        deferredDraw.indexBitSize = indexBitSize;
+        deferredDraw.count = indexed ? indicesAccessor!.elementCount : primitive.getVertexCountAsVerticesBased();
+        deferredDraw.offset = indexed ? indexByteOffset : firstVertex;
+        deferredDraw.instanceCount = instanceCount;
+      } else if (indexed) {
         gl.drawElementsInstanced(
           primitive.primitiveMode.index,
-          primitive.indicesAccessor.elementCount,
-          primitive.indicesAccessor.componentType.index,
-          0,
+          indicesAccessor!.elementCount,
+          indexType,
+          indexByteOffset,
           instanceCount
         );
       } else {
         gl.drawArraysInstanced(
           primitive.primitiveMode.index,
-          0,
+          firstVertex,
           primitive.getVertexCountAsVerticesBased(),
           instanceCount
         );
@@ -1825,6 +2380,94 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     this.__engine.webglResourceRepository.bindTexture2D(0, this.__dataTextureUid);
     const samplerUid = this.__engine.webglResourceRepository.createOrGetTextureSamplerRepeatNearest();
     this.__engine.webglResourceRepository.bindTextureSampler(0, samplerUid);
+    this.bindInstanceSidTextures(gl, shaderProgram);
+  }
+
+  /**
+   * Binds the engine-wide instance SID / remap textures used by multi-draw rendering.
+   * The textures are declared in the common vertex shader include and are only used
+   * when RN_USE_INSTANCE_SID_TEXTURE is defined.
+   */
+  private bindInstanceSidTextures(
+    gl: WebGLRenderingContext | WebGL2RenderingContext,
+    shaderProgram: WebGLProgram
+  ): void {
+    const webglResourceRepository = this.__engine.webglResourceRepository;
+    const glw = webglResourceRepository.currentWebGLContextWrapper;
+    if (glw == null || glw.webgl2ExtMD == null || !this.__engine.config.isMultiDrawEnabled) {
+      return;
+    }
+    const table = webglResourceRepository.instanceSidTable;
+    if (!table.isSupported) {
+      return;
+    }
+
+    const program = shaderProgram as any;
+    if (program.__instanceSidTextureLocation === undefined) {
+      program.__instanceSidDataTextureIndexLocation = gl.getUniformLocation(
+        shaderProgram,
+        'u_instanceSidDataTextureIndex'
+      );
+      program.__instanceRemapDataTextureIndexLocation = gl.getUniformLocation(
+        shaderProgram,
+        'u_instanceRemapDataTextureIndex'
+      );
+      program.__instanceRemapIdentityLocation = gl.getUniformLocation(shaderProgram, 'u_instanceRemapIdentity');
+      // Keep the old property name defined so the one-time location lookup is not repeated.
+      program.__instanceSidTextureLocation = null;
+    }
+    if (program.__instanceSidDataTextureIndexLocation != null) {
+      gl.uniform1i(program.__instanceSidDataTextureIndexLocation, this.__instanceSidBaseVec4);
+      program.__instanceSidDataTextureIndexValue = this.__instanceSidBaseVec4;
+    }
+    if (program.__instanceRemapDataTextureIndexLocation != null) {
+      gl.uniform1i(program.__instanceRemapDataTextureIndexLocation, this.__instanceRemapBaseVec4);
+      program.__instanceRemapDataTextureIndexValue = this.__instanceRemapBaseVec4;
+    }
+    if (program.__instanceRemapIdentityLocation != null) {
+      gl.uniform1i(program.__instanceRemapIdentityLocation, this.__instanceRemapIdentity);
+      program.__instanceRemapIdentityValue = this.__instanceRemapIdentity;
+    }
+  }
+
+  /**
+   * Keeps the data-texture base indices of the instance tables in sync with the
+   * current texture layout. The indices change when the data texture is recreated
+   * (e.g. the instance slot capacity grew) while the same program stays bound.
+   */
+  private __setInstanceSidDataTextureIndices(gl: WebGL2RenderingContext, shaderProgram: WebGLProgram): void {
+    const program = shaderProgram as any;
+    if (program.__instanceSidDataTextureIndexLocation == null) {
+      return;
+    }
+    const sidBase = this.__instanceSidBaseVec4;
+    if (program.__instanceSidDataTextureIndexValue !== sidBase) {
+      gl.uniform1i(program.__instanceSidDataTextureIndexLocation, sidBase);
+      program.__instanceSidDataTextureIndexValue = sidBase;
+    }
+    const remapBase = this.__instanceRemapBaseVec4;
+    if (program.__instanceRemapDataTextureIndexValue !== remapBase) {
+      gl.uniform1i(program.__instanceRemapDataTextureIndexLocation, remapBase);
+      program.__instanceRemapDataTextureIndexValue = remapBase;
+    }
+  }
+
+  /**
+   * Keeps the remap-identity uniform in sync with the current render pass. The culling
+   * state can change between passes while the same shader program stays bound, so this
+   * is checked before every draw (a cheap property comparison when unchanged).
+   */
+  private __setInstanceRemapIdentity(gl: WebGL2RenderingContext, shaderProgram: WebGLProgram): void {
+    const program = shaderProgram as any;
+    if (program.__instanceRemapIdentityLocation == null) {
+      return;
+    }
+    const identity = this.__instanceRemapIdentity;
+    if (program.__instanceRemapIdentityValue === identity) {
+      return;
+    }
+    gl.uniform1i(program.__instanceRemapIdentityLocation, identity);
+    program.__instanceRemapIdentityValue = identity;
   }
 
   /**

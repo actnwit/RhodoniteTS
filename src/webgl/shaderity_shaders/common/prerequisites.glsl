@@ -1,5 +1,11 @@
 precision highp sampler2DArray;
 
+// Fragment shaders that do not include vertexIn (e.g. depth encode) still read the
+// materialSID varying through mainPrerequisites, so declare it in this common include.
+#if defined(RN_USE_MATERIAL_SID_ATTRIBUTE) && !defined(RN_IS_VERTEX_SHADER)
+  flat in uint v_materialSid;
+#endif
+
 const float Epsilon = 0.0000001;
 
 float saturate(float x) {
@@ -38,6 +44,41 @@ highp vec4 fetchElement(int vec4_idx) {
   // highp float y = (floor(t) + 0.5) * invSize.y;
   // return texture( u_dataTexture, vec2(x, y));
 }
+
+#if defined(RN_IS_DATATEXTURE_MODE) && defined(RN_USE_INSTANCE_SID_TEXTURE) && defined(RN_IS_VERTEX_SHADER)
+  in uint a_instanceBase;
+  // 1 when no instance was culled in this render pass, so the remap lookup can be skipped.
+  uniform highp int u_instanceRemapIdentity;
+
+  // Base vec4 indices of the instance SID and remap regions inside the engine data
+  // texture. Storing the tables there avoids consuming additional texture units.
+  uniform highp int u_instanceSidDataTextureIndex;
+  uniform highp int u_instanceRemapDataTextureIndex;
+
+  // The instance SID lookup reads the engine data texture (unit 0) twice (remap and
+  // SID) and its result is referenced several times per vertex (world matrix, normal
+  // matrix, billboard, visibility, skinning, ...). Resolve it once per invocation and
+  // reuse the cached value for every reference.
+  uvec4 rn_instanceIdsCache;
+  bool rn_instanceIdsCacheValid = false;
+
+  uvec4 get_instanceIds() {
+    if (!rn_instanceIdsCacheValid) {
+      uint localIndex = uint(gl_InstanceID);
+      if (u_instanceRemapIdentity == 0) {
+        uint packedIndex = a_instanceBase + localIndex;
+        vec4 remapTexel = fetchElement(u_instanceRemapDataTextureIndex + int(packedIndex >> 2u));
+        localIndex = uint(remapTexel[int(packedIndex & 3u)]);
+      }
+      vec4 record = fetchElement(u_instanceSidDataTextureIndex + int(a_instanceBase + localIndex));
+      // The invalid SID sentinel (0xFFFFFFFF) is stored as -1.0 because float32 cannot
+      // represent 0xFFFFFFFF exactly. Going through ivec4 restores the exact bit pattern.
+      rn_instanceIdsCache = uvec4(ivec4(record));
+      rn_instanceIdsCacheValid = true;
+    }
+    return rn_instanceIdsCache;
+  }
+#endif
 
 vec2 fetchVec2No16BytesAligned(int scalar_idx) {
 #ifdef GLSL_ES3

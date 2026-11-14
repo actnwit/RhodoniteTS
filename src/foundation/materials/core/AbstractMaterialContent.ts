@@ -35,6 +35,15 @@ type MaterialNodeUID = number;
  * This class handles shader semantics, rendering setup, and GPU parameter management for materials.
  */
 export abstract class AbstractMaterialContent extends RnObject {
+  /**
+   * Whether draws of this material can be batched into one multi-draw call.
+   * Material contents that set per-primitive uniforms in the per-primitive hook
+   * must override this to false.
+   */
+  get isMultiDrawCompatible(): boolean {
+    return true;
+  }
+
   protected __semantics: ShaderSemanticsInfo[] = [];
   static materialNodes: AbstractMaterialContent[] = [];
   protected __materialName: string;

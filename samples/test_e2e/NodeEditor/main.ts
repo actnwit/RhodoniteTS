@@ -55,7 +55,7 @@ console.log(pixelRet);
 
 const pElem = document.createElement('p');
 pElem.setAttribute('id', 'rendered');
-pElem.innerText = 'Rendered.';
+pElem.textContent = 'Rendered.';
 document.body.appendChild(pElem);
 
 // const rnMaterial = Rn.MaterialHelper.reuseOrRecreateCustomMaterial(vertexRet.shader, pixelRet.shader);

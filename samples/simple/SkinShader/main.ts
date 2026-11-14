@@ -95,7 +95,7 @@ const load = async () => {
     if (p == null && count > 0) {
       p = document.createElement('p');
       p.setAttribute('id', 'rendered');
-      p.innerText = 'Rendered.';
+      p.textContent = 'Rendered.';
       document.body.appendChild(p);
     }
 

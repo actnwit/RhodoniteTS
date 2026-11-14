@@ -97,6 +97,7 @@ export class WebGLContextWrapper {
   public readonly webgl2ExtMLTVIEW?: WEBGL_multiview;
   public readonly webgl2ExtClipCtrl?: any;
   public readonly webgl2ExtGmanWM?: any;
+  public readonly webgl2ExtMD?: WEBGL_multi_draw | null;
 
   private __activeTextureBackup: Index = -1;
   private __activeTextures2D: WebGLTexture[] = [];
@@ -175,6 +176,7 @@ export class WebGLContextWrapper {
         }
       }
       this.webgl2ExtClipCtrl = this.__getExtension(config, WebGLExtension.ClipControl);
+      this.webgl2ExtMD = this.__getExtension(config, WebGLExtension.MultiDraw) as WEBGL_multi_draw | null;
       if (config.cgApiDebugConsoleOutput) {
         this.webgl2ExtGmanWM = this.__getExtension(config, WebGLExtension.GMAN_WEBGL_MEMORY);
       }
@@ -335,6 +337,86 @@ export class WebGLContextWrapper {
    */
   drawArraysInstanced(primitiveMode: number, first: number, count: number, instanceCount: number) {
     this.__gl.drawArraysInstanced(primitiveMode, first, count, instanceCount);
+  }
+
+  /**
+   * Issues multiple instanced indexed draws with one call when WEBGL_multi_draw is available.
+   * Falls back to individual drawElementsInstanced calls otherwise.
+   * The offsets are byte offsets into the currently bound element array buffer.
+   */
+  multiDrawElementsInstanced(
+    primitiveMode: number,
+    counts: Int32Array,
+    countsOffset: number,
+    type: number,
+    offsets: Int32Array,
+    offsetsOffset: number,
+    instanceCounts: Int32Array,
+    instanceCountsOffset: number,
+    drawcount: number
+  ) {
+    const ext = this.webgl2ExtMD;
+    if (ext != null) {
+      ext.multiDrawElementsInstancedWEBGL(
+        primitiveMode,
+        counts,
+        countsOffset,
+        type,
+        offsets,
+        offsetsOffset,
+        instanceCounts,
+        instanceCountsOffset,
+        drawcount
+      );
+      return;
+    }
+    for (let i = 0; i < drawcount; i++) {
+      this.__gl.drawElementsInstanced(
+        primitiveMode,
+        counts[countsOffset + i],
+        type,
+        offsets[offsetsOffset + i],
+        instanceCounts[instanceCountsOffset + i]
+      );
+    }
+  }
+
+  /**
+   * Issues multiple instanced non-indexed draws with one call when WEBGL_multi_draw is available.
+   * Falls back to individual drawArraysInstanced calls otherwise.
+   */
+  multiDrawArraysInstanced(
+    primitiveMode: number,
+    firsts: Int32Array,
+    firstsOffset: number,
+    counts: Int32Array,
+    countsOffset: number,
+    instanceCounts: Int32Array,
+    instanceCountsOffset: number,
+    drawcount: number
+  ) {
+    const ext = this.webgl2ExtMD;
+    if (ext != null) {
+      ext.multiDrawArraysInstancedWEBGL(
+        primitiveMode,
+        firsts,
+        firstsOffset,
+        counts,
+        countsOffset,
+        instanceCounts,
+        instanceCountsOffset,
+        drawcount
+      );
+      return;
+    }
+    for (let i = 0; i < drawcount; i++) {
+      this.__gl.drawArraysInstanced(
+        primitiveMode,
+        firsts[firstsOffset + i],
+        counts[countsOffset + i],
+        instanceCounts[instanceCountsOffset + i]
+      );
+    }
   }
 
   /**

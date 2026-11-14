@@ -87,7 +87,7 @@ engine.startRenderLoop(() => {
     window._rendered = true;
     const p = document.createElement('p');
     p.setAttribute('id', 'rendered');
-    p.innerText = 'Rendered.';
+    p.textContent = 'Rendered.';
     document.body.appendChild(p);
   }
 

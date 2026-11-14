@@ -20,7 +20,6 @@ import type { Material } from '../foundation/materials/core/Material';
 import type { Vector4 } from '../foundation/math/Vector4';
 import type { Accessor } from '../foundation/memory/Accessor';
 import type { Buffer } from '../foundation/memory/Buffer';
-import { DataUtil } from '../foundation/misc/DataUtil';
 import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
@@ -1118,6 +1117,51 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   }
 
   /**
+   * Vertex formats that normalize integer data to floats inside the GPU.
+   * WebGPU only provides these formats for two or four components.
+   */
+  private static readonly __normalizedVertexFormats = new Set<string>([
+    'unorm8x2',
+    'unorm8x4',
+    'snorm8x2',
+    'snorm8x4',
+    'unorm16x2',
+    'unorm16x4',
+    'snorm16x2',
+    'snorm16x4',
+  ]);
+
+  /**
+   * Returns the WebGPU vertex format for an attribute accessor.
+   * An accessor with the normalized flag uses a unorm/snorm format so that the GPU converts
+   * its integer data to the [0, 1] / [-1, 1] range before the vertex shader reads it.
+   *
+   * @param accessor - Accessor of the vertex attribute
+   * @returns The vertex format to declare in the pipeline layout
+   */
+  private static __getVertexFormat(accessor: Accessor): GPUVertexFormat {
+    const componentType = accessor.componentType;
+    const compositionType = accessor.compositionType;
+    if (accessor.normalized) {
+      let prefix = '';
+      if (componentType === ComponentType.UnsignedByte) {
+        prefix = 'unorm8';
+      } else if (componentType === ComponentType.Byte) {
+        prefix = 'snorm8';
+      } else if (componentType === ComponentType.UnsignedShort) {
+        prefix = 'unorm16';
+      } else if (componentType === ComponentType.Short) {
+        prefix = 'snorm16';
+      }
+      const normalizedFormat = prefix + compositionType.webgpu;
+      if (prefix !== '' && WebGpuResourceRepository.__normalizedVertexFormats.has(normalizedFormat)) {
+        return normalizedFormat as GPUVertexFormat;
+      }
+    }
+    return (componentType.webgpu + compositionType.webgpu) as GPUVertexFormat;
+  }
+
+  /**
    * Creates a WebGPU index buffer from an accessor containing index data.
    * Automatically converts UnsignedByte indices to UnsignedShort since WebGPU
    * doesn't support 8-bit index buffers.
@@ -1324,8 +1368,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     for (let i = 0; i < vboHandles.length; i++) {
       const shaderLocation = VertexAttribute.toAttributeSlotFromJoinedString(primitive.attributeSemantics[i]);
 
-      const gpuVertexFormat = (primitive.attributeAccessors[i].componentType.webgpu +
-        primitive.attributeAccessors[i].compositionType.webgpu) as GPUVertexFormat;
+      const gpuVertexFormat = WebGpuResourceRepository.__getVertexFormat(primitive.attributeAccessors[i]);
       attributes.push({
         shaderLocation,
         offset: primitive.attributeAccessors[i].byteOffsetInBufferView,
@@ -1615,7 +1658,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     renderPass: RenderPass,
     cameraId: number,
     zWrite: boolean,
-    displayIdx: number
+    _displayIdx: number
   ) {
     const isBufferLessRendering = renderPass.isBufferLessRenderingMode();
     const VertexHandles = primitive._vertexHandles;
@@ -2645,7 +2688,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       const attribute = {
         shaderLocation: slotIdx,
         offset: 0,
-        format: (accessor.componentType.webgpu + accessor.compositionType.webgpu) as GPUVertexFormat,
+        format: WebGpuResourceRepository.__getVertexFormat(accessor),
       };
       gpuVertexBufferLayouts.push({
         stepMode: 'vertex',

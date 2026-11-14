@@ -34,4 +34,4 @@ const expression = await Rn.GltfImporter.importFromUrl(
 engine.process([expression]);
 
 p.id = 'rendered';
-p.innerText = 'Rendered.';
+p.textContent = 'Rendered.';

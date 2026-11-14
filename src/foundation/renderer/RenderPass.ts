@@ -98,12 +98,20 @@ export class RenderPass extends RnObject {
   public _lastBlendWithoutZWriteIndex = -1;
   /** @internal Array of last primitive UIDs for optimization */
   public _lastPrimitiveUids: number[] = [];
+  /**
+   * @internal Primitives in the same order as `_lastPrimitiveUids`, so the render strategy can
+   * avoid a per-primitive repository lookup. Valid only while `_lastPrimitiveUids` is the array
+   * the strategy was called with.
+   */
+  public _lastPrimitives: Primitive[] | null = null;
   /** @internal Last transform components update count for change detection */
   public _lastTransformComponentsUpdateCount = -1;
   /** @internal Last camera controller components update count for change detection */
   public _lastCameraControllerComponentsUpdateCount = -1;
   /** @internal Last scene graph components update count for change detection */
   public _lastSceneGraphComponentsUpdateCount = -1;
+  /** @internal Last multi-draw group version for change detection */
+  public _lastMultiDrawGroupVersion = -1;
   /** @internal Whether something was rendered in the previous frame */
   public _renderedSomethingBefore = true;
   /** @internal Whether the sort render result has changed */
@@ -747,7 +755,8 @@ export class RenderPass extends RnObject {
    * @returns The material that should be used for rendering the primitive
    */
   getAppropriateMaterial(primitive: Primitive): Material {
-    let material = this._getMaterialOf(primitive);
+    // Most passes have no per-primitive overrides; skip the map lookup in that common case.
+    let material = this.__primitiveMaterial.size !== 0 ? this._getMaterialOf(primitive) : undefined;
 
     if (material != null) {
     } else if (this.__material != null) {

@@ -37,7 +37,7 @@ controller.setTarget(rootGroup);
 controller.dolly = 0.78;
 
 p.id = 'rendered';
-p.innerText = 'Rendered.';
+p.textContent = 'Rendered.';
 
 engine.startRenderLoop(() => {
   engine.process([expression]);

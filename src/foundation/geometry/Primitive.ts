@@ -1,4 +1,5 @@
 import type { Count, Index, Offset, PrimitiveUID, TypedArray } from '../../types/CommonTypes';
+import type { MultiDrawEntry, MultiDrawGroup } from '../../webgl/MultiDraw';
 import type { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import { RnObject } from '../core/RnObject';
 import { BufferUse } from '../definitions/BufferUse';
@@ -70,6 +71,8 @@ export class Primitive extends RnObject {
   private __targets: Array<Attributes> = [];
   private __vertexHandles?: VertexHandles;
   private __mesh?: Mesh;
+  private __multiDrawGroup?: MultiDrawGroup;
+  private __multiDrawEntryIndex = -1;
   private static __primitives: WeakRef<Primitive>[] = [];
   public _sortkey: PrimitiveSortKey = 0;
   public _viewDepth = 0;
@@ -113,7 +116,7 @@ export class Primitive extends RnObject {
     let str = '';
     str += this.__mode.index;
     if (this.__oIndices.has()) {
-      str += this.getIndexBitSize();
+      str += this.getRenderIndexBitSize();
     }
     str += this.targets.length;
     str += Primitive.getPrimitiveIdxHasMorph(this.__primitiveUid);
@@ -132,6 +135,61 @@ export class Primitive extends RnObject {
    */
   _getFingerPrint() {
     return this.__fingerPrint;
+  }
+
+  /**
+   * Gets the index bit size used for rendering. Primitives merged into a multi-draw
+   * group use the shared uint32 index buffer regardless of their source accessor type.
+   */
+  getRenderIndexBitSize(): 'uint16' | 'uint32' {
+    if (!this.__oIndices.has()) {
+      return 'uint16';
+    }
+    if (this.__multiDrawGroup != null) {
+      return 'uint32';
+    }
+    return this.getIndexBitSize();
+  }
+
+  /** The engine that owns this primitive (used to scope engine-wide scans). */
+  get _engine(): Engine {
+    return this.__engine;
+  }
+
+  /** The multi-draw group this primitive belongs to, if any. */
+  get _multiDrawGroup(): MultiDrawGroup | undefined {
+    return this.__multiDrawGroup;
+  }
+
+  /** The entry of this primitive inside its multi-draw group. */
+  get _multiDrawEntry(): MultiDrawEntry | undefined {
+    if (this.__multiDrawGroup == null || this.__multiDrawEntryIndex < 0) {
+      return undefined;
+    }
+    return this.__multiDrawGroup.entries[this.__multiDrawEntryIndex];
+  }
+
+  /**
+   * Associates this primitive with a multi-draw group entry and shares the group's
+   * GPU handles. The caller is responsible for the group's GPU resources.
+   * @internal
+   */
+  _setMultiDrawGroup(group: MultiDrawGroup, entryIndex: number): void {
+    this.__multiDrawGroup = group;
+    this.__multiDrawEntryIndex = entryIndex;
+    this.__vertexHandles = group.vertexHandles;
+    this.calcFingerPrint();
+  }
+
+  /**
+   * Detaches this primitive from its multi-draw group.
+   * @internal
+   */
+  _clearMultiDrawGroup(): void {
+    this.__multiDrawGroup = undefined;
+    this.__multiDrawEntryIndex = -1;
+    this.__vertexHandles = undefined;
+    this.calcFingerPrint();
   }
 
   /**
@@ -271,6 +329,7 @@ export class Primitive extends RnObject {
       translucencyType
     );
     mat._addBelongPrimitive(this);
+    this.__invalidateMultiDrawGroup();
   }
 
   /**
@@ -361,6 +420,19 @@ export class Primitive extends RnObject {
   }
 
   /**
+   * Iterates over all live primitives created in this application.
+   * @param callback - Called for each live primitive
+   */
+  static forEachPrimitive(callback: (primitive: Primitive) => void): void {
+    for (let i = 0; i < this.__primitives.length; i++) {
+      const primitive = this.__primitives[i]?.deref();
+      if (primitive != null) {
+        callback(primitive);
+      }
+    }
+  }
+
+  /**
    * Gets the total number of primitives created in the application.
    * @returns The total count of primitives
    */
@@ -413,6 +485,7 @@ export class Primitive extends RnObject {
     this.__primitiveUid = Primitive.__primitiveCount++;
     Primitive.__primitives[this.__primitiveUid] = new WeakRef(this);
     this.calcFingerPrint();
+    this.__invalidateMultiDrawGroup();
   }
 
   /**
@@ -705,9 +778,17 @@ export class Primitive extends RnObject {
    * @param accessor - The accessor containing the attribute data
    * @param vertexSemantic - The semantic meaning of the attribute
    */
+  private __invalidateMultiDrawGroup(): void {
+    const mesh = this.__mesh;
+    if (mesh != null) {
+      mesh._invalidateMultiDrawStructure();
+    }
+  }
+
   setVertexAttribute(accessor: Accessor, vertexSemantic: VertexAttributeSemanticsJoinedString) {
     this.__attributes.set(vertexSemantic, accessor);
     this.calcFingerPrint();
+    this.__invalidateMultiDrawGroup();
   }
 
   /**
@@ -716,6 +797,7 @@ export class Primitive extends RnObject {
   removeIndices() {
     this.__oIndices = new None();
     this.calcFingerPrint();
+    this.__invalidateMultiDrawGroup();
   }
 
   /**
@@ -725,6 +807,7 @@ export class Primitive extends RnObject {
   setIndices(accessor: Accessor) {
     this.__oIndices = new Some(accessor);
     this.calcFingerPrint();
+    this.__invalidateMultiDrawGroup();
   }
 
   /**
@@ -738,6 +821,7 @@ export class Primitive extends RnObject {
 
     this.__targets = targets;
     this.calcFingerPrint();
+    this.__invalidateMultiDrawGroup();
   }
 
   static getMorphUniformDataTargetNumbers(): Count[] {
@@ -809,6 +893,9 @@ export class Primitive extends RnObject {
    * @returns True if buffers were created, false if they already exist
    */
   create3DAPIVertexData() {
+    if (this.__multiDrawGroup != null) {
+      return false;
+    }
     if (this.__vertexHandles != null) {
       return false;
     }
@@ -824,6 +911,10 @@ export class Primitive extends RnObject {
    * @returns True if buffers were updated, false if no buffers exist
    */
   update3DAPIVertexData() {
+    if (this.__multiDrawGroup != null) {
+      // The multi-draw group owns the merged buffers and is rebuilt by MultiDrawRepository.
+      return true;
+    }
     const vertexHandles = this.__vertexHandles as VertexHandles;
     if (Is.not.exist(this.__vertexHandles)) {
       return false;
@@ -841,6 +932,10 @@ export class Primitive extends RnObject {
    * @returns True if buffers were deleted, false if no buffers exist
    */
   delete3DAPIVertexData() {
+    if (this.__multiDrawGroup != null) {
+      // The group owns the shared GPU resources.
+      return false;
+    }
     if (this.__vertexHandles == null) {
       return false;
     }

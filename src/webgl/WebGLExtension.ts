@@ -112,6 +112,10 @@ const ClipControl: WebGLExtensionEnum = new WebGLExtensionClass({
   index: 26,
   str: 'EXT_clip_control',
 });
+const MultiDraw: WebGLExtensionEnum = new WebGLExtensionClass({
+  index: 27,
+  str: 'WEBGL_multi_draw',
+});
 
 const typeList = [
   VertexArrayObject,
@@ -140,6 +144,7 @@ const typeList = [
   OvrMultiview2,
   GMAN_WEBGL_MEMORY,
   ClipControl,
+  MultiDraw,
 ];
 
 function from({ index }: { index: number }): WebGLExtensionEnum {
@@ -173,5 +178,6 @@ export const WebGLExtension = Object.freeze({
   OvrMultiview2,
   GMAN_WEBGL_MEMORY,
   ClipControl,
+  MultiDraw,
   from,
 });

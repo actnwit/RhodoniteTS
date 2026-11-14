@@ -252,6 +252,55 @@ export class Material extends RnObject {
     return this.__fingerPrint;
   }
 
+  private __textureBindingSignature = '';
+  private __textureBindingSignatureVersion = -1;
+  private __multiDrawStateKey = '';
+  private __multiDrawStateKeyVersion = -1;
+
+  /**
+   * Signature of the texture/sampler bindings and the true uniforms that are set per
+   * material in DataTexture mode. Materials with the same signature can share one
+   * multi-draw batch (their per-draw state differs only in the data texture row).
+   * @internal
+   */
+  _getTextureBindingSignature(): string {
+    if (this.__textureBindingSignatureVersion === this.__stateVersion) {
+      return this.__textureBindingSignature;
+    }
+    let str = '';
+    for (const [semantic, field] of this._autoTextureFieldVariablesOnly) {
+      const value = field.value;
+      str += `${semantic}:${value[0]}:${value[1]?._textureResourceUid ?? -1}:${value[2]?._samplerResourceUid ?? -1};`;
+    }
+    for (const [semantic, field] of this._autoUniformFieldVariablesOnly) {
+      const value = field.value;
+      const raw = value?._v ?? value;
+      str += `${semantic}:${Array.isArray(raw) || ArrayBuffer.isView(raw) ? Array.from(raw as any).join(',') : String(raw)};`;
+    }
+    this.__textureBindingSignature = str;
+    this.__textureBindingSignatureVersion = this.__stateVersion;
+    return str;
+  }
+
+  /**
+   * Key of the material state that must be identical for a multi-draw batch:
+   * material type, shader semantics variant, shader defines, pipeline fingerprint,
+   * texture bindings and true-uniform values.
+   * @internal
+   */
+  _getMultiDrawStateKey(): string {
+    if (this.__multiDrawStateKeyVersion === this.__stateVersion) {
+      return this.__multiDrawStateKey;
+    }
+    this.__multiDrawStateKey = `${this.__materialTypeName}|${this._materialContent.getMaterialSemanticsVariantName()}|${[
+      ...this.__shaderDefines,
+    ]
+      .sort()
+      .join(',')}|${this.__fingerPrint}|${this._getTextureBindingSignature()}`;
+    this.__multiDrawStateKeyVersion = this.__stateVersion;
+    return this.__multiDrawStateKey;
+  }
+
   ///
   /// Parameter Setters
   ///

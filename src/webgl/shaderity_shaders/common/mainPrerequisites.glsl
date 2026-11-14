@@ -1,5 +1,14 @@
 #ifdef RN_IS_DATATEXTURE_MODE
-  uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
+  #ifdef RN_USE_MATERIAL_SID_ATTRIBUTE
+    #ifdef RN_IS_VERTEX_SHADER
+      uint materialSID = a_materialSid;
+      v_materialSid = materialSID;
+    #else
+      uint materialSID = v_materialSid;
+    #endif
+  #else
+    uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
+  #endif
 
   int lightNumber = 0;
   #ifdef RN_IS_LIGHTING

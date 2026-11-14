@@ -71,7 +71,7 @@ engine.startRenderLoop(() => {
   if (count > 0 && window._rendered !== true && setTimeDone) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
-    p.innerText = 'Rendered.';
+    p.textContent = 'Rendered.';
     document.body.appendChild(p);
     window._rendered = true;
   }

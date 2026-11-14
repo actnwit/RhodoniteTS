@@ -390,6 +390,10 @@ export function _setupGlobalShaderDefinitionWebGL(engine: Engine, materialTypeNa
   definitions += `// RN_MATERIAL_TYPE_NAME: ${materialTypeName}\n`;
   if (ProcessApproach.isDataTextureApproach(engine.engineState.currentProcessApproach)) {
     definitions += '#define RN_IS_DATATEXTURE_MODE\n';
+    if (engine.config.isMultiDrawEnabled && webglResourceRepository.isInstanceSidTextureCapable) {
+      definitions += '#define RN_USE_INSTANCE_SID_TEXTURE\n';
+      definitions += '#define RN_USE_MATERIAL_SID_ATTRIBUTE\n';
+    }
   } else {
     definitions += '#define RN_IS_UNIFORM_MODE\n';
   }
@@ -587,7 +591,11 @@ function defineAttributes(primitive: Primitive) {
     if (attributeSemantic.indexOf('COLOR_0') !== -1) {
       vertexAttributeDefines += '#define RN_USE_COLOR_0\n';
       const accessor = primitive.getAttribute(attributeSemantic);
-      if (accessor!.componentType.isFloatingPoint()) {
+      if (accessor!.normalized) {
+        // A normalized integer attribute is bound with a unorm/snorm WebGPU vertex format,
+        // so the shader receives floats in the [0, 1] / [-1, 1] range.
+        vertexAttributeDefines += '#define RN_USE_COLOR_0_FLOAT\n';
+      } else if (accessor!.componentType.isFloatingPoint()) {
         vertexAttributeDefines += '#define RN_USE_COLOR_0_FLOAT\n';
       } else if (accessor!.componentType.isInteger()) {
         vertexAttributeDefines += '#define RN_USE_COLOR_0_INT\n';

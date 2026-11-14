@@ -18,7 +18,8 @@ export type VertexAttributeTypeName =
   | 'WEIGHTS_0'
   | 'INSTANCE'
   | 'FACE_NORMAL'
-  | 'BARY_CENTRIC_COORD';
+  | 'BARY_CENTRIC_COORD'
+  | 'MATERIAL_SID';
 
 export type VertexAttributeComponent = `${VertexAttributeTypeName}.${ComponentChar}`;
 
@@ -188,7 +189,7 @@ const Weights0: VertexAttributeEnum = VertexAttributeClass.__createVertexAttribu
 });
 const Instance: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
   str: 'INSTANCE',
-  shaderStr: 'a_instanceIds',
+  shaderStr: 'a_instanceBase',
   attributeSlot: 8,
   gltfComponentN: 4,
   isIntegerType: true,
@@ -211,6 +212,17 @@ const Texcoord2: VertexAttributeEnum = VertexAttributeClass.__createVertexAttrib
   attributeSlot: 11,
   gltfComponentN: 2,
 });
+/**
+ * Per-vertex materialSID used by cross-material multi-draw batching.
+ * Not part of glTF; it is filled by the multi-draw geometry merge.
+ */
+const MaterialSid: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
+  str: 'MATERIAL_SID',
+  shaderStr: 'a_materialSid',
+  attributeSlot: 12,
+  gltfComponentN: 1,
+  isIntegerType: true,
+});
 
 const typeList = [
   Unknown, // -1
@@ -226,6 +238,7 @@ const typeList = [
   FaceNormal,
   BaryCentricCoord,
   Texcoord2,
+  MaterialSid,
 ];
 
 const AttributeTypeNumber = typeList.length - 1;
@@ -331,7 +344,7 @@ function toVectorComponentN(joinedString: VertexAttributeSemanticsJoinedString):
 }
 
 /** List of all vertex attributes that are integer types in shader (uvec4, ivec4, etc.) */
-const integerTypeAttributes: VertexAttributeEnum[] = [Joints0, Instance];
+const integerTypeAttributes: VertexAttributeEnum[] = [Joints0, Instance, MaterialSid];
 
 export const VertexAttribute = Object.freeze({
   Unknown,
@@ -346,6 +359,7 @@ export const VertexAttribute = Object.freeze({
   Instance,
   FaceNormal,
   BaryCentricCoord,
+  MaterialSid,
   AttributeTypeNumber,
   integerTypeAttributes,
   isInstanceOfVertexAttributeClass,

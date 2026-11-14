@@ -8,6 +8,7 @@ import type {
   ObjectUID,
   PrimitiveUID,
 } from '../../../types/CommonTypes';
+import { getMultiDrawStateKeyId, getPrimitiveMeshRendererFingerPrintId } from '../../../webgl/MultiDraw';
 import type { RnWebGL, WebGLStrategy } from '../../../webgl/main';
 import type { RnWebGpu } from '../../../webgpu/main';
 import type { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
@@ -55,6 +56,12 @@ type MeshRendererSortScratch = {
   meshCullTick: WeakMap<object, number>;
   /** Stamp value of the latest culling of this render pass (0 means no culling has run yet). */
   cullTick: number;
+  /** Number of entities culled by the latest culling. 0 means every instance stays visible. */
+  culledEntityCount: number;
+  /** Globally unique id of the latest culling, used to visit each mesh once in the instance prepass. */
+  cullingId: number;
+  /** Reused objects of the opaque multi-draw reorder, so a sort does not allocate per primitive. */
+  keyedPrimitives: { primitive: Primitive | null; keyId: number; index: number }[];
 };
 
 /**
@@ -64,6 +71,10 @@ type MeshRendererSortScratch = {
 export type InstanceCullingState = {
   readonly culledEntityStamp: Uint32Array;
   readonly cullTick: number;
+  /** Number of entities culled by the latest culling. 0 means every instance stays visible. */
+  readonly culledEntityCount: number;
+  /** Globally unique id of the latest culling. */
+  readonly cullingId: number;
 };
 
 /**
@@ -84,8 +95,18 @@ export class MeshRendererComponent extends Component {
   private __updateCount = 0;
   private static __updateCount = 0;
   public static _isFrustumCullingEnabled = true;
+  /** Monotonic id of the latest culling pass, used as a per-mesh visit stamp. */
+  private static __cullingIdCounter = 0;
 
   private __fingerPrint = '';
+  private __fingerPrintId = 0;
+  /**
+   * Interned ids of mesh renderer fingerprints. The fingerprint changes only when the IBL cube
+   * maps change, and two mesh renderers with the same cube maps must share a multi-draw batch,
+   * so the id is interned by value instead of being unique per component.
+   */
+  private static __fingerPrintIds = new Map<string, number>();
+  private static __nextFingerPrintId = 0;
 
   /** Per-render-pass scratch buffers reused by sort_$render to avoid per-frame allocations. */
   private static __sortScratchMap: WeakMap<RenderPass, MeshRendererSortScratch> = new WeakMap();
@@ -229,6 +250,16 @@ export class MeshRendererComponent extends Component {
    */
   calcFingerPrint() {
     this.__fingerPrint = `${this.__diffuseCubeMap != null ? this.__diffuseCubeMap.textureUID : -1} ${this.__specularCubeMap != null ? this.__specularCubeMap.textureUID : -1} ${this.__sheenCubeMap != null ? this.__sheenCubeMap.textureUID : -1}`;
+    this.__fingerPrintId = MeshRendererComponent.__internFingerPrintId(this.__fingerPrint);
+  }
+
+  private static __internFingerPrintId(fingerPrint: string): number {
+    let id = MeshRendererComponent.__fingerPrintIds.get(fingerPrint);
+    if (id == null) {
+      id = ++MeshRendererComponent.__nextFingerPrintId;
+      MeshRendererComponent.__fingerPrintIds.set(fingerPrint, id);
+    }
+    return id;
   }
 
   /**
@@ -237,6 +268,15 @@ export class MeshRendererComponent extends Component {
    */
   getFingerPrint() {
     return this.__fingerPrint;
+  }
+
+  /**
+   * Gets the interned numeric id of the fingerprint. Numeric ids keep the per-frame
+   * multi-draw state keys cheap to compare.
+   * @returns The fingerprint id
+   */
+  getFingerPrintId() {
+    return this.__fingerPrintId;
   }
 
   /**
@@ -314,10 +354,14 @@ export class MeshRendererComponent extends Component {
    * @returns Array of primitive UIDs sorted for optimal rendering
    */
   static sort_$render(engine: Engine, renderPass: RenderPass): ComponentSID[] {
+    const webglResourceRepository = engine.webglResourceRepository;
+    const multiDrawGroupVersion =
+      webglResourceRepository != null ? webglResourceRepository.getMultiDrawRepository(engine).version : 0;
     if (
       TransformComponent.getUpdateCount(engine) === renderPass._lastTransformComponentsUpdateCount &&
       CameraControllerComponent.getUpdateCount(engine) === renderPass._lastCameraControllerComponentsUpdateCount &&
-      SceneGraphComponent.getUpdateCount(engine) === renderPass._lastSceneGraphComponentsUpdateCount
+      SceneGraphComponent.getUpdateCount(engine) === renderPass._lastSceneGraphComponentsUpdateCount &&
+      multiDrawGroupVersion === renderPass._lastMultiDrawGroupVersion
     ) {
       return renderPass._lastPrimitiveUids;
     }
@@ -362,8 +406,6 @@ export class MeshRendererComponent extends Component {
     if (primitives.length > 1) {
       primitives.sort(MeshRendererComponent.__comparePrimitives);
     }
-
-    const primitiveUids = MeshRendererComponent.__createPrimitiveUids(primitives);
 
     let _lastOpaqueIndex = primitives.length - 1;
     let _lastTranslucentIndex = primitives.length - 1;
@@ -412,6 +454,42 @@ export class MeshRendererComponent extends Component {
       }
     }
 
+    // Reorder the opaque range by effective material (and multi-draw group) so that
+    // consecutive draws share their GPU state and can be merged by WEBGL_multi_draw.
+    // Opaque draws are depth tested, so this reorder is safe. Translucent/blend buckets
+    // keep their distance order.
+    if (
+      _lastOpaqueIndex > 0 &&
+      engine.config.isMultiDrawEnabled &&
+      ProcessApproach.isDataTextureApproach(engine.engineState.currentProcessApproach)
+    ) {
+      const opaqueCount = _lastOpaqueIndex + 1;
+      const keyed = scratch.keyedPrimitives;
+      if (keyed.length < opaqueCount) {
+        for (let i = keyed.length; i < opaqueCount; i++) {
+          keyed.push({ primitive: null, keyId: 0, index: 0 });
+        }
+      } else {
+        keyed.length = opaqueCount;
+      }
+      for (let i = 0; i < opaqueCount; i++) {
+        const primitive = primitives[i];
+        const material = renderPass.getAppropriateMaterial(primitive);
+        const entry = keyed[i];
+        entry.primitive = primitive;
+        entry.index = i;
+        entry.keyId =
+          getMultiDrawStateKeyId(primitive, material, getPrimitiveMeshRendererFingerPrintId(primitive)) ??
+          -(material.materialUID + 1);
+      }
+      keyed.sort((a, b) => a.keyId - b.keyId || a.index - b.index);
+      for (let i = 0; i < opaqueCount; i++) {
+        primitives[i] = keyed[i].primitive!;
+      }
+    }
+
+    const primitiveUids = MeshRendererComponent.__createPrimitiveUids(primitives);
+
     let resultChanged = false;
     if (_lastOpaqueIndex !== renderPass._lastOpaqueIndex) {
       renderPass._lastOpaqueIndex = _lastOpaqueIndex;
@@ -444,10 +522,14 @@ export class MeshRendererComponent extends Component {
     renderPass._isChangedSortRenderResult = resultChanged;
 
     renderPass._lastPrimitiveUids = primitiveUids;
+    // The scratch array is only refilled by the next sort, which also replaces
+    // `_lastPrimitiveUids`, so the pair stays consistent for the render strategies.
+    renderPass._lastPrimitives = primitives;
 
     renderPass._lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(engine);
     renderPass._lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(engine);
     renderPass._lastSceneGraphComponentsUpdateCount = SceneGraphComponent.getUpdateCount(engine);
+    renderPass._lastMultiDrawGroupVersion = multiDrawGroupVersion;
     if (resultChanged) {
       renderPass._renderedSomethingBefore = true;
     }
@@ -482,6 +564,8 @@ export class MeshRendererComponent extends Component {
       cullTick = 1;
     }
     scratch.cullTick = cullTick;
+    scratch.culledEntityCount = 0;
+    scratch.cullingId = ++MeshRendererComponent.__cullingIdCounter;
 
     // A single pass over the mesh components: cull, update visibility flags and
     // collect primitives. The previous implementation allocated a filtered array
@@ -580,6 +664,7 @@ export class MeshRendererComponent extends Component {
 
   private static __stampCulledEntity(scratch: MeshRendererSortScratch, entityUID: EntityUID, cullTick: number) {
     scratch.culledEntityStamp = MeshRendererComponent.__stampEntity(scratch.culledEntityStamp, entityUID, cullTick);
+    scratch.culledEntityCount++;
   }
 
   /**
@@ -721,6 +806,9 @@ export class MeshRendererComponent extends Component {
         handledEntityStamp: new Uint32Array(64),
         meshCullTick: new WeakMap(),
         cullTick: 0,
+        culledEntityCount: 0,
+        cullingId: 0,
+        keyedPrimitives: [],
       };
       MeshRendererComponent.__sortScratchMap.set(renderPass, scratch);
     }

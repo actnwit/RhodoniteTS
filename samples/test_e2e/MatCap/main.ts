@@ -111,7 +111,7 @@ function draw(expressions: Rn.Expression[], isFirstLoop: boolean, pElem?: HTMLEl
   if (pElem === undefined && !isFirstLoop) {
     pElem = document.createElement('p');
     pElem.setAttribute('id', 'rendered');
-    pElem.innerText = 'Rendered.';
+    pElem.textContent = 'Rendered.';
     document.body.appendChild(pElem);
   }
 

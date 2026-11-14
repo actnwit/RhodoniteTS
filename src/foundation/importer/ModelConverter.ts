@@ -38,6 +38,7 @@ import { LightComponent } from '../components/Light/LightComponent';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
+import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
 import { AlphaMode } from '../definitions/AlphaMode';
 import { AnimationInterpolation } from '../definitions/AnimationInterpolation';
@@ -1067,7 +1068,7 @@ export class ModelConverter {
 
     for (const node_i in gltfModel.nodes) {
       const node = gltfModel.nodes[node_i];
-      const sg = rnEntities[node_i].getSceneGraph()!;
+      const _sg = rnEntities[node_i].getSceneGraph()!;
       let skeletalComponent: SkeletalComponent;
       if (Is.exist(node.skinObject)) {
         const rnEntity = rnEntities[node_i];
@@ -1104,20 +1105,17 @@ export class ModelConverter {
           const sg = rnEntities[joint_i].getSceneGraph()!;
           sg.jointIndex = joint_i;
         }
-        if (Is.exist(node.skinObject.skeleton)) {
-          sg.isRootJoint = true;
-          if (Is.exist(node.mesh)) {
-            const joints = [];
-            for (const i of node.skinObject.joints) {
-              joints.push(rnEntities[i].getSceneGraph()!);
-            }
-            skeletalComponent!.setJoints(joints);
-            if (Is.exist(node.skinObject.skeleton)) {
-              skeletalComponent!.topOfJointsHierarchy = rnEntities[node.skinObject.skeleton].getSceneGraph();
-            } else {
-              skeletalComponent!.topOfJointsHierarchy = joints[0];
-            }
-          }
+        // `skin.skeleton` is optional in glTF. The joints and their bone data must be set
+        // up regardless; when the skeleton root is omitted, the common ancestor of the
+        // joints is the root of the joint hierarchy.
+        const joints = node.skinObject.joints.map(i => rnEntities[i].getSceneGraph()!);
+        skeletalComponent.setJoints(joints);
+        const skeletonRoot = Is.exist(node.skinObject.skeleton)
+          ? rnEntities[node.skinObject.skeleton].getSceneGraph()
+          : this.__getCommonAncestorOfJoints(joints);
+        skeletalComponent.topOfJointsHierarchy = skeletonRoot ?? joints[0];
+        if (skeletonRoot != null) {
+          skeletonRoot.isRootJoint = true;
         }
 
         if (Is.exist(rnAccessorOfInverseBindMat)) {
@@ -1125,6 +1123,145 @@ export class ModelConverter {
         }
       }
     }
+  }
+
+  /**
+   * Returns the lowest common ancestor of the given joints in the scene graph.
+   * glTF's `skin.skeleton` is optional; when it is omitted, the common root of the
+   * joints is the root of the skin's joint hierarchy.
+   */
+  private static __getCommonAncestorOfJoints(joints: SceneGraphComponent[]): SceneGraphComponent | undefined {
+    if (joints.length === 0) {
+      return undefined;
+    }
+    const ancestorChain = new Set<SceneGraphComponent>();
+    let current: SceneGraphComponent | undefined = joints[0];
+    while (current != null) {
+      ancestorChain.add(current);
+      current = current.parent;
+    }
+    let common: SceneGraphComponent = joints[0];
+    for (let i = 1; i < joints.length; i++) {
+      let node: SceneGraphComponent | undefined = joints[i];
+      while (node != null && !ancestorChain.has(node)) {
+        node = node.parent;
+      }
+      if (node == null) {
+        return undefined;
+      }
+      if (node !== common) {
+        common = node;
+        ancestorChain.clear();
+        let ancestor: SceneGraphComponent | undefined = common;
+        while (ancestor != null) {
+          ancestorChain.add(ancestor);
+          ancestor = ancestor.parent;
+        }
+      }
+    }
+    return common;
+  }
+
+  /**
+   * Generates smooth vertex normals for primitives that have no NORMAL attribute.
+   * glTF requires implementations to calculate normals when they are absent; without
+   * them lit materials receive a zero normal and shade incorrectly (black or NaN).
+   */
+  private static __generateNormalsIfMissing(
+    engine: Engine,
+    primitive: Primitive,
+    indicesAccessor: Accessor | undefined
+  ): void {
+    if (Is.exist(primitive.getAttribute(VertexAttribute.Normal.XYZ))) {
+      return;
+    }
+    const mode = primitive.primitiveMode;
+    if (
+      mode !== PrimitiveMode.Triangles &&
+      mode !== PrimitiveMode.TriangleStrip &&
+      mode !== PrimitiveMode.TriangleFan
+    ) {
+      return;
+    }
+    const positionAccessor = primitive.getAttribute(VertexAttribute.Position.XYZ);
+    if (!Is.exist(positionAccessor)) {
+      return;
+    }
+    const vertexCount = positionAccessor.elementCount;
+    if (vertexCount === 0) {
+      return;
+    }
+
+    const normals = new Float32Array(vertexCount * 3);
+    const indexCount = indicesAccessor != null ? indicesAccessor.elementCount : vertexCount;
+    const getVertexIndex = (i: number) => (indicesAccessor != null ? indicesAccessor.getScalar(i, {}) : i);
+    const accumulateTriangle = (ia: number, ib: number, ic: number) => {
+      const a = positionAccessor.getVec3(ia, {});
+      const b = positionAccessor.getVec3(ib, {});
+      const c = positionAccessor.getVec3(ic, {});
+      const abx = b.x - a.x;
+      const aby = b.y - a.y;
+      const abz = b.z - a.z;
+      const acx = c.x - a.x;
+      const acy = c.y - a.y;
+      const acz = c.z - a.z;
+      // Area weighted face normal; the accumulated result is normalized at the end.
+      const nx = aby * acz - abz * acy;
+      const ny = abz * acx - abx * acz;
+      const nz = abx * acy - aby * acx;
+      for (const index of [ia, ib, ic]) {
+        normals[index * 3] += nx;
+        normals[index * 3 + 1] += ny;
+        normals[index * 3 + 2] += nz;
+      }
+    };
+
+    if (mode === PrimitiveMode.Triangles) {
+      for (let i = 0; i + 2 < indexCount; i += 3) {
+        accumulateTriangle(getVertexIndex(i), getVertexIndex(i + 1), getVertexIndex(i + 2));
+      }
+    } else if (mode === PrimitiveMode.TriangleStrip) {
+      for (let i = 0; i + 2 < indexCount; i++) {
+        if (i % 2 === 0) {
+          accumulateTriangle(getVertexIndex(i), getVertexIndex(i + 1), getVertexIndex(i + 2));
+        } else {
+          accumulateTriangle(getVertexIndex(i + 1), getVertexIndex(i), getVertexIndex(i + 2));
+        }
+      }
+    } else {
+      for (let i = 1; i + 1 < indexCount; i++) {
+        accumulateTriangle(getVertexIndex(0), getVertexIndex(i), getVertexIndex(i + 1));
+      }
+    }
+
+    const byteLength = vertexCount * 3 * 4;
+    const buffer = engine.memoryManager.createBufferOnDemand(BufferUse.CPUGeneric, byteLength, 4);
+    const bufferView = buffer.takeBufferView({ byteLengthToNeed: byteLength, byteStride: 0 }).unwrapForce();
+    const normalAccessor = bufferView
+      .takeAccessor({
+        compositionType: CompositionType.Vec3,
+        componentType: ComponentType.Float,
+        count: vertexCount,
+      })
+      .unwrapForce();
+    for (let i = 0; i < vertexCount; i++) {
+      let x = normals[i * 3];
+      let y = normals[i * 3 + 1];
+      let z = normals[i * 3 + 2];
+      const length = Math.hypot(x, y, z);
+      if (length > 0) {
+        x /= length;
+        y /= length;
+        z /= length;
+      } else {
+        // Degenerate vertex: use a valid normal so lighting does not produce NaN.
+        x = 0;
+        y = 1;
+        z = 0;
+      }
+      normalAccessor.setVec3(i, x, y, z, {});
+    }
+    primitive.setVertexAttribute(normalAccessor, VertexAttribute.Normal.XYZ);
   }
 
   /**
@@ -1442,6 +1579,7 @@ export class ModelConverter {
         }
 
         rnPrimitive.setData(map, rnPrimitiveMode, rnMaterial, indicesRnAccessor);
+        this.__generateNormalsIfMissing(engine, rnPrimitive, indicesRnAccessor);
 
         // morph targets
         if (primitive.targets != null) {
