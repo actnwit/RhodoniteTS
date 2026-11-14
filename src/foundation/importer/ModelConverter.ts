@@ -1163,6 +1163,108 @@ export class ModelConverter {
   }
 
   /**
+   * Generates smooth vertex normals for primitives that have no NORMAL attribute.
+   * glTF requires implementations to calculate normals when they are absent; without
+   * them lit materials receive a zero normal and shade incorrectly (black or NaN).
+   */
+  private static __generateNormalsIfMissing(
+    engine: Engine,
+    primitive: Primitive,
+    indicesAccessor: Accessor | undefined
+  ): void {
+    if (Is.exist(primitive.getAttribute(VertexAttribute.Normal.XYZ))) {
+      return;
+    }
+    const mode = primitive.primitiveMode;
+    if (
+      mode !== PrimitiveMode.Triangles &&
+      mode !== PrimitiveMode.TriangleStrip &&
+      mode !== PrimitiveMode.TriangleFan
+    ) {
+      return;
+    }
+    const positionAccessor = primitive.getAttribute(VertexAttribute.Position.XYZ);
+    if (!Is.exist(positionAccessor)) {
+      return;
+    }
+    const vertexCount = positionAccessor.elementCount;
+    if (vertexCount === 0) {
+      return;
+    }
+
+    const normals = new Float32Array(vertexCount * 3);
+    const indexCount = indicesAccessor != null ? indicesAccessor.elementCount : vertexCount;
+    const getVertexIndex = (i: number) => (indicesAccessor != null ? indicesAccessor.getScalar(i, {}) : i);
+    const accumulateTriangle = (ia: number, ib: number, ic: number) => {
+      const a = positionAccessor.getVec3(ia, {});
+      const b = positionAccessor.getVec3(ib, {});
+      const c = positionAccessor.getVec3(ic, {});
+      const abx = b.x - a.x;
+      const aby = b.y - a.y;
+      const abz = b.z - a.z;
+      const acx = c.x - a.x;
+      const acy = c.y - a.y;
+      const acz = c.z - a.z;
+      // Area weighted face normal; the accumulated result is normalized at the end.
+      const nx = aby * acz - abz * acy;
+      const ny = abz * acx - abx * acz;
+      const nz = abx * acy - aby * acx;
+      for (const index of [ia, ib, ic]) {
+        normals[index * 3] += nx;
+        normals[index * 3 + 1] += ny;
+        normals[index * 3 + 2] += nz;
+      }
+    };
+
+    if (mode === PrimitiveMode.Triangles) {
+      for (let i = 0; i + 2 < indexCount; i += 3) {
+        accumulateTriangle(getVertexIndex(i), getVertexIndex(i + 1), getVertexIndex(i + 2));
+      }
+    } else if (mode === PrimitiveMode.TriangleStrip) {
+      for (let i = 0; i + 2 < indexCount; i++) {
+        if (i % 2 === 0) {
+          accumulateTriangle(getVertexIndex(i), getVertexIndex(i + 1), getVertexIndex(i + 2));
+        } else {
+          accumulateTriangle(getVertexIndex(i + 1), getVertexIndex(i), getVertexIndex(i + 2));
+        }
+      }
+    } else {
+      for (let i = 1; i + 1 < indexCount; i++) {
+        accumulateTriangle(getVertexIndex(0), getVertexIndex(i), getVertexIndex(i + 1));
+      }
+    }
+
+    const byteLength = vertexCount * 3 * 4;
+    const buffer = engine.memoryManager.createBufferOnDemand(BufferUse.CPUGeneric, byteLength, 4);
+    const bufferView = buffer.takeBufferView({ byteLengthToNeed: byteLength, byteStride: 0 }).unwrapForce();
+    const normalAccessor = bufferView
+      .takeAccessor({
+        compositionType: CompositionType.Vec3,
+        componentType: ComponentType.Float,
+        count: vertexCount,
+      })
+      .unwrapForce();
+    for (let i = 0; i < vertexCount; i++) {
+      let x = normals[i * 3];
+      let y = normals[i * 3 + 1];
+      let z = normals[i * 3 + 2];
+      const length = Math.hypot(x, y, z);
+      if (length > 0) {
+        x /= length;
+        y /= length;
+        z /= length;
+      } else {
+        // Degenerate vertex: use a valid normal so lighting does not produce NaN.
+        x = 0;
+        y = 1;
+        z = 0;
+      }
+      normalAccessor.setVec3(i, x, y, z, {});
+    }
+    primitive.setVertexAttribute(normalAccessor, VertexAttribute.Normal.XYZ);
+  }
+
+  /**
    * Sets up all objects (meshes, cameras, lights, groups) from glTF nodes
    * @param gltfModel - The glTF model data
    * @param rnBuffers - Array of Rhodonite buffers
@@ -1477,6 +1579,7 @@ export class ModelConverter {
         }
 
         rnPrimitive.setData(map, rnPrimitiveMode, rnMaterial, indicesRnAccessor);
+        this.__generateNormalsIfMissing(engine, rnPrimitive, indicesRnAccessor);
 
         // morph targets
         if (primitive.targets != null) {
