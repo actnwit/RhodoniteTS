@@ -1810,6 +1810,22 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
 
     this.__engine.webglResourceRepository.setViewport(this.__engine, renderPass.getViewport());
 
+    // A buffer-less draw binds no vertex buffer, so the shader reads the generic value of the
+    // materialSID attribute. Full-screen shaders (blur, luminance detection, tone mapping, ...)
+    // look up their parameters in the data texture by materialSID, so it must be set for this
+    // draw; otherwise they read another material's row (or an undefined value). The instance SID
+    // lookup is unused by these shaders, but prerequisites still declares its uniforms, so keep
+    // them defined as well.
+    const glw = this.__engine.webglResourceRepository.currentWebGLContextWrapper;
+    if (glw != null && this.__useMaterialSidAttribute(glw)) {
+      // The default VAO has no enabled attribute arrays, so the generic values are used.
+      gl.bindVertexArray(null);
+      gl.vertexAttribI4ui(VertexAttribute.MaterialSid.getAttributeSlot(), material.materialSID, 0, 0, 0);
+      gl.vertexAttribI4ui(VertexAttribute.Instance.getAttributeSlot(), 0, 0, 0, 0);
+      this.__setInstanceRemapIdentity(gl, shaderProgram);
+      this.__setInstanceSidDataTextureIndices(gl, shaderProgram);
+    }
+
     gl.drawArrays(
       renderPass._primitiveModeForBufferLessRendering.index,
       0,
