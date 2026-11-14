@@ -1,7 +1,10 @@
 import type { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
 import type { CompositionTypeEnum } from '../foundation/definitions/CompositionType';
 import type { PrimitiveModeEnum } from '../foundation/definitions/PrimitiveMode';
-import type { VertexAttributeSemanticsJoinedString } from '../foundation/definitions/VertexAttribute';
+import {
+  VertexAttribute,
+  type VertexAttributeSemanticsJoinedString,
+} from '../foundation/definitions/VertexAttribute';
 import type { Mesh } from '../foundation/geometry/Mesh';
 import type { Primitive } from '../foundation/geometry/Primitive';
 import type { Material } from '../foundation/materials/core/Material';
@@ -17,6 +20,8 @@ export type MultiDrawAttribute = {
   compositionType: CompositionTypeEnum;
   normalized: boolean;
   byteStride: number;
+  /** Whether the shader input for this semantic is an integer type (uvec4/uint). */
+  isIntegerType: boolean;
 };
 
 /** One primitive (draw) inside a multi-draw group. */
@@ -162,6 +167,7 @@ export function getMultiDrawAttributes(primitive: Primitive): MultiDrawAttribute
   const semantics = primitive.attributeSemantics;
   for (let i = 0; i < accessors.length; i++) {
     const accessor = accessors[i];
+    const semanticAttribute = VertexAttribute.fromString(semantics[i].split('.')[0]);
     attributes.push({
       semantic: semantics[i],
       slot: i,
@@ -169,6 +175,7 @@ export function getMultiDrawAttributes(primitive: Primitive): MultiDrawAttribute
       compositionType: accessor.compositionType,
       normalized: accessor.normalized,
       byteStride: accessor.actualByteStride,
+      isIntegerType: semanticAttribute.isIntegerType,
     });
   }
   return attributes;

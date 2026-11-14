@@ -1237,20 +1237,26 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
         throw new Error(`Nothing Element Array Buffer at index ${i}`);
       }
       gl.enableVertexAttribArray(VertexAttribute.toAttributeSlotFromJoinedString(primitive.attributeSemantics[i]));
-      if (primitive.attributeComponentTypes[i].isFloatingPoint()) {
+      // The binding kind follows the shader input type, not the accessor storage type.
+      // Normalized integer accessors (e.g. COLOR_0 as UNSIGNED_BYTE normalized) feed a
+      // floating-point shader input and must use vertexAttribPointer.
+      const isIntegerShaderAttribute = VertexAttribute.fromString(
+        primitive.attributeSemantics[i].split('.')[0]
+      ).isIntegerType;
+      if (isIntegerShaderAttribute) {
+        gl.vertexAttribIPointer(
+          VertexAttribute.toAttributeSlotFromJoinedString(primitive.attributeSemantics[i]),
+          primitive.attributeCompositionTypes[i].getNumberOfComponents(),
+          primitive.attributeComponentTypes[i].index,
+          primitive.attributeAccessors[i].byteStride,
+          0
+        );
+      } else {
         gl.vertexAttribPointer(
           VertexAttribute.toAttributeSlotFromJoinedString(primitive.attributeSemantics[i]),
           primitive.attributeCompositionTypes[i].getNumberOfComponents(),
           primitive.attributeComponentTypes[i].index,
           primitive.attributeAccessors[i].normalized,
-          primitive.attributeAccessors[i].byteStride,
-          0
-        );
-      } else {
-        gl.vertexAttribIPointer(
-          VertexAttribute.toAttributeSlotFromJoinedString(primitive.attributeSemantics[i]),
-          primitive.attributeCompositionTypes[i].getNumberOfComponents(),
-          primitive.attributeComponentTypes[i].index,
           primitive.attributeAccessors[i].byteStride,
           0
         );
@@ -1327,20 +1333,22 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
       gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
       const slot = VertexAttribute.toAttributeSlotFromJoinedString(attribute.semantic);
       gl.enableVertexAttribArray(slot);
-      if (attribute.componentType.isFloatingPoint()) {
+      // See setVertexDataToPipeline: the binding kind follows the shader input type so
+      // normalized integer accessors can feed floating-point shader inputs.
+      if (attribute.isIntegerType) {
+        gl.vertexAttribIPointer(
+          slot,
+          attribute.compositionType.getNumberOfComponents(),
+          attribute.componentType.index,
+          attribute.byteStride,
+          0
+        );
+      } else {
         gl.vertexAttribPointer(
           slot,
           attribute.compositionType.getNumberOfComponents(),
           attribute.componentType.index,
           attribute.normalized,
-          attribute.byteStride,
-          0
-        );
-      } else {
-        gl.vertexAttribIPointer(
-          slot,
-          attribute.compositionType.getNumberOfComponents(),
-          attribute.componentType.index,
           attribute.byteStride,
           0
         );

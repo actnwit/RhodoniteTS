@@ -1163,10 +1163,13 @@ export class SkeletalComponent extends Component {
    * The cache key determines which SkeletalComponents can share skinning results:
    *
    * ## With Animation Applied
-   * - Uses format: `anim|{animationHash}|{inverseBindMatricesSignature}`
+   * - Uses format: `anim|{animationHash}|{inverseBindMatricesSignature}|{jointListKey}`
    * - animationHash is computed from animation track features (keyframes, timings, etc.)
    * - inverseBindMatricesSignature ensures models with different bone structures don't share cache
-   * - Only models with BOTH same animation AND same inverseBindMatrices can share skinning results
+   * - jointListKey ensures recursively nested chains that share local tracks/bind matrices
+   *   but have different joint nodes (different parent transforms) don't share results
+   * - Only models with the same animation, bind matrices and joint hierarchy can share
+   *   skinning results
    *
    * ## Without Animation
    * - Uses format: `{jointListKey}|{accessorSignature}|no_animation`
@@ -1194,11 +1197,15 @@ export class SkeletalComponent extends Component {
     const boneDataTypeIndex = (this.__allocatedBoneDataType ?? this.boneDataType).index;
 
     if (animationTrackFeatureHash != null) {
-      // Animation is applied - use animation hash AND inverseBindMatrices signature
-      // Different VRM models may have the same animation but different bone structures
-      // (different inverseBindMatrices), so we must include the signature to prevent
-      // incorrect cache sharing that would cause rendering corruption.
-      this.__skinCacheKey = `anim|${animationTrackFeatureHash.toString()}|${this.__inverseBindMatricesSignature}|${boneDataTypeIndex}`;
+      // Animation is applied. The animation hash and inverseBindMatrices signature alone
+      // are not enough to identify interchangeable skeletons: recursively nested chains
+      // (e.g. the RecursiveSkeletons sample) share the same local track structure and
+      // bind matrices while living under different parent transforms, so their skinned
+      // results differ. Include the joint list key so only identical joint hierarchies
+      // (same glTF node indices) share the leader's bone data.
+      this.__skinCacheKey = `anim|${animationTrackFeatureHash.toString()}|${this.__inverseBindMatricesSignature}|${
+        this.__jointListKey ?? ''
+      }|${boneDataTypeIndex}`;
     } else {
       // No animation - use detailed EntityUID-based cache key
       // This prevents incorrect cache sharing between unrelated static models

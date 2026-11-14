@@ -38,6 +38,7 @@ import { LightComponent } from '../components/Light/LightComponent';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
+import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
 import { AlphaMode } from '../definitions/AlphaMode';
 import { AnimationInterpolation } from '../definitions/AnimationInterpolation';
@@ -1104,20 +1105,17 @@ export class ModelConverter {
           const sg = rnEntities[joint_i].getSceneGraph()!;
           sg.jointIndex = joint_i;
         }
-        if (Is.exist(node.skinObject.skeleton)) {
-          sg.isRootJoint = true;
-          if (Is.exist(node.mesh)) {
-            const joints = [];
-            for (const i of node.skinObject.joints) {
-              joints.push(rnEntities[i].getSceneGraph()!);
-            }
-            skeletalComponent!.setJoints(joints);
-            if (Is.exist(node.skinObject.skeleton)) {
-              skeletalComponent!.topOfJointsHierarchy = rnEntities[node.skinObject.skeleton].getSceneGraph();
-            } else {
-              skeletalComponent!.topOfJointsHierarchy = joints[0];
-            }
-          }
+        // `skin.skeleton` is optional in glTF. The joints and their bone data must be set
+        // up regardless; when the skeleton root is omitted, the common ancestor of the
+        // joints is the root of the joint hierarchy.
+        const joints = node.skinObject.joints.map(i => rnEntities[i].getSceneGraph()!);
+        skeletalComponent.setJoints(joints);
+        const skeletonRoot = Is.exist(node.skinObject.skeleton)
+          ? rnEntities[node.skinObject.skeleton].getSceneGraph()
+          : this.__getCommonAncestorOfJoints(joints);
+        skeletalComponent.topOfJointsHierarchy = skeletonRoot ?? joints[0];
+        if (skeletonRoot != null) {
+          skeletonRoot.isRootJoint = true;
         }
 
         if (Is.exist(rnAccessorOfInverseBindMat)) {
@@ -1125,6 +1123,43 @@ export class ModelConverter {
         }
       }
     }
+  }
+
+  /**
+   * Returns the lowest common ancestor of the given joints in the scene graph.
+   * glTF's `skin.skeleton` is optional; when it is omitted, the common root of the
+   * joints is the root of the skin's joint hierarchy.
+   */
+  private static __getCommonAncestorOfJoints(joints: SceneGraphComponent[]): SceneGraphComponent | undefined {
+    if (joints.length === 0) {
+      return undefined;
+    }
+    const ancestorChain = new Set<SceneGraphComponent>();
+    let current: SceneGraphComponent | undefined = joints[0];
+    while (current != null) {
+      ancestorChain.add(current);
+      current = current.parent;
+    }
+    let common: SceneGraphComponent = joints[0];
+    for (let i = 1; i < joints.length; i++) {
+      let node: SceneGraphComponent | undefined = joints[i];
+      while (node != null && !ancestorChain.has(node)) {
+        node = node.parent;
+      }
+      if (node == null) {
+        return undefined;
+      }
+      if (node !== common) {
+        common = node;
+        ancestorChain.clear();
+        let ancestor: SceneGraphComponent | undefined = common;
+        while (ancestor != null) {
+          ancestorChain.add(ancestor);
+          ancestor = ancestor.parent;
+        }
+      }
+    }
+    return common;
   }
 
   /**
