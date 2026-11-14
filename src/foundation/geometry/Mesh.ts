@@ -48,6 +48,8 @@ export class Mesh implements IMesh {
   private __morphPrimitives: Array<Primitive> = [];
   private __localAABB = new AABB();
   private __vaoUids: CGAPIResourceHandle[] = [];
+  /** Indices of __vaoUids that refer to a MultiDrawRepository-owned group VAO. */
+  private __multiDrawVaoIndices: Set<Index> = new Set();
   private __variationVBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   /** Instance variation data of all the entities, in the order of `__variationEntityUIDs`. */
   private __variationEntityInfo?: Uint32Array;
@@ -62,6 +64,9 @@ export class Mesh implements IMesh {
   /** Culling state the variation VBO content was packed for; used to skip redundant packing. */
   private __variationVBOCulledEntityStamp?: Uint32Array;
   private __variationVBOCullTick = -1;
+  /** Stable slot range in the engine-wide instance SID table (WebGL multi-draw). */
+  private __instanceSidBase = -1;
+  private __instanceSidCount = 0;
   private __latestPrimitivePositionAccessorVersionForAABB = 0;
   private __latestPrimitivePositionAccessorVersionForSetUpDone = 0;
   private __belongToEntities: IMeshEntity[] = [];
@@ -146,6 +151,9 @@ export class Mesh implements IMesh {
    */
   _belongToMeshComponent(meshComponent: MeshComponent) {
     this.__belongToEntities.push(meshComponent.entity);
+    if (this.__isInstanceSidTextureMode()) {
+      this.__engine.webglResourceRepository.getMultiDrawRepository(this.__engine).markDirtyForMesh(this);
+    }
   }
 
   /**
@@ -156,6 +164,9 @@ export class Mesh implements IMesh {
   _removeMeshComponent(meshComponent: MeshComponent) {
     const entity = meshComponent.entity;
     this.__belongToEntities = this.__belongToEntities.filter(belongToEntity => belongToEntity !== entity);
+    if (this.__isInstanceSidTextureMode()) {
+      this.__engine.webglResourceRepository.getMultiDrawRepository(this.__engine).markDirtyForMesh(this);
+    }
   }
 
   /**
@@ -164,6 +175,9 @@ export class Mesh implements IMesh {
    */
   public addPrimitive(primitive: Primitive): void {
     primitive._belongToMesh(this);
+    if (this.__isInstanceSidTextureMode()) {
+      this.__engine.webglResourceRepository.getMultiDrawRepository(this.__engine).markDirtyForMesh(this);
+    }
 
     if (isOpaque(primitive)) {
       this.__opaquePrimitives.push(primitive);
@@ -245,6 +259,68 @@ export class Mesh implements IMesh {
   }
 
   /**
+   * Whether the WebGL instance SID texture path (multi-draw) is active for this mesh.
+   */
+  private __isInstanceSidTextureMode(): boolean {
+    if (!this.__engine.config.isMultiDrawEnabled) {
+      return false;
+    }
+    if (this.__engine.engineState.currentProcessApproach !== ProcessApproach.DataTexture) {
+      return false;
+    }
+    const webglResourceRepository = this.__engine.webglResourceRepository;
+    const glw = webglResourceRepository.currentWebGLContextWrapper;
+    return glw != null && glw.webgl2ExtMD != null && webglResourceRepository.instanceSidTable.isSupported;
+  }
+
+  /**
+   * Ensures that this mesh owns a contiguous range of stable instance slots in the
+   * engine-wide instance SID table and writes the instance identity records.
+   * @returns The first stable slot index (instanceBase).
+   * @internal
+   */
+  _ensureInstanceSidBase(): number {
+    const count = this.__belongToEntities.length;
+    const table = this.__engine.webglResourceRepository.instanceSidTable;
+
+    let base = this.__instanceSidBase;
+    if (base < 0 || this.__instanceSidCount !== count) {
+      if (base >= 0) {
+        table.free(base, this.__instanceSidCount);
+      }
+      base = table.allocate(count);
+      this.__instanceSidBase = base;
+      this.__instanceSidCount = count;
+      table.writeIdentityRemap(base, count);
+    }
+
+    // Refresh the records every time: component SIDs can change even when the count is stable.
+    const INVALID_ID = 0xffff_ffff;
+    for (let i = 0; i < count; i++) {
+      const entity = this.__belongToEntities[i];
+      const componentSID = entity.getSceneGraph().componentSID;
+      const skeletal = entity.tryToGetSkeletal();
+      const blendShape = entity.tryToGetBlendShape();
+      table.setRecord(
+        base + i,
+        componentSID,
+        skeletal != null ? skeletal.componentSID : INVALID_ID,
+        blendShape != null ? blendShape.componentSID : INVALID_ID
+      );
+    }
+
+    return base;
+  }
+
+  /**
+   * Gets the first stable instance slot of this mesh (WebGL multi-draw).
+   * @internal
+   */
+  get _instanceSidBase(): number {
+    return this.__instanceSidBase;
+  }
+
+  /**
    * Updates the variation VBO (Vertex Buffer Object) for instancing.
    * @returns True if updated, false if not changed (not dirty)
    * @internal
@@ -277,6 +353,20 @@ export class Mesh implements IMesh {
         entityInfo[4 * i + 2] = INVALID_ID;
       }
     }
+    if (this.__isInstanceSidTextureMode()) {
+      // The instance identities live in the engine-wide SID table instead of a per-mesh VBO.
+      this.__variationVBOUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      this.__variationEntityInfo = entityInfo;
+      this.__variationEntityUIDs = entityUIDs;
+      this.__variationVBOContent = undefined;
+      this.__packedVariationEntityInfo = undefined;
+      this.__variationVBOInstanceCount = instanceNum;
+      this.__variationVBOCulledEntityStamp = undefined;
+      this.__variationVBOCullTick = -1;
+      this._ensureInstanceSidBase();
+      return true;
+    }
+
     this.__variationVBOUid = cgApiResourceRepository.createVertexBufferFromTypedArray(entityInfo);
     this.__variationEntityInfo = entityInfo;
     this.__variationEntityUIDs = entityUIDs;
@@ -303,6 +393,9 @@ export class Mesh implements IMesh {
    * @internal
    */
   _packVisibleInstancesToVariationVBO(culledEntityStamp: Uint32Array | undefined, cullTick: number): number {
+    if (this.__isInstanceSidTextureMode()) {
+      return this._packVisibleInstancesToInstanceRemap(culledEntityStamp, cullTick);
+    }
     const entityInfo = this.__variationEntityInfo;
     const entityUIDs = this.__variationEntityUIDs;
     const vboContent = this.__variationVBOContent;
@@ -360,6 +453,48 @@ export class Mesh implements IMesh {
     return count;
   }
 
+  /**
+   * Packs the visible instances into the engine-wide remap table so that the shader can
+   * resolve `instanceBase + gl_InstanceID` to a stable SID slot. WebGL multi-draw only.
+   *
+   * @param culledEntityStamp - Per-EntityUID stamps written by the render pass culling
+   * @param cullTick - The stamp value of the latest culling of the render pass
+   * @returns The number of visible instances
+   * @internal
+   */
+  _packVisibleInstancesToInstanceRemap(culledEntityStamp: Uint32Array | undefined, cullTick: number): number {
+    const entityUIDs = this.__variationEntityUIDs;
+    if (entityUIDs === undefined) {
+      return this.__belongToEntities.length;
+    }
+    if (this.__instanceSidBase < 0) {
+      this._ensureInstanceSidBase();
+    }
+    if (culledEntityStamp === this.__variationVBOCulledEntityStamp && cullTick === this.__variationVBOCullTick) {
+      return this.__variationVBOInstanceCount;
+    }
+    this.__variationVBOCulledEntityStamp = culledEntityStamp;
+    this.__variationVBOCullTick = cullTick;
+
+    const table = this.__engine.webglResourceRepository.instanceSidTable;
+    const base = this.__instanceSidBase;
+    const instanceNum = entityUIDs.length;
+    let count = 0;
+    for (let i = 0; i < instanceNum; i++) {
+      if (culledEntityStamp !== undefined) {
+        const entityUID = entityUIDs[i];
+        if (entityUID < culledEntityStamp.length && culledEntityStamp[entityUID] === cullTick) {
+          continue;
+        }
+      }
+      table.setRemap(base + count, i);
+      count++;
+    }
+    this.__variationVBOInstanceCount = count;
+
+    return count;
+  }
+
   ///
   /// Public WebGL-related Methods
   ///
@@ -389,10 +524,20 @@ export class Mesh implements IMesh {
    */
   public updateVAO(): void {
     const webglResourceRepository = this.__engine.webglResourceRepository;
+    if (webglResourceRepository == null) {
+      return;
+    }
 
     // create and update VAO
     for (let i = 0; i < this.__primitives.length; i++) {
       const primitive = this.__primitives[i];
+      const multiDrawGroup = primitive._multiDrawGroup;
+      if (multiDrawGroup?.vertexHandles != null) {
+        // All members of a multi-draw group share the group VAO.
+        this.__vaoUids[i] = multiDrawGroup.vertexHandles.vaoHandle;
+        this.__multiDrawVaoIndices.add(i);
+        continue;
+      }
       const vertexHandles = primitive.vertexHandles as VertexHandles;
       if (Is.undefined(vertexHandles)) {
         Logger.default.warn('Need to create 3DAPIVertexData before update VAO');
@@ -411,24 +556,57 @@ export class Mesh implements IMesh {
       webglResourceRepository.setVertexDataToPipeline(vertexHandles, primitive, this.__variationVBOUid);
     }
 
-    // remove useless VAO
+    // remove useless VAO. Group VAOs are owned by the MultiDrawRepository and must not be deleted here.
+    const multiDrawRepository = webglResourceRepository.getMultiDrawRepository(this.__engine);
+    const removedHandles = new Set<CGAPIResourceHandle>();
     for (let i = this.__primitives.length; i < this.__vaoUids.length; i++) {
-      if (this.__vaoUids[i]) {
-        webglResourceRepository.deleteVertexArray(this.__vaoUids[i]);
-        this.__vaoUids[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      const vaoUid = this.__vaoUids[i];
+      if (vaoUid && !multiDrawRepository.hasVaoHandle(vaoUid)) {
+        if (!removedHandles.has(vaoUid)) {
+          removedHandles.add(vaoUid);
+          webglResourceRepository.deleteVertexArray(vaoUid);
+        }
       }
+      this.__vaoUids[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
   }
 
   /**
    * Deletes all VAO (Vertex Array Object) resources for this mesh.
+   * Group VAOs are owned by the MultiDrawRepository and are skipped.
    */
   public deleteVAO() {
     const webglResourceRepository = this.__engine.webglResourceRepository;
+    if (webglResourceRepository == null) {
+      this.__vaoUids.length = 0;
+      this.__multiDrawVaoIndices.clear();
+      return;
+    }
+    const multiDrawRepository = webglResourceRepository.getMultiDrawRepository(this.__engine);
+    const deletedHandles = new Set<CGAPIResourceHandle>();
     for (let i = 0; i < this.__vaoUids.length; i++) {
-      webglResourceRepository.deleteVertexArray(this.__vaoUids[i]);
+      const vaoUid = this.__vaoUids[i];
+      if (vaoUid && !deletedHandles.has(vaoUid) && !multiDrawRepository.hasVaoHandle(vaoUid)) {
+        deletedHandles.add(vaoUid);
+        webglResourceRepository.deleteVertexArray(vaoUid);
+      }
       this.__vaoUids[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
+    this.__multiDrawVaoIndices.clear();
+  }
+
+  /**
+   * Clears the VAO entries that point at multi-draw group VAOs. The groups own those
+   * VAOs and delete them, so the mesh must forget them before the group is released.
+   * @internal
+   */
+  _clearMultiDrawVaoUids(): void {
+    for (const index of this.__multiDrawVaoIndices) {
+      if (index < this.__vaoUids.length) {
+        this.__vaoUids[index] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      }
+    }
+    this.__multiDrawVaoIndices.clear();
   }
 
   /**
@@ -1013,7 +1191,24 @@ export class Mesh implements IMesh {
    * Updates VBO (Vertex Buffer Object) and VAO (Vertex Array Object) for all primitives.
    * @internal
    */
+  /**
+   * Marks this mesh's multi-draw groups (and the legacy setup) for a rebuild.
+   * Called when a primitive's attributes or indices change.
+   * @internal
+   */
+  _invalidateMultiDrawStructure(): void {
+    if (this.__isInstanceSidTextureMode()) {
+      this.__engine.webglResourceRepository.getMultiDrawRepository(this.__engine).markDirtyForMesh(this);
+    }
+  }
+
   _updateVBOAndVAO() {
+    if (this.__isInstanceSidTextureMode()) {
+      // Defer the GPU setup to the MultiDrawRepository, which rebuilds all groups once
+      // at the start of the next frame (coalescing the many meshes added while loading).
+      this.__engine.webglResourceRepository.getMultiDrawRepository(this.__engine).markDirtyForMesh(this);
+      return;
+    }
     const primitiveNum = this.getPrimitiveNumber();
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = this.getPrimitiveAt(i);
@@ -1036,6 +1231,11 @@ export class Mesh implements IMesh {
   delete3DAPIVertexData() {
     for (const primitive of this.__primitives) {
       primitive.delete3DAPIVertexData();
+    }
+    if (this.__instanceSidBase >= 0 && this.__belongToEntities.length === 0) {
+      this.__engine.webglResourceRepository.instanceSidTable.free(this.__instanceSidBase, this.__instanceSidCount);
+      this.__instanceSidBase = -1;
+      this.__instanceSidCount = 0;
     }
   }
 

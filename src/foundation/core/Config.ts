@@ -24,6 +24,7 @@ type ConfigInitDescription = {
   isMobile?: boolean;
   bufferSizeDivisionRatiosForGPUInstanceDataUsage?: number[];
   logLevel?: LogLevel;
+  isMultiDrawEnabled?: boolean;
 };
 
 /**
@@ -73,6 +74,12 @@ export class Config {
   bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 32, 5 / 32, 6 / 32, 12 / 32];
   /** The minimum log level that will be output. Messages below this level are ignored. */
   logLevel: LogLevel = LogLevel.Warn;
+  /**
+   * Whether to enable WebGL multi-draw rendering.
+   * When enabled (and supported), primitives sharing a source Buffer are merged into shared
+   * vertex/index buffers and consecutive draws with the same state are issued with WEBGL_multi_draw.
+   */
+  isMultiDrawEnabled = true;
 
   constructor(initDescription: ConfigInitDescription = {}) {
     if (initDescription.scenegraphComponentCountPerBufferView !== undefined) {
@@ -126,6 +133,9 @@ export class Config {
     }
     if (initDescription.logLevel !== undefined) {
       this.logLevel = initDescription.logLevel;
+    }
+    if (initDescription.isMultiDrawEnabled !== undefined) {
+      this.isMultiDrawEnabled = initDescription.isMultiDrawEnabled;
     }
   }
 }

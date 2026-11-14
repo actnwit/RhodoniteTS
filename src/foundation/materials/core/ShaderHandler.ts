@@ -390,6 +390,9 @@ export function _setupGlobalShaderDefinitionWebGL(engine: Engine, materialTypeNa
   definitions += `// RN_MATERIAL_TYPE_NAME: ${materialTypeName}\n`;
   if (ProcessApproach.isDataTextureApproach(engine.engineState.currentProcessApproach)) {
     definitions += '#define RN_IS_DATATEXTURE_MODE\n';
+    if (engine.config.isMultiDrawEnabled && webglResourceRepository.isInstanceSidTextureCapable) {
+      definitions += '#define RN_USE_INSTANCE_SID_TEXTURE\n';
+    }
   } else {
     definitions += '#define RN_IS_UNIFORM_MODE\n';
   }

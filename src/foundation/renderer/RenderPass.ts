@@ -104,6 +104,8 @@ export class RenderPass extends RnObject {
   public _lastCameraControllerComponentsUpdateCount = -1;
   /** @internal Last scene graph components update count for change detection */
   public _lastSceneGraphComponentsUpdateCount = -1;
+  /** @internal Last multi-draw group version for change detection */
+  public _lastMultiDrawGroupVersion = -1;
   /** @internal Whether something was rendered in the previous frame */
   public _renderedSomethingBefore = true;
   /** @internal Whether the sort render result has changed */

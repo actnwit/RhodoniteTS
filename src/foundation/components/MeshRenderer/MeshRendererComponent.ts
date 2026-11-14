@@ -314,10 +314,14 @@ export class MeshRendererComponent extends Component {
    * @returns Array of primitive UIDs sorted for optimal rendering
    */
   static sort_$render(engine: Engine, renderPass: RenderPass): ComponentSID[] {
+    const webglResourceRepository = engine.webglResourceRepository;
+    const multiDrawGroupVersion =
+      webglResourceRepository != null ? webglResourceRepository.getMultiDrawRepository(engine).version : 0;
     if (
       TransformComponent.getUpdateCount(engine) === renderPass._lastTransformComponentsUpdateCount &&
       CameraControllerComponent.getUpdateCount(engine) === renderPass._lastCameraControllerComponentsUpdateCount &&
-      SceneGraphComponent.getUpdateCount(engine) === renderPass._lastSceneGraphComponentsUpdateCount
+      SceneGraphComponent.getUpdateCount(engine) === renderPass._lastSceneGraphComponentsUpdateCount &&
+      multiDrawGroupVersion === renderPass._lastMultiDrawGroupVersion
     ) {
       return renderPass._lastPrimitiveUids;
     }
@@ -362,8 +366,6 @@ export class MeshRendererComponent extends Component {
     if (primitives.length > 1) {
       primitives.sort(MeshRendererComponent.__comparePrimitives);
     }
-
-    const primitiveUids = MeshRendererComponent.__createPrimitiveUids(primitives);
 
     let _lastOpaqueIndex = primitives.length - 1;
     let _lastTranslucentIndex = primitives.length - 1;
@@ -412,6 +414,47 @@ export class MeshRendererComponent extends Component {
       }
     }
 
+    // Reorder the opaque range by effective material (and multi-draw group) so that
+    // consecutive draws share their GPU state and can be merged by WEBGL_multi_draw.
+    // Opaque draws are depth tested, so this reorder is safe. Translucent/blend buckets
+    // keep their distance order.
+    if (
+      _lastOpaqueIndex > 0 &&
+      engine.config.isMultiDrawEnabled &&
+      ProcessApproach.isDataTextureApproach(engine.engineState.currentProcessApproach)
+    ) {
+      const opaqueCount = _lastOpaqueIndex + 1;
+      const keyed = new Array<{ primitive: Primitive; materialUID: number; groupUID: number; index: number }>(
+        opaqueCount
+      );
+      for (let i = 0; i < opaqueCount; i++) {
+        const primitive = primitives[i];
+        const material = renderPass.getAppropriateMaterial(primitive);
+        keyed[i] = {
+          primitive,
+          materialUID: material.materialUID,
+          groupUID: primitive._multiDrawGroup?.uid ?? -1,
+          index: i,
+        };
+      }
+      keyed.sort((a, b) => {
+        const materialDelta = a.materialUID - b.materialUID;
+        if (materialDelta !== 0) {
+          return materialDelta;
+        }
+        const groupDelta = a.groupUID - b.groupUID;
+        if (groupDelta !== 0) {
+          return groupDelta;
+        }
+        return a.index - b.index;
+      });
+      for (let i = 0; i < opaqueCount; i++) {
+        primitives[i] = keyed[i].primitive;
+      }
+    }
+
+    const primitiveUids = MeshRendererComponent.__createPrimitiveUids(primitives);
+
     let resultChanged = false;
     if (_lastOpaqueIndex !== renderPass._lastOpaqueIndex) {
       renderPass._lastOpaqueIndex = _lastOpaqueIndex;
@@ -448,6 +491,7 @@ export class MeshRendererComponent extends Component {
     renderPass._lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(engine);
     renderPass._lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(engine);
     renderPass._lastSceneGraphComponentsUpdateCount = SceneGraphComponent.getUpdateCount(engine);
+    renderPass._lastMultiDrawGroupVersion = multiDrawGroupVersion;
     if (resultChanged) {
       renderPass._renderedSomethingBefore = true;
     }

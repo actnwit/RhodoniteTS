@@ -868,6 +868,8 @@ export class Engine extends RnObject {
       const methodName = stage.methodName;
       const commonMethodName = `common_${methodName}`;
       if (stage === ProcessStage.Render) {
+        // Coalesce the GPU setup of meshes added while loading into one multi-draw rebuild.
+        repo.getMultiDrawRepository(this).rebuildDirtyGroups();
         MeshRendererComponent.common_$prerender(this);
         for (const exp of expressions) {
           for (const componentTid of renderingComponentTids) {

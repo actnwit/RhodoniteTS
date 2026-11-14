@@ -53,6 +53,9 @@ import type {
 } from '../types/CommonTypes';
 import { GL_TEXTURE_2D } from '../types/WebGLConstants';
 import getRenderingStrategy from './getRenderingStrategy';
+import { InstanceSidTable } from './InstanceSidTable';
+import type { MultiDrawGroup } from './MultiDraw';
+import { MultiDrawRepository } from './MultiDrawRepository';
 import type { AttributeNames } from './types';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
 import type { RnWebGLProgram, RnWebGLTexture } from './WebGLExtendedTypes';
@@ -192,6 +195,8 @@ export type WebGLResource =
 export class WebGLResourceRepository extends CGAPIResourceRepository implements ICGAPIResourceRepository {
   private __webglContexts: Map<string, WebGLContextWrapper> = new Map();
   private __glw?: WebGLContextWrapper;
+  private __instanceSidTable?: InstanceSidTable;
+  private __multiDrawRepository?: MultiDrawRepository;
   /** See __getCanvasContextAttributes(). */
   private __canvasContextAttributes?: { depth: boolean; stencil: boolean };
   private __canvasContextAttributesOwner?: WebGLContextWrapper;
@@ -230,6 +235,10 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     const glw = new WebGLContextWrapper(config, gl, canvas);
     this.__webglContexts.set('default', glw);
     if (asCurrent) {
+      this.__multiDrawRepository?.invalidateAll();
+      this.__multiDrawRepository = undefined;
+      this.__instanceSidTable?.destroy();
+      this.__instanceSidTable = undefined;
       this.__glw = glw;
     }
   }
@@ -262,6 +271,39 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    */
   get currentWebGLContextWrapper() {
     return this.__glw;
+  }
+
+  /**
+   * Gets the engine-wide instance SID table used by multi-draw rendering.
+   * The table is created lazily for the current WebGL context.
+   */
+  get instanceSidTable(): InstanceSidTable {
+    if (this.__instanceSidTable == null) {
+      if (this.__glw == null) {
+        throw new Error('No WebGL context is available for the instance SID table.');
+      }
+      this.__instanceSidTable = new InstanceSidTable(this.__glw);
+    }
+    return this.__instanceSidTable;
+  }
+
+  /**
+   * Whether this context can use the instance SID texture path
+   * (WebGL2 integer textures plus the WEBGL_multi_draw extension).
+   */
+  get isInstanceSidTextureCapable(): boolean {
+    return this.__glw != null && this.__glw.webgl2ExtMD != null && this.instanceSidTable.isSupported;
+  }
+
+  /**
+   * Gets the engine-wide multi-draw group repository, creating it lazily.
+   * @param engine - The engine that owns the WebGL context
+   */
+  getMultiDrawRepository(engine: Engine): MultiDrawRepository {
+    if (this.__multiDrawRepository == null) {
+      this.__multiDrawRepository = new MultiDrawRepository(engine);
+    }
+    return this.__multiDrawRepository;
   }
 
   /**
@@ -401,6 +443,30 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
   }
 
   /**
+   * Creates an index buffer directly from a typed array.
+   *
+   * @param typedArray - The typed array containing index data
+   * @returns The handle of the created index buffer
+   */
+  createIndexBufferFromTypedArray(typedArray: TypedArray) {
+    const gl = this.__glw!.getRawContext();
+
+    if (gl == null) {
+      throw new Error('No WebGLRenderingContext set as Default.');
+    }
+
+    this.__glw!.bindVertexArray(null);
+    const ibo = gl.createBuffer();
+    const resourceHandle = this.__registerResource(ibo!);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, typedArray, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+    return resourceHandle;
+  }
+
+  /**
    * Updates an existing vertex buffer with new data from the accessor.
    *
    * @param accessor - The accessor containing new vertex data
@@ -421,7 +487,10 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
 
     glw.bindVertexArray(null);
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-    gl.bufferSubData(gl.ARRAY_BUFFER, 0, accessor.bufferView.getUint8Array());
+    // The GPU buffer was created from the accessor's data, not from the whole buffer view.
+    // Using the buffer view here could write past the end of the buffer when the view is
+    // shared with other accessors (or is otherwise larger than the accessor).
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, accessor.getUint8Array());
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
   }
 
@@ -658,9 +727,21 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     gl.attachShader(shaderProgram, vertexShader);
     gl.attachShader(shaderProgram, fragmentShader);
 
+    const maxVertexAttribs = gl.getParameter(gl.MAX_VERTEX_ATTRIBS) as number;
+    const bindAttribLocation = (index: number, name: string) => {
+      // Skipping invalid slots avoids INVALID_VALUE on contexts whose MAX_VERTEX_ATTRIBS is
+      // smaller than the engine's fixed slots (e.g. WebGL1 or custom contexts).
+      if (index >= 0 && index < maxVertexAttribs) {
+        gl.bindAttribLocation(shaderProgram, index, name);
+      }
+    };
     attributeNames.forEach((attributeName: string, i: number) => {
-      gl.bindAttribLocation(shaderProgram, attributeSemantics[i].getAttributeSlot(), attributeName);
+      bindAttribLocation(attributeSemantics[i].getAttributeSlot(), attributeName);
     });
+    // The instance attribute is not part of the primitive's attributes, so bind it explicitly.
+    // Only one of the two names exists in a given shader; binding an absent name is a no-op.
+    bindAttribLocation(VertexAttribute.Instance.getAttributeSlot(), 'a_instanceBase');
+    bindAttribLocation(VertexAttribute.Instance.getAttributeSlot(), 'a_instanceIds');
 
     gl.linkProgram(shaderProgram);
 
@@ -1211,6 +1292,80 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     this.__glw!.bindVertexArray(null);
 
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+  }
+
+  /**
+   * Configures a multi-draw group's VAO with the merged vertex buffers, the merged
+   * uint32 index buffer, and the per-vertex instanceBase attribute (divisor 0).
+   *
+   * @param group - The multi-draw group whose vertexHandles/vertices are already created
+   */
+  setMultiDrawVertexDataToPipeline(group: MultiDrawGroup): void {
+    const handles = group.vertexHandles;
+    if (handles == null) {
+      return;
+    }
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const vao = this.getWebGLResource(handles.vaoHandle) as WebGLVertexArrayObject;
+    this.__glw!.bindVertexArray(vao);
+
+    if (handles.iboHandle != null) {
+      const ibo = this.getWebGLResource(handles.iboHandle) as WebGLBuffer;
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+    }
+
+    for (let i = 0; i < group.attributes.length; i++) {
+      const attribute = group.attributes[i];
+      const vbo = this.getWebGLResource(handles.vboHandles[i]) as WebGLBuffer;
+      gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+      const slot = VertexAttribute.toAttributeSlotFromJoinedString(attribute.semantic);
+      gl.enableVertexAttribArray(slot);
+      if (attribute.componentType.isFloatingPoint()) {
+        gl.vertexAttribPointer(
+          slot,
+          attribute.compositionType.getNumberOfComponents(),
+          attribute.componentType.index,
+          attribute.normalized,
+          attribute.byteStride,
+          0
+        );
+      } else {
+        gl.vertexAttribIPointer(
+          slot,
+          attribute.compositionType.getNumberOfComponents(),
+          attribute.componentType.index,
+          attribute.byteStride,
+          0
+        );
+      }
+    }
+
+    // Set default integer values for integer attributes not present in this layout.
+    for (const intAttr of VertexAttribute.integerTypeAttributes) {
+      const slot = intAttr.getAttributeSlot();
+      if (intAttr === VertexAttribute.Instance) {
+        continue;
+      }
+      const hasAttribute = group.attributes.some(
+        attribute => VertexAttribute.toAttributeSlotFromJoinedString(attribute.semantic) === slot
+      );
+      if (!hasAttribute) {
+        gl.disableVertexAttribArray(slot);
+        gl.vertexAttribI4ui(slot, 0, 0, 0, 0);
+      }
+    }
+
+    // Per-vertex instance base (uint32, divisor 0).
+    const instanceBaseVbo = this.getWebGLResource(group.instanceBaseVboHandle!) as WebGLBuffer;
+    gl.bindBuffer(gl.ARRAY_BUFFER, instanceBaseVbo);
+    const instanceSlot = VertexAttribute.Instance.getAttributeSlot();
+    gl.enableVertexAttribArray(instanceSlot);
+    gl.vertexAttribIPointer(instanceSlot, 1, ComponentType.UnsignedInt.index, 4, 0);
+    this.__glw!.vertexAttribDivisor(instanceSlot, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    this.__glw!.bindVertexArray(null);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   }
 
