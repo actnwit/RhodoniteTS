@@ -254,6 +254,8 @@ export class Material extends RnObject {
 
   private __textureBindingSignature = '';
   private __textureBindingSignatureVersion = -1;
+  private __multiDrawStateKey = '';
+  private __multiDrawStateKeyVersion = -1;
 
   /**
    * Signature of the texture/sampler bindings and the true uniforms that are set per
@@ -287,11 +289,16 @@ export class Material extends RnObject {
    * @internal
    */
   _getMultiDrawStateKey(): string {
-    return `${this.__materialTypeName}|${this._materialContent.getMaterialSemanticsVariantName()}|${[
+    if (this.__multiDrawStateKeyVersion === this.__stateVersion) {
+      return this.__multiDrawStateKey;
+    }
+    this.__multiDrawStateKey = `${this.__materialTypeName}|${this._materialContent.getMaterialSemanticsVariantName()}|${[
       ...this.__shaderDefines,
     ]
       .sort()
       .join(',')}|${this.__fingerPrint}|${this._getTextureBindingSignature()}`;
+    this.__multiDrawStateKeyVersion = this.__stateVersion;
+    return this.__multiDrawStateKey;
   }
 
   ///

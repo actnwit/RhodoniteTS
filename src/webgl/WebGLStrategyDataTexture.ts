@@ -45,8 +45,8 @@ import type {
 import type { InstanceSidTable } from './InstanceSidTable';
 import {
   type DeferredMultiDraw,
+  getMultiDrawStateKeyId,
   getPrimitiveMeshRendererFingerPrint,
-  makeMultiDrawRenderStateKey,
   planMultiDrawRuns,
 } from './MultiDraw';
 import type { RenderingArgWebGL } from './types/CommonTypes';
@@ -1863,7 +1863,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       return renderedSomething;
     }
 
-    const getRunKey = (index: number): string | null => {
+    const getRunKey = (index: number): number | null => {
       const primitiveUid = primitiveUids[index];
       if (primitiveUid === -1) {
         return null;
@@ -1876,7 +1876,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       if (!material._materialContent.isMultiDrawCompatible) {
         return null;
       }
-      return makeMultiDrawRenderStateKey(primitive, material, getPrimitiveMeshRendererFingerPrint(primitive));
+      return getMultiDrawStateKeyId(primitive, material, getPrimitiveMeshRendererFingerPrint(primitive));
     };
 
     const runs = planMultiDrawRuns(start, end, step, getRunKey);

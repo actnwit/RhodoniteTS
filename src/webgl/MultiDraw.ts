@@ -325,6 +325,96 @@ export function makeMultiDrawRenderStateKey(
   }|${primitive.getRenderIndexBitSize()}|${primitive.hasIndices() ? 1 : 0}`;
 }
 
+type MultiDrawKeyCacheEntry = {
+  groupUid: number;
+  materialUid: number;
+  materialStateVersion: number;
+  meshRendererFingerPrint: string;
+  mode: number;
+  indexBitSize: 'uint16' | 'uint32';
+  indexed: boolean;
+  isPerVertexMaterial: boolean;
+  keyId: number;
+  generation: number;
+};
+
+const __multiDrawKeyCache = new WeakMap<Primitive, MultiDrawKeyCacheEntry>();
+const __multiDrawKeyIds = new Map<string, number>();
+let __multiDrawKeyIdCount = 0;
+/** Incremented when the id map is cleared; invalidates all per-primitive cache entries. */
+let __multiDrawKeyIdGeneration = 0;
+/** Upper bound for the shared id map (animated material states could grow it forever). */
+const MAX_MULTI_DRAW_KEY_IDS = 65536;
+
+/**
+ * Returns a numeric id for the full multi-draw render state key.
+ *
+ * Sorting and run splitting only need equality/grouping, and comparing the long key
+ * strings for 10k primitives every frame dominated the frame time while the camera
+ * moves (the sort cache is invalidated every frame). The id is shared by every
+ * primitive with the same render state, so numeric comparisons preserve the batching
+ * groups without rebuilding strings. The material's state key is cached by
+ * `Material.stateVersion`, so a cache hit costs a WeakMap lookup plus field compares.
+ */
+export function getMultiDrawStateKeyId(
+  primitive: Primitive,
+  material: Material,
+  meshRendererFingerPrint: string
+): number | null {
+  const group = primitive._multiDrawGroup;
+  if (group == null) {
+    return null;
+  }
+  const isPerVertexMaterial = material === primitive.material;
+  const mode = primitive.primitiveMode.index;
+  const indexBitSize = primitive.getRenderIndexBitSize();
+  const indexed = primitive.hasIndices();
+
+  const cached = __multiDrawKeyCache.get(primitive);
+  if (
+    cached != null &&
+    cached.generation === __multiDrawKeyIdGeneration &&
+    cached.groupUid === group.uid &&
+    cached.materialUid === material.materialUID &&
+    cached.materialStateVersion === material.stateVersion &&
+    cached.meshRendererFingerPrint === meshRendererFingerPrint &&
+    cached.mode === mode &&
+    cached.indexBitSize === indexBitSize &&
+    cached.indexed === indexed &&
+    cached.isPerVertexMaterial === isPerVertexMaterial
+  ) {
+    return cached.keyId;
+  }
+
+  const key = makeMultiDrawRenderStateKey(primitive, material, meshRendererFingerPrint);
+  if (key == null) {
+    __multiDrawKeyCache.delete(primitive);
+    return null;
+  }
+  let keyId = __multiDrawKeyIds.get(key);
+  if (keyId == null) {
+    if (__multiDrawKeyIds.size >= MAX_MULTI_DRAW_KEY_IDS) {
+      __multiDrawKeyIds.clear();
+      __multiDrawKeyIdGeneration++;
+    }
+    keyId = ++__multiDrawKeyIdCount;
+    __multiDrawKeyIds.set(key, keyId);
+  }
+  __multiDrawKeyCache.set(primitive, {
+    groupUid: group.uid,
+    materialUid: material.materialUID,
+    materialStateVersion: material.stateVersion,
+    meshRendererFingerPrint,
+    mode,
+    indexBitSize,
+    indexed,
+    isPerVertexMaterial,
+    keyId,
+    generation: __multiDrawKeyIdGeneration,
+  });
+  return keyId;
+}
+
 /** Draw arguments filled by WebGLStrategyDataTexture when a draw is deferred into a batch. */
 export type DeferredMultiDraw = {
   primitive: Primitive;
@@ -339,7 +429,7 @@ export type DeferredMultiDraw = {
   instanceCount: number;
 };
 
-export type MultiDrawRun = {
+export type MultiDrawRun<T = string> = {
   /** First primitive index in iteration order. */
   startIndex: number;
   /** Number of primitives in the run. */
@@ -347,20 +437,20 @@ export type MultiDrawRun = {
   /** 1 or -1, matching the iteration direction of the bucket. */
   step: 1 | -1;
   /** Shared key, or null when the run must use legacy draws. */
-  key: string | null;
+  key: T | null;
 };
 
 /**
  * Splits a bucket range into consecutive runs sharing the same run key.
  * `getKey` returns null for primitives that must use the legacy path.
  */
-export function planMultiDrawRuns(
+export function planMultiDrawRuns<T = string>(
   start: number,
   end: number,
   step: 1 | -1,
-  getKey: (index: number) => string | null
-): MultiDrawRun[] {
-  const runs: MultiDrawRun[] = [];
+  getKey: (index: number) => T | null
+): MultiDrawRun<T>[] {
+  const runs: MultiDrawRun<T>[] = [];
   if ((step > 0 && start > end) || (step < 0 && start < end)) {
     return runs;
   }
