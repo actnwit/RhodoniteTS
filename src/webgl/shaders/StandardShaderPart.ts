@@ -139,10 +139,6 @@ precision highp int;
 /* shaderity: @{definitions} */
 #define RN_IS_NODE_SHADER
 #if defined(RN_IS_DATATEXTURE_MODE) && defined(RN_USE_INSTANCE_SID_TEXTURE)
-in uint a_instanceBase;
-uniform highp int u_instanceRemapIdentity;
-uvec4 rn_instanceIdsCache;
-bool rn_instanceIdsCacheValid = false;
 #define a_instanceIds get_instanceIds()
 #else
 in uvec4 a_instanceIds;

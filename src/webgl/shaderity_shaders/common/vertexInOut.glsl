@@ -6,18 +6,8 @@ in vec4 a_position;
 #endif
 in vec3 a_normal;
 #if defined(RN_IS_DATATEXTURE_MODE) && defined(RN_USE_INSTANCE_SID_TEXTURE)
-  in uint a_instanceBase;
-  // 1 when no instance was culled in this render pass, so the remap lookup can be skipped.
-  uniform highp int u_instanceRemapIdentity;
-
-  // The instance SID lookup reads the engine data texture (unit 0) twice (remap and
-  // SID) and its result is referenced several times per vertex (world matrix, normal
-  // matrix, billboard, visibility, skinning, ...). Resolve it once per invocation and
-  // reuse the cached value for every reference. The lookup itself is defined in
-  // prerequisites.glsl, after the data texture fetch helpers.
-  uvec4 rn_instanceIdsCache;
-  bool rn_instanceIdsCacheValid = false;
-
+  // a_instanceBase and the instance SID lookup are declared in prerequisites.glsl so that
+  // every vertex shader including it (including node-based shader templates) can use them.
   #define a_instanceIds get_instanceIds()
 #else
   in uvec4 a_instanceIds;
