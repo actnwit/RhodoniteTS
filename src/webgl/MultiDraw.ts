@@ -1,10 +1,7 @@
 import type { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
 import type { CompositionTypeEnum } from '../foundation/definitions/CompositionType';
 import type { PrimitiveModeEnum } from '../foundation/definitions/PrimitiveMode';
-import {
-  VertexAttribute,
-  type VertexAttributeSemanticsJoinedString,
-} from '../foundation/definitions/VertexAttribute';
+import { VertexAttribute, type VertexAttributeSemanticsJoinedString } from '../foundation/definitions/VertexAttribute';
 import type { Mesh } from '../foundation/geometry/Mesh';
 import type { Primitive } from '../foundation/geometry/Primitive';
 import type { Material } from '../foundation/materials/core/Material';
@@ -295,13 +292,14 @@ export function buildMultiDrawGroups(primitives: Primitive[]): MergedMultiDrawGr
 }
 
 /**
- * Key used to decide whether two consecutive primitives can be drawn with one
- * multi-draw call. `null` means the primitive must use the legacy draw path.
+ * Numeric version of the mesh renderer fingerprint. Fingerprints are interned to ids by
+ * `MeshRendererComponent`, so comparing ids is equivalent to comparing the strings and
+ * avoids building/compare work in the per-frame planning loops.
  */
-export function getPrimitiveMeshRendererFingerPrint(primitive: Primitive): string {
+export function getPrimitiveMeshRendererFingerPrintId(primitive: Primitive): number {
   const mesh = primitive.mesh as Mesh | undefined;
   const entity = mesh?.meshEntitiesInner[0];
-  return entity?.getMeshRenderer()?.getFingerPrint() ?? '';
+  return entity?.getMeshRenderer()?.getFingerPrintId() ?? 0;
 }
 
 /**
@@ -315,7 +313,7 @@ export function getPrimitiveMeshRendererFingerPrint(primitive: Primitive): strin
 export function makeMultiDrawRenderStateKey(
   primitive: Primitive,
   material: Material,
-  meshRendererFingerPrint: string
+  meshRendererFingerPrintId: number
 ): string | null {
   const group = primitive._multiDrawGroup;
   if (group == null) {
@@ -327,7 +325,7 @@ export function makeMultiDrawRenderStateKey(
     : // A material override uses the group VAO with a generic materialSID, so the whole
       // run must use the same override material.
       `${material.materialUID}|${material._getMultiDrawStateKey()}`;
-  return `${group.uid}|${isPerVertexMaterial ? 1 : 0}|${materialPart}|${meshRendererFingerPrint}|${
+  return `${group.uid}|${isPerVertexMaterial ? 1 : 0}|${materialPart}|${meshRendererFingerPrintId}|${
     primitive.primitiveMode.index
   }|${primitive.getRenderIndexBitSize()}|${primitive.hasIndices() ? 1 : 0}`;
 }
@@ -336,7 +334,7 @@ type MultiDrawKeyCacheEntry = {
   groupUid: number;
   materialUid: number;
   materialStateVersion: number;
-  meshRendererFingerPrint: string;
+  meshRendererFingerPrintId: number;
   mode: number;
   indexBitSize: 'uint16' | 'uint32';
   indexed: boolean;
@@ -366,7 +364,7 @@ const MAX_MULTI_DRAW_KEY_IDS = 65536;
 export function getMultiDrawStateKeyId(
   primitive: Primitive,
   material: Material,
-  meshRendererFingerPrint: string
+  meshRendererFingerPrintId: number
 ): number | null {
   const group = primitive._multiDrawGroup;
   if (group == null) {
@@ -384,7 +382,7 @@ export function getMultiDrawStateKeyId(
     cached.groupUid === group.uid &&
     cached.materialUid === material.materialUID &&
     cached.materialStateVersion === material.stateVersion &&
-    cached.meshRendererFingerPrint === meshRendererFingerPrint &&
+    cached.meshRendererFingerPrintId === meshRendererFingerPrintId &&
     cached.mode === mode &&
     cached.indexBitSize === indexBitSize &&
     cached.indexed === indexed &&
@@ -393,7 +391,7 @@ export function getMultiDrawStateKeyId(
     return cached.keyId;
   }
 
-  const key = makeMultiDrawRenderStateKey(primitive, material, meshRendererFingerPrint);
+  const key = makeMultiDrawRenderStateKey(primitive, material, meshRendererFingerPrintId);
   if (key == null) {
     __multiDrawKeyCache.delete(primitive);
     return null;
@@ -411,7 +409,7 @@ export function getMultiDrawStateKeyId(
     groupUid: group.uid,
     materialUid: material.materialUID,
     materialStateVersion: material.stateVersion,
-    meshRendererFingerPrint,
+    meshRendererFingerPrintId,
     mode,
     indexBitSize,
     indexed,
@@ -481,4 +479,67 @@ export function planMultiDrawRuns<T = string>(
     index = next;
   }
   return runs;
+}
+
+/** Reusable numeric run plan used by the per-frame multi-draw batching. */
+export type MultiDrawRunPlan = {
+  starts: Int32Array;
+  counts: Int32Array;
+  /** Render state key ids. -1 means the run must use the legacy draw path. */
+  keys: Int32Array;
+  /** Number of valid entries. */
+  count: number;
+};
+
+/**
+ * Splits a bucket range into consecutive runs sharing the same numeric key.
+ *
+ * Same semantics as `planMultiDrawRuns`, but each primitive's key is evaluated once and the
+ * result is written into reusable typed arrays, so a frame does not allocate one object per
+ * run (10k single-primitive runs per bucket in material-heavy scenes).
+ */
+export function planMultiDrawRunsInto(
+  start: number,
+  end: number,
+  step: 1 | -1,
+  getKey: (index: number) => number | null,
+  out: MultiDrawRunPlan
+): MultiDrawRunPlan {
+  out.count = 0;
+  if ((step > 0 && start > end) || (step < 0 && start < end)) {
+    return out;
+  }
+  const maxRuns = Math.abs(end - start) + 1;
+  if (out.starts.length < maxRuns) {
+    let capacity = Math.max(out.starts.length * 2, 64);
+    while (capacity < maxRuns) {
+      capacity *= 2;
+    }
+    out.starts = new Int32Array(capacity);
+    out.counts = new Int32Array(capacity);
+    out.keys = new Int32Array(capacity);
+  }
+
+  let runStart = start;
+  let currentKey = getKey(start) ?? -1;
+  let runCount = 1;
+  for (let i = start + step; step > 0 ? i <= end : i >= end; i += step) {
+    const key = getKey(i) ?? -1;
+    if (key === currentKey) {
+      runCount++;
+      continue;
+    }
+    out.starts[out.count] = runStart;
+    out.counts[out.count] = runCount;
+    out.keys[out.count] = currentKey;
+    out.count++;
+    runStart = i;
+    currentKey = key;
+    runCount = 1;
+  }
+  out.starts[out.count] = runStart;
+  out.counts[out.count] = runCount;
+  out.keys[out.count] = currentKey;
+  out.count++;
+  return out;
 }

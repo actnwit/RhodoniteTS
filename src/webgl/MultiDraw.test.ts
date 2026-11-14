@@ -6,7 +6,13 @@ import type { Mesh } from '../foundation/geometry/Mesh';
 import type { Primitive } from '../foundation/geometry/Primitive';
 import type { Accessor } from '../foundation/memory/Accessor';
 import type { Buffer } from '../foundation/memory/Buffer';
-import { buildMultiDrawGroups, makeMultiDrawGroupKey, planMultiDrawRuns } from './MultiDraw';
+import {
+  buildMultiDrawGroups,
+  type MultiDrawRunPlan,
+  makeMultiDrawGroupKey,
+  planMultiDrawRuns,
+  planMultiDrawRunsInto,
+} from './MultiDraw';
 
 type FakeAccessorOptions = {
   buffer: Buffer;
@@ -225,4 +231,41 @@ test('planMultiDrawRuns splits runs by key and direction', () => {
     [4, 2, 'b'],
     [2, 3, 'a'],
   ]);
+});
+
+test('planMultiDrawRunsInto matches planMultiDrawRuns and reuses its buffers', () => {
+  // Keys: two runs, a null run, and a one-primitive run, evaluated in both directions.
+  const keys = [7, 7, 3, 3, 3, null, null, 9];
+  const getKey = (index: number) => keys[index];
+  const plan: MultiDrawRunPlan = {
+    starts: new Int32Array(2),
+    counts: new Int32Array(2),
+    keys: new Int32Array(2),
+    count: 0,
+  };
+
+  planMultiDrawRunsInto(0, 7, 1, getKey, plan);
+  const forward = Array.from({ length: plan.count }, (_, i) => [plan.starts[i], plan.counts[i], plan.keys[i]]);
+  expect(forward).toEqual([
+    [0, 2, 7],
+    [2, 3, 3],
+    [5, 2, -1],
+    [7, 1, 9],
+  ]);
+  // The buffers grow to the worst case (one run per primitive) only once.
+  const startsBuffer = plan.starts;
+  planMultiDrawRunsInto(0, 7, 1, getKey, plan);
+  expect(plan.starts).toBe(startsBuffer);
+
+  planMultiDrawRunsInto(7, 0, -1, getKey, plan);
+  const backward = Array.from({ length: plan.count }, (_, i) => [plan.starts[i], plan.counts[i], plan.keys[i]]);
+  expect(backward).toEqual([
+    [7, 1, 9],
+    [6, 2, -1],
+    [4, 3, 3],
+    [1, 2, 7],
+  ]);
+
+  planMultiDrawRunsInto(3, 2, 1, getKey, plan);
+  expect(plan.count).toBe(0);
 });

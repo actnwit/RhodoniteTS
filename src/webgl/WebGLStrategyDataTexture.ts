@@ -46,8 +46,9 @@ import type { InstanceSidTable } from './InstanceSidTable';
 import {
   type DeferredMultiDraw,
   getMultiDrawStateKeyId,
-  getPrimitiveMeshRendererFingerPrint,
-  planMultiDrawRuns,
+  getPrimitiveMeshRendererFingerPrintId,
+  type MultiDrawRunPlan,
+  planMultiDrawRunsInto,
 } from './MultiDraw';
 import type { RenderingArgWebGL } from './types/CommonTypes';
 import type { WebGLContextWrapper } from './WebGLContextWrapper';
@@ -82,6 +83,13 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
    * vertex shader skip the remap texture fetch and read the SID texel directly.
    */
   private __instanceRemapIdentity = 1;
+  /** Reused numeric run plan of the current bucket (no per-frame allocation). */
+  private __runPlan: MultiDrawRunPlan = {
+    starts: new Int32Array(0),
+    counts: new Int32Array(0),
+    keys: new Int32Array(0),
+    count: 0,
+  };
   /** Layout of the instance SID / remap regions inside the data texture. */
   private __dataTextureWidth = 0;
   private __instanceSidBaseRow = 0;
@@ -1494,7 +1502,11 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * This must happen before any draw so that a multi-draw batch spanning several meshes
    * sees the remap entries of all its meshes.
    */
-  private __uploadInstanceTables(primitiveUids: PrimitiveUID[], renderPass: RenderPass): void {
+  private __uploadInstanceTables(
+    primitiveUids: PrimitiveUID[],
+    renderPass: RenderPass,
+    primitives: Primitive[] | null
+  ): void {
     if (!this.__engine.config.isMultiDrawEnabled) {
       return;
     }
@@ -1509,32 +1521,36 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     }
 
     const cullingState = MeshRendererComponent._getInstanceCullingState(renderPass);
-    const culledEntityStamp = cullingState?.culledEntityStamp;
-    const cullTick = cullingState?.cullTick ?? 0;
-    const visitedMeshes = new Set<Mesh>();
-    let anyCulled = false;
+    const anyCulled = cullingState != null && cullingState.culledEntityCount > 0;
+    // Every mesh shows all of its instances: the remap table is the identity, so the
+    // vertex shader can index the SID texel directly and skip a dependent fetch.
+    this.__instanceRemapIdentity = anyCulled ? 0 : 1;
+    if (!anyCulled) {
+      // Remap entries are unused and every drawn mesh's SID records are already written,
+      // so nothing has to be packed for this pass.
+      this.__uploadInstanceSidDataTexture(table);
+      return;
+    }
+
+    const culledEntityStamp = cullingState!.culledEntityStamp;
+    const cullTick = cullingState!.cullTick;
+    const cullingId = cullingState!.cullingId;
     for (let i = 0; i < primitiveUids.length; i++) {
       const primitiveUid = primitiveUids[i];
       if (primitiveUid === -1) {
         continue;
       }
-      const primitive = Primitive.getPrimitive(primitiveUid);
+      const primitive = primitives != null ? primitives[i] : Primitive.getPrimitive(primitiveUid);
       if (primitive == null) {
         continue;
       }
       const mesh = primitive.mesh as Mesh;
-      if (mesh == null || visitedMeshes.has(mesh)) {
+      if (mesh == null || mesh._remapPrepassId === cullingId) {
         continue;
       }
-      visitedMeshes.add(mesh);
-      const visibleCount = mesh._packVisibleInstancesToVariationVBO(culledEntityStamp, cullTick);
-      if (visibleCount < mesh.meshEntitiesInner.length) {
-        anyCulled = true;
-      }
+      mesh._remapPrepassId = cullingId;
+      mesh._packVisibleInstancesToVariationVBO(culledEntityStamp, cullTick);
     }
-    // Every mesh shows all of its instances: the remap table is the identity, so the
-    // vertex shader can index the SID texel directly and skip a dependent fetch.
-    this.__instanceRemapIdentity = anyCulled ? 0 : 1;
     this.__uploadInstanceSidDataTexture(table);
   }
 
@@ -1637,6 +1653,10 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
 
     const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(this.__engine, renderPass);
     const displayCount = WebGLStrategyCommonMethod.getDisplayCount(isVRMainPass, this.__engine.webXRSystem);
+    // The sort publishes the primitives in the same order as their uids, so the hot loops can
+    // skip a repository lookup per primitive. The check keeps this valid for callers that pass
+    // another array (e.g. a cloned render pass).
+    const primitives = renderPass._lastPrimitiveUids === primitiveUids ? renderPass._lastPrimitives : null;
 
     if (renderPass.isBufferLessRenderingMode()) {
       this.__renderWithoutBuffers(gl, renderPass, isVRMainPass);
@@ -1644,7 +1664,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       return true;
     }
 
-    this.__uploadInstanceTables(primitiveUids, renderPass);
+    this.__uploadInstanceTables(primitiveUids, renderPass, primitives);
 
     let renderedSomething = false;
 
@@ -1657,6 +1677,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       renderedSomething =
         this.__renderBucket(
           primitiveUids,
+          primitives,
           renderPass._lastOpaqueIndex,
           0,
           -1,
@@ -1672,6 +1693,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       renderedSomething =
         this.__renderBucket(
           primitiveUids,
+          primitives,
           renderPass._lastOpaqueIndex + 1,
           renderPass._lastTranslucentIndex,
           1,
@@ -1687,6 +1709,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       renderedSomething =
         this.__renderBucket(
           primitiveUids,
+          primitives,
           renderPass._lastTranslucentIndex + 1,
           renderPass._lastBlendWithZWriteIndex,
           1,
@@ -1705,6 +1728,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       renderedSomething =
         this.__renderBucket(
           primitiveUids,
+          primitives,
           renderPass._lastBlendWithZWriteIndex + 1,
           renderPass._lastBlendWithoutZWriteIndex,
           1,
@@ -1839,6 +1863,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    */
   private __renderBucket(
     primitiveUids: PrimitiveUID[],
+    primitives: Primitive[] | null,
     start: number,
     end: number,
     step: 1 | -1,
@@ -1858,7 +1883,15 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     if (!useMultiDraw) {
       for (let i = start; step > 0 ? i <= end : i >= end; i += step) {
         renderedSomething =
-          this.__renderInner(primitiveUids[i], glw, renderPass, isVRMainPass, displayCount) || renderedSomething;
+          this.__renderInner(
+            primitiveUids[i],
+            glw,
+            renderPass,
+            isVRMainPass,
+            displayCount,
+            undefined,
+            primitives?.[i]
+          ) || renderedSomething;
       }
       return renderedSomething;
     }
@@ -1868,7 +1901,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       if (primitiveUid === -1) {
         return null;
       }
-      const primitive = Primitive.getPrimitive(primitiveUid);
+      const primitive = primitives != null ? primitives[index] : Primitive.getPrimitive(primitiveUid);
       if (primitive == null || primitive._multiDrawGroup == null) {
         return null;
       }
@@ -1876,20 +1909,39 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       if (!material._materialContent.isMultiDrawCompatible) {
         return null;
       }
-      return getMultiDrawStateKeyId(primitive, material, getPrimitiveMeshRendererFingerPrint(primitive));
+      return getMultiDrawStateKeyId(primitive, material, getPrimitiveMeshRendererFingerPrintId(primitive));
     };
 
-    const runs = planMultiDrawRuns(start, end, step, getRunKey);
-    for (const run of runs) {
-      if (run.key == null || run.count < 2) {
-        for (let k = 0; k < run.count; k++) {
-          const index = run.startIndex + k * step;
+    const plan = planMultiDrawRunsInto(start, end, step, getRunKey, this.__runPlan);
+    for (let r = 0; r < plan.count; r++) {
+      const runStart = plan.starts[r];
+      const runCount = plan.counts[r];
+      if (plan.keys[r] === -1 || runCount < 2) {
+        for (let k = 0; k < runCount; k++) {
+          const index = runStart + k * step;
           renderedSomething =
-            this.__renderInner(primitiveUids[index], glw, renderPass, isVRMainPass, displayCount) || renderedSomething;
+            this.__renderInner(
+              primitiveUids[index],
+              glw,
+              renderPass,
+              isVRMainPass,
+              displayCount,
+              undefined,
+              primitives?.[index]
+            ) || renderedSomething;
         }
       } else {
         renderedSomething =
-          this.__renderMultiDrawBatch(primitiveUids, run, glw, renderPass, displayCount) || renderedSomething;
+          this.__renderMultiDrawBatch(
+            primitiveUids,
+            primitives,
+            runStart,
+            runCount,
+            step,
+            glw,
+            renderPass,
+            displayCount
+          ) || renderedSomething;
       }
     }
     return renderedSomething;
@@ -1902,13 +1954,16 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    */
   private __renderMultiDrawBatch(
     primitiveUids: PrimitiveUID[],
-    run: { startIndex: number; count: number; step: 1 | -1 },
+    primitives: Primitive[] | null,
+    firstIndex: number,
+    runCount: number,
+    step: 1 | -1,
     glw: WebGLContextWrapper,
     renderPass: RenderPass,
     displayCount: number
   ): boolean {
-    const firstIndex = run.startIndex;
-    const firstPrimitive = Primitive.getPrimitive(primitiveUids[firstIndex]);
+    const firstPrimitive =
+      primitives != null ? primitives[firstIndex] : Primitive.getPrimitive(primitiveUids[firstIndex]);
     if (firstPrimitive == null || firstPrimitive._multiDrawGroup == null) {
       return false;
     }
@@ -1925,13 +1980,30 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       instanceCount: 0,
     };
 
-    const renderedFirst = this.__renderInner(primitiveUids[firstIndex], glw, renderPass, false, displayCount, deferred);
+    const renderedFirst = this.__renderInner(
+      primitiveUids[firstIndex],
+      glw,
+      renderPass,
+      false,
+      displayCount,
+      deferred,
+      firstPrimitive
+    );
     if (!renderedFirst) {
       // The first primitive was skipped (hidden or no visible instance). Draw the rest individually.
       let rendered = false;
-      for (let k = 1; k < run.count; k++) {
-        const index = firstIndex + k * run.step;
-        rendered = this.__renderInner(primitiveUids[index], glw, renderPass, false, displayCount) || rendered;
+      for (let k = 1; k < runCount; k++) {
+        const index = firstIndex + k * step;
+        rendered =
+          this.__renderInner(
+            primitiveUids[index],
+            glw,
+            renderPass,
+            false,
+            displayCount,
+            undefined,
+            primitives?.[index]
+          ) || rendered;
       }
       return rendered;
     }
@@ -1957,9 +2029,9 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     const culledEntityStamp = cullingState?.culledEntityStamp;
     const cullTick = cullingState?.cullTick ?? 0;
 
-    for (let k = 1; k < run.count; k++) {
-      const index = firstIndex + k * run.step;
-      const primitive = Primitive.getPrimitive(primitiveUids[index]);
+    for (let k = 1; k < runCount; k++) {
+      const index = firstIndex + k * step;
+      const primitive = primitives != null ? primitives[index] : Primitive.getPrimitive(primitiveUids[index]);
       if (primitive == null || primitive._multiDrawGroup !== group) {
         continue;
       }
@@ -2048,10 +2120,11 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     renderPass: RenderPass,
     isVRMainPass: boolean,
     displayCount: number,
-    deferredDraw?: DeferredMultiDraw
+    deferredDraw?: DeferredMultiDraw,
+    primitiveArg?: Primitive
   ) {
     const gl = glw.getRawContextAsWebGL2();
-    const primitive = Primitive.getPrimitive(primitiveUid);
+    const primitive = primitiveArg ?? Primitive.getPrimitive(primitiveUid);
     if (primitive == null) {
       return false;
     }
@@ -2183,8 +2256,10 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
         this.__engine.config.isMultiDrawEnabled &&
         glw.webgl2ExtMD != null &&
         this.__engine.webglResourceRepository.instanceSidTable.isSupported;
-      if (useInstanceSidTexture) {
-        // The attribute is disabled in the legacy VAO, so the generic value is used.
+      if (useInstanceSidTexture && primitive._multiDrawGroup == null) {
+        // A grouped primitive draws with the multi-draw group VAO, which enables the
+        // per-vertex instanceBase attribute, so the generic value would be ignored.
+        // Only the legacy VAO needs it (its instance attribute is disabled).
         // The shader adds gl_InstanceID and resolves the visible instance through the remap table.
         gl.vertexAttribI4ui(VertexAttribute.Instance.getAttributeSlot(), Math.max(0, mesh._instanceSidBase), 0, 0, 0);
       }

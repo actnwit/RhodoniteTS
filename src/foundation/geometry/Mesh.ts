@@ -67,6 +67,8 @@ export class Mesh implements IMesh {
   /** Stable slot range in the engine-wide instance SID table (WebGL multi-draw). */
   private __instanceSidBase = -1;
   private __instanceSidCount = 0;
+  /** Id of the last culling pass that visited this mesh in the per-pass instance prepass. */
+  private __remapPrepassId = -1;
   private __latestPrimitivePositionAccessorVersionForAABB = 0;
   private __latestPrimitivePositionAccessorVersionForSetUpDone = 0;
   private __belongToEntities: IMeshEntity[] = [];
@@ -318,6 +320,17 @@ export class Mesh implements IMesh {
    */
   get _instanceSidBase(): number {
     return this.__instanceSidBase;
+  }
+
+  /**
+   * Visit stamp of the per-pass instance prepass (WebGL multi-draw).
+   * @internal
+   */
+  get _remapPrepassId(): number {
+    return this.__remapPrepassId;
+  }
+  set _remapPrepassId(id: number) {
+    this.__remapPrepassId = id;
   }
 
   /**
