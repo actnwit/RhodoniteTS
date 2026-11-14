@@ -237,7 +237,6 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     if (asCurrent) {
       this.__multiDrawRepository?.invalidateAll();
       this.__multiDrawRepository = undefined;
-      this.__instanceSidTable?.destroy();
       this.__instanceSidTable = undefined;
       this.__glw = glw;
     }
@@ -288,11 +287,12 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
   }
 
   /**
-   * Whether this context can use the instance SID texture path
-   * (WebGL2 integer textures plus the WEBGL_multi_draw extension).
+   * Whether this context can use the instance SID path used by multi-draw rendering.
+   * The instance tables live in the data texture (unit 0), so WebGL2 plus the
+   * WEBGL_multi_draw extension are the only requirements.
    */
   get isInstanceSidTextureCapable(): boolean {
-    return this.__glw != null && this.__glw.webgl2ExtMD != null && this.instanceSidTable.isSupported;
+    return this.__glw != null && this.__glw.isWebGL2 && this.__glw.webgl2ExtMD != null;
   }
 
   /**

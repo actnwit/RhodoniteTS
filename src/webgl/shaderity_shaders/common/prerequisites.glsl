@@ -45,6 +45,30 @@ highp vec4 fetchElement(int vec4_idx) {
   // return texture( u_dataTexture, vec2(x, y));
 }
 
+#if defined(RN_IS_DATATEXTURE_MODE) && defined(RN_USE_INSTANCE_SID_TEXTURE) && defined(RN_IS_VERTEX_SHADER) && !defined(RN_IS_NODE_SHADER)
+  // Base vec4 indices of the instance SID and remap regions inside the engine data
+  // texture. Storing the tables there avoids consuming additional texture units.
+  uniform highp int u_instanceSidDataTextureIndex;
+  uniform highp int u_instanceRemapDataTextureIndex;
+
+  uvec4 get_instanceIds() {
+    if (!rn_instanceIdsCacheValid) {
+      uint localIndex = uint(gl_InstanceID);
+      if (u_instanceRemapIdentity == 0) {
+        uint packedIndex = a_instanceBase + localIndex;
+        vec4 remapTexel = fetchElement(u_instanceRemapDataTextureIndex + int(packedIndex >> 2u));
+        localIndex = uint(remapTexel[int(packedIndex & 3u)]);
+      }
+      vec4 record = fetchElement(u_instanceSidDataTextureIndex + int(a_instanceBase + localIndex));
+      // The invalid SID sentinel (0xFFFFFFFF) is stored as -1.0 because float32 cannot
+      // represent 0xFFFFFFFF exactly. Going through ivec4 restores the exact bit pattern.
+      rn_instanceIdsCache = uvec4(ivec4(record));
+      rn_instanceIdsCacheValid = true;
+    }
+    return rn_instanceIdsCache;
+  }
+#endif
+
 vec2 fetchVec2No16BytesAligned(int scalar_idx) {
 #ifdef GLSL_ES3
   int posIn4bytes = scalar_idx % 4;

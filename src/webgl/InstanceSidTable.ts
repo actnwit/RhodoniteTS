@@ -1,42 +1,29 @@
-import { INSTANCE_REMAP_TEXTURE_UNIT, INSTANCE_SID_TEXTURE_UNIT } from '../foundation/definitions/TextureUnit';
 import type { WebGLContextWrapper } from './WebGLContextWrapper';
-
-export { INSTANCE_REMAP_TEXTURE_UNIT, INSTANCE_SID_TEXTURE_UNIT };
-/** Width of the 2D instance tables. The height grows with the number of instance slots. */
-export const INSTANCE_TEXTURE_WIDTH = 2048;
 
 type FreeRange = { start: number; count: number };
 
 /**
- * Engine-wide table that maps a stable instance slot to its instance identity
- * (`componentSID`, `skeletalSID`, `blendShapeSID`) and, per render pass, to the
- * visible instance that a packed instance index refers to.
+ * Engine-wide CPU tables for WebGL multi-draw instance identity.
  *
- * The data is stored in two integer textures:
- * - SID table: RGBA32UI, one texel per stable slot.
- * - remap table: R32UI, `remap[base + packedIndex] = localStableIndex`.
+ * The tables are stored in the renderer's data texture (RGBA32F, texture unit 0) so
+ * multi-draw does not consume additional texture units:
+ * - SID region: one RGBA texel per stable slot `[componentSID, skeletalSID, blendShapeSID, 0]`
+ * - remap region: four packed entries per RGBA texel
  *
- * Shaders index these textures with `instanceBase + gl_InstanceID`, so a single
- * VAO can be shared by primitives of different Meshes.
+ * IDs are written as float32, which represents integers exactly up to 2^24. Component
+ * SIDs stay far below that limit in practice.
  */
 export class InstanceSidTable {
-  private __glw: WebGLContextWrapper;
   private __records: Uint32Array;
   private __remap: Uint32Array;
   private __capacity: number;
   private __usedEnd = 0;
   private __freeRanges: FreeRange[] = [];
-  private __sidTexture: WebGLTexture | null = null;
-  private __remapTexture: WebGLTexture | null = null;
-  private __textureSlotCapacity = 0;
   private __sidDirty = true;
   private __remapDirty = true;
-  private __sidRecordsDirty = true;
-  private __remapRecordsDirty = true;
   private __isSupported: boolean;
 
   constructor(glw: WebGLContextWrapper) {
-    this.__glw = glw;
     this.__isSupported = InstanceSidTable.isSupported(glw);
     this.__capacity = 16;
     this.__records = new Uint32Array(this.__capacity * 4);
@@ -44,31 +31,28 @@ export class InstanceSidTable {
   }
 
   /**
-   * Returns whether integer textures required by the instance tables are usable.
-   * Integer textures are core in WebGL2, but the check is kept defensive.
+   * Whether the instance tables are usable in this context. The tables live in the
+   * data texture, so WebGL2 (the data texture mode) is the only requirement.
    */
   static isSupported(glw: WebGLContextWrapper): boolean {
-    if (!glw.isWebGL2) {
-      return false;
-    }
-    const gl = glw.getRawContextAsWebGL2();
-    return gl.RGBA32UI != null && gl.R32UI != null && gl.RGBA_INTEGER != null && gl.RED_INTEGER != null;
+    return glw.isWebGL2;
   }
 
   get isSupported(): boolean {
     return this.__isSupported;
   }
 
-  get width(): number {
-    return INSTANCE_TEXTURE_WIDTH;
+  /** The number of stable slots that have been handed out. */
+  get usedEnd(): number {
+    return this.__usedEnd;
   }
 
-  get sidTexture(): WebGLTexture | null {
-    return this.__sidTexture;
+  get sidDirty(): boolean {
+    return this.__sidDirty;
   }
 
-  get remapTexture(): WebGLTexture | null {
-    return this.__remapTexture;
+  get remapDirty(): boolean {
+    return this.__remapDirty;
   }
 
   /**
@@ -89,12 +73,16 @@ export class InstanceSidTable {
         if (range.count === 0) {
           this.__freeRanges.splice(i, 1);
         }
+        this.__sidDirty = true;
+        this.__remapDirty = true;
         return base;
       }
     }
     this.__ensureCapacity(this.__usedEnd + count);
     const base = this.__usedEnd;
     this.__usedEnd += count;
+    this.__sidDirty = true;
+    this.__remapDirty = true;
     return base;
   }
 
@@ -130,7 +118,6 @@ export class InstanceSidTable {
       this.__records[offset + 1] = skeletalSID;
       this.__records[offset + 2] = blendShapeSID;
       this.__records[offset + 3] = 0;
-      this.__sidRecordsDirty = true;
       this.__sidDirty = true;
     }
   }
@@ -145,7 +132,6 @@ export class InstanceSidTable {
       }
     }
     if (changed) {
-      this.__remapRecordsDirty = true;
       this.__remapDirty = true;
     }
   }
@@ -165,45 +151,60 @@ export class InstanceSidTable {
   setRemap(packedIndex: number, localIndex: number): void {
     if (this.__remap[packedIndex] !== localIndex) {
       this.__remap[packedIndex] = localIndex;
-      this.__remapRecordsDirty = true;
       this.__remapDirty = true;
     }
   }
 
-  /** Marks the remap table as changed without touching individual entries. */
-  markRemapDirty(): void {
-    this.__remapRecordsDirty = true;
+  /** Marks both tables as changed without touching individual entries. */
+  markAllDirty(): void {
+    this.__sidDirty = true;
     this.__remapDirty = true;
   }
 
-  /** Uploads the tables if any of them changed since the last upload. */
-  updateTexturesIfDirty(): void {
-    if (!this.__isSupported) {
-      return;
-    }
-    if (this.__sidDirty || this.__remapDirty) {
-      this.__ensureCapacity(this.__usedEnd);
-      if (this.__sidDirty) {
-        this.__uploadSidTexture();
-      }
-      if (this.__remapDirty) {
-        this.__uploadRemapTexture();
-      }
+  /** Clears the dirty flag of the SID region after it has been uploaded. */
+  clearSidDirty(): void {
+    this.__sidDirty = false;
+  }
+
+  /** Clears the dirty flag of the remap region after it has been uploaded. */
+  clearRemapDirty(): void {
+    this.__remapDirty = false;
+  }
+
+  /**
+   * Writes `count` SID texels starting at `texelOffset` into a data-texture upload
+   * buffer as RGBA float texels. The `0xFFFFFFFF` invalid sentinel is stored as -1
+   * because float32 cannot represent 0xFFFFFFFF exactly; the shader converts the
+   * components through ivec4 so the bit pattern round-trips.
+   */
+  writeSidTexels(dst: Float32Array, texelOffset: number, count: number): void {
+    for (let i = 0; i < count; i++) {
+      const src = (texelOffset + i) * 4;
+      const d = i * 4;
+      dst[d] = this.__toSidFloat(this.__records[src]);
+      dst[d + 1] = this.__toSidFloat(this.__records[src + 1]);
+      dst[d + 2] = this.__toSidFloat(this.__records[src + 2]);
+      dst[d + 3] = 0;
     }
   }
 
-  /** Destroys the GPU textures. */
-  destroy(): void {
-    const gl = this.__glw.getRawContextAsWebGL2();
-    if (this.__sidTexture != null) {
-      gl.deleteTexture(this.__sidTexture);
-      this.__sidTexture = null;
+  private __toSidFloat(value: number): number {
+    return value === 0xffff_ffff ? -1 : value;
+  }
+
+  /**
+   * Writes `count` remap texels (four packed entries per texel) starting at
+   * `texelOffset` into a data-texture upload buffer.
+   */
+  writeRemapTexels(dst: Float32Array, texelOffset: number, count: number): void {
+    for (let i = 0; i < count; i++) {
+      const src = (texelOffset + i) * 4;
+      const d = i * 4;
+      dst[d] = this.__remap[src];
+      dst[d + 1] = this.__remap[src + 1];
+      dst[d + 2] = this.__remap[src + 2];
+      dst[d + 3] = this.__remap[src + 3];
     }
-    if (this.__remapTexture != null) {
-      gl.deleteTexture(this.__remapTexture);
-      this.__remapTexture = null;
-    }
-    this.__textureSlotCapacity = 0;
   }
 
   private __ensureCapacity(required: number): void {
@@ -223,84 +224,5 @@ export class InstanceSidTable {
     this.__capacity = newCapacity;
     this.__sidDirty = true;
     this.__remapDirty = true;
-  }
-
-  private __ensureTextures(requiredSlots: number): void {
-    const gl = this.__glw.getRawContextAsWebGL2();
-    const height = Math.max(1, Math.ceil(Math.max(requiredSlots, 1) / INSTANCE_TEXTURE_WIDTH));
-    const slotCapacity = INSTANCE_TEXTURE_WIDTH * height;
-    if (this.__sidTexture != null && this.__remapTexture != null && slotCapacity <= this.__textureSlotCapacity) {
-      return;
-    }
-    this.destroy();
-    this.__textureSlotCapacity = slotCapacity;
-
-    const sidTexture = gl.createTexture();
-    if (sidTexture == null) {
-      this.__isSupported = false;
-      return;
-    }
-    this.__glw.bindTexture2DForce(INSTANCE_SID_TEXTURE_UNIT, sidTexture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32UI, INSTANCE_TEXTURE_WIDTH, height);
-    this.__sidTexture = sidTexture;
-
-    const remapTexture = gl.createTexture();
-    if (remapTexture == null) {
-      this.__isSupported = false;
-      return;
-    }
-    this.__glw.bindTexture2DForce(INSTANCE_REMAP_TEXTURE_UNIT, remapTexture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.R32UI, INSTANCE_TEXTURE_WIDTH, height);
-    this.__remapTexture = remapTexture;
-
-    this.__sidDirty = true;
-    this.__remapDirty = true;
-    // New textures must be populated even if the CPU data did not change.
-    this.__sidRecordsDirty = true;
-    this.__remapRecordsDirty = true;
-  }
-
-  private __uploadSidTexture(): void {
-    if (!this.__sidRecordsDirty) {
-      return;
-    }
-    this.__ensureTextures(this.__usedEnd);
-    if (!this.__isSupported || this.__sidTexture == null) {
-      return;
-    }
-    const gl = this.__glw.getRawContextAsWebGL2();
-    const height = Math.max(1, Math.ceil(Math.max(this.__usedEnd, 1) / INSTANCE_TEXTURE_WIDTH));
-    const data = new Uint32Array(INSTANCE_TEXTURE_WIDTH * height * 4);
-    data.set(this.__records.subarray(0, Math.min(this.__records.length, data.length)));
-    this.__glw.bindTexture2DForce(INSTANCE_SID_TEXTURE_UNIT, this.__sidTexture);
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, INSTANCE_TEXTURE_WIDTH, height, gl.RGBA_INTEGER, gl.UNSIGNED_INT, data);
-    this.__sidDirty = false;
-    this.__sidRecordsDirty = false;
-  }
-
-  private __uploadRemapTexture(): void {
-    if (!this.__remapRecordsDirty) {
-      return;
-    }
-    this.__ensureTextures(this.__usedEnd);
-    if (!this.__isSupported || this.__remapTexture == null) {
-      return;
-    }
-    const gl = this.__glw.getRawContextAsWebGL2();
-    const height = Math.max(1, Math.ceil(Math.max(this.__usedEnd, 1) / INSTANCE_TEXTURE_WIDTH));
-    const data = new Uint32Array(INSTANCE_TEXTURE_WIDTH * height);
-    data.set(this.__remap.subarray(0, Math.min(this.__remap.length, data.length)));
-    this.__glw.bindTexture2DForce(INSTANCE_REMAP_TEXTURE_UNIT, this.__remapTexture);
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, INSTANCE_TEXTURE_WIDTH, height, gl.RED_INTEGER, gl.UNSIGNED_INT, data);
-    this.__remapDirty = false;
-    this.__remapRecordsDirty = false;
   }
 }

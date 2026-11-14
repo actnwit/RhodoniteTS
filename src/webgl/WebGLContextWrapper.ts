@@ -483,21 +483,6 @@ export class WebGLContextWrapper {
   }
 
   /**
-   * Binds a 2D texture to a texture unit, always activating the unit and issuing
-   * bindTexture even when the wrapper cache says the texture is already bound.
-   * Use this before texStorage2D/texSubImage2D, where the active texture unit must
-   * match the target texture.
-   * @param activeTextureIndex - The texture unit index
-   * @param texture - The texture to bind
-   */
-  bindTexture2DForce(activeTextureIndex: Index, texture: WebGLTexture) {
-    this.__activeTexture(activeTextureIndex);
-    this.__gl.bindTexture(this.__gl.TEXTURE_2D, texture);
-    this.__boundTextures.set(activeTextureIndex, texture);
-    this.__activeTextures2D[activeTextureIndex] = texture;
-  }
-
-  /**
    * Binds a 2D array texture to a specific texture unit.
    * Optimized to avoid redundant state changes.
    * @param activeTextureIndex - The texture unit index

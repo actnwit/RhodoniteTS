@@ -12,7 +12,6 @@ import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { ShaderType, type ShaderTypeEnum } from '../../definitions/ShaderType';
-import { INSTANCE_REMAP_TEXTURE_UNIT, INSTANCE_SID_TEXTURE_UNIT } from '../../definitions/TextureUnit';
 import type { Primitive } from '../../geometry/Primitive';
 import type { IMatrix33 } from '../../math/IMatrix';
 import type { IVector3 } from '../../math/IVector';
@@ -313,11 +312,6 @@ export abstract class AbstractMaterialContent extends RnObject {
     // Construct a set of existing texture slot indices
     const existingTextureSlotIndices = new Set<number>();
     existingTextureSlotIndices.add(0); // Data texture slot index is 0
-    // Reserve the units used by the WebGL multi-draw instance tables. Reserving them in
-    // every mode is harmless (WebGPU does not use hardware texture units) and avoids a
-    // dependency on when the material content learns its engine.
-    existingTextureSlotIndices.add(INSTANCE_SID_TEXTURE_UNIT);
-    existingTextureSlotIndices.add(INSTANCE_REMAP_TEXTURE_UNIT);
     infoArray.forEach(info => {
       if (CompositionType.isTexture(info.compositionType)) {
         const textureSlotIndex = info.initialValue[0];

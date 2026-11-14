@@ -42,7 +42,7 @@ import type {
   PrimitiveUID,
   WebGLResourceHandle,
 } from '../types/CommonTypes';
-import { INSTANCE_REMAP_TEXTURE_UNIT, INSTANCE_SID_TEXTURE_UNIT } from './InstanceSidTable';
+import type { InstanceSidTable } from './InstanceSidTable';
 import {
   type DeferredMultiDraw,
   getPrimitiveMeshRendererFingerPrint,
@@ -82,6 +82,13 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
    * vertex shader skip the remap texture fetch and read the SID texel directly.
    */
   private __instanceRemapIdentity = 1;
+  /** Layout of the instance SID / remap regions inside the data texture. */
+  private __dataTextureWidth = 0;
+  private __instanceSidBaseRow = 0;
+  private __instanceRemapBaseRow = 0;
+  private __instanceSidBaseVec4 = 0;
+  private __instanceRemapBaseVec4 = 0;
+  private __instanceSidCapacity = 0;
   private __lightComponents?: LightComponent[];
   private __currentComponentSIDs?: VectorN;
   /** Program and values of the last currentComponentSIDs upload, used to skip redundant uploads. */
@@ -1077,10 +1084,34 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       );
       const instanceDataRegionTotalSize = instanceDataRegionSizes.reduce((acc, size) => acc + size, 0);
       const morphBufferByteLength = morphBuffers.reduce((acc, buffer) => acc + buffer.byteLength, 0);
-      const dataTextureHeight = Math.max(
+      const dataRows = Math.max(
         Math.ceil((instanceDataRegionTotalSize + morphBufferByteLength) / dataTextureWidthInByte),
         1
       );
+
+      // Append the instance SID / remap tables to the data texture so that multi-draw
+      // rendering does not consume extra texture units (mobile texture unit limits).
+      // The rows are only reserved while the feature is usable.
+      const isInstanceSidEnabled =
+        this.__engine.config.isMultiDrawEnabled && this.__engine.webglResourceRepository.isInstanceSidTextureCapable;
+      const sidTable = this.__engine.webglResourceRepository.instanceSidTable;
+      const sidSlotCapacity = isInstanceSidEnabled ? Math.max(sidTable.usedEnd, 1) : 0;
+      const sidRows = isInstanceSidEnabled ? Math.max(Math.ceil(sidSlotCapacity / dataTextureWidth), 1) : 0;
+      const remapRows = isInstanceSidEnabled
+        ? Math.max(Math.ceil(Math.ceil(sidSlotCapacity / 4) / dataTextureWidth), 1)
+        : 0;
+      const dataTextureHeight = dataRows + sidRows + remapRows;
+      this.__dataTextureWidth = dataTextureWidth;
+      this.__instanceSidBaseRow = dataRows;
+      this.__instanceRemapBaseRow = dataRows + sidRows;
+      this.__instanceSidBaseVec4 = this.__instanceSidBaseRow * dataTextureWidth;
+      this.__instanceRemapBaseVec4 = this.__instanceRemapBaseRow * dataTextureWidth;
+      this.__instanceSidCapacity = sidSlotCapacity;
+      if (isInstanceSidEnabled) {
+        // The new texture starts zeroed, so both regions must be uploaded again.
+        sidTable.markAllDirty();
+      }
+
       const dataTextureByteSize = dataTextureWidthInByte * dataTextureHeight;
       const finalUint8Array = new Uint8Array(dataTextureByteSize);
       let dstByteOffset = 0;
@@ -1126,6 +1157,11 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       this.__engine.webglResourceRepository.deleteTexture(this.__dataTextureUid);
       this.__dataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
+    this.__instanceSidCapacity = 0;
+    this.__dataTextureWidth = 0;
+    // The old texture object is gone, so the next draw must bind the program and the
+    // data texture again even if the same shader program is still current.
+    this.__lastShader = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   }
 
   /**
@@ -1143,13 +1179,28 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * provides optimal performance by updating only what has changed.
    */
   prerender(): void {
+    // The instance SID / remap regions are appended to the data texture. Recreate it
+    // when the number of stable instance slots outgrows the currently reserved rows.
+    const instanceSidEnabled =
+      this.__engine.config.isMultiDrawEnabled && this.__engine.webglResourceRepository.isInstanceSidTextureCapable;
+    if (instanceSidEnabled) {
+      const sidTable = this.__engine.webglResourceRepository.instanceSidTable;
+      if (
+        this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid &&
+        sidTable.usedEnd > this.__instanceSidCapacity
+      ) {
+        this.deleteDataTexture();
+      }
+    }
+
     if (
       AnimationComponent.getIsAnimating(this.__engine) ||
       TransformComponent.getUpdateCount(this.__engine) !== this.__lastTransformComponentsUpdateCount ||
       SceneGraphComponent.getUpdateCount(this.__engine) !== this.__lastSceneGraphComponentsUpdateCount ||
       CameraComponent.getCurrentCameraUpdateCount(this.__engine) !== this.__lastCameraComponentsUpdateCount ||
       CameraControllerComponent.getUpdateCount(this.__engine) !== this.__lastCameraControllerComponentsUpdateCount ||
-      this.__engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount
+      this.__engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount ||
+      this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
     ) {
       // Setup GPU Storage (Data Texture & UBO)
       this.__createAndUpdateDataTexture();
@@ -1482,9 +1533,73 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       }
     }
     // Every mesh shows all of its instances: the remap table is the identity, so the
-    // vertex shader can index the SID texture directly and skip a dependent fetch.
+    // vertex shader can index the SID texel directly and skip a dependent fetch.
     this.__instanceRemapIdentity = anyCulled ? 0 : 1;
-    table.updateTexturesIfDirty();
+    this.__uploadInstanceSidDataTexture(table);
+  }
+
+  /**
+   * Uploads the dirty instance SID / remap rows into the engine data texture.
+   * The two tables are stored in reserved rows after the component data, so the
+   * shader can read them from texture unit 0 and no extra texture unit is consumed.
+   */
+  private __uploadInstanceSidDataTexture(table: InstanceSidTable): void {
+    if (this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid || this.__dataTextureWidth <= 0) {
+      return;
+    }
+    const usedEnd = table.usedEnd;
+    if (usedEnd <= 0) {
+      table.clearSidDirty();
+      table.clearRemapDirty();
+      return;
+    }
+
+    if (table.sidDirty) {
+      this.__uploadInstanceRegion(this.__instanceSidBaseRow, usedEnd, (dst, texelOffset, count) =>
+        table.writeSidTexels(dst, texelOffset, count)
+      );
+      table.clearSidDirty();
+    }
+    // When no instance is culled the shader skips the remap lookup, so a stale remap
+    // region is harmless and the upload can be deferred until a culled pass needs it.
+    if (table.remapDirty && this.__instanceRemapIdentity === 0) {
+      this.__uploadInstanceRegion(this.__instanceRemapBaseRow, Math.ceil(usedEnd / 4), (dst, texelOffset, count) =>
+        table.writeRemapTexels(dst, texelOffset, count)
+      );
+      table.clearRemapDirty();
+    }
+  }
+
+  /**
+   * Uploads `texelCount` texels starting at `baseRow` to the data texture. Rows are
+   * `this.__dataTextureWidth` texels wide, so the last row is uploaded partially.
+   */
+  private __uploadInstanceRegion(
+    baseRow: number,
+    texelCount: number,
+    fill: (dst: Float32Array, texelOffset: number, count: number) => void
+  ): void {
+    const width = this.__dataTextureWidth;
+    let remaining = texelCount;
+    let texelOffset = 0;
+    let row = baseRow;
+    while (remaining > 0) {
+      const count = Math.min(remaining, width);
+      const data = new Float32Array(count * 4);
+      fill(data, texelOffset, count);
+      this.__engine.webglResourceRepository.updateTexture(this.__dataTextureUid, data, {
+        level: 0,
+        offsetX: 0,
+        offsetY: row,
+        width: count,
+        height: 1,
+        format: PixelFormat.RGBA,
+        type: ComponentType.Float,
+      });
+      remaining -= count;
+      texelOffset += count;
+      row++;
+    }
   }
 
   /**
@@ -1998,6 +2113,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
 
     if (this.__useMaterialSidAttribute(glw) && this.__shaderProgram != null) {
       this.__setInstanceRemapIdentity(gl, this.__shaderProgram);
+      this.__setInstanceSidDataTextureIndices(gl, this.__shaderProgram);
     }
 
     const renderingArg: RenderingArgWebGL = {
@@ -2197,30 +2313,51 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
 
     const program = shaderProgram as any;
     if (program.__instanceSidTextureLocation === undefined) {
-      program.__instanceSidTextureLocation = gl.getUniformLocation(shaderProgram, 'u_instanceSidTexture');
-      program.__instanceRemapTextureLocation = gl.getUniformLocation(shaderProgram, 'u_instanceRemapTexture');
-      program.__instanceTextureWidthLocation = gl.getUniformLocation(shaderProgram, 'u_instanceTextureWidth');
+      program.__instanceSidDataTextureIndexLocation = gl.getUniformLocation(
+        shaderProgram,
+        'u_instanceSidDataTextureIndex'
+      );
+      program.__instanceRemapDataTextureIndexLocation = gl.getUniformLocation(
+        shaderProgram,
+        'u_instanceRemapDataTextureIndex'
+      );
       program.__instanceRemapIdentityLocation = gl.getUniformLocation(shaderProgram, 'u_instanceRemapIdentity');
+      // Keep the old property name defined so the one-time location lookup is not repeated.
+      program.__instanceSidTextureLocation = null;
     }
-    if (program.__instanceSidTextureLocation != null) {
-      gl.uniform1i(program.__instanceSidTextureLocation, INSTANCE_SID_TEXTURE_UNIT);
+    if (program.__instanceSidDataTextureIndexLocation != null) {
+      gl.uniform1i(program.__instanceSidDataTextureIndexLocation, this.__instanceSidBaseVec4);
+      program.__instanceSidDataTextureIndexValue = this.__instanceSidBaseVec4;
     }
-    if (program.__instanceRemapTextureLocation != null) {
-      gl.uniform1i(program.__instanceRemapTextureLocation, INSTANCE_REMAP_TEXTURE_UNIT);
-    }
-    if (program.__instanceTextureWidthLocation != null) {
-      gl.uniform1i(program.__instanceTextureWidthLocation, table.width);
+    if (program.__instanceRemapDataTextureIndexLocation != null) {
+      gl.uniform1i(program.__instanceRemapDataTextureIndexLocation, this.__instanceRemapBaseVec4);
+      program.__instanceRemapDataTextureIndexValue = this.__instanceRemapBaseVec4;
     }
     if (program.__instanceRemapIdentityLocation != null) {
       gl.uniform1i(program.__instanceRemapIdentityLocation, this.__instanceRemapIdentity);
       program.__instanceRemapIdentityValue = this.__instanceRemapIdentity;
     }
+  }
 
-    if (table.sidTexture != null) {
-      glw.bindTexture2D(INSTANCE_SID_TEXTURE_UNIT, table.sidTexture);
+  /**
+   * Keeps the data-texture base indices of the instance tables in sync with the
+   * current texture layout. The indices change when the data texture is recreated
+   * (e.g. the instance slot capacity grew) while the same program stays bound.
+   */
+  private __setInstanceSidDataTextureIndices(gl: WebGL2RenderingContext, shaderProgram: WebGLProgram): void {
+    const program = shaderProgram as any;
+    if (program.__instanceSidDataTextureIndexLocation == null) {
+      return;
     }
-    if (table.remapTexture != null) {
-      glw.bindTexture2D(INSTANCE_REMAP_TEXTURE_UNIT, table.remapTexture);
+    const sidBase = this.__instanceSidBaseVec4;
+    if (program.__instanceSidDataTextureIndexValue !== sidBase) {
+      gl.uniform1i(program.__instanceSidDataTextureIndexLocation, sidBase);
+      program.__instanceSidDataTextureIndexValue = sidBase;
+    }
+    const remapBase = this.__instanceRemapBaseVec4;
+    if (program.__instanceRemapDataTextureIndexValue !== remapBase) {
+      gl.uniform1i(program.__instanceRemapDataTextureIndexLocation, remapBase);
+      program.__instanceRemapDataTextureIndexValue = remapBase;
     }
   }
 
