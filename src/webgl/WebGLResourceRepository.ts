@@ -292,7 +292,10 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * WEBGL_multi_draw extension are the only requirements.
    */
   get isInstanceSidTextureCapable(): boolean {
-    return this.__glw?.isWebGL2 && this.__glw.webgl2ExtMD != null;
+    // The `=== true` comparison keeps the return type boolean (an optional chain alone
+    // yields boolean | undefined, which strict null checks reject) while still using the
+    // optional chain that the lint rule requires.
+    return this.__glw?.isWebGL2 === true && this.__glw.webgl2ExtMD != null;
   }
 
   /**
