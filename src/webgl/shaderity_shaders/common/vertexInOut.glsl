@@ -10,16 +10,32 @@ in vec3 a_normal;
   uniform highp usampler2D u_instanceSidTexture;
   uniform highp usampler2D u_instanceRemapTexture;
   uniform highp int u_instanceTextureWidth;
+  // 1 when no instance was culled in this render pass, so the remap lookup can be skipped.
+  uniform highp int u_instanceRemapIdentity;
 
   uvec4 rn_fetchInstanceTexel(highp usampler2D tex, uint index) {
     uint w = uint(u_instanceTextureWidth);
     return texelFetch(tex, ivec2(int(index % w), int(index / w)), 0);
   }
 
+  // The instance SID lookup is a pair of dependent integer texture fetches. Shaders
+  // reference a_instanceIds several times per vertex (world matrix, normal matrix,
+  // billboard, visibility, skinning, ...), so resolve it once per invocation and
+  // reuse the cached value for every reference.
+  uvec4 rn_instanceIdsCache;
+  bool rn_instanceIdsCacheValid = false;
+
   uvec4 get_instanceIds() {
-    uint packedIndex = a_instanceBase + uint(gl_InstanceID);
-    uint localIndex = rn_fetchInstanceTexel(u_instanceRemapTexture, packedIndex).r;
-    return rn_fetchInstanceTexel(u_instanceSidTexture, a_instanceBase + localIndex);
+    if (!rn_instanceIdsCacheValid) {
+      uint localIndex = uint(gl_InstanceID);
+      if (u_instanceRemapIdentity == 0) {
+        uint packedIndex = a_instanceBase + localIndex;
+        localIndex = rn_fetchInstanceTexel(u_instanceRemapTexture, packedIndex).r;
+      }
+      rn_instanceIdsCache = rn_fetchInstanceTexel(u_instanceSidTexture, a_instanceBase + localIndex);
+      rn_instanceIdsCacheValid = true;
+    }
+    return rn_instanceIdsCache;
   }
 
   #define a_instanceIds get_instanceIds()

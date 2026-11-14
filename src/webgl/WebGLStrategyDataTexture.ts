@@ -77,6 +77,11 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private __lastMaterialStateVersion = -1;
   private __shaderProgram?: WebGLProgram;
   private __lastRenderPassTickCount = -1;
+  /**
+   * 1 when every mesh drawn in the current pass shows all of its instances, which lets the
+   * vertex shader skip the remap texture fetch and read the SID texel directly.
+   */
+  private __instanceRemapIdentity = 1;
   private __lightComponents?: LightComponent[];
   private __currentComponentSIDs?: VectorN;
   /** Program and values of the last currentComponentSIDs upload, used to skip redundant uploads. */
@@ -1456,6 +1461,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     const culledEntityStamp = cullingState?.culledEntityStamp;
     const cullTick = cullingState?.cullTick ?? 0;
     const visitedMeshes = new Set<Mesh>();
+    let anyCulled = false;
     for (let i = 0; i < primitiveUids.length; i++) {
       const primitiveUid = primitiveUids[i];
       if (primitiveUid === -1) {
@@ -1470,8 +1476,14 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
         continue;
       }
       visitedMeshes.add(mesh);
-      mesh._packVisibleInstancesToVariationVBO(culledEntityStamp, cullTick);
+      const visibleCount = mesh._packVisibleInstancesToVariationVBO(culledEntityStamp, cullTick);
+      if (visibleCount < mesh.meshEntitiesInner.length) {
+        anyCulled = true;
+      }
     }
+    // Every mesh shows all of its instances: the remap table is the identity, so the
+    // vertex shader can index the SID texture directly and skip a dependent fetch.
+    this.__instanceRemapIdentity = anyCulled ? 0 : 1;
     table.updateTexturesIfDirty();
   }
 
@@ -1984,6 +1996,10 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       this.__lastMaterialStateVersion = material.stateVersion;
     }
 
+    if (this.__useMaterialSidAttribute(glw) && this.__shaderProgram != null) {
+      this.__setInstanceRemapIdentity(gl, this.__shaderProgram);
+    }
+
     const renderingArg: RenderingArgWebGL = {
       glw: glw,
       entity: entity,
@@ -2184,6 +2200,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       program.__instanceSidTextureLocation = gl.getUniformLocation(shaderProgram, 'u_instanceSidTexture');
       program.__instanceRemapTextureLocation = gl.getUniformLocation(shaderProgram, 'u_instanceRemapTexture');
       program.__instanceTextureWidthLocation = gl.getUniformLocation(shaderProgram, 'u_instanceTextureWidth');
+      program.__instanceRemapIdentityLocation = gl.getUniformLocation(shaderProgram, 'u_instanceRemapIdentity');
     }
     if (program.__instanceSidTextureLocation != null) {
       gl.uniform1i(program.__instanceSidTextureLocation, INSTANCE_SID_TEXTURE_UNIT);
@@ -2194,6 +2211,10 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     if (program.__instanceTextureWidthLocation != null) {
       gl.uniform1i(program.__instanceTextureWidthLocation, table.width);
     }
+    if (program.__instanceRemapIdentityLocation != null) {
+      gl.uniform1i(program.__instanceRemapIdentityLocation, this.__instanceRemapIdentity);
+      program.__instanceRemapIdentityValue = this.__instanceRemapIdentity;
+    }
 
     if (table.sidTexture != null) {
       glw.bindTexture2D(INSTANCE_SID_TEXTURE_UNIT, table.sidTexture);
@@ -2201,6 +2222,24 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     if (table.remapTexture != null) {
       glw.bindTexture2D(INSTANCE_REMAP_TEXTURE_UNIT, table.remapTexture);
     }
+  }
+
+  /**
+   * Keeps the remap-identity uniform in sync with the current render pass. The culling
+   * state can change between passes while the same shader program stays bound, so this
+   * is checked before every draw (a cheap property comparison when unchanged).
+   */
+  private __setInstanceRemapIdentity(gl: WebGL2RenderingContext, shaderProgram: WebGLProgram): void {
+    const program = shaderProgram as any;
+    if (program.__instanceRemapIdentityLocation == null) {
+      return;
+    }
+    const identity = this.__instanceRemapIdentity;
+    if (program.__instanceRemapIdentityValue === identity) {
+      return;
+    }
+    gl.uniform1i(program.__instanceRemapIdentityLocation, identity);
+    program.__instanceRemapIdentityValue = identity;
   }
 
   /**
