@@ -138,6 +138,19 @@ precision highp float;
 precision highp int;
 /* shaderity: @{definitions} */
 #define RN_IS_NODE_SHADER
+#if defined(RN_IS_DATATEXTURE_MODE) && defined(RN_USE_INSTANCE_SID_TEXTURE)
+in uint a_instanceBase;
+uniform highp int u_instanceRemapIdentity;
+uvec4 rn_instanceIdsCache;
+bool rn_instanceIdsCacheValid = false;
+#define a_instanceIds get_instanceIds()
+#else
+in uvec4 a_instanceIds;
+#endif
+#if defined(RN_IS_DATATEXTURE_MODE) && defined(RN_USE_MATERIAL_SID_ATTRIBUTE)
+in uint a_materialSid;
+flat out uint v_materialSid;
+#endif
 /* shaderity: @{prerequisites} */
 
 ${morphVariablesGLSL.code}
@@ -149,7 +162,6 @@ in vec4 a_position;
   const vec4 a_color = vec4(1.0, 1.0, 1.0, 1.0);
 #endif
 in vec3 a_normal;
-in uvec4 a_instanceIds;
 in vec2 a_texcoord_0;
 in vec2 a_texcoord_1;
 in vec2 a_texcoord_2;

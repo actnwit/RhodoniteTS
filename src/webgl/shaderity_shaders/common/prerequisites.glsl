@@ -45,7 +45,7 @@ highp vec4 fetchElement(int vec4_idx) {
   // return texture( u_dataTexture, vec2(x, y));
 }
 
-#if defined(RN_IS_DATATEXTURE_MODE) && defined(RN_USE_INSTANCE_SID_TEXTURE) && defined(RN_IS_VERTEX_SHADER) && !defined(RN_IS_NODE_SHADER)
+#if defined(RN_IS_DATATEXTURE_MODE) && defined(RN_USE_INSTANCE_SID_TEXTURE) && defined(RN_IS_VERTEX_SHADER)
   // Base vec4 indices of the instance SID and remap regions inside the engine data
   // texture. Storing the tables there avoids consuming additional texture units.
   uniform highp int u_instanceSidDataTextureIndex;
