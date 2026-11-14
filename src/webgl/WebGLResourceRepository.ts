@@ -292,7 +292,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * WEBGL_multi_draw extension are the only requirements.
    */
   get isInstanceSidTextureCapable(): boolean {
-    return this.__glw != null && this.__glw.isWebGL2 && this.__glw.webgl2ExtMD != null;
+    return this.__glw?.isWebGL2 && this.__glw.webgl2ExtMD != null;
   }
 
   /**

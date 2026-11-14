@@ -106,11 +106,11 @@ engine.startRenderLoop(() => {
   switch (count) {
     case 1:
       p.setAttribute('id', 'rendered');
-      p.innerText = 'Rendered.';
+      p.textContent = 'Rendered.';
       break;
     case 100:
       p.setAttribute('id', 'moved');
-      p.innerText = 'Moved.';
+      p.textContent = 'Moved.';
       break;
   }
 

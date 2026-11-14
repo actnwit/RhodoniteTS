@@ -1068,7 +1068,7 @@ export class ModelConverter {
 
     for (const node_i in gltfModel.nodes) {
       const node = gltfModel.nodes[node_i];
-      const sg = rnEntities[node_i].getSceneGraph()!;
+      const _sg = rnEntities[node_i].getSceneGraph()!;
       let skeletalComponent: SkeletalComponent;
       if (Is.exist(node.skinObject)) {
         const rnEntity = rnEntities[node_i];

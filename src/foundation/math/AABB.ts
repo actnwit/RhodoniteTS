@@ -203,13 +203,13 @@ export class AABB {
    * ```
    */
   addPosition(positionVector: Vector3) {
-    this.__min.x = positionVector.x < this.__min.x ? positionVector.x : this.__min.x;
-    this.__min.y = positionVector.y < this.__min.y ? positionVector.y : this.__min.y;
-    this.__min.z = positionVector.z < this.__min.z ? positionVector.z : this.__min.z;
+    this.__min.x = Math.min(positionVector.x, this.__min.x);
+    this.__min.y = Math.min(positionVector.y, this.__min.y);
+    this.__min.z = Math.min(positionVector.z, this.__min.z);
 
-    this.__max.x = this.__max.x < positionVector.x ? positionVector.x : this.__max.x;
-    this.__max.y = this.__max.y < positionVector.y ? positionVector.y : this.__max.y;
-    this.__max.z = this.__max.z < positionVector.z ? positionVector.z : this.__max.z;
+    this.__max.x = Math.max(this.__max.x, positionVector.x);
+    this.__max.y = Math.max(this.__max.y, positionVector.y);
+    this.__max.z = Math.max(this.__max.z, positionVector.z);
 
     this.__isCenterPointDirty = true;
     this.__isLengthCenterToCornerDirty = true;
@@ -238,12 +238,12 @@ export class AABB {
    * ```
    */
   addPositionWithArray(array: number[], index: Index) {
-    this.__min.x = array[index + 0] < this.__min.x ? array[index + 0] : this.__min.x;
-    this.__min.y = array[index + 1] < this.__min.y ? array[index + 1] : this.__min.y;
-    this.__min.z = array[index + 2] < this.__min.z ? array[index + 2] : this.__min.z;
-    this.__max.x = this.__max.x < array[index + 0] ? array[index + 0] : this.__max.x;
-    this.__max.y = this.__max.y < array[index + 1] ? array[index + 1] : this.__max.y;
-    this.__max.z = this.__max.z < array[index + 2] ? array[index + 2] : this.__max.z;
+    this.__min.x = Math.min(array[index + 0], this.__min.x);
+    this.__min.y = Math.min(array[index + 1], this.__min.y);
+    this.__min.z = Math.min(array[index + 2], this.__min.z);
+    this.__max.x = Math.max(this.__max.x, array[index + 0]);
+    this.__max.y = Math.max(this.__max.y, array[index + 1]);
+    this.__max.z = Math.max(this.__max.z, array[index + 2]);
 
     this.__isCenterPointDirty = true;
     this.__isLengthCenterToCornerDirty = true;

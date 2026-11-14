@@ -109,7 +109,7 @@ let angle = 0;
 engine.startRenderLoop(() => {
   if (count > 0) {
     p.id = 'rendered';
-    p.innerText = 'Rendered.';
+    p.textContent = 'Rendered.';
   }
   if (window.isAnimating) {
     rotateObject(pointGroupEntity, angle);

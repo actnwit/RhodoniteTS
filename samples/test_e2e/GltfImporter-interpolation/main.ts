@@ -42,7 +42,7 @@ Rn.AnimationComponent.setGlobalTime(engine, 0.33);
 engine.startRenderLoop(() => {
   if (count > 0) {
     p.id = 'rendered';
-    p.innerText = 'Rendered.';
+    p.textContent = 'Rendered.';
   }
 
   if (window.isAnimating) {

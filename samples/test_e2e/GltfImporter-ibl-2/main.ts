@@ -94,10 +94,10 @@ let count = 0;
 engine.startRenderLoop(() => {
   if (count > 100) {
     p.id = 'rendered';
-    p.innerText = 'Rendered.';
+    p.textContent = 'Rendered.';
   } else if (count === 100) {
     p.id = 'started';
-    p.innerText = 'Started.';
+    p.textContent = 'Started.';
   }
 
   engine.process(expressions);

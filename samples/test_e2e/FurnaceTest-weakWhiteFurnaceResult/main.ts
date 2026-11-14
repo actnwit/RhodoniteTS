@@ -121,7 +121,7 @@ function draw(expressions: Rn.Expression[], createPElem = false) {
   if (createPElem) {
     const pElem = document.createElement('p');
     pElem.setAttribute('id', 'rendered');
-    pElem.innerText = 'Rendered.';
+    pElem.textContent = 'Rendered.';
     document.body.appendChild(pElem);
   }
 }

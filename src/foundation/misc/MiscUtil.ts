@@ -170,7 +170,7 @@ const concatArrayBuffers = (segments: ArrayBuffer[], sizes: Byte[], offsets: Byt
 
   for (let i = 0; i < segments.length; ++i) {
     const delta = sizes[i] + offsets[i] - segments[i].byteLength;
-    const overSize = delta > 0 ? delta : 0;
+    const overSize = Math.max(delta, 0);
     const sizeToAdd = sizes[i] - overSize;
     if (addData(sizeToAdd, i)) {
       return whole.buffer;

@@ -88,7 +88,7 @@ engine.startRenderLoop(() => {
       controller.verticalSpeed = tmpSpeed;
       document.dispatchEvent(new KeyboardEvent('keyup', {} as any));
       p.id = 'moved';
-      p.innerText = 'Moved.';
+      p.textContent = 'Moved.';
   }
 
   engine.process(expressions);

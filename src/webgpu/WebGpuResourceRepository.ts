@@ -20,7 +20,6 @@ import type { Material } from '../foundation/materials/core/Material';
 import type { Vector4 } from '../foundation/math/Vector4';
 import type { Accessor } from '../foundation/memory/Accessor';
 import type { Buffer } from '../foundation/memory/Buffer';
-import { DataUtil } from '../foundation/misc/DataUtil';
 import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
@@ -1659,7 +1658,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     renderPass: RenderPass,
     cameraId: number,
     zWrite: boolean,
-    displayIdx: number
+    _displayIdx: number
   ) {
     const isBufferLessRendering = renderPass.isBufferLessRenderingMode();
     const VertexHandles = primitive._vertexHandles;

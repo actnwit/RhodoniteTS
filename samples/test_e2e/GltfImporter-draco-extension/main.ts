@@ -77,7 +77,7 @@ let count = 0;
 engine.startRenderLoop(() => {
   if (count > 1) {
     p.setAttribute('id', 'rendered');
-    p.innerText = 'Rendered.';
+    p.textContent = 'Rendered.';
   }
 
   engine.process(expressions);

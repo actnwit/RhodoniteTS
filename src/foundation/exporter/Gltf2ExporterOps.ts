@@ -300,7 +300,7 @@ export function alignBufferViewByteLength(
   const bufferViewEnd = bufferView.byteOffset + bufferView.byteLength;
   const alignedEnd = bufferViewEnd + DataUtil.calcPaddingBytes(bufferViewEnd, 4);
   const delta = alignedEnd - bufferViewByteLengthAccumulated;
-  return delta >= 0 ? delta : 0;
+  return Math.max(delta, 0);
 }
 
 /**
@@ -336,7 +336,7 @@ export function resolveVertexAttributeByteStride(rnBufferView: BufferView, rnAcc
   const resolved = Math.max(...candidates);
   const aligned = alignBufferViewByteStrideTo4Bytes(resolved as Byte);
 
-  return aligned < elementSize ? elementSize : aligned;
+  return Math.max(aligned, elementSize);
 }
 
 /**

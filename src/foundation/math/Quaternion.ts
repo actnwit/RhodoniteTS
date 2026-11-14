@@ -894,8 +894,8 @@ export class Quaternion_<T extends FloatTypedArrayConstructor> extends AbstractQ
     out._v[0] = Math.atan2(t0, t1);
 
     let t2 = 2 * (this._v[3] * this._v[1] - this._v[2] * this._v[0]);
-    t2 = t2 > 1 ? 1 : t2;
-    t2 = t2 < -1 ? -1 : t2;
+    t2 = Math.min(t2, 1);
+    t2 = Math.max(t2, -1);
     out._v[1] = Math.asin(t2);
 
     const t3 = 2 * (this._v[3] * this._v[2] + this._v[0] * this._v[1]);
@@ -917,8 +917,8 @@ export class Quaternion_<T extends FloatTypedArrayConstructor> extends AbstractQ
     out._v[0] = Math.atan2(t0, t1);
 
     let t2 = 2 * (this._v[3] * this._v[1] - this._v[2] * this._v[0]);
-    t2 = t2 > 1 ? 1 : t2;
-    t2 = t2 < -1 ? -1 : t2;
+    t2 = Math.min(t2, 1);
+    t2 = Math.max(t2, -1);
     out._v[1] = Math.asin(t2);
 
     const t3 = 2 * (this._v[3] * this._v[2] + this._v[0] * this._v[1]);

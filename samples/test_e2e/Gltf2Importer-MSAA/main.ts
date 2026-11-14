@@ -165,7 +165,7 @@ function draw(expressions: Rn.Expression[], loopCount: number, pElem?: HTMLEleme
   if (pElem === undefined && loopCount > 0) {
     pElem = document.createElement('p');
     pElem.setAttribute('id', 'rendered');
-    pElem.innerText = 'Rendered.';
+    pElem.textContent = 'Rendered.';
     document.body.appendChild(pElem);
   }
 
