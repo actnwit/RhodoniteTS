@@ -55,6 +55,8 @@ const resolveBoxShapeDescriptor = (size: IVector3, required: boolean) => {
  * @param engine - The engine instance
  * @param desc - Configuration object for the plane
  * @param desc.direction - The orientation of the plane ('xz', 'xy', or 'yz'). Defaults to 'xz'
+ * @param desc.physics - When physics.use is true, a thin box shape is attached so the plane
+ * can act as a collider
  * @returns A mesh entity representing the plane
  *
  * @example
@@ -64,6 +66,13 @@ const resolveBoxShapeDescriptor = (size: IVector3, required: boolean) => {
  *
  * // Create a vertical plane facing forward
  * const verticalPlane = createPlane({ direction: 'xy' });
+ *
+ * // Create a horizontal plane that acts as a static physics collider
+ * const physicsPlane = createPlane({
+ *   width: 20,
+ *   height: 20,
+ *   physics: { use: true, move: false, density: 1, friction: 0.5, restitution: 0.3 }
+ * });
  * ```
  */
 const createPlane = (
@@ -85,7 +94,36 @@ const createPlane = (
   } else if (desc.direction === 'yz') {
     entity.localEulerAngles = Vector3.fromCopy3(0, 0, Math.PI / 2);
   }
-  return entity;
+
+  const physics = Is.exist(desc.physics) && desc.physics.use ? desc.physics : undefined;
+  if (physics == null) {
+    return entity;
+  }
+
+  // A plane has no thickness, so a thin box is used as its physics shape.
+  // The scene graph rotation applied above also orients the collider.
+  const width = desc.width ?? 1;
+  const height = desc.height ?? 1;
+  const thickness = Math.max(Math.min(width, height) * 0.02, 1e-3);
+  const shape = resolveBoxShapeDescriptor(Vector3.fromCopy3(width, thickness, height), true);
+  if (shape == null) {
+    return entity;
+  }
+  const shapeEntity = entity.engine.entityRepository.addComponentToEntity(ShapeComponent, entity);
+  const shapeComponent = shapeEntity.getShape();
+  shapeComponent.addShape(shape);
+
+  const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, shapeEntity);
+  const physicsComponent = newEntity.getPhysics();
+  const strategy = createPhysicsStrategy(physics.engine);
+  physicsComponent.setStrategy(strategy);
+  physicsComponent.bindShape({
+    shapeComponent,
+    body: { move: physics.move, density: physics.density },
+    collider: { friction: physics.friction, restitution: physics.restitution },
+  });
+
+  return newEntity;
 };
 
 /**
