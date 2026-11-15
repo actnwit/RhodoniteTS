@@ -547,16 +547,17 @@ const createRing = (engine: Engine, desc: RingDescriptor = {}) => {
 };
 
 /**
- * Creates a capsule mesh entity.
+ * Creates a capsule mesh entity with optional physics simulation.
  * A capsule is a cylinder with hemispherical caps at both ends.
  *
  * @param engine - The engine instance
- * @param desc - Configuration object for the capsule geometry
+ * @param desc - Configuration object for the capsule geometry and physics properties
  * @param desc.radius - The radius of the capsule (hemispheres and cylinder). Defaults to 0.5
  * @param desc.height - The height of the cylinder part (distance between hemisphere centers). Defaults to 1
  * @param desc.widthSegments - Number of horizontal segments. Defaults to 16
  * @param desc.heightSegments - Number of vertical segments for each hemisphere. Defaults to 8
- * @returns A mesh entity representing the capsule
+ * @param desc.physics - When physics.use is true, a capsule shape is attached as a collider
+ * @returns A mesh entity representing the capsule, with a physics component if specified
  *
  * @example
  * ```typescript
@@ -576,7 +577,34 @@ const createCapsule = (engine: Engine, desc: CapsuleDescriptor = {}) => {
   const primitive = new Capsule(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
-  return entity;
+
+  const physics = Is.exist(desc.physics) && desc.physics.use ? desc.physics : undefined;
+  if (physics == null) {
+    return entity;
+  }
+
+  const radius = desc.radius ?? 0.5;
+  const shape = normalizeShapeDescriptor({
+    type: 'capsule',
+    height: desc.height ?? 1,
+    radiusBottom: radius,
+    radiusTop: radius,
+  });
+  const shapeEntity = entity.engine.entityRepository.addComponentToEntity(ShapeComponent, entity);
+  const shapeComponent = shapeEntity.getShape();
+  shapeComponent.addShape(shape);
+
+  const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, shapeEntity);
+  const physicsComponent = newEntity.getPhysics();
+  const strategy = createPhysicsStrategy(physics.engine);
+  physicsComponent.setStrategy(strategy);
+  physicsComponent.bindShape({
+    shapeComponent,
+    body: { move: physics.move, density: physics.density },
+    collider: { friction: physics.friction, restitution: physics.restitution },
+  });
+
+  return newEntity;
 };
 
 /**
