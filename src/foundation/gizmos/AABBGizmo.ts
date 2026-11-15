@@ -160,10 +160,13 @@ export class AABBGizmo extends Gizmo {
     const sg = this.__target.getSceneGraph()!;
     const aabb = sg.worldMergedAABBWithSkeletal;
     this.__topEntity.getTransform()!.localPosition = aabb.centerPoint;
+    // A flat mesh (for example a plane) has a zero extent on one axis. A zero scale would make
+    // the gizmo's world matrix singular, so keep every axis at a tiny, still invisible, size.
+    const minHalfExtent = 1e-4;
     this.__topEntity.getTransform()!.localScale = Vector3.fromCopyArray([
-      aabb.sizeX / 2,
-      aabb.sizeY / 2,
-      aabb.sizeZ / 2,
+      Math.max(aabb.sizeX / 2, minHalfExtent),
+      Math.max(aabb.sizeY / 2, minHalfExtent),
+      Math.max(aabb.sizeZ / 2, minHalfExtent),
     ]);
   }
 
