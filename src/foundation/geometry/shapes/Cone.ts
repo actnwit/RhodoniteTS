@@ -1,6 +1,7 @@
 import type { Count } from '../../../types/CommonTypes';
 import { PrimitiveMode } from '../../definitions/PrimitiveMode';
 import { VertexAttribute } from '../../definitions/VertexAttribute';
+import type { PhysicsProperty } from '../../physics/PhysicsProperty';
 import type { IAnyPrimitiveDescriptor } from '../Primitive';
 import { IShape } from './IShape';
 
@@ -28,6 +29,7 @@ export interface ConeDescriptor extends IAnyPrimitiveDescriptor {
    * @defaultValue true
    */
   includeBase?: boolean;
+  physics?: PhysicsProperty;
 }
 
 /**
