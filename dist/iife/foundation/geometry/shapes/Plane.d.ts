@@ -1,4 +1,5 @@
 import type { Size } from '../../../types/CommonTypes';
+import type { PhysicsProperty } from '../../physics/PhysicsProperty';
 import type { IAnyPrimitiveDescriptor } from '../Primitive';
 import { IShape } from './IShape';
 /**
@@ -19,6 +20,7 @@ export interface PlaneDescriptor extends IAnyPrimitiveDescriptor {
     isUVRepeat?: boolean;
     /** draw textures by flipping on the V(Y)-axis */
     flipTextureCoordinateY?: boolean;
+    physics?: PhysicsProperty;
 }
 /**
  * A class for generating plane geometry with customizable dimensions and tessellation

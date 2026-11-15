@@ -197,6 +197,18 @@ export declare class ModelConverter {
      */
     static _setupSkeleton(engine: Engine, gltfModel: RnM2, rnEntities: ISceneGraphEntity[], rnBuffers: Buffer[]): void;
     /**
+     * Returns the lowest common ancestor of the given joints in the scene graph.
+     * glTF's `skin.skeleton` is optional; when it is omitted, the common root of the
+     * joints is the root of the skin's joint hierarchy.
+     */
+    private static __getCommonAncestorOfJoints;
+    /**
+     * Generates smooth vertex normals for primitives that have no NORMAL attribute.
+     * glTF requires implementations to calculate normals when they are absent; without
+     * them lit materials receive a zero normal and shade incorrectly (black or NaN).
+     */
+    private static __generateNormalsIfMissing;
+    /**
      * Sets up all objects (meshes, cameras, lights, groups) from glTF nodes
      * @param gltfModel - The glTF model data
      * @param rnBuffers - Array of Rhodonite buffers

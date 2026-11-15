@@ -1,5 +1,6 @@
 import { RnObject } from '../core/RnObject';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
+import type { IVector3 } from '../math/IVector';
 import type { Engine } from '../system/Engine';
 /**
  * Abstract Gizmo class that provides a foundation for creating interactive gizmo objects
@@ -7,6 +8,8 @@ import type { Engine } from '../system/Engine';
  * rotation rings, or other interactive visual aids.
  */
 export declare abstract class Gizmo extends RnObject {
+    /** Scratch vector used to transform a world position into view space. */
+    private static readonly __tmpViewPosition;
     /**
      * The top entity of this gizmo group.
      * A programmer who implements a gizmo class has to make this entity
@@ -72,4 +75,31 @@ export declare abstract class Gizmo extends RnObject {
      * and processing pipelines
      */
     protected setGizmoTag(): void;
+    /**
+     * Marks the gizmo subtree's world matrices as dirty and materializes them immediately.
+     *
+     * The GPU instance data (world and normal matrices) is uploaded at the beginning of the Render
+     * stage from component buffers, and those buffers are only written when the matrices are
+     * recalculated. A gizmo updated after the Logic stage (for example when only the camera
+     * changed) therefore has to recalculate its matrices here, otherwise the gizmo keeps being
+     * rendered with its previous transform until some later frame re-uploads the data.
+     * @internal
+     */
+    protected __updateWorldMatricesOfSubtree(): void;
+    /**
+     * Calculates a uniform world-space scale that keeps a unit-length gizmo element
+     * (an axis of length 1, or a ring of radius 1) at a constant fraction of the
+     * viewport height, independent of the target size and the camera distance.
+     *
+     * The scale is derived from the vertical scale of the camera's projection matrix,
+     * so the on-screen size stays proportional to the viewport height for both
+     * perspective and orthographic cameras.
+     *
+     * @param engine - The engine used to resolve the current camera
+     * @param worldPosition - The world-space position of the gizmo center
+     * @param screenSpaceRatio - The target size as a fraction of the viewport height
+     * @returns The uniform scale to apply to the gizmo's top entity
+     * @internal
+     */
+    protected static __calcScreenSpaceScale(engine: Engine, worldPosition: IVector3, screenSpaceRatio: number): number;
 }

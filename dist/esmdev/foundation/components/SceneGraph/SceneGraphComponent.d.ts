@@ -16,7 +16,7 @@ import { Quaternion } from '../../math/Quaternion';
 import { Vector3 } from '../../math/Vector3';
 import type { Vector4 } from '../../math/Vector4';
 import type { Engine } from '../../system/Engine';
-import type { CameraComponent } from '../Camera/CameraComponent';
+import { CameraComponent } from '../Camera/CameraComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import type { MeshComponent } from '../Mesh/MeshComponent';
 /**
@@ -86,6 +86,10 @@ export declare class SceneGraphComponent extends Component {
     private static __updateCountMap;
     private static __tmpAABB;
     private __lastTransformComponentsUpdateCount;
+    /** Scene graphs that currently own a visible transform gizmo, keyed by engine.objectUID. */
+    private static __transformGizmoOwners;
+    /** Last camera identity and update count applied to the transform gizmos, keyed by engine.objectUID. */
+    private static __lastCameraStateMap;
     /**
      * Creates a new SceneGraphComponent instance.
      * @param engine - The engine instance
@@ -477,6 +481,37 @@ export declare class SceneGraphComponent extends Component {
      * Updates all active gizmos for this scene graph node.
      */
     private __updateGizmos;
+    /**
+     * Updates the translation, rotation and scale gizmos.
+     * Their size depends on the camera, so this is also called when only the camera changed.
+     */
+    private __updateTransformGizmos;
+    /**
+     * Checks whether any transform gizmo is set up and visible on this node.
+     * @returns True if at least one of the translation/rotation/scale gizmos is visible
+     */
+    private __hasVisibleTransformGizmo;
+    /**
+     * Registers this node as an owner of a visible transform gizmo so that the
+     * gizmos can be rescaled when only the camera changed.
+     */
+    private __registerTransformGizmoOwner;
+    /**
+     * Removes this node from the transform gizmo registry when no transform gizmo is visible.
+     */
+    private __unregisterTransformGizmoOwnerIfNeeded;
+    /**
+     * Re-applies the screen-space gizmo scale after the camera has been updated.
+     *
+     * The transform gizmos keep a constant on-screen size, so they must be rescaled whenever the
+     * camera changes. SceneGraphComponent (TID 4) is processed before CameraComponent (TID 9) in
+     * the Logic stage, so this is called by the Engine right after the Logic stage has finished,
+     * which also covers frames in which the Engine skips the Logic stage entirely.
+     *
+     * @param engine - The engine whose current camera may have changed
+     * @internal
+     */
+    static _updateTransformGizmosByCameraChange(engine: Engine): void;
     /**
      * Sets the world position without updating physics simulation.
      * @param vec - The world position to set

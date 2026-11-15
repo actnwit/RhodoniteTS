@@ -25,6 +25,8 @@ export declare class Mesh implements IMesh {
     private __morphPrimitives;
     private __localAABB;
     private __vaoUids;
+    /** Indices of __vaoUids that refer to a MultiDrawRepository-owned group VAO. */
+    private __multiDrawVaoIndices;
     private __variationVBOUid;
     /** Instance variation data of all the entities, in the order of `__variationEntityUIDs`. */
     private __variationEntityInfo?;
@@ -39,6 +41,11 @@ export declare class Mesh implements IMesh {
     /** Culling state the variation VBO content was packed for; used to skip redundant packing. */
     private __variationVBOCulledEntityStamp?;
     private __variationVBOCullTick;
+    /** Stable slot range in the engine-wide instance SID table (WebGL multi-draw). */
+    private __instanceSidBase;
+    private __instanceSidCount;
+    /** Id of the last culling pass that visited this mesh in the per-pass instance prepass. */
+    private __remapPrepassId;
     private __latestPrimitivePositionAccessorVersionForAABB;
     private __latestPrimitivePositionAccessorVersionForSetUpDone;
     private __belongToEntities;
@@ -144,6 +151,28 @@ export declare class Mesh implements IMesh {
      */
     getPrimitiveNumber(): number;
     /**
+     * Whether the WebGL instance SID texture path (multi-draw) is active for this mesh.
+     */
+    private __isInstanceSidTextureMode;
+    /**
+     * Ensures that this mesh owns a contiguous range of stable instance slots in the
+     * engine-wide instance SID table and writes the instance identity records.
+     * @returns The first stable slot index (instanceBase).
+     * @internal
+     */
+    _ensureInstanceSidBase(): number;
+    /**
+     * Gets the first stable instance slot of this mesh (WebGL multi-draw).
+     * @internal
+     */
+    get _instanceSidBase(): number;
+    /**
+     * Visit stamp of the per-pass instance prepass (WebGL multi-draw).
+     * @internal
+     */
+    get _remapPrepassId(): number;
+    set _remapPrepassId(id: number);
+    /**
      * Updates the variation VBO (Vertex Buffer Object) for instancing.
      * @returns True if updated, false if not changed (not dirty)
      * @internal
@@ -164,6 +193,16 @@ export declare class Mesh implements IMesh {
      */
     _packVisibleInstancesToVariationVBO(culledEntityStamp: Uint32Array | undefined, cullTick: number): number;
     /**
+     * Packs the visible instances into the engine-wide remap table so that the shader can
+     * resolve `instanceBase + gl_InstanceID` to a stable SID slot. WebGL multi-draw only.
+     *
+     * @param culledEntityStamp - Per-EntityUID stamps written by the render pass culling
+     * @param cullTick - The stamp value of the latest culling of the render pass
+     * @returns The number of visible instances
+     * @internal
+     */
+    _packVisibleInstancesToInstanceRemap(culledEntityStamp: Uint32Array | undefined, cullTick: number): number;
+    /**
      * Deletes the variation VBO (Vertex Buffer Object).
      * @returns True if updated, false if not changed (not dirty)
      * @internal
@@ -175,8 +214,15 @@ export declare class Mesh implements IMesh {
     updateVAO(): void;
     /**
      * Deletes all VAO (Vertex Array Object) resources for this mesh.
+     * Group VAOs are owned by the MultiDrawRepository and are skipped.
      */
     deleteVAO(): void;
+    /**
+     * Clears the VAO entries that point at multi-draw group VAOs. The groups own those
+     * VAOs and delete them, so the mesh must forget them before the group is released.
+     * @internal
+     */
+    _clearMultiDrawVaoUids(): void;
     /**
      * Performs ray casting against this mesh to find intersection points.
      * @param srcPointInLocal - The ray origin point in local space
@@ -313,6 +359,12 @@ export declare class Mesh implements IMesh {
      * Updates VBO (Vertex Buffer Object) and VAO (Vertex Array Object) for all primitives.
      * @internal
      */
+    /**
+     * Marks this mesh's multi-draw groups (and the legacy setup) for a rebuild.
+     * Called when a primitive's attributes or indices change.
+     * @internal
+     */
+    _invalidateMultiDrawStructure(): void;
     _updateVBOAndVAO(): void;
     /**
      * Deletes all 3D API vertex data for this mesh.

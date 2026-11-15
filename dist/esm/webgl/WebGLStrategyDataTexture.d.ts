@@ -30,6 +30,20 @@ export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStr
     private __lastMaterialStateVersion;
     private __shaderProgram?;
     private __lastRenderPassTickCount;
+    /**
+     * 1 when every mesh drawn in the current pass shows all of its instances, which lets the
+     * vertex shader skip the remap texture fetch and read the SID texel directly.
+     */
+    private __instanceRemapIdentity;
+    /** Reused numeric run plan of the current bucket (no per-frame allocation). */
+    private __runPlan;
+    /** Layout of the instance SID / remap regions inside the data texture. */
+    private __dataTextureWidth;
+    private __instanceSidBaseRow;
+    private __instanceRemapBaseRow;
+    private __instanceSidBaseVec4;
+    private __instanceRemapBaseVec4;
+    private __instanceSidCapacity;
     private __lightComponents?;
     private __currentComponentSIDs?;
     /** Program and values of the last currentComponentSIDs upload, used to skip redundant uploads. */
@@ -364,6 +378,24 @@ export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStr
      */
     private __setCurrentComponentSIDsForEachPrimitive;
     /**
+     * Packs the visible instances of every mesh drawn in this pass into the engine-wide
+     * remap table and uploads the instance SID / remap textures once before drawing.
+     * This must happen before any draw so that a multi-draw batch spanning several meshes
+     * sees the remap entries of all its meshes.
+     */
+    private __uploadInstanceTables;
+    /**
+     * Uploads the dirty instance SID / remap rows into the engine data texture.
+     * The two tables are stored in reserved rows after the component data, so the
+     * shader can read them from texture unit 0 and no extra texture unit is consumed.
+     */
+    private __uploadInstanceSidDataTexture;
+    /**
+     * Uploads `texelCount` texels starting at `baseRow` to the data texture. Rows are
+     * `this.__dataTextureWidth` texels wide, so the last row is uploaded partially.
+     */
+    private __uploadInstanceRegion;
+    /**
      * Main rendering method that processes all primitives in a render pass.
      * This method handles different primitive types (opaque, translucent, blend)
      * and manages VR/non-VR rendering modes.
@@ -402,6 +434,25 @@ export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStr
      * - Using drawArrays with the specified primitive mode and vertex count
      */
     private __renderWithoutBuffers;
+    /** Whether the per-vertex materialSID / instanceBase attribute path is active. */
+    private __useMaterialSidAttribute;
+    /**
+     * Binds the VAO variant matching the effective material and sets the generic
+     * materialSID when the per-vertex materialSID buffer must not be used
+     * (non-grouped primitives and render-pass material overrides).
+     */
+    private __bindMultiDrawVertexDataForMaterial;
+    /**
+     * Renders a bucket range, batching consecutive primitives that share a multi-draw
+     * group, material and shader program into one WEBGL_multi_draw call.
+     */
+    private __renderBucket;
+    /**
+     * Draws a run of grouped primitives with one multi-draw call. The render state
+     * (shader program, material, VAO, textures) is prepared by rendering the first
+     * primitive with a deferred draw.
+     */
+    private __renderMultiDrawBatch;
     /**
      * Internal rendering implementation for individual primitives.
      * This method handles the complete rendering pipeline for a single primitive,
@@ -451,6 +502,24 @@ export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStr
      * Other material textures should start from texture unit 1.
      */
     private bindDataTexture;
+    /**
+     * Binds the engine-wide instance SID / remap textures used by multi-draw rendering.
+     * The textures are declared in the common vertex shader include and are only used
+     * when RN_USE_INSTANCE_SID_TEXTURE is defined.
+     */
+    private bindInstanceSidTextures;
+    /**
+     * Keeps the data-texture base indices of the instance tables in sync with the
+     * current texture layout. The indices change when the data texture is recreated
+     * (e.g. the instance slot capacity grew) while the same program stays bound.
+     */
+    private __setInstanceSidDataTextureIndices;
+    /**
+     * Keeps the remap-identity uniform in sync with the current render pass. The culling
+     * state can change between passes while the same shader program stays bound, so this
+     * is checked before every draw (a cheap property comparison when unchanged).
+     */
+    private __setInstanceRemapIdentity;
     /**
      * Destroys all GPU resources held by this strategy.
      * Should be called when the engine is being destroyed.

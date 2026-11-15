@@ -1,7 +1,7 @@
 import type { Count, Index, VectorComponentN } from '../../types/CommonTypes';
 import { EnumClass, type EnumIO } from '../misc/EnumIO';
 type ComponentChar = 'X' | 'Y' | 'Z' | 'W';
-export type VertexAttributeTypeName = 'UNKNOWN' | 'POSITION' | 'NORMAL' | 'TANGENT' | 'TEXCOORD_0' | 'TEXCOORD_1' | 'TEXCOORD_2' | 'COLOR_0' | 'JOINTS_0' | 'WEIGHTS_0' | 'INSTANCE' | 'FACE_NORMAL' | 'BARY_CENTRIC_COORD';
+export type VertexAttributeTypeName = 'UNKNOWN' | 'POSITION' | 'NORMAL' | 'TANGENT' | 'TEXCOORD_0' | 'TEXCOORD_1' | 'TEXCOORD_2' | 'COLOR_0' | 'JOINTS_0' | 'WEIGHTS_0' | 'INSTANCE' | 'FACE_NORMAL' | 'BARY_CENTRIC_COORD' | 'MATERIAL_SID';
 export type VertexAttributeComponent = `${VertexAttributeTypeName}.${ComponentChar}`;
 export type VertexAttributeSemanticsJoinedString = `${string}.${ComponentChar}` | `${string}.${ComponentChar},${string}.${ComponentChar}` | `${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar}` | `${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar}`;
 export interface VertexAttributeEnum extends EnumIO {
@@ -75,6 +75,7 @@ export declare const VertexAttribute: Readonly<{
     Instance: VertexAttributeEnum;
     FaceNormal: VertexAttributeEnum;
     BaryCentricCoord: VertexAttributeEnum;
+    MaterialSid: VertexAttributeEnum;
     AttributeTypeNumber: number;
     integerTypeAttributes: VertexAttributeEnum[];
     isInstanceOfVertexAttributeClass: typeof isInstanceOfVertexAttributeClass;

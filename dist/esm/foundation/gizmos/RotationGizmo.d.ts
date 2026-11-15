@@ -11,6 +11,8 @@ export declare class RotationGizmo extends Gizmo {
     private static __activeAxis;
     private static __space;
     private static __length;
+    /** Gizmo size as a fraction of the viewport height (ring radius). */
+    private static __screenSpaceRatio;
     private static readonly __unitX;
     private static readonly __unitY;
     private static readonly __unitZ;
@@ -53,8 +55,33 @@ export declare class RotationGizmo extends Gizmo {
      */
     private static __getResources;
     get isSetup(): boolean;
+    /**
+     * Sets the ring radius of the gizmo.
+     * @param val - The ring radius value
+     * @deprecated The gizmo size is now derived from the camera so that it stays
+     * constant in screen space. This value only affects the geometry generated
+     * before the gizmo resources are created.
+     */
     set length(val: number);
+    /**
+     * Gets the ring radius of the gizmo.
+     * @returns The ring radius value
+     * @deprecated The gizmo size is now derived from the camera so that it stays
+     * constant in screen space. This value only affects the geometry generated
+     * before the gizmo resources are created.
+     */
     get length(): number;
+    /**
+     * Sets the gizmo size as a fraction of the viewport height.
+     * The unit ring radius is projected to this fraction of the viewport height.
+     * @param val - The ratio of the viewport height (for example, 0.08 for 8%)
+     */
+    set screenSpaceRatio(val: number);
+    /**
+     * Gets the gizmo size as a fraction of the viewport height.
+     * @returns The ratio of the viewport height occupied by the gizmo's unit ring radius
+     */
+    get screenSpaceRatio(): number;
     get isVisible(): boolean;
     set isVisible(flg: boolean);
     setSpace(space: 'local' | 'world'): void;

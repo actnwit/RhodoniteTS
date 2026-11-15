@@ -30,6 +30,7 @@ export declare const WebGLExtension: Readonly<{
     OvrMultiview2: EnumIO;
     GMAN_WEBGL_MEMORY: EnumIO;
     ClipControl: EnumIO;
+    MultiDraw: EnumIO;
     from: typeof from;
 }>;
 export {};

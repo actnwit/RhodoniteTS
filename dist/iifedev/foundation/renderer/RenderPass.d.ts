@@ -83,12 +83,20 @@ export declare class RenderPass extends RnObject {
     _lastBlendWithoutZWriteIndex: number;
     /** @internal Array of last primitive UIDs for optimization */
     _lastPrimitiveUids: number[];
+    /**
+     * @internal Primitives in the same order as `_lastPrimitiveUids`, so the render strategy can
+     * avoid a per-primitive repository lookup. Valid only while `_lastPrimitiveUids` is the array
+     * the strategy was called with.
+     */
+    _lastPrimitives: Primitive[] | null;
     /** @internal Last transform components update count for change detection */
     _lastTransformComponentsUpdateCount: number;
     /** @internal Last camera controller components update count for change detection */
     _lastCameraControllerComponentsUpdateCount: number;
     /** @internal Last scene graph components update count for change detection */
     _lastSceneGraphComponentsUpdateCount: number;
+    /** @internal Last multi-draw group version for change detection */
+    _lastMultiDrawGroupVersion: number;
     /** @internal Whether something was rendered in the previous frame */
     _renderedSomethingBefore: boolean;
     /** @internal Whether the sort render result has changed */

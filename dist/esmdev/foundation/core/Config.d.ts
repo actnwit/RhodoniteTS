@@ -21,6 +21,7 @@ type ConfigInitDescription = {
     isMobile?: boolean;
     bufferSizeDivisionRatiosForGPUInstanceDataUsage?: number[];
     logLevel?: LogLevel;
+    isMultiDrawEnabled?: boolean;
 };
 /**
  * Config is a configuration class that contains the configuration for the library.
@@ -69,6 +70,12 @@ export declare class Config {
     bufferSizeDivisionRatiosForGPUInstanceDataUsage: number[];
     /** The minimum log level that will be output. Messages below this level are ignored. */
     logLevel: LogLevel;
+    /**
+     * Whether to enable WebGL multi-draw rendering.
+     * When enabled (and supported), primitives sharing a source Buffer are merged into shared
+     * vertex/index buffers and consecutive draws with the same state are issued with WEBGL_multi_draw.
+     */
+    isMultiDrawEnabled: boolean;
     constructor(initDescription?: ConfigInitDescription);
 }
 export {};

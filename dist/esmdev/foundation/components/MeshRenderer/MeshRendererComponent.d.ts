@@ -15,6 +15,10 @@ import type { ComponentToComponentMethods } from '../ComponentTypes';
 export type InstanceCullingState = {
     readonly culledEntityStamp: Uint32Array;
     readonly cullTick: number;
+    /** Number of entities culled by the latest culling. 0 means every instance stays visible. */
+    readonly culledEntityCount: number;
+    /** Globally unique id of the latest culling. */
+    readonly cullingId: number;
 };
 /**
  * MeshRendererComponent is a component that manages the rendering of a mesh entity.
@@ -33,7 +37,17 @@ export declare class MeshRendererComponent extends Component {
     private __updateCount;
     private static __updateCount;
     static _isFrustumCullingEnabled: boolean;
+    /** Monotonic id of the latest culling pass, used as a per-mesh visit stamp. */
+    private static __cullingIdCounter;
     private __fingerPrint;
+    private __fingerPrintId;
+    /**
+     * Interned ids of mesh renderer fingerprints. The fingerprint changes only when the IBL cube
+     * maps change, and two mesh renderers with the same cube maps must share a multi-draw batch,
+     * so the id is interned by value instead of being unique per component.
+     */
+    private static __fingerPrintIds;
+    private static __nextFingerPrintId;
     /** Per-render-pass scratch buffers reused by sort_$render to avoid per-frame allocations. */
     private static __sortScratchMap;
     /** Memoized rendering strategy for common_$prerender (the hot path runs once per frame). */
@@ -118,11 +132,18 @@ export declare class MeshRendererComponent extends Component {
      * The fingerprint is used for caching and optimization purposes.
      */
     calcFingerPrint(): void;
+    private static __internFingerPrintId;
     /**
      * Gets the current fingerprint of this component.
      * @returns The fingerprint string
      */
     getFingerPrint(): string;
+    /**
+     * Gets the interned numeric id of the fingerprint. Numeric ids keep the per-frame
+     * multi-draw state keys cheap to compare.
+     * @returns The fingerprint id
+     */
+    getFingerPrintId(): number;
     /**
      * Sets the IBL (Image-Based Lighting) cube maps for this mesh renderer.
      * @param diffuseCubeTexture - The diffuse cube map texture for IBL

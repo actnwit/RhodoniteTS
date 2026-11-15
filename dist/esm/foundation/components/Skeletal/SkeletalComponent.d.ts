@@ -407,10 +407,13 @@ export declare class SkeletalComponent extends Component {
      * The cache key determines which SkeletalComponents can share skinning results:
      *
      * ## With Animation Applied
-     * - Uses format: `anim|{animationHash}|{inverseBindMatricesSignature}`
+     * - Uses format: `anim|{animationHash}|{inverseBindMatricesSignature}|{jointListKey}`
      * - animationHash is computed from animation track features (keyframes, timings, etc.)
      * - inverseBindMatricesSignature ensures models with different bone structures don't share cache
-     * - Only models with BOTH same animation AND same inverseBindMatrices can share skinning results
+     * - jointListKey ensures recursively nested chains that share local tracks/bind matrices
+     *   but have different joint nodes (different parent transforms) don't share results
+     * - Only models with the same animation, bind matrices and joint hierarchy can share
+     *   skinning results
      *
      * ## Without Animation
      * - Uses format: `{jointListKey}|{accessorSignature}|no_animation`

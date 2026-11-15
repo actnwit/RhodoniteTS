@@ -20,6 +20,9 @@ import type { IRenderable } from '../foundation/textures/IRenderable';
 import { Sampler } from '../foundation/textures/Sampler';
 import type { BasisFile } from '../types/BasisTexture';
 import type { ArrayType, Byte, CGAPIResourceHandle, Count, Index, Offset, Size, TypedArray, WebGLResourceHandle, WebGPUResourceHandle } from '../types/CommonTypes';
+import { InstanceSidTable } from './InstanceSidTable';
+import type { MultiDrawGroup } from './MultiDraw';
+import { MultiDrawRepository } from './MultiDrawRepository';
 import type { AttributeNames } from './types';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
 import type { RnWebGLProgram } from './WebGLExtendedTypes';
@@ -121,6 +124,8 @@ export type WebGLResource = WebGLBuffer | WebGLFramebuffer | WebGLProgram | WebG
 export declare class WebGLResourceRepository extends CGAPIResourceRepository implements ICGAPIResourceRepository {
     private __webglContexts;
     private __glw?;
+    private __instanceSidTable?;
+    private __multiDrawRepository?;
     /** See __getCanvasContextAttributes(). */
     private __canvasContextAttributes?;
     private __canvasContextAttributesOwner?;
@@ -165,6 +170,22 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
      * @returns The current WebGLContextWrapper instance or undefined if none is set
      */
     get currentWebGLContextWrapper(): WebGLContextWrapper | undefined;
+    /**
+     * Gets the engine-wide instance SID table used by multi-draw rendering.
+     * The table is created lazily for the current WebGL context.
+     */
+    get instanceSidTable(): InstanceSidTable;
+    /**
+     * Whether this context can use the instance SID path used by multi-draw rendering.
+     * The instance tables live in the data texture (unit 0), so WebGL2 plus the
+     * WEBGL_multi_draw extension are the only requirements.
+     */
+    get isInstanceSidTextureCapable(): boolean;
+    /**
+     * Gets the engine-wide multi-draw group repository, creating it lazily.
+     * @param engine - The engine that owns the WebGL context
+     */
+    getMultiDrawRepository(engine: Engine): MultiDrawRepository;
     /**
      * Generates a unique resource handle for WebGL objects.
      *
@@ -217,6 +238,13 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
      * @throws Error if no WebGL context is available
      */
     createVertexBufferFromTypedArray(typedArray: TypedArray): number;
+    /**
+     * Creates an index buffer directly from a typed array.
+     *
+     * @param typedArray - The typed array containing index data
+     * @returns The handle of the created index buffer
+     */
+    createIndexBufferFromTypedArray(typedArray: TypedArray): number;
     /**
      * Updates an existing vertex buffer with new data from the accessor.
      *
@@ -421,6 +449,13 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
         iboHandle?: WebGLResourceHandle;
         vboHandles: Array<WebGLResourceHandle>;
     }, primitive: Primitive, instanceIDBufferUid?: WebGLResourceHandle): void;
+    /**
+     * Configures a multi-draw group's VAO with the merged vertex buffers, the merged
+     * uint32 index buffer, and the per-vertex instanceBase attribute (divisor 0).
+     *
+     * @param group - The multi-draw group whose vertexHandles/vertices are already created
+     */
+    setMultiDrawVertexDataToPipeline(group: MultiDrawGroup, vaoHandle?: WebGLResourceHandle, useMaterialSidAttribute?: boolean): void;
     /**
      * Creates a 2D texture with immutable storage using texStorage2D.
      * This method allocates texture storage with the specified parameters.

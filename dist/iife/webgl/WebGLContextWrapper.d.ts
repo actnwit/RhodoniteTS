@@ -73,6 +73,7 @@ export declare class WebGLContextWrapper {
     readonly webgl2ExtMLTVIEW?: WEBGL_multiview;
     readonly webgl2ExtClipCtrl?: any;
     readonly webgl2ExtGmanWM?: any;
+    readonly webgl2ExtMD?: WEBGL_multi_draw | null;
     private __activeTextureBackup;
     private __activeTextures2D;
     private __activeTextures2DArray;
@@ -196,6 +197,17 @@ export declare class WebGLContextWrapper {
      * @param instanceCount - The number of instances to draw
      */
     drawArraysInstanced(primitiveMode: number, first: number, count: number, instanceCount: number): void;
+    /**
+     * Issues multiple instanced indexed draws with one call when WEBGL_multi_draw is available.
+     * Falls back to individual drawElementsInstanced calls otherwise.
+     * The offsets are byte offsets into the currently bound element array buffer.
+     */
+    multiDrawElementsInstanced(primitiveMode: number, counts: Int32Array, countsOffset: number, type: number, offsets: Int32Array, offsetsOffset: number, instanceCounts: Int32Array, instanceCountsOffset: number, drawcount: number): void;
+    /**
+     * Issues multiple instanced non-indexed draws with one call when WEBGL_multi_draw is available.
+     * Falls back to individual drawArraysInstanced calls otherwise.
+     */
+    multiDrawArraysInstanced(primitiveMode: number, firsts: Int32Array, firstsOffset: number, counts: Int32Array, countsOffset: number, instanceCounts: Int32Array, instanceCountsOffset: number, drawcount: number): void;
     /**
      * Gets the color attachment constant for a given index.
      * @param index - The attachment index

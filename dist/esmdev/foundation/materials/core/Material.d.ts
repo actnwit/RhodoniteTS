@@ -140,6 +140,24 @@ export declare class Material extends RnObject {
      * @internal
      */
     _getFingerPrint(): string;
+    private __textureBindingSignature;
+    private __textureBindingSignatureVersion;
+    private __multiDrawStateKey;
+    private __multiDrawStateKeyVersion;
+    /**
+     * Signature of the texture/sampler bindings and the true uniforms that are set per
+     * material in DataTexture mode. Materials with the same signature can share one
+     * multi-draw batch (their per-draw state differs only in the data texture row).
+     * @internal
+     */
+    _getTextureBindingSignature(): string;
+    /**
+     * Key of the material state that must be identical for a multi-draw batch:
+     * material type, shader semantics variant, shader defines, pipeline fingerprint,
+     * texture bindings and true-uniform values.
+     * @internal
+     */
+    _getMultiDrawStateKey(): string;
     /**
      * Checks if a value is an animated value (implements IAnimatedValue).
      * @param value - The value to check

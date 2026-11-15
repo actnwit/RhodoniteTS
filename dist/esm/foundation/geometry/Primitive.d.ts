@@ -1,4 +1,5 @@
 import type { Count, Index, Offset, PrimitiveUID, TypedArray } from '../../types/CommonTypes';
+import type { MultiDrawEntry, MultiDrawGroup } from '../../webgl/MultiDraw';
 import type { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import { RnObject } from '../core/RnObject';
 import { type ComponentTypeEnum } from '../definitions/ComponentType';
@@ -43,6 +44,8 @@ export declare class Primitive extends RnObject {
     private __targets;
     private __vertexHandles?;
     private __mesh?;
+    private __multiDrawGroup?;
+    private __multiDrawEntryIndex;
     private static __primitives;
     _sortkey: PrimitiveSortKey;
     _viewDepth: number;
@@ -70,6 +73,28 @@ export declare class Primitive extends RnObject {
      * @returns The fingerprint string used for primitive identification
      */
     _getFingerPrint(): string;
+    /**
+     * Gets the index bit size used for rendering. Primitives merged into a multi-draw
+     * group use the shared uint32 index buffer regardless of their source accessor type.
+     */
+    getRenderIndexBitSize(): 'uint16' | 'uint32';
+    /** The engine that owns this primitive (used to scope engine-wide scans). */
+    get _engine(): Engine;
+    /** The multi-draw group this primitive belongs to, if any. */
+    get _multiDrawGroup(): MultiDrawGroup | undefined;
+    /** The entry of this primitive inside its multi-draw group. */
+    get _multiDrawEntry(): MultiDrawEntry | undefined;
+    /**
+     * Associates this primitive with a multi-draw group entry and shares the group's
+     * GPU handles. The caller is responsible for the group's GPU resources.
+     * @internal
+     */
+    _setMultiDrawGroup(group: MultiDrawGroup, entryIndex: number): void;
+    /**
+     * Detaches this primitive from its multi-draw group.
+     * @internal
+     */
+    _clearMultiDrawGroup(): void;
     /**
      * Gets the index of a primitive with morph targets by its UID.
      * @param primitiveUid - The unique identifier of the primitive
@@ -184,6 +209,11 @@ export declare class Primitive extends RnObject {
      * @returns The primitive if found and still exists, otherwise undefined
      */
     static getPrimitive(primitiveUid: PrimitiveUID): Primitive | undefined;
+    /**
+     * Iterates over all live primitives created in this application.
+     * @param callback - Called for each live primitive
+     */
+    static forEachPrimitive(callback: (primitive: Primitive) => void): void;
     /**
      * Gets the total number of primitives created in the application.
      * @returns The total count of primitives
@@ -308,6 +338,7 @@ export declare class Primitive extends RnObject {
      * @param accessor - The accessor containing the attribute data
      * @param vertexSemantic - The semantic meaning of the attribute
      */
+    private __invalidateMultiDrawGroup;
     setVertexAttribute(accessor: Accessor, vertexSemantic: VertexAttributeSemanticsJoinedString): void;
     /**
      * Removes the index buffer from this primitive, converting it to non-indexed rendering.

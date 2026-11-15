@@ -18,6 +18,8 @@ import type { IMeshEntity } from './EntityHelper';
  * @param engine - The engine instance
  * @param desc - Configuration object for the plane
  * @param desc.direction - The orientation of the plane ('xz', 'xy', or 'yz'). Defaults to 'xz'
+ * @param desc.physics - When physics.use is true, a thin box shape is attached so the plane
+ * can act as a collider
  * @returns A mesh entity representing the plane
  *
  * @example
@@ -27,6 +29,13 @@ import type { IMeshEntity } from './EntityHelper';
  *
  * // Create a vertical plane facing forward
  * const verticalPlane = createPlane({ direction: 'xy' });
+ *
+ * // Create a horizontal plane that acts as a static physics collider
+ * const physicsPlane = createPlane({
+ *   width: 20,
+ *   height: 20,
+ *   physics: { use: true, move: false, density: 1, friction: 0.5, restitution: 0.3 }
+ * });
  * ```
  */
 declare const createPlane: (engine: Engine, desc?: PlaneDescriptor & {
@@ -65,11 +74,16 @@ declare const createLine: (engine: Engine, desc?: LineDescriptor) => IMeshEntity
  */
 declare const createGrid: (engine: Engine, desc?: GridDescriptor) => IMeshEntity;
 /**
- * Creates a cone mesh entity.
+ * Creates a cone mesh entity with optional physics simulation.
+ *
+ * When physics is enabled, a cylinder shape with a zero top radius is attached. Rapier only has a
+ * cylinder collider, so the cone is approximated by a cylinder that uses the cone's base radius.
+ * The cone mesh spans [0, height] along +Y, so the shape is offset by half its height.
  *
  * @param engine - The engine instance
- * @param desc - Configuration object for the cone geometry
- * @returns A mesh entity representing the cone
+ * @param desc - Configuration object for the cone geometry and physics properties
+ * @param desc.physics - When physics.use is true, a collider shape is attached
+ * @returns A mesh entity representing the cone, with a physics component if specified
  *
  * @example
  * ```typescript
@@ -81,7 +95,27 @@ declare const createGrid: (engine: Engine, desc?: GridDescriptor) => IMeshEntity
  * ```
  */
 declare const createCone: (engine: Engine, desc?: ConeDescriptor) => IMeshEntity;
-/** Creates a centered cylinder or truncated-cone mesh entity. */
+/**
+ * Creates a centered cylinder or truncated-cone mesh entity with optional physics simulation.
+ *
+ * When physics is enabled, a cylinder shape is attached so the primitive can act as a collider.
+ * Rapier approximates a truncated cone with a cylinder that uses the larger radius.
+ *
+ * @param engine - The engine instance
+ * @param desc - Configuration object for the cylinder geometry and physics properties
+ * @returns A mesh entity representing the cylinder, with a physics component if specified
+ *
+ * @example
+ * ```typescript
+ * const cylinder = createCylinder({ radiusBottom: 0.5, radiusTop: 0.5, height: 2 });
+ *
+ * const physicsCylinder = createCylinder({
+ *   radiusBottom: 0.5,
+ *   height: 2,
+ *   physics: { use: true, move: true, density: 1.0, friction: 0.5, restitution: 0.3 }
+ * });
+ * ```
+ */
 declare const createCylinder: (engine: Engine, desc?: CylinderDescriptor) => IMeshEntity;
 /**
  * Creates a cube mesh entity with optional physics simulation.
@@ -245,16 +279,17 @@ declare const createAxis: (engine: Engine, desc?: AxisDescriptor) => IMeshEntity
  */
 declare const createRing: (engine: Engine, desc?: RingDescriptor) => IMeshEntity;
 /**
- * Creates a capsule mesh entity.
+ * Creates a capsule mesh entity with optional physics simulation.
  * A capsule is a cylinder with hemispherical caps at both ends.
  *
  * @param engine - The engine instance
- * @param desc - Configuration object for the capsule geometry
+ * @param desc - Configuration object for the capsule geometry and physics properties
  * @param desc.radius - The radius of the capsule (hemispheres and cylinder). Defaults to 0.5
  * @param desc.height - The height of the cylinder part (distance between hemisphere centers). Defaults to 1
  * @param desc.widthSegments - Number of horizontal segments. Defaults to 16
  * @param desc.heightSegments - Number of vertical segments for each hemisphere. Defaults to 8
- * @returns A mesh entity representing the capsule
+ * @param desc.physics - When physics.use is true, a capsule shape is attached as a collider
+ * @returns A mesh entity representing the capsule, with a physics component if specified
  *
  * @example
  * ```typescript

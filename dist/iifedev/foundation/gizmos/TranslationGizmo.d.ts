@@ -23,6 +23,8 @@ export declare class TranslationGizmo extends Gizmo {
     private __onPointerUpFunc;
     private __isCameraControllerDisabled;
     private static __length;
+    /** Gizmo size as a fraction of the viewport height (unit axis length). */
+    private static __screenSpaceRatio;
     /** Reusable quaternions for world-rotation calculations (avoids per-frame allocations) */
     private static readonly __tmpQuaternion_0;
     private static readonly __tmpQuaternion_1;
@@ -42,13 +44,28 @@ export declare class TranslationGizmo extends Gizmo {
     /**
      * Sets the length/scale of the gizmo axes.
      * @param val - The length value for the gizmo axes
+     * @deprecated The gizmo size is now derived from the camera so that it stays
+     * constant in screen space. This value no longer affects the visual size.
      */
     set length(val: number);
     /**
      * Gets the current length/scale of the gizmo axes.
      * @returns The current length value of the gizmo axes
+     * @deprecated The gizmo size is now derived from the camera so that it stays
+     * constant in screen space. This value no longer affects the visual size.
      */
     get length(): number;
+    /**
+     * Sets the gizmo size as a fraction of the viewport height.
+     * The unit axis length is projected to this fraction of the viewport height.
+     * @param val - The ratio of the viewport height (for example, 0.12 for 12%)
+     */
+    set screenSpaceRatio(val: number);
+    /**
+     * Gets the gizmo size as a fraction of the viewport height.
+     * @returns The ratio of the viewport height occupied by the gizmo's unit axis length
+     */
+    get screenSpaceRatio(): number;
     /**
      * Sets the visibility of the gizmo and manages input event registration.
      * When set to visible, registers pointer event handlers and adds the gizmo to the scene.

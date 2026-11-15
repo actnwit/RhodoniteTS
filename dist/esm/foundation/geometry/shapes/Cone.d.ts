@@ -1,4 +1,5 @@
 import type { Count } from '../../../types/CommonTypes';
+import type { PhysicsProperty } from '../../physics/PhysicsProperty';
 import type { IAnyPrimitiveDescriptor } from '../Primitive';
 import { IShape } from './IShape';
 /**
@@ -25,6 +26,7 @@ export interface ConeDescriptor extends IAnyPrimitiveDescriptor {
      * @defaultValue true
      */
     includeBase?: boolean;
+    physics?: PhysicsProperty;
 }
 /**
  * Cone primitive aligned along the +Y axis (base on the XZ plane, tip along +Y).

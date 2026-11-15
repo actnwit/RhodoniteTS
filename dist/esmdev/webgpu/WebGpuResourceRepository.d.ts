@@ -331,6 +331,20 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
      */
     createVertexBufferFromTypedArray(typedArray: TypedArray): WebGPUResourceHandle;
     /**
+     * Vertex formats that normalize integer data to floats inside the GPU.
+     * WebGPU only provides these formats for two or four components.
+     */
+    private static readonly __normalizedVertexFormats;
+    /**
+     * Returns the WebGPU vertex format for an attribute accessor.
+     * An accessor with the normalized flag uses a unorm/snorm format so that the GPU converts
+     * its integer data to the [0, 1] / [-1, 1] range before the vertex shader reads it.
+     *
+     * @param accessor - Accessor of the vertex attribute
+     * @returns The vertex format to declare in the pipeline layout
+     */
+    private static __getVertexFormat;
+    /**
      * Creates a WebGPU index buffer from an accessor containing index data.
      * Automatically converts UnsignedByte indices to UnsignedShort since WebGPU
      * doesn't support 8-bit index buffers.
@@ -463,7 +477,7 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
      * @param cameraId - Identifier for the camera used for rendering
      * @param zWrite - Whether to enable depth writing during rendering
      */
-    draw(engine: Engine, primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number, zWrite: boolean, displayIdx: number): void;
+    draw(engine: Engine, primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number, zWrite: boolean, _displayIdx: number): void;
     /**
      * Creates a render bundle encoder for efficient rendering.
      * Render bundles allow pre-recording of rendering commands for better performance.
