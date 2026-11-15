@@ -851,6 +851,12 @@ export class Engine extends RnObject {
           }
         }
       }
+      if (stage === ProcessStage.Logic) {
+        // The transform gizmos keep a constant on-screen size, so they have to be rescaled
+        // after the CameraComponent (TID 9) has updated its matrices. This runs outside the
+        // change gate above so that a frame which skips the Logic stage still corrects them.
+        SceneGraphComponent._updateTransformGizmosByCameraChange(this);
+      }
     }
     this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this);
     this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(this);
@@ -957,6 +963,12 @@ export class Engine extends RnObject {
             componentClass.process(this, componentClass, stage);
           }
         }
+      }
+      if (stage === ProcessStage.Logic) {
+        // The transform gizmos keep a constant on-screen size, so they have to be rescaled
+        // after the CameraComponent (TID 9) has updated its matrices. This runs outside the
+        // change gate above so that a frame which skips the Logic stage still corrects them.
+        SceneGraphComponent._updateTransformGizmosByCameraChange(this);
       }
     }
     this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this);

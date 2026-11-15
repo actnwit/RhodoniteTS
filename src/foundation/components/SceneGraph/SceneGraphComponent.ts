@@ -30,7 +30,7 @@ import { Vector3 } from '../../math/Vector3';
 import type { Vector4 } from '../../math/Vector4';
 import { Is } from '../../misc/Is';
 import type { Engine } from '../../system/Engine';
-import type { CameraComponent } from '../Camera/CameraComponent';
+import { CameraComponent } from '../Camera/CameraComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import type { MeshComponent } from '../Mesh/MeshComponent';
 import { TransformComponent } from '../Transform/TransformComponent';
@@ -111,6 +111,11 @@ export class SceneGraphComponent extends Component {
   private static __tmpAABB = new AABB();
 
   private __lastTransformComponentsUpdateCount = -1;
+
+  /** Scene graphs that currently own a visible transform gizmo, keyed by engine.objectUID. */
+  private static __transformGizmoOwners: Map<number, Set<SceneGraphComponent>> = new Map();
+  /** Last camera identity and update count applied to the transform gizmos, keyed by engine.objectUID. */
+  private static __lastCameraStateMap: Map<number, { componentSID: ComponentSID; updateCount: number }> = new Map();
 
   /**
    * Creates a new SceneGraphComponent instance.
@@ -277,12 +282,14 @@ export class SceneGraphComponent extends Component {
         this.__translationGizmo._setup();
       }
       this.__translationGizmo.isVisible = true;
+      this.__registerTransformGizmoOwner();
       if (this.__translationGizmo.isSetup) {
         this.__translationGizmo._update();
       }
     } else {
       if (Is.exist(this.__translationGizmo)) {
         this.__translationGizmo.isVisible = false;
+        this.__unregisterTransformGizmoOwnerIfNeeded();
       }
     }
   }
@@ -310,11 +317,13 @@ export class SceneGraphComponent extends Component {
         this.__rotationGizmo.setSpace(this.__transformGizmoSpace);
       }
       this.__rotationGizmo.isVisible = true;
+      this.__registerTransformGizmoOwner();
       if (this.__rotationGizmo.isSetup) {
         this.__rotationGizmo._update();
       }
     } else if (Is.exist(this.__rotationGizmo)) {
       this.__rotationGizmo.isVisible = false;
+      this.__unregisterTransformGizmoOwnerIfNeeded();
     }
   }
 
@@ -340,12 +349,14 @@ export class SceneGraphComponent extends Component {
         this.__scaleGizmo._setup();
       }
       this.__scaleGizmo.isVisible = true;
+      this.__registerTransformGizmoOwner();
       if (this.__scaleGizmo.isSetup) {
         this.__scaleGizmo._update();
       }
     } else {
       if (Is.exist(this.__scaleGizmo)) {
         this.__scaleGizmo.isVisible = false;
+        this.__unregisterTransformGizmoOwnerIfNeeded();
       }
     }
   }
@@ -1228,6 +1239,17 @@ export class SceneGraphComponent extends Component {
     if (Is.exist(this.__locatorGizmo) && this.__locatorGizmo.isSetup && this.__locatorGizmo.isVisible) {
       this.__locatorGizmo._update();
     }
+    this.__updateTransformGizmos();
+    if (Is.exist(this.__jointGizmo) && this.__jointGizmo.isSetup && this.__jointGizmo.isVisible) {
+      this.__jointGizmo._update();
+    }
+  }
+
+  /**
+   * Updates the translation, rotation and scale gizmos.
+   * Their size depends on the camera, so this is also called when only the camera changed.
+   */
+  private __updateTransformGizmos() {
     if (Is.exist(this.__translationGizmo) && this.__translationGizmo.isSetup && this.__translationGizmo.isVisible) {
       this.__translationGizmo._update();
     }
@@ -1237,8 +1259,75 @@ export class SceneGraphComponent extends Component {
     if (Is.exist(this.__scaleGizmo) && this.__scaleGizmo.isSetup && this.__scaleGizmo.isVisible) {
       this.__scaleGizmo._update();
     }
-    if (Is.exist(this.__jointGizmo) && this.__jointGizmo.isSetup && this.__jointGizmo.isVisible) {
-      this.__jointGizmo._update();
+  }
+
+  /**
+   * Checks whether any transform gizmo is set up and visible on this node.
+   * @returns True if at least one of the translation/rotation/scale gizmos is visible
+   */
+  private __hasVisibleTransformGizmo(): boolean {
+    return (
+      (Is.exist(this.__translationGizmo) && this.__translationGizmo.isSetup && this.__translationGizmo.isVisible) ||
+      (Is.exist(this.__rotationGizmo) && this.__rotationGizmo.isSetup && this.__rotationGizmo.isVisible) ||
+      (Is.exist(this.__scaleGizmo) && this.__scaleGizmo.isSetup && this.__scaleGizmo.isVisible)
+    );
+  }
+
+  /**
+   * Registers this node as an owner of a visible transform gizmo so that the
+   * gizmos can be rescaled when only the camera changed.
+   */
+  private __registerTransformGizmoOwner(): void {
+    const engineUid = this.__engine.objectUID;
+    let owners = SceneGraphComponent.__transformGizmoOwners.get(engineUid);
+    if (owners == null) {
+      owners = new Set();
+      SceneGraphComponent.__transformGizmoOwners.set(engineUid, owners);
+    }
+    owners.add(this);
+  }
+
+  /**
+   * Removes this node from the transform gizmo registry when no transform gizmo is visible.
+   */
+  private __unregisterTransformGizmoOwnerIfNeeded(): void {
+    if (!this.__hasVisibleTransformGizmo()) {
+      SceneGraphComponent.__transformGizmoOwners.get(this.__engine.objectUID)?.delete(this);
+    }
+  }
+
+  /**
+   * Re-applies the screen-space gizmo scale after the camera has been updated.
+   *
+   * The transform gizmos keep a constant on-screen size, so they must be rescaled whenever the
+   * camera changes. SceneGraphComponent (TID 4) is processed before CameraComponent (TID 9) in
+   * the Logic stage, so this is called by the Engine right after the Logic stage has finished,
+   * which also covers frames in which the Engine skips the Logic stage entirely.
+   *
+   * @param engine - The engine whose current camera may have changed
+   * @internal
+   */
+  static _updateTransformGizmosByCameraChange(engine: Engine): void {
+    const componentSID = CameraComponent.getCurrent(engine);
+    const updateCount = CameraComponent.getCurrentCameraUpdateCount(engine);
+    const engineUid = engine.objectUID;
+
+    const lastCameraState = SceneGraphComponent.__lastCameraStateMap.get(engineUid);
+    if (
+      lastCameraState != null &&
+      lastCameraState.componentSID === componentSID &&
+      lastCameraState.updateCount === updateCount
+    ) {
+      return;
+    }
+    SceneGraphComponent.__lastCameraStateMap.set(engineUid, { componentSID, updateCount });
+
+    const owners = SceneGraphComponent.__transformGizmoOwners.get(engineUid);
+    if (owners == null) {
+      return;
+    }
+    for (const sceneGraph of owners) {
+      sceneGraph.__updateTransformGizmos();
     }
   }
 
@@ -1631,6 +1720,7 @@ export class SceneGraphComponent extends Component {
   _destroy() {
     super._destroy();
     SceneGraphComponent.__hierarchyVersion++;
+    SceneGraphComponent.__transformGizmoOwners.get(this.__engine.objectUID)?.delete(this);
     this.__aabbGizmo?._destroy();
     this.__locatorGizmo?._destroy();
     this.__translationGizmo?._destroy();
@@ -1823,6 +1913,8 @@ export class SceneGraphComponent extends Component {
    */
   static _cleanupForEngine(engine: Engine): void {
     SceneGraphComponent.__updateCountMap.delete(engine);
+    SceneGraphComponent.__transformGizmoOwners.delete(engine.objectUID);
+    SceneGraphComponent.__lastCameraStateMap.delete(engine.objectUID);
   }
 }
 SceneGraphComponent.registerMember({

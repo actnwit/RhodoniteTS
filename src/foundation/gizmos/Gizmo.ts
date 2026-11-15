@@ -1,6 +1,10 @@
+import { CameraComponent } from '../components/Camera/CameraComponent';
 import { flattenHierarchy } from '../components/SceneGraph/SceneGraphOps';
 import { RnObject } from '../core/RnObject';
+import { CameraType } from '../definitions/CameraType';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
+import type { IVector3 } from '../math/IVector';
+import { MutableVector3 } from '../math/MutableVector3';
 import type { Engine } from '../system/Engine';
 
 /**
@@ -9,6 +13,9 @@ import type { Engine } from '../system/Engine';
  * rotation rings, or other interactive visual aids.
  */
 export abstract class Gizmo extends RnObject {
+  /** Scratch vector used to transform a world position into view space. */
+  private static readonly __tmpViewPosition = MutableVector3.zero();
+
   /**
    * The top entity of this gizmo group.
    * A programmer who implements a gizmo class has to make this entity
@@ -127,5 +134,57 @@ export abstract class Gizmo extends RnObject {
         value: 'background-assets',
       });
     }
+  }
+
+  /**
+   * Calculates a uniform world-space scale that keeps a unit-length gizmo element
+   * (an axis of length 1, or a ring of radius 1) at a constant fraction of the
+   * viewport height, independent of the target size and the camera distance.
+   *
+   * The scale is derived from the vertical scale of the camera's projection matrix,
+   * so the on-screen size stays proportional to the viewport height for both
+   * perspective and orthographic cameras.
+   *
+   * @param engine - The engine used to resolve the current camera
+   * @param worldPosition - The world-space position of the gizmo center
+   * @param screenSpaceRatio - The target size as a fraction of the viewport height
+   * @returns The uniform scale to apply to the gizmo's top entity
+   * @internal
+   */
+  protected static __calcScreenSpaceScale(engine: Engine, worldPosition: IVector3, screenSpaceRatio: number): number {
+    if (!Number.isFinite(screenSpaceRatio) || screenSpaceRatio <= 0) {
+      return 1;
+    }
+
+    const cameraComponent = engine.componentRepository.getComponent(
+      CameraComponent,
+      CameraComponent.getCurrent(engine)
+    ) as CameraComponent | undefined;
+    if (cameraComponent == null) {
+      return 1;
+    }
+
+    // The vertical NDC scale of the projection matrix:
+    // perspective: m11 = 1 / tan(fovy / 2), orthographic: m11 = 1 / yMag.
+    const verticalScale = cameraComponent.projectionMatrix.m11;
+    if (!Number.isFinite(verticalScale) || verticalScale <= 0) {
+      return 1;
+    }
+
+    if (cameraComponent.type === CameraType.Orthographic) {
+      const orthographicScale = (screenSpaceRatio * 2) / verticalScale;
+      return Number.isFinite(orthographicScale) && orthographicScale > 0 ? orthographicScale : 1;
+    }
+
+    // Use the view-space depth (not the Euclidean distance) so that the gizmo keeps
+    // the same on-screen size even when it is displayed near the edge of the viewport.
+    cameraComponent.viewMatrix.multiplyVector3To(worldPosition, Gizmo.__tmpViewPosition);
+    const viewDepth = -Gizmo.__tmpViewPosition.z;
+    const zNear = cameraComponent.zNearInner;
+    const nearLimit = Number.isFinite(zNear) && zNear > 0 ? zNear : 1e-4;
+    const depth = Number.isFinite(viewDepth) ? Math.max(viewDepth, nearLimit) : nearLimit;
+
+    const scale = (screenSpaceRatio * 2 * depth) / verticalScale;
+    return Number.isFinite(scale) && scale > 0 ? scale : 1;
   }
 }
