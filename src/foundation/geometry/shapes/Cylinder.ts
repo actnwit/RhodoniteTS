@@ -1,6 +1,7 @@
 import type { Count } from '../../../types/CommonTypes';
 import { PrimitiveMode } from '../../definitions/PrimitiveMode';
 import { VertexAttribute } from '../../definitions/VertexAttribute';
+import type { PhysicsProperty } from '../../physics/PhysicsProperty';
 import type { IAnyPrimitiveDescriptor } from '../Primitive';
 import { IShape } from './IShape';
 
@@ -11,6 +12,7 @@ export interface CylinderDescriptor extends IAnyPrimitiveDescriptor {
   height?: number;
   radialSegments?: Count;
   includeCaps?: boolean;
+  physics?: PhysicsProperty;
 }
 
 /** A centered, capped cylinder that also supports different top and bottom radii. */

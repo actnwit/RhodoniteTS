@@ -1,4 +1,5 @@
 import { CameraComponent } from '../components/Camera/CameraComponent';
+import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { flattenHierarchy } from '../components/SceneGraph/SceneGraphOps';
 import { RnObject } from '../core/RnObject';
 import { CameraType } from '../definitions/CameraType';
@@ -133,6 +134,36 @@ export abstract class Gizmo extends RnObject {
         tag: 'type',
         value: 'background-assets',
       });
+    }
+  }
+
+  /**
+   * Marks the gizmo subtree's world matrices as dirty and materializes them immediately.
+   *
+   * The GPU instance data (world and normal matrices) is uploaded at the beginning of the Render
+   * stage from component buffers, and those buffers are only written when the matrices are
+   * recalculated. A gizmo updated after the Logic stage (for example when only the camera
+   * changed) therefore has to recalculate its matrices here, otherwise the gizmo keeps being
+   * rendered with its previous transform until some later frame re-uploads the data.
+   * @internal
+   */
+  protected __updateWorldMatricesOfSubtree(): void {
+    const topSceneGraph = this.__topEntity?.getSceneGraph();
+    if (topSceneGraph == null) {
+      return;
+    }
+    topSceneGraph.setWorldMatrixDirtyWithoutAABBDirty();
+    const stack: SceneGraphComponent[] = [topSceneGraph];
+    while (stack.length > 0) {
+      const sceneGraph = stack.pop()!;
+      // Reading the accessors recalculates the matrices and writes them into the GPU buffers.
+      sceneGraph.matrixInner;
+      if (sceneGraph.entity.tryToGetMesh() != null) {
+        sceneGraph.normalMatrixInner;
+      }
+      for (const child of sceneGraph.children) {
+        stack.push(child);
+      }
     }
   }
 

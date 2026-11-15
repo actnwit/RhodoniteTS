@@ -329,9 +329,9 @@ export class RotationGizmo extends Gizmo {
     // Keep the gizmo at a constant size on screen regardless of the target size.
     const uniform = Gizmo.__calcScreenSpaceScale(this.__engine, worldPosition, RotationGizmo.__screenSpaceRatio);
     transform.localScale = Vector3.fromCopy3(uniform, uniform, uniform);
-    // Reflect the new scale in the same frame (the world matrix is otherwise marked
-    // dirty in the next frame's TransformComponent.$logic).
-    this.__topEntity.getSceneGraph().setWorldMatrixDirtyWithoutAABBDirty();
+    // Reflect the new scale in the same frame. The Render stage uploads the instance data
+    // before the matrices would be recalculated lazily, so materialize them now.
+    this.__updateWorldMatricesOfSubtree();
 
     if (this.__isPointerDown && RotationGizmo.__activeAxis !== 'none') {
       if (this.__latestTargetEntity === this.__target) {
