@@ -89,6 +89,8 @@ export class ScaleGizmo extends Gizmo {
   private static __space: 'local' | 'world' = 'world';
   private static __latestTargetEntity?: ISceneGraphEntity;
   private static __length = 1;
+  /** Gizmo size as a fraction of the viewport height (unit axis length). */
+  private static __screenSpaceRatio = 0.12;
   private __onPointerDownFunc = this.__onPointerDown.bind(this);
   private __onPointerMoveFunc = this.__onPointerMove.bind(this);
   private __onPointerUpFunc = this.__onPointerUp.bind(this);
@@ -128,6 +130,8 @@ export class ScaleGizmo extends Gizmo {
   /**
    * Sets the length of the gizmo handles
    * @param val - The length value to set
+   * @deprecated The gizmo size is now derived from the camera so that it stays
+   * constant in screen space. This value no longer affects the visual size.
    */
   set length(val: number) {
     ScaleGizmo.__length = val;
@@ -136,9 +140,28 @@ export class ScaleGizmo extends Gizmo {
   /**
    * Gets the current length of the gizmo handles
    * @returns The current length value
+   * @deprecated The gizmo size is now derived from the camera so that it stays
+   * constant in screen space. This value no longer affects the visual size.
    */
   get length(): number {
     return ScaleGizmo.__length;
+  }
+
+  /**
+   * Sets the gizmo size as a fraction of the viewport height.
+   * The unit axis length is projected to this fraction of the viewport height.
+   * @param val - The ratio of the viewport height (for example, 0.12 for 12%)
+   */
+  set screenSpaceRatio(val: number) {
+    ScaleGizmo.__screenSpaceRatio = val;
+  }
+
+  /**
+   * Gets the gizmo size as a fraction of the viewport height.
+   * @returns The ratio of the viewport height occupied by the gizmo's unit axis length
+   */
+  get screenSpaceRatio(): number {
+    return ScaleGizmo.__screenSpaceRatio;
   }
 
   /**
@@ -493,18 +516,18 @@ export class ScaleGizmo extends Gizmo {
     }
     const sg = this.__target.getSceneGraph()!;
     const aabb = sg.worldMergedAABBWithSkeletal;
-    if (aabb.isVanilla()) {
-      this.__topEntity.getTransform()!.localPosition = sg.position;
-    } else {
-      this.__topEntity.getTransform()!.localPosition = aabb.centerPoint;
-    }
+    // Gizmo entities are attached with toMakeWorldMatrixTheSameAsLocalMatrix = true,
+    // so local values are world values here.
+    const worldPosition = aabb.isVanilla() ? sg.position : aabb.centerPoint;
+    const transform = this.__topEntity.getTransform()!;
+    transform.localPosition = worldPosition;
 
-    const max = Math.max(aabb.sizeX, aabb.sizeY, aabb.sizeZ);
-    this.__topEntity.getTransform()!.localScale = Vector3.fromCopyArray([
-      Math.min(1, aabb.isVanilla() ? 1 : max / 2),
-      Math.min(1, aabb.isVanilla() ? 1 : max / 2),
-      Math.min(1, aabb.isVanilla() ? 1 : max / 2),
-    ]);
+    // Keep the gizmo at a constant size on screen regardless of the target size.
+    const scale = Gizmo.__calcScreenSpaceScale(this.__engine, worldPosition, ScaleGizmo.__screenSpaceRatio);
+    transform.localScale = Vector3.fromCopy3(scale, scale, scale);
+    // Reflect the new scale in the same frame (the world matrix is otherwise marked
+    // dirty in the next frame's TransformComponent.$logic).
+    this.__topEntity.getSceneGraph().setWorldMatrixDirtyWithoutAABBDirty();
 
     if (this.__isPointerDown) {
       if (ScaleGizmo.__latestTargetEntity === this.__target) {

@@ -60,6 +60,8 @@ export class RotationGizmo extends Gizmo {
   private static __activeAxis: Axis | 'none' = 'none';
   private static __space: 'local' | 'world' = 'world';
   private static __length = 1;
+  /** Gizmo size as a fraction of the viewport height (ring radius). */
+  private static __screenSpaceRatio = 0.08;
   private static readonly __unitX = Vector3.fromCopy3(1, 0, 0);
   private static readonly __unitY = Vector3.fromCopy3(0, 1, 0);
   private static readonly __unitZ = Vector3.fromCopy3(0, 0, 1);
@@ -116,12 +118,43 @@ export class RotationGizmo extends Gizmo {
     return Is.exist(this.__topEntity);
   }
 
+  /**
+   * Sets the ring radius of the gizmo.
+   * @param val - The ring radius value
+   * @deprecated The gizmo size is now derived from the camera so that it stays
+   * constant in screen space. This value only affects the geometry generated
+   * before the gizmo resources are created.
+   */
   set length(val: number) {
     RotationGizmo.__length = val;
   }
 
+  /**
+   * Gets the ring radius of the gizmo.
+   * @returns The ring radius value
+   * @deprecated The gizmo size is now derived from the camera so that it stays
+   * constant in screen space. This value only affects the geometry generated
+   * before the gizmo resources are created.
+   */
   get length(): number {
     return RotationGizmo.__length;
+  }
+
+  /**
+   * Sets the gizmo size as a fraction of the viewport height.
+   * The unit ring radius is projected to this fraction of the viewport height.
+   * @param val - The ratio of the viewport height (for example, 0.08 for 8%)
+   */
+  set screenSpaceRatio(val: number) {
+    RotationGizmo.__screenSpaceRatio = val;
+  }
+
+  /**
+   * Gets the gizmo size as a fraction of the viewport height.
+   * @returns The ratio of the viewport height occupied by the gizmo's unit ring radius
+   */
+  get screenSpaceRatio(): number {
+    return RotationGizmo.__screenSpaceRatio;
   }
 
   get isVisible(): boolean {
@@ -287,14 +320,18 @@ export class RotationGizmo extends Gizmo {
 
     const sg = this.__target.getSceneGraph()!;
     const aabb = sg.worldMergedAABBWithSkeletal;
-    if (aabb.isVanilla()) {
-      this.__topEntity.getTransform()!.localPosition = sg.position;
-    } else {
-      this.__topEntity.getTransform()!.localPosition = aabb.centerPoint;
-    }
-    const max = Math.max(aabb.sizeX, aabb.sizeY, aabb.sizeZ);
-    const uniform = Math.min(1, aabb.isVanilla() ? 1 : max / 2);
-    this.__topEntity.getTransform()!.localScale = Vector3.fromCopy3(uniform, uniform, uniform);
+    // Gizmo entities are attached with toMakeWorldMatrixTheSameAsLocalMatrix = true,
+    // so local values are world values here.
+    const worldPosition = aabb.isVanilla() ? sg.position : aabb.centerPoint;
+    const transform = this.__topEntity.getTransform()!;
+    transform.localPosition = worldPosition;
+
+    // Keep the gizmo at a constant size on screen regardless of the target size.
+    const uniform = Gizmo.__calcScreenSpaceScale(this.__engine, worldPosition, RotationGizmo.__screenSpaceRatio);
+    transform.localScale = Vector3.fromCopy3(uniform, uniform, uniform);
+    // Reflect the new scale in the same frame (the world matrix is otherwise marked
+    // dirty in the next frame's TransformComponent.$logic).
+    this.__topEntity.getSceneGraph().setWorldMatrixDirtyWithoutAABBDirty();
 
     if (this.__isPointerDown && RotationGizmo.__activeAxis !== 'none') {
       if (this.__latestTargetEntity === this.__target) {
