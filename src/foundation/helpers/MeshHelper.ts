@@ -193,11 +193,58 @@ const createCone = (engine: Engine, desc: ConeDescriptor = {}) => {
   return entity;
 };
 
-/** Creates a centered cylinder or truncated-cone mesh entity. */
+/**
+ * Creates a centered cylinder or truncated-cone mesh entity with optional physics simulation.
+ *
+ * When physics is enabled, a cylinder shape is attached so the primitive can act as a collider.
+ * Rapier approximates a truncated cone with a cylinder that uses the larger radius.
+ *
+ * @param engine - The engine instance
+ * @param desc - Configuration object for the cylinder geometry and physics properties
+ * @returns A mesh entity representing the cylinder, with a physics component if specified
+ *
+ * @example
+ * ```typescript
+ * const cylinder = createCylinder({ radiusBottom: 0.5, radiusTop: 0.5, height: 2 });
+ *
+ * const physicsCylinder = createCylinder({
+ *   radiusBottom: 0.5,
+ *   height: 2,
+ *   physics: { use: true, move: true, density: 1.0, friction: 0.5, restitution: 0.3 }
+ * });
+ * ```
+ */
 const createCylinder = (engine: Engine, desc: CylinderDescriptor = {}) => {
   const primitive = new Cylinder(engine);
   primitive.generate(desc);
-  return createShape(engine, primitive);
+  const entity = createShape(engine, primitive);
+
+  const physics = Is.exist(desc.physics) && desc.physics.use ? desc.physics : undefined;
+  if (physics == null) {
+    return entity;
+  }
+
+  const shape = normalizeShapeDescriptor({
+    type: 'cylinder',
+    height: desc.height ?? 1,
+    radiusBottom: desc.radiusBottom ?? 0.5,
+    radiusTop: desc.radiusTop ?? 0.5,
+  });
+  const shapeEntity = entity.engine.entityRepository.addComponentToEntity(ShapeComponent, entity);
+  const shapeComponent = shapeEntity.getShape();
+  shapeComponent.addShape(shape);
+
+  const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, shapeEntity);
+  const physicsComponent = newEntity.getPhysics();
+  const strategy = createPhysicsStrategy(physics.engine);
+  physicsComponent.setStrategy(strategy);
+  physicsComponent.bindShape({
+    shapeComponent,
+    body: { move: physics.move, density: physics.density },
+    collider: { friction: physics.friction, restitution: physics.restitution },
+  });
+
+  return newEntity;
 };
 
 /**

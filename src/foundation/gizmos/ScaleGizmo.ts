@@ -525,9 +525,9 @@ export class ScaleGizmo extends Gizmo {
     // Keep the gizmo at a constant size on screen regardless of the target size.
     const scale = Gizmo.__calcScreenSpaceScale(this.__engine, worldPosition, ScaleGizmo.__screenSpaceRatio);
     transform.localScale = Vector3.fromCopy3(scale, scale, scale);
-    // Reflect the new scale in the same frame (the world matrix is otherwise marked
-    // dirty in the next frame's TransformComponent.$logic).
-    this.__topEntity.getSceneGraph().setWorldMatrixDirtyWithoutAABBDirty();
+    // Reflect the new scale in the same frame. The Render stage uploads the instance data
+    // before the matrices would be recalculated lazily, so materialize them now.
+    this.__updateWorldMatricesOfSubtree();
 
     if (this.__isPointerDown) {
       if (ScaleGizmo.__latestTargetEntity === this.__target) {
