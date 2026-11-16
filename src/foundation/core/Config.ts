@@ -107,7 +107,7 @@ export class Config {
    * a multiple of 4 entries, so the capacity has to cover the sum of the padded light counts of all clusters.
    * When the capacity is exceeded, the camera evaluates all lights in that frame.
    */
-  clusteredForwardMaxLightIndexNumber = 32768;
+  clusteredForwardMaxLightIndexNumber = 1048576;
   /** The maximum number of enabled lights that are shaded. The other lights are ignored. (max: 65535) */
   maxLightListLength = 1024;
   /**
