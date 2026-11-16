@@ -5,7 +5,7 @@ import { applyMixins, type EntityRepository } from '../../core/EntityRepository'
 import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
-import { LightType } from '../../definitions/LightType';
+import { LightType, type LightTypeEnum } from '../../definitions/LightType';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { ShaderType } from '../../definitions/ShaderType';
 import { LightGizmo } from '../../gizmos/LightGizmo';
@@ -27,15 +27,17 @@ import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
  * the light looks towards the local -Z axis in right hand coordinate system.
  */
 export class LightComponent extends Component {
-  public type = LightType.Point;
+  private __type = LightType.Point;
   private __color = Vector3.fromCopyArray([1, 1, 1]);
+  /** The components of the color at the last change, to detect changes of a mutated color object. */
+  private __lastColor = [1, 1, 1];
   private __intensity = 1;
   private readonly __initialDirection = Vector3.fromCopyArray([0, 0, -1]);
   private __direction = Vector3.fromCopyArray([0, 0, -1]);
-  public innerConeAngle = 0.0;
-  public outerConeAngle = Math.PI / 4.0; // in radian
+  private __innerConeAngle = 0.0;
+  private __outerConeAngle = Math.PI / 4.0; // in radian
   private __range = -1;
-  public enable = true;
+  private __enable = true;
   private __shadowAreaSizeForDirectionalLight = 10;
   private __shadowZNearForDirectionalLight = 0.1;
   private __shadowCameraOffsetForDirectionalLight = Vector3.zero();
@@ -52,6 +54,8 @@ export class LightComponent extends Component {
   private __updateCount = 0;
   private __lastUpdateCount = -1;
   private __lastTransformUpdateCount = -1;
+  /** The number of changes of all light components, per engine. */
+  private static __updateCountMap: Map<Engine, number> = new Map();
 
   /**
    * Creates a new LightComponent instance.
@@ -72,6 +76,106 @@ export class LightComponent extends Component {
     super(engine, entityUid, componentSid, entityRepository, isReUse);
 
     this.submitToAllocation(engine.config.lightComponentCountPerBufferView, isReUse);
+    LightComponent.__incrementUpdateCount(engine);
+  }
+
+  /**
+   * Gets the number of changes of all light components of the engine (creation, destruction and property changes).
+   * The engine and the rendering strategies use it to process and upload the light data only when it changed.
+   *
+   * @param engine - The engine instance
+   * @returns The update count
+   */
+  static getUpdateCount(engine: Engine): number {
+    return this.__updateCountMap.get(engine) ?? 0;
+  }
+
+  private static __incrementUpdateCount(engine: Engine): void {
+    this.__updateCountMap.set(engine, (this.__updateCountMap.get(engine) ?? 0) + 1);
+  }
+
+  /**
+   * Cleans up the static data of the engine.
+   * @internal
+   */
+  static _cleanupForEngine(engine: Engine): void {
+    this.__updateCountMap.delete(engine);
+  }
+
+  /**
+   * Records a change of a property, so that the light data is recomputed and uploaded.
+   */
+  private __markUpdated() {
+    this.__updateCount++;
+    LightComponent.__incrementUpdateCount(this.__engine);
+  }
+
+  /**
+   * Gets the type of the light.
+   */
+  get type(): LightTypeEnum {
+    return this.__type;
+  }
+
+  /**
+   * Sets the type of the light.
+   */
+  set type(value: LightTypeEnum) {
+    if (this.__type !== value) {
+      this.__type = value;
+      this.__markUpdated();
+    }
+  }
+
+  /**
+   * Gets whether the light is enabled.
+   */
+  get enable(): boolean {
+    return this.__enable;
+  }
+
+  /**
+   * Sets whether the light is enabled. A disabled light does not light anything.
+   */
+  set enable(value: boolean) {
+    if (this.__enable !== value) {
+      this.__enable = value;
+      this.__markUpdated();
+    }
+  }
+
+  /**
+   * Gets the inner cone angle of the spot light (in radian).
+   */
+  get innerConeAngle(): number {
+    return this.__innerConeAngle;
+  }
+
+  /**
+   * Sets the inner cone angle of the spot light (in radian).
+   */
+  set innerConeAngle(value: number) {
+    if (this.__innerConeAngle !== value) {
+      this.__innerConeAngle = value;
+      this.__markUpdated();
+    }
+  }
+
+  /**
+   * Gets the outer cone angle of the spot light (in radian).
+   */
+  get outerConeAngle(): number {
+    return this.__outerConeAngle;
+  }
+
+  /**
+   * Sets the outer cone angle of the spot light (in radian).
+   */
+  set outerConeAngle(value: number) {
+    if (this.__outerConeAngle !== value) {
+      this.__outerConeAngle = value;
+      this.__markUpdated();
+    }
   }
 
   /**
@@ -118,8 +222,10 @@ export class LightComponent extends Component {
    * @param value - The intensity value (typically 0.0 to 1.0, but can be higher for HDR)
    */
   set intensity(value: number) {
-    this.__intensity = value;
-    this.__updateCount++;
+    if (this.__intensity !== value) {
+      this.__intensity = value;
+      this.__markUpdated();
+    }
   }
 
   /**
@@ -143,8 +249,10 @@ export class LightComponent extends Component {
    * Updating this property increments updateCount so dependent systems can react.
    */
   set range(value: number) {
-    this.__range = value;
-    this.__updateCount++;
+    if (this.__range !== value) {
+      this.__range = value;
+      this.__markUpdated();
+    }
   }
 
   /**
@@ -162,8 +270,10 @@ export class LightComponent extends Component {
    * Updating this property increments updateCount so camera sync is refreshed.
    */
   set shadowAreaSizeForDirectionalLight(value: number) {
-    this.__shadowAreaSizeForDirectionalLight = value;
-    this.__updateCount++;
+    if (this.__shadowAreaSizeForDirectionalLight !== value) {
+      this.__shadowAreaSizeForDirectionalLight = value;
+      this.__markUpdated();
+    }
   }
 
   /**
@@ -181,8 +291,10 @@ export class LightComponent extends Component {
    * Updating this property increments updateCount so camera sync is refreshed.
    */
   set shadowZNearForDirectionalLight(value: number) {
-    this.__shadowZNearForDirectionalLight = value;
-    this.__updateCount++;
+    if (this.__shadowZNearForDirectionalLight !== value) {
+      this.__shadowZNearForDirectionalLight = value;
+      this.__markUpdated();
+    }
   }
 
   /**
@@ -198,7 +310,7 @@ export class LightComponent extends Component {
    */
   set shadowCameraOffsetForDirectionalLight(value: Vector3) {
     this.__shadowCameraOffsetForDirectionalLight = value;
-    this.__updateCount++;
+    this.__markUpdated();
   }
 
   /**
@@ -215,7 +327,14 @@ export class LightComponent extends Component {
    */
   set color(value: Vector3) {
     this.__color = value;
-    this.__updateCount++;
+    // The same (mutated) object may be set again, so the values are compared with the last values.
+    const last = this.__lastColor;
+    if (last[0] !== value.x || last[1] !== value.y || last[2] !== value.z) {
+      last[0] = value.x;
+      last[1] = value.y;
+      last[2] = value.z;
+      this.__markUpdated();
+    }
   }
 
   /**
@@ -309,7 +428,7 @@ export class LightComponent extends Component {
         this.__lightGizmo.isVisible = false;
       }
     }
-    this.__updateCount++;
+    this.__markUpdated();
   }
 
   /**
@@ -428,6 +547,7 @@ export class LightComponent extends Component {
    */
   _destroy() {
     super._destroy();
+    LightComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**

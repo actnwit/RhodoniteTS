@@ -10,6 +10,7 @@ import { AnimationStateRepository } from '../components/Animation/AnimationState
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { createCameraEntity } from '../components/Camera/createCameraEntity';
 import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
+import { LightComponent } from '../components/Light/LightComponent';
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { TransformComponent } from '../components/Transform/TransformComponent';
@@ -126,6 +127,7 @@ export class Engine extends RnObject {
   private __lastCameraControllerComponentsUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastPrimitiveCount = -1;
+  private __lastLightComponentsUpdateCount = -1;
   /** Shader program cache map for this engine instance. Maps shader text to program UIDs. */
   private __shaderProgramCache: Map<string, number> = new Map();
   private __gpuTimerEnabled = false;
@@ -263,6 +265,7 @@ export class Engine extends RnObject {
     SceneGraphComponent._cleanupForEngine(this);
     CameraControllerComponent._cleanupForEngine(this);
     CameraComponent._cleanupForEngine(this);
+    LightComponent._cleanupForEngine(this);
     MeshRendererComponent._cleanupForEngine(this);
     RapierPhysicsStrategy._cleanupForEngine(this);
 
@@ -832,7 +835,8 @@ export class Engine extends RnObject {
           TransformComponent.getUpdateCount(this) !== this.__lastTransformComponentsUpdateCount ||
           CameraComponent.getCurrentCameraUpdateCount(this) !== this.__lastCameraComponentsUpdateCount ||
           CameraControllerComponent.getUpdateCount(this) !== this.__lastCameraControllerComponentsUpdateCount ||
-          Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
+          Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount ||
+          LightComponent.getUpdateCount(this) !== this.__lastLightComponentsUpdateCount
         ) {
           // Built only when the stage actually runs: a static scene skips it on every frame.
           const commonMethodName = `common_${stage.methodName}`;
@@ -866,6 +870,7 @@ export class Engine extends RnObject {
     this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(this);
     this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this);
     this.__lastPrimitiveCount = Primitive.getPrimitiveCount();
+    this.__lastLightComponentsUpdateCount = LightComponent.getUpdateCount(this);
   }
 
   private _processWebGL(expressions: Expression[]) {
@@ -949,7 +954,8 @@ export class Engine extends RnObject {
           TransformComponent.getUpdateCount(this) !== this.__lastTransformComponentsUpdateCount ||
           CameraComponent.getCurrentCameraUpdateCount(this) !== this.__lastCameraComponentsUpdateCount ||
           CameraControllerComponent.getUpdateCount(this) !== this.__lastCameraControllerComponentsUpdateCount ||
-          Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
+          Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount ||
+          LightComponent.getUpdateCount(this) !== this.__lastLightComponentsUpdateCount
         ) {
           for (const componentTid of componentTids) {
             const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
@@ -981,6 +987,7 @@ export class Engine extends RnObject {
     this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(this);
     this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this);
     this.__lastPrimitiveCount = Primitive.getPrimitiveCount();
+    this.__lastLightComponentsUpdateCount = LightComponent.getUpdateCount(this);
   }
 
   static get processTime() {

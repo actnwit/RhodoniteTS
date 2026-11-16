@@ -2,6 +2,7 @@ import { AnimationComponent } from '../foundation/components/Animation/Animation
 import { BlendShapeComponent } from '../foundation/components/BlendShape/BlendShapeComponent';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
+import { LightComponent } from '../foundation/components/Light/LightComponent';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
@@ -65,6 +66,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
 
   private __lastMaterialsUpdateCount = -1;
   private __lastLightClusterDataVersion = -1;
+  private __lastLightComponentsUpdateCount = -1;
   private __lightClusterBuilder?: WebGpuLightClusterBuilder;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastSceneGraphComponentsUpdateCount = -1;
@@ -804,7 +806,8 @@ ${indexStr}
       CameraComponent.getCurrentCameraUpdateCount(this.__engine) !== this.__lastCameraComponentsUpdateCount ||
       CameraControllerComponent.getUpdateCount(this.__engine) !== this.__lastCameraControllerComponentsUpdateCount ||
       this.__engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount ||
-      this.__engine.lightClusterSystem.dataVersion !== this.__lastLightClusterDataVersion
+      this.__engine.lightClusterSystem.dataVersion !== this.__lastLightClusterDataVersion ||
+      LightComponent.getUpdateCount(this.__engine) !== this.__lastLightComponentsUpdateCount
     ) {
       this.__createAndUpdateStorageBuffer();
       // The upload overwrites the light cluster tables built by the compute shaders, so build them again.
@@ -815,6 +818,7 @@ ${indexStr}
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(this.__engine);
       this.__lastMaterialsUpdateCount = this.__engine.materialRepository.stateVersion;
       this.__lastLightClusterDataVersion = this.__engine.lightClusterSystem.dataVersion;
+      this.__lastLightComponentsUpdateCount = LightComponent.getUpdateCount(this.__engine);
     }
 
     const morphMaxIndex = Primitive.getPrimitiveCountHasMorph();
