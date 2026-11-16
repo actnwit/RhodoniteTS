@@ -1,5 +1,9 @@
 import Rn from '../../../dist/esmdev/index.js';
 
+const rapierModulePath = '../../../vendor/rapier3d-compat/rapier.mjs';
+const RAPIER = await import(rapierModulePath);
+await Rn.RapierPhysicsStrategy.initialize(RAPIER);
+
 declare const window: any;
 
 const canvas = document.getElementById('world') as HTMLCanvasElement;
@@ -25,7 +29,7 @@ function createEarth() {
 
   const newEntity = engine.entityRepository.addComponentToEntity(Rn.PhysicsComponent, sphereEntity);
   const physicsComponent = newEntity.getPhysics();
-  const strategy = new Rn.OimoPhysicsStrategy();
+  const strategy = new Rn.RapierPhysicsStrategy();
   const property = {
     type: Rn.PhysicsShape.Sphere,
     size: Rn.Vector3.fromCopy3(radius, radius, radius),
@@ -50,7 +54,7 @@ function createSpheres() {
     sphereEntity.getRaymarching().sdfShapeType = Rn.SdfShapeType.Sphere;
     const newEntity = engine.entityRepository.addComponentToEntity(Rn.PhysicsComponent, sphereEntity);
     const physicsComponent = newEntity.getPhysics();
-    const strategy = new Rn.OimoPhysicsStrategy();
+    const strategy = new Rn.RapierPhysicsStrategy();
     const property = {
       type: Rn.PhysicsShape.Sphere,
       size: Rn.Vector3.fromCopy3(1, 1, 1),
