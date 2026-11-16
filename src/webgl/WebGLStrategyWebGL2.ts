@@ -1780,6 +1780,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     this.__setCurrentComponentSIDsForEachDisplayIdx(renderPass, 0, isVRMainPass);
 
     this.__uploadCurrentComponentSIDs(gl, shaderProgram);
+    this.__uploadLightClusterView(gl, shaderProgram);
 
     if ((shaderProgram as any).vrState != null && isVRMainPass) {
       const vrState = this.__engine.globalDataRepository.getValue('vrState', 0) as Vector2;
@@ -2252,6 +2253,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       this.__setCurrentComponentSIDsForEachDisplayIdx(renderPass, displayIdx as 0 | 1, isVRMainPass);
 
       this.__uploadCurrentComponentSIDs(gl, this.__shaderProgram!);
+      this.__uploadLightClusterView(gl, this.__shaderProgram!);
 
       if ((this.__shaderProgram as any).vrState != null && isVRMainPass && displayCount > 1) {
         const vrState = this.__engine.globalDataRepository.getValue('vrState', 0) as Vector2;
@@ -2319,6 +2321,27 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * same program by the previous upload. Uniform values persist in the program object, so
    * consecutive draws of the same material (e.g. a shadow pass) do not need to upload again.
    */
+  /**
+   * Uploads the light cluster view of the camera of the draw (`u_lightClusterView`) when the program uses it and
+   * the camera or the light cluster data changed since the last upload to the program.
+   */
+  private __uploadLightClusterView(gl: WebGLRenderingContext | WebGL2RenderingContext, shaderProgram: WebGLProgram) {
+    const program = shaderProgram as any;
+    const location = program.lightClusterView as WebGLUniformLocation | null | undefined;
+    if (location == null) {
+      return;
+    }
+    const cameraSid = this.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID];
+    const lightClusterSystem = this.__engine.lightClusterSystem;
+    const version = lightClusterSystem.dataVersion;
+    if (program._lightClusterViewCameraSid === cameraSid && program._lightClusterViewVersion === version) {
+      return;
+    }
+    gl.uniform4fv(location, lightClusterSystem._getViewUniformData(cameraSid));
+    program._lightClusterViewCameraSid = cameraSid;
+    program._lightClusterViewVersion = version;
+  }
+
   private __uploadCurrentComponentSIDs(
     gl: WebGLRenderingContext | WebGL2RenderingContext,
     shaderProgram: WebGLProgram

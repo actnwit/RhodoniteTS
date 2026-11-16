@@ -45,10 +45,6 @@ export type LightClusterGpuBuildParams = {
   layout: LightClusterViewLayout;
 };
 
-function isGpuBackendWebGpu(engine: Engine) {
-  return engine.engineState.currentProcessApproach === ProcessApproach.WebGPU;
-}
-
 /** The maximum shadow slot that can be packed into a light entry exactly (entries must stay below 2^24). */
 const MaxPackableShadowSlot = 254;
 
@@ -107,6 +103,8 @@ export class LightClusterSystem {
   private __isIndexOverflowWarned = false;
 
   private __gpuBuildViewVec4Bases: number[] = [];
+  /** The data of `u_lightClusterView` of the WebGL2 shaders (7 vec4). */
+  private __viewUniformData = new Float32Array(LightClusterLayout.viewHeaderVec4Count * 4 + 4);
 
   constructor(engine: Engine) {
     this.__engine = engine;
@@ -154,6 +152,28 @@ export class LightClusterSystem {
   }
 
   /**
+   * Returns the data of the `u_lightClusterView` uniform of the WebGL2 shaders for a camera: the view header
+   * (6 vec4) and (vec4 index of the view, 0, 0, 0), or a view index of -1 when the camera has no light clusters.
+   * The returned array is reused.
+   *
+   * @internal
+   */
+  _getViewUniformData(cameraSid: number): Float32Array {
+    const data = this.__viewUniformData;
+    const headerLength = LightClusterLayout.viewHeaderVec4Count * 4;
+    const slot = cameraSid >= 0 ? this.__slotCameraSids.indexOf(cameraSid) : -1;
+    const region = slot >= 0 ? this.__viewRegions[slot] : undefined;
+    if (region == null || !this.__camerasWithView.has(cameraSid)) {
+      data.fill(0);
+      data[headerLength] = -1;
+      return data;
+    }
+    data.set(region.array.subarray(0, headerLength));
+    data[headerLength] = region.vec4Base;
+    return data;
+  }
+
+  /**
    * Updates the light lists for the render passes of this frame.
    * This must be called after the Logic stage (the light and camera data are final) and before the strategy
    * uploads the GPU instance data.
@@ -170,12 +190,8 @@ export class LightClusterSystem {
     const config = this.__engine.config;
     const isGpuBuild = this.isGpuBuild;
     const maxViewNumber = Math.max(0, Math.floor(config.clusteredForwardMaxViewNumber));
-    // With few lights, plain forward rendering (the all-light list) is cheaper than the cluster lookup.
-    // The default values are the measured break-even points (see Config.clusteredForwardMinLocalLightNumber).
-    const minLocalLightNumber = Math.max(
-      1,
-      Math.floor(config.clusteredForwardMinLocalLightNumber ?? (isGpuBackendWebGpu(this.__engine) ? 1 : 2))
-    );
+    // With few lights, plain forward rendering (the all-light list) can be cheaper than the cluster lookup.
+    const minLocalLightNumber = Math.max(1, Math.floor(config.clusteredForwardMinLocalLightNumber));
     const cameraSids =
       config.isClusteredForwardEnabled &&
       this.__emittingLocalCount >= minLocalLightNumber &&

@@ -100,6 +100,13 @@ Light getLight(int lightIdx, vec3 v_position_inWorld) {
 // Clustered Forward light list (see src/foundation/renderer/lightCluster/LightClusterLayout.ts).
 // The list is the lights that can not be culled followed by the local lights of the cluster of the position,
 // or all enabled lights when the camera has no light clusters.
+#if defined(RN_IS_PIXEL_SHADER) && !defined(WEBGL2_MULTI_VIEW)
+// The light cluster view of the camera of the draw, uploaded per draw by WebGLStrategyWebGL2:
+// [0..5] the view header (see LightClusterLayout.ts), [6] (vec4 index of the view in the data texture, 0, 0, 0).
+// Reading the header from uniforms is much cheaper than from the data texture.
+uniform highp vec4 u_lightClusterView[7]; // skipProcess=true
+#endif
+
 struct LightList {
   int count;      // the number of lights in the list
   int firstCount; // the number of lights read from the all-light list
@@ -113,18 +120,18 @@ LightList getLightList(vec3 positionInWorld, uint cameraSID) {
   list.firstCount = int(header.x);
   list.secondBase = 0;
 #if defined(RN_IS_PIXEL_SHADER) && !defined(WEBGL2_MULTI_VIEW)
-  int viewBase = int(get_lightClusterViewInfo(cameraSID).x);
+  int viewBase = int(u_lightClusterView[6].x);
   if (viewBase >= 0) {
-    vec4 grid = fetchElement(viewBase + 4); // (gridX, gridY, gridZ, state)
+    vec4 grid = u_lightClusterView[4]; // (gridX, gridY, gridZ, state)
     if (grid.w == 0.0) {
       vec4 p = vec4(positionInWorld, 1.0);
-      float w = dot(fetchElement(viewBase + 2), p);
+      float w = dot(u_lightClusterView[2], p);
       if (w > 0.0) {
-        vec4 slice = fetchElement(viewBase + 5); // (sliceScale, sliceBias, zNear, zFar)
+        vec4 slice = u_lightClusterView[5]; // (sliceScale, sliceBias, zNear, zFar)
         vec3 cell = vec3(
-          dot(fetchElement(viewBase), p) / w,
-          dot(fetchElement(viewBase + 1), p) / w,
-          log(max(dot(fetchElement(viewBase + 3), p), 1.0e-30)) * slice.x + slice.y);
+          dot(u_lightClusterView[0], p) / w,
+          dot(u_lightClusterView[1], p) / w,
+          log(max(dot(u_lightClusterView[3], p), 1.0e-30)) * slice.x + slice.y);
         ivec3 c = ivec3(clamp(floor(cell), vec3(0.0), grid.xyz - 1.0));
         int gridX = int(grid.x);
         int gridY = int(grid.y);

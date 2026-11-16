@@ -256,17 +256,43 @@ test('point lights without range and intensity are not counted with lightAutoRan
   expect(camera._lightClusterViewInfoForGpu._v[0]).toBe(-1);
 });
 
-test('the default threshold builds clusters from 2 local lights outside WebGPU', async () => {
+test('the default threshold builds clusters from 1 local light that emits light', async () => {
   const { engine, lights, camera, expression, runLogic } = await createScene(new Rn.Config(), [
-    { type: 'point', position: [0, 0, 0], range: 1 },
-    { type: 'point', position: [1, 0, 0], range: 1, intensity: 0 },
+    { type: 'point', position: [0, 0, 0], range: 1, intensity: 0 },
   ]);
-  expect(engine.config.clusteredForwardMinLocalLightNumber).toBeUndefined();
+  expect(engine.config.clusteredForwardMinLocalLightNumber).toBe(1);
   engine.lightClusterSystem.update([expression]);
   expect(camera._lightClusterViewInfoForGpu._v[0]).toBe(-1);
 
-  lights[1].intensity = 1;
+  lights[0].intensity = 1;
   runLogic();
   engine.lightClusterSystem.update([expression]);
   expect(camera._lightClusterViewInfoForGpu._v[0]).toBeGreaterThanOrEqual(0);
+});
+
+test('the WebGL2 view uniform holds the view header and the view index of the camera', async () => {
+  const { engine, camera, expression } = await createScene(new Rn.Config(), [
+    { type: 'point', position: [0, 0, 0], range: 1 },
+  ]);
+  const system = engine.lightClusterSystem;
+  system.update([expression]);
+  const viewBase = camera._lightClusterViewInfoForGpu._v[0];
+  expect(viewBase).toBeGreaterThanOrEqual(0);
+  const uniform = Array.from(system._getViewUniformData(camera.componentSID));
+  const layout = getLightClusterViewLayout(
+    engine.config.clusteredForwardGridSize,
+    engine.config.clusteredForwardMaxLightIndexNumber
+  );
+  const view = engine.memoryManager.readFloat32Array(
+    Rn.BufferUse.GPUInstanceData,
+    viewBase * 16,
+    layout.viewVec4Count * 4
+  )!;
+  expect(uniform.slice(0, 24)).toEqual(Array.from(view.subarray(0, 24)));
+  expect(uniform[24]).toBe(viewBase);
+
+  // A camera without a view, and no camera
+  system.update([]);
+  expect(system._getViewUniformData(camera.componentSID)[24]).toBe(-1);
+  expect(system._getViewUniformData(-1)[24]).toBe(-1);
 });

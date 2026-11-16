@@ -82,27 +82,26 @@ export class Config {
    * range, including an automatic range of {@link Config.lightAutoRangeThreshold}) and emit light (an intensity
    * greater than 0) is at least this value. With fewer lights, every fragment evaluates all lights as in plain forward
    * rendering, which skips the cluster build and the cluster lookup of the fragment shaders.
-   * `undefined` (default) uses the measured break-even point of the backend: 2 for WebGL2 and 1 for WebGPU.
    *
    * @remarks
-   * Measured on Apple M2 Max (Chrome, ANGLE-Metal / Dawn-Metal) with a full-screen 2048x2048 PBR surface,
-   * comparing the GPU frame time with and without clusters (ratio = clustered / plain forward, lower is better;
-   * a range is the spread of two runs):
+   * The default value 1 is the measured break-even point of both backends: on Apple M2 Max (Chrome, ANGLE-Metal /
+   * Dawn-Metal) with a full-screen 2048x2048 PBR surface, the GPU frame time with and without clusters was
+   * (ratio = clustered / plain forward, lower is better; a range is the spread of several runs):
    *
-   * | Lights | WebGL2 (radius 3 / 6) | WebGPU (radius 3 / 6) |
-   * |--------|-----------------------|-----------------------|
-   * | 1      | 1.07-1.10 / 1.11-1.16 | 0.83 / 0.92           |
-   * | 2      | 0.80-0.95 / 0.97      | 0.61 / 0.76           |
-   * | 3      | 0.76 / 0.90           | 0.49 / 0.66           |
-   * | 8      | 0.44 / 0.63           | 0.32 / 0.51           |
+   * | Lights | WebGL2 (radius 3 / 6)  | WebGPU (radius 3 / 6) |
+   * |--------|------------------------|-----------------------|
+   * | 1      | 0.90-0.92 / 0.82-1.09  | 0.83 / 0.92           |
+   * | 2      | 0.64 / 0.76-0.84       | 0.61 / 0.76           |
+   * | 3      | 0.62 / 0.72            | 0.49 / 0.66           |
+   * | 8      | 0.42 / 0.62            | 0.32 / 0.51           |
    *
-   * (A light with the radius 3 or 6 covers about 7% or 28% of the screen.) The cluster lookup costs about as much as
-   * one light in WebGL2 and half a light in WebGPU. The Classic shader gave the same break-even points. With a
-   * moving camera (clusters rebuilt every frame), 2 lights in WebGL2 were even (0.998-1.006) and 1 light in WebGPU
-   * was still faster (0.99). Lights that cover the whole screen can not be culled, so clustering them is always
-   * 1-23% slower whatever this value is. Other GPUs may differ.
+   * (A light with the radius 3 or 6 covers about 7% or 28% of the screen.) The cluster lookup costs about half a
+   * light in both backends. The Classic shader and a moving camera (clusters rebuilt every frame) gave the same
+   * break-even points. Lights that cover the whole screen can not be culled, so clustering them is always a few
+   * percent slower (WebGL2 2-3%, WebGPU 1-11%) whatever this value is. Raise this value for such scenes.
+   * Other GPUs may differ.
    */
-  clusteredForwardMinLocalLightNumber: number | undefined = undefined;
+  clusteredForwardMinLocalLightNumber = 1;
   /**
    * The capacity of the light index list of each camera, in light entries. The list of each cluster is padded to
    * a multiple of 4 entries, so the capacity has to cover the sum of the padded light counts of all clusters.
