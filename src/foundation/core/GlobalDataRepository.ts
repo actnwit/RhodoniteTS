@@ -252,21 +252,33 @@ export class GlobalDataRepository {
   }
 
   /**
-   * Sets up uniform locations for all global properties when using uniform mode.
-   * This is used internally by the WebGL resource repository for shader program setup.
-   *
-   * @param shaderProgramUid - The unique identifier of the shader program
-   * @internal
+   * Returns every registered global property with its current value and layout offset.
+   * This is intended for debugging tools; it does not allocate or modify anything.
    */
-  _setUniformLocationsForUniformModeOnly(shaderProgramUid: CGAPIResourceHandle) {
-    const webglResourceRepository = this.__engine.webglResourceRepository;
-    const semanticsInfoArray: ShaderSemanticsInfo[] = [];
-    this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct) => {
-      const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
-      semanticsInfoArray.push(semanticInfo);
+  public getPropertyTable(): Array<{
+    semantic: ShaderSemanticsName;
+    info: ShaderSemanticsInfo;
+    value: any;
+    vec4Index: IndexOf16Bytes;
+    maxCount: Count;
+  }> {
+    const table: Array<{
+      semantic: ShaderSemanticsName;
+      info: ShaderSemanticsInfo;
+      value: any;
+      vec4Index: IndexOf16Bytes;
+      maxCount: Count;
+    }> = [];
+    this.__fields.forEach((globalPropertyStruct, semantic) => {
+      table.push({
+        semantic,
+        info: globalPropertyStruct.shaderSemanticsInfo,
+        value: globalPropertyStruct.values[0],
+        vec4Index: this.getLocationOffsetOfProperty(semantic),
+        maxCount: globalPropertyStruct.maxCount,
+      });
     });
-
-    webglResourceRepository.setupUniformLocations(this.__engine.config, shaderProgramUid, semanticsInfoArray, true);
+    return table;
   }
 
   /**
@@ -276,7 +288,7 @@ export class GlobalDataRepository {
    * @param shaderProgramUid - The unique identifier of the shader program
    * @internal
    */
-  _setUniformLocationsForDataTextureModeOnly(shaderProgramUid: CGAPIResourceHandle) {
+  _setUniformLocationsForWebGL2ModeOnly(shaderProgramUid: CGAPIResourceHandle) {
     const webglResourceRepository = this.__engine.webglResourceRepository;
     const semanticsInfoArray: ShaderSemanticsInfo[] = [];
     this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct) => {
@@ -286,7 +298,7 @@ export class GlobalDataRepository {
       }
     });
 
-    webglResourceRepository.setupUniformLocations(this.__engine.config, shaderProgramUid, semanticsInfoArray, true);
+    webglResourceRepository.setupUniformLocations(this.__engine.config, shaderProgramUid, semanticsInfoArray);
   }
 
   // getLocationOffsetOfProperty(propertyIndex: Index, countIndex: Index) {

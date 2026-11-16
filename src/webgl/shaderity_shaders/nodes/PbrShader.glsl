@@ -32,11 +32,7 @@ void pbrShader(
     cameraSID += uint(gl_ViewID_OVR);
   #endif
 
-  #ifdef RN_IS_DATATEXTURE_MODE
-    uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
-  #else // RN_IS_UNIFORM_MODE
-    uint materialSID = 0u; // materialSID is not used in Uniform mode
-  #endif
+  uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
 
   vec3 viewPosition = get_viewPosition(cameraSID);
   vec3 viewDirection = normalize(viewPosition - positionInWorld.xyz);

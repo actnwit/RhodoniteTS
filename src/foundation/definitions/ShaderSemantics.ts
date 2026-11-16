@@ -155,9 +155,6 @@ const SkinningMode: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const GeneralTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'generalTexture',
 });
-const VertexAttributesExistenceArray: ShaderSemanticsEnum = new ShaderSemanticsClass({
-  str: 'vertexAttributesExistenceArray',
-});
 const BoneQuaternion: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'boneQuaternion',
 });
@@ -472,7 +469,6 @@ const typeList = [
   ShadingModel,
   SkinningMode,
   GeneralTexture,
-  VertexAttributesExistenceArray,
   BoneQuaternion,
   BoneTranslateScale,
   BoneTranslatePackedQuat,
@@ -705,7 +701,6 @@ export const ShaderSemantics = Object.freeze({
   ShadingModel,
   SkinningMode,
   GeneralTexture,
-  VertexAttributesExistenceArray,
   BoneQuaternion,
   BoneTranslateScale,
   BoneTranslatePackedQuat,

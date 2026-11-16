@@ -14,7 +14,6 @@ type ConfigInitDescription = {
   maxLightNumber?: number;
   materialCountPerBufferView?: number;
   boneDataType?: BoneDataTypeEnum;
-  maxSkeletalBoneNumberForUniformMode?: number;
   isUboEnabled?: boolean;
   eventTargetDom?: HTMLElement;
   cacheWebGpuRenderBundles?: boolean;
@@ -54,8 +53,6 @@ export class Config {
    * and other SkeletalComponents default to Vec4x2.
    */
   boneDataType: BoneDataTypeEnum | undefined = undefined;
-  /**　The maximum number of bones of each skeleton that Rhodonite can handle for Uniform Mode */
-  maxSkeletalBoneNumberForUniformMode = 50;
   /**　Whether the UBO is enabled */
   isUboEnabled = false;
   /**　The event target DOM for mouse operation */
@@ -102,9 +99,6 @@ export class Config {
     }
     if (initDescription.boneDataType !== undefined) {
       this.boneDataType = initDescription.boneDataType;
-    }
-    if (initDescription.maxSkeletalBoneNumberForUniformMode !== undefined) {
-      this.maxSkeletalBoneNumberForUniformMode = initDescription.maxSkeletalBoneNumberForUniformMode;
     }
     if (initDescription.isUboEnabled !== undefined) {
       this.isUboEnabled = initDescription.isUboEnabled;

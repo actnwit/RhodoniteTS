@@ -4,7 +4,6 @@ import mToon1SingleShaderVertex from '../../../webgl/shaderity_shaders/MToon1Sin
 import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
 import mToon1SingleShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/MToon1SingleShader/MToon1SingleShader.frag.wgsl';
 import mToon1SingleShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/MToon1SingleShader/MToon1SingleShader.vert.wgsl';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { HdriFormat } from '../../definitions/HdriFormat';
 import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
@@ -251,64 +250,19 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
     firstTime: boolean;
     args: RenderingArgWebGL;
   }) {
-    if (args.setUniform) {
-      this.setWorldMatrix(shaderProgram, args.worldMatrix);
-      this.setNormalMatrix(shaderProgram, args.normalMatrix);
-      this.setIsBillboard(shaderProgram, args.isBillboard);
-      if (firstTime || args.isVr) {
-        let cameraComponent = args.renderPass.cameraComponent;
-        if (cameraComponent == null) {
-          cameraComponent = engine.componentRepository.getComponent(
-            CameraComponent,
-            CameraComponent.getCurrent(engine)
-          ) as CameraComponent;
-        }
-        this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-        this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-      }
-
-      if (firstTime) {
-        // Lights
-        this.setLightsInfo(engine.config, shaderProgram, args.lightComponents, material, args.setUniform);
-      }
-
-      /// Skinning
-      const skeletalComponent = args.entity.tryToGetSkeletal();
-      this.setSkinning(engine.config, shaderProgram, args.setUniform, skeletalComponent);
-    }
-
-    const webglResourceRepository = engine.webglResourceRepository;
-
     // IBL Parameters
-    if (args.setUniform) {
-      if (firstTime) {
-        const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
-          MToon1MaterialContent.__setupHdriParameters(args);
-        webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.IBLParameter.str, firstTime, {
-          x: mipmapLevelNumber,
-          y: meshRenderComponent!.diffuseCubeMapContribution,
-          z: meshRenderComponent!.specularCubeMapContribution,
-          w: meshRenderComponent!.rotationOfCubeMap,
-        });
-        webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.HDRIFormat.str, firstTime, {
-          x: diffuseHdriType,
-          y: specularHdriType,
-        });
-      }
-    } else {
-      const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
-        MToon1MaterialContent.__setupHdriParameters(args);
-      const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
-      tmp_vector4.x = mipmapLevelNumber;
-      tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
-      tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
-      tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
-      material.setParameter('iblParameter', tmp_vector4);
-      const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
-      tmp_vector2.x = diffuseHdriType;
-      tmp_vector2.y = specularHdriType;
-      material.setParameter('hdriFormat', tmp_vector2);
-    }
+    const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
+      MToon1MaterialContent.__setupHdriParameters(args);
+    const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
+    tmp_vector4.x = mipmapLevelNumber;
+    tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
+    tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
+    tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
+    material.setParameter('iblParameter', tmp_vector4);
+    const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
+    tmp_vector2.x = diffuseHdriType;
+    tmp_vector2.y = specularHdriType;
+    material.setParameter('hdriFormat', tmp_vector2);
 
     // Morph
     const blendShapeComponent = args.entity.tryToGetBlendShape();

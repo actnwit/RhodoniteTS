@@ -12,11 +12,7 @@ void classicShader(in vec4 vertexColor, in vec4 diffuseColorFactor, in vec4 diff
       cameraSID += uint(gl_ViewID_OVR);
     #endif
 
-    #ifdef RN_IS_DATATEXTURE_MODE
-      uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
-    #else // RN_IS_UNIFORM_MODE
-      uint materialSID = 0u; // materialSID is not used in Uniform mode
-    #endif
+    uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
 
     for (int i = 0; i < lightNumber; i++) {
       vec3 specular = vec3(0.0, 0.0, 0.0);

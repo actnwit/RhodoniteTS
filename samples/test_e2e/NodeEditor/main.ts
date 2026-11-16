@@ -5,7 +5,7 @@ const moduleManager = Rn.ModuleManager.getInstance();
 await moduleManager.loadModule(moduleName);
 
 const engine = await Rn.Engine.init({
-  approach: Rn.ProcessApproach.Uniform,
+  approach: Rn.ProcessApproach.WebGL2,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 

@@ -4,7 +4,6 @@ import SynthesizeHDRTextureShaderVertex from '../../../webgl/shaderity_shaders/S
 import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import SynthesizeHDRTextureShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
 import SynthesizeHDRTextureShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.vert';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
@@ -191,22 +190,6 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
     shaderProgram: WebGLProgram;
     args: RenderingArgWebGL;
   }) {
-    if (args.setUniform) {
-      this.setWorldMatrix(shaderProgram, args.worldMatrix);
-
-      /// Matrices
-      let cameraComponent = args.renderPass.cameraComponent;
-      if (cameraComponent == null) {
-        cameraComponent = engine.componentRepository.getComponent(
-          CameraComponent,
-          CameraComponent.getCurrent(engine)
-        ) as CameraComponent;
-      }
-      if (cameraComponent) {
-        this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-        this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-      }
-    }
     (shaderProgram as any)._gl.uniform1fv(
       (shaderProgram as any).synthesizeCoefficient,
       material.getParameter('synthesizeCoefficient')._v

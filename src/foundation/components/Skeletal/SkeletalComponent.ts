@@ -1002,8 +1002,6 @@ export class SkeletalComponent extends Component {
       componentType: ComponentType.Float,
       initValues: new VectorN(new Float32Array(0)),
       isVariableLength: true,
-      // Uniform mode: reserve up to 3 vec4 per joint (Mat43x1)
-      uniformArrayLengthMultiplier: BoneDataType.getVec4CountPerJoint(BoneDataType.Mat43x1),
     });
   }
 

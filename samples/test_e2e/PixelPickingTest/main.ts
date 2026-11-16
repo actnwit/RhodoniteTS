@@ -62,7 +62,7 @@ const canvas = document.getElementById('world') as HTMLCanvasElement;
 window.canvas = canvas;
 
 const engine = await Rn.Engine.init({
-  approach: Rn.ProcessApproach.Uniform,
+  approach: Rn.ProcessApproach.WebGL2,
   canvas,
   config: new Rn.Config({ cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Info }),
 });

@@ -15,13 +15,13 @@ import Rn from 'rhodonite';
 
 // Basic initialization
 await Rn.Engine.init({
-  approach: Rn.ProcessApproach.DataTexture,
+  approach: Rn.ProcessApproach.WebGL2,
   canvas: document.getElementById('canvas') as HTMLCanvasElement,
 });
 
 // Advanced initialization with WebGPU
 await Rn.Engine.init({
-  approach: Rn.ProcessApproach.DataTexture,
+  approach: Rn.ProcessApproach.WebGL2,
   canvas: canvas,
   webgpuOptions: {
     requiredFeatures: ['texture-compression-bc'],
@@ -210,14 +210,14 @@ const isWebGL2Supported = Rn.Config.cgApiDebugMode === 'webgl2';
 if (isWebGPUSupported) {
   // WebGPU-specific setup
   await Rn.Engine.init({
-    approach: Rn.ProcessApproach.DataTexture,
+    approach: Rn.ProcessApproach.WebGL2,
     canvas: canvas,
     webgpuOptions: { /* WebGPU options */ }
   });
 } else {
   // WebGL2 fallback
   await Rn.Engine.init({
-    approach: Rn.ProcessApproach.DataTexture,
+    approach: Rn.ProcessApproach.WebGL2,
     canvas: canvas,
   });
 }

@@ -3,7 +3,6 @@ import DetectHighLuminanceAndCorrectShaderVertex from '../../../webgl/shaderity_
 import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import DetectHighLuminanceAndCorrectShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag';
 import DetectHighLuminanceAndCorrectShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.vert';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { TextureParameter } from '../../definitions';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
@@ -111,20 +110,6 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
     shaderProgram: WebGLProgram;
     args: RenderingArgWebGL;
   }) {
-    if (args.setUniform) {
-      this.setWorldMatrix(shaderProgram, args.worldMatrix);
-      /// Matrices
-      let cameraComponent = args.renderPass.cameraComponent;
-      if (cameraComponent == null) {
-        cameraComponent = engine.componentRepository.getComponent(
-          CameraComponent,
-          CameraComponent.getCurrent(engine)
-        ) as CameraComponent;
-      }
-      if (cameraComponent) {
-        this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-        this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-      }
-    }
+    // Parameters are uploaded through the WebGL2 data texture.
   }
 }

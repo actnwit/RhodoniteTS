@@ -452,6 +452,14 @@ export class MaterialRepository {
     return this.__materialCountPerBufferViewMap.get(materialTypeName);
   }
 
+  /**
+   * Public accessor used by debugging tools. The material SID selects a buffer view
+   * with `floor(materialSID / materialCountPerBufferView)`.
+   */
+  getMaterialCountPerBufferView(materialTypeName: string): Count | undefined {
+    return this._getMaterialCountPerBufferView(materialTypeName);
+  }
+
   _getBufferViewVersion(materialTypeName: string): number {
     return this.__bufferViewVersions.get(materialTypeName) ?? 0;
   }

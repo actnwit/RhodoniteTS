@@ -43,11 +43,6 @@ export type MemberInfo = {
   initValues: number[] | VectorN;
   convertToBool?: boolean;
   /**
-   * Multiplier applied to the uniform array length in uniform mode
-   * (the array length becomes Config.maxSkeletalBoneNumberForUniformMode * this value).
-   */
-  uniformArrayLengthMultiplier?: number;
-  /**
    * Whether this array member has a per-instance length (see `Component.registerMember`).
    */
   isVariableLength?: boolean;
@@ -550,7 +545,6 @@ export class Component extends RnObject {
    * @param componentType - The primitive data type (e.g., Float32, Int32)
    * @param initValues - Initial values for the member field
    * @param convertToBool - Whether to convert the member value to a boolean
-   * @param uniformArrayLengthMultiplier - Multiplier of the uniform array length in uniform mode
    * @param isVariableLength - Whether the array member has a per-instance length
    */
   static registerMember(
@@ -566,7 +560,6 @@ export class Component extends RnObject {
       arrayLength,
       componentSID,
       convertToBool,
-      uniformArrayLengthMultiplier,
       isVariableLength,
     }: {
       bufferUse: BufferUseEnum;
@@ -579,7 +572,6 @@ export class Component extends RnObject {
       arrayLength?: Count | undefined;
       componentSID?: ComponentSID;
       convertToBool?: boolean;
-      uniformArrayLengthMultiplier?: number;
       isVariableLength?: boolean;
     }
   ) {
@@ -616,7 +608,6 @@ export class Component extends RnObject {
       componentType: componentType,
       initValues: initValues,
       convertToBool: convertToBool,
-      uniformArrayLengthMultiplier: uniformArrayLengthMultiplier,
       isVariableLength: isVariableLength,
     });
 

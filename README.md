@@ -74,6 +74,14 @@ $ npm install rhodonite
 
 If you get an error like "webxr-input-profiles not found" when building a project using Rhodonite, Try "npm install" or "pnpm install" again.
 
+## Migration to WebGL2 mode
+
+- `ProcessApproach.Uniform` was removed. Use `ProcessApproach.WebGL2`.
+- `ProcessApproach.DataTexture` was renamed to `ProcessApproach.WebGL2` (mode name `"WebGL2"`).
+- `WebGLStrategyDataTexture` was renamed to `WebGLStrategyWebGL2`.
+- The shader define `RN_IS_DATATEXTURE_MODE` was renamed to `RN_IS_WEBGL2_MODE`.
+- `Config.maxSkeletalBoneNumberForUniformMode` and the `setUniform` rendering argument were removed.
+
 ## Coding with Rhodonite
 
 ### In JavaScript
@@ -85,7 +93,7 @@ If you get an error like "webxr-input-profiles not found" when building a projec
   <script>
   // Init Rhodonite
   const engine = await Rn.Engine.init({
-    approach: Rn.ProcessApproach.DataTexture,
+    approach: Rn.ProcessApproach.WebGL2,
     canvas: document.getElementById('world'),
   });
 
@@ -120,7 +128,7 @@ import Rn from 'rhodonite/dist/esm/index.js';
 
 // Init Rhodonite
 const engine = await Rn.Engine.init({
-  approach: Rn.ProcessApproach.DataTexture,
+  approach: Rn.ProcessApproach.WebGL2,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 

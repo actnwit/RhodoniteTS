@@ -4,7 +4,7 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 const engine = await Rn.Engine.init({
-  approach: Rn.ProcessApproach.DataTexture,
+  approach: Rn.ProcessApproach.WebGL2,
   canvas: document.getElementById('world') as HTMLCanvasElement,
   config: new Rn.Config({ isUboEnabled: false, cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Info }),
 });

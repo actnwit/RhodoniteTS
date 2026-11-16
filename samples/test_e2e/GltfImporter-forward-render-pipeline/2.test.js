@@ -1,6 +1,6 @@
 import { doGltfTests } from '../common/testFunc.js';
 
-const modes = ['uniform', 'datatexture', 'webgpu'];
+const modes = ['webgl2', 'webgpu'];
 const gltfInfo = [
   { name: 'AnimatedMorphCube', format: 'glb' },
   { name: 'AnisotropyBarnLamp', format: 'glb' },

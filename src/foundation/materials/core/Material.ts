@@ -259,7 +259,7 @@ export class Material extends RnObject {
 
   /**
    * Signature of the texture/sampler bindings and the true uniforms that are set per
-   * material in DataTexture mode. Materials with the same signature can share one
+   * material in WebGL2 mode. Materials with the same signature can share one
    * multi-draw batch (their per-draw state differs only in the data texture row).
    * @internal
    */
@@ -497,11 +497,10 @@ export class Material extends RnObject {
 
   /**
    * Sets up uniform locations for material nodes in the shader program.
-   * @internal Called from WebGLStrategyDataTexture and WebGLStrategyUniform only
-   * @param isUniformOnlyMode - Whether to operate in uniform-only mode
+   * @internal Called from WebGLStrategyWebGL2 only
    * @param primitive - The primitive to set up uniforms for
    */
-  _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean, primitive: Primitive) {
+  _setUniformLocationsOfMaterialNodes(primitive: Primitive) {
     const webglResourceRepository = this.__engine.webglResourceRepository;
 
     let array: ShaderSemanticsInfo[] = [];
@@ -511,7 +510,7 @@ export class Material extends RnObject {
     }
 
     const shaderProgramUid = this._shaderProgramUidMap.get(primitive._getFingerPrint());
-    webglResourceRepository.setupUniformLocations(this.__engine.config, shaderProgramUid!, array, isUniformOnlyMode);
+    webglResourceRepository.setupUniformLocations(this.__engine.config, shaderProgramUid!, array);
   }
 
   /**
@@ -543,7 +542,7 @@ export class Material extends RnObject {
 
   /**
    * Creates a WebGL shader program for this material and the given primitive.
-   * @internal Called from WebGLStrategyDataTexture and WebGLStrategyUniform
+   * @internal Called from WebGLStrategyWebGL2
    * @param componentDataAccessMethodDefinitionsForVertexShader - method definitions for component data access for vertex shader
    * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
    * @param propertySetterOfGlobalDataRepository - Function to set shader properties of global data repository
@@ -617,7 +616,7 @@ export class Material extends RnObject {
 
   /**
    * Creates a shader program using updated shader source code.
-   * @internal Called from WebGLStrategyDataTexture and WebGLStrategyUniform
+   * @internal Called from WebGLStrategyWebGL2
    * @param updatedShaderSources - The updated shader source code
    * @param primitive - The primitive to create the program for
    * @param onError - Optional error callback function
@@ -650,7 +649,7 @@ export class Material extends RnObject {
 
   /**
    * Sets up basic uniform locations in the shader program.
-   * @internal Called by WebGLStrategyDataTexture and WebGLStrategyUniform only
+   * @internal Called by WebGLStrategyWebGL2 only
    * @param primitive - The primitive to set up uniforms for
    */
   _setupBasicUniformsLocations(primitive: Primitive) {
@@ -663,25 +662,15 @@ export class Material extends RnObject {
 
   /**
    * Sets up additional uniform locations in the shader program.
-   * @internal Called by WebGLStrategyDataTexture and WebGLStrategyUniform only
+   * @internal Called by WebGLStrategyWebGL2 only
    * @param shaderSemantics - Array of shader semantics to set up
-   * @param isUniformOnlyMode - Whether to operate in uniform-only mode
    * @param primitive - The primitive to set up uniforms for
    */
-  _setupAdditionalUniformLocations(
-    shaderSemantics: ShaderSemanticsInfo[],
-    isUniformOnlyMode: boolean,
-    primitive: Primitive
-  ) {
+  _setupAdditionalUniformLocations(shaderSemantics: ShaderSemanticsInfo[], primitive: Primitive) {
     const webglResourceRepository = this.__engine.webglResourceRepository;
     const primitiveFingerPrint = primitive._getFingerPrint();
     const shaderProgramUid = this._shaderProgramUidMap.get(primitiveFingerPrint);
-    webglResourceRepository.setupUniformLocations(
-      this.__engine.config,
-      shaderProgramUid!,
-      shaderSemantics,
-      isUniformOnlyMode
-    );
+    webglResourceRepository.setupUniformLocations(this.__engine.config, shaderProgramUid!, shaderSemantics);
   }
 
   /**
@@ -706,7 +695,7 @@ export class Material extends RnObject {
 
   /**
    * Sets parameters to GPU for WebGL rendering per material.
-   * @internal Called from WebGLStrategyDataTexture and WebGLStrategyUniform only
+   * @internal Called from WebGLStrategyWebGL2 only
    * @param params - Object containing rendering parameters
    */
   _setParametersToGpuWebGL({
@@ -723,7 +712,7 @@ export class Material extends RnObject {
     args: RenderingArgWebGL;
   }) {
     // For Auto Parameters
-    this.__setAutoParametersToGpuWebGL(args.setUniform, firstTime, shaderProgram);
+    this.__setAutoParametersToGpuWebGL(firstTime, shaderProgram);
 
     // For Custom Setting Parameters
     this._materialContent._setInternalSettingParametersToGpuWebGLPerMaterial({
@@ -738,7 +727,6 @@ export class Material extends RnObject {
     this.__setSoloDatumParametersToGpuWebGL({
       shaderProgram,
       firstTime,
-      isUniformMode: args.setUniform,
     });
   }
 
@@ -800,20 +788,17 @@ export class Material extends RnObject {
   _setParametersToGpuWebGLWithOutInternalSetting({
     shaderProgram,
     firstTime,
-    isUniformMode,
   }: {
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    isUniformMode: boolean;
   }) {
     // For Auto Parameters
-    this.__setAutoParametersToGpuWebGL(isUniformMode, firstTime, shaderProgram);
+    this.__setAutoParametersToGpuWebGL(firstTime, shaderProgram);
 
     // For SoloDatum Parameters
     this.__setSoloDatumParametersToGpuWebGL({
       shaderProgram,
       firstTime,
-      isUniformMode,
     });
   }
 
@@ -850,31 +835,23 @@ export class Material extends RnObject {
   /**
    * Sets automatic parameters to GPU for WebGL rendering.
    * @private
-   * @param isUniformMode - Whether to operate in uniform mode
    * @param firstTime - Whether this is the first time setting parameters
    * @param shaderProgram - The WebGL shader program
    */
-  private __setAutoParametersToGpuWebGL(isUniformMode: boolean, firstTime: boolean, shaderProgram: WebGLProgram) {
+  private __setAutoParametersToGpuWebGL(firstTime: boolean, shaderProgram: WebGLProgram) {
     const webglResourceRepository = this.__engine.webglResourceRepository;
-    if (isUniformMode) {
-      this._autoFieldVariablesOnly.forEach(value => {
-        const info = value.info;
-        webglResourceRepository.setUniformValue(shaderProgram, info.semantic, firstTime, value.value);
-      });
-    } else {
-      for (const [, value] of this._autoTextureFieldVariablesOnly) {
-        const info = value.info;
-        if (firstTime) {
-          webglResourceRepository.setUniform1iForTexture(shaderProgram, info.semantic, value.value);
-        } else {
-          webglResourceRepository.bindTexture(info, value.value);
-        }
+    for (const [, value] of this._autoTextureFieldVariablesOnly) {
+      const info = value.info;
+      if (firstTime) {
+        webglResourceRepository.setUniform1iForTexture(shaderProgram, info.semantic, value.value);
+      } else {
+        webglResourceRepository.bindTexture(info, value.value);
       }
-      for (const [, value] of this._autoUniformFieldVariablesOnly) {
-        const info = value.info;
-        if (info.needUniformInDataTextureMode) {
-          webglResourceRepository.setUniformValue(shaderProgram, info.semantic, firstTime, value.value);
-        }
+    }
+    for (const [, value] of this._autoUniformFieldVariablesOnly) {
+      const info = value.info;
+      if (info.needUniformInDataTextureMode) {
+        webglResourceRepository.setUniformValue(shaderProgram, info.semantic, firstTime, value.value);
       }
     }
   }
@@ -887,11 +864,9 @@ export class Material extends RnObject {
   private __setSoloDatumParametersToGpuWebGL({
     shaderProgram,
     firstTime,
-    isUniformMode,
   }: {
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    isUniformMode: boolean;
   }) {
     const webglResourceRepository = this.__engine.webglResourceRepository;
     const materialTypeName = this.__materialTypeName;
@@ -900,7 +875,7 @@ export class Material extends RnObject {
     const values = map.values();
     for (const value of values) {
       const info = value.info;
-      if (isUniformMode || CompositionType.isTexture(info.compositionType)) {
+      if (CompositionType.isTexture(info.compositionType)) {
         if (!info.isInternalSetting) {
           if (firstTime) {
             webglResourceRepository.setUniformValue(shaderProgram, info.semantic, firstTime, value.value);

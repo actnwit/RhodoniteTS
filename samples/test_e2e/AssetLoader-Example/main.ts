@@ -363,7 +363,7 @@ function demonstrateTypeSafety(engine: Rn.Engine) {
 async function main() {
   try {
     const engine = await Rn.Engine.init({
-      approach: Rn.ProcessApproach.Uniform,
+      approach: Rn.ProcessApproach.WebGL2,
       canvas: document.getElementById('world') as HTMLCanvasElement,
     });
     console.log('=== AssetLoader example ===');

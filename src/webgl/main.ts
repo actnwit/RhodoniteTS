@@ -3,16 +3,14 @@ import { StandardShaderPart } from './shaders/StandardShaderPart';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
 import { type VertexHandles as vertexHandles, WebGLResourceRepository } from './WebGLResourceRepository';
 import type { WebGLStrategy as webGLStrategy } from './WebGLStrategy';
-import { WebGLStrategyDataTexture } from './WebGLStrategyDataTexture';
-import { WebGLStrategyUniform } from './WebGLStrategyUniform';
+import { WebGLStrategyWebGL2 } from './WebGLStrategyWebGL2';
 
 const WebGL = Object.freeze({
   getRenderingStrategy,
   StandardShaderPart,
   WebGLContextWrapper,
   WebGLResourceRepository,
-  WebGLStrategyUniform,
-  WebGLStrategyDataTexture,
+  WebGLStrategyWebGL2,
 });
 export default WebGL;
 

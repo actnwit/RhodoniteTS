@@ -71,7 +71,7 @@ engine.startRenderLoop(() => {
 async function initRn() {
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   const engine = await Rn.Engine.init({
-    approach: Rn.ProcessApproach.DataTexture,
+    approach: Rn.ProcessApproach.WebGL2,
     canvas,
     webglOption: { antialias: false },
     config: new Rn.Config({ cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Info }),

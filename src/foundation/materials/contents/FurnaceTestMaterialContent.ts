@@ -1,7 +1,6 @@
 import FurnaceTestShaderFragment from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.frag';
 import FurnaceTestShaderVertex from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.vert';
 import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
@@ -136,25 +135,6 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
     firstTime: boolean;
     args: RenderingArgWebGL;
   }) {
-    if (args.setUniform) {
-      this.setWorldMatrix(shaderProgram, args.worldMatrix);
-      this.setNormalMatrix(shaderProgram, args.normalMatrix);
-
-      if (firstTime) {
-        /// Matrices
-        let cameraComponent = args.renderPass.cameraComponent;
-        if (cameraComponent == null) {
-          cameraComponent = engine.componentRepository.getComponent(
-            CameraComponent,
-            CameraComponent.getCurrent(engine)
-          ) as CameraComponent;
-        }
-        this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-        this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-
-        // Lights
-        this.setLightsInfo(engine.config, shaderProgram, args.lightComponents, material, args.setUniform);
-      }
-    }
+    // Parameters are uploaded through the WebGL2 data texture.
   }
 }

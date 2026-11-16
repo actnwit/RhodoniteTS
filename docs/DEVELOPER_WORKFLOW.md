@@ -218,7 +218,7 @@ import Rn from '../../../dist/esmdev/index.js';
 export default async function() {
   // Initialize Rhodonite
   await Rn.Engine.init({
-    approach: Rn.ProcessApproach.DataTexture,
+    approach: Rn.ProcessApproach.WebGL2,
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
 

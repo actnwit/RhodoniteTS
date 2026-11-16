@@ -420,7 +420,7 @@ export function getMultiDrawStateKeyId(
   return keyId;
 }
 
-/** Draw arguments filled by WebGLStrategyDataTexture when a draw is deferred into a batch. */
+/** Draw arguments filled by WebGLStrategyWebGL2 when a draw is deferred into a batch. */
 export type DeferredMultiDraw = {
   primitive: Primitive;
   mesh: Mesh;

@@ -5,7 +5,7 @@ let p: any;
 declare const window: any;
 
 const engine = await Rn.Engine.init({
-  approach: Rn.ProcessApproach.Uniform,
+  approach: Rn.ProcessApproach.WebGL2,
   canvas: document.getElementById('world') as HTMLCanvasElement,
   config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
 });

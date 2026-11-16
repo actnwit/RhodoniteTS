@@ -6,7 +6,7 @@ let p: any;
 declare const window: any;
 
 const mode = new URLSearchParams(window.location.search).get('mode');
-const processApproach = mode == null ? Rn.ProcessApproach.Uniform : getProcessApproach(Rn);
+const processApproach = mode == null ? Rn.ProcessApproach.WebGL2 : getProcessApproach(Rn);
 const moduleManager = Rn.ModuleManager.getInstance();
 const effekseerModule = await moduleManager.loadModule('effekseer', {
   wasmWebGL: '../../../vendor/effekseer-webgl.wasm',

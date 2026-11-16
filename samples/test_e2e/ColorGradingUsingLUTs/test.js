@@ -1,5 +1,5 @@
 import { doTests } from '../common/testFunc';
 
-const modes = ['uniform', 'datatexture'];
+const modes = ['webgl2'];
 
 doTests('ColorGradingUsingLUTs', modes);
