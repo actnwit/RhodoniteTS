@@ -267,7 +267,7 @@ export class Mesh implements IMesh {
     if (!this.__engine.config.isMultiDrawEnabled) {
       return false;
     }
-    if (this.__engine.engineState.currentProcessApproach !== ProcessApproach.DataTexture) {
+    if (this.__engine.engineState.currentProcessApproach !== ProcessApproach.WebGL2) {
       return false;
     }
     const webglResourceRepository = this.__engine.webglResourceRepository;

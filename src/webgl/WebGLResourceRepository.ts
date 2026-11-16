@@ -851,14 +851,12 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * @param config - Configuration for the shader program
    * @param shaderProgramUid - The handle of the shader program
    * @param infoArray - Array of shader semantics information
-   * @param isUniformOnlyMode - Whether to set up only uniform locations
    * @returns The WebGL program object with configured uniform locations
    */
   setupUniformLocations(
     config: Config,
     shaderProgramUid: WebGLResourceHandle,
-    infoArray: ShaderSemanticsInfo[],
-    isUniformOnlyMode: boolean
+    infoArray: ShaderSemanticsInfo[]
   ): WebGLProgram {
     const glw = this.__glw!;
     const gl = glw.getRawContext();
@@ -872,8 +870,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
 
     for (let i = 0; i < infoArrayLen; i++) {
       const info = infoArray[i];
-      const isUniformExist =
-        isUniformOnlyMode || info.needUniformInDataTextureMode || CompositionType.isTexture(info.compositionType);
+      const isUniformExist = info.needUniformInDataTextureMode || CompositionType.isTexture(info.compositionType);
 
       if (isUniformExist) {
         const semanticSingular = info.semantic;
@@ -4424,7 +4421,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
   }
 
   isSupportMultiViewVRRendering(engine: Engine): boolean {
-    if (engine.engineState.currentProcessApproach === ProcessApproach.DataTexture) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGL2) {
       return this.__glw!.isMultiview(engine.config);
     }
     return false;

@@ -1,5 +1,5 @@
 import { doTests } from '../common/testFunc';
 
-const modes = ['uniform', 'datatexture', 'webgpu'];
+const modes = ['webgl2', 'webgpu'];
 
 doTests('DataTextureInstancedDrawing', modes);

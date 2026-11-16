@@ -10,12 +10,12 @@ const basePathIBL = '../../../assets/ibl/shanghai_bund';
 // prepare memory
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
 const engine = await Rn.Engine.init({
-  approach: Rn.ProcessApproach.DataTexture,
+  approach: Rn.ProcessApproach.WebGL2,
   canvas: rnCanvasElement,
   config: new Rn.Config({ cgApiDebugConsoleOutput: true, isUboEnabled: false }),
 });
 
-// when "ProcessApproach.DataTexture" is specified,
+// when "ProcessApproach.WebGL2" is specified,
 // we need to specify the following setting in order to avoid the error
 //  "Too many temporary registers required to compile shader".
 

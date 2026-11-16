@@ -388,14 +388,12 @@ export function _setupGlobalShaderDefinitionWebGL(engine: Engine, materialTypeNa
     }
   }
   definitions += `// RN_MATERIAL_TYPE_NAME: ${materialTypeName}\n`;
-  if (ProcessApproach.isDataTextureApproach(engine.engineState.currentProcessApproach)) {
-    definitions += '#define RN_IS_DATATEXTURE_MODE\n';
+  if (ProcessApproach.isWebGL2Approach(engine.engineState.currentProcessApproach)) {
+    definitions += '#define RN_IS_WEBGL2_MODE\n';
     if (engine.config.isMultiDrawEnabled && webglResourceRepository.isInstanceSidTextureCapable) {
       definitions += '#define RN_USE_INSTANCE_SID_TEXTURE\n';
       definitions += '#define RN_USE_MATERIAL_SID_ATTRIBUTE\n';
     }
-  } else {
-    definitions += '#define RN_IS_UNIFORM_MODE\n';
   }
 
   const webXRSystem = engine.webXRSystem;

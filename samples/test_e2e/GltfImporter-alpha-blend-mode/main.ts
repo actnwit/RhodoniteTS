@@ -6,7 +6,7 @@ document.body.appendChild(p);
 const world = document.getElementById('world') as HTMLCanvasElement;
 
 const engine = await Rn.Engine.init({
-  approach: Rn.ProcessApproach.Uniform,
+  approach: Rn.ProcessApproach.WebGL2,
   canvas: world,
   config: new Rn.Config({ cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Info }),
 });

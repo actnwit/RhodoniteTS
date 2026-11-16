@@ -1,6 +1,5 @@
 import type { ShaderityObject } from 'shaderity';
 import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { HdriFormat } from '../../definitions/HdriFormat';
 import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
@@ -20,7 +19,7 @@ import type { Material } from '../core/Material';
 export class CustomMaterialContent extends AbstractMaterialContent {
   private __diffuseIblCubeMapSampler: Sampler;
   private __specularIblCubeMapSampler: Sampler;
-  /** Material and values of the last IBL parameter write (WebGL DataTexture mode). */
+  /** Material and values of the last IBL parameter write (WebGL2 mode). */
   private __lastIblMaterial?: Material;
   private __lastIblMaterialStateVersion = -1;
   private __lastIblValues = new Float64Array(6);
@@ -187,91 +186,46 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     firstTime: boolean;
     args: RenderingArgWebGL;
   }) {
-    if (args.setUniform) {
-      this.setWorldMatrix(shaderProgram, args.worldMatrix);
-      this.setNormalMatrix(shaderProgram, args.normalMatrix);
-      this.setIsBillboard(shaderProgram, args.isBillboard);
-      this.setIsVisible(shaderProgram, args.isVisible);
-      if (firstTime || args.isVr) {
-        let cameraComponent = args.renderPass.cameraComponent;
-        if (cameraComponent == null) {
-          cameraComponent = engine.componentRepository.getComponent(
-            CameraComponent,
-            CameraComponent.getCurrent(engine)
-          ) as CameraComponent;
-        }
-        this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-        this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-      }
-
-      // if (firstTime) {
-      // Lights
-      this.setLightsInfo(engine.config, shaderProgram, args.lightComponents, material, args.setUniform);
-      // }
-
-      /// Skinning
-      const skeletalComponent = args.entity.tryToGetSkeletal();
-      this.setSkinning(engine.config, shaderProgram, args.setUniform, skeletalComponent);
-    }
-
-    const webglResourceRepository = engine.webglResourceRepository;
     // IBL Parameters
-    if (args.setUniform) {
-      if (firstTime) {
-        const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
-          CustomMaterialContent.__setupHdriParameters(args);
-        webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.IBLParameter.str, firstTime, {
-          x: mipmapLevelNumber,
-          y: meshRenderComponent!.diffuseCubeMapContribution,
-          z: meshRenderComponent!.specularCubeMapContribution,
-          w: meshRenderComponent!.rotationOfCubeMap,
-        });
-        webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.HDRIFormat.str, firstTime, {
-          x: diffuseHdriType,
-          y: specularHdriType,
-        });
-      }
-    } else {
-      const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
-        CustomMaterialContent.__setupHdriParameters(args);
-      const diffuseContribution = meshRenderComponent!.diffuseCubeMapContribution;
-      const specularContribution = meshRenderComponent!.specularCubeMapContribution;
-      const rotationOfCubeMap = meshRenderComponent!.rotationOfCubeMap;
-      // This runs for every material on every frame. Skip the two setParameter() calls when this
-      // material already holds these values and nothing has changed the material since.
-      const last = this.__lastIblValues;
-      if (
-        this.__lastIblMaterial === material &&
-        this.__lastIblMaterialStateVersion === material.stateVersion &&
-        last[0] === mipmapLevelNumber &&
-        last[1] === diffuseContribution &&
-        last[2] === specularContribution &&
-        last[3] === rotationOfCubeMap &&
-        last[4] === diffuseHdriType &&
-        last[5] === specularHdriType
-      ) {
-        return;
-      }
-      const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
-      tmp_vector4.x = mipmapLevelNumber;
-      tmp_vector4.y = diffuseContribution;
-      tmp_vector4.z = specularContribution;
-      tmp_vector4.w = rotationOfCubeMap;
-      material.setParameter('iblParameter', tmp_vector4);
-      const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
-      tmp_vector2.x = diffuseHdriType;
-      tmp_vector2.y = specularHdriType;
-      material.setParameter('hdriFormat', tmp_vector2);
-
-      this.__lastIblMaterial = material;
-      this.__lastIblMaterialStateVersion = material.stateVersion;
-      last[0] = mipmapLevelNumber;
-      last[1] = diffuseContribution;
-      last[2] = specularContribution;
-      last[3] = rotationOfCubeMap;
-      last[4] = diffuseHdriType;
-      last[5] = specularHdriType;
+    const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
+      CustomMaterialContent.__setupHdriParameters(args);
+    const diffuseContribution = meshRenderComponent!.diffuseCubeMapContribution;
+    const specularContribution = meshRenderComponent!.specularCubeMapContribution;
+    const rotationOfCubeMap = meshRenderComponent!.rotationOfCubeMap;
+    // This runs for every material on every frame. Skip the two setParameter() calls when this
+    // material already holds these values and nothing has changed the material since.
+    const last = this.__lastIblValues;
+    if (
+      this.__lastIblMaterial === material &&
+      this.__lastIblMaterialStateVersion === material.stateVersion &&
+      last[0] === mipmapLevelNumber &&
+      last[1] === diffuseContribution &&
+      last[2] === specularContribution &&
+      last[3] === rotationOfCubeMap &&
+      last[4] === diffuseHdriType &&
+      last[5] === specularHdriType
+    ) {
+      return;
     }
+    const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
+    tmp_vector4.x = mipmapLevelNumber;
+    tmp_vector4.y = diffuseContribution;
+    tmp_vector4.z = specularContribution;
+    tmp_vector4.w = rotationOfCubeMap;
+    material.setParameter('iblParameter', tmp_vector4);
+    const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
+    tmp_vector2.x = diffuseHdriType;
+    tmp_vector2.y = specularHdriType;
+    material.setParameter('hdriFormat', tmp_vector2);
+
+    this.__lastIblMaterial = material;
+    this.__lastIblMaterialStateVersion = material.stateVersion;
+    last[0] = mipmapLevelNumber;
+    last[1] = diffuseContribution;
+    last[2] = specularContribution;
+    last[3] = rotationOfCubeMap;
+    last[4] = diffuseHdriType;
+    last[5] = specularHdriType;
   }
 
   /**

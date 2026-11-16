@@ -1,5 +1,5 @@
 import { doTests } from '../common/testFunc';
 
-const modes = ['datatexture', 'webgpu'];
+const modes = ['webgl2', 'webgpu'];
 
 doTests('IBLfromHDR', modes, 0.03);

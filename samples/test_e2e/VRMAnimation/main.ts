@@ -6,14 +6,13 @@ declare const window: any;
 declare const Stats: any;
 
 const config = new Rn.Config({
-  maxSkeletalBoneNumberForUniformMode: 100,
   isUboEnabled: false,
   cgApiDebugConsoleOutput: true,
   logLevel: Rn.LogLevel.Info,
 });
 
 const engine = await Rn.Engine.init({
-  approach: Rn.ProcessApproach.DataTexture,
+  approach: Rn.ProcessApproach.WebGL2,
   canvas: document.getElementById('world') as HTMLCanvasElement,
   config,
 });

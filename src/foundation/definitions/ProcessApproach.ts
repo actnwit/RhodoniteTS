@@ -7,8 +7,7 @@ export class ProcessApproachClass extends EnumClass implements EnumIO {
 
   get webGLVersion() {
     switch (this) {
-      case Uniform:
-      case DataTexture:
+      case WebGL2:
         return 2;
       default:
         return 0;
@@ -22,42 +21,20 @@ const None: ProcessApproachEnum = new ProcessApproachClass({
   index: 0,
   str: 'NONE',
 });
-const Uniform: ProcessApproachEnum = new ProcessApproachClass({
-  index: 1,
-  str: 'UNIFORM',
-});
-const DataTexture: ProcessApproachEnum = new ProcessApproachClass({
+const WebGL2: ProcessApproachEnum = new ProcessApproachClass({
   index: 2,
-  str: 'DataTexture',
+  str: 'WebGL2',
 });
 const WebGPU: ProcessApproachEnum = new ProcessApproachClass({
   index: 3,
   str: 'WebGPU',
 });
 
-const typeList = [None, Uniform, DataTexture];
+const typeList = [None, WebGL2, WebGPU];
 
 function from(index: number): ProcessApproachEnum | undefined {
   return _from({ typeList, index }) as ProcessApproachEnum;
 }
-
-const isDataTextureApproach = (processApproach: ProcessApproachEnum) => {
-  switch (processApproach) {
-    case DataTexture:
-      return true;
-    default:
-      return false;
-  }
-};
-
-const isUniformApproach = (processApproach: ProcessApproachEnum) => {
-  switch (processApproach) {
-    case Uniform:
-      return true;
-    default:
-      return false;
-  }
-};
 
 const isWebGpuApproach = (processApproach: ProcessApproachEnum) => {
   switch (processApproach) {
@@ -70,8 +47,7 @@ const isWebGpuApproach = (processApproach: ProcessApproachEnum) => {
 
 const isWebGL2Approach = (processApproach: ProcessApproachEnum) => {
   switch (processApproach) {
-    case Uniform:
-    case DataTexture:
+    case WebGL2:
       return true;
     default:
       return false;
@@ -79,12 +55,9 @@ const isWebGL2Approach = (processApproach: ProcessApproachEnum) => {
 };
 
 export const ProcessApproach = Object.freeze({
-  isDataTextureApproach,
-  isUniformApproach,
   isWebGpuApproach,
   None,
-  Uniform,
-  DataTexture,
+  WebGL2,
   WebGPU,
   from,
   isWebGL2Approach,

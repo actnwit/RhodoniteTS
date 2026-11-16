@@ -5,7 +5,7 @@ declare const window: any;
 async function createCanvasScene(canvasId: string) {
   let p: HTMLParagraphElement | undefined;
   const engine = await Rn.Engine.init({
-    approach: Rn.ProcessApproach.DataTexture,
+    approach: Rn.ProcessApproach.WebGL2,
     canvas: document.getElementById(canvasId) as HTMLCanvasElement,
     config: new Rn.Config({ isUboEnabled: false, cgApiDebugConsoleOutput: true }),
   });

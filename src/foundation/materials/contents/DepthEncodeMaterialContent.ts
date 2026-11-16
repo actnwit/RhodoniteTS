@@ -150,28 +150,7 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
       ) as CameraComponent;
     }
 
-    if (args.setUniform) {
-      this.setWorldMatrix(shaderProgram, args.worldMatrix);
-      this.setNormalMatrix(shaderProgram, args.normalMatrix);
-      this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-      this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-
-      if (firstTime || this.__lastZNear !== cameraComponent.zNearInner) {
-        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zNearInner, cameraComponent.zNearInner);
-        this.__lastZNear = cameraComponent.zNearInner;
-      }
-
-      if (this.__lastZFar !== cameraComponent.zFarInner) {
-        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zFarInner, cameraComponent.zFarInner);
-        this.__lastZFar = cameraComponent.zFarInner;
-      }
-    } else {
-      material.setParameter('zNearInner', cameraComponent.zNearInner);
-      material.setParameter('zFarInner', cameraComponent.zFarInner);
-    }
-
-    /// Skinning
-    const skeletalComponent = args.entity.tryToGetSkeletal();
-    this.setSkinning(engine.config, shaderProgram, args.setUniform, skeletalComponent);
+    material.setParameter('zNearInner', cameraComponent.zNearInner);
+    material.setParameter('zFarInner', cameraComponent.zFarInner);
   }
 }

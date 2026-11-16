@@ -1,7 +1,7 @@
 import { ComponentType, type ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import type { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
-import { VertexAttribute, type VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
+import type { VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
 import { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
 import type { Socket, SocketDefaultValue } from '../../foundation/materials/core/Socket';
 import type { Engine } from '../../foundation/system/Engine';
@@ -89,11 +89,7 @@ void main() {
 
   getMaterialSIDForWebGL() {
     return `
-  #ifdef RN_IS_DATATEXTURE_MODE
-    uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
-#else
-    uint materialSID = 0u;
-#endif
+  uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
 `;
   }
 
@@ -138,12 +134,12 @@ precision highp float;
 precision highp int;
 /* shaderity: @{definitions} */
 #define RN_IS_NODE_SHADER
-#if defined(RN_IS_DATATEXTURE_MODE) && defined(RN_USE_INSTANCE_SID_TEXTURE)
+#if defined(RN_IS_WEBGL2_MODE) && defined(RN_USE_INSTANCE_SID_TEXTURE)
 #define a_instanceIds get_instanceIds()
 #else
 in uvec4 a_instanceIds;
 #endif
-#if defined(RN_IS_DATATEXTURE_MODE) && defined(RN_USE_MATERIAL_SID_ATTRIBUTE)
+#if defined(RN_IS_WEBGL2_MODE) && defined(RN_USE_MATERIAL_SID_ATTRIBUTE)
 in uint a_materialSid;
 flat out uint v_materialSid;
 #endif
@@ -166,9 +162,6 @@ in vec4 a_weight;
 in vec4 a_baryCentricCoord;
 in vec4 a_tangent;
 flat out uvec4 v_instanceIds;
-`;
-    vertexShaderPrerequisites += `
-uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
 `;
     vertexShaderPrerequisites += '/* shaderity: @{getters} */';
     vertexShaderPrerequisites += '/* shaderity: @{matricesGetters} */';

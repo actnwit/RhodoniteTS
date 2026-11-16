@@ -2,12 +2,8 @@ import ShaderityModule, { type ShaderityObject } from 'shaderity';
 import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import type { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
 import type { CameraComponent } from '../../components/Camera/CameraComponent';
-import type { LightComponent } from '../../components/Light/LightComponent';
 import type { MeshComponent } from '../../components/Mesh/MeshComponent';
-import type { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
-import type { Config } from '../../core/Config';
 import { RnObject } from '../../core/RnObject';
-import { BoneDataType } from '../../definitions/BoneDataType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
@@ -57,10 +53,6 @@ export abstract class AbstractMaterialContent extends RnObject {
   private __isMorphing: boolean;
   private __isSkinning: boolean;
   private __isLighting: boolean;
-  private static __lightPositions = new Float32Array(0);
-  private static __lightDirections = new Float32Array(0);
-  private static __lightIntensities = new Float32Array(0);
-  private static __lightProperties = new Float32Array(0);
 
   private static __materialContentCount = 0;
   private __materialContentUid: number;
@@ -357,38 +349,13 @@ export abstract class AbstractMaterialContent extends RnObject {
    * @param CameraComponentClass - The camera component class
    */
   protected setupBasicInfo(
-    engine: Engine,
+    _engine: Engine,
     args: RenderingArgWebGL,
     shaderProgram: WebGLProgram,
-    firstTime: boolean,
-    material: Material,
-    CameraComponentClass: typeof CameraComponent
+    _firstTime: boolean,
+    _material: Material,
+    _CameraComponentClass: typeof CameraComponent
   ) {
-    if (args.setUniform) {
-      this.setWorldMatrix(shaderProgram, args.worldMatrix);
-      this.setNormalMatrix(shaderProgram, args.normalMatrix);
-      this.setIsBillboard(shaderProgram, args.isBillboard);
-      this.setIsVisible(shaderProgram, args.isVisible);
-      if (firstTime || args.isVr) {
-        let cameraComponent = args.renderPass.cameraComponent;
-        if (cameraComponent == null) {
-          cameraComponent = engine.componentRepository.getComponent(
-            CameraComponentClass,
-            CameraComponentClass.getCurrent(engine)
-          ) as CameraComponent;
-        }
-        this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-        this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-      }
-      if (firstTime) {
-        // Lights
-        this.setLightsInfo(engine.config, shaderProgram, args.lightComponents, material, args.setUniform);
-        /// Skinning
-        const skeletalComponent = args.entity.tryToGetSkeletal();
-        this.setSkinning(engine.config, shaderProgram, args.setUniform, skeletalComponent);
-      }
-    }
-
     // Morph
     const blendShapeComponent = args.entity.tryToGetBlendShape();
     this.setMorphInfo(shaderProgram, args.entity.getMesh(), args.primitive, blendShapeComponent);
@@ -483,129 +450,6 @@ export abstract class AbstractMaterialContent extends RnObject {
       projectionMatrix = MutableMatrix44.identity();
     }
     (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).projectionMatrix, false, projectionMatrix!._v);
-  }
-
-  /**
-   * Sets skeletal animation uniforms in the shader.
-   * @param shaderProgram - The WebGL shader program
-   * @param setUniform - Whether to set uniform values
-   * @param skeletalComponent - The skeletal component containing bone data
-   */
-  protected setSkinning(
-    config: Config,
-    shaderProgram: WebGLProgram,
-    setUniform: boolean,
-    skeletalComponent?: SkeletalComponent
-  ) {
-    if (!this.__isSkinning) {
-      return;
-    }
-    if (skeletalComponent) {
-      if (setUniform) {
-        // The bone data layout is decoded in the shader according to boneDataInfo.w (bone data type index)
-        const boneData = skeletalComponent.boneDataArray;
-        const maxVec4Count =
-          config.maxSkeletalBoneNumberForUniformMode * BoneDataType.getVec4CountPerJoint(BoneDataType.Mat43x1);
-        (shaderProgram as any)._gl.uniform4fv(
-          (shaderProgram as any).boneData,
-          boneData.length > maxVec4Count * 4 ? boneData.subarray(0, maxVec4Count * 4) : boneData
-        );
-        (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneDataInfo, skeletalComponent.boneDataInfo._v);
-
-        (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, skeletalComponent.componentSID);
-      }
-    } else {
-      if (setUniform) {
-        (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, -1);
-      }
-    }
-  }
-
-  /**
-   * Sets lighting information uniforms in the shader.
-   * @param shaderProgram - The WebGL shader program
-   * @param lightComponents - Array of light components
-   * @param material - The material instance
-   * @param setUniform - Whether to set uniform values
-   */
-  protected setLightsInfo(
-    config: Config,
-    shaderProgram: WebGLProgram,
-    lightComponents: LightComponent[],
-    _material: Material,
-    setUniform: boolean
-  ) {
-    if (!this.__isLighting) {
-      return;
-    }
-    if (setUniform) {
-      const lightComponentsEnabled = lightComponents.filter(lightComponent => lightComponent.enable);
-
-      (shaderProgram as any)._gl.uniform1i((shaderProgram as any).lightNumber, lightComponentsEnabled!.length);
-
-      const length = Math.min(lightComponentsEnabled!.length, config.maxLightNumber);
-      if (AbstractMaterialContent.__lightPositions.length !== 3 * length) {
-        AbstractMaterialContent.__lightPositions = new Float32Array(3 * length);
-        AbstractMaterialContent.__lightDirections = new Float32Array(3 * length);
-        AbstractMaterialContent.__lightIntensities = new Float32Array(3 * length);
-        AbstractMaterialContent.__lightProperties = new Float32Array(4 * length);
-      }
-      for (let i = 0; i < lightComponentsEnabled!.length; i++) {
-        if (i >= config.maxLightNumber) {
-          break;
-        }
-        if ((shaderProgram as any).lightPosition == null) {
-          break;
-        }
-
-        const lightComponent = lightComponentsEnabled![i];
-        const sceneGraphComponent = lightComponent.entity.getSceneGraph()!;
-        const worldLightPosition = sceneGraphComponent.worldPosition;
-        const worldLightDirection = lightComponent.direction;
-        const worldLightIntensity = lightComponent.intensity;
-        const worldLightColor = lightComponent.color;
-
-        AbstractMaterialContent.__lightPositions[i * 3 + 0] = worldLightPosition.x;
-        AbstractMaterialContent.__lightPositions[i * 3 + 1] = worldLightPosition.y;
-        AbstractMaterialContent.__lightPositions[i * 3 + 2] = worldLightPosition.z;
-
-        const lightAngleScale =
-          1.0 / Math.max(0.001, Math.cos(lightComponent.innerConeAngle) - Math.cos(lightComponent.outerConeAngle));
-        const lightAngleOffset = -Math.cos(lightComponent.outerConeAngle) * lightAngleScale;
-
-        AbstractMaterialContent.__lightDirections[i * 3 + 0] = worldLightDirection.x;
-        AbstractMaterialContent.__lightDirections[i * 3 + 1] = worldLightDirection.y;
-        AbstractMaterialContent.__lightDirections[i * 3 + 2] = worldLightDirection.z;
-
-        AbstractMaterialContent.__lightIntensities[i * 3 + 0] = worldLightColor.x * worldLightIntensity;
-        AbstractMaterialContent.__lightIntensities[i * 3 + 1] = worldLightColor.y * worldLightIntensity;
-        AbstractMaterialContent.__lightIntensities[i * 3 + 2] = worldLightColor.z * worldLightIntensity;
-
-        AbstractMaterialContent.__lightProperties[i * 4 + 0] = // LightType
-          lightComponent.enable ? lightComponent.type.index : -1;
-        AbstractMaterialContent.__lightProperties[i * 4 + 1] = lightComponent.range; // Light Range
-        AbstractMaterialContent.__lightProperties[i * 4 + 2] = lightAngleScale;
-        AbstractMaterialContent.__lightProperties[i * 4 + 3] = lightAngleOffset;
-      }
-      if (length > 0) {
-        (shaderProgram as any)._gl.uniform3fv(
-          (shaderProgram as any).lightPosition,
-          AbstractMaterialContent.__lightPositions
-        );
-        (shaderProgram as any)._gl.uniform3fv(
-          (shaderProgram as any).lightDirection,
-          AbstractMaterialContent.__lightDirections
-        );
-        (shaderProgram as any)._gl.uniform3fv(
-          (shaderProgram as any).lightIntensity,
-          AbstractMaterialContent.__lightIntensities
-        );
-        (shaderProgram as any)._gl.uniform4fv(
-          (shaderProgram as any).lightProperty,
-          AbstractMaterialContent.__lightProperties
-        );
-      }
-    }
   }
 
   /**

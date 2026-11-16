@@ -5,7 +5,7 @@ declare const window: any;
 const canvas = document.getElementById('world') as HTMLCanvasElement;
 // Init Rhodonite
 const engine = await Rn.Engine.init({
-  approach: Rn.ProcessApproach.DataTexture,
+  approach: Rn.ProcessApproach.WebGL2,
   canvas,
   config: new Rn.Config({ cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Info }),
 });

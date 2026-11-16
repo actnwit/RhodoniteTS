@@ -73,7 +73,7 @@ export class MultiDrawRepository {
     const repository = engine.webglResourceRepository;
     const enabled =
       engine.config.isMultiDrawEnabled &&
-      ProcessApproach.isDataTextureApproach(engine.engineState.currentProcessApproach) &&
+      ProcessApproach.isWebGL2Approach(engine.engineState.currentProcessApproach) &&
       repository.isInstanceSidTextureCapable;
 
     // Release the previous groups and detach their primitives.

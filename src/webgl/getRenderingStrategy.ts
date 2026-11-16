@@ -9,13 +9,10 @@ const getRenderingStrategy = (engine: Engine, processApproach: ProcessApproachEn
   const moduleName = 'webgl';
   const moduleManager = ModuleManager.getInstance();
   const webglModule = moduleManager.getModule(moduleName)! as RnWebGL;
-  if (ProcessApproach.isDataTextureApproach(processApproach)) {
-    return webglModule.WebGLStrategyDataTexture.init(engine);
+  if (ProcessApproach.isWebGL2Approach(processApproach)) {
+    return webglModule.WebGLStrategyWebGL2.init(engine);
   }
-  if (ProcessApproach.isUniformApproach(processApproach)) {
-    return webglModule.WebGLStrategyUniform.init(engine);
-  }
-  return webglModule.WebGLStrategyUniform.init(engine);
+  throw new Error(`No WebGL rendering strategy for process approach "${processApproach.str}".`);
 };
 
 export default getRenderingStrategy;

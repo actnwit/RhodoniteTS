@@ -461,7 +461,7 @@ export class MeshRendererComponent extends Component {
     if (
       _lastOpaqueIndex > 0 &&
       engine.config.isMultiDrawEnabled &&
-      ProcessApproach.isDataTextureApproach(engine.engineState.currentProcessApproach)
+      ProcessApproach.isWebGL2Approach(engine.engineState.currentProcessApproach)
     ) {
       const opaqueCount = _lastOpaqueIndex + 1;
       const keyed = scratch.keyedPrimitives;

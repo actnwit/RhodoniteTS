@@ -139,10 +139,6 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     shaderProgram: WebGLProgram;
     args: RenderingArgWebGL;
   }) {
-    if (args.setUniform) {
-      this.setWorldMatrix(shaderProgram, args.worldMatrix);
-    }
-
     /// Matrices
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {

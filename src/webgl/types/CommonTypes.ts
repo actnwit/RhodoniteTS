@@ -23,7 +23,6 @@ export type RenderingArgWebGL = {
   sheenCube?: CubeTexture | RenderTargetTextureCube;
   isVr: boolean;
   displayIdx: Index;
-  setUniform: boolean;
 };
 
 export type RenderingArgWebGpu = {

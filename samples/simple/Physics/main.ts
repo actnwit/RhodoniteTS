@@ -13,7 +13,7 @@ if (physicsEngine === 'rapier') {
 }
 
 const engine = await Rn.Engine.init({
-  approach: Rn.ProcessApproach.DataTexture,
+  approach: Rn.ProcessApproach.WebGL2,
   canvas: document.getElementById('world') as HTMLCanvasElement,
   config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
 });

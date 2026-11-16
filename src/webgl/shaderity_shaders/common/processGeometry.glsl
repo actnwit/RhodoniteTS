@@ -225,11 +225,7 @@ bool processGeometry(
   }
 
 #ifdef RN_IS_SKINNING
-  #ifdef RN_IS_DATATEXTURE_MODE
-    uint skeletalComponentSID = a_instanceIds.y;
-  #else
-    uint skeletalComponentSID = uint(get_skinningMode(0u, 0u));
-  #endif
+  uint skeletalComponentSID = a_instanceIds.y;
   if (skeletalComponentSID != INVALID_ID) {
     isSkinning = skinning(skeletalComponentSID, joint, weight, worldMatrixInner, inNormalMatrix, outNormalMatrix, position_inLocal, outPosition_inWorld, inNormal_inLocal, outNormal_inWorld);
   } else {

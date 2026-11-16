@@ -383,40 +383,9 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     const encodedDepthCameraComponent =
       this.__depthCameraComponent ?? (args.renderPass.cameraComponent as CameraComponent);
 
-    if (args.setUniform) {
-      this.setWorldMatrix(shaderProgram, args.worldMatrix);
-      this.setNormalMatrix(shaderProgram, args.normalMatrix);
-      this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-      this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-
-      if (VarianceShadowMapDecodeClassicMaterialContent.__lastZNear !== encodedDepthCameraComponent.zNearInner) {
-        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zNearInner, encodedDepthCameraComponent.zNearInner);
-        VarianceShadowMapDecodeClassicMaterialContent.__lastZNear = encodedDepthCameraComponent.zNearInner;
-      }
-
-      if (VarianceShadowMapDecodeClassicMaterialContent.__lastZFar !== encodedDepthCameraComponent.zFarInner) {
-        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zFarInner, encodedDepthCameraComponent.zFarInner);
-        VarianceShadowMapDecodeClassicMaterialContent.__lastZFar = encodedDepthCameraComponent.zFarInner;
-      }
-      const __webglResourceRepository = engine.webglResourceRepository;
-      __webglResourceRepository.setUniformValue(
-        shaderProgram,
-        ShaderSemantics.LightViewProjectionMatrix.str,
-        true,
-        encodedDepthCameraComponent.viewProjectionMatrix
-      );
-    } else {
-      material.setParameter('zNearInner', encodedDepthCameraComponent.zNearInner);
-      material.setParameter('zFarInner', encodedDepthCameraComponent.zFarInner);
-      material.setParameter('lightViewProjectionMatrix', encodedDepthCameraComponent.viewProjectionMatrix);
-    }
-
-    /// Skinning
-    const skeletalComponent = args.entity.tryToGetSkeletal();
-    this.setSkinning(engine.config, shaderProgram, args.setUniform, skeletalComponent);
-
-    // Lights
-    this.setLightsInfo(engine.config, shaderProgram, args.lightComponents, material, args.setUniform);
+    material.setParameter('zNearInner', encodedDepthCameraComponent.zNearInner);
+    material.setParameter('zFarInner', encodedDepthCameraComponent.zFarInner);
+    material.setParameter('lightViewProjectionMatrix', encodedDepthCameraComponent.viewProjectionMatrix);
 
     // Morph
     const blendShapeComponent = args.entity.tryToGetBlendShape();

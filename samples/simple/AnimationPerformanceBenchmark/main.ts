@@ -20,7 +20,7 @@ const assetsBase = '../../../assets';
 const gltfSamples = `${assetsBase}/gltf/glTF-Sample-Assets/Models`;
 
 const engine = await Rn.Engine.init({
-  approach: Rn.ProcessApproach.DataTexture,
+  approach: Rn.ProcessApproach.WebGL2,
   canvas: document.getElementById('world') as HTMLCanvasElement,
   config: new Rn.Config({ cgApiDebugConsoleOutput: false }),
 });

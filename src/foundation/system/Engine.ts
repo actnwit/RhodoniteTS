@@ -32,7 +32,6 @@ import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
-import { MiscUtil } from '../misc/MiscUtil';
 import { Time } from '../misc/Time';
 import { RapierPhysicsStrategy } from '../physics/Rapier/RapierPhysicsStrategy';
 import { CGAPIResourceRepository, type ICGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
@@ -84,7 +83,7 @@ interface EngineInitDescription {
  * @example
  * ```
  * const engine = await Rn.Engine.init({
- *   approach: Rn.ProcessApproach.DataTexture,
+ *   approach: Rn.ProcessApproach.WebGL2,
  *   canvas: document.getElementById('world') as HTMLCanvasElement,
  * });
  *
@@ -1052,7 +1051,7 @@ export class Engine extends RnObject {
    * @example
    * ```
    * const engine = await Rn.Engine.init({
-   *   approach: Rn.ProcessApproach.DataTexture,
+   *   approach: Rn.ProcessApproach.WebGL2,
    *   canvas: document.getElementById('world') as HTMLCanvasElement,
    * });
    * ```
@@ -1061,6 +1060,17 @@ export class Engine extends RnObject {
    * @returns
    */
   public static async init(desc: EngineInitDescription): Promise<Engine> {
+    if (
+      desc.approach !== ProcessApproach.None &&
+      desc.approach !== ProcessApproach.WebGL2 &&
+      desc.approach !== ProcessApproach.WebGPU
+    ) {
+      const value = (desc.approach as any)?.str ?? String(desc.approach);
+      throw new Error(
+        `Unsupported process approach "${value}". The "Uniform" and "DataTexture" modes were removed. Use ProcessApproach.WebGL2 ("WebGL2") or ProcessApproach.WebGPU ("WebGPU").`
+      );
+    }
+
     await ModuleManager.getInstance().loadModule('pbr');
     await ModuleManager.getInstance().loadModule('xr');
 
@@ -1103,7 +1113,7 @@ export class Engine extends RnObject {
       webGpuResourceRepository.recreateSystemDepthTexture();
       webGpuResourceRepository.createBindGroupLayoutForDrawParameters();
       cgApiResourceRepository = webGpuResourceRepository;
-    } else if (desc.approach === ProcessApproach.Uniform || desc.approach === ProcessApproach.DataTexture) {
+    } else if (desc.approach === ProcessApproach.WebGL2) {
       // WebGL
       await ModuleManager.getInstance().loadModule('webgl');
 
@@ -1129,7 +1139,7 @@ export class Engine extends RnObject {
     if (desc.approach === ProcessApproach.WebGPU) {
       engine.__webGpuResourceRepository = cgApiResourceRepository as WebGpuResourceRepository;
     }
-    if (desc.approach === ProcessApproach.Uniform || desc.approach === ProcessApproach.DataTexture) {
+    if (desc.approach === ProcessApproach.WebGL2) {
       engine.__webglResourceRepository = cgApiResourceRepository as WebGLResourceRepository;
     }
     engine.__cgApiResourceRepository = cgApiResourceRepository!;
@@ -1141,16 +1151,7 @@ export class Engine extends RnObject {
     const globalDataRepository = engine.__globalDataRepository;
     globalDataRepository.initialize(desc.approach);
 
-    if (MiscUtil.isMobile() && ProcessApproach.isUniformApproach(desc.approach)) {
-      engine.logger.warn(
-        'The number of Uniform variables available on mobile devices is limited and may interfere with rendering. Use the DataTexture ProcessApproach for this device.'
-      );
-    }
-
-    if (
-      desc.canvas != null &&
-      (desc.approach === ProcessApproach.DataTexture || desc.approach === ProcessApproach.Uniform)
-    ) {
+    if (desc.canvas != null && desc.approach === ProcessApproach.WebGL2) {
       // Deal with WebGL context lost and restore
       desc.canvas.addEventListener(
         'webglcontextlost',

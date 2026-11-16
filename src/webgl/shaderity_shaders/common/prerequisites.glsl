@@ -21,7 +21,7 @@ const uint INVALID_ID = 0xFFFFFFFFu;
 uniform highp sampler2D u_dataTexture; // skipProcess=true
 /* shaderity: @{widthOfDataTexture} */
 
-#if defined(GLSL_ES3) && defined(RN_IS_DATATEXTURE_MODE) && defined(RN_IS_UBO_ENABLED)
+#if defined(GLSL_ES3) && defined(RN_IS_WEBGL2_MODE) && defined(RN_IS_UBO_ENABLED)
 /* shaderity: @{dataUBOVec4Size} */
 /* shaderity: @{dataUBODefinition} */
 #endif
@@ -45,7 +45,7 @@ highp vec4 fetchElement(int vec4_idx) {
   // return texture( u_dataTexture, vec2(x, y));
 }
 
-#if defined(RN_IS_DATATEXTURE_MODE) && defined(RN_USE_INSTANCE_SID_TEXTURE) && defined(RN_IS_VERTEX_SHADER)
+#if defined(RN_IS_WEBGL2_MODE) && defined(RN_USE_INSTANCE_SID_TEXTURE) && defined(RN_IS_VERTEX_SHADER)
   in uint a_instanceBase;
   // 1 when no instance was culled in this render pass, so the remap lookup can be skipped.
   uniform highp int u_instanceRemapIdentity;

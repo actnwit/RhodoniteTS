@@ -18,17 +18,18 @@ export function checkFinished({
 export function getProcessApproach(Rn: any) {
   const params = new URLSearchParams(window.location.search);
   const mode = params.get('mode');
+  const normalizedMode = mode?.toLowerCase();
 
-  if (mode === 'uniform') {
-    return Rn.ProcessApproach.Uniform;
+  if (normalizedMode == null || normalizedMode === '' || normalizedMode === 'webgl2') {
+    return Rn.ProcessApproach.WebGL2;
   }
-  if (mode === 'datatexture') {
-    return Rn.ProcessApproach.DataTexture;
-  }
-  if (mode === 'webgpu') {
+  if (normalizedMode === 'webgpu') {
     return Rn.ProcessApproach.WebGPU;
   }
-  return Rn.ProcessApproach.DataTexture; // Default
+  if (normalizedMode === 'uniform' || normalizedMode === 'datatexture') {
+    throw new Error(`Rendering mode "${mode}" was removed. Use ?mode=webgl2 (WebGL2) or ?mode=webgpu (WebGPU).`);
+  }
+  throw new Error(`Unknown rendering mode "${mode}". Valid values: webgl2, webgpu.`);
 }
 
 export function getGltfFilePath() {

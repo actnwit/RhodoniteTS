@@ -961,64 +961,25 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
       ) as CameraComponent;
     }
 
-    if (args.setUniform) {
-      /// Matrices
-      this.setWorldMatrix(shaderProgram, args.worldMatrix);
-      this.setNormalMatrix(shaderProgram, args.normalMatrix);
-      this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-      this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+    material.setParameter('cameraUp', cameraComponent.upInner);
 
-      /// Skinning
-      const skeletalComponent = args.entity.tryToGetSkeletal();
-      this.setSkinning(engine.config, shaderProgram, args.setUniform, skeletalComponent);
-
-      // Lights
-      this.setLightsInfo(engine.config, shaderProgram, args.lightComponents, material, args.setUniform);
-
-      (shaderProgram as any)._gl.uniform3fv((shaderProgram as any).cameraUp, cameraComponent.upInner._v);
-
-      if (this.__OutlineWidthModeIsScreen) {
-        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).aspect, cameraComponent.aspect);
-      }
-    } else {
-      material.setParameter('cameraUp', cameraComponent.upInner);
-
-      if (this.__OutlineWidthModeIsScreen) {
-        material.setParameter('aspect', cameraComponent.aspect);
-      }
+    if (this.__OutlineWidthModeIsScreen) {
+      material.setParameter('aspect', cameraComponent.aspect);
     }
 
-    const webglResourceRepository = engine.webglResourceRepository;
     // IBL Parameters
-    if (args.setUniform) {
-      if (firstTime) {
-        const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
-          MToon0xMaterialContent.__setupHdriParameters(args);
-        webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.IBLParameter.str, firstTime, {
-          x: mipmapLevelNumber,
-          y: meshRenderComponent!.diffuseCubeMapContribution,
-          z: meshRenderComponent!.specularCubeMapContribution,
-          w: meshRenderComponent!.rotationOfCubeMap,
-        });
-        webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.HDRIFormat.str, firstTime, {
-          x: diffuseHdriType,
-          y: specularHdriType,
-        });
-      }
-    } else {
-      const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
-        MToon0xMaterialContent.__setupHdriParameters(args);
-      const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
-      tmp_vector4.x = mipmapLevelNumber;
-      tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
-      tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
-      tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
-      material.setParameter('iblParameter', tmp_vector4);
-      const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
-      tmp_vector2.x = diffuseHdriType;
-      tmp_vector2.y = specularHdriType;
-      material.setParameter('hdriFormat', tmp_vector2);
-    }
+    const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
+      MToon0xMaterialContent.__setupHdriParameters(args);
+    const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
+    tmp_vector4.x = mipmapLevelNumber;
+    tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
+    tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
+    tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
+    material.setParameter('iblParameter', tmp_vector4);
+    const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
+    tmp_vector2.x = diffuseHdriType;
+    tmp_vector2.y = specularHdriType;
+    material.setParameter('hdriFormat', tmp_vector2);
 
     // Morph
     const blendShapeComponent = args.entity.tryToGetBlendShape();
