@@ -78,13 +78,16 @@ function readView(engine: Rn.Engine, camera: Rn.CameraComponent) {
 }
 
 test('builds the light lists and the clusters of the camera of the render passes', async () => {
-  const { engine, lights, camera, expression } = await createScene(new Rn.Config(), [
-    { type: 'directional' }, // SID 0: can not be culled
-    { type: 'point', position: [-2, 0, 0], range: 1 }, // SID 1: local
-    { type: 'point', position: [0, 0, 0] }, // SID 2: no range, can not be culled
-    { type: 'spot', position: [2, 0, 0], range: 2 }, // SID 3: local
-    { type: 'point', position: [0, 2, 0], range: 1, enable: false }, // SID 4: disabled
-  ]);
+  const { engine, lights, camera, expression } = await createScene(
+    new Rn.Config({ clusteredForwardMinLocalLightNumber: 1 }),
+    [
+      { type: 'directional' }, // SID 0: can not be culled
+      { type: 'point', position: [-2, 0, 0], range: 1 }, // SID 1: local
+      { type: 'point', position: [0, 0, 0] }, // SID 2: no range, can not be culled
+      { type: 'spot', position: [2, 0, 0], range: 2 }, // SID 3: local
+      { type: 'point', position: [0, 2, 0], range: 1, enable: false }, // SID 4: disabled
+    ]
+  );
   const sids = lights.map(l => l.componentSID);
   expect(sids).toEqual([0, 1, 2, 3, 4]);
 
@@ -113,9 +116,10 @@ test('builds the light lists and the clusters of the camera of the render passes
 });
 
 test('only rebuilds when the inputs change, and releases the view of unused cameras', async () => {
-  const { engine, lights, camera, expression, runLogic } = await createScene(new Rn.Config(), [
-    { type: 'point', position: [0, 0, 0], range: 1 },
-  ]);
+  const { engine, lights, camera, expression, runLogic } = await createScene(
+    new Rn.Config({ clusteredForwardMinLocalLightNumber: 1 }),
+    [{ type: 'point', position: [0, 0, 0], range: 1 }]
+  );
   const system = engine.lightClusterSystem;
   system.update([expression]);
   const version = system.dataVersion;
@@ -180,4 +184,33 @@ test('gives point lights without range an automatic range when lightAutoRangeThr
   engine.lightClusterSystem.update([expression]);
   const global = readGlobalData(engine);
   expect([global.globalCount, global.localCount]).toEqual([1, 1]);
+});
+
+test('evaluates all lights without clusters when there are fewer local lights than the threshold', async () => {
+  const descs: TestLightDesc[] = [];
+  for (let i = 0; i < 3; i++) descs.push({ type: 'point', position: [i, 0, 0], range: 1 });
+  const { engine, lights, camera, expression, runLogic } = await createScene(
+    new Rn.Config({ clusteredForwardMinLocalLightNumber: 4 }),
+    descs
+  );
+  const system = engine.lightClusterSystem;
+  system.update([expression]);
+  // The all-light list is still written, but the camera has no cluster view.
+  expect(readGlobalData(engine).allCount).toBe(3);
+  expect(camera._lightClusterViewInfoForGpu._v[0]).toBe(-1);
+
+  // A 4th local light turns the clusters on
+  const fourth = Rn.createLightEntity(engine);
+  fourth.getLight().range = 1;
+  fourth.getLight().$logic();
+  system.update([expression]);
+  expect(camera._lightClusterViewInfoForGpu._v[0]).toBeGreaterThanOrEqual(0);
+
+  // A light that can no longer be culled (no range) turns them off again
+  lights[0].range = -1;
+  runLogic();
+  system.update([expression]);
+  const global = readGlobalData(engine);
+  expect([global.allCount, global.globalCount, global.localCount]).toEqual([4, 1, 3]);
+  expect(camera._lightClusterViewInfoForGpu._v[0]).toBe(-1);
 });

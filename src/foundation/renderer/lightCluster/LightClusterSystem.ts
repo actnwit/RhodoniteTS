@@ -164,8 +164,13 @@ export class LightClusterSystem {
     const config = this.__engine.config;
     const isGpuBuild = this.isGpuBuild;
     const maxViewNumber = Math.max(0, Math.floor(config.clusteredForwardMaxViewNumber));
+    // With few lights, plain forward rendering (the all-light list) is cheaper than the cluster lookup.
+    const minLocalLightNumber = Math.max(1, Math.floor(config.clusteredForwardMinLocalLightNumber));
     const cameraSids =
-      config.isClusteredForwardEnabled && this.__localCount > 0 && maxViewNumber > 0 && !this.__isAllocationFailed
+      config.isClusteredForwardEnabled &&
+      this.__localCount >= minLocalLightNumber &&
+      maxViewNumber > 0 &&
+      !this.__isAllocationFailed
         ? this.__collectCameras(expressions)
         : [];
 

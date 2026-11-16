@@ -29,6 +29,7 @@ type ConfigInitDescription = {
   clusteredForwardGridSize?: [number, number, number];
   clusteredForwardMaxViewNumber?: number;
   clusteredForwardMaxLightIndexNumber?: number;
+  clusteredForwardMinLocalLightNumber?: number;
   maxLightListLength?: number;
   lightAutoRangeThreshold?: number;
 };
@@ -76,6 +77,17 @@ export class Config {
    * The other cameras evaluate all lights.
    */
   clusteredForwardMaxViewNumber = 4;
+  /**
+   * The light clusters are built only when the number of lights that can be culled (point and spot lights with a
+   * range) is at least this value. With fewer lights, every fragment evaluates all lights as in plain forward
+   * rendering, which skips the cluster build and the cluster lookup of the fragment shaders.
+   *
+   * @remarks
+   * The cluster lookup costs roughly as much as evaluating one or two lights per fragment, so clustering pays off
+   * only when it can skip more lights than that. Where the break-even point is depends on how much of the screen
+   * each light covers. The default value is an estimate, not a measured break-even point.
+   */
+  clusteredForwardMinLocalLightNumber = 4;
   /**
    * The capacity of the light index list of each camera, in light entries. The list of each cluster is padded to
    * a multiple of 4 entries, so the capacity has to cover the sum of the padded light counts of all clusters.
@@ -219,6 +231,9 @@ export class Config {
     }
     if (initDescription.clusteredForwardGridSize !== undefined) {
       this.clusteredForwardGridSize = [...initDescription.clusteredForwardGridSize];
+    }
+    if (initDescription.clusteredForwardMinLocalLightNumber !== undefined) {
+      this.clusteredForwardMinLocalLightNumber = initDescription.clusteredForwardMinLocalLightNumber;
     }
     if (initDescription.clusteredForwardMaxViewNumber !== undefined) {
       this.clusteredForwardMaxViewNumber = initDescription.clusteredForwardMaxViewNumber;
