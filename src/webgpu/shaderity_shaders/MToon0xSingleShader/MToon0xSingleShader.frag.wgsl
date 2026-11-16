@@ -112,7 +112,7 @@ fn main (
   // TODO: shadowmap computation
 
   let receiveShadowRate: f32 = get_receiveShadowRate(materialSID, 0);
-  var lightAttenuation: f32 = shadowAttenuation * mix(1.0, shadowAttenuation, receiveShadowRate * textureSample(receiveShadowTexture, receiveShadowSampler, mainUv).r);
+  let lightAttenuation: f32 = shadowAttenuation * mix(1.0, shadowAttenuation, receiveShadowRate * textureSample(receiveShadowTexture, receiveShadowSampler, mainUv).r);
 
   let shadingGradeRate: f32 = get_shadingGradeRate(materialSID, 0);
   let shadingGrade: f32 = 1.0 - shadingGradeRate * (1.0 - textureSample(shadingGradeTexture, shadingGradeSampler, mainUv).r);
@@ -127,22 +127,28 @@ fn main (
   let shadeToony: f32 = get_shadeToony(materialSID, 0);
 
   var lightings: array<vec3<f32>, /* shaderity: @{Config.maxLightNumber} */>;
+  var lightSids: array<i32, /* shaderity: @{Config.maxLightNumber} */>;
   #ifdef RN_MTOON_DEBUG_LITSHADERATE
     var lightIntensities[/* shaderity: @{Config.maxLightNumber} */]: array<f32>;
   #endif
-  let lightNumber = u32(get_lightNumber(0u, 0u));
+  let lightList = getLightList(input.position_inWorld.xyz, cameraSID);
+  // At most maxLightNumber lights (the size of the arrays above) are shaded.
+  let shadedLightCount = min(lightList.count, /* shaderity: @{Config.maxLightNumber} */u);
   for (var i = 0u; i < /* shaderity: @{Config.maxLightNumber} */; i++) {
-    if (i >= lightNumber) {
+    if (i >= shadedLightCount) {
       break;
     }
 
     // Light
-    let light: Light = getLight(i, input.position_inWorld.xyz);
+    let lightSid = getLightRef(lightList, i).x;
+    lightSids[i] = lightSid;
+    let light: Light = getLight(u32(lightSid), input.position_inWorld.xyz);
 
     // lightAttenuation *= distanceAttenuation * spotEffect;
     let dotNL: f32 = dot(light.direction, normal_inWorld);
     var lightIntensity: f32 = dotNL * 0.5 + 0.5; // from [-1, +1] to [0, 1]
-    lightIntensity = lightIntensity * lightAttenuation; // TODO: receive shadow
+    // The receive shadow attenuation applies to the main light (the light with the component SID 0)
+    lightIntensity = lightIntensity * select(1.0, lightAttenuation, lightSid == 0); // TODO: receive shadow
     lightIntensity = lightIntensity * shadingGrade; // darker
     lightIntensity = lightIntensity * 2.0 - 1.0; // from [0, 1] to [-1, +1]
 
@@ -162,7 +168,7 @@ fn main (
     lighting = mix(lighting, vec3(max(EPS_COL, max(lighting.x, max(lighting.y, lighting.z)))), lightColorAttenuation); // color atten
 
 
-    if(i > 0){
+    if(lightSid > 0){
       lighting *= 0.5; // darken if additional light.
       lighting *= min(0.0, dotNL) + 1.0; // darken dotNL < 0 area by using half lambert
       // lighting *= shadowAttenuation; // darken if receiving shadow
@@ -175,8 +181,6 @@ fn main (
     lightings[i] = lighting;
 
     rt0 += vec4f(col, 0.0);
-
-    lightAttenuation = 1.0;
   }
 
 
@@ -219,9 +223,10 @@ fn main (
     var staticRimLighting = 1.0;
     let rimLightingMix: f32 = get_rimLightingMix(materialSID, 0);
     for (var i = 0u; i < /* shaderity: @{Config.maxLightNumber} */u; i++) {
-      if (i >= lightNumber) { break; }
+      if (i >= shadedLightCount) { break; }
 
-      if (i > 0) { staticRimLighting = 0.0; }
+      // Only the light with the component SID 0 gets the static rim lighting.
+      staticRimLighting = select(1.0, 0.0, lightSids[i] > 0);
 
       let rimLighting: vec3f = mix(vec3f(staticRimLighting), lightings[i], vec3f(rimLightingMix));
       rt0 += vec4f(rim * rimLighting, 0.0);
@@ -252,7 +257,7 @@ fn main (
   #elif defined(RN_MTOON_DEBUG_LITSHADERATE)
     rt0 = vec4f(0.0);
     for (var i = 0u; i < /* shaderity: @{Config.maxLightNumber} */u; i++) {
-      if (i >= lightNumber) { break; }
+      if (i >= shadedLightCount) { break; }
       rt0 += vec4f(lightIntensities[i] * lightings[i], alpha);
     }
 

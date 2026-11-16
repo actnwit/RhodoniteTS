@@ -1,6 +1,7 @@
 {
   "test_e2e": [
     "AnimationBlending",
+    "ClusteredForward/?mode=webgl2",
     "ColorGradingUsingLUTs",
     "CustomShader/?mode=webgl2",
     "DataTextureInstancedDrawing",

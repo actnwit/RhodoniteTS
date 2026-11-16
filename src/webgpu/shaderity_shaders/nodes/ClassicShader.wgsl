@@ -2,10 +2,12 @@ fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseT
   var diffuseColor = vertexColor * diffuseColorFactor * diffuseTextureColor;
   var shadingColor = vec4<f32>(0.0, 0.0, 0.0, diffuseColor.a);
   if (shadingModel >= 1u && shadingModel <= 3u) {
-    let lightNumber = u32(get_lightNumber(0u, 0u));
     let cameraSID = uniformDrawParameters.cameraSID;
     let materialSID = uniformDrawParameters.materialSid;
-    for (var i = 0u; i < lightNumber ; i++) {
+    let lightList = getLightList(positionInWorld.xyz, cameraSID);
+    for (var n = 0u; n < lightList.count; n++) {
+      let lightRef = getLightRef(lightList, n);
+      let i = u32(lightRef.x); // light component SID
       var specular = vec3<f32>(0.0, 0.0, 0.0);
       let light: Light = getLight(i, positionInWorld.xyz);
 
@@ -33,14 +35,19 @@ fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseT
       }
 
       #ifdef RN_USE_SHADOW_MAPPING
+        // The shadow data of the light is at its shadow slot (-1: no shadow data)
+        let shadowSlot = max(lightRef.y, 0);
+        var depthTextureIndex = -1;
+        if (lightRef.y >= 0) {
+          depthTextureIndex = get_depthTextureIndexList(materialSID, u32(shadowSlot));
+        }
         // Point Light
-        let depthTextureIndex = get_depthTextureIndexList(materialSID, i);
         let pointLightFarPlane = get_pointLightFarPlane(materialSID, 0);
         let pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0);
         let shadowContributionParaboloid = varianceShadowContributionParaboloid(positionInWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, u32(depthTextureIndex));
 
         // Directional Light or Spot Light
-        let v_shadowCoord = get_depthBiasPV(materialSID, i) * positionInWorld;
+        let v_shadowCoord = get_depthBiasPV(materialSID, u32(shadowSlot)) * positionInWorld;
         let shadowCoord = v_shadowCoord.xy / v_shadowCoord.w;
         let normalizedDepth = v_shadowCoord.z / v_shadowCoord.w;
 

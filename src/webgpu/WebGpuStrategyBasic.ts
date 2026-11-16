@@ -36,6 +36,7 @@ import type {
   IndexOf16Bytes,
   PrimitiveUID,
 } from '../types/CommonTypes';
+import { WebGpuLightClusterBuilder } from './WebGpuLightClusterBuilder';
 
 /**
  * Basic WebGPU rendering strategy implementation that handles mesh rendering,
@@ -63,6 +64,8 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __uniformMorphWeightsTypedArray?: Float32Array;
 
   private __lastMaterialsUpdateCount = -1;
+  private __lastLightClusterDataVersion = -1;
+  private __lightClusterBuilder?: WebGpuLightClusterBuilder;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastSceneGraphComponentsUpdateCount = -1;
   private __lastCameraComponentsUpdateCount = -1;
@@ -800,14 +803,18 @@ ${indexStr}
       SceneGraphComponent.getUpdateCount(this.__engine) !== this.__lastSceneGraphComponentsUpdateCount ||
       CameraComponent.getCurrentCameraUpdateCount(this.__engine) !== this.__lastCameraComponentsUpdateCount ||
       CameraControllerComponent.getUpdateCount(this.__engine) !== this.__lastCameraControllerComponentsUpdateCount ||
-      this.__engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount
+      this.__engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount ||
+      this.__engine.lightClusterSystem.dataVersion !== this.__lastLightClusterDataVersion
     ) {
       this.__createAndUpdateStorageBuffer();
+      // The upload overwrites the light cluster tables built by the compute shaders, so build them again.
+      this.__buildLightClustersOnGpu();
       this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this.__engine);
       this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.getUpdateCount(this.__engine);
       this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this.__engine);
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(this.__engine);
       this.__lastMaterialsUpdateCount = this.__engine.materialRepository.stateVersion;
+      this.__lastLightClusterDataVersion = this.__engine.lightClusterSystem.dataVersion;
     }
 
     const morphMaxIndex = Primitive.getPrimitiveCountHasMorph();
@@ -982,6 +989,26 @@ ${indexStr}
   }
 
   /**
+   * Builds the Clustered Forward light cluster tables with compute shaders when the LightClusterSystem
+   * builds them on the GPU. It must run after every upload of the GPU instance data, which overwrites the tables.
+   */
+  private __buildLightClustersOnGpu() {
+    const params = this.__engine.lightClusterSystem._getGpuBuildParams();
+    if (params == null) {
+      return;
+    }
+    const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
+    const storageBuffer = webGpuResourceRepository._getStorageBuffer();
+    if (storageBuffer == null) {
+      return;
+    }
+    this.__lightClusterBuilder ??= new WebGpuLightClusterBuilder(
+      webGpuResourceRepository.getWebGpuDeviceWrapper().gpuDevice
+    );
+    this.__lightClusterBuilder.build(storageBuffer, params);
+  }
+
+  /**
    * Creates or updates the storage buffer containing blend shape vertex data.
    * This buffer holds morph target positions and other vertex attributes needed for blend shape animation.
    */
@@ -1128,6 +1155,8 @@ ${indexStr}
    */
   destroy(): void {
     const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
+    this.__lightClusterBuilder?.destroy();
+    this.__lightClusterBuilder = undefined;
     if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       webGpuResourceRepository.destroyStorageBuffer(this.__storageBufferUid);
       this.__storageBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;

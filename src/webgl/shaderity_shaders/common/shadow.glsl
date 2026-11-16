@@ -12,8 +12,10 @@ float chebyshevUpperBound(vec2 moments, float t, float minVariance) {
   return max(p, p_max);
 }
 
+// The shadow maps are sampled with an explicit level (they have no mipmaps), because these functions run in the
+// light loop, whose trip count is not uniform with Clustered Forward rendering (implicit derivatives are undefined).
 float varianceShadowContribution(vec2 lightTexCoord, float distanceToLight, int depthTextureIndex) {
-  vec2 moments = texture(u_depthTexture, vec3(lightTexCoord, depthTextureIndex)).xy;
+  vec2 moments = textureLod(u_depthTexture, vec3(lightTexCoord, depthTextureIndex), 0.0).xy;
 
   return chebyshevUpperBound(moments, distanceToLight, 0.001);
 }
@@ -34,8 +36,8 @@ float varianceShadowContributionParaboloid(vec3 worldPos, vec3 lightPos, float f
   vec2 uv = (Lnorm.xy / denom) * uvScale * 0.5 + 0.5;
 
   vec2 storedMoments = isFront
-      ? texture(u_paraboloidDepthTexture, vec3(uv, depthTextureIndex)).rg
-      : texture(u_paraboloidDepthTexture, vec3(uv, depthTextureIndex)).ba;
+      ? textureLod(u_paraboloidDepthTexture, vec3(uv, depthTextureIndex), 0.0).rg
+      : textureLod(u_paraboloidDepthTexture, vec3(uv, depthTextureIndex), 0.0).ba;
 
   float currentDepth = currentDist / farPlane;
 

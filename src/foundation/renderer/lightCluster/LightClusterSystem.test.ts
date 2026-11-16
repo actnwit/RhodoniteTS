@@ -1,0 +1,183 @@
+import Rn from '../../../../dist/esm';
+import { computeLightClusterIndex, readLightClusterEntries } from './LightClusterBuilder';
+import { getLightClusterViewLayout, unpackLightEntry } from './LightClusterLayout';
+
+type TestLightDesc = {
+  type: 'directional' | 'point' | 'spot';
+  position?: [number, number, number];
+  range?: number;
+  intensity?: number;
+  enable?: boolean;
+};
+
+async function createScene(config: Rn.Config, lightDescs: TestLightDesc[]) {
+  const engine = await Rn.Engine.init({
+    approach: Rn.ProcessApproach.None,
+    canvas: document.getElementById('world') as HTMLCanvasElement,
+    config,
+    notToDisplayRnInfoAtInit: true,
+  });
+  const lights = lightDescs.map(desc => {
+    const entity = Rn.createLightEntity(engine);
+    const light = entity.getLight();
+    light.type =
+      desc.type === 'directional'
+        ? Rn.LightType.Directional
+        : desc.type === 'spot'
+          ? Rn.LightType.Spot
+          : Rn.LightType.Point;
+    if (desc.range != null) light.range = desc.range;
+    if (desc.intensity != null) light.intensity = desc.intensity;
+    if (desc.enable != null) light.enable = desc.enable;
+    if (desc.position != null) entity.localPosition = Rn.Vector3.fromCopyArray(desc.position);
+    return light;
+  });
+
+  const cameraEntity = Rn.createCameraEntity(engine, true);
+  const camera = cameraEntity.getCamera();
+  camera.zNear = 0.1;
+  camera.zFar = 100;
+  camera.setFovyAndChangeFocalLength(60);
+  camera.aspect = 1;
+  cameraEntity.localPosition = Rn.Vector3.fromCopy3(0, 0, 10);
+
+  const renderPass = new Rn.RenderPass(engine);
+  renderPass.cameraComponent = camera;
+  const expression = new Rn.Expression();
+  expression.addRenderPasses([renderPass]);
+
+  // The Logic stage writes the GPU data of the lights and the cameras.
+  const runLogic = () => {
+    for (const light of lights) light.$logic();
+    camera.$logic();
+  };
+  runLogic();
+  return { engine, lights, camera, expression, runLogic };
+}
+
+function readGlobalData(engine: Rn.Engine) {
+  const data = engine.globalDataRepository.getValue('clusteredLightData', 0)._v as Float32Array;
+  const allCount = data[0];
+  const entries = Array.from(data.subarray(4, 4 + allCount));
+  return { allCount, globalCount: data[1], localCount: data[2], entries };
+}
+
+function readView(engine: Rn.Engine, camera: Rn.CameraComponent) {
+  const viewBase = camera._lightClusterViewInfoForGpu._v[0];
+  if (viewBase < 0) return undefined;
+  const layout = getLightClusterViewLayout(
+    engine.config.clusteredForwardGridSize,
+    engine.config.clusteredForwardMaxLightIndexNumber
+  );
+  const view = engine.memoryManager.readFloat32Array(
+    Rn.BufferUse.GPUInstanceData,
+    viewBase * 16,
+    layout.viewVec4Count * 4
+  )!;
+  return { view, layout };
+}
+
+test('builds the light lists and the clusters of the camera of the render passes', async () => {
+  const { engine, lights, camera, expression } = await createScene(new Rn.Config(), [
+    { type: 'directional' }, // SID 0: can not be culled
+    { type: 'point', position: [-2, 0, 0], range: 1 }, // SID 1: local
+    { type: 'point', position: [0, 0, 0] }, // SID 2: no range, can not be culled
+    { type: 'spot', position: [2, 0, 0], range: 2 }, // SID 3: local
+    { type: 'point', position: [0, 2, 0], range: 1, enable: false }, // SID 4: disabled
+  ]);
+  const sids = lights.map(l => l.componentSID);
+  expect(sids).toEqual([0, 1, 2, 3, 4]);
+
+  engine.lightClusterSystem.update([expression]);
+
+  const global = readGlobalData(engine);
+  expect([global.allCount, global.globalCount, global.localCount]).toEqual([4, 2, 2]);
+  // Lights that can not be culled first, then the local lights, each sorted by SID.
+  // Lights with SID < maxLightNumber have the default shadow slot (= SID).
+  expect(global.entries.map(e => unpackLightEntry(e))).toEqual([
+    [0, 0],
+    [2, 2],
+    [1, 1],
+    [3, 3],
+  ]);
+
+  const result = readView(engine, camera);
+  expect(result).toBeDefined();
+  const { view, layout } = result!;
+  // The cluster at the position of the point light (SID 1) contains it, the cluster at the origin does not.
+  const clusterAtLight1 = computeLightClusterIndex(view, 0, -2, 0, 0);
+  expect(clusterAtLight1).toBeGreaterThanOrEqual(0);
+  expect(readLightClusterEntries(view, 0, layout, clusterAtLight1).map(e => unpackLightEntry(e)[0])).toContain(1);
+  const clusterAtOrigin = computeLightClusterIndex(view, 0, 0, 0, 0);
+  expect(readLightClusterEntries(view, 0, layout, clusterAtOrigin).map(e => unpackLightEntry(e)[0])).not.toContain(1);
+});
+
+test('only rebuilds when the inputs change, and releases the view of unused cameras', async () => {
+  const { engine, lights, camera, expression, runLogic } = await createScene(new Rn.Config(), [
+    { type: 'point', position: [0, 0, 0], range: 1 },
+  ]);
+  const system = engine.lightClusterSystem;
+  system.update([expression]);
+  const version = system.dataVersion;
+  system.update([expression]);
+  expect(system.dataVersion).toBe(version);
+
+  // (A transform change would need the SceneGraph logic, which these tests do not run.)
+  lights[0].range = 2;
+  runLogic();
+  system.update([expression]);
+  expect(system.dataVersion).toBeGreaterThan(version);
+
+  // A frame without the camera
+  expect(camera._lightClusterViewInfoForGpu._v[0]).toBeGreaterThanOrEqual(0);
+  system.update([]);
+  expect(camera._lightClusterViewInfoForGpu._v[0]).toBe(-1);
+});
+
+test('uses the all-light list when Clustered Forward rendering is disabled', async () => {
+  const { engine, camera, expression } = await createScene(new Rn.Config({ isClusteredForwardEnabled: false }), [
+    { type: 'point', position: [0, 0, 0], range: 1 },
+    { type: 'point', position: [1, 0, 0], range: 1 },
+  ]);
+  engine.lightClusterSystem.update([expression]);
+  expect(readGlobalData(engine).allCount).toBe(2);
+  expect(camera._lightClusterViewInfoForGpu._v[0]).toBe(-1);
+});
+
+test('packs the shadow slot of lights with a SID above Config.maxLightNumber', async () => {
+  const descs: TestLightDesc[] = [];
+  for (let i = 0; i < 8; i++) descs.push({ type: 'point', position: [i, 0, 0], range: 1 });
+  const { engine, lights, expression } = await createScene(new Rn.Config({ maxLightNumber: 2 }), descs);
+  lights[7]._shadowSlot = 1; // e.g. assigned by a ShadowSystem
+  lights[1]._shadowSlot = -1;
+  engine.lightClusterSystem.update([expression]);
+  const slots = new Map(readGlobalData(engine).entries.map(e => unpackLightEntry(e)));
+  expect(slots.get(0)).toBe(0); // default slot (SID < maxLightNumber)
+  expect(slots.get(1)).toBe(-1);
+  expect(slots.get(5)).toBe(-1); // default: no slot (SID >= maxLightNumber)
+  expect(slots.get(7)).toBe(1);
+});
+
+test('limits the number of shaded lights to Config.maxLightListLength', async () => {
+  const descs: TestLightDesc[] = [];
+  for (let i = 0; i < 5; i++) descs.push({ type: 'point', position: [i, 0, 0], range: 1 });
+  const { engine, expression } = await createScene(new Rn.Config({ maxLightListLength: 3 }), descs);
+  engine.lightClusterSystem.update([expression]);
+  const global = readGlobalData(engine);
+  expect(global.allCount).toBe(3);
+  expect(global.entries.map(e => unpackLightEntry(e)[0])).toEqual([0, 1, 2]);
+});
+
+test('gives point lights without range an automatic range when lightAutoRangeThreshold is set', async () => {
+  const { engine, lights, expression } = await createScene(new Rn.Config({ lightAutoRangeThreshold: 0.01 }), [
+    { type: 'point', position: [0, 0, 0], intensity: 4 },
+    { type: 'directional', intensity: 4 },
+  ]);
+  // sqrt(4 / 0.01) = 20
+  expect(lights[0]._lightPropertyForGpu._v[1]).toBeCloseTo(20);
+  expect(lights[0].range).toBe(-1); // the property of the light is not changed
+  expect(lights[1]._lightPropertyForGpu._v[1]).toBe(-1);
+  engine.lightClusterSystem.update([expression]);
+  const global = readGlobalData(engine);
+  expect([global.globalCount, global.localCount]).toEqual([1, 1]);
+});

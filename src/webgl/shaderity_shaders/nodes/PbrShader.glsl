@@ -22,14 +22,15 @@ void pbrShader(
   dielectricF0 = min(dielectricF0 * specularProps.specularColor, vec3(1.0));
   vec3 dielectricF90 = vec3(specularProps.specularWeight);
 
-  int lightNumber = 0;
-  #ifdef RN_IS_LIGHTING
-    lightNumber = get_lightNumber(0u, 0u);
-  #endif
-
   uint cameraSID = uint(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */]);
   #if defined(WEBGL2_MULTI_VIEW) && defined(RN_IS_VERTEX_SHADER)
     cameraSID += uint(gl_ViewID_OVR);
+  #endif
+
+  LightList lightList;
+  lightList.count = 0;
+  #ifdef RN_IS_LIGHTING
+    lightList = getLightList(positionInWorld.xyz, cameraSID);
   #endif
 
   uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
@@ -92,7 +93,9 @@ void pbrShader(
     iridescenceProps.fresnelMetal = vec3(0.0);
   #endif // RN_USE_IRIDESCENCE
 
-  for (int i = 0; i < lightNumber; i++) {
+  for (int n = 0; n < lightList.count; n++) {
+    ivec2 lightRef = getLightRef(lightList, n);
+    int i = lightRef.x; // light component SID
     // Get Light
     Light light = getLight(i, positionInWorld.xyz);
     vec3 lighting = lightingWithPunctualLight(light, normalInWorld, viewDirection, NdotV, baseColor.rgb,
@@ -107,14 +110,15 @@ void pbrShader(
                         diffuseTransmissionProps);
 
     #ifdef RN_USE_SHADOW_MAPPING
-    int depthTextureIndex = get_depthTextureIndexList(materialSID, uint(i));
+    int shadowSlot = lightRef.y;
+    int depthTextureIndex = shadowSlot >= 0 ? get_depthTextureIndexList(materialSID, uint(shadowSlot)) : -1;
     if (light.type == 1 && depthTextureIndex >= 0) { // Point Light
       float pointLightFarPlane = get_pointLightFarPlane(materialSID, 0u);
       float pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0u);
       float shadowContribution = varianceShadowContributionParaboloid(positionInWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, depthTextureIndex);
       lighting *= shadowContribution;
     } else if ((light.type == 0 || light.type == 2) && depthTextureIndex >= 0) { // Spot Light
-      vec4 shadowCoordVec4 = get_depthBiasPV(materialSID, uint(i)) * positionInWorld;
+      vec4 shadowCoordVec4 = get_depthBiasPV(materialSID, uint(shadowSlot)) * positionInWorld;
       vec2 shadowCoord = shadowCoordVec4.xy / shadowCoordVec4.w;
       float normalizedDepth = shadowCoordVec4.z / shadowCoordVec4.w;
 

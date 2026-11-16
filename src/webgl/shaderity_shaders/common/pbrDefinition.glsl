@@ -732,9 +732,11 @@ vec3 lightingWithPunctualLight(
 #ifdef RN_USE_SHEEN
   // Sheen
   vec3 sheenContrib = BRDF_specularSheen(sheenProps.sheenColor, sheenProps.sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
+  // This runs in the light loop, whose trip count is not uniform with Clustered Forward rendering,
+  // so the LUT (which has no mipmaps) is sampled with an explicit level.
   float albedoSheenScaling = min(
     sheenProps.albedoSheenScalingNdotV,
-    1.0 - max3(sheenProps.sheenColor) * texture(u_sheenLutTexture, vec2(NdotL, sheenProps.sheenRoughness)).r);
+    1.0 - max3(sheenProps.sheenColor) * textureLod(u_sheenLutTexture, vec2(NdotL, sheenProps.sheenRoughness), 0.0).r);
 #else
   vec3 sheenContrib = vec3(0.0);
   float albedoSheenScaling = 1.0;

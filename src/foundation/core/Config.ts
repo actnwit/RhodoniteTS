@@ -24,7 +24,21 @@ type ConfigInitDescription = {
   bufferSizeDivisionRatiosForGPUInstanceDataUsage?: number[];
   logLevel?: LogLevel;
   isMultiDrawEnabled?: boolean;
+  isClusteredForwardEnabled?: boolean;
+  clusteredForwardBuildMode?: ClusteredForwardBuildMode;
+  clusteredForwardGridSize?: [number, number, number];
+  clusteredForwardMaxViewNumber?: number;
+  clusteredForwardMaxLightIndexNumber?: number;
+  maxLightListLength?: number;
+  lightAutoRangeThreshold?: number;
 };
+
+/**
+ * Where the light clusters of Clustered Forward rendering are built.
+ * - `'auto'`: WebGPU builds them with compute shaders, WebGL2 builds them on the CPU.
+ * - `'cpu'`: Both backends build them on the CPU.
+ */
+export type ClusteredForwardBuildMode = 'auto' | 'cpu';
 
 /**
  * Config is a configuration class that contains the configuration for the library.
@@ -36,10 +50,46 @@ export class Config {
   skeletalComponentCountPerBufferView = 100;
   /**　The number of camera components per buffer view */
   cameraComponentCountPerBufferView = 1;
-  /**　The number of light components per buffer view */
-  lightComponentCountPerBufferView = 1;
-  /**　The maximum number of lights that Rhodonite can handle */
+  /**
+   * The number of light components per buffer view.
+   * Every new buffer view changes the generated shader getters and recompiles all shaders,
+   * so this is large enough for scenes with many lights.
+   */
+  lightComponentCountPerBufferView = 64;
+  /**
+   * The maximum number of lights that can cast shadows at the same time.
+   * This is also the length of the per-light arrays of the MToon 0.x shader.
+   */
   maxLightNumber = 6;
+  /**
+   * Whether Clustered Forward rendering is enabled.
+   * When enabled, each fragment evaluates only the lights whose range reaches the cluster (froxel) of the fragment.
+   * Lights without a range limit and directional lights are always evaluated.
+   */
+  isClusteredForwardEnabled = true;
+  /** Where the light clusters are built. See {@link ClusteredForwardBuildMode}. */
+  clusteredForwardBuildMode: ClusteredForwardBuildMode = 'auto';
+  /** The number of clusters along the screen X, screen Y and view depth axes. */
+  clusteredForwardGridSize: [number, number, number] = [16, 9, 24];
+  /**
+   * The maximum number of cameras whose light clusters are built in one frame.
+   * The other cameras evaluate all lights.
+   */
+  clusteredForwardMaxViewNumber = 4;
+  /**
+   * The capacity of the light index list of each camera, in light entries. The list of each cluster is padded to
+   * a multiple of 4 entries, so the capacity has to cover the sum of the padded light counts of all clusters.
+   * When the capacity is exceeded, the camera evaluates all lights in that frame.
+   */
+  clusteredForwardMaxLightIndexNumber = 32768;
+  /** The maximum number of enabled lights that are shaded. The other lights are ignored. (max: 65535) */
+  maxLightListLength = 1024;
+  /**
+   * When greater than 0, point and spot lights without a range get an effective range where their intensity
+   * (the maximum of color * intensity, divided by the squared distance) falls to this value.
+   * This makes those lights fade out smoothly at that distance and lets Clustered Forward rendering cull them.
+   */
+  lightAutoRangeThreshold = 0;
   /**
    * Number of instances of each material type to be placed consecutively in memory.
    * This is on the memory layout, and the number of material instances that can be generated is not limited by this setting.
@@ -130,6 +180,27 @@ export class Config {
     }
     if (initDescription.isMultiDrawEnabled !== undefined) {
       this.isMultiDrawEnabled = initDescription.isMultiDrawEnabled;
+    }
+    if (initDescription.isClusteredForwardEnabled !== undefined) {
+      this.isClusteredForwardEnabled = initDescription.isClusteredForwardEnabled;
+    }
+    if (initDescription.clusteredForwardBuildMode !== undefined) {
+      this.clusteredForwardBuildMode = initDescription.clusteredForwardBuildMode;
+    }
+    if (initDescription.clusteredForwardGridSize !== undefined) {
+      this.clusteredForwardGridSize = [...initDescription.clusteredForwardGridSize];
+    }
+    if (initDescription.clusteredForwardMaxViewNumber !== undefined) {
+      this.clusteredForwardMaxViewNumber = initDescription.clusteredForwardMaxViewNumber;
+    }
+    if (initDescription.clusteredForwardMaxLightIndexNumber !== undefined) {
+      this.clusteredForwardMaxLightIndexNumber = initDescription.clusteredForwardMaxLightIndexNumber;
+    }
+    if (initDescription.maxLightListLength !== undefined) {
+      this.maxLightListLength = initDescription.maxLightListLength;
+    }
+    if (initDescription.lightAutoRangeThreshold !== undefined) {
+      this.lightAutoRangeThreshold = initDescription.lightAutoRangeThreshold;
     }
   }
 }

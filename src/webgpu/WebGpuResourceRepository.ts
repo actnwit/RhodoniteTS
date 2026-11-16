@@ -3221,6 +3221,15 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     }
   }
 
+  /**
+   * The storage buffer of the GPU instance data (bound at group 0, binding 0 of the render pipelines).
+   *
+   * @internal
+   */
+  _getStorageBuffer(): GPUBuffer | undefined {
+    return this.__storageBuffer;
+  }
+
   destroyStorageBuffer(storageBufferHandle: WebGPUResourceHandle) {
     const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
     if (storageBuffer == null) {

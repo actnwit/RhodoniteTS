@@ -130,21 +130,32 @@ void main (){
   float shadeToony = get_shadeToony(materialSID, 0u);
 
   vec3 lightings[/* shaderity: @{Config.maxLightNumber} */];
+  int lightSids[/* shaderity: @{Config.maxLightNumber} */];
   #ifdef RN_MTOON_DEBUG_LITSHADERATE
     float lightIntensities[/* shaderity: @{Config.maxLightNumber} */];
   #endif
+  LightList lightList;
+  lightList.count = 0;
+  #ifdef RN_IS_LIGHTING
+    lightList = getLightList(v_position_inWorld.xyz, cameraSID);
+  #endif
+  // At most maxLightNumber lights (the size of the arrays above) are shaded.
+  int shadedLightCount = min(lightList.count, /* shaderity: @{Config.maxLightNumber} */);
   for (int i = 0; i < /* shaderity: @{Config.maxLightNumber} */; i++) {
-    if (i >= lightNumber) {
+    if (i >= shadedLightCount) {
       break;
     }
 
     // Light
-    Light light = getLight(i, v_position_inWorld.xyz);
+    int lightSid = getLightRef(lightList, i).x;
+    lightSids[i] = lightSid;
+    Light light = getLight(lightSid, v_position_inWorld.xyz);
 
     // lightAttenuation *= distanceAttenuation * spotEffect;
     float dotNL = dot(light.direction, normal_inWorld);
     float lightIntensity = dotNL * 0.5 + 0.5; // from [-1, +1] to [0, 1]
-    lightIntensity = lightIntensity * lightAttenuation; // TODO: receive shadow
+    // The receive shadow attenuation applies to the main light (the light with the component SID 0)
+    lightIntensity = lightIntensity * (lightSid == 0 ? lightAttenuation : 1.0); // TODO: receive shadow
     lightIntensity = lightIntensity * shadingGrade; // darker
     lightIntensity = lightIntensity * 2.0 - 1.0; // from [0, 1] to [-1, +1]
 
@@ -164,7 +175,7 @@ void main (){
     lighting = mix(lighting, vec3(max(EPS_COL, max(lighting.x, max(lighting.y, lighting.z)))), lightColorAttenuation); // color atten
 
 
-    if(i > 0){
+    if(lightSid > 0){
       lighting *= 0.5; // darken if additional light.
       lighting *= min(0.0, dotNL) + 1.0; // darken dotNL < 0 area by using half lambert
       // lighting *= shadowAttenuation; // darken if receiving shadow
@@ -177,8 +188,6 @@ void main (){
     lightings[i] = lighting;
 
     rt0.xyz += col;
-
-    lightAttenuation = 1.0;
   }
 
 
@@ -222,9 +231,10 @@ void main (){
     float staticRimLighting = 1.0;
     float rimLightingMix = get_rimLightingMix(materialSID, 0u);
     for (int i = 0; i < /* shaderity: @{Config.maxLightNumber} */; i++) {
-      if (i >= lightNumber) break;
+      if (i >= shadedLightCount) break;
 
-      if(i > 0) staticRimLighting = 0.0;
+      // Only the light with the component SID 0 gets the static rim lighting.
+      staticRimLighting = lightSids[i] > 0 ? 0.0 : 1.0;
 
       vec3 rimLighting = mix(vec3(staticRimLighting), lightings[i], vec3(rimLightingMix));
       rt0.xyz += rim * rimLighting;
@@ -256,7 +266,7 @@ void main (){
   #elif defined(RN_MTOON_DEBUG_LITSHADERATE)
     rt0 = vec4(0.0);
     for (int i = 0; i < /* shaderity: @{Config.maxLightNumber} */; i++) {
-      if (i >= lightNumber) break;
+      if (i >= shadedLightCount) break;
       rt0 += vec4(lightIntensities[i] * lightings[i], alpha);
     }
 

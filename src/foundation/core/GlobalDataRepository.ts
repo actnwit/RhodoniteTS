@@ -14,6 +14,7 @@ import { VectorN } from '../math/VectorN';
 import type { Accessor } from '../memory/Accessor';
 import type { BufferView } from '../memory/BufferView';
 import type { Result } from '../misc/Result';
+import { getLightClusterGlobalPropertyLength } from '../renderer/lightCluster/LightClusterLayout';
 import type { Engine } from '../system/Engine';
 
 type GlobalPropertyStruct = {
@@ -91,6 +92,22 @@ export class GlobalDataRepository {
     };
     this.__registerProperty(lightNumberInfo, 1);
     this.takeOne('lightNumber');
+
+    // Clustered Forward light list (see LightClusterLayout)
+    const clusteredLightDataLength = getLightClusterGlobalPropertyLength(this.__engine.config.maxLightListLength);
+    const clusteredLightDataInfo = {
+      semantic: 'clusteredLightData',
+      compositionType: CompositionType.Vec4Array,
+      componentType: ComponentType.Float,
+      arrayLength: clusteredLightDataLength,
+      stage: ShaderType.VertexAndPixelShader,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isInternalSetting: true,
+      initialValue: new VectorN(new Float32Array(clusteredLightDataLength * 4)),
+    };
+    this.__registerProperty(clusteredLightDataInfo, 1);
+    this.takeOne('clusteredLightData');
 
     // BackBufferTextureSize
     const backBufferTextureSize = {

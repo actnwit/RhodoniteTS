@@ -46,6 +46,8 @@ export class LightComponent extends Component {
   private _lightProperty = MutableVector4.dummy();
   private static __lightNumber = Scalar.zero();
   private __lightGizmo?: LightGizmo;
+  /** The shadow slot assigned by a ShadowSystem. `undefined` means the default slot (see `_shadowSlot`). */
+  private __shadowSlot: number | undefined = undefined;
 
   private __updateCount = 0;
   private __lastUpdateCount = -1;
@@ -226,6 +228,60 @@ export class LightComponent extends Component {
   }
 
   /**
+   * The index of the shadow data of this light in the per-material shadow arrays
+   * (`depthTextureIndexList` and `depthBiasPV`), or -1 when the light has no shadow data.
+   *
+   * @remarks
+   * A ShadowSystem assigns the slots of the lights it manages. Otherwise the slot is the component SID
+   * when it is below `Config.maxLightNumber`, which is the convention of manual shadow map setups.
+   *
+   * @internal
+   */
+  get _shadowSlot(): number {
+    if (this.__shadowSlot !== undefined) {
+      return this.__shadowSlot;
+    }
+    return this.componentSID < this.__engine.config.maxLightNumber ? this.componentSID : -1;
+  }
+
+  /**
+   * Sets the shadow slot of this light. `undefined` restores the default slot.
+   *
+   * @internal
+   */
+  set _shadowSlot(slot: number | undefined) {
+    this.__shadowSlot = slot;
+  }
+
+  /**
+   * The world position of the light as uploaded to the GPU (updated in $logic).
+   *
+   * @internal
+   */
+  get _lightPositionForGpu(): MutableVector4 {
+    return this._lightPosition;
+  }
+
+  /**
+   * The world direction of the light as uploaded to the GPU (updated in $logic).
+   *
+   * @internal
+   */
+  get _lightDirectionForGpu(): MutableVector4 {
+    return this._lightDirection;
+  }
+
+  /**
+   * The light property (type, effective range, cos of the inner and outer cone angles) as uploaded to the GPU
+   * (updated in $logic).
+   *
+   * @internal
+   */
+  get _lightPropertyForGpu(): MutableVector4 {
+    return this._lightProperty;
+  }
+
+  /**
    * Gets the up vector for the light in local space.
    * This is used for light orientation calculations.
    *
@@ -339,7 +395,7 @@ export class LightComponent extends Component {
     this._lightIntensity._v[2] = this.__color.z * this.__intensity;
 
     this._lightProperty._v[0] = this.enable ? this.type.index : -1;
-    this._lightProperty._v[1] = this.range;
+    this._lightProperty._v[1] = this.__getEffectiveRange();
     this._lightProperty._v[2] = innerConeCos;
     this._lightProperty._v[3] = outerConeCos;
 
@@ -347,6 +403,21 @@ export class LightComponent extends Component {
 
     this.__lastTransformUpdateCount = TransformComponent.getUpdateCount(this.__engine);
     this.__lastUpdateCount = this.__updateCount;
+  }
+
+  /**
+   * Returns the range used for shading. Point and spot lights without a range get an automatic range
+   * when `Config.lightAutoRangeThreshold` is greater than 0.
+   */
+  private __getEffectiveRange() {
+    const threshold = this.__engine.config.lightAutoRangeThreshold;
+    if (this.__range > 0 || !(threshold > 0) || (this.type !== LightType.Point && this.type !== LightType.Spot)) {
+      return this.__range;
+    }
+    // The distance where (color * intensity) / distance^2 falls to the threshold.
+    // A light without intensity gets a tiny positive range so that it is culled instead of being unlimited.
+    const maxIntensity = Math.max(this.__color.x, this.__color.y, this.__color.z) * this.__intensity;
+    return Math.max(Math.sqrt(Math.max(maxIntensity, 0) / threshold), 1e-6);
   }
 
   /**

@@ -96,3 +96,62 @@ Light getLight(int lightIdx, vec3 v_position_inWorld) {
 
   return light;
 }
+
+// Clustered Forward light list (see src/foundation/renderer/lightCluster/LightClusterLayout.ts).
+// The list is the lights that can not be culled followed by the local lights of the cluster of the position,
+// or all enabled lights when the camera has no light clusters.
+struct LightList {
+  int count;      // the number of lights in the list
+  int firstCount; // the number of lights read from the all-light list
+  int secondBase; // the vec4 index of the cluster lights in the light index list of the view
+};
+
+LightList getLightList(vec3 positionInWorld, uint cameraSID) {
+  vec4 header = get_clusteredLightData(0u, 0u); // (allCount, globalCount, localCount, sphereBase)
+  LightList list;
+  list.count = int(header.x);
+  list.firstCount = int(header.x);
+  list.secondBase = 0;
+#if defined(RN_IS_PIXEL_SHADER) && !defined(WEBGL2_MULTI_VIEW)
+  int viewBase = int(get_lightClusterViewInfo(cameraSID).x);
+  if (viewBase >= 0) {
+    vec4 grid = fetchElement(viewBase + 4); // (gridX, gridY, gridZ, state)
+    if (grid.w == 0.0) {
+      vec4 p = vec4(positionInWorld, 1.0);
+      float w = dot(fetchElement(viewBase + 2), p);
+      if (w > 0.0) {
+        vec4 slice = fetchElement(viewBase + 5); // (sliceScale, sliceBias, zNear, zFar)
+        vec3 cell = vec3(
+          dot(fetchElement(viewBase), p) / w,
+          dot(fetchElement(viewBase + 1), p) / w,
+          log(max(dot(fetchElement(viewBase + 3), p), 1.0e-30)) * slice.x + slice.y);
+        ivec3 c = ivec3(clamp(floor(cell), vec3(0.0), grid.xyz - 1.0));
+        int gridX = int(grid.x);
+        int gridY = int(grid.y);
+        int clusterIndex = (c.z * gridY + c.y) * gridX + c.x;
+        vec4 tableEntry = fetchElement(viewBase + 6 + clusterIndex); // (offset, count, 0, 0)
+        int clusterCount = gridX * gridY * int(grid.z);
+        list.firstCount = int(header.y);
+        list.secondBase = viewBase + 6 + clusterCount + int(tableEntry.x);
+        list.count = list.firstCount + int(tableEntry.y);
+      }
+    }
+  }
+#endif
+  return list;
+}
+
+// Returns (light component SID, shadow slot (-1: none)) of the n-th light of the list.
+ivec2 getLightRef(LightList list, int n) {
+  float entry;
+  if (n < list.firstCount) {
+    vec4 entries = get_clusteredLightData(0u, uint(1 + (n >> 2)));
+    entry = entries[n & 3];
+  } else {
+    int e = n - list.firstCount;
+    vec4 entries = fetchElement(list.secondBase + (e >> 2));
+    entry = entries[e & 3];
+  }
+  int packed = int(entry);
+  return ivec2(packed & 0xFFFF, (packed >> 16) - 1);
+}

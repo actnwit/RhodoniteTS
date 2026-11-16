@@ -2,11 +2,6 @@ void classicShader(in vec4 vertexColor, in vec4 diffuseColorFactor, in vec4 diff
   vec4 diffuseColor = vertexColor * diffuseColorFactor * diffuseTextureColor;
   vec4 shadingColor = vec4(0.0, 0.0, 0.0, diffuseColor.a);
   if (shadingModel >= 1u && shadingModel <= 3u) {
-    int lightNumber = 0;
-    #ifdef RN_IS_LIGHTING
-      lightNumber = get_lightNumber(0u, 0u);
-    #endif
-
     uint cameraSID = uint(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */]);
     #if defined(WEBGL2_MULTI_VIEW) && defined(RN_IS_VERTEX_SHADER)
       cameraSID += uint(gl_ViewID_OVR);
@@ -14,7 +9,15 @@ void classicShader(in vec4 vertexColor, in vec4 diffuseColorFactor, in vec4 diff
 
     uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
 
-    for (int i = 0; i < lightNumber; i++) {
+    LightList lightList;
+    lightList.count = 0;
+    #ifdef RN_IS_LIGHTING
+      lightList = getLightList(positionInWorld.xyz, cameraSID);
+    #endif
+
+    for (int n = 0; n < lightList.count; n++) {
+      ivec2 lightRef = getLightRef(lightList, n);
+      int i = lightRef.x; // light component SID
       vec3 specular = vec3(0.0, 0.0, 0.0);
       // Get Light
       Light light = getLight(i, positionInWorld.xyz);
@@ -43,7 +46,8 @@ void classicShader(in vec4 vertexColor, in vec4 diffuseColorFactor, in vec4 diff
       }
 
       #ifdef RN_USE_SHADOW_MAPPING
-      int depthTextureIndex = get_depthTextureIndexList(materialSID, uint(i));
+      int shadowSlot = lightRef.y;
+      int depthTextureIndex = shadowSlot >= 0 ? get_depthTextureIndexList(materialSID, uint(shadowSlot)) : -1;
       if (light.type == 1 && depthTextureIndex >= 0) { // Point Light
         float pointLightFarPlane = get_pointLightFarPlane(materialSID, 0u);
         float pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0u);
@@ -51,7 +55,7 @@ void classicShader(in vec4 vertexColor, in vec4 diffuseColorFactor, in vec4 diff
         diffuse *= shadowContribution;
         specular *= shadowContribution;
       } else if ((light.type == 0 || light.type == 2) && depthTextureIndex >= 0) { // Spot Light
-        vec4 shadowCoordVec4 = get_depthBiasPV(materialSID, uint(i)) * positionInWorld;
+        vec4 shadowCoordVec4 = get_depthBiasPV(materialSID, uint(shadowSlot)) * positionInWorld;
         vec2 shadowCoord = shadowCoordVec4.xy / shadowCoordVec4.w;
         float normalizedDepth = shadowCoordVec4.z / shadowCoordVec4.w;
 
