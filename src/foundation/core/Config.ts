@@ -82,13 +82,27 @@ export class Config {
    * range, including an automatic range of {@link Config.lightAutoRangeThreshold}) and emit light (an intensity
    * greater than 0) is at least this value. With fewer lights, every fragment evaluates all lights as in plain forward
    * rendering, which skips the cluster build and the cluster lookup of the fragment shaders.
+   * `undefined` (default) uses the measured break-even point of the backend: 2 for WebGL2 and 1 for WebGPU.
    *
    * @remarks
-   * The cluster lookup costs roughly as much as evaluating one or two lights per fragment, so clustering pays off
-   * only when it can skip more lights than that. Where the break-even point is depends on how much of the screen
-   * each light covers. The default value is an estimate, not a measured break-even point.
+   * Measured on Apple M2 Max (Chrome, ANGLE-Metal / Dawn-Metal) with a full-screen 2048x2048 PBR surface,
+   * comparing the GPU frame time with and without clusters (ratio = clustered / plain forward, lower is better;
+   * a range is the spread of two runs):
+   *
+   * | Lights | WebGL2 (radius 3 / 6) | WebGPU (radius 3 / 6) |
+   * |--------|-----------------------|-----------------------|
+   * | 1      | 1.07-1.10 / 1.11-1.16 | 0.83 / 0.92           |
+   * | 2      | 0.80-0.95 / 0.97      | 0.61 / 0.76           |
+   * | 3      | 0.76 / 0.90           | 0.49 / 0.66           |
+   * | 8      | 0.44 / 0.63           | 0.32 / 0.51           |
+   *
+   * (A light with the radius 3 or 6 covers about 7% or 28% of the screen.) The cluster lookup costs about as much as
+   * one light in WebGL2 and half a light in WebGPU. The Classic shader gave the same break-even points. With a
+   * moving camera (clusters rebuilt every frame), 2 lights in WebGL2 were even (0.998-1.006) and 1 light in WebGPU
+   * was still faster (0.99). Lights that cover the whole screen can not be culled, so clustering them is always
+   * 1-23% slower whatever this value is. Other GPUs may differ.
    */
-  clusteredForwardMinLocalLightNumber = 4;
+  clusteredForwardMinLocalLightNumber: number | undefined = undefined;
   /**
    * The capacity of the light index list of each camera, in light entries. The list of each cluster is padded to
    * a multiple of 4 entries, so the capacity has to cover the sum of the padded light counts of all clusters.

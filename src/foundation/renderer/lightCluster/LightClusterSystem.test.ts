@@ -255,3 +255,18 @@ test('point lights without range and intensity are not counted with lightAutoRan
   expect([global.globalCount, global.localCount]).toEqual([0, 4]);
   expect(camera._lightClusterViewInfoForGpu._v[0]).toBe(-1);
 });
+
+test('the default threshold builds clusters from 2 local lights outside WebGPU', async () => {
+  const { engine, lights, camera, expression, runLogic } = await createScene(new Rn.Config(), [
+    { type: 'point', position: [0, 0, 0], range: 1 },
+    { type: 'point', position: [1, 0, 0], range: 1, intensity: 0 },
+  ]);
+  expect(engine.config.clusteredForwardMinLocalLightNumber).toBeUndefined();
+  engine.lightClusterSystem.update([expression]);
+  expect(camera._lightClusterViewInfoForGpu._v[0]).toBe(-1);
+
+  lights[1].intensity = 1;
+  runLogic();
+  engine.lightClusterSystem.update([expression]);
+  expect(camera._lightClusterViewInfoForGpu._v[0]).toBeGreaterThanOrEqual(0);
+});

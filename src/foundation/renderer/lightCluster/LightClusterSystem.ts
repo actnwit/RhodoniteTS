@@ -45,6 +45,10 @@ export type LightClusterGpuBuildParams = {
   layout: LightClusterViewLayout;
 };
 
+function isGpuBackendWebGpu(engine: Engine) {
+  return engine.engineState.currentProcessApproach === ProcessApproach.WebGPU;
+}
+
 /** The maximum shadow slot that can be packed into a light entry exactly (entries must stay below 2^24). */
 const MaxPackableShadowSlot = 254;
 
@@ -167,7 +171,11 @@ export class LightClusterSystem {
     const isGpuBuild = this.isGpuBuild;
     const maxViewNumber = Math.max(0, Math.floor(config.clusteredForwardMaxViewNumber));
     // With few lights, plain forward rendering (the all-light list) is cheaper than the cluster lookup.
-    const minLocalLightNumber = Math.max(1, Math.floor(config.clusteredForwardMinLocalLightNumber));
+    // The default values are the measured break-even points (see Config.clusteredForwardMinLocalLightNumber).
+    const minLocalLightNumber = Math.max(
+      1,
+      Math.floor(config.clusteredForwardMinLocalLightNumber ?? (isGpuBackendWebGpu(this.__engine) ? 1 : 2))
+    );
     const cameraSids =
       config.isClusteredForwardEnabled &&
       this.__emittingLocalCount >= minLocalLightNumber &&
