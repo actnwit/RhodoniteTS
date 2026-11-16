@@ -88,6 +88,36 @@ export class Config {
    * When greater than 0, point and spot lights without a range get an effective range where their intensity
    * (the maximum of color * intensity, divided by the squared distance) falls to this value.
    * This makes those lights fade out smoothly at that distance and lets Clustered Forward rendering cull them.
+   * 0 (default) disables it. Lights with a range and directional lights are not affected.
+   *
+   * @remarks
+   * The effective range is `R = sqrt(max(color) * intensity / lightAutoRangeThreshold)`. With the range window
+   * of the shaders (`(1 - (d / R)^4) / d^2`), the difference from the unlimited inverse-square falloff at the
+   * distance `d` is `lightAutoRangeThreshold * (d / R)^2`. So this value is the upper bound of the error added to
+   * the linear brightness (for the diffuse lighting of a white surface facing the light). The error is largest at
+   * the border of the range and smaller inside it.
+   *
+   * Reference values (without tone mapping, exposure 1):
+   *
+   * | Value  | Range (intensity 1 / 10) | Effect on the image |
+   * |--------|--------------------------|---------------------|
+   * | 0.0003 | 58 / 183                 | Practically lossless, but the range is so large that the lights are rarely culled. |
+   * | 0.001  | 32 / 100                 | At most about 3/255 even on a black background. Not noticeable on lit surfaces. Recommended starting point. |
+   * | 0.003  | 18 / 58                  | Hardly noticeable in scenes with ambient light or IBL. |
+   * | 0.01   | 10 / 32                  | On a dark background, the tail of the light fades out a little early. About 3/255 on lit surfaces. |
+   *
+   * Tips:
+   * - Compare the resulting range with the visible area and the spacing of the lights. A range larger than them
+   *   puts the light in almost every cluster, so it does not make rendering faster.
+   * - Scale the value with the brightness level of the scene. For example, when the light intensities are in the
+   *   hundreds and the exposure brings them down, scale the value by the same factor. About 1/300 to 1/1000 of the
+   *   typical brightness of the scene is a good guide.
+   * - Use a smaller value for dark scenes or when the exposure brightens dark areas, where the cut-off tail is
+   *   more noticeable.
+   * - The error of specular highlights on glossy surfaces can be larger than the table above, but the light is
+   *   weak near the border of the range, so it is rarely noticeable.
+   * - Set this when initializing the engine. A change at runtime takes effect for each light when the light is
+   *   updated next.
    */
   lightAutoRangeThreshold = 0;
   /**
