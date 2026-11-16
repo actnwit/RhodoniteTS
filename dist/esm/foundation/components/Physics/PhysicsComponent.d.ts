@@ -73,7 +73,7 @@ export declare class PhysicsComponent extends Component {
     /**
      * Common logic method that updates the global physics simulation.
      * This is called once per frame for all physics components and handles
-     * the overall physics world update using the Oimo physics engine.
+     * the overall physics world update through the Rapier physics backend.
      */
     static common_$logic({ engine }: {
         engine: Engine;

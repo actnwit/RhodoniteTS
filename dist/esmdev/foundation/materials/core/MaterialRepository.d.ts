@@ -141,6 +141,11 @@ export declare class MaterialRepository {
      */
     private __allocateBufferView;
     _getMaterialCountPerBufferView(materialTypeName: string): Count | undefined;
+    /**
+     * Public accessor used by debugging tools. The material SID selects a buffer view
+     * with `floor(materialSID / materialCountPerBufferView)`.
+     */
+    getMaterialCountPerBufferView(materialTypeName: string): Count | undefined;
     _getBufferViewVersion(materialTypeName: string): number;
     /**
      * Invalidates all shader programs for all registered materials.

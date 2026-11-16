@@ -19,15 +19,16 @@ import { Sphere, type SphereDescriptor } from '../geometry/shapes/Sphere';
 import type { IVector3 } from '../math/IVector';
 import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc';
-import { OimoPhysicsStrategy } from '../physics/Oimo/OimoPhysicsStrategy';
 import type { PhysicsEngineType } from '../physics/PhysicsProperty';
 import { RapierPhysicsStrategy } from '../physics/Rapier/RapierPhysicsStrategy';
 import type { Engine } from '../system/Engine';
 import type { IMeshEntity } from './EntityHelper';
 
 const createPhysicsStrategy = (physicsEngine: PhysicsEngineType = 'rapier') => {
-  if (physicsEngine === 'oimo') {
-    return new OimoPhysicsStrategy();
+  if ((physicsEngine as string) !== 'rapier') {
+    throw new Error(
+      `Unsupported physics engine "${String(physicsEngine)}". Rapier is the only supported physics engine.`
+    );
   }
 
   return new RapierPhysicsStrategy();

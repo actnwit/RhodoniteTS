@@ -2,10 +2,7 @@ import { type ShaderityObject } from 'shaderity';
 import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import type { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
 import type { CameraComponent } from '../../components/Camera/CameraComponent';
-import type { LightComponent } from '../../components/Light/LightComponent';
 import type { MeshComponent } from '../../components/Mesh/MeshComponent';
-import type { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
-import type { Config } from '../../core/Config';
 import { RnObject } from '../../core/RnObject';
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { type ShaderTypeEnum } from '../../definitions/ShaderType';
@@ -39,10 +36,6 @@ export declare abstract class AbstractMaterialContent extends RnObject {
     private __isMorphing;
     private __isSkinning;
     private __isLighting;
-    private static __lightPositions;
-    private static __lightDirections;
-    private static __lightIntensities;
-    private static __lightProperties;
     private static __materialContentCount;
     private __materialContentUid;
     /** Shader caches managed per-Engine. Key is Engine.objectUID */
@@ -172,7 +165,7 @@ export declare abstract class AbstractMaterialContent extends RnObject {
      * @param material - The material instance
      * @param CameraComponentClass - The camera component class
      */
-    protected setupBasicInfo(engine: Engine, args: RenderingArgWebGL, shaderProgram: WebGLProgram, firstTime: boolean, material: Material, CameraComponentClass: typeof CameraComponent): void;
+    protected setupBasicInfo(_engine: Engine, args: RenderingArgWebGL, shaderProgram: WebGLProgram, _firstTime: boolean, _material: Material, _CameraComponentClass: typeof CameraComponent): void;
     /**
      * Sets the world transformation matrix uniform in the shader.
      * @param shaderProgram - The WebGL shader program
@@ -213,21 +206,6 @@ export declare abstract class AbstractMaterialContent extends RnObject {
      * @param displayIdx - The display index for VR rendering
      */
     setProjection(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, isVr: boolean, displayIdx: number): void;
-    /**
-     * Sets skeletal animation uniforms in the shader.
-     * @param shaderProgram - The WebGL shader program
-     * @param setUniform - Whether to set uniform values
-     * @param skeletalComponent - The skeletal component containing bone data
-     */
-    protected setSkinning(config: Config, shaderProgram: WebGLProgram, setUniform: boolean, skeletalComponent?: SkeletalComponent): void;
-    /**
-     * Sets lighting information uniforms in the shader.
-     * @param shaderProgram - The WebGL shader program
-     * @param lightComponents - Array of light components
-     * @param material - The material instance
-     * @param setUniform - Whether to set uniform values
-     */
-    protected setLightsInfo(config: Config, shaderProgram: WebGLProgram, lightComponents: LightComponent[], _material: Material, setUniform: boolean): void;
     /**
      * Sets morph target animation uniforms in the shader.
      * @param shaderProgram - The WebGL shader program

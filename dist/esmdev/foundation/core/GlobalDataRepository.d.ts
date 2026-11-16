@@ -1,6 +1,7 @@
 import type { ProcessApproachEnum } from '../../foundation/definitions/ProcessApproach';
-import type { CGAPIResourceHandle, Index, IndexOf16Bytes } from '../../types/CommonTypes';
+import type { CGAPIResourceHandle, Count, Index, IndexOf16Bytes } from '../../types/CommonTypes';
 import type { getShaderPropertyFuncOfGlobalDataRepository, ShaderSemanticsName } from '../definitions/ShaderSemantics';
+import { type ShaderSemanticsInfo } from '../definitions/ShaderSemanticsInfo';
 import type { Engine } from '../system/Engine';
 /**
  * The repository class that manages global data used throughout the rendering pipeline.
@@ -63,13 +64,16 @@ export declare class GlobalDataRepository {
      */
     getValue(shaderSemantic: ShaderSemanticsName, countIndex: Index): any;
     /**
-     * Sets up uniform locations for all global properties when using uniform mode.
-     * This is used internally by the WebGL resource repository for shader program setup.
-     *
-     * @param shaderProgramUid - The unique identifier of the shader program
-     * @internal
+     * Returns every registered global property with its current value and layout offset.
+     * This is intended for debugging tools; it does not allocate or modify anything.
      */
-    _setUniformLocationsForUniformModeOnly(shaderProgramUid: CGAPIResourceHandle): void;
+    getPropertyTable(): Array<{
+        semantic: ShaderSemanticsName;
+        info: ShaderSemanticsInfo;
+        value: any;
+        vec4Index: IndexOf16Bytes;
+        maxCount: Count;
+    }>;
     /**
      * Sets up uniform locations for properties that need uniform access in data texture mode.
      * Only sets up uniforms for properties marked with needUniformInDataTextureMode flag.
@@ -77,7 +81,7 @@ export declare class GlobalDataRepository {
      * @param shaderProgramUid - The unique identifier of the shader program
      * @internal
      */
-    _setUniformLocationsForDataTextureModeOnly(shaderProgramUid: CGAPIResourceHandle): void;
+    _setUniformLocationsForWebGL2ModeOnly(shaderProgramUid: CGAPIResourceHandle): void;
     /**
      * Gets the memory location offset of a global property in 16-byte aligned units.
      * This is used for data texture mode to determine where properties are stored in memory.

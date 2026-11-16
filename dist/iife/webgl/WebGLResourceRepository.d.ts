@@ -372,10 +372,9 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
      * @param config - Configuration for the shader program
      * @param shaderProgramUid - The handle of the shader program
      * @param infoArray - Array of shader semantics information
-     * @param isUniformOnlyMode - Whether to set up only uniform locations
      * @returns The WebGL program object with configured uniform locations
      */
-    setupUniformLocations(config: Config, shaderProgramUid: WebGLResourceHandle, infoArray: ShaderSemanticsInfo[], isUniformOnlyMode: boolean): WebGLProgram;
+    setupUniformLocations(config: Config, shaderProgramUid: WebGLResourceHandle, infoArray: ShaderSemanticsInfo[]): WebGLProgram;
     /**
      * Sets up basic uniform locations required for data texture operations.
      *

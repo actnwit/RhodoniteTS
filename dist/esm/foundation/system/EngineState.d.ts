@@ -6,7 +6,7 @@ import { type ProcessApproachEnum } from '../definitions/ProcessApproach';
 export declare class EngineState {
     /**
      * The current process approach being used for rendering operations.
-     * Determines whether to use WebGL2 uniform approach, data texture approach, WebGPU, or none.
+     * Determines whether to use the WebGL2 data texture approach, WebGPU, or none.
      */
     currentProcessApproach: ProcessApproachEnum;
     /**

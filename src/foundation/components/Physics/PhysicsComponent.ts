@@ -7,7 +7,6 @@ import { Quaternion } from '../../math/Quaternion';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
 import { Time } from '../../misc/Time';
-import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 import type {
   PhysicsBodyProperty,
   PhysicsColliderProperty,
@@ -318,13 +317,12 @@ export class PhysicsComponent extends Component {
   /**
    * Common logic method that updates the global physics simulation.
    * This is called once per frame for all physics components and handles
-   * the overall physics world update using the Oimo physics engine.
+   * the overall physics world update through the Rapier physics backend.
    */
   static common_$logic({ engine }: { engine: Engine }) {
     if (!AnimationComponent.getIsAnimating(engine)) {
       return;
     }
-    OimoPhysicsStrategy.update();
     RapierPhysicsStrategy.update(
       AnimationStateRepository.getProcessFrameToken(engine),
       Time.getIntervalProcessBegin(engine),

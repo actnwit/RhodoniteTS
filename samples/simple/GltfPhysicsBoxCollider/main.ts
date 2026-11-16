@@ -27,7 +27,6 @@ const fallingCube = Rn.MeshHelper.createCube(engine, {
   color: Rn.ColorRgba.fromCopy4(1, 0.4, 0.2, 1),
   physics: {
     use: true,
-    engine: 'rapier',
     move: true,
     density: 1,
     friction: 0.6,

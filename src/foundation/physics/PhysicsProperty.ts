@@ -2,7 +2,11 @@ import type { PhysicsShapeTypeEnum } from '../definitions/PhysicsShapeType';
 import type { IVector3 } from '../math';
 import type { IQuaternion } from '../math/IQuaternion';
 
-export type PhysicsEngineType = 'oimo' | 'rapier';
+/**
+ * Physics engine selection.
+ * @deprecated Only 'rapier' is supported. Oimo.js support was removed. Retained for source compatibility.
+ */
+export type PhysicsEngineType = 'rapier';
 
 export type PhysicsBodyProperty = {
   /** Whether the body is dynamic. False creates a fixed body. */
@@ -79,7 +83,10 @@ export type PhysicsPropertyInner = {
 export type PhysicsProperty = {
   /** Whether physics simulation is enabled for the entity */
   use: boolean;
-  /** Physics engine to use. Defaults to 'rapier'. */
+  /**
+   * Physics engine to use.
+   * @deprecated Rapier is always used. Omit this field.
+   */
   engine?: PhysicsEngineType;
   /** Whether the physics body can move (dynamic) or is static */
   move: boolean;

@@ -71,7 +71,6 @@ export declare const ShaderSemantics: Readonly<{
     ShadingModel: ShaderSemanticsEnum;
     SkinningMode: ShaderSemanticsEnum;
     GeneralTexture: ShaderSemanticsEnum;
-    VertexAttributesExistenceArray: ShaderSemanticsEnum;
     BoneQuaternion: ShaderSemanticsEnum;
     BoneTranslateScale: ShaderSemanticsEnum;
     BoneTranslatePackedQuat: ShaderSemanticsEnum;
