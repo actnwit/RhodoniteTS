@@ -401,6 +401,15 @@ export class LightComponent extends Component {
   }
 
   /**
+   * The intensity of the light (color * intensity) as uploaded to the GPU (updated in $logic).
+   *
+   * @internal
+   */
+  get _lightIntensityForGpu(): MutableVector4 {
+    return this._lightIntensity;
+  }
+
+  /**
    * Gets the up vector for the light in local space.
    * This is used for light orientation calculations.
    *

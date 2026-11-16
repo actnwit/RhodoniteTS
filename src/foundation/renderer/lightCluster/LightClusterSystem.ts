@@ -82,6 +82,8 @@ export class LightClusterSystem {
   private __allCount = 0;
   private __globalCount = 0;
   private __localCount = 0;
+  /** The number of local lights that emit light (counted for Config.clusteredForwardMinLocalLightNumber). */
+  private __emittingLocalCount = 0;
   private __prevAllCount = -1;
   private __prevGlobalCount = -1;
   private __prevSphereVec4Base = -1;
@@ -168,7 +170,7 @@ export class LightClusterSystem {
     const minLocalLightNumber = Math.max(1, Math.floor(config.clusteredForwardMinLocalLightNumber));
     const cameraSids =
       config.isClusteredForwardEnabled &&
-      this.__localCount >= minLocalLightNumber &&
+      this.__emittingLocalCount >= minLocalLightNumber &&
       maxViewNumber > 0 &&
       !this.__isAllocationFailed
         ? this.__collectCameras(expressions)
@@ -243,6 +245,7 @@ export class LightClusterSystem {
     const maxShadowSlot = Math.min(this.__engine.config.maxLightNumber - 1, MaxPackableShadowSlot);
     let globalCount = 0;
     let localCount = 0;
+    let emittingLocalCount = 0;
     let isCapacityExceeded = false;
 
     if (lightComponents != null) {
@@ -278,6 +281,11 @@ export class LightClusterSystem {
           entries[globalCount++] = entry;
         } else {
           localEntries[localCount++] = entry;
+          // A light without intensity lights nothing, so it does not make clustering worthwhile.
+          const intensity = light._lightIntensityForGpu._v;
+          if (intensity[0] > 0 || intensity[1] > 0 || intensity[2] > 0) {
+            emittingLocalCount++;
+          }
         }
       }
     }
@@ -293,6 +301,7 @@ export class LightClusterSystem {
     this.__allCount = allCount;
     this.__globalCount = globalCount;
     this.__localCount = localCount;
+    this.__emittingLocalCount = emittingLocalCount;
 
     let isChanged = allCount !== this.__prevAllCount || globalCount !== this.__prevGlobalCount;
     if (!isChanged) {

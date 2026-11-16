@@ -79,7 +79,8 @@ export class Config {
   clusteredForwardMaxViewNumber = 4;
   /**
    * The light clusters are built only when the number of lights that can be culled (point and spot lights with a
-   * range) is at least this value. With fewer lights, every fragment evaluates all lights as in plain forward
+   * range, including an automatic range of {@link Config.lightAutoRangeThreshold}) and emit light (an intensity
+   * greater than 0) is at least this value. With fewer lights, every fragment evaluates all lights as in plain forward
    * rendering, which skips the cluster build and the cluster lookup of the fragment shaders.
    *
    * @remarks

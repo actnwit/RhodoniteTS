@@ -214,3 +214,44 @@ test('evaluates all lights without clusters when there are fewer local lights th
   expect([global.allCount, global.globalCount, global.localCount]).toEqual([4, 1, 3]);
   expect(camera._lightClusterViewInfoForGpu._v[0]).toBe(-1);
 });
+
+test('local lights without intensity are not counted for clusteredForwardMinLocalLightNumber', async () => {
+  const descs: TestLightDesc[] = [];
+  for (let i = 0; i < 3; i++) descs.push({ type: 'point', position: [i, 0, 0], range: 1 });
+  descs.push({ type: 'point', position: [3, 0, 0], range: 1, intensity: 0 });
+  const { engine, lights, camera, expression, runLogic } = await createScene(
+    new Rn.Config({ clusteredForwardMinLocalLightNumber: 4 }),
+    descs
+  );
+  const system = engine.lightClusterSystem;
+  system.update([expression]);
+  // The light without intensity stays in the light list, but it does not turn the clusters on.
+  expect(readGlobalData(engine).localCount).toBe(4);
+  expect(camera._lightClusterViewInfoForGpu._v[0]).toBe(-1);
+
+  // Giving it an intensity turns the clusters on
+  lights[3].intensity = 1;
+  runLogic();
+  system.update([expression]);
+  expect(camera._lightClusterViewInfoForGpu._v[0]).toBeGreaterThanOrEqual(0);
+
+  // A black color counts as no intensity, too
+  lights[3].color = Rn.Vector3.fromCopy3(0, 0, 0);
+  runLogic();
+  system.update([expression]);
+  expect(camera._lightClusterViewInfoForGpu._v[0]).toBe(-1);
+});
+
+test('point lights without range and intensity are not counted with lightAutoRangeThreshold', async () => {
+  const descs: TestLightDesc[] = [];
+  for (let i = 0; i < 3; i++) descs.push({ type: 'point', position: [i, 0, 0], intensity: 1 });
+  descs.push({ type: 'point', position: [3, 0, 0], intensity: 0 });
+  const { engine, camera, expression } = await createScene(
+    new Rn.Config({ clusteredForwardMinLocalLightNumber: 4, lightAutoRangeThreshold: 0.01 }),
+    descs
+  );
+  engine.lightClusterSystem.update([expression]);
+  const global = readGlobalData(engine);
+  expect([global.globalCount, global.localCount]).toEqual([0, 4]);
+  expect(camera._lightClusterViewInfoForGpu._v[0]).toBe(-1);
+});
