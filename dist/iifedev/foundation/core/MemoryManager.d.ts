@@ -88,6 +88,18 @@ export declare class MemoryManager {
      */
     getByteOffsetOfExistingBuffers(bufferUse: BufferUseEnum, indexOfTheBufferLayer: Index): Byte;
     /**
+     * Reads float values from the concatenated layers of a buffer usage.
+     *
+     * This is intended for debugging tools. The returned array is a copy when the range
+     * spans buffer layers, and a view into the layer otherwise.
+     *
+     * @param bufferUse - The buffer usage to read
+     * @param byteOffset - Byte offset from the start of the first layer
+     * @param count - Number of float values to read
+     * @returns The read values, or null when the range is outside the allocated buffers
+     */
+    readFloat32Array(bufferUse: BufferUseEnum, byteOffset: Byte, count: Count): Float32Array | null;
+    /**
      * Prints memory usage statistics for all managed buffers to the console.
      * Shows used bytes, total bytes, and usage percentage for each buffer type.
      */

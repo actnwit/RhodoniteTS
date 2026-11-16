@@ -120,7 +120,7 @@ export declare function makeMultiDrawRenderStateKey(primitive: Primitive, materi
  * `Material.stateVersion`, so a cache hit costs a WeakMap lookup plus field compares.
  */
 export declare function getMultiDrawStateKeyId(primitive: Primitive, material: Material, meshRendererFingerPrintId: number): number | null;
-/** Draw arguments filled by WebGLStrategyDataTexture when a draw is deferred into a batch. */
+/** Draw arguments filled by WebGLStrategyWebGL2 when a draw is deferred into a batch. */
 export type DeferredMultiDraw = {
     primitive: Primitive;
     mesh: Mesh;

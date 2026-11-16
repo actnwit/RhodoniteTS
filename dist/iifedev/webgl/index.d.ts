@@ -1,3 +1,4 @@
+export * from './debug/index';
 export * from './getRenderingStrategy';
 export * from './shaders/index';
 export * from './textureLoader/index';
@@ -8,5 +9,4 @@ export * from './WebGLExtension';
 export * from './WebGLResourceRepository';
 export * from './WebGLStrategy';
 export * from './WebGLStrategyCommonMethod';
-export * from './WebGLStrategyDataTexture';
-export * from './WebGLStrategyUniform';
+export * from './WebGLStrategyWebGL2';

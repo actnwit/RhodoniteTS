@@ -35,7 +35,7 @@ interface EngineInitDescription {
  * @example
  * ```
  * const engine = await Rn.Engine.init({
- *   approach: Rn.ProcessApproach.DataTexture,
+ *   approach: Rn.ProcessApproach.WebGL2,
  *   canvas: document.getElementById('world') as HTMLCanvasElement,
  * });
  *
@@ -218,7 +218,7 @@ export declare class Engine extends RnObject {
      * @example
      * ```
      * const engine = await Rn.Engine.init({
-     *   approach: Rn.ProcessApproach.DataTexture,
+     *   approach: Rn.ProcessApproach.WebGL2,
      *   canvas: document.getElementById('world') as HTMLCanvasElement,
      * });
      * ```

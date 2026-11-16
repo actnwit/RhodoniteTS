@@ -19,7 +19,7 @@ import type { ShaderSources, WebGLStrategy } from './WebGLStrategy';
  * a complete rendering pipeline for WebGL with data texture optimization.
  * The strategy is particularly useful for rendering many instances with unique properties.
  */
-export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
+export declare class WebGLStrategyWebGL2 implements CGAPIStrategy, WebGLStrategy {
     private __engine;
     private __dataTextureUid;
     private __dataUBOUid;
@@ -335,16 +335,16 @@ export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStr
      */
     dettachVertexData(glw: WebGLContextWrapper): void;
     /**
-     * Gets the singleton instance of WebGLStrategyDataTexture.
+     * Gets the singleton instance of WebGLStrategyWebGL2.
      * Creates the instance if it doesn't exist and initializes the WebXR system reference.
      *
-     * @returns The singleton instance of WebGLStrategyDataTexture
+     * @returns The singleton instance of WebGLStrategyWebGL2
      *
      * @remarks
      * This method ensures only one instance of the strategy exists throughout the application
      * and properly initializes the WebXR system for VR/AR rendering capabilities.
      */
-    static init(engine: Engine): WebGLStrategyDataTexture;
+    static init(engine: Engine): WebGLStrategyWebGL2;
     /**
      * Sets the current component SIDs for each display index in VR/non-VR rendering.
      * This method configures camera component SIDs based on the rendering mode

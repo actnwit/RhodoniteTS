@@ -146,7 +146,7 @@ export declare class Material extends RnObject {
     private __multiDrawStateKeyVersion;
     /**
      * Signature of the texture/sampler bindings and the true uniforms that are set per
-     * material in DataTexture mode. Materials with the same signature can share one
+     * material in WebGL2 mode. Materials with the same signature can share one
      * multi-draw batch (their per-draw state differs only in the data texture row).
      * @internal
      */
@@ -206,11 +206,10 @@ export declare class Material extends RnObject {
     isShaderProgramReady(primitive: Primitive): boolean;
     /**
      * Sets up uniform locations for material nodes in the shader program.
-     * @internal Called from WebGLStrategyDataTexture and WebGLStrategyUniform only
-     * @param isUniformOnlyMode - Whether to operate in uniform-only mode
+     * @internal Called from WebGLStrategyWebGL2 only
      * @param primitive - The primitive to set up uniforms for
      */
-    _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean, primitive: Primitive): void;
+    _setUniformLocationsOfMaterialNodes(primitive: Primitive): void;
     /**
      * Gets the shader program UID for the given primitive.
      * @param primitive - The primitive to get the shader program UID for
@@ -230,7 +229,7 @@ export declare class Material extends RnObject {
     getBelongPrimitives(): Map<number, Primitive>;
     /**
      * Creates a WebGL shader program for this material and the given primitive.
-     * @internal Called from WebGLStrategyDataTexture and WebGLStrategyUniform
+     * @internal Called from WebGLStrategyWebGL2
      * @param componentDataAccessMethodDefinitionsForVertexShader - method definitions for component data access for vertex shader
      * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
      * @param propertySetterOfGlobalDataRepository - Function to set shader properties of global data repository
@@ -252,7 +251,7 @@ export declare class Material extends RnObject {
     _createProgramWebGpu(engine: Engine, primitive: Primitive, componentDataAccessMethodDefinitionsForVertexShader: string, componentDataAccessMethodDefinitionsForPixelShader: string, propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository, propertySetterOfMaterial: getShaderPropertyFuncOfMaterial, morphedPositionGetter: string): void;
     /**
      * Creates a shader program using updated shader source code.
-     * @internal Called from WebGLStrategyDataTexture and WebGLStrategyUniform
+     * @internal Called from WebGLStrategyWebGL2
      * @param updatedShaderSources - The updated shader source code
      * @param primitive - The primitive to create the program for
      * @param onError - Optional error callback function
@@ -261,18 +260,17 @@ export declare class Material extends RnObject {
     _createProgramByUpdatedSources(updatedShaderSources: ShaderSources, primitive: Primitive, onError?: (message: string) => void): [CGAPIResourceHandle, boolean];
     /**
      * Sets up basic uniform locations in the shader program.
-     * @internal Called by WebGLStrategyDataTexture and WebGLStrategyUniform only
+     * @internal Called by WebGLStrategyWebGL2 only
      * @param primitive - The primitive to set up uniforms for
      */
     _setupBasicUniformsLocations(primitive: Primitive): void;
     /**
      * Sets up additional uniform locations in the shader program.
-     * @internal Called by WebGLStrategyDataTexture and WebGLStrategyUniform only
+     * @internal Called by WebGLStrategyWebGL2 only
      * @param shaderSemantics - Array of shader semantics to set up
-     * @param isUniformOnlyMode - Whether to operate in uniform-only mode
      * @param primitive - The primitive to set up uniforms for
      */
-    _setupAdditionalUniformLocations(shaderSemantics: ShaderSemanticsInfo[], isUniformOnlyMode: boolean, primitive: Primitive): void;
+    _setupAdditionalUniformLocations(shaderSemantics: ShaderSemanticsInfo[], primitive: Primitive): void;
     /**
      * Sets internal setting parameters to GPU for WebGPU rendering.
      * @param params - Object containing material and rendering arguments
@@ -284,7 +282,7 @@ export declare class Material extends RnObject {
     }): void;
     /**
      * Sets parameters to GPU for WebGL rendering per material.
-     * @internal Called from WebGLStrategyDataTexture and WebGLStrategyUniform only
+     * @internal Called from WebGLStrategyWebGL2 only
      * @param params - Object containing rendering parameters
      */
     _setParametersToGpuWebGL({ engine, material, shaderProgram, firstTime, args, }: {
@@ -319,10 +317,9 @@ export declare class Material extends RnObject {
      * Sets parameters to GPU for WebGL rendering without internal settings.
      * @param params - Object containing rendering parameters
      */
-    _setParametersToGpuWebGLWithOutInternalSetting({ shaderProgram, firstTime, isUniformMode, }: {
+    _setParametersToGpuWebGLWithOutInternalSetting({ shaderProgram, firstTime, }: {
         shaderProgram: WebGLProgram;
         firstTime: boolean;
-        isUniformMode: boolean;
     }): void;
     /**
      * Gets shader property strings for vertex and pixel shaders.
@@ -337,7 +334,6 @@ export declare class Material extends RnObject {
     /**
      * Sets automatic parameters to GPU for WebGL rendering.
      * @private
-     * @param isUniformMode - Whether to operate in uniform mode
      * @param firstTime - Whether this is the first time setting parameters
      * @param shaderProgram - The WebGL shader program
      */

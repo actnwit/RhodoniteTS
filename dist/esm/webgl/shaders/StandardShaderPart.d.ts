@@ -1,6 +1,6 @@
 import { type ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import type { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
-import { type VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
+import type { VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
 import { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
 import type { Socket, SocketDefaultValue } from '../../foundation/materials/core/Socket';
 import type { Engine } from '../../foundation/system/Engine';
