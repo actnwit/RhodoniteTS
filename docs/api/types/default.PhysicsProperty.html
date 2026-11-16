@@ -17,7 +17,7 @@ type provides minimal interface for enabling physics on entities.</p>
 </div></section>
 <div class="tsd-signature"><span class="tsd-signature-keyword">type</span> <span class="tsd-kind-type-alias">PhysicsProperty</span> <span class="tsd-signature-symbol">=</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#density">density</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#engine">engine</a><span class="tsd-signature-symbol">?:</span> <a href="default.PhysicsEngineType.html" class="tsd-signature-type tsd-kind-type-alias">PhysicsEngineType</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#friction">friction</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#move">move</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#restitution">restitution</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#use">use</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in foundation/physics/PhysicsProperty.ts:79</li></ul></aside>
+<li>Defined in foundation/physics/PhysicsProperty.ts:83</li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
@@ -26,7 +26,7 @@ type provides minimal interface for enabling physics on entities.</p>
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading tsd-anchor-link" id="properties">Properties<a href="#properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-index-list"><a href="#density" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>density</span></a>
-<a href="#engine" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>engine?</span></a>
+<a href="#engine" class="tsd-index-link deprecated"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>engine?</span></a>
 <a href="#friction" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>friction</span></a>
 <a href="#move" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>move</span></a>
 <a href="#restitution" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>restitution</span></a>
@@ -41,42 +41,46 @@ type provides minimal interface for enabling physics on entities.</p>
 <div class="tsd-comment tsd-typography"><p>density of the physics body, affecting its mass</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in foundation/physics/PhysicsProperty.ts:87</li></ul></aside></section>
+<li>Defined in foundation/physics/PhysicsProperty.ts:94</li></ul></aside></section>
 <section class="tsd-panel tsd-member">
-<h3 class="tsd-anchor-link" id="engine"><code class="tsd-tag">Optional</code><span>engine</span><a href="#engine" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<h3 class="tsd-anchor-link" id="engine"><code class="tsd-tag">Optional</code><span class="deprecated">engine</span><a href="#engine" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">engine</span><span class="tsd-signature-symbol">?:</span> <a href="default.PhysicsEngineType.html" class="tsd-signature-type tsd-kind-type-alias">PhysicsEngineType</a></div>
-<div class="tsd-comment tsd-typography"><p>Physics engine to use. Defaults to 'rapier'.</p>
-</div><aside class="tsd-sources">
+<div class="tsd-comment tsd-typography"><p>Physics engine to use.</p>
+</div>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-deprecated">
+<h4 class="tsd-anchor-link" id="deprecated">Deprecated<a href="#deprecated" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>Rapier is always used. Omit this field.</p>
+</div></div><aside class="tsd-sources">
 <ul>
-<li>Defined in foundation/physics/PhysicsProperty.ts:83</li></ul></aside></section>
+<li>Defined in foundation/physics/PhysicsProperty.ts:90</li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="friction"><span>friction</span><a href="#friction" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">friction</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 <div class="tsd-comment tsd-typography"><p>friction coefficient for surface interactions (0.0 to 1.0)</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in foundation/physics/PhysicsProperty.ts:89</li></ul></aside></section>
+<li>Defined in foundation/physics/PhysicsProperty.ts:96</li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="move"><span>move</span><a href="#move" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">move</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 <div class="tsd-comment tsd-typography"><p>Whether the physics body can move (dynamic) or is static</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in foundation/physics/PhysicsProperty.ts:85</li></ul></aside></section>
+<li>Defined in foundation/physics/PhysicsProperty.ts:92</li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="restitution"><span>restitution</span><a href="#restitution" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">restitution</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 <div class="tsd-comment tsd-typography"><p>restitution (bounciness) coefficient for collisions (0.0 to 1.0)</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in foundation/physics/PhysicsProperty.ts:91</li></ul></aside></section>
+<li>Defined in foundation/physics/PhysicsProperty.ts:98</li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="use"><span>use</span><a href="#use" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">use</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 <div class="tsd-comment tsd-typography"><p>Whether physics simulation is enabled for the entity</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in foundation/physics/PhysicsProperty.ts:81</li></ul></aside></section></section></details></div>
+<li>Defined in foundation/physics/PhysicsProperty.ts:85</li></ul></aside></section></section></details></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
