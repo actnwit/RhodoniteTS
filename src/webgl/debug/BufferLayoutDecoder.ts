@@ -1,15 +1,15 @@
 import { CompositionType, type CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import type { ShaderSemanticsInfo } from '../../foundation/definitions/ShaderSemanticsInfo';
 import type { Count, IndexOf16Bytes } from '../../types/CommonTypes';
-import type { DataTextureLocationInfo, Texel, TexelLocation } from './types';
+import type { BufferLocation, BufferLocationInfo, RawVec4 } from './types';
 
 /**
  * Source of the data texture layout. `readVec4` and `readScalar` read the CPU-side
  * GPUInstanceData buffers, which are the same bytes that are uploaded to the texture.
  */
-export type DataTextureLayoutSource = {
+export type BufferLayoutSource = {
   width: number;
-  readVec4: (vec4Index: number) => Texel | null;
+  readVec4: (vec4Index: number) => RawVec4 | null;
   readScalar: (scalarIndex: number) => number | null;
 };
 
@@ -75,7 +75,7 @@ export function getFetchPlan(compositionType: CompositionTypeEnum): FetchPlan {
 
 /**
  * Component members use a different set of fetch helpers from material semantics:
- * matrices read scalar-unaligned texels and Vec3/Scalar use scalar fetches.
+ * matrices read scalar-unaligned vec4s and Vec3/Scalar use scalar fetches.
  */
 function getComponentFetchPlan(compositionType: CompositionTypeEnum): FetchPlan {
   switch (compositionType) {
@@ -104,8 +104,8 @@ function buildLocation(
   vec4Index: number,
   scalarIndex: number | undefined,
   arrayElement: number | undefined,
-  layout: DataTextureLayoutSource
-): TexelLocation {
+  layout: BufferLayoutSource
+): BufferLocation {
   const warnings: string[] = [];
   if (fetchPlan.warning != null) {
     warnings.push(fetchPlan.warning);
@@ -124,23 +124,24 @@ function buildLocation(
 
   const row = layout.width > 0 ? Math.floor(effectiveVec4Index / layout.width) : -1;
   const col = layout.width > 0 ? effectiveVec4Index % layout.width : -1;
-  const texels: Texel[] = [];
+  const vec4s: RawVec4[] = [];
   for (let i = 0; i < texelCount; i++) {
-    const texel = layout.readVec4(effectiveVec4Index + i);
-    if (texel == null) {
-      warnings.push(`Texel ${effectiveVec4Index + i} is outside the GPUInstanceData buffers.`);
+    const vec4 = layout.readVec4(effectiveVec4Index + i);
+    if (vec4 == null) {
+      warnings.push(`vec4 ${effectiveVec4Index + i} is outside the GPUInstanceData buffers.`);
       break;
     }
-    texels.push(texel);
+    vec4s.push(vec4);
   }
 
   return {
     bufferViewIndex,
     vec4Index: effectiveVec4Index,
+    byteOffset: effectiveVec4Index * 16,
     row,
     col,
     fetchFunction: fetchPlan.fetchFunction,
-    texels,
+    vec4s,
     scalarIndex: fetchPlan.unit === 'scalar' ? scalarIndex : undefined,
     arrayElement,
     warnings,
@@ -166,9 +167,9 @@ export function decodeMaterialProperty(args: {
   offsets: IndexOf16Bytes[];
   materialSID: number;
   materialCountPerBufferView: number;
-  layout: DataTextureLayoutSource;
+  layout: BufferLayoutSource;
   maxArrayElements?: number;
-}): DataTextureLocationInfo {
+}): BufferLocationInfo {
   const { info, offsets, materialSID, materialCountPerBufferView, layout } = args;
   const maxArrayElements = args.maxArrayElements ?? 4;
   const fetchPlan = getFetchPlan(info.compositionType);
@@ -197,7 +198,7 @@ export function decodeMaterialProperty(args: {
   }
   const baseOffset = offsets[bufferViewIndex] ?? offsets[0] ?? 0;
 
-  const locations: TexelLocation[] = [];
+  const locations: BufferLocation[] = [];
   if (CompositionType.isArray(info.compositionType)) {
     if (info.arrayLength == null) {
       warnings.push('Array semantic has no arrayLength; the shader uses 1 while allocation may use 100.');
@@ -237,16 +238,16 @@ export function decodeMaterialProperty(args: {
 export function decodeGlobalProperty(args: {
   info: ShaderSemanticsInfo;
   offset: IndexOf16Bytes;
-  layout: DataTextureLayoutSource;
+  layout: BufferLayoutSource;
   maxArrayElements?: number;
-}): DataTextureLocationInfo {
+}): BufferLocationInfo {
   const { info, offset, layout } = args;
   const maxArrayElements = args.maxArrayElements ?? 4;
   const fetchPlan = getFetchPlan(info.compositionType);
   const arrayLengthForShader = getArrayLengthForShader(info);
   const vec4Size = info.compositionType.getVec4SizeOfProperty();
   const scalarSize = info.compositionType.getNumberOfComponents();
-  const locations: TexelLocation[] = [];
+  const locations: BufferLocation[] = [];
 
   if (CompositionType.isArray(info.compositionType)) {
     const elementCount = Math.min(arrayLengthForShader, maxArrayElements);
@@ -283,9 +284,9 @@ export function decodeComponentMember(args: {
   offsets: IndexOf16Bytes[];
   componentSID: number;
   componentCountPerBufferView: number;
-  layout: DataTextureLayoutSource;
+  layout: BufferLayoutSource;
   maxArrayElements?: number;
-}): DataTextureLocationInfo {
+}): BufferLocationInfo {
   const { memberInfo, offsets, componentSID, componentCountPerBufferView, layout } = args;
   const maxArrayElements = args.maxArrayElements ?? 4;
   const fetchPlan = getComponentFetchPlan(memberInfo.compositionType);
@@ -293,7 +294,7 @@ export function decodeComponentMember(args: {
   const bufferViewIndex = componentCountPerBufferView > 0 ? Math.floor(componentSID / componentCountPerBufferView) : 0;
   const indexInBufferView = componentCountPerBufferView > 0 ? componentSID % componentCountPerBufferView : 0;
   const baseOffset = offsets[bufferViewIndex] ?? offsets[0] ?? 0;
-  const locations: TexelLocation[] = [];
+  const locations: BufferLocation[] = [];
   const arrayLength = memberInfo.arrayLength ?? 0;
 
   if (CompositionType.isArray(memberInfo.compositionType)) {
@@ -349,10 +350,10 @@ export function decodeVariableLengthComponentMember(args: {
   locationMemberOffsets: IndexOf16Bytes[];
   componentSID: number;
   componentCountPerBufferView: number;
-  layout: DataTextureLayoutSource;
+  layout: BufferLayoutSource;
   radix?: number;
   maxArrayElements?: number;
-}): DataTextureLocationInfo {
+}): BufferLocationInfo {
   const { memberInfo, offsets, locationMemberOffsets, componentSID, componentCountPerBufferView, layout } = args;
   const maxArrayElements = args.maxArrayElements ?? 4;
   const radix = args.radix ?? 65536;
@@ -363,15 +364,16 @@ export function decodeVariableLengthComponentMember(args: {
   const locationVec4Index = locationBase + indexInBufferView;
   const locationTexel = layout.readVec4(locationVec4Index);
 
-  const locations: TexelLocation[] = [];
+  const locations: BufferLocation[] = [];
   if (locationTexel == null) {
     locations.push({
       bufferViewIndex,
       vec4Index: locationVec4Index,
+      byteOffset: locationVec4Index * 16,
       row: layout.width > 0 ? Math.floor(locationVec4Index / layout.width) : -1,
       col: layout.width > 0 ? locationVec4Index % layout.width : -1,
       fetchFunction: 'fetchElement',
-      texels: [],
+      vec4s: [],
       warnings: ['The variable-length location member could not be read.'],
     });
     return {

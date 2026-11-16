@@ -3,14 +3,14 @@ import { CompositionType } from '../../foundation/definitions/CompositionType';
 import type { ShaderSemanticsInfo } from '../../foundation/definitions/ShaderSemanticsInfo';
 import { ShaderType } from '../../foundation/definitions/ShaderType';
 import {
-  type DataTextureLayoutSource,
+  type BufferLayoutSource,
   decodeComponentMember,
   decodeGlobalProperty,
   decodeMaterialProperty,
   decodeVariableLengthComponentMember,
   getFetchPlan,
-} from './DataTextureLayoutDecoder';
-import type { Texel } from './types';
+} from './BufferLayoutDecoder';
+import type { RawVec4 } from './types';
 
 function makeInfo(
   compositionType: ShaderSemanticsInfo['compositionType'],
@@ -27,16 +27,16 @@ function makeInfo(
   };
 }
 
-function makeLayout(width = 8): DataTextureLayoutSource {
+function makeLayout(width = 8): BufferLayoutSource {
   return {
     width,
-    readVec4: (vec4Index: number): Texel | null =>
+    readVec4: (vec4Index: number): RawVec4 | null =>
       vec4Index >= 0 && vec4Index < 1000 ? [vec4Index, vec4Index + 0.25, vec4Index + 0.5, vec4Index + 0.75] : null,
     readScalar: (scalarIndex: number): number | null => (scalarIndex >= 0 && scalarIndex < 4000 ? scalarIndex : null),
   };
 }
 
-describe('DataTextureLayoutDecoder', () => {
+describe('BufferLayoutDecoder', () => {
   it('maps composition types to the same fetch helpers as the shaders', () => {
     expect(getFetchPlan(CompositionType.Vec4).fetchFunction).toBe('fetchElement');
     expect(getFetchPlan(CompositionType.Vec3Array).fetchFunction).toBe('fetchVec3No16BytesAligned');
@@ -60,9 +60,25 @@ describe('DataTextureLayoutDecoder', () => {
     expect(result.indexInBufferView).toBe(3);
     expect(result.locations).toHaveLength(1);
     expect(result.locations[0].vec4Index).toBe(13);
+    expect(result.locations[0].byteOffset).toBe(13 * 16);
     expect(result.locations[0].row).toBe(1);
     expect(result.locations[0].col).toBe(5);
-    expect(result.locations[0].texels[0]).toEqual([13, 13.25, 13.5, 13.75]);
+    expect(result.locations[0].vec4s[0]).toEqual([13, 13.25, 13.5, 13.75]);
+  });
+
+  it('reports storage-buffer byte offsets without texture rows (WebGPU layout)', () => {
+    const result = decodeMaterialProperty({
+      info: makeInfo(CompositionType.Vec4),
+      offsets: [10],
+      materialSID: 3,
+      materialCountPerBufferView: 100,
+      layout: makeLayout(0),
+    });
+
+    expect(result.locations[0].vec4Index).toBe(13);
+    expect(result.locations[0].byteOffset).toBe(13 * 16);
+    expect(result.locations[0].row).toBe(-1);
+    expect(result.locations[0].col).toBe(-1);
   });
 
   it('uses the buffer view selected by the material SID', () => {
@@ -104,11 +120,11 @@ describe('DataTextureLayoutDecoder', () => {
     });
 
     expect(result.locations.map(location => location.scalarIndex)).toEqual([0, 3]);
-    expect(result.locations[0].texels).toHaveLength(1);
-    expect(result.locations[1].texels).toHaveLength(2);
+    expect(result.locations[0].vec4s).toHaveLength(1);
+    expect(result.locations[1].vec4s).toHaveLength(2);
   });
 
-  it('reads the number of texels required by matrix fetches', () => {
+  it('reads the number of vec4s required by matrix fetches', () => {
     const mat4 = decodeMaterialProperty({
       info: makeInfo(CompositionType.Mat4),
       offsets: [5],
@@ -124,8 +140,8 @@ describe('DataTextureLayoutDecoder', () => {
       layout: makeLayout(),
     });
 
-    expect(mat4.locations[0].texels).toHaveLength(4);
-    expect(mat3.locations[0].texels).toHaveLength(3);
+    expect(mat4.locations[0].vec4s).toHaveLength(4);
+    expect(mat3.locations[0].vec4s).toHaveLength(3);
   });
 
   it('warns when a soloDatum is in a non-zero buffer view', () => {
@@ -170,16 +186,16 @@ describe('DataTextureLayoutDecoder', () => {
     });
 
     expect(mat3.locations[0].scalarIndex).toBe(8);
-    expect(mat3.locations[0].texels).toHaveLength(3);
+    expect(mat3.locations[0].vec4s).toHaveLength(3);
     expect(vec3.locations[0].scalarIndex).toBe(8);
-    expect(vec3.locations[0].texels).toHaveLength(1);
+    expect(vec3.locations[0].vec4s).toHaveLength(1);
   });
 
   it('decodes variable-length members from the location texel', () => {
-    const locationTexel: Texel = [0, 40, 2, 0];
-    const layout: DataTextureLayoutSource = {
+    const locationTexel: RawVec4 = [0, 40, 2, 0];
+    const layout: BufferLayoutSource = {
       width: 8,
-      readVec4: (vec4Index: number): Texel | null => {
+      readVec4: (vec4Index: number): RawVec4 | null => {
         if (vec4Index === 1) {
           return locationTexel;
         }
@@ -203,7 +219,7 @@ describe('DataTextureLayoutDecoder', () => {
   });
 
   it('warns when a texel is outside the CPU buffers', () => {
-    const layout: DataTextureLayoutSource = {
+    const layout: BufferLayoutSource = {
       width: 8,
       readVec4: () => null,
       readScalar: () => null,
@@ -216,7 +232,7 @@ describe('DataTextureLayoutDecoder', () => {
       layout,
     });
 
-    expect(result.locations[0].texels).toHaveLength(0);
+    expect(result.locations[0].vec4s).toHaveLength(0);
     expect(result.locations[0].warnings.join(' ')).toContain('outside the GPUInstanceData buffers');
   });
 });

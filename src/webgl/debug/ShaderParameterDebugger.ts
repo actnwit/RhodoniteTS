@@ -10,34 +10,44 @@ import type { Engine } from '../../foundation/system/Engine';
 import type { CGAPIResourceHandle } from '../../types/CommonTypes';
 import type { RnWebGLProgram } from '../WebGLExtendedTypes';
 import {
-  type DataTextureLayoutSource,
+  type BufferLayoutSource,
   decodeComponentMember,
   decodeGlobalProperty,
   decodeMaterialProperty,
   decodeVariableLengthComponentMember,
-} from './DataTextureLayoutDecoder';
+} from './BufferLayoutDecoder';
 import type {
   AllParameterReport,
+  BufferLocation,
   ComponentParameterReport,
   EntityParameterReport,
   GlobalParameterReport,
   MaterialParameterReport,
+  RawVec4,
   RealUniformInfo,
+  ShaderParameterBackend,
   ShaderParameterEntry,
   ShaderParameterSource,
-  Texel,
-  TexelLocation,
   TextureBindingInfo,
 } from './types';
 
 const MAX_ARRAY_ELEMENTS = 4;
 const MAX_SERIALIZED_ARRAY_LENGTH = 16;
 
-function isWebGL2Available(engine: Engine): boolean {
-  return ProcessApproach.isWebGL2Approach(engine.processApproach);
+function getBackend(engine: Engine): ShaderParameterBackend {
+  if (ProcessApproach.isWebGL2Approach(engine.processApproach)) {
+    return 'WebGL2';
+  }
+  if (ProcessApproach.isWebGpuApproach(engine.processApproach)) {
+    return 'WebGPU';
+  }
+  return 'None';
 }
 
-function getDataTextureWidth(engine: Engine): number {
+function getBufferWidth(engine: Engine, backend: ShaderParameterBackend): number {
+  if (backend !== 'WebGL2') {
+    return 0;
+  }
   try {
     return engine.getCurrentWebGLContextWrapper()?.getMaxTextureSize() ?? 0;
   } catch (_e) {
@@ -45,12 +55,12 @@ function getDataTextureWidth(engine: Engine): number {
   }
 }
 
-function createLayoutSource(engine: Engine, width: number): DataTextureLayoutSource {
+function createLayoutSource(engine: Engine, width: number): BufferLayoutSource {
   const read = (byteOffset: number, count: number) =>
     engine.memoryManager.readFloat32Array(BufferUse.GPUInstanceData, byteOffset, count);
   return {
     width,
-    readVec4: (vec4Index: number): Texel | null => {
+    readVec4: (vec4Index: number): RawVec4 | null => {
       const values = read(vec4Index * 16, 4);
       if (values == null) {
         return null;
@@ -140,30 +150,31 @@ export function serializeValue(value: unknown): unknown {
   return String(value);
 }
 
-function getTextureBindingInfo(value: unknown): TextureBindingInfo | undefined {
+function getTextureBindingInfo(value: unknown, backend: ShaderParameterBackend): TextureBindingInfo | undefined {
   if (!Array.isArray(value)) {
     return undefined;
   }
-  const slot = value[0];
+  const slot = typeof value[0] === 'number' ? value[0] : null;
   const texture = value[1] as any;
   const sampler = value[2] as any;
   return {
-    unit: typeof slot === 'number' ? slot : null,
+    unit: backend === 'WebGL2' ? slot : null,
+    binding: slot,
     textureUid: texture?.objectUID ?? texture?.uid ?? null,
     samplerUid: sampler?.objectUID ?? sampler?.uid ?? null,
   };
 }
 
-function interpretTexels(location: TexelLocation | undefined): unknown {
-  if (location == null || location.texels.length === 0) {
+function interpretTexels(location: BufferLocation | undefined): unknown {
+  if (location == null || location.vec4s.length === 0) {
     return null;
   }
-  const flat = location.texels.flat();
+  const flat = location.vec4s.flat();
   const offset = location.scalarIndex != null ? location.scalarIndex % 4 : 0;
   switch (location.fetchFunction) {
     case 'fetchElement':
     case 'fetchVec4':
-      return location.texels[0];
+      return location.vec4s[0];
     case 'fetchScalarNo16BytesAligned':
       return flat[offset] ?? null;
     case 'fetchVec2No16BytesAligned':
@@ -175,37 +186,40 @@ function interpretTexels(location: TexelLocation | undefined): unknown {
     case 'fetchMat4No16BytesAligned':
       return flat.slice(offset, offset + 16);
     case 'fetchMat4':
-      return location.texels;
+      return location.vec4s;
     case 'fetchMat3':
-      return location.texels.map(texel => [texel[0], texel[1], texel[2]]);
+      return location.vec4s.map(vec4 => [vec4[0], vec4[1], vec4[2]]);
     case 'fetchMat2':
     case 'fetchMat2No16BytesAligned':
-      return location.texels[0];
+      return location.vec4s[0];
     case 'fetchMat4x3':
-      return location.texels;
+      return location.vec4s;
     default:
-      return location.texels;
+      return location.vec4s;
   }
 }
 
 /**
- * Inspector for the values Rhodonite uploads to WebGL2 shaders.
+ * Inspector for the values Rhodonite uploads to WebGL2 or WebGPU shaders.
  *
  * It reports both the CPU-side value of a shader semantic and the location/value the
- * shader reads from the data texture, plus the real uniform value when the shader
- * uses one (for `needUniformInDataTextureMode` and sampler uniforms).
+ * shader reads from the WebGL2 data texture or the WebGPU storage buffer, plus the
+ * real uniform value when the WebGL2 shader uses one (for
+ * `needUniformInDataTextureMode` and sampler uniforms).
  *
  * The decoder reads the CPU-side GPUInstanceData buffers, which are the same bytes
- * that are uploaded to the data texture. It does not read back the GPU texture.
+ * that are uploaded to the GPU. It does not read back GPU memory.
  */
 export class ShaderParameterDebugger {
   static reportMaterial(engine: Engine, material: Material, primitive?: Primitive): MaterialParameterReport {
-    const available = isWebGL2Available(engine);
+    const backend = getBackend(engine);
     const processApproach = engine.processApproach.str;
+    const available = backend !== 'None';
     if (!available) {
       return {
         available: false,
-        reason: `Shader parameter inspection is available only in WebGL2 (current: ${processApproach}).`,
+        reason: `Shader parameter inspection is available in WebGL2 and WebGPU (current: ${processApproach}).`,
+        backend,
         processApproach,
         materialTypeName: material.materialTypeName,
         materialUID: material.materialUID,
@@ -213,31 +227,36 @@ export class ShaderParameterDebugger {
         materialCountPerBufferView: 0,
         bufferViewIndex: 0,
         shaderProgramUid: -1,
-        dataTextureWidth: 0,
+        bufferWidth: 0,
         sharedProgramMaterialMismatch: false,
         entries: [],
       };
     }
 
-    const dataTextureWidth = getDataTextureWidth(engine);
-    const layout = createLayoutSource(engine, dataTextureWidth);
+    const bufferWidth = getBufferWidth(engine, backend);
+    const layout = createLayoutSource(engine, bufferWidth);
+    const isWebGPU = backend === 'WebGPU';
     const materialCountPerBufferView =
       engine.materialRepository.getMaterialCountPerBufferView(material.materialTypeName) ?? 1;
     const bufferViewIndex = Math.floor(material.materialSID / materialCountPerBufferView);
     const shaderProgramUid = ShaderParameterDebugger.__getShaderProgramUid(material, primitive);
     const realUniforms =
-      shaderProgramUid >= 0 ? ShaderParameterDebugger.readRealUniforms(engine, shaderProgramUid) : null;
+      !isWebGPU && shaderProgramUid >= 0 ? ShaderParameterDebugger.readRealUniforms(engine, shaderProgramUid) : null;
 
     const entries: ShaderParameterEntry[] = [];
     for (const info of material.fieldsInfoArray) {
       const isTexture = CompositionType.isTexture(info.compositionType);
       const source: ShaderParameterSource = isTexture
         ? 'texture'
-        : info.needUniformInDataTextureMode
-          ? 'uniform'
-          : info.soloDatum
+        : isWebGPU
+          ? info.soloDatum
             ? 'soloDatum'
-            : 'dataTexture';
+            : 'storageBuffer'
+          : info.needUniformInDataTextureMode
+            ? 'uniform'
+            : info.soloDatum
+              ? 'soloDatum'
+              : 'dataTexture';
 
       const entry: ShaderParameterEntry = {
         semantic: info.semantic,
@@ -254,14 +273,14 @@ export class ShaderParameterDebugger {
       };
 
       if (isTexture) {
-        entry.texture = getTextureBindingInfo(material.getTextureParameter(info.semantic));
+        entry.texture = getTextureBindingInfo(material.getTextureParameter(info.semantic), backend);
       } else {
         const offsets = engine.materialRepository.getLocationOffsetOfMemberOfMaterial(
           engine,
           material.materialTypeName,
           info.semantic
         );
-        entry.dataTexture = decodeMaterialProperty({
+        entry.buffer = decodeMaterialProperty({
           info,
           offsets,
           materialSID: material.materialSID,
@@ -270,7 +289,7 @@ export class ShaderParameterDebugger {
           maxArrayElements: MAX_ARRAY_ELEMENTS,
         });
         if (source === 'uniform') {
-          for (const location of entry.dataTexture.locations) {
+          for (const location of entry.buffer.locations) {
             location.warnings.push('The shader reads this value from a real uniform, not from the data texture.');
           }
         }
@@ -285,6 +304,7 @@ export class ShaderParameterDebugger {
 
     return {
       available: true,
+      backend,
       processApproach,
       materialTypeName: material.materialTypeName,
       materialUID: material.materialUID,
@@ -292,9 +312,9 @@ export class ShaderParameterDebugger {
       materialCountPerBufferView,
       bufferViewIndex,
       shaderProgramUid,
-      dataTextureWidth,
+      bufferWidth,
       sharedProgramMaterialMismatch:
-        shaderProgramUid >= 0
+        !isWebGPU && shaderProgramUid >= 0
           ? ShaderParameterDebugger.__isProgramMaterialMismatch(engine, shaderProgramUid, material)
           : false,
       entries,
@@ -302,29 +322,36 @@ export class ShaderParameterDebugger {
   }
 
   static reportGlobals(engine: Engine, shaderProgramUid?: CGAPIResourceHandle): GlobalParameterReport {
-    const available = isWebGL2Available(engine);
+    const backend = getBackend(engine);
     const processApproach = engine.processApproach.str;
+    const available = backend !== 'None';
     if (!available) {
       return {
         available: false,
-        reason: `Shader parameter inspection is available only in WebGL2 (current: ${processApproach}).`,
+        reason: `Shader parameter inspection is available in WebGL2 and WebGPU (current: ${processApproach}).`,
+        backend,
         processApproach,
-        dataTextureWidth: 0,
+        bufferWidth: 0,
         shaderProgramUid: -1,
         entries: [],
       };
     }
 
-    const dataTextureWidth = getDataTextureWidth(engine);
-    const layout = createLayoutSource(engine, dataTextureWidth);
+    const bufferWidth = getBufferWidth(engine, backend);
+    const layout = createLayoutSource(engine, bufferWidth);
+    const isWebGPU = backend === 'WebGPU';
     const realUniforms =
-      shaderProgramUid != null && shaderProgramUid >= 0
+      !isWebGPU && shaderProgramUid != null && shaderProgramUid >= 0
         ? ShaderParameterDebugger.readRealUniforms(engine, shaderProgramUid)
         : null;
 
     const entries: ShaderParameterEntry[] = engine.globalDataRepository.getPropertyTable().map(property => {
       const info: ShaderSemanticsInfo = property.info;
-      const source: ShaderParameterSource = info.needUniformInDataTextureMode ? 'uniform' : 'dataTexture';
+      const source: ShaderParameterSource = isWebGPU
+        ? 'storageBuffer'
+        : info.needUniformInDataTextureMode
+          ? 'uniform'
+          : 'dataTexture';
       const entry: ShaderParameterEntry = {
         semantic: info.semantic,
         stage: info.stage.str,
@@ -338,14 +365,14 @@ export class ShaderParameterDebugger {
         source,
         valuePreview: serializeValue(property.value),
       };
-      entry.dataTexture = decodeGlobalProperty({
+      entry.buffer = decodeGlobalProperty({
         info,
         offset: property.vec4Index,
         layout,
         maxArrayElements: MAX_ARRAY_ELEMENTS,
       });
       if (source === 'uniform') {
-        for (const location of entry.dataTexture.locations) {
+        for (const location of entry.buffer.locations) {
           location.warnings.push('The shader reads this value from a real uniform, not from the data texture.');
         }
       }
@@ -357,8 +384,9 @@ export class ShaderParameterDebugger {
 
     return {
       available: true,
+      backend,
       processApproach,
-      dataTextureWidth,
+      bufferWidth,
       shaderProgramUid: shaderProgramUid ?? -1,
       entries,
     };
@@ -367,10 +395,13 @@ export class ShaderParameterDebugger {
   static reportComponent(engine: Engine, component: Component): ComponentParameterReport {
     const componentClass = component.constructor as typeof Component;
     const componentClassName = componentClass.name;
-    if (!isWebGL2Available(engine)) {
+    const backend = getBackend(engine);
+    const available = backend !== 'None';
+    if (!available) {
       return {
         available: false,
-        reason: `Shader parameter inspection is available only in WebGL2 (current: ${engine.processApproach.str}).`,
+        reason: `Shader parameter inspection is available in WebGL2 and WebGPU (current: ${engine.processApproach.str}).`,
+        backend,
         componentClassName,
         componentSID: component.componentSID,
         componentCountPerBufferView: 0,
@@ -383,6 +414,7 @@ export class ShaderParameterDebugger {
       return {
         available: false,
         reason: `No member information is registered for ${componentClassName}.`,
+        backend,
         componentClassName,
         componentSID: component.componentSID,
         componentCountPerBufferView: 0,
@@ -390,10 +422,11 @@ export class ShaderParameterDebugger {
       };
     }
 
+    const isWebGPU = backend === 'WebGPU';
     const componentCountPerBufferView = Component.getComponentCountPerBufferView(engine).get(componentClass) ?? 1;
     const arrayLengthMap = Component.getArrayLengthOfMember(engine).get(componentClass);
-    const dataTextureWidth = getDataTextureWidth(engine);
-    const layout = createLayoutSource(engine, dataTextureWidth);
+    const bufferWidth = getBufferWidth(engine, backend);
+    const layout = createLayoutSource(engine, bufferWidth);
     const entries: ShaderParameterEntry[] = [];
 
     for (const [memberName, memberInfo] of memberInfoMap) {
@@ -402,7 +435,7 @@ export class ShaderParameterDebugger {
       }
       const offsets = Component.getLocationOffsetOfMemberOfComponent(engine, componentClass, memberName);
       const arrayLength = arrayLengthMap?.get(memberName);
-      let dataTexture;
+      let buffer;
       if (memberInfo.isVariableLength === true) {
         const locationMemberName = Component._getVariableLengthLocationMemberName(memberName);
         const locationOffsets = Component.getLocationOffsetOfMemberOfComponent(
@@ -410,7 +443,7 @@ export class ShaderParameterDebugger {
           componentClass,
           locationMemberName
         );
-        dataTexture = decodeVariableLengthComponentMember({
+        buffer = decodeVariableLengthComponentMember({
           memberInfo: { compositionType: memberInfo.compositionType, arrayLength, isVariableLength: true },
           offsets,
           locationMemberOffsets: locationOffsets,
@@ -420,7 +453,7 @@ export class ShaderParameterDebugger {
           maxArrayElements: MAX_ARRAY_ELEMENTS,
         });
       } else {
-        dataTexture = decodeComponentMember({
+        buffer = decodeComponentMember({
           memberInfo: { compositionType: memberInfo.compositionType, arrayLength },
           offsets,
           componentSID: component.componentSID,
@@ -440,14 +473,15 @@ export class ShaderParameterDebugger {
         isInternalSetting: false,
         needUniformInDataTextureMode: false,
         soloDatum: false,
-        source: 'dataTexture',
-        valuePreview: interpretTexels(dataTexture.locations[0]),
-        dataTexture,
+        source: isWebGPU ? 'storageBuffer' : 'dataTexture',
+        valuePreview: interpretTexels(buffer.locations[0]),
+        buffer,
       });
     }
 
     return {
       available: true,
+      backend,
       componentClassName,
       componentSID: component.componentSID,
       componentCountPerBufferView,
@@ -496,6 +530,9 @@ export class ShaderParameterDebugger {
   }
 
   static readRealUniforms(engine: Engine, shaderProgramUid: CGAPIResourceHandle): Map<string, RealUniformInfo> | null {
+    if (getBackend(engine) !== 'WebGL2') {
+      return null;
+    }
     const program = engine.webglResourceRepository.getWebGLResource(shaderProgramUid) as RnWebGLProgram | null;
     if (program == null) {
       return null;
@@ -549,24 +586,26 @@ export class ShaderParameterDebugger {
   static decode(
     engine: Engine,
     vec4Index: number
-  ): { vec4Index: number; row: number; col: number; texel: Texel | null } | null {
-    if (!isWebGL2Available(engine)) {
+  ): { vec4Index: number; byteOffset: number; row: number; col: number; vec4: RawVec4 | null } | null {
+    const backend = getBackend(engine);
+    if (backend === 'None') {
       return null;
     }
-    const width = getDataTextureWidth(engine);
+    const width = getBufferWidth(engine, backend);
     const layout = createLayoutSource(engine, width);
     return {
       vec4Index,
+      byteOffset: vec4Index * 16,
       row: width > 0 ? Math.floor(vec4Index / width) : -1,
       col: width > 0 ? vec4Index % width : -1,
-      texel: layout.readVec4(vec4Index),
+      vec4: layout.readVec4(vec4Index),
     };
   }
 
   static formatEntries(entries: ShaderParameterEntry[]): Array<Record<string, unknown>> {
     const rows: Array<Record<string, unknown>> = [];
     for (const entry of entries) {
-      if (entry.dataTexture == null || entry.dataTexture.locations.length === 0) {
+      if (entry.buffer == null || entry.buffer.locations.length === 0) {
         rows.push({
           semantic: entry.semantic,
           arrayElement: '',
@@ -574,15 +613,16 @@ export class ShaderParameterDebugger {
           value: entry.valuePreview,
           fetch: '',
           vec4: '',
+          byteOffset: '',
           row: '',
           col: '',
-          texel: '',
+          vec4s: '',
           uniform: entry.realUniform?.locationFound ? entry.realUniform.value : '',
           warnings: '',
         });
         continue;
       }
-      for (const location of entry.dataTexture.locations) {
+      for (const location of entry.buffer.locations) {
         rows.push({
           semantic: entry.semantic,
           arrayElement: location.arrayElement ?? '',
@@ -590,9 +630,10 @@ export class ShaderParameterDebugger {
           value: entry.valuePreview,
           fetch: location.fetchFunction,
           vec4: location.vec4Index,
-          row: location.row,
-          col: location.col,
-          texel: location.texels.map(texel => texel.join(',')).join(' | '),
+          byteOffset: location.byteOffset,
+          row: location.row >= 0 ? location.row : '',
+          col: location.col >= 0 ? location.col : '',
+          vec4s: location.vec4s.map(vec4 => vec4.join(',')).join(' | '),
           uniform: entry.realUniform?.locationFound ? entry.realUniform.value : '',
           warnings: location.warnings.join('; '),
         });

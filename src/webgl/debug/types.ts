@@ -2,39 +2,43 @@
  * Types for the shader parameter debugger.
  *
  * The debugger reports, for each shader semantic, both the CPU-side value and the
- * location/value the shader will read from the data texture (or from a real uniform).
+ * location/value the shader will read from the WebGL2 data texture or the WebGPU
+ * storage buffer.
  */
 
-export type ShaderParameterSource = 'dataTexture' | 'uniform' | 'texture' | 'soloDatum';
+export type ShaderParameterBackend = 'WebGL2' | 'WebGPU' | 'None';
 
-/** One RGBA32F texel. */
-export type Texel = [number, number, number, number];
+export type ShaderParameterSource = 'dataTexture' | 'storageBuffer' | 'uniform' | 'texture' | 'soloDatum';
+
+/** One raw vec4 value (a texel in WebGL2, a storage-buffer vec4 in WebGPU). */
+export type RawVec4 = [number, number, number, number];
 
 /**
- * Location of a value inside the data texture.
+ * Location of a value inside the GPU data buffer.
  *
- * `vec4Index` is the global texel index the shader computes (or the base texel for
- * scalar-unaligned fetches). `scalarIndex` is reported for fetches that use a
- * scalar-unaligned helper such as `fetchVec3No16BytesAligned`.
+ * `vec4Index` is the global vec4 index the shader computes (or the base vec4 index for
+ * scalar-unaligned fetches). `byteOffset` is `vec4Index * 16`. `row` and `col` are the
+ * data-texture coordinates in WebGL2 and are `-1` in WebGPU, which has no texture rows.
  */
-export type TexelLocation = {
+export type BufferLocation = {
   bufferViewIndex: number;
   vec4Index: number;
+  byteOffset: number;
   row: number;
   col: number;
   fetchFunction: string;
-  texels: Texel[];
+  vec4s: RawVec4[];
   scalarIndex?: number;
   arrayElement?: number;
   warnings: string[];
 };
 
-export type DataTextureLocationInfo = {
+export type BufferLocationInfo = {
   bufferViewOffsets: number[];
   bufferViewIndex: number;
   indexInBufferView: number;
   arrayLengthForShader: number;
-  locations: TexelLocation[];
+  locations: BufferLocation[];
 };
 
 export type RealUniformInfo = {
@@ -43,7 +47,10 @@ export type RealUniformInfo = {
 };
 
 export type TextureBindingInfo = {
+  /** WebGL2 sampler unit. Null in WebGPU. */
   unit: number | null;
+  /** WebGL2 sampler unit / WebGPU bind-group binding. */
+  binding: number | null;
   textureUid: number | null;
   samplerUid: number | null;
 };
@@ -61,7 +68,7 @@ export type ShaderParameterEntry = {
   source: ShaderParameterSource;
   /** Serializable preview of the CPU-side value. */
   valuePreview: unknown;
-  dataTexture?: DataTextureLocationInfo;
+  buffer?: BufferLocationInfo;
   realUniform?: RealUniformInfo;
   texture?: TextureBindingInfo;
 };
@@ -69,6 +76,7 @@ export type ShaderParameterEntry = {
 export type MaterialParameterReport = {
   available: boolean;
   reason?: string;
+  backend: ShaderParameterBackend;
   processApproach: string;
   materialTypeName: string;
   materialUID: number;
@@ -76,7 +84,8 @@ export type MaterialParameterReport = {
   materialCountPerBufferView: number;
   bufferViewIndex: number;
   shaderProgramUid: number;
-  dataTextureWidth: number;
+  /** Data-texture width in WebGL2. Zero in WebGPU. */
+  bufferWidth: number;
   /**
    * True when the shader program was last used with another material. Uniform values
    * are per program (last-set state), so `realUniform.value` may belong to that material.
@@ -88,8 +97,10 @@ export type MaterialParameterReport = {
 export type GlobalParameterReport = {
   available: boolean;
   reason?: string;
+  backend: ShaderParameterBackend;
   processApproach: string;
-  dataTextureWidth: number;
+  /** Data-texture width in WebGL2. Zero in WebGPU. */
+  bufferWidth: number;
   shaderProgramUid: number;
   entries: ShaderParameterEntry[];
 };
@@ -97,6 +108,7 @@ export type GlobalParameterReport = {
 export type ComponentParameterReport = {
   available: boolean;
   reason?: string;
+  backend: ShaderParameterBackend;
   componentClassName: string;
   componentSID: number;
   componentCountPerBufferView: number;

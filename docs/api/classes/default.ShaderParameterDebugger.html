@@ -12,15 +12,16 @@
 <li><a href="" aria-current="page">ShaderParameterDebugger</a></li></ul>
 <h1>Class ShaderParameterDebugger</h1></div>
 <section class="tsd-panel tsd-comment">
-<div class="tsd-comment tsd-typography"><p>Inspector for the values Rhodonite uploads to WebGL2 shaders.</p>
+<div class="tsd-comment tsd-typography"><p>Inspector for the values Rhodonite uploads to WebGL2 or WebGPU shaders.</p>
 <p>It reports both the CPU-side value of a shader semantic and the location/value the
-shader reads from the data texture, plus the real uniform value when the shader
-uses one (for <code>needUniformInDataTextureMode</code> and sampler uniforms).</p>
+shader reads from the WebGL2 data texture or the WebGPU storage buffer, plus the
+real uniform value when the WebGL2 shader uses one (for
+<code>needUniformInDataTextureMode</code> and sampler uniforms).</p>
 <p>The decoder reads the CPU-side GPUInstanceData buffers, which are the same bytes
-that are uploaded to the data texture. It does not read back the GPU texture.</p>
+that are uploaded to the GPU. It does not read back GPU memory.</p>
 </div></section><aside class="tsd-sources">
 <ul>
-<li>Defined in webgl/debug/ShaderParameterDebugger.ts:201</li></ul></aside>
+<li>Defined in webgl/debug/ShaderParameterDebugger.ts:213</li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
@@ -37,6 +38,7 @@ that are uploaded to the data texture. It does not read back the GPU texture.</p
 <a href="#dumpentity" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>dump<wbr/>Entity</span></a>
 <a href="#dumpglobals" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>dump<wbr/>Globals</span></a>
 <a href="#dumpmaterial" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>dump<wbr/>Material</span></a>
+<a href="#dumpprimitive" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>dump<wbr/>Primitive</span></a>
 <a href="#format" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>format</span></a>
 <a href="#formatentries" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>format<wbr/>Entries</span></a>
 <a href="#installconsolehelpers" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>install<wbr/>Console<wbr/>Helpers</span></a>
@@ -64,16 +66,16 @@ that are uploaded to the data texture. It does not read back the GPU texture.</p
 <h3 class="tsd-anchor-link" id="decode"><code class="tsd-tag">Static</code><span>decode</span><a href="#decode" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
 <li class="">
-<div class="tsd-signature tsd-anchor-link" id="decode-1"><span class="tsd-kind-call-signature">decode</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">engine</span><span class="tsd-signature-symbol">:</span> <a href="default.Engine.html" class="tsd-signature-type tsd-kind-class">Engine</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">vec4Index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">col</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">row</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">texel</span><span class="tsd-signature-symbol">:</span> <a href="../types/default.Texel.html" class="tsd-signature-type tsd-kind-type-alias">Texel</a><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">vec4Index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><a href="#decode-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-signature tsd-anchor-link" id="decode-1"><span class="tsd-kind-call-signature">decode</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">engine</span><span class="tsd-signature-symbol">:</span> <a href="default.Engine.html" class="tsd-signature-type tsd-kind-class">Engine</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">vec4Index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">byteOffset</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">col</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">row</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">vec4</span><span class="tsd-signature-symbol">:</span> <a href="../types/default.RawVec4.html" class="tsd-signature-type tsd-kind-type-alias">RawVec4</a><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">vec4Index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><a href="#decode-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
 <div class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li><span><span class="tsd-kind-parameter">engine</span>: <a href="default.Engine.html" class="tsd-signature-type tsd-kind-class">Engine</a></span></li>
 <li><span><span class="tsd-kind-parameter">vec4Index</span>: <span class="tsd-signature-type">number</span></span></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">col</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">row</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">texel</span><span class="tsd-signature-symbol">:</span> <a href="../types/default.Texel.html" class="tsd-signature-type tsd-kind-type-alias">Texel</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">vec4Index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></h4><aside class="tsd-sources">
+<h4 class="tsd-returns-title">Returns <br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">byteOffset</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">col</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">row</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">vec4</span><span class="tsd-signature-symbol">:</span> <a href="../types/default.RawVec4.html" class="tsd-signature-type tsd-kind-type-alias">RawVec4</a><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">vec4Index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in webgl/debug/ShaderParameterDebugger.ts:549</li></ul></aside></div></li></ul></section>
+<li>Defined in webgl/debug/ShaderParameterDebugger.ts:586</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="dumpall"><code class="tsd-tag">Static</code><span>dump<wbr/>All</span><a href="#dumpall" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -86,7 +88,7 @@ that are uploaded to the data texture. It does not read back the GPU texture.</p
 <li><span><span class="tsd-kind-parameter">engine</span>: <a href="default.Engine.html" class="tsd-signature-type tsd-kind-class">Engine</a></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../types/default.AllParameterReport.html" class="tsd-signature-type tsd-kind-type-alias">AllParameterReport</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in webgl/debug/ShaderParameterDebugger.ts:632</li></ul></aside></div></li></ul></section>
+<li>Defined in webgl/debug/ShaderParameterDebugger.ts:677</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="dumpentity"><code class="tsd-tag">Static</code><span>dump<wbr/>Entity</span><a href="#dumpentity" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -100,7 +102,7 @@ that are uploaded to the data texture. It does not read back the GPU texture.</p
 <li><span><span class="tsd-kind-parameter">entity</span>: <a href="../interfaces/default.IEntity.html" class="tsd-signature-type tsd-kind-interface">IEntity</a></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../types/default.EntityParameterReport.html" class="tsd-signature-type tsd-kind-type-alias">EntityParameterReport</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in webgl/debug/ShaderParameterDebugger.ts:623</li></ul></aside></div></li></ul></section>
+<li>Defined in webgl/debug/ShaderParameterDebugger.ts:668</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="dumpglobals"><code class="tsd-tag">Static</code><span>dump<wbr/>Globals</span><a href="#dumpglobals" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -114,7 +116,7 @@ that are uploaded to the data texture. It does not read back the GPU texture.</p
 <li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">shaderProgramUid</span>: <span class="tsd-signature-type">number</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../types/default.GlobalParameterReport.html" class="tsd-signature-type tsd-kind-type-alias">GlobalParameterReport</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in webgl/debug/ShaderParameterDebugger.ts:617</li></ul></aside></div></li></ul></section>
+<li>Defined in webgl/debug/ShaderParameterDebugger.ts:662</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="dumpmaterial"><code class="tsd-tag">Static</code><span>dump<wbr/>Material</span><a href="#dumpmaterial" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -129,7 +131,21 @@ that are uploaded to the data texture. It does not read back the GPU texture.</p
 <li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">primitive</span>: <a href="default.Primitive.html" class="tsd-signature-type tsd-kind-class">Primitive</a></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../types/default.MaterialParameterReport.html" class="tsd-signature-type tsd-kind-type-alias">MaterialParameterReport</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in webgl/debug/ShaderParameterDebugger.ts:611</li></ul></aside></div></li></ul></section>
+<li>Defined in webgl/debug/ShaderParameterDebugger.ts:652</li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="dumpprimitive"><code class="tsd-tag">Static</code><span>dump<wbr/>Primitive</span><a href="#dumpprimitive" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="dumpprimitive-1"><span class="tsd-kind-call-signature">dumpPrimitive</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">engine</span><span class="tsd-signature-symbol">:</span> <a href="default.Engine.html" class="tsd-signature-type tsd-kind-class">Engine</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">primitive</span><span class="tsd-signature-symbol">:</span> <a href="default.Primitive.html" class="tsd-signature-type tsd-kind-class">Primitive</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../types/default.MaterialParameterReport.html" class="tsd-signature-type tsd-kind-type-alias">MaterialParameterReport</a><a href="#dumpprimitive-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">engine</span>: <a href="default.Engine.html" class="tsd-signature-type tsd-kind-class">Engine</a></span></li>
+<li><span><span class="tsd-kind-parameter">primitive</span>: <a href="default.Primitive.html" class="tsd-signature-type tsd-kind-class">Primitive</a></span></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../types/default.MaterialParameterReport.html" class="tsd-signature-type tsd-kind-type-alias">MaterialParameterReport</a></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in webgl/debug/ShaderParameterDebugger.ts:658</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="format"><code class="tsd-tag">Static</code><span>format</span><a href="#format" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -142,7 +158,7 @@ that are uploaded to the data texture. It does not read back the GPU texture.</p
 <li><span><span class="tsd-kind-parameter">report</span>: <a href="../types/default.MaterialParameterReport.html" class="tsd-signature-type tsd-kind-type-alias">MaterialParameterReport</a> <span class="tsd-signature-symbol">|</span> <a href="../types/default.GlobalParameterReport.html" class="tsd-signature-type tsd-kind-type-alias">GlobalParameterReport</a> <span class="tsd-signature-symbol">|</span> <a href="../types/default.ComponentParameterReport.html" class="tsd-signature-type tsd-kind-type-alias">ComponentParameterReport</a></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">unknown</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in webgl/debug/ShaderParameterDebugger.ts:604</li></ul></aside></div></li></ul></section>
+<li>Defined in webgl/debug/ShaderParameterDebugger.ts:645</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="formatentries"><code class="tsd-tag">Static</code><span>format<wbr/>Entries</span><a href="#formatentries" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -155,7 +171,7 @@ that are uploaded to the data texture. It does not read back the GPU texture.</p
 <li><span><span class="tsd-kind-parameter">entries</span>: <a href="../types/default.ShaderParameterEntry.html" class="tsd-signature-type tsd-kind-type-alias">ShaderParameterEntry</a><span class="tsd-signature-symbol">[]</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in webgl/debug/ShaderParameterDebugger.ts:566</li></ul></aside></div></li></ul></section>
+<li>Defined in webgl/debug/ShaderParameterDebugger.ts:605</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="installconsolehelpers"><code class="tsd-tag">Static</code><span>install<wbr/>Console<wbr/>Helpers</span><a href="#installconsolehelpers" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -169,7 +185,7 @@ that are uploaded to the data texture. It does not read back the GPU texture.</p
 <li><span><span class="tsd-kind-parameter">target</span>: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = ...</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in webgl/debug/ShaderParameterDebugger.ts:643</li></ul></aside></div></li></ul></section>
+<li>Defined in webgl/debug/ShaderParameterDebugger.ts:688</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="readrealuniforms"><code class="tsd-tag">Static</code><span>read<wbr/>Real<wbr/>Uniforms</span><a href="#readrealuniforms" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -183,7 +199,7 @@ that are uploaded to the data texture. It does not read back the GPU texture.</p
 <li><span><span class="tsd-kind-parameter">shaderProgramUid</span>: <span class="tsd-signature-type">number</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span> <a href="../types/default.RealUniformInfo.html" class="tsd-signature-type tsd-kind-type-alias">RealUniformInfo</a><span class="tsd-signature-symbol">&gt;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in webgl/debug/ShaderParameterDebugger.ts:498</li></ul></aside></div></li></ul></section>
+<li>Defined in webgl/debug/ShaderParameterDebugger.ts:532</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="reportall"><code class="tsd-tag">Static</code><span>report<wbr/>All</span><a href="#reportall" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -196,7 +212,7 @@ that are uploaded to the data texture. It does not read back the GPU texture.</p
 <li><span><span class="tsd-kind-parameter">engine</span>: <a href="default.Engine.html" class="tsd-signature-type tsd-kind-class">Engine</a></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../types/default.AllParameterReport.html" class="tsd-signature-type tsd-kind-type-alias">AllParameterReport</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in webgl/debug/ShaderParameterDebugger.ts:487</li></ul></aside></div></li></ul></section>
+<li>Defined in webgl/debug/ShaderParameterDebugger.ts:521</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="reportcomponent"><code class="tsd-tag">Static</code><span>report<wbr/>Component</span><a href="#reportcomponent" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -210,7 +226,7 @@ that are uploaded to the data texture. It does not read back the GPU texture.</p
 <li><span><span class="tsd-kind-parameter">component</span>: <a href="default.Component.html" class="tsd-signature-type tsd-kind-class">Component</a></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../types/default.ComponentParameterReport.html" class="tsd-signature-type tsd-kind-type-alias">ComponentParameterReport</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in webgl/debug/ShaderParameterDebugger.ts:367</li></ul></aside></div></li></ul></section>
+<li>Defined in webgl/debug/ShaderParameterDebugger.ts:395</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="reportentity"><code class="tsd-tag">Static</code><span>report<wbr/>Entity</span><a href="#reportentity" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -224,7 +240,7 @@ that are uploaded to the data texture. It does not read back the GPU texture.</p
 <li><span><span class="tsd-kind-parameter">entity</span>: <a href="../interfaces/default.IEntity.html" class="tsd-signature-type tsd-kind-interface">IEntity</a></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../types/default.EntityParameterReport.html" class="tsd-signature-type tsd-kind-type-alias">EntityParameterReport</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in webgl/debug/ShaderParameterDebugger.ts:458</li></ul></aside></div></li></ul></section>
+<li>Defined in webgl/debug/ShaderParameterDebugger.ts:492</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="reportglobals"><code class="tsd-tag">Static</code><span>report<wbr/>Globals</span><a href="#reportglobals" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -238,7 +254,7 @@ that are uploaded to the data texture. It does not read back the GPU texture.</p
 <li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">shaderProgramUid</span>: <span class="tsd-signature-type">number</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../types/default.GlobalParameterReport.html" class="tsd-signature-type tsd-kind-type-alias">GlobalParameterReport</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in webgl/debug/ShaderParameterDebugger.ts:304</li></ul></aside></div></li></ul></section>
+<li>Defined in webgl/debug/ShaderParameterDebugger.ts:324</li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="reportmaterial"><code class="tsd-tag">Static</code><span>report<wbr/>Material</span><a href="#reportmaterial" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -253,7 +269,7 @@ that are uploaded to the data texture. It does not read back the GPU texture.</p
 <li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">primitive</span>: <a href="default.Primitive.html" class="tsd-signature-type tsd-kind-class">Primitive</a></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../types/default.MaterialParameterReport.html" class="tsd-signature-type tsd-kind-type-alias">MaterialParameterReport</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in webgl/debug/ShaderParameterDebugger.ts:202</li></ul></aside></div></li></ul></section></section></details></div>
+<li>Defined in webgl/debug/ShaderParameterDebugger.ts:214</li></ul></aside></div></li></ul></section></section></details></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
@@ -272,7 +288,7 @@ that are uploaded to the data texture. It does not read back the GPU texture.</p
 <details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Constructors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Constructors</summary>
 <div><a href="#constructor"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Constructor"><use href="../assets/icons.svg#icon-512"></use></svg><span>constructor</span></a></div></details>
 <details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Methods"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Methods</summary>
-<div><a href="#decode"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>decode</span></a><a href="#dumpall"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>dump<wbr/>All</span></a><a href="#dumpentity"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>dump<wbr/>Entity</span></a><a href="#dumpglobals"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>dump<wbr/>Globals</span></a><a href="#dumpmaterial"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>dump<wbr/>Material</span></a><a href="#format"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>format</span></a><a href="#formatentries"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>format<wbr/>Entries</span></a><a href="#installconsolehelpers"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>install<wbr/>Console<wbr/>Helpers</span></a><a href="#readrealuniforms"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Real<wbr/>Uniforms</span></a><a href="#reportall"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>report<wbr/>All</span></a><a href="#reportcomponent"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>report<wbr/>Component</span></a><a href="#reportentity"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>report<wbr/>Entity</span></a><a href="#reportglobals"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>report<wbr/>Globals</span></a><a href="#reportmaterial"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>report<wbr/>Material</span></a></div></details></div></details></div>
+<div><a href="#decode"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>decode</span></a><a href="#dumpall"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>dump<wbr/>All</span></a><a href="#dumpentity"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>dump<wbr/>Entity</span></a><a href="#dumpglobals"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>dump<wbr/>Globals</span></a><a href="#dumpmaterial"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>dump<wbr/>Material</span></a><a href="#dumpprimitive"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>dump<wbr/>Primitive</span></a><a href="#format"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>format</span></a><a href="#formatentries"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>format<wbr/>Entries</span></a><a href="#installconsolehelpers"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>install<wbr/>Console<wbr/>Helpers</span></a><a href="#readrealuniforms"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Real<wbr/>Uniforms</span></a><a href="#reportall"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>report<wbr/>All</span></a><a href="#reportcomponent"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>report<wbr/>Component</span></a><a href="#reportentity"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>report<wbr/>Entity</span></a><a href="#reportglobals"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>report<wbr/>Globals</span></a><a href="#reportmaterial"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>report<wbr/>Material</span></a></div></details></div></details></div>
 <div class="site-menu">
 <nav class="tsd-navigation"><a href="../modules.html">rhodonite</a>
 <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
