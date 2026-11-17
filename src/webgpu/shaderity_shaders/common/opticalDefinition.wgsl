@@ -14,13 +14,16 @@ struct Light {
 // https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md#range-property
 fn getRangeAttenuation(light: Light) -> f32
 {
-  let distance = length(light.pointToLight);
+  let distanceSquared = dot(light.pointToLight, light.pointToLight);
   // means no range limit
   if (light.effectiveRange <= 0.0)
   {
-    return 1.0 / pow(distance, 2.0);
+    return 1.0 / distanceSquared;
   }
-  return max(min(1.0 - pow(distance / light.effectiveRange, 4.0), 1.0), 0.0) / pow(distance, 2.0);
+  // (distance / range)^4 as multiplications: this runs for every light in every fragment.
+  let invRangeSquared = 1.0 / (light.effectiveRange * light.effectiveRange);
+  let ratio4 = distanceSquared * distanceSquared * invRangeSquared * invRangeSquared;
+  return max(min(1.0 - ratio4, 1.0), 0.0) / distanceSquared;
 }
 
 // https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md#inner-and-outer-cone-angles
@@ -60,12 +63,16 @@ fn getLightAttenuated(light: Light) -> Light {
 
 fn getLight(lightIdx: u32, v_position_inWorld: vec3<f32>) -> Light {
   let lightPosition: vec3<f32> = get_lightPosition(lightIdx);
-  let direction_and_w_of_LightObject: vec3<f32> = get_lightDirection(lightIdx);
   let lightIntensity: vec3<f32> = get_lightIntensity(lightIdx);
   let lightProperty: vec4<f32> = get_lightProperty(lightIdx);
   var light: Light;
-  light.directionOfLightObject = direction_and_w_of_LightObject;
+  light.directionOfLightObject = vec3<f32>(0.0, 0.0, 0.0);
   let lightType = lightProperty.x;
+  // Only directional and spot lights use the object-space direction. Skipping the load for
+  // point lights removes a read of the light data buffer per light in every fragment.
+  if (lightType <= 0.75 || lightType > 1.75) {
+    light.directionOfLightObject = get_lightDirection(lightIdx);
+  }
   light.effectiveRange = lightProperty.y;
   light.innerConeCos = lightProperty.z;
   light.outerConeCos = lightProperty.w;
