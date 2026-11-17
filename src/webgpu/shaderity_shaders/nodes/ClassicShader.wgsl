@@ -10,6 +10,11 @@ fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseT
       let i = u32(lightRef.x); // light component SID
       var specular = vec3<f32>(0.0, 0.0, 0.0);
       let light: Light = getLight(i, positionInWorld.xyz);
+      // A light at the border of the cluster can be outside its range. Its contribution is exactly
+      // zero, so skip the shading and the shadow lookup without changing the result.
+      if (all(light.attenuatedIntensity == vec3f(0.0))) {
+        continue;
+      }
 
       // Diffuse
       let albedo = diffuseColor.rgb / 2.0;

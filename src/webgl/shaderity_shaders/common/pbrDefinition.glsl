@@ -130,6 +130,26 @@ vec3 BRDF_specularGGX(float NH, float NL, float NV, float alphaRoughness) {
   return vec3(D) * vec3(V);
 }
 
+// Variants used by the punctual light loop: the caller hoists the fragment-invariant terms
+// (roughnessSqr and the NdotV term of v_GGXCorrelated) out of the loop, so they are not
+// recomputed for every light. The arithmetic is the same as d_GGX / v_GGXCorrelated.
+float d_GGXWithRoughnessSquared(float NH, float roughnessSqr) {
+  float f = (roughnessSqr - 1.0) * NH * NH + 1.0;
+  return roughnessSqr / (M_PI * f * f);
+}
+
+vec3 BRDF_specularGGXWithTerms(float NH, float NL, float NV, float roughnessSqr, float sqrtNdotVTerm) {
+  float D = d_GGXWithRoughnessSquared(NH, roughnessSqr);
+  float GGXV = NL * sqrtNdotVTerm;
+  float GGXL = NV * sqrt(NL * NL * (1.0 - roughnessSqr) + roughnessSqr);
+  float GGX = GGXV + GGXL;
+  float V = 1.0;
+  if (GGX > 0.0) {
+    V = clamp(0.5 / GGX, 0.0, 1.0);
+  }
+  return vec3(D * V);
+}
+
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#diffuse-brdf
 vec3 BRDF_lambertian(vec3 diffuseAlbedo)
 {
@@ -637,7 +657,10 @@ vec3 lightingWithPunctualLight(
   vec3 viewDirection,
   float NdotV,
   vec3 baseColor,
-  float perceptualRoughness,
+  float alphaRoughness,
+  float alphaRoughness2,
+  float sqrtNdotVTerm,
+  vec3 diffuseBrdf,
   float metallic,
   float specularWeight,
   vec3 dielectricF0,
@@ -652,18 +675,19 @@ vec3 lightingWithPunctualLight(
   DiffuseTransmissionProps diffuseTransmissionProps
   )
 {
-  float alphaRoughness = perceptualRoughness * perceptualRoughness;
-
   // Fresnel
   vec3 halfVector = normalize(light.direction + viewDirection);
   float VdotH = saturate(dot(viewDirection, halfVector));
-  vec3 dielectricFresnel = fresnelSchlick(dielectricF0, dielectricF90, VdotH);
-  vec3 metalFresnel = fresnelSchlick(baseColor, vec3(1.0), VdotH);
+  // Both Schlick terms share the same polynomial in VdotH.
+  float schlickX = clamp(1.0 - VdotH, 0.0, 1.0);
+  float schlickX2 = schlickX * schlickX;
+  float schlickX5 = schlickX * schlickX2 * schlickX2;
+  vec3 dielectricFresnel = dielectricF0 + (dielectricF90 - dielectricF0) * schlickX5;
+  vec3 metalFresnel = baseColor + (vec3(1.0) - baseColor) * schlickX5;
 
   float NdotL = saturateEpsilonToOne(dot(normal_inWorld, light.direction));
 
   // Diffuse
-  vec3 diffuseBrdf = BRDF_lambertian(baseColor);
   vec3 diffuseContrib = diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_DIFFUSE_TRANSMISSION
@@ -707,7 +731,7 @@ vec3 lightingWithPunctualLight(
   vec3 specularMetalContrib = BRDF_specularAnisotropicGGX(alphaRoughness, VdotH, NdotL, NdotV, NdotH, anisotropyProps.BdotV, anisotropyProps.TdotV, TdotL, BdotL, TdotH, BdotH, anisotropyProps.anisotropy) * vec3(NdotL) * light.attenuatedIntensity;
   vec3 specularDielectricContrib = specularMetalContrib;
 #else
-  vec3 specularMetalContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, alphaRoughness) * vec3(NdotL) * light.attenuatedIntensity;
+  vec3 specularMetalContrib = BRDF_specularGGXWithTerms(NdotH, NdotL, NdotV, alphaRoughness2, sqrtNdotVTerm) * vec3(NdotL) * light.attenuatedIntensity;
   vec3 specularDielectricContrib = specularMetalContrib;
 #endif // RN_USE_ANISOTROPY
 

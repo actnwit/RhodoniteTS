@@ -100,6 +100,26 @@ fn BRDF_specularGGX(NH: f32, NL: f32, NV: f32, alphaRoughness: f32) -> vec3f {
   return vec3f(D) * vec3f(V);
 }
 
+// Variants used by the punctual light loop: the caller hoists the fragment-invariant terms
+// (roughnessSqr and the NdotV term of v_GGXCorrelated) out of the loop, so they are not
+// recomputed for every light. The arithmetic is the same as d_GGX / v_GGXCorrelated.
+fn d_GGXWithRoughnessSquared(NH: f32, roughnessSqr: f32) -> f32 {
+  let f = (roughnessSqr - 1.0) * NH * NH + 1.0;
+  return roughnessSqr / (M_PI * f * f);
+}
+
+fn BRDF_specularGGXWithTerms(NH: f32, NL: f32, NV: f32, roughnessSqr: f32, sqrtNdotVTerm: f32) -> vec3f {
+  let D = d_GGXWithRoughnessSquared(NH, roughnessSqr);
+  let GGXV = NL * sqrtNdotVTerm;
+  let GGXL = NV * sqrt(NL * NL * (1.0 - roughnessSqr) + roughnessSqr);
+  let GGX = GGXV + GGXL;
+  var V = 1.0;
+  if (GGX > 0.0) {
+    V = clamp(0.5 / GGX, 0.0, 1.0);
+  }
+  return vec3f(D * V);
+}
+
 // this is from https://www.unrealengine.com/blog/physically-based-shading-on-mobile
 fn envBRDFApprox( Roughness: f32, NoV: f32 ) -> vec2f {
   let c0 = vec4f(-1, -0.0275, -0.572, 0.022 );
@@ -524,7 +544,10 @@ fn lightingWithPunctualLight(
   viewDirection: vec3f,
   NdotV: f32,
   baseColor: vec3f,
-  perceptualRoughness: f32,
+  alphaRoughness: f32,
+  alphaRoughness2: f32,
+  sqrtNdotVTerm: f32,
+  diffuseBrdf: vec3f,
   metallic: f32,
   specularWeight: f32,
   dielectricF0: vec3f,
@@ -540,18 +563,20 @@ fn lightingWithPunctualLight(
   ) -> vec3f
 {
   var light = light_;
-  let alphaRoughness = perceptualRoughness * perceptualRoughness;
 
   // Fresnel
   let halfVector = normalize(light.direction + viewDirection);
   let VdotH = saturate(dot(viewDirection, halfVector));
-  var dielectricFresnel = fresnelSchlick(dielectricF0, dielectricF90, VdotH);
-  let metalFresnel = fresnelSchlick(baseColor, vec3f(1.0), VdotH);
+  // Both Schlick terms share the same polynomial in VdotH.
+  let schlickX = clamp(1.0 - VdotH, 0.0, 1.0);
+  let schlickX2 = schlickX * schlickX;
+  let schlickX5 = schlickX * schlickX2 * schlickX2;
+  var dielectricFresnel = dielectricF0 + (dielectricF90 - dielectricF0) * schlickX5;
+  let metalFresnel = baseColor + (vec3f(1.0) - baseColor) * schlickX5;
 
   let NdotL = saturateEpsilonToOne(dot(normal_inWorld, light.direction));
 
   // Diffuse
-  let diffuseBrdf = BRDF_lambertian(baseColor);
   var diffuseContrib = diffuseBrdf * vec3f(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_DIFFUSE_TRANSMISSION
@@ -593,7 +618,7 @@ fn lightingWithPunctualLight(
   let specularMetalContrib = BRDF_specularAnisotropicGGX(alphaRoughness, VdotH, NdotL, NdotV, NdotH, anisotropyProps.BdotV, anisotropyProps.TdotV, TdotL, BdotL, TdotH, BdotH, anisotropyProps.anisotropy) * vec3f(NdotL) * light.attenuatedIntensity;
   let specularDielectricContrib = specularMetalContrib;
 #else
-  let specularMetalContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, alphaRoughness) * vec3f(NdotL) * light.attenuatedIntensity;
+  let specularMetalContrib = BRDF_specularGGXWithTerms(NdotH, NdotL, NdotV, alphaRoughness2, sqrtNdotVTerm) * vec3f(NdotL) * light.attenuatedIntensity;
   let specularDielectricContrib = specularMetalContrib;
 #endif
 

@@ -42,6 +42,12 @@ fn pbrShader(
     let perceptualRoughness = perceptualRoughness_;
   #endif
 
+  // Fragment-invariant terms of the light loop (see lightingWithPunctualLight).
+  let lightAlphaRoughness = perceptualRoughness * perceptualRoughness;
+  let lightAlphaRoughness2 = lightAlphaRoughness * lightAlphaRoughness;
+  let sqrtNdotVTerm = sqrt(NdotV * NdotV * (1.0 - lightAlphaRoughness2) + lightAlphaRoughness2);
+  let diffuseBrdf = baseColor.rgb * RECIPROCAL_PI;
+
   // Anisotropy
   var anisotropyProps: AnisotropyProps = anisotropyProps_;
   #ifdef RN_USE_ANISOTROPY
@@ -94,9 +100,18 @@ fn pbrShader(
     let lightRef = getLightRef(lightList, n);
     let i = u32(lightRef.x); // light component SID
     let light: Light = getLight(i, positionInWorld.xyz);
+    // A light at the border of the cluster can be outside its range. Its contribution is exactly
+    // zero, so skip the BRDF and the shadow lookup without changing the result. With transmission
+    // the WebGL2 path recomputes the attenuation from the refracted light position, so keep the
+    // old behavior there to keep both backends identical.
+    #ifndef RN_USE_TRANSMISSION
+      if (all(light.attenuatedIntensity == vec3f(0.0))) {
+        continue;
+      }
+    #endif
     var lighting = lightingWithPunctualLight(light, normalInWorld, viewDirection, NdotV, baseColor.rgb,
-                      perceptualRoughness, metallic,
-                      specularProps.specularWeight, dielectricF0, dielectricF90, ior,
+                      lightAlphaRoughness, lightAlphaRoughness2, sqrtNdotVTerm, diffuseBrdf,
+                      metallic, specularProps.specularWeight, dielectricF0, dielectricF90, ior,
                       transmission,
                       volumeProps,
                       clearcoatProps,

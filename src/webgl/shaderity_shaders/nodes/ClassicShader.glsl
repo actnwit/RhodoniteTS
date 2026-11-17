@@ -21,6 +21,11 @@ void classicShader(in vec4 vertexColor, in vec4 diffuseColorFactor, in vec4 diff
       vec3 specular = vec3(0.0, 0.0, 0.0);
       // Get Light
       Light light = getLight(i, positionInWorld.xyz);
+      // A light at the border of the cluster can be outside its range. Its contribution is exactly
+      // zero, so skip the shading and the shadow lookup without changing the result.
+      if (all(equal(light.attenuatedIntensity, vec3(0.0)))) {
+        continue;
+      }
 
       // Diffuse
       vec3 albedo = diffuseColor.rgb / 2.0;

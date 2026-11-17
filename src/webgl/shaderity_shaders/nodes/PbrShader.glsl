@@ -48,6 +48,12 @@ void pbrShader(
     perceptualRoughness = sqrt(sqrt(filteredRoughness2));
   #endif // RN_IS_PIXEL_SHADER
 
+  // Fragment-invariant terms of the light loop (see lightingWithPunctualLight).
+  float lightAlphaRoughness = perceptualRoughness * perceptualRoughness;
+  float lightAlphaRoughness2 = lightAlphaRoughness * lightAlphaRoughness;
+  float sqrtNdotVTerm = sqrt(NdotV * NdotV * (1.0 - lightAlphaRoughness2) + lightAlphaRoughness2);
+  vec3 diffuseBrdf = baseColor.rgb * RECIPROCAL_PI;
+
   // Anisotropy
   #ifdef RN_USE_ANISOTROPY
     anisotropyProps.anisotropicT = normalize(TBN * vec3(anisotropyProps.direction, 0.0));
@@ -98,9 +104,17 @@ void pbrShader(
     int i = lightRef.x; // light component SID
     // Get Light
     Light light = getLight(i, positionInWorld.xyz);
+    // A light at the border of the cluster can be outside its range. Its contribution is exactly
+    // zero, so skip the BRDF and the shadow lookup without changing the result. With transmission
+    // the attenuation is recomputed from the refracted light position, so keep the old behavior.
+    #ifndef RN_USE_TRANSMISSION
+      if (all(equal(light.attenuatedIntensity, vec3(0.0)))) {
+        continue;
+      }
+    #endif
     vec3 lighting = lightingWithPunctualLight(light, normalInWorld, viewDirection, NdotV, baseColor.rgb,
-                        perceptualRoughness, metallic,
-                        specularProps.specularWeight, dielectricF0, dielectricF90, ior,
+                        lightAlphaRoughness, lightAlphaRoughness2, sqrtNdotVTerm, diffuseBrdf,
+                        metallic, specularProps.specularWeight, dielectricF0, dielectricF90, ior,
                         transmission,
                         volumeProps,
                         clearcoatProps,
