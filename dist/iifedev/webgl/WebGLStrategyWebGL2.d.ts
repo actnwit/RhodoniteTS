@@ -56,6 +56,8 @@ export declare class WebGLStrategyWebGL2 implements CGAPIStrategy, WebGLStrategy
     private __lastBlendShapeComponentsUpdateCountForWeights;
     private __lastMorphMaxIndex;
     private __lastMaterialsUpdateCount;
+    private __lastLightClusterDataVersion;
+    private __lastLightComponentsUpdateCount;
     private __lastTotalSizeOfGPUShaderDataStorageExceptMorphData;
     private __lastTransformComponentsUpdateCount;
     private __lastSceneGraphComponentsUpdateCount;
@@ -232,6 +234,15 @@ export declare class WebGLStrategyWebGL2 implements CGAPIStrategy, WebGLStrategy
      * - Manages texture alignment and padding requirements
      */
     private __createAndUpdateDataTextureInner;
+    /**
+     * Uploads the bytes `[start, end)` of the GPU instance data (16-byte aligned, in the concatenated layers) to the
+     * data texture, where texel `n` holds bytes `16n` to `16n + 15`. The range is split into a partial first row, full
+     * rows and a partial last row.
+     *
+     * @param layerArray - The whole memory of the layer that contains the range
+     * @param layerByteOffset - The byte offset of the layer in the concatenated layers
+     */
+    private __uploadDataTextureTexels;
     /**
      * Deletes the current data texture and frees associated GPU resources.
      * This method should be called when the data texture needs to be recreated
@@ -483,6 +494,11 @@ export declare class WebGLStrategyWebGL2 implements CGAPIStrategy, WebGLStrategy
      * same program by the previous upload. Uniform values persist in the program object, so
      * consecutive draws of the same material (e.g. a shadow pass) do not need to upload again.
      */
+    /**
+     * Uploads the light cluster view of the camera of the draw (`u_lightClusterView`) when the program uses it and
+     * the camera or the light cluster data changed since the last upload to the program.
+     */
+    private __uploadLightClusterView;
     private __uploadCurrentComponentSIDs;
     /**
      * Binds the data texture to the WebGL context for shader access.

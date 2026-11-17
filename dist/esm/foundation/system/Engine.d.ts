@@ -14,6 +14,7 @@ import { Logger } from '../misc/Logger';
 import { type ICGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { Expression } from '../renderer/Expression';
 import { Frame } from '../renderer/Frame';
+import { LightClusterSystem } from '../renderer/lightCluster/LightClusterSystem';
 import { EngineState } from './EngineState';
 import type { WebARSystem } from '../../xr/WebARSystem';
 import type { WebXRSystem } from '../../xr/WebXRSystem';
@@ -68,6 +69,7 @@ export declare class Engine extends RnObject {
     private __memoryManager?;
     private __materialRepository;
     private __globalDataRepository;
+    private __lightClusterSystem;
     private __config;
     private __logger;
     private __dummyTextures?;
@@ -75,6 +77,7 @@ export declare class Engine extends RnObject {
     private __lastCameraControllerComponentsUpdateCount;
     private __lastTransformComponentsUpdateCount;
     private __lastPrimitiveCount;
+    private __lastLightComponentsUpdateCount;
     /** Shader program cache map for this engine instance. Maps shader text to program UIDs. */
     private __shaderProgramCache;
     private __gpuTimerEnabled;
@@ -238,6 +241,10 @@ export declare class Engine extends RnObject {
     get webARSystem(): WebARSystem;
     get memoryManager(): MemoryManager;
     get globalDataRepository(): GlobalDataRepository;
+    /**
+     * The system that builds the light lists of Clustered Forward rendering.
+     */
+    get lightClusterSystem(): LightClusterSystem;
     get materialRepository(): MaterialRepository;
     get webglResourceRepository(): WebGLResourceRepository;
     get cgApiResourceRepository(): ICGAPIResourceRepository;

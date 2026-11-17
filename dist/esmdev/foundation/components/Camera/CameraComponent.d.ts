@@ -8,6 +8,7 @@ import type { ICameraEntity } from '../../helpers/EntityHelper';
 import { Matrix44 } from '../../math/Matrix44';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MutableVector3 } from '../../math/MutableVector3';
+import { MutableVector4 } from '../../math/MutableVector4';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import type { Engine } from '../../system/Engine';
@@ -39,6 +40,7 @@ export declare class CameraComponent extends Component {
     private _projectionMatrix;
     private _viewMatrix;
     private _viewPosition;
+    private _lightClusterViewInfo;
     private static __currentMap;
     private static returnVector3;
     private static __tmpVector3_0;
@@ -486,6 +488,19 @@ export declare class CameraComponent extends Component {
      * @param projectionMatrix - The projection matrix to set
      */
     set projectionMatrix(projectionMatrix: Matrix44);
+    /**
+     * The projection matrix that is uploaded to the GPU (in XR mode, the matrix of the eye copied in $logic).
+     *
+     * @internal
+     */
+    get _projectionMatrixForGpu(): Matrix44;
+    /**
+     * The light cluster view info uploaded to the GPU.
+     * x: the vec4 index of the light cluster view region of this camera (-1: none).
+     *
+     * @internal
+     */
+    get _lightClusterViewInfoForGpu(): MutableVector4;
     /**
      * Gets the combined view-projection matrix.
      *

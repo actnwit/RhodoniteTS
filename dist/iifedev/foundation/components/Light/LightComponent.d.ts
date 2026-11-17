@@ -2,7 +2,9 @@ import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/Commo
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
 import { type EntityRepository } from '../../core/EntityRepository';
+import { type LightTypeEnum } from '../../definitions/LightType';
 import type { ILightEntity } from '../../helpers/EntityHelper';
+import { MutableVector4 } from '../../math/MutableVector4';
 import { Vector3 } from '../../math/Vector3';
 import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
@@ -13,15 +15,17 @@ import type { ComponentToComponentMethods } from '../ComponentTypes';
  * the light looks towards the local -Z axis in right hand coordinate system.
  */
 export declare class LightComponent extends Component {
-    type: import("../..").EnumIO;
+    private __type;
     private __color;
+    /** The components of the color at the last change, to detect changes of a mutated color object. */
+    private __lastColor;
     private __intensity;
     private readonly __initialDirection;
     private __direction;
-    innerConeAngle: number;
-    outerConeAngle: number;
+    private __innerConeAngle;
+    private __outerConeAngle;
     private __range;
-    enable: boolean;
+    private __enable;
     private __shadowAreaSizeForDirectionalLight;
     private __shadowZNearForDirectionalLight;
     private __shadowCameraOffsetForDirectionalLight;
@@ -32,9 +36,13 @@ export declare class LightComponent extends Component {
     private _lightProperty;
     private static __lightNumber;
     private __lightGizmo?;
+    /** The shadow slot assigned by a ShadowSystem. `undefined` means the default slot (see `_shadowSlot`). */
+    private __shadowSlot;
     private __updateCount;
     private __lastUpdateCount;
     private __lastTransformUpdateCount;
+    /** The number of changes of all light components, per engine. */
+    private static __updateCountMap;
     /**
      * Creates a new LightComponent instance.
      *
@@ -45,6 +53,56 @@ export declare class LightComponent extends Component {
      * @param isReUse - Whether this component is being reused from a pool
      */
     constructor(engine: Engine, entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
+    /**
+     * Gets the number of changes of all light components of the engine (creation, destruction and property changes).
+     * The engine and the rendering strategies use it to process and upload the light data only when it changed.
+     *
+     * @param engine - The engine instance
+     * @returns The update count
+     */
+    static getUpdateCount(engine: Engine): number;
+    private static __incrementUpdateCount;
+    /**
+     * Cleans up the static data of the engine.
+     * @internal
+     */
+    static _cleanupForEngine(engine: Engine): void;
+    /**
+     * Records a change of a property, so that the light data is recomputed and uploaded.
+     */
+    private __markUpdated;
+    /**
+     * Gets the type of the light.
+     */
+    get type(): LightTypeEnum;
+    /**
+     * Sets the type of the light.
+     */
+    set type(value: LightTypeEnum);
+    /**
+     * Gets whether the light is enabled.
+     */
+    get enable(): boolean;
+    /**
+     * Sets whether the light is enabled. A disabled light does not light anything.
+     */
+    set enable(value: boolean);
+    /**
+     * Gets the inner cone angle of the spot light (in radian).
+     */
+    get innerConeAngle(): number;
+    /**
+     * Sets the inner cone angle of the spot light (in radian).
+     */
+    set innerConeAngle(value: number);
+    /**
+     * Gets the outer cone angle of the spot light (in radian).
+     */
+    get outerConeAngle(): number;
+    /**
+     * Sets the outer cone angle of the spot light (in radian).
+     */
+    set outerConeAngle(value: number);
     /**
      * Gets the component type identifier for LightComponent.
      *
@@ -145,6 +203,48 @@ export declare class LightComponent extends Component {
      */
     get color(): Vector3;
     /**
+     * The index of the shadow data of this light in the per-material shadow arrays
+     * (`depthTextureIndexList` and `depthBiasPV`), or -1 when the light has no shadow data.
+     *
+     * @remarks
+     * A ShadowSystem assigns the slots of the lights it manages. Otherwise the slot is the component SID
+     * when it is below `Config.maxLightNumber`, which is the convention of manual shadow map setups.
+     *
+     * @internal
+     */
+    get _shadowSlot(): number;
+    /**
+     * Sets the shadow slot of this light. `undefined` restores the default slot.
+     *
+     * @internal
+     */
+    set _shadowSlot(slot: number | undefined);
+    /**
+     * The world position of the light as uploaded to the GPU (updated in $logic).
+     *
+     * @internal
+     */
+    get _lightPositionForGpu(): MutableVector4;
+    /**
+     * The world direction of the light as uploaded to the GPU (updated in $logic).
+     *
+     * @internal
+     */
+    get _lightDirectionForGpu(): MutableVector4;
+    /**
+     * The light property (type, effective range, cos of the inner and outer cone angles) as uploaded to the GPU
+     * (updated in $logic).
+     *
+     * @internal
+     */
+    get _lightPropertyForGpu(): MutableVector4;
+    /**
+     * The intensity of the light (color * intensity) as uploaded to the GPU (updated in $logic).
+     *
+     * @internal
+     */
+    get _lightIntensityForGpu(): MutableVector4;
+    /**
      * Gets the up vector for the light in local space.
      * This is used for light orientation calculations.
      *
@@ -195,6 +295,11 @@ export declare class LightComponent extends Component {
      * to avoid unnecessary recalculations when nothing has changed.
      */
     $logic(): void;
+    /**
+     * Returns the range used for shading. Point and spot lights without a range get an automatic range
+     * when `Config.lightAutoRangeThreshold` is greater than 0.
+     */
+    private __getEffectiveRange;
     /**
      * Cleans up the light component when it's being destroyed.
      * Resets the light intensity values in the global data arrays.

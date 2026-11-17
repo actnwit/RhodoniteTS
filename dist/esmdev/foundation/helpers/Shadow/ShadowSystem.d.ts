@@ -15,6 +15,8 @@ export declare class ShadowSystem {
     private __lightTypes;
     private __lightEnables;
     private __lightCastShadows;
+    private __lightSids;
+    private __isShadowSlotShortageWarned;
     /** Reused by setDepthBiasPV() on every frame. */
     private __depthBiasPVArray?;
     private __depthBiasPV?;
@@ -42,6 +44,17 @@ export declare class ShadowSystem {
      * @returns Array of Expression objects containing the shadow mapping render passes
      */
     getExpressions(entities: ISceneGraphEntity[]): Expression[];
+    /**
+     * Assigns the shadow slots (the indices of the per-material shadow arrays) to the lights.
+     *
+     * A shadow casting light keeps the slot equal to its component SID when the SID is below
+     * `Config.maxLightNumber` (the convention of manual shadow map setups), and the other shadow casting lights
+     * use the free slots. Lights that do not cast shadows get no slot.
+     *
+     * @param lightComponents - The live light components
+     * @param hasShadowCasters - Whether any entity is rendered to the shadow maps
+     */
+    private __assignShadowSlots;
     /**
      * Sets the blurred shadow map texture for directional and spot lights on all entity materials.
      * Creates a linear sampler and assigns the shadow map texture to the 'depthTexture' parameter.

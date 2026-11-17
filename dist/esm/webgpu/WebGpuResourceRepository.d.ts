@@ -92,6 +92,8 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     /** Cached `gpuDevice.queue` ([SameObject]), read on every frame by flush(). */
     private __gpuQueue?;
     private __renderBundles;
+    /** Fragment module of the depth prepass pipelines (it writes nothing; the color targets use writeMask 0). */
+    private __depthOnlyFragmentModule?;
     private __renderBundleEncoder?;
     private __renderBundleEncoderKey?;
     private __systemDepthTexture?;
@@ -476,8 +478,13 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
      * @param renderPass - The render pass defining render targets and clear operations
      * @param cameraId - Identifier for the camera used for rendering
      * @param zWrite - Whether to enable depth writing during rendering
+     * @param options - `depthOnly` draws the primitive with a depth-only pipeline (the depth prepass);
+     * `allowEqualDepth` lets the color pass pass the depth written by the prepass
      */
-    draw(engine: Engine, primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number, zWrite: boolean, _displayIdx: number): void;
+    draw(engine: Engine, primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number, zWrite: boolean, _displayIdx: number, options?: {
+        depthOnly?: boolean;
+        allowEqualDepth?: boolean;
+    }): void;
     /**
      * Creates a render bundle encoder for efficient rendering.
      * Render bundles allow pre-recording of rendering commands for better performance.
@@ -575,7 +582,11 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     finishRenderBundleEncoderAndKeepRenderPass(engine: Engine, renderPass: RenderPass, displayIdx: number): GPURenderPassEncoder | undefined;
     getOrCreateRenderPassEncoderForExternalRendering(engine: Engine, renderPass: RenderPass, displayIdx: number): GPURenderPassEncoder | undefined;
     endRenderPassEncoderForExternalRendering(): void;
-    getOrCreateRenderPipeline(renderPipelineId: string, pipelineLayoutKey: string, pipelineLayout: GPUPipelineLayout, primitive: Primitive, material: Material, renderPass: RenderPass, zWrite: boolean): [GPURenderPipeline, boolean];
+    private __getDepthOnlyFragmentModule;
+    getOrCreateRenderPipeline(renderPipelineId: string, pipelineLayoutKey: string, pipelineLayout: GPUPipelineLayout, primitive: Primitive, material: Material, renderPass: RenderPass, zWrite: boolean, options?: {
+        depthOnly?: boolean;
+        allowEqualDepth?: boolean;
+    }): [GPURenderPipeline, boolean];
     /**
      * Submits all recorded commands to the GPU queue and resets the command encoder.
      * This method must be called to execute any recorded rendering commands.
@@ -633,7 +644,21 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
      * @param storageBufferHandle - Handle to the storage buffer to update
      * @param gpuInstanceDataBuffers - New data to write to the buffer
      */
-    updateStorageBuffer(storageBufferHandle: WebGPUResourceHandle, gpuInstanceDataBuffers: Buffer[]): void;
+    updateStorageBuffer(storageBufferHandle: WebGPUResourceHandle, gpuInstanceDataBuffers: Buffer[], excludedByteRanges?: readonly [number, number][]): void;
+    /**
+     * Writes byte ranges of the GPU instance data to the storage buffer.
+     *
+     * @param storageBufferHandle - Handle to the storage buffer
+     * @param gpuInstanceDataBuffers - The GPU instance data buffers (layers)
+     * @param byteRanges - The ranges `[start, end)` in the concatenated layers. A range must not span layers.
+     */
+    updateStorageBufferRanges(storageBufferHandle: WebGPUResourceHandle, gpuInstanceDataBuffers: Buffer[], byteRanges: readonly [number, number][]): void;
+    /**
+     * The storage buffer of the GPU instance data (bound at group 0, binding 0 of the render pipelines).
+     *
+     * @internal
+     */
+    _getStorageBuffer(): GPUBuffer | undefined;
     destroyStorageBuffer(storageBufferHandle: WebGPUResourceHandle): void;
     /**
      * Updates a portion of a storage buffer with new data at a specific offset.

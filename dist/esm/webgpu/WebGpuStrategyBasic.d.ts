@@ -32,6 +32,10 @@ export declare class WebGpuStrategyBasic implements CGAPIStrategy {
     private __uniformMorphOffsetsTypedArray?;
     private __uniformMorphWeightsTypedArray?;
     private __lastMaterialsUpdateCount;
+    private __lastLightClusterDataVersion;
+    private __lastLightComponentsUpdateCount;
+    private __lightClusterBuilder?;
+    private __lastLightClusterBuildDataVersion;
     private __lastTransformComponentsUpdateCount;
     private __lastSceneGraphComponentsUpdateCount;
     private __lastCameraComponentsUpdateCount;
@@ -158,6 +162,11 @@ export declare class WebGpuStrategyBasic implements CGAPIStrategy {
      */
     private __renderWithoutBuffers;
     /**
+     * Whether the depth prepass can run for the render pass: it must be enabled, draw the scene itself (render passes
+     * with a material override such as shadow maps and post effects are excluded), and write depth.
+     */
+    private __isDepthPrepassAvailable;
+    /**
      * Renders a single primitive with the specified material and render settings.
      * Handles shader setup, uniform buffer updates, and the actual draw call.
      *
@@ -167,13 +176,21 @@ export declare class WebGpuStrategyBasic implements CGAPIStrategy {
      * @param displayIdx - The index of the display to render to
      * @returns True if the primitive was successfully rendered
      */
-    renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, zWrite: boolean, displayIdx: Index): boolean;
+    renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, zWrite: boolean, displayIdx: Index, options?: {
+        depthOnly?: boolean;
+        allowEqualDepth?: boolean;
+    }): boolean;
     /**
      * Creates or updates the main storage buffer containing all GPU instance data.
      * This buffer holds transform matrices, material properties, and other per-instance data
      * required for rendering all objects in the scene.
      */
     private __createAndUpdateStorageBuffer;
+    /**
+     * Builds the Clustered Forward light cluster tables with compute shaders when the LightClusterSystem
+     * builds them on the GPU. It must run after every upload of the GPU instance data, which overwrites the tables.
+     */
+    private __buildLightClustersOnGpu;
     /**
      * Creates or updates the storage buffer containing blend shape vertex data.
      * This buffer holds morph target positions and other vertex attributes needed for blend shape animation.

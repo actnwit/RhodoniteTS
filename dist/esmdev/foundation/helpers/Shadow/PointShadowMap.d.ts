@@ -26,9 +26,11 @@ export declare class PointShadowMap {
      *
      * @param entities - Array of scene graph entities to be rendered for shadow map generation
      * @param lightEntity - The point light entity that casts shadows
+     * @param shadowSlot - The shadow slot of the light (below `Config.maxLightNumber`). Defaults to the shadow slot
+     *   of the light component.
      * @returns An array containing two render passes: [frontRenderPass, backRenderPass]
      */
-    getRenderPasses(entities: ISceneGraphEntity[], lightEntity: ISceneGraphEntity & ILightEntityMethods): RenderPass[];
+    getRenderPasses(entities: ISceneGraphEntity[], lightEntity: ISceneGraphEntity & ILightEntityMethods, shadowSlot?: number): RenderPass[];
     /**
      * Gets the framebuffer used for storing shadow moment data.
      * This framebuffer contains the encoded depth moments for variance shadow mapping.

@@ -29,7 +29,7 @@ export declare class TextureArray extends AbstractTexture implements Disposable 
     private static __deleteInternalTexture;
     /**
      * Loads a 1x1 texture array with a solid color.
-     * This creates a texture array with the specified number of layers (Config.maxLightNumber),
+     * This creates a texture array with the specified number of layers (Config.maxLightNumberOrOne),
      * each containing a single pixel of the specified color.
      *
      * @param rgbaStr - CSS color string in rgba format (default: 'rgba(0,0,0,1)' for black)
