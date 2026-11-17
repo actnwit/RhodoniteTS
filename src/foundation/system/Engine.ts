@@ -10,6 +10,7 @@ import { AnimationStateRepository } from '../components/Animation/AnimationState
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { createCameraEntity } from '../components/Camera/createCameraEntity';
 import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
+import { LightComponent } from '../components/Light/LightComponent';
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { TransformComponent } from '../components/Transform/TransformComponent';
@@ -37,6 +38,7 @@ import { RapierPhysicsStrategy } from '../physics/Rapier/RapierPhysicsStrategy';
 import { CGAPIResourceRepository, type ICGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { Expression } from '../renderer/Expression';
 import { Frame } from '../renderer/Frame';
+import { LightClusterSystem } from '../renderer/lightCluster/LightClusterSystem';
 import { RenderPass } from '../renderer/RenderPass';
 import { EngineState } from './EngineState';
 import { ModuleManager } from './ModuleManager';
@@ -117,6 +119,7 @@ export class Engine extends RnObject {
   private __memoryManager?: MemoryManager;
   private __materialRepository: MaterialRepository;
   private __globalDataRepository: GlobalDataRepository;
+  private __lightClusterSystem: LightClusterSystem;
   private __config: Config;
   private __logger: Logger;
   private __dummyTextures?: DummyTextures;
@@ -124,6 +127,7 @@ export class Engine extends RnObject {
   private __lastCameraControllerComponentsUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastPrimitiveCount = -1;
+  private __lastLightComponentsUpdateCount = -1;
   /** Shader program cache map for this engine instance. Maps shader text to program UIDs. */
   private __shaderProgramCache: Map<string, number> = new Map();
   private __gpuTimerEnabled = false;
@@ -154,6 +158,7 @@ export class Engine extends RnObject {
     this.__webXRSystem = rnXRModule.WebXRSystem.init(this);
     this.__webARSystem = rnXRModule.WebARSystem.init(this);
     this.__globalDataRepository = GlobalDataRepository.init(this);
+    this.__lightClusterSystem = new LightClusterSystem(this);
     Engine.__engineCount++;
   }
 
@@ -260,6 +265,7 @@ export class Engine extends RnObject {
     SceneGraphComponent._cleanupForEngine(this);
     CameraControllerComponent._cleanupForEngine(this);
     CameraComponent._cleanupForEngine(this);
+    LightComponent._cleanupForEngine(this);
     MeshRendererComponent._cleanupForEngine(this);
     RapierPhysicsStrategy._cleanupForEngine(this);
 
@@ -747,6 +753,8 @@ export class Engine extends RnObject {
     const webxrSystem = this.__webXRSystem;
     for (const stage of Component._processStages) {
       if (stage === ProcessStage.Render) {
+        // The light lists must be written before the strategy uploads the GPU instance data in prerender.
+        this.__lightClusterSystem.update(expressions);
         MeshRendererComponent.common_$prerender(this);
         const isWebXRMode = webxrSystem.isWebXRMode;
         const isMultiView = webxrSystem.isMultiView();
@@ -827,7 +835,8 @@ export class Engine extends RnObject {
           TransformComponent.getUpdateCount(this) !== this.__lastTransformComponentsUpdateCount ||
           CameraComponent.getCurrentCameraUpdateCount(this) !== this.__lastCameraComponentsUpdateCount ||
           CameraControllerComponent.getUpdateCount(this) !== this.__lastCameraControllerComponentsUpdateCount ||
-          Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
+          Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount ||
+          LightComponent.getUpdateCount(this) !== this.__lastLightComponentsUpdateCount
         ) {
           // Built only when the stage actually runs: a static scene skips it on every frame.
           const commonMethodName = `common_${stage.methodName}`;
@@ -861,6 +870,7 @@ export class Engine extends RnObject {
     this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(this);
     this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this);
     this.__lastPrimitiveCount = Primitive.getPrimitiveCount();
+    this.__lastLightComponentsUpdateCount = LightComponent.getUpdateCount(this);
   }
 
   private _processWebGL(expressions: Expression[]) {
@@ -875,6 +885,8 @@ export class Engine extends RnObject {
       if (stage === ProcessStage.Render) {
         // Coalesce the GPU setup of meshes added while loading into one multi-draw rebuild.
         repo.getMultiDrawRepository(this).rebuildDirtyGroups();
+        // The light lists must be written before the strategy uploads the GPU instance data in prerender.
+        this.__lightClusterSystem.update(expressions);
         MeshRendererComponent.common_$prerender(this);
         for (const exp of expressions) {
           for (const componentTid of renderingComponentTids) {
@@ -942,7 +954,8 @@ export class Engine extends RnObject {
           TransformComponent.getUpdateCount(this) !== this.__lastTransformComponentsUpdateCount ||
           CameraComponent.getCurrentCameraUpdateCount(this) !== this.__lastCameraComponentsUpdateCount ||
           CameraControllerComponent.getUpdateCount(this) !== this.__lastCameraControllerComponentsUpdateCount ||
-          Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
+          Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount ||
+          LightComponent.getUpdateCount(this) !== this.__lastLightComponentsUpdateCount
         ) {
           for (const componentTid of componentTids) {
             const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
@@ -974,6 +987,7 @@ export class Engine extends RnObject {
     this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(this);
     this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this);
     this.__lastPrimitiveCount = Primitive.getPrimitiveCount();
+    this.__lastLightComponentsUpdateCount = LightComponent.getUpdateCount(this);
   }
 
   static get processTime() {
@@ -1225,6 +1239,13 @@ export class Engine extends RnObject {
 
   public get globalDataRepository() {
     return this.__globalDataRepository;
+  }
+
+  /**
+   * The system that builds the light lists of Clustered Forward rendering.
+   */
+  public get lightClusterSystem() {
+    return this.__lightClusterSystem;
   }
 
   public get materialRepository() {

@@ -14,13 +14,16 @@ struct Light {
 // https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md#range-property
 float getRangeAttenuation(Light light)
 {
-  float distance = length(light.pointToLight);
+  float distanceSquared = dot(light.pointToLight, light.pointToLight);
   // means no range limit
   if (light.effectiveRange <= 0.0)
   {
-    return 1.0 / pow(distance, 2.0);
+    return 1.0 / distanceSquared;
   }
-  return max(min(1.0 - pow(distance / light.effectiveRange, 4.0), 1.0), 0.0) / pow(distance, 2.0);
+  // (distance / range)^4 as multiplications: this runs for every light in every fragment.
+  float invRangeSquared = 1.0 / (light.effectiveRange * light.effectiveRange);
+  float ratio4 = distanceSquared * distanceSquared * invRangeSquared * invRangeSquared;
+  return max(min(1.0 - ratio4, 1.0), 0.0) / distanceSquared;
 }
 
 // https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md#inner-and-outer-cone-angles
@@ -59,12 +62,16 @@ vec3 getLightAttenuated(Light light) {
 
 Light getLight(int lightIdx, vec3 v_position_inWorld) {
   vec3 lightPosition = get_lightPosition(uint(lightIdx));
-  vec3 direction_and_w_of_LightObject = get_lightDirection(uint(lightIdx));
   vec3 lightIntensity = get_lightIntensity(uint(lightIdx));
   vec4 lightProperty = get_lightProperty(uint(lightIdx));
   Light light;
-  light.directionOfLightObject = direction_and_w_of_LightObject;
+  light.directionOfLightObject = vec3(0.0);
   float lightType = lightProperty.x;
+  // Only directional and spot lights use the object-space direction. Skipping the load for
+  // point lights removes a read of the light data buffer per light in every fragment.
+  if (lightType <= 0.75 || lightType > 1.75) {
+    light.directionOfLightObject = get_lightDirection(uint(lightIdx));
+  }
   light.effectiveRange = lightProperty.y;
   light.innerConeCos = lightProperty.z;
   light.outerConeCos = lightProperty.w;
@@ -95,4 +102,70 @@ Light getLight(int lightIdx, vec3 v_position_inWorld) {
   light.attenuatedIntensity = getLightAttenuated(light);
 
   return light;
+}
+
+// Clustered Forward light list (see src/foundation/renderer/lightCluster/LightClusterLayout.ts).
+// The list is the lights that can not be culled followed by the local lights of the cluster of the position,
+// or all enabled lights when the camera has no light clusters.
+#if defined(RN_IS_PIXEL_SHADER) && !defined(WEBGL2_MULTI_VIEW)
+// The light cluster view of the camera of the draw, uploaded per draw by WebGLStrategyWebGL2:
+// [0..5] the view header (see LightClusterLayout.ts), [6] (vec4 index of the view in the data texture, 0, 0, 0).
+// Reading the header from uniforms is much cheaper than from the data texture.
+uniform highp vec4 u_lightClusterView[7]; // skipProcess=true
+#endif
+
+struct LightList {
+  int count;      // the number of lights in the list
+  int firstCount; // the number of lights read from the all-light list
+  int secondBase; // the vec4 index of the cluster lights in the light index list of the view
+};
+
+LightList getLightList(vec3 positionInWorld, uint cameraSID) {
+  vec4 header = get_clusteredLightData(0u, 0u); // (allCount, globalCount, localCount, sphereBase)
+  LightList list;
+  list.count = int(header.x);
+  list.firstCount = int(header.x);
+  list.secondBase = 0;
+#if defined(RN_IS_PIXEL_SHADER) && !defined(WEBGL2_MULTI_VIEW)
+  int viewBase = int(u_lightClusterView[6].x);
+  if (viewBase >= 0) {
+    vec4 grid = u_lightClusterView[4]; // (gridX, gridY, gridZ, state)
+    if (grid.w == 0.0) {
+      vec4 p = vec4(positionInWorld, 1.0);
+      float w = dot(u_lightClusterView[2], p);
+      if (w > 0.0) {
+        vec4 slice = u_lightClusterView[5]; // (sliceScale, sliceBias, zNear, zFar)
+        vec3 cell = vec3(
+          dot(u_lightClusterView[0], p) / w,
+          dot(u_lightClusterView[1], p) / w,
+          log(max(dot(u_lightClusterView[3], p), 1.0e-30)) * slice.x + slice.y);
+        ivec3 c = ivec3(clamp(floor(cell), vec3(0.0), grid.xyz - 1.0));
+        int gridX = int(grid.x);
+        int gridY = int(grid.y);
+        int clusterIndex = (c.z * gridY + c.y) * gridX + c.x;
+        vec4 tableEntry = fetchElement(viewBase + 6 + clusterIndex); // (offset, count, 0, 0)
+        int clusterCount = gridX * gridY * int(grid.z);
+        list.firstCount = int(header.y);
+        list.secondBase = viewBase + 6 + clusterCount + int(tableEntry.x);
+        list.count = list.firstCount + int(tableEntry.y);
+      }
+    }
+  }
+#endif
+  return list;
+}
+
+// Returns (light component SID, shadow slot (-1: none)) of the n-th light of the list.
+ivec2 getLightRef(LightList list, int n) {
+  float entry;
+  if (n < list.firstCount) {
+    vec4 entries = get_clusteredLightData(0u, uint(1 + (n >> 2)));
+    entry = entries[n & 3];
+  } else {
+    int e = n - list.firstCount;
+    vec4 entries = fetchElement(list.secondBase + (e >> 2));
+    entry = entries[e & 3];
+  }
+  int packed = int(entry);
+  return ivec2(packed & 0xFFFF, (packed >> 16) - 1);
 }

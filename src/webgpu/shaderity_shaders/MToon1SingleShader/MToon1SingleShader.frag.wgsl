@@ -185,8 +185,9 @@ fn main (
   // https://github.com/vrm-c/vrm-specification/blob/282edef7b8de6044d782afdab12b14bd8ccf0630/specification/VRMC_materials_mtoon-1.0/README.ja.md#implementation
   var rt0 = vec4f(0.0, 0.0, 0.0, 1.0);
   var directLighting = vec3f(0.0);
-  let lightNumber = u32(get_lightNumber(0u, 0u));
-  for (var i = 0u; i < lightNumber; i++) {
+  let lightList = getLightList(input.position_inWorld.xyz, cameraSID);
+  for (var n = 0u; n < lightList.count; n++) {
+    let i = u32(getLightRef(lightList, n).x); // light component SID
     let light: Light = getLight(i, input.position_inWorld.xyz);
     var shading = dot(light.direction, normal_inWorld);
     let shadingShiftFactor = get_shadingShiftFactor(materialSID, 0);

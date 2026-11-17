@@ -14,13 +14,16 @@ struct Light {
 // https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md#range-property
 fn getRangeAttenuation(light: Light) -> f32
 {
-  let distance = length(light.pointToLight);
+  let distanceSquared = dot(light.pointToLight, light.pointToLight);
   // means no range limit
   if (light.effectiveRange <= 0.0)
   {
-    return 1.0 / pow(distance, 2.0);
+    return 1.0 / distanceSquared;
   }
-  return max(min(1.0 - pow(distance / light.effectiveRange, 4.0), 1.0), 0.0) / pow(distance, 2.0);
+  // (distance / range)^4 as multiplications: this runs for every light in every fragment.
+  let invRangeSquared = 1.0 / (light.effectiveRange * light.effectiveRange);
+  let ratio4 = distanceSquared * distanceSquared * invRangeSquared * invRangeSquared;
+  return max(min(1.0 - ratio4, 1.0), 0.0) / distanceSquared;
 }
 
 // https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md#inner-and-outer-cone-angles
@@ -60,12 +63,16 @@ fn getLightAttenuated(light: Light) -> Light {
 
 fn getLight(lightIdx: u32, v_position_inWorld: vec3<f32>) -> Light {
   let lightPosition: vec3<f32> = get_lightPosition(lightIdx);
-  let direction_and_w_of_LightObject: vec3<f32> = get_lightDirection(lightIdx);
   let lightIntensity: vec3<f32> = get_lightIntensity(lightIdx);
   let lightProperty: vec4<f32> = get_lightProperty(lightIdx);
   var light: Light;
-  light.directionOfLightObject = direction_and_w_of_LightObject;
+  light.directionOfLightObject = vec3<f32>(0.0, 0.0, 0.0);
   let lightType = lightProperty.x;
+  // Only directional and spot lights use the object-space direction. Skipping the load for
+  // point lights removes a read of the light data buffer per light in every fragment.
+  if (lightType <= 0.75 || lightType > 1.75) {
+    light.directionOfLightObject = get_lightDirection(lightIdx);
+  }
   light.effectiveRange = lightProperty.y;
   light.innerConeCos = lightProperty.z;
   light.outerConeCos = lightProperty.w;
@@ -95,4 +102,64 @@ fn getLight(lightIdx: u32, v_position_inWorld: vec3<f32>) -> Light {
   let newLight = getLightAttenuated(light);
 
   return newLight;
+}
+
+// Clustered Forward light list (see src/foundation/renderer/lightCluster/LightClusterLayout.ts).
+// The list is the lights that can not be culled followed by the local lights of the cluster of the position,
+// or all enabled lights when the camera has no light clusters.
+struct LightList {
+  count: u32,      // the number of lights in the list
+  firstCount: u32, // the number of lights read from the all-light list
+  secondBase: u32, // the vec4 index of the cluster lights in the light index list of the view
+};
+
+fn getLightList(positionInWorld: vec3<f32>, cameraSID: u32) -> LightList {
+  let header = get_clusteredLightData(0u, 0u); // (allCount, globalCount, localCount, sphereBase)
+  var list: LightList;
+  list.count = u32(header.x);
+  list.firstCount = u32(header.x);
+  list.secondBase = 0u;
+#ifdef RN_IS_PIXEL_SHADER
+  let viewBase = get_lightClusterViewInfo(cameraSID).x;
+  if (viewBase >= 0.0) {
+    let base = u32(viewBase);
+    let grid = fetchElement(base + 4u); // (gridX, gridY, gridZ, state)
+    if (grid.w == 0.0) {
+      let p = vec4<f32>(positionInWorld, 1.0);
+      let w = dot(fetchElement(base + 2u), p);
+      if (w > 0.0) {
+        let slice = fetchElement(base + 5u); // (sliceScale, sliceBias, zNear, zFar)
+        let cell = vec3<f32>(
+          dot(fetchElement(base), p) / w,
+          dot(fetchElement(base + 1u), p) / w,
+          log(max(dot(fetchElement(base + 3u), p), 1.0e-30)) * slice.x + slice.y);
+        let c = vec3<u32>(clamp(floor(cell), vec3<f32>(0.0), grid.xyz - 1.0));
+        let gridX = u32(grid.x);
+        let gridY = u32(grid.y);
+        let clusterIndex = (c.z * gridY + c.y) * gridX + c.x;
+        let tableEntry = fetchElement(base + 6u + clusterIndex); // (offset, count, 0, 0)
+        let clusterCount = gridX * gridY * u32(grid.z);
+        list.firstCount = u32(header.y);
+        list.secondBase = base + 6u + clusterCount + u32(tableEntry.x);
+        list.count = list.firstCount + u32(tableEntry.y);
+      }
+    }
+  }
+#endif
+  return list;
+}
+
+// Returns (light component SID, shadow slot (-1: none)) of the n-th light of the list.
+fn getLightRef(list: LightList, n: u32) -> vec2<i32> {
+  var entry: f32;
+  if (n < list.firstCount) {
+    let entries = get_clusteredLightData(0u, 1u + (n >> 2u));
+    entry = entries[n & 3u];
+  } else {
+    let e = n - list.firstCount;
+    let entries = fetchElement(list.secondBase + (e >> 2u));
+    entry = entries[e & 3u];
+  }
+  let packed = i32(entry);
+  return vec2<i32>(packed & 0xFFFF, (packed >> 16u) - 1);
 }

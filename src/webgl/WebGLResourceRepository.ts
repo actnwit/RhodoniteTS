@@ -903,6 +903,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     const gl = this.currentWebGLContextWrapper!.getRawContext();
     (shaderProgram as any).dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
     (shaderProgram as any).currentComponentSIDs = gl.getUniformLocation(shaderProgram, 'u_currentComponentSIDs');
+    (shaderProgram as any).lightClusterView = gl.getUniformLocation(shaderProgram, 'u_lightClusterView');
   }
 
   /**

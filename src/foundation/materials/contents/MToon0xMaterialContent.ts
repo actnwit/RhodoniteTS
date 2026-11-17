@@ -841,12 +841,18 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
       material.setParameter('aspect', cameraComponent.aspect);
     }
 
-    const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
-      MToon0xMaterialContent.__setupHdriParameters(args);
+    const {
+      mipmapLevelNumber,
+      meshRenderComponent,
+      diffuseHdriType,
+      specularHdriType,
+      diffuseContribution,
+      specularContribution,
+    } = MToon0xMaterialContent.__setupHdriParameters(args);
     const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
     tmp_vector4.x = mipmapLevelNumber;
-    tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
-    tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
+    tmp_vector4.y = diffuseContribution;
+    tmp_vector4.z = specularContribution;
     tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
     material.setParameter('iblParameter', tmp_vector4);
     const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
@@ -968,12 +974,18 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
     }
 
     // IBL Parameters
-    const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
-      MToon0xMaterialContent.__setupHdriParameters(args);
+    const {
+      mipmapLevelNumber,
+      meshRenderComponent,
+      diffuseHdriType,
+      specularHdriType,
+      diffuseContribution,
+      specularContribution,
+    } = MToon0xMaterialContent.__setupHdriParameters(args);
     const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
     tmp_vector4.x = mipmapLevelNumber;
-    tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
-    tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
+    tmp_vector4.y = diffuseContribution;
+    tmp_vector4.z = specularContribution;
     tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
     material.setParameter('iblParameter', tmp_vector4);
     const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
@@ -1057,11 +1069,19 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
     if (meshRenderComponent.specularCubeMap) {
       specularHdriType = meshRenderComponent.specularCubeMap!.hdriFormat.index;
     }
+    // An unset cube map binds the black fallback texture, so its contribution is effectively 0. Passing 0 to the
+    // shader also lets it skip the IBL work when the contribution is 0.
+    const diffuseContribution =
+      meshRenderComponent.diffuseCubeMap != null ? meshRenderComponent.diffuseCubeMapContribution : 0;
+    const specularContribution =
+      meshRenderComponent.specularCubeMap != null ? meshRenderComponent.specularCubeMapContribution : 0;
     return {
       mipmapLevelNumber,
       meshRenderComponent,
       diffuseHdriType,
       specularHdriType,
+      diffuseContribution,
+      specularContribution,
     };
   }
 }

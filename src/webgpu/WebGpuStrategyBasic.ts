@@ -2,10 +2,12 @@ import { AnimationComponent } from '../foundation/components/Animation/Animation
 import { BlendShapeComponent } from '../foundation/components/BlendShape/BlendShapeComponent';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
+import { LightComponent } from '../foundation/components/Light/LightComponent';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 import { Component, type MemberInfo } from '../foundation/core/Component';
+import { AlphaMode } from '../foundation/definitions/AlphaMode';
 import { BufferUse } from '../foundation/definitions/BufferUse';
 import { ComponentType } from '../foundation/definitions/ComponentType';
 import { CompositionType } from '../foundation/definitions/CompositionType';
@@ -36,6 +38,7 @@ import type {
   IndexOf16Bytes,
   PrimitiveUID,
 } from '../types/CommonTypes';
+import { WebGpuLightClusterBuilder } from './WebGpuLightClusterBuilder';
 
 /**
  * Basic WebGPU rendering strategy implementation that handles mesh rendering,
@@ -63,6 +66,10 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __uniformMorphWeightsTypedArray?: Float32Array;
 
   private __lastMaterialsUpdateCount = -1;
+  private __lastLightClusterDataVersion = -1;
+  private __lastLightComponentsUpdateCount = -1;
+  private __lightClusterBuilder?: WebGpuLightClusterBuilder;
+  private __lastLightClusterBuildDataVersion = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastSceneGraphComponentsUpdateCount = -1;
   private __lastCameraComponentsUpdateCount = -1;
@@ -800,14 +807,25 @@ ${indexStr}
       SceneGraphComponent.getUpdateCount(this.__engine) !== this.__lastSceneGraphComponentsUpdateCount ||
       CameraComponent.getCurrentCameraUpdateCount(this.__engine) !== this.__lastCameraComponentsUpdateCount ||
       CameraControllerComponent.getUpdateCount(this.__engine) !== this.__lastCameraControllerComponentsUpdateCount ||
-      this.__engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount
+      this.__engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount ||
+      this.__engine.lightClusterSystem.dataVersion !== this.__lastLightClusterDataVersion ||
+      LightComponent.getUpdateCount(this.__engine) !== this.__lastLightComponentsUpdateCount
     ) {
-      this.__createAndUpdateStorageBuffer();
+      const isStorageBufferRecreated = this.__createAndUpdateStorageBuffer();
+      // The compute shaders rebuild the light clusters when their inputs changed, and after a new storage buffer was
+      // created from the CPU data (which does not contain the clusters built on the GPU).
+      const lightClusterDataVersion = this.__engine.lightClusterSystem.dataVersion;
+      if (isStorageBufferRecreated || lightClusterDataVersion !== this.__lastLightClusterBuildDataVersion) {
+        this.__buildLightClustersOnGpu();
+        this.__lastLightClusterBuildDataVersion = lightClusterDataVersion;
+      }
       this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this.__engine);
       this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.getUpdateCount(this.__engine);
       this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this.__engine);
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(this.__engine);
       this.__lastMaterialsUpdateCount = this.__engine.materialRepository.stateVersion;
+      this.__lastLightClusterDataVersion = this.__engine.lightClusterSystem.dataVersion;
+      this.__lastLightComponentsUpdateCount = LightComponent.getUpdateCount(this.__engine);
     }
 
     const morphMaxIndex = Primitive.getPrimitiveCountHasMorph();
@@ -850,12 +868,21 @@ ${indexStr}
 
     let renderedSomething = false;
     const isZWrite = renderPass.isDepthTest && renderPass.depthWriteMask;
+    const useDepthPrepass = this.__isDepthPrepassAvailable(renderPass);
+    // Draw the opaque primitives depth-only first, so the color pass can reject hidden fragments before shading.
+    if (useDepthPrepass) {
+      for (let i = renderPass._lastOpaqueIndex; i >= 0; i--) {
+        this.renderInner(primitiveUids[i], renderPass, true, displayIdx, { depthOnly: true });
+      }
+    }
     // For opaque primitives
     if (renderPass._toRenderOpaquePrimitives) {
       for (let i = renderPass._lastOpaqueIndex; i >= 0; i--) {
         // Drawing from the nearest object
         const primitiveUid = primitiveUids[i];
-        const rendered = this.renderInner(primitiveUid, renderPass, isZWrite, displayIdx);
+        const rendered = this.renderInner(primitiveUid, renderPass, isZWrite, displayIdx, {
+          allowEqualDepth: useDepthPrepass,
+        });
         renderedSomething ||= rendered;
       }
     }
@@ -910,6 +937,23 @@ ${indexStr}
   }
 
   /**
+   * Whether the depth prepass can run for the render pass: it must be enabled, draw the scene itself (render passes
+   * with a material override such as shadow maps and post effects are excluded), and write depth.
+   */
+  private __isDepthPrepassAvailable(renderPass: RenderPass) {
+    const framebuffer = renderPass.getFramebuffer();
+    return (
+      this.__engine.config.isDepthPrepassEnabled &&
+      renderPass.material == null &&
+      renderPass.isDepthTest &&
+      renderPass.depthWriteMask &&
+      (framebuffer == null || framebuffer.depthAttachment != null) &&
+      renderPass._toRenderOpaquePrimitives &&
+      renderPass._lastOpaqueIndex >= 0
+    );
+  }
+
+  /**
    * Renders a single primitive with the specified material and render settings.
    * Handles shader setup, uniform buffer updates, and the actual draw call.
    *
@@ -919,7 +963,13 @@ ${indexStr}
    * @param displayIdx - The index of the display to render to
    * @returns True if the primitive was successfully rendered
    */
-  renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, zWrite: boolean, displayIdx: Index) {
+  renderInner(
+    primitiveUid: PrimitiveUID,
+    renderPass: RenderPass,
+    zWrite: boolean,
+    displayIdx: Index,
+    options: { depthOnly?: boolean; allowEqualDepth?: boolean } = {}
+  ) {
     if (primitiveUid === -1) {
       return false;
     }
@@ -930,6 +980,14 @@ ${indexStr}
     const material: Material = renderPass.getAppropriateMaterial(primitive);
     this._setupShaderProgram(material, primitive);
     if (isSkipDrawing(material, primitive)) {
+      return false;
+    }
+    if (
+      options.depthOnly &&
+      (material.alphaMode === AlphaMode.Mask || material.alphaToCoverage || material.isShaderDefine('RN_USE_WIREFRAME'))
+    ) {
+      // The prepass cannot discard (or apply a per-sample coverage), so those primitives keep their normal draw
+      // and depth write. Including them would occlude the surfaces behind the discarded fragments.
       return false;
     }
 
@@ -948,7 +1006,16 @@ ${indexStr}
       primitiveIdxHasMorph,
       primitive.targets.length
     );
-    webGpuResourceRepository.draw(this.__engine, primitive, material, renderPass, cameraSID, zWrite, displayIdx);
+    webGpuResourceRepository.draw(
+      this.__engine,
+      primitive,
+      material,
+      renderPass,
+      cameraSID,
+      zWrite,
+      displayIdx,
+      options
+    );
     return true;
   }
 
@@ -957,7 +1024,7 @@ ${indexStr}
    * This buffer holds transform matrices, material properties, and other per-instance data
    * required for rendering all objects in the scene.
    */
-  private __createAndUpdateStorageBuffer() {
+  private __createAndUpdateStorageBuffer(): boolean {
     const memoryManager = this.__engine.memoryManager;
 
     // the GPU global Storage
@@ -973,12 +1040,48 @@ ${indexStr}
     // const dataTextureByteSize =
     //   MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
     if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      // Update
-      webGpuResourceRepository.updateStorageBuffer(this.__storageBufferUid, gpuInstanceDataBuffers);
-    } else {
-      // Create
-      this.__storageBufferUid = webGpuResourceRepository.createStorageBuffer(gpuInstanceDataBuffers);
+      // Update. The light cluster lists are large and written by the compute shaders or uploaded as dirty ranges,
+      // so the generic upload skips them.
+      const lightClusterSystem = this.__engine.lightClusterSystem;
+      webGpuResourceRepository.updateStorageBuffer(
+        this.__storageBufferUid,
+        gpuInstanceDataBuffers,
+        lightClusterSystem._getExcludedByteRanges()
+      );
+      const dirtyRanges = lightClusterSystem._takeDirtyByteRanges();
+      if (dirtyRanges.length > 0) {
+        webGpuResourceRepository.updateStorageBufferRanges(
+          this.__storageBufferUid,
+          gpuInstanceDataBuffers,
+          dirtyRanges
+        );
+      }
+      return false;
     }
+    // Create (uploads everything, including the light clusters built on the CPU)
+    this.__storageBufferUid = webGpuResourceRepository.createStorageBuffer(gpuInstanceDataBuffers);
+    this.__engine.lightClusterSystem._takeDirtyByteRanges();
+    return true;
+  }
+
+  /**
+   * Builds the Clustered Forward light cluster tables with compute shaders when the LightClusterSystem
+   * builds them on the GPU. It must run after every upload of the GPU instance data, which overwrites the tables.
+   */
+  private __buildLightClustersOnGpu() {
+    const params = this.__engine.lightClusterSystem._getGpuBuildParams();
+    if (params == null) {
+      return;
+    }
+    const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
+    const storageBuffer = webGpuResourceRepository._getStorageBuffer();
+    if (storageBuffer == null) {
+      return;
+    }
+    this.__lightClusterBuilder ??= new WebGpuLightClusterBuilder(
+      webGpuResourceRepository.getWebGpuDeviceWrapper().gpuDevice
+    );
+    this.__lightClusterBuilder.build(storageBuffer, params);
   }
 
   /**
@@ -1128,6 +1231,8 @@ ${indexStr}
    */
   destroy(): void {
     const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
+    this.__lightClusterBuilder?.destroy();
+    this.__lightClusterBuilder = undefined;
     if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       webGpuResourceRepository.destroyStorageBuffer(this.__storageBufferUid);
       this.__storageBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;

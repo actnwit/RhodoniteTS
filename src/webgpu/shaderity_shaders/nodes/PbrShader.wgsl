@@ -23,9 +23,9 @@ fn pbrShader(
   dielectricF0 = min(dielectricF0 * specularProps.specularColor, vec3f(1.0));
   let dielectricF90 = vec3f(specularProps.specularWeight);
 
-  let lightNumber = u32(get_lightNumber(0u, 0u));
   let cameraSID = uniformDrawParameters.cameraSID;
   let materialSID = uniformDrawParameters.materialSid;
+  let lightList = getLightList(positionInWorld.xyz, cameraSID);
 
   let viewPosition = get_viewPosition(cameraSID);
   let viewDirection = normalize(viewPosition - positionInWorld.xyz);
@@ -41,6 +41,12 @@ fn pbrShader(
   #else
     let perceptualRoughness = perceptualRoughness_;
   #endif
+
+  // Fragment-invariant terms of the light loop (see lightingWithPunctualLight).
+  let lightAlphaRoughness = perceptualRoughness * perceptualRoughness;
+  let lightAlphaRoughness2 = lightAlphaRoughness * lightAlphaRoughness;
+  let sqrtNdotVTerm = sqrt(NdotV * NdotV * (1.0 - lightAlphaRoughness2) + lightAlphaRoughness2);
+  let diffuseBrdf = baseColor.rgb * RECIPROCAL_PI;
 
   // Anisotropy
   var anisotropyProps: AnisotropyProps = anisotropyProps_;
@@ -90,11 +96,22 @@ fn pbrShader(
     iridescenceProps.fresnelMetal = vec3f(0.0);
   #endif // RN_USE_IRIDESCENCE
 
-  for (var i = 0u; i < lightNumber ; i++) {
+  for (var n = 0u; n < lightList.count; n++) {
+    let lightRef = getLightRef(lightList, n);
+    let i = u32(lightRef.x); // light component SID
     let light: Light = getLight(i, positionInWorld.xyz);
+    // A light at the border of the cluster can be outside its range. Its contribution is exactly
+    // zero, so skip the BRDF and the shadow lookup without changing the result. With transmission
+    // the WebGL2 path recomputes the attenuation from the refracted light position, so keep the
+    // old behavior there to keep both backends identical.
+    #ifndef RN_USE_TRANSMISSION
+      if (all(light.attenuatedIntensity == vec3f(0.0))) {
+        continue;
+      }
+    #endif
     var lighting = lightingWithPunctualLight(light, normalInWorld, viewDirection, NdotV, baseColor.rgb,
-                      perceptualRoughness, metallic,
-                      specularProps.specularWeight, dielectricF0, dielectricF90, ior,
+                      lightAlphaRoughness, lightAlphaRoughness2, sqrtNdotVTerm, diffuseBrdf,
+                      metallic, specularProps.specularWeight, dielectricF0, dielectricF90, ior,
                       transmission,
                       volumeProps,
                       clearcoatProps,
@@ -104,34 +121,37 @@ fn pbrShader(
                       diffuseTransmissionProps);
 
     #ifdef RN_USE_SHADOW_MAPPING
-      // Point Light
-      let depthTextureIndex = get_depthTextureIndexList(materialSID, i);
-      let pointLightFarPlane = get_pointLightFarPlane(materialSID, 0);
-      let pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0);
-      let shadowContributionParaboloid = varianceShadowContributionParaboloid(positionInWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, u32(depthTextureIndex));
+      // The shadow data of the light is at its shadow slot (-1: no shadow data).
+      // Everything is read only when the light has shadow data: most lights do not, and the
+      // texture samples and the matrix fetch would otherwise run for every light in every
+      // fragment (the WebGL2 shader reads them in the same order for the same reason).
+      if (lightRef.y >= 0) {
+        let shadowSlot = u32(lightRef.y);
+        let depthTextureIndex = get_depthTextureIndexList(materialSID, shadowSlot);
+        if (depthTextureIndex >= 0) {
+          if (light.lightType == 1) { // Point Light
+            let pointLightFarPlane = get_pointLightFarPlane(materialSID, 0);
+            let pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0);
+            lighting *= varianceShadowContributionParaboloid(positionInWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, u32(depthTextureIndex));
+          } else if (light.lightType == 0 || light.lightType == 2) { // Directional Light or Spot Light
+            let v_shadowCoord = get_depthBiasPV(materialSID, shadowSlot) * positionInWorld;
+            let shadowCoord = v_shadowCoord.xy / v_shadowCoord.w;
+            let normalizedDepth = v_shadowCoord.z / v_shadowCoord.w;
 
-      // Directional Light or Spot Light
-      let v_shadowCoord = get_depthBiasPV(materialSID, i) * positionInWorld;
-      let shadowCoord = v_shadowCoord.xy / v_shadowCoord.w;
-      let normalizedDepth = v_shadowCoord.z / v_shadowCoord.w;
+            // Slope-scaled bias in normalized depth space to reduce shadow acne
+            let NdotL = max(dot(normalInWorld, light.direction), 0.0);
+            let baseBias = 0.001;
+            let slopeBias = 0.005 * sqrt(1.0 - NdotL * NdotL) / max(NdotL, 0.05);
+            let bias = min(baseBias + slopeBias, 0.05);  // Clamp to prevent excessive bias
 
-      // Slope-scaled bias in normalized depth space to reduce shadow acne
-      let NdotL = max(dot(normalInWorld, light.direction), 0.0);
-      let baseBias = 0.001;
-      let slopeBias = 0.005 * sqrt(1.0 - NdotL * NdotL) / max(NdotL, 0.05);
-      let bias = min(baseBias + slopeBias, 0.05);  // Clamp to prevent excessive bias
+            let lightDirection = normalize(get_lightDirection(i));
+            let lightPosToWorldPos = normalize(positionInWorld.xyz - light.position);
+            let dotProduct = dot(lightPosToWorldPos, lightDirection);
 
-      let lightDirection = normalize(get_lightDirection(i));
-      let lightPosToWorldPos = normalize(positionInWorld.xyz - light.position);
-      let dotProduct = dot(lightPosToWorldPos, lightDirection);
-      var shadowContribution = 1.0;
-      shadowContribution = varianceShadowContribution(shadowCoord, normalizedDepth - bias, u32(depthTextureIndex));
-
-      if (light.lightType == 1 && depthTextureIndex >= 0) { // Point Light
-        lighting *= shadowContributionParaboloid;
-      } else if ((light.lightType == 0 || light.lightType == 2) && depthTextureIndex >= 0) { // Directional Light or Spot Light
-        if (dotProduct > 0.0 && shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0) {
-          lighting *= shadowContribution;
+            if (dotProduct > 0.0 && shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0) {
+              lighting *= varianceShadowContribution(shadowCoord, normalizedDepth - bias, u32(depthTextureIndex));
+            }
+          }
         }
       }
     #endif

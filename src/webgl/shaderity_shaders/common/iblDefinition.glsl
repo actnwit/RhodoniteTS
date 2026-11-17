@@ -238,6 +238,14 @@ vec3 IBLContribution(uint materialSID, uint cameraSID,
   float dispersion)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0u);
+  // The diffuse and the specular contribution multiply every IBL term (diffuse, specular, clearcoat and sheen).
+  // When both are 0, skip the texture samples and the BRDF work. Transmission adds the backbuffer refraction
+  // term, which does not use the contributions, so keep the old path there.
+#ifndef RN_USE_TRANSMISSION
+  if (iblParameter.y == 0.0 && iblParameter.z == 0.0) {
+    return vec3(0.0);
+  }
+#endif
   float rot = iblParameter.w;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   ivec2 hdriFormat = get_hdriFormat(materialSID, 0u);

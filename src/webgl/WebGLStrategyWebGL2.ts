@@ -29,6 +29,7 @@ import { Logger } from '../foundation/misc/Logger';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
+import { subtractByteRanges } from '../foundation/renderer/lightCluster/LightClusterLayout';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import type { Engine } from '../foundation/system/Engine';
@@ -110,6 +111,8 @@ export class WebGLStrategyWebGL2 implements CGAPIStrategy, WebGLStrategy {
   private __lastBlendShapeComponentsUpdateCountForWeights = -1;
   private __lastMorphMaxIndex = -1;
   private __lastMaterialsUpdateCount = -1;
+  private __lastLightClusterDataVersion = -1;
+  private __lastLightComponentsUpdateCount = -1;
   private __lastTotalSizeOfGPUShaderDataStorageExceptMorphData = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastSceneGraphComponentsUpdateCount = -1;
@@ -1033,38 +1036,47 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       const totalSizeOfTheBuffersInTexel = totalSizeOfTheBuffers / 4 / 4;
       const dataTextureHeight = Math.ceil(totalSizeOfTheBuffersInTexel / dataTextureWidth);
       const dataTextureByteSize = dataTextureWidth * dataTextureHeight * 4 * 4;
-      let copiedHeights = 0;
+      // The light cluster lists are large and uploaded as dirty ranges, so the generic upload skips them.
+      const lightClusterSystem = this.__engine.lightClusterSystem;
+      const excludedByteRanges = lightClusterSystem._getExcludedByteRanges();
+      let layerByteOffset = 0;
       for (let i = 0; i < gpuInstanceDataBuffers.length; i++) {
         const gpuInstanceDataBuffer = gpuInstanceDataBuffers[i];
         const bufferSizeForDataTextureInByte =
           i === gpuInstanceDataBuffers.length - 1
             ? gpuInstanceDataBuffer.takenSizeInByte
             : gpuInstanceDataBuffer.byteLength;
-
-        const dataTextureWidthInByte = dataTextureWidth * 4 * 4;
-        const height = Math.min(Math.ceil(bufferSizeForDataTextureInByte / dataTextureWidthInByte), dataTextureHeight);
-        const updateByteSize = dataTextureWidth * height * 4 * 4;
         if (bufferSizeForDataTextureInByte > dataTextureByteSize) {
           Logger.default.warn('The buffer size exceeds the size of the data texture.');
         }
-        const floatDataTextureBuffer = new Float32Array(gpuInstanceDataBuffer.getArrayBuffer(), 0, updateByteSize / 4);
-        this.__engine.webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-          level: 0,
-          offsetX: 0,
-          offsetY: copiedHeights,
-          width: dataTextureWidth,
-          height: height,
-          format: PixelFormat.RGBA,
-          type: ComponentType.Float,
-        });
+        const layerArray = new Float32Array(gpuInstanceDataBuffer.getArrayBuffer());
+        for (const [start, end] of subtractByteRanges(
+          layerByteOffset,
+          layerByteOffset + Math.min(bufferSizeForDataTextureInByte, dataTextureByteSize),
+          excludedByteRanges
+        )) {
+          this.__uploadDataTextureTexels(layerArray, layerByteOffset, start, end, dataTextureWidth);
+        }
 
         // debug
         if (!WebGLStrategyWebGL2.__isDebugOperationToDataTextureBufferDone) {
-          MiscUtil.downloadTypedArray('Rhodonite_dataTextureBuffer.bin', floatDataTextureBuffer);
+          MiscUtil.downloadTypedArray('Rhodonite_dataTextureBuffer.bin', layerArray);
           WebGLStrategyWebGL2.__isDebugOperationToDataTextureBufferDone = true;
         }
 
-        copiedHeights += height;
+        layerByteOffset += gpuInstanceDataBuffer.byteLength;
+      }
+      for (const [start, end] of lightClusterSystem._takeDirtyByteRanges()) {
+        let layerStart = 0;
+        for (const buffer of gpuInstanceDataBuffers) {
+          const layerEnd = layerStart + buffer.byteLength;
+          if (start >= layerStart && end <= layerEnd) {
+            const layerArray = new Float32Array(buffer.getArrayBuffer());
+            this.__uploadDataTextureTexels(layerArray, layerStart, start, end, dataTextureWidth);
+            break;
+          }
+          layerStart = layerEnd;
+        }
       }
     } else {
       const morphBuffers = memoryManager.getBuffers(BufferUse.GPUVertexData);
@@ -1136,6 +1148,56 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
           generateMipmap: false,
         }
       );
+      // The new texture contains everything, including the light clusters built on the CPU.
+      this.__engine.lightClusterSystem._takeDirtyByteRanges();
+    }
+  }
+
+  /**
+   * Uploads the bytes `[start, end)` of the GPU instance data (16-byte aligned, in the concatenated layers) to the
+   * data texture, where texel `n` holds bytes `16n` to `16n + 15`. The range is split into a partial first row, full
+   * rows and a partial last row.
+   *
+   * @param layerArray - The whole memory of the layer that contains the range
+   * @param layerByteOffset - The byte offset of the layer in the concatenated layers
+   */
+  private __uploadDataTextureTexels(
+    layerArray: Float32Array,
+    layerByteOffset: number,
+    start: number,
+    end: number,
+    width: number
+  ) {
+    const repository = this.__engine.webglResourceRepository;
+    let texel = Math.floor(start / 16);
+    const endTexel = Math.ceil(end / 16);
+    const layerTexel = layerByteOffset / 16;
+    const upload = (x: number, y: number, w: number, h: number, firstTexel: number) => {
+      const from = (firstTexel - layerTexel) * 4;
+      repository.updateTexture(this.__dataTextureUid, layerArray.subarray(from, from + w * h * 4), {
+        level: 0,
+        offsetX: x,
+        offsetY: y,
+        width: w,
+        height: h,
+        format: PixelFormat.RGBA,
+        type: ComponentType.Float,
+      });
+    };
+    while (texel < endTexel) {
+      const x = texel % width;
+      const y = Math.floor(texel / width);
+      if (x !== 0 || endTexel - texel < width) {
+        // a partial row
+        const count = Math.min(width - x, endTexel - texel);
+        upload(x, y, count, 1, texel);
+        texel += count;
+      } else {
+        // full rows
+        const rows = Math.floor((endTexel - texel) / width);
+        upload(0, y, width, rows, texel);
+        texel += rows * width;
+      }
     }
   }
 
@@ -1196,6 +1258,8 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       CameraComponent.getCurrentCameraUpdateCount(this.__engine) !== this.__lastCameraComponentsUpdateCount ||
       CameraControllerComponent.getUpdateCount(this.__engine) !== this.__lastCameraControllerComponentsUpdateCount ||
       this.__engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount ||
+      this.__engine.lightClusterSystem.dataVersion !== this.__lastLightClusterDataVersion ||
+      LightComponent.getUpdateCount(this.__engine) !== this.__lastLightComponentsUpdateCount ||
       this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
     ) {
       // Setup GPU Storage (Data Texture & UBO)
@@ -1206,6 +1270,8 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this.__engine);
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(this.__engine);
       this.__lastMaterialsUpdateCount = this.__engine.materialRepository.stateVersion;
+      this.__lastLightClusterDataVersion = this.__engine.lightClusterSystem.dataVersion;
+      this.__lastLightComponentsUpdateCount = LightComponent.getUpdateCount(this.__engine);
     }
 
     if (
@@ -1774,6 +1840,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     this.__setCurrentComponentSIDsForEachDisplayIdx(renderPass, 0, isVRMainPass);
 
     this.__uploadCurrentComponentSIDs(gl, shaderProgram);
+    this.__uploadLightClusterView(gl, shaderProgram);
 
     if ((shaderProgram as any).vrState != null && isVRMainPass) {
       const vrState = this.__engine.globalDataRepository.getValue('vrState', 0) as Vector2;
@@ -2246,6 +2313,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       this.__setCurrentComponentSIDsForEachDisplayIdx(renderPass, displayIdx as 0 | 1, isVRMainPass);
 
       this.__uploadCurrentComponentSIDs(gl, this.__shaderProgram!);
+      this.__uploadLightClusterView(gl, this.__shaderProgram!);
 
       if ((this.__shaderProgram as any).vrState != null && isVRMainPass && displayCount > 1) {
         const vrState = this.__engine.globalDataRepository.getValue('vrState', 0) as Vector2;
@@ -2313,6 +2381,27 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * same program by the previous upload. Uniform values persist in the program object, so
    * consecutive draws of the same material (e.g. a shadow pass) do not need to upload again.
    */
+  /**
+   * Uploads the light cluster view of the camera of the draw (`u_lightClusterView`) when the program uses it and
+   * the camera or the light cluster data changed since the last upload to the program.
+   */
+  private __uploadLightClusterView(gl: WebGLRenderingContext | WebGL2RenderingContext, shaderProgram: WebGLProgram) {
+    const program = shaderProgram as any;
+    const location = program.lightClusterView as WebGLUniformLocation | null | undefined;
+    if (location == null) {
+      return;
+    }
+    const cameraSid = this.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID];
+    const lightClusterSystem = this.__engine.lightClusterSystem;
+    const version = lightClusterSystem.dataVersion;
+    if (program._lightClusterViewCameraSid === cameraSid && program._lightClusterViewVersion === version) {
+      return;
+    }
+    gl.uniform4fv(location, lightClusterSystem._getViewUniformData(cameraSid));
+    program._lightClusterViewCameraSid = cameraSid;
+    program._lightClusterViewVersion = version;
+  }
+
   private __uploadCurrentComponentSIDs(
     gl: WebGLRenderingContext | WebGL2RenderingContext,
     shaderProgram: WebGLProgram

@@ -53,10 +53,24 @@ export class PointShadowMap {
    *
    * @param entities - Array of scene graph entities to be rendered for shadow map generation
    * @param lightEntity - The point light entity that casts shadows
+   * @param shadowSlot - The shadow slot of the light (below `Config.maxLightNumber`). Defaults to the shadow slot
+   *   of the light component.
    * @returns An array containing two render passes: [frontRenderPass, backRenderPass]
    */
-  public getRenderPasses(entities: ISceneGraphEntity[], lightEntity: ISceneGraphEntity & ILightEntityMethods) {
-    const lightComponentSid = lightEntity.getLight().componentSID;
+  public getRenderPasses(
+    entities: ISceneGraphEntity[],
+    lightEntity: ISceneGraphEntity & ILightEntityMethods,
+    shadowSlot?: number
+  ) {
+    const lightComponent = lightEntity.getLight();
+    const lightComponentSid = lightComponent.componentSID;
+    // Each shadow slot has its own materials, because the materials hold the index of the light.
+    const materialIndex = shadowSlot ?? lightComponent._shadowSlot;
+    const frontMaterial = this.__shadowMomentFrontMaterials[materialIndex];
+    const backMaterial = this.__shadowMomentBackMaterials[materialIndex];
+    if (frontMaterial == null || backMaterial == null) {
+      throw new Error(`PointShadowMap: The shadow slot ${materialIndex} is out of range of Config.maxLightNumber.`);
+    }
 
     const shadowMomentFrontRenderPass = new RenderPass(lightEntity.engine);
     shadowMomentFrontRenderPass.clearColor = Vector4.fromCopyArray([1, 1, 1, 1]);
@@ -64,15 +78,15 @@ export class PointShadowMap {
     shadowMomentFrontRenderPass.toClearDepthBuffer = true;
     shadowMomentFrontRenderPass.addEntities(entities);
     shadowMomentFrontRenderPass.setFramebuffer(this.__shadowMomentFramebuffer);
-    shadowMomentFrontRenderPass.setMaterial(this.__shadowMomentFrontMaterials[lightComponentSid]);
-    this.__shadowMomentFrontMaterials[lightComponentSid].setParameter('lightIndex', lightComponentSid);
+    shadowMomentFrontRenderPass.setMaterial(frontMaterial);
+    frontMaterial.setParameter('lightIndex', lightComponentSid);
     const shadowMomentBackRenderPass = new RenderPass(lightEntity.engine);
     shadowMomentBackRenderPass.toClearColorBuffer = false;
     shadowMomentBackRenderPass.toClearDepthBuffer = true;
     shadowMomentBackRenderPass.addEntities(entities);
     shadowMomentBackRenderPass.setFramebuffer(this.__shadowMomentFramebuffer);
-    shadowMomentBackRenderPass.setMaterial(this.__shadowMomentBackMaterials[lightComponentSid]);
-    this.__shadowMomentBackMaterials[lightComponentSid].setParameter('lightIndex', lightComponentSid);
+    shadowMomentBackRenderPass.setMaterial(backMaterial);
+    backMaterial.setParameter('lightIndex', lightComponentSid);
 
     return [shadowMomentFrontRenderPass, shadowMomentBackRenderPass];
   }

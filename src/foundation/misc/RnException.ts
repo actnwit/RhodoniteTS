@@ -33,12 +33,12 @@ export class RnException<ErrObj> extends Error {
    * nested exception's string representation.
    */
   constructor(private err: RnError<ErrObj>) {
+    // err.error is optional (many errors carry only a message), so it must not be dereferenced blindly.
+    const nestedError = err.error as Err<unknown, ErrObj> | undefined;
     super(`
   message: ${err.message}
   error: ${
-    typeof (err.error as Err<unknown, ErrObj>)._rnException !== 'undefined'
-      ? `see below Exception ↓${(err.error as Err<unknown, ErrObj>).toString()}`
-      : err.error
+    typeof nestedError?._rnException !== 'undefined' ? `see below Exception ↓${nestedError!.toString()}` : err.error
   }
 `);
     this.name = RnException._prefix;

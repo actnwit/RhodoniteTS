@@ -30,6 +30,7 @@ import {
   type ImageBitmapData,
 } from '../foundation/renderer/CGAPIResourceRepository';
 import type { FrameBuffer } from '../foundation/renderer/FrameBuffer';
+import { subtractByteRanges } from '../foundation/renderer/lightCluster/LightClusterLayout';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import type { Engine } from '../foundation/system/Engine';
 import type { AbstractTexture } from '../foundation/textures/AbstractTexture';
@@ -183,6 +184,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   /** Cached `gpuDevice.queue` ([SameObject]), read on every frame by flush(). */
   private __gpuQueue?: GPUQueue;
   private __renderBundles: Map<string, GPURenderBundle> = new Map();
+  /** Fragment module of the depth prepass pipelines (it writes nothing; the color targets use writeMask 0). */
+  private __depthOnlyFragmentModule?: GPUShaderModule;
   private __renderBundleEncoder?: GPURenderBundleEncoder;
   private __renderBundleEncoderKey?: string;
   private __systemDepthTexture?: GPUTexture;
@@ -1650,6 +1653,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param renderPass - The render pass defining render targets and clear operations
    * @param cameraId - Identifier for the camera used for rendering
    * @param zWrite - Whether to enable depth writing during rendering
+   * @param options - `depthOnly` draws the primitive with a depth-only pipeline (the depth prepass);
+   * `allowEqualDepth` lets the color pass pass the depth written by the prepass
    */
   draw(
     engine: Engine,
@@ -1658,7 +1663,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     renderPass: RenderPass,
     cameraId: number,
     zWrite: boolean,
-    _displayIdx: number
+    _displayIdx: number,
+    options: { depthOnly?: boolean; allowEqualDepth?: boolean } = {}
   ) {
     const isBufferLessRendering = renderPass.isBufferLessRenderingMode();
     const VertexHandles = primitive._vertexHandles;
@@ -1703,7 +1709,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       primitive,
       material,
       renderPass,
-      zWrite
+      zWrite,
+      options
     );
 
     // The commands below are recorded into a render bundle that is replayed on every frame, and the
@@ -2631,6 +2638,16 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     this.__endRenderPassEncoder();
   }
 
+  private __getDepthOnlyFragmentModule(): GPUShaderModule {
+    if (this.__depthOnlyFragmentModule == null) {
+      this.__depthOnlyFragmentModule = this.__webGpuDeviceWrapper!.gpuDevice.createShaderModule({
+        label: 'DepthPrepass',
+        code: '@fragment\nfn main() {}\n',
+      });
+    }
+    return this.__depthOnlyFragmentModule;
+  }
+
   getOrCreateRenderPipeline(
     renderPipelineId: string,
     pipelineLayoutKey: string,
@@ -2638,11 +2655,16 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     primitive: Primitive,
     material: Material,
     renderPass: RenderPass,
-    zWrite: boolean
+    zWrite: boolean,
+    options: { depthOnly?: boolean; allowEqualDepth?: boolean } = {}
   ): [GPURenderPipeline, boolean] {
+    const depthOnly = options.depthOnly ?? false;
+    const allowEqualDepth = options.allowEqualDepth ?? false;
     // The pipeline layout is part of the key: pipelines are independent of bind group objects and only
     // depend on their layouts, which are shared by every bind group with the same layout.
-    const pipelineKey = `${renderPipelineId}|${pipelineLayoutKey}`;
+    const pipelineKey = `${renderPipelineId}|${pipelineLayoutKey}|${depthOnly ? 'depthOnly' : 'color'}|${
+      allowEqualDepth ? 'equal' : 'less'
+    }`;
     const cachedPipeline = this.__webGpuRenderPipelineMap.get(pipelineKey);
     if (cachedPipeline != null && this.__materialStateVersionMap.get(pipelineKey) === material.pipelineStateVersion) {
       return [cachedPipeline, false];
@@ -2758,9 +2780,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         buffers: gpuVertexBufferLayouts,
       },
       fragment: {
-        module: modules.fsModule,
+        module: depthOnly ? this.__getDepthOnlyFragmentModule() : modules.fsModule,
         entryPoint: 'main',
-        targets: targets,
+        targets: depthOnly ? targets.map(target => ({ format: target.format, writeMask: 0 })) : targets,
       },
       primitive: {
         topology: topology as GPUPrimitiveTopology,
@@ -2772,8 +2794,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         depthStencilFormat == null
           ? undefined
           : {
-              depthWriteEnabled: zWrite,
-              depthCompare: renderPass.isDepthTest ? 'less' : 'always',
+              depthWriteEnabled: depthOnly ? true : zWrite,
+              depthCompare: depthOnly || allowEqualDepth ? 'less-equal' : renderPass.isDepthTest ? 'less' : 'always',
               format: depthStencilFormat,
             },
       multisample: {
@@ -3207,7 +3229,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param storageBufferHandle - Handle to the storage buffer to update
    * @param gpuInstanceDataBuffers - New data to write to the buffer
    */
-  updateStorageBuffer(storageBufferHandle: WebGPUResourceHandle, gpuInstanceDataBuffers: Buffer[]) {
+  updateStorageBuffer(
+    storageBufferHandle: WebGPUResourceHandle,
+    gpuInstanceDataBuffers: Buffer[],
+    excludedByteRanges: readonly [number, number][] = []
+  ) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
     let offset = 0;
@@ -3216,9 +3242,49 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       const inputArray = new Float32Array(buffer.getArrayBuffer());
       WebGpuResourceRepository.__assertArrayBufferView(inputArray);
       const copySize = i === gpuInstanceDataBuffers.length - 1 ? buffer.takenSizeInByte : buffer.byteLength;
-      gpuDevice.queue.writeBuffer(storageBuffer, offset, inputArray, 0, copySize / 4);
-      offset += copySize;
+      // The excluded ranges (e.g. the light cluster lists) are written separately, so they are skipped here.
+      for (const [start, end] of subtractByteRanges(offset, offset + copySize, excludedByteRanges)) {
+        gpuDevice.queue.writeBuffer(storageBuffer, start, inputArray, (start - offset) / 4, (end - start) / 4);
+      }
+      offset += buffer.byteLength;
     }
+  }
+
+  /**
+   * Writes byte ranges of the GPU instance data to the storage buffer.
+   *
+   * @param storageBufferHandle - Handle to the storage buffer
+   * @param gpuInstanceDataBuffers - The GPU instance data buffers (layers)
+   * @param byteRanges - The ranges `[start, end)` in the concatenated layers. A range must not span layers.
+   */
+  updateStorageBufferRanges(
+    storageBufferHandle: WebGPUResourceHandle,
+    gpuInstanceDataBuffers: Buffer[],
+    byteRanges: readonly [number, number][]
+  ) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
+    for (const [start, end] of byteRanges) {
+      let layerStart = 0;
+      for (const buffer of gpuInstanceDataBuffers) {
+        const layerEnd = layerStart + buffer.byteLength;
+        if (start >= layerStart && end <= layerEnd) {
+          const inputArray = new Float32Array(buffer.getArrayBuffer());
+          gpuDevice.queue.writeBuffer(storageBuffer, start, inputArray, (start - layerStart) / 4, (end - start) / 4);
+          break;
+        }
+        layerStart = layerEnd;
+      }
+    }
+  }
+
+  /**
+   * The storage buffer of the GPU instance data (bound at group 0, binding 0 of the render pipelines).
+   *
+   * @internal
+   */
+  _getStorageBuffer(): GPUBuffer | undefined {
+    return this.__storageBuffer;
   }
 
   destroyStorageBuffer(storageBufferHandle: WebGPUResourceHandle) {

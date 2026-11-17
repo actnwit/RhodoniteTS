@@ -59,6 +59,8 @@ export class CameraComponent extends Component {
   private _projectionMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _viewMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _viewPosition: MutableVector3 = MutableVector3.dummy();
+  // x: the vec4 index of the light cluster view region of this camera in the GPU data (-1: none). Written by LightClusterSystem.
+  private _lightClusterViewInfo: MutableVector4 = MutableVector4.dummy();
   private static __currentMap: Map<number, ComponentSID> = new Map();
   private static returnVector3 = MutableVector3.zero();
   private static __tmpVector3_0: MutableVector3 = MutableVector3.zero();
@@ -1054,6 +1056,25 @@ export class CameraComponent extends Component {
   }
 
   /**
+   * The projection matrix that is uploaded to the GPU (in XR mode, the matrix of the eye copied in $logic).
+   *
+   * @internal
+   */
+  get _projectionMatrixForGpu(): Matrix44 {
+    return this._projectionMatrix;
+  }
+
+  /**
+   * The light cluster view info uploaded to the GPU.
+   * x: the vec4 index of the light cluster view region of this camera (-1: none).
+   *
+   * @internal
+   */
+  get _lightClusterViewInfoForGpu(): MutableVector4 {
+    return this._lightClusterViewInfo;
+  }
+
+  /**
    * Gets the combined view-projection matrix.
    *
    * @returns The view-projection matrix
@@ -1291,4 +1312,13 @@ CameraComponent.registerMember({
   compositionType: CompositionType.Vec3,
   componentType: ComponentType.Float,
   initValues: [0, 0, 0],
+});
+CameraComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'lightClusterViewInfo',
+  dataClassType: MutableVector4,
+  shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Vec4,
+  componentType: ComponentType.Float,
+  initValues: [-1, 0, 0, 0],
 });

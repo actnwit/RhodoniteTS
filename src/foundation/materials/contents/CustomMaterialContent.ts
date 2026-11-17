@@ -104,12 +104,18 @@ export class CustomMaterialContent extends AbstractMaterialContent {
    * @param params.args - WebGPU rendering arguments containing entity and rendering context
    */
   _setInternalSettingParametersToGpuWebGpu({ material, args }: { material: Material; args: RenderingArgWebGpu }) {
-    const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
-      CustomMaterialContent.__setupHdriParameters(args);
+    const {
+      mipmapLevelNumber,
+      meshRenderComponent,
+      diffuseHdriType,
+      specularHdriType,
+      diffuseContribution,
+      specularContribution,
+    } = CustomMaterialContent.__setupHdriParameters(args);
     const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
     tmp_vector4.x = mipmapLevelNumber;
-    tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
-    tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
+    tmp_vector4.y = diffuseContribution;
+    tmp_vector4.z = specularContribution;
     tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
     material.setParameter('iblParameter', tmp_vector4);
     const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
@@ -187,10 +193,14 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     args: RenderingArgWebGL;
   }) {
     // IBL Parameters
-    const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
-      CustomMaterialContent.__setupHdriParameters(args);
-    const diffuseContribution = meshRenderComponent!.diffuseCubeMapContribution;
-    const specularContribution = meshRenderComponent!.specularCubeMapContribution;
+    const {
+      mipmapLevelNumber,
+      meshRenderComponent,
+      diffuseHdriType,
+      specularHdriType,
+      diffuseContribution,
+      specularContribution,
+    } = CustomMaterialContent.__setupHdriParameters(args);
     const rotationOfCubeMap = meshRenderComponent!.rotationOfCubeMap;
     // This runs for every material on every frame. Skip the two setParameter() calls when this
     // material already holds these values and nothing has changed the material since.
@@ -370,11 +380,19 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     if (meshRenderComponent.specularCubeMap) {
       specularHdriType = meshRenderComponent.specularCubeMap!.hdriFormat.index;
     }
+    // An unset cube map binds the black fallback texture, so its contribution is effectively 0. Passing 0 to the
+    // shader also lets it skip the IBL block when both contributions are 0 (see IBLContribution).
+    const diffuseContribution =
+      meshRenderComponent.diffuseCubeMap != null ? meshRenderComponent.diffuseCubeMapContribution : 0;
+    const specularContribution =
+      meshRenderComponent.specularCubeMap != null ? meshRenderComponent.specularCubeMapContribution : 0;
     return {
       mipmapLevelNumber,
       meshRenderComponent,
       diffuseHdriType,
       specularHdriType,
+      diffuseContribution,
+      specularContribution,
     };
   }
 }

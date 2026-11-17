@@ -198,3 +198,7 @@ test('else().then()', () => {
     });
   expect(result.unwrapForce()).toBe(2);
 });
+
+test('Err can be created without an error object', () => {
+  expect(() => new Err({ message: 'Error', error: undefined })).not.toThrow();
+});

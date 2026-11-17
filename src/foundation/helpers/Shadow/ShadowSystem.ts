@@ -11,6 +11,7 @@ import type { Material } from '../../materials/core/Material';
 import { AABB } from '../../math/AABB';
 import { Vector3 } from '../../math/Vector3';
 import { VectorN } from '../../math/VectorN';
+import { Logger } from '../../misc/Logger';
 import { Expression } from '../../renderer/Expression';
 import type { FrameBuffer } from '../../renderer/FrameBuffer';
 import type { Engine } from '../../system/Engine';
@@ -36,6 +37,8 @@ export class ShadowSystem {
   private __lightTypes: LightTypeEnum[] = [];
   private __lightEnables: boolean[] = [];
   private __lightCastShadows: boolean[] = [];
+  private __lightSids: number[] = [];
+  private __isShadowSlotShortageWarned = false;
   /** Reused by setDepthBiasPV() on every frame. */
   private __depthBiasPVArray?: Float32Array;
   private __depthBiasPV?: VectorN;
@@ -66,7 +69,7 @@ export class ShadowSystem {
       RenderableHelper.createFrameBufferTextureArray(engine, {
         width: shadowMapSize,
         height: shadowMapSize,
-        arrayLength: engine.config.maxLightNumber,
+        arrayLength: engine.config.maxLightNumberOrOne,
         level: 0,
         internalFormat: TextureFormat.RG16F,
         format: PixelFormat.RG,
@@ -78,7 +81,7 @@ export class ShadowSystem {
       RenderableHelper.createFrameBufferTextureArray(engine, {
         width: shadowMapSize,
         height: shadowMapSize,
-        arrayLength: engine.config.maxLightNumber,
+        arrayLength: engine.config.maxLightNumberOrOne,
         level: 0,
         internalFormat: TextureFormat.RGBA16F,
         format: PixelFormat.RGBA,
@@ -94,6 +97,12 @@ export class ShadowSystem {
    * @returns Array of Expression objects containing the shadow mapping render passes
    */
   public getExpressions(entities: ISceneGraphEntity[]) {
+    // With no shadow slots there is nothing to render into the shadow maps, and the materials have no
+    // shadow parameters (Config.maxLightNumber = 0 compiles the shadow code out).
+    if (this.__engine.config.maxLightNumber <= 0) {
+      return [];
+    }
+
     // Auto-fit DirectionalLight shadow camera volume before setting up shadow map render passes.
     // This ensures the shadow camera covers the entire scene when rendering the shadow map.
     this.__autoFitDirectionalLightShadowVolume(entities);
@@ -103,21 +112,26 @@ export class ShadowSystem {
     const shadowCasters = entities.filter(ShadowSystem.__isShadowCaster);
 
     const expressions = [];
-    const depthTextureIndexList = [];
+    // The shadow data of a light is stored at its shadow slot, so the list is indexed by the slot.
+    const depthTextureIndexList: number[] = new Array(this.__engine.config.maxLightNumber).fill(-1);
 
     let depthTextureCount = 0;
     let pointDepthTextureCount = 0;
     const lightComponents = this.__engine.componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
+    this.__lightTypes.length = lightComponents.length;
+    this.__lightEnables.length = lightComponents.length;
+    this.__lightCastShadows.length = lightComponents.length;
+    this.__lightSids.length = lightComponents.length;
+    this.__assignShadowSlots(lightComponents, shadowCasters.length > 0);
     for (let i = 0; i < lightComponents.length; i++) {
       const lightComponent = lightComponents[i];
       this.__lightTypes[i] = lightComponent.type;
       this.__lightEnables[i] = lightComponent.enable;
       this.__lightCastShadows[i] = lightComponent.castShadow;
+      this.__lightSids[i] = lightComponent.componentSID;
 
-      // Without any shadow caster the shadow map would stay empty, so the shadow map and blur
-      // passes are not created at all and the light is treated as not casting shadows.
-      if (!(lightComponent.enable && lightComponent.castShadow) || shadowCasters.length === 0) {
-        depthTextureIndexList.push(-1);
+      const shadowSlot = lightComponent._shadowSlot;
+      if (shadowSlot < 0) {
         continue;
       }
 
@@ -126,7 +140,8 @@ export class ShadowSystem {
         shadowMapExpression.addRenderPasses(
           this.__pointShadowMap.getRenderPasses(
             shadowCasters,
-            lightComponent.entity as ISceneGraphEntity & ILightEntityMethods
+            lightComponent.entity as ISceneGraphEntity & ILightEntityMethods,
+            shadowSlot
           )
         );
         expressions.push(shadowMapExpression);
@@ -149,7 +164,7 @@ export class ShadowSystem {
         });
         this.__setParaboloidBlurredShadowMap(blurredRenderTargetPointLight, entities);
         expressions.push(blurExpressionPointLight);
-        depthTextureIndexList.push(pointDepthTextureCount);
+        depthTextureIndexList[shadowSlot] = pointDepthTextureCount;
         pointDepthTextureCount++;
       } else if (lightComponent.type === LightType.Spot || lightComponent.type === LightType.Directional) {
         const shadowMapExpression = new Expression();
@@ -179,16 +194,65 @@ export class ShadowSystem {
         });
         this.__setBlurredShadowMap(blurredRenderTargetSpotLight, entities);
         expressions.push(blurExpressionSpotLight);
-        depthTextureIndexList.push(depthTextureCount);
+        depthTextureIndexList[shadowSlot] = depthTextureCount;
         depthTextureCount++;
-      } else {
-        depthTextureIndexList.push(-1);
       }
     }
 
     this.__setDepthTextureIndexList(entities, depthTextureIndexList);
 
     return expressions;
+  }
+
+  /**
+   * Assigns the shadow slots (the indices of the per-material shadow arrays) to the lights.
+   *
+   * A shadow casting light keeps the slot equal to its component SID when the SID is below
+   * `Config.maxLightNumber` (the convention of manual shadow map setups), and the other shadow casting lights
+   * use the free slots. Lights that do not cast shadows get no slot.
+   *
+   * @param lightComponents - The live light components
+   * @param hasShadowCasters - Whether any entity is rendered to the shadow maps
+   */
+  private __assignShadowSlots(lightComponents: LightComponent[], hasShadowCasters: boolean) {
+    const maxLightNumber = this.__engine.config.maxLightNumber;
+    const isSlotUsed: boolean[] = new Array(maxLightNumber).fill(false);
+    const castsShadow = (lightComponent: LightComponent) =>
+      // Without any shadow caster the shadow map would stay empty, so the shadow map and blur
+      // passes are not created at all and the light is treated as not casting shadows.
+      hasShadowCasters &&
+      lightComponent.enable &&
+      lightComponent.castShadow &&
+      (lightComponent.type === LightType.Point ||
+        lightComponent.type === LightType.Spot ||
+        lightComponent.type === LightType.Directional);
+
+    for (const lightComponent of lightComponents) {
+      const sid = lightComponent.componentSID;
+      if (castsShadow(lightComponent) && sid < maxLightNumber) {
+        lightComponent._shadowSlot = sid;
+        isSlotUsed[sid] = true;
+      } else {
+        lightComponent._shadowSlot = -1;
+      }
+    }
+    for (const lightComponent of lightComponents) {
+      if (!castsShadow(lightComponent) || lightComponent.componentSID < maxLightNumber) {
+        continue;
+      }
+      const freeSlot = isSlotUsed.indexOf(false);
+      if (freeSlot < 0) {
+        if (!this.__isShadowSlotShortageWarned) {
+          Logger.default.warn(
+            `ShadowSystem: More than Config.maxLightNumber (${maxLightNumber}) lights cast shadows. The other lights do not cast shadows.`
+          );
+          this.__isShadowSlotShortageWarned = true;
+        }
+        continue;
+      }
+      lightComponent._shadowSlot = freeSlot;
+      isSlotUsed[freeSlot] = true;
+    }
   }
 
   /**
@@ -272,6 +336,11 @@ export class ShadowSystem {
    * @param entities - Array of scene graph entities to apply the bias matrices to
    */
   public setDepthBiasPV(entities: ISceneGraphEntity[]) {
+    // The materials have no depthBiasPV parameter when there are no shadow slots.
+    if (this.__engine.config.maxLightNumber <= 0) {
+      return;
+    }
+
     // Auto-fit DirectionalLight shadow camera volume to cover the whole scene.
     // Note: This does not move the light; it only adjusts shadowAreaSizeForDirectionalLight and range.
     this.__autoFitDirectionalLightShadowVolume(entities);
@@ -296,15 +365,19 @@ export class ShadowSystem {
     }
 
     // Iterate the internal component array instead of getComponentsWithType(), which allocates a
-    // filtered copy. `lightIndex` counts live components only, as the filtered array did.
+    // filtered copy. The matrix of a light is stored at its shadow slot.
     const lightComponents = this.__engine.componentRepository._getComponents(LightComponent) as
       | (LightComponent | undefined)[]
       | undefined;
     if (lightComponents != null) {
-      let lightIndex = 0;
+      const maxLightNumber = this.__engine.config.maxLightNumber;
       for (let i = 0; i < lightComponents.length; i++) {
         const lightComponent = lightComponents[i];
         if (lightComponent == null) {
+          continue;
+        }
+        const shadowSlot = lightComponent._shadowSlot;
+        if (shadowSlot < 0 || shadowSlot >= maxLightNumber) {
           continue;
         }
         if (lightComponent.type === LightType.Directional || lightComponent.type === LightType.Spot) {
@@ -312,10 +385,9 @@ export class ShadowSystem {
           const cameraComponent = lightEntity.tryToGetCamera();
           if (cameraComponent != null) {
             const biasViewProjectionMatrix = cameraComponent.biasViewProjectionMatrix;
-            scratch.set(biasViewProjectionMatrix._v, lightIndex * 16);
+            scratch.set(biasViewProjectionMatrix._v, shadowSlot * 16);
           }
         }
-        lightIndex++;
       }
     }
 
@@ -477,7 +549,8 @@ export class ShadowSystem {
       if (
         this.__lightTypes[i] !== lightComponent.type ||
         this.__lightEnables[i] !== lightComponent.enable ||
-        this.__lightCastShadows[i] !== lightComponent.castShadow
+        this.__lightCastShadows[i] !== lightComponent.castShadow ||
+        this.__lightSids[i] !== lightComponent.componentSID
       ) {
         return true;
       }

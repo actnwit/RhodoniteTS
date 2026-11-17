@@ -191,7 +191,13 @@ void main() {
   // direct lighting
   // https://github.com/vrm-c/vrm-specification/blob/282edef7b8de6044d782afdab12b14bd8ccf0630/specification/VRMC_materials_mtoon-1.0/README.ja.md#implementation
   vec3 directLighting = vec3(0.0);
-  for (int i = 0; i < lightNumber; i++) {
+  LightList lightList;
+  lightList.count = 0;
+  #ifdef RN_IS_LIGHTING
+    lightList = getLightList(v_position_inWorld.xyz, cameraSID);
+  #endif
+  for (int n = 0; n < lightList.count; n++) {
+    int i = getLightRef(lightList, n).x; // light component SID
     Light light = getLight(i, v_position_inWorld.xyz);
     float shading = dot(light.direction, normal_inWorld);
     float shadingShiftFactor = get_shadingShiftFactor(materialSID, 0u);
