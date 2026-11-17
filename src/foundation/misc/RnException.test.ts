@@ -22,3 +22,12 @@ test('RnException Test', () => {
     expect(err.name).toBe(RnException._prefix);
   }
 });
+
+test('RnException Test with an undefined error object', () => {
+  const exception = new RnException({ message: 'Error', error: undefined });
+  expect(exception.message).toBe(`
+  message: Error
+  error: undefined
+`);
+  expect(exception.name).toBe(RnException._prefix);
+});
