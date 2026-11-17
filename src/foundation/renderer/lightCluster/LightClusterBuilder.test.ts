@@ -618,7 +618,9 @@ describe('LightClusterBuilder scratch reuse', () => {
     const scratch = createLightClusterBuildScratch(layout);
     for (const count of [5, 120, 30]) {
       const lights = createLights(createRandom(count), count, [0, 0, 0], 12);
-      const fresh = buildView(view, projection, lights);
+      // The fresh build must use the same layout as the reused scratch, otherwise the comparison also covers the
+      // unused part of a larger light index list (and the test becomes needlessly slow under load).
+      const fresh = buildView(view, projection, lights, layout.clusterLightCapacity);
       const dst = new Float32Array(fresh.dst.length);
       writeLightClusterViewHeader(dst, fresh.viewOffset, view, projection, fresh.spheres, fresh.localCount, layout);
       expect(
