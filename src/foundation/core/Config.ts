@@ -43,13 +43,14 @@ type ConfigInitDescription = {
 export type ClusteredForwardBuildMode = 'auto' | 'cpu';
 
 /**
- * What Clustered Forward rendering does when the light index list of a camera overflows
+ * How Clustered Forward rendering handles clusters with many lights
  * (see {@link Config.clusteredForwardLightCapacityPerCluster}).
- * - `'allLights'`: The camera evaluates all lights in that frame. The image stays correct, but every fragment pays
- *   for every light.
- * - `'truncate'`: Each cluster keeps only its first lights, up to the capacity per cluster (rounded up to a multiple
- *   of 4), in the order of the light component SIDs (the lights created first are kept). The cost stays bounded, but
- *   the truncated lights are missing in the crowded clusters.
+ * - `'allLights'`: The clusters share the light index list freely, so a cluster can hold more lights than the
+ *   capacity per cluster while others hold fewer. When the list overflows, the camera evaluates all lights in that
+ *   frame. The image stays correct, but every fragment pays for every light.
+ * - `'truncate'`: Every cluster always holds at most the capacity per cluster, whatever the other clusters hold.
+ *   The lights beyond it are ignored in that cluster, in the order of the light component SIDs (the lights created
+ *   first are kept). The cost per fragment is bounded, but the ignored lights are missing in the crowded clusters.
  */
 export type ClusteredForwardOverflowMode = 'allLights' | 'truncate';
 
@@ -147,15 +148,16 @@ export class Config {
    * The number of lights per cluster that the light index list of each camera is sized for.
    *
    * @remarks
-   * The clusters share one list, so a cluster can hold more lights than this when other clusters hold fewer.
-   * The list never overflows while no cluster has more lights than this value. What happens when the list overflows
-   * is chosen by {@link Config.clusteredForwardOverflowMode} (a warning is logged once).
+   * In the `'allLights'` {@link Config.clusteredForwardOverflowMode}, the clusters share one list, so a cluster can
+   * hold more lights than this when other clusters hold fewer, and the list never overflows while no cluster has more
+   * lights than this value. In the `'truncate'` mode, every cluster holds at most this many lights.
+   * A warning is logged once when the list overflows or lights are ignored.
    *
    * Memory per camera: about `16 * clusterCount * ceil(value / 4) * 4` bytes, where clusterCount is the product of
    * {@link Config.clusteredForwardGridSize} (3456 by default). The default 304 is about 4 MB per camera.
    */
   clusteredForwardLightCapacityPerCluster = 304;
-  /** What happens when the light index list of a camera overflows. See {@link ClusteredForwardOverflowMode}. */
+  /** How clusters with many lights are handled. See {@link ClusteredForwardOverflowMode}. */
   clusteredForwardOverflowMode: ClusteredForwardOverflowMode = 'allLights';
   /** The maximum number of enabled lights that are shaded. The other lights are ignored. (max: 65535) */
   maxLightListLength = 1024;

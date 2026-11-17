@@ -21,7 +21,7 @@ import { LightClusterLayout, type LightClusterViewLayout } from './LightClusterL
  * The result of a light cluster build.
  * - `'built'`: every light was stored.
  * - `'overflow'`: the light index list overflowed and the view uses the all-light list.
- * - `'truncated'`: the list would overflow, so each cluster kept only its first `clusterLightCapacity` lights.
+ * - `'truncated'`: some clusters had more than `clusterLightCapacity` lights and kept only their first lights.
  */
 export type LightClusterBuildResult = 'built' | 'overflow' | 'truncated';
 
@@ -260,9 +260,9 @@ function evaluateSphereAxes(
  * Builds the cluster table and the light index list of a view whose header has been written.
  *
  * The lights of each cluster are stored in the order of `localEntries` (sorted by the light component SID).
- * When the light index list overflows, either the state of the view is set to overflow and the shaders use the
- * all-light list for the whole view, or (`truncateOnOverflow`) each cluster keeps only its first
- * `layout.clusterLightCapacity` lights.
+ * With `truncate`, every cluster keeps at most its first `layout.clusterLightCapacity` lights, whether or not the
+ * list has room for more, so the list never overflows. Otherwise the clusters share the list freely, and when it
+ * overflows the state of the view is set to overflow and the shaders use the all-light list for the whole view.
  */
 export function buildLightClustersOnCpu(
   dst: Float32Array,
@@ -272,7 +272,7 @@ export function buildLightClustersOnCpu(
   localEntries: ArrayLike<number>,
   localCount: number,
   scratch: LightClusterBuildScratch,
-  truncateOnOverflow = false
+  truncate = false
 ): LightClusterBuildResult {
   const { gridX, gridY, gridZ, clusterCount } = layout;
   const counts = scratch.counts;
@@ -315,6 +315,19 @@ export function buildLightClustersOnCpu(
     }
   }
 
+  // Truncate mode: every cluster keeps at most its first lights (in the order of the light component SIDs).
+  // clusterCount * clusterLightCapacity entries always fit in the list.
+  let result: LightClusterBuildResult = 'built';
+  if (truncate) {
+    const capacity = layout.clusterLightCapacity;
+    for (let c = 0; c < clusterCount; c++) {
+      if (counts[c] > capacity) {
+        counts[c] = capacity;
+        result = 'truncated';
+      }
+    }
+  }
+
   // Pass 2: offsets (exclusive prefix sum in vec4, each list starts at a vec4 boundary)
   let totalVec4 = 0;
   for (let c = 0; c < clusterCount; c++) {
@@ -325,22 +338,9 @@ export function buildLightClustersOnCpu(
   const tableOffset = viewOffset + LightClusterLayout.viewHeaderVec4Count * 4;
   const indexOffset = tableOffset + layout.tableVec4Count * 4;
   const stateOffset = viewOffset + LightClusterLayout.viewGridOffset * 4 + 3;
-  let result: LightClusterBuildResult = 'built';
   if (totalVec4 > layout.indexVec4Count) {
-    if (!truncateOnOverflow) {
-      dst[stateOffset] = LightClusterLayout.stateOverflow;
-      return 'overflow';
-    }
-    // Keep the first lights (in the order of the light component SIDs) of each cluster.
-    // clusterCount * clusterLightCapacity entries always fit in the list.
-    const capacity = layout.clusterLightCapacity;
-    totalVec4 = 0;
-    for (let c = 0; c < clusterCount; c++) {
-      counts[c] = Math.min(counts[c], capacity);
-      offsets[c] = totalVec4;
-      totalVec4 += (counts[c] + 3) >> 2;
-    }
-    result = 'truncated';
+    dst[stateOffset] = LightClusterLayout.stateOverflow;
+    return 'overflow';
   }
   dst[stateOffset] = 0;
 

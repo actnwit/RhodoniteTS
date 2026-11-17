@@ -195,7 +195,7 @@ function buildView(
   projectionMatrix: Mat4,
   lights: TestLight[],
   capacityPerCluster = 64,
-  truncateOnOverflow = false
+  truncate = false
 ) {
   const layout = getLightClusterViewLayout([16, 9, 24], capacityPerCluster);
   const spheres = new Float64Array(lights.length * 4);
@@ -219,16 +219,7 @@ function buildView(
   const dst = new Float32Array(viewOffset + layout.viewVec4Count * 4);
   writeLightClusterViewHeader(dst, viewOffset, viewMatrix, projectionMatrix, spheres, localCount, layout);
   const scratch = createLightClusterBuildScratch(layout);
-  const built = buildLightClustersOnCpu(
-    dst,
-    viewOffset,
-    layout,
-    spheres,
-    entries,
-    localCount,
-    scratch,
-    truncateOnOverflow
-  );
+  const built = buildLightClustersOnCpu(dst, viewOffset, layout, spheres, entries, localCount, scratch, truncate);
   return { dst, viewOffset, layout, spheres, entries, localCount, built };
 }
 
@@ -421,7 +412,7 @@ describe('LightClusterBuilder', () => {
     expect(computeLightClusterIndex(dst, viewOffset, 0, 0, 0)).toBe(-1);
   });
 
-  test('truncates each cluster to its first lights when the index list is too small in the truncate mode', () => {
+  test('truncates each cluster to its first lights in the truncate mode', () => {
     const random = createRandom(6);
     const view = lookAt([0, 0, 10], [0, 0, 0], [0, 1, 0]);
     const projection = perspective(60, 1, 0.1, 100);
@@ -431,7 +422,7 @@ describe('LightClusterBuilder', () => {
     const truncated = buildView(view, projection, lights, 1, true);
     expect(truncated.built).toBe('truncated');
     const { dst, viewOffset, layout } = truncated;
-    expect(layout.clusterLightCapacity).toBe(4);
+    expect(layout.clusterLightCapacity).toBe(1);
     expect(dst[viewOffset + LightClusterLayout.viewGridOffset * 4 + 3]).toBe(0);
 
     let truncatedClusters = 0;
@@ -441,8 +432,8 @@ describe('LightClusterBuilder', () => {
       const all = readLightClusterEntries(full.dst, full.viewOffset, full.layout, c);
       const kept = readLightClusterEntries(dst, viewOffset, layout, c);
       // The first lights (in the order of the light component SIDs) are kept
-      expect(kept).toEqual(all.slice(0, 4));
-      if (all.length > 4) truncatedClusters++;
+      expect(kept).toEqual(all.slice(0, 1));
+      if (all.length > 1) truncatedClusters++;
       // The lists still fit and do not overlap
       const offsetVec4 = dst[tableOffset + c * 4];
       for (let v = 0; v < Math.ceil(kept.length / 4); v++) {
@@ -454,7 +445,26 @@ describe('LightClusterBuilder', () => {
     expect(computeLightClusterIndex(dst, viewOffset, 0, 0, 0)).toBeGreaterThanOrEqual(0);
   });
 
-  test('does not truncate in the truncate mode when the lights fit', () => {
+  test('the truncate mode limits every cluster even when the list has room', () => {
+    const random = createRandom(10);
+    const view = lookAt([0, 0, 10], [0, 0, 0], [0, 1, 0]);
+    const projection = perspective(60, 1, 0.1, 100);
+    // A few overlapping lights: the list has plenty of room, but some clusters get more than 2 lights
+    const lights = createLights(random, 6, [0, 0, 0], 1);
+    const free = buildView(view, projection, lights, 2);
+    expect(free.built).toBe('built');
+    const fixed = buildView(view, projection, lights, 2, true);
+    expect(fixed.built).toBe('truncated');
+    let freeOverCapacity = 0;
+    for (let c = 0; c < fixed.layout.clusterCount; c++) {
+      const all = readLightClusterEntries(free.dst, free.viewOffset, free.layout, c);
+      if (all.length > 2) freeOverCapacity++;
+      expect(readLightClusterEntries(fixed.dst, fixed.viewOffset, fixed.layout, c)).toEqual(all.slice(0, 2));
+    }
+    expect(freeOverCapacity).toBeGreaterThan(0);
+  });
+
+  test('does not truncate in the truncate mode when no cluster exceeds the capacity', () => {
     const random = createRandom(9);
     const view = lookAt([1, 2, 10], [0, 0, 0], [0, 1, 0]);
     const projection = perspective(60, 1, 0.1, 100);

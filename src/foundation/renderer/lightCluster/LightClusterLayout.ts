@@ -95,7 +95,7 @@ export type LightClusterViewLayout = {
   tableVec4Count: number;
   indexCapacity: number;
   indexVec4Count: number;
-  /** The per-cluster capacity padded to a multiple of 4. Lists are truncated to this in the truncate overflow mode. */
+  /** The number of lights per cluster the list is sized for. Every cluster is limited to this in the truncate mode. */
   clusterLightCapacity: number;
   viewVec4Count: number;
 };
@@ -114,7 +114,8 @@ export function getLightClusterViewLayout(
   const gridZ = Math.max(1, Math.floor(gridSize[2]));
   const clusterCount = gridX * gridY * gridZ;
   const tableVec4Count = clusterCount;
-  const clusterVec4Capacity = Math.max(1, Math.ceil(Math.floor(lightCapacityPerCluster) / 4));
+  const clusterLightCapacity = Math.max(1, Math.floor(lightCapacityPerCluster));
+  const clusterVec4Capacity = Math.ceil(clusterLightCapacity / 4);
   const indexVec4Count = clusterCount * clusterVec4Capacity;
   const indexCapacity = indexVec4Count * 4;
   return {
@@ -125,7 +126,7 @@ export function getLightClusterViewLayout(
     tableVec4Count,
     indexCapacity,
     indexVec4Count,
-    clusterLightCapacity: clusterVec4Capacity * 4,
+    clusterLightCapacity,
     viewVec4Count: LightClusterLayout.viewHeaderVec4Count + tableVec4Count + indexVec4Count,
   };
 }
