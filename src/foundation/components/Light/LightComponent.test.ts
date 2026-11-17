@@ -58,7 +58,7 @@ test('the GPU data follows enable, type and the cone angles', async () => {
   expect(property[0]).toBe(-1);
 });
 
-test('the GPU range and intensity follow the light range adjustment level', async () => {
+test('the GPU range and intensity follow the light range scale', async () => {
   const { engine, light } = await createLight();
   light.type = Rn.LightType.Point;
   light.range = 10;
@@ -73,27 +73,32 @@ test('the GPU range and intensity follow the light range adjustment level', asyn
   expect(intensity[1]).toBeCloseTo(0.5);
   expect(intensity[2]).toBeCloseTo(2);
 
-  engine.config.lightRangeAdjustmentLevel = 1;
+  engine.config.lightRangeScale = 0.9;
   light.$logic();
   expect(property[1]).toBeCloseTo(9);
   expect(intensity[0]).toBeCloseTo(1.16);
   expect(intensity[1]).toBeCloseTo(0.58);
   expect(intensity[2]).toBeCloseTo(2.32);
 
-  engine.config.lightRangeAdjustmentLevel = 2;
+  engine.config.lightRangeScale = 0.85;
+  light.$logic();
+  expect(property[1]).toBeCloseTo(8.5);
+  expect(intensity[2]).toBeCloseTo(2.51);
+
+  engine.config.lightRangeScale = 0.8;
   light.$logic();
   expect(property[1]).toBeCloseTo(8);
   expect(intensity[2]).toBeCloseTo(2.7);
 
-  engine.config.lightRangeAdjustmentLevel = 0;
+  engine.config.lightRangeScale = 1;
   light.$logic();
   expect(property[1]).toBeCloseTo(10);
   expect(intensity[2]).toBeCloseTo(2);
 });
 
-test('the light range adjustment level does not change directional and unbounded lights', async () => {
+test('the light range scale does not change directional and unbounded lights', async () => {
   const { engine, light } = await createLight();
-  engine.config.lightRangeAdjustmentLevel = 2;
+  engine.config.lightRangeScale = 0.8;
 
   light.type = Rn.LightType.Point;
   light.range = -1;
