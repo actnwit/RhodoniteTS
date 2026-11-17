@@ -558,6 +558,58 @@ describe('subtractByteRanges', () => {
   });
 });
 
+describe('writeLightClusterViewHeader', () => {
+  const view = lookAt([0, 0, 10], [0, 0, 0], [0, 1, 0]);
+  const projection = perspective(60, 1, 0.1, 100);
+  const layout = getLightClusterViewLayout([16, 9, 24], 64);
+  const header = (spheres: Float64Array, near?: number, far?: number) => {
+    const dst = new Float32Array(layout.viewVec4Count * 4);
+    if (near === undefined) {
+      writeLightClusterViewHeader(dst, 0, view, projection, spheres, 1, layout);
+    } else {
+      writeLightClusterViewHeader(dst, 0, view, projection, spheres, 1, layout, near, far);
+    }
+    return { dst, zNear: dst[22], zFar: dst[23] };
+  };
+  // The center is at depth 2.85 with radius 2.8: the light range is [0.05, 5.65].
+  const light = () => new Float64Array([0, 0, 10 - 2.85, 2.8]);
+
+  test('keeps the light range when the camera range is not given', () => {
+    const { zNear, zFar } = header(light());
+    expect(zNear).toBeCloseTo(0.05, 3);
+    expect(zFar).toBeCloseTo(5.65, 3);
+  });
+
+  test('keeps the light range when the camera range is wider', () => {
+    const { zNear, zFar } = header(light(), 0.01, 1000);
+    expect(zNear).toBeCloseTo(0.05, 3);
+    expect(zFar).toBeCloseTo(5.65, 3);
+  });
+
+  test('clamps the slices to the camera near and far planes', () => {
+    const { zNear, zFar } = header(light(), 0.5, 4);
+    expect(zNear).toBeCloseTo(0.5, 4);
+    expect(zFar).toBeCloseTo(4, 4);
+  });
+
+  test('uses the camera range when it is narrower than the light range', () => {
+    // A sphere at depth 50 with radius 50: the light range is [0, 100].
+    const { dst, zNear, zFar } = header(new Float64Array([0, 0, 10 - 50, 50]), 10, 20);
+    expect(zNear).toBeCloseTo(10, 4);
+    expect(zFar).toBeCloseTo(20, 4);
+    // The first slice starts at the camera near.
+    expect(Math.exp((0 - dst[21]) / dst[20])).toBeCloseTo(10, 3);
+  });
+
+  test('keeps a valid slice range when the camera far plane is in front of all lights', () => {
+    // A light range of [18, 22] with a camera far plane of 5: the clusters can not be lit by them.
+    const { zNear, zFar } = header(new Float64Array([0, 0, 10 - 20, 2]), 0.1, 5);
+    expect(zFar).toBeCloseTo(5, 4);
+    expect(zNear).toBeCloseTo(2.5, 4);
+    expect(zNear).toBeLessThan(zFar);
+  });
+});
+
 describe('LightClusterBuilder scratch reuse', () => {
   test('a scratch reused for different light counts gives the same result as a fresh one', () => {
     const view = lookAt([1, 3, 10], [0, 0, 0], [0, 1, 0]);

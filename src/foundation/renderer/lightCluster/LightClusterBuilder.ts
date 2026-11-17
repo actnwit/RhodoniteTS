@@ -73,8 +73,9 @@ const MinSliceFarDepth = 1e-4;
 /**
  * Writes the header of a view region: the clip rows, the depth row, the grid size and the depth slices.
  *
- * The depth range of the slices is fitted to the depth range of the light spheres, so that the slices are not
- * wasted on depths where no light reaches.
+ * The depth range of the slices is the intersection of the depth range of the light spheres and the visible depth
+ * range of the camera: the slices are not wasted on depths where no light reaches, nor in front of the camera near
+ * plane or beyond the far plane.
  *
  * @param dst - The memory of the view region
  * @param viewOffset - The float offset of the view region in `dst`
@@ -83,6 +84,8 @@ const MinSliceFarDepth = 1e-4;
  * @param spheres - The light spheres in world space (cx, cy, cz, r) * localCount
  * @param localCount - The number of light spheres
  * @param layout - The layout of the view region
+ * @param visibleNearDepth - The view depth of the camera near plane (0 disables the clamp)
+ * @param visibleFarDepth - The view depth of the camera far plane (Infinity disables the clamp)
  */
 export function writeLightClusterViewHeader(
   dst: Float32Array,
@@ -91,7 +94,9 @@ export function writeLightClusterViewHeader(
   projectionMatrix: ArrayLike<number>,
   spheres: ArrayLike<number>,
   localCount: number,
-  layout: LightClusterViewLayout
+  layout: LightClusterViewLayout,
+  visibleNearDepth = 0,
+  visibleFarDepth = Number.POSITIVE_INFINITY
 ) {
   // clip = P * V. Column-major: m[row][col] = v[col * 4 + row].
   const clip = new Float64Array(16);
@@ -137,11 +142,15 @@ export function writeLightClusterViewHeader(
     minDepth = Math.min(minDepth, d - r);
     maxDepth = Math.max(maxDepth, d + r);
   }
-  const zFar = Math.max(Number.isFinite(maxDepth) ? maxDepth : MinSliceFarDepth, MinSliceFarDepth);
-  const zNear = Math.min(
-    Math.max(Number.isFinite(minDepth) ? minDepth : 0, zFar / MaxSliceDepthRatio),
-    zFar / MinSliceDepthRatio
-  );
+  const lightNear = Number.isFinite(minDepth) ? minDepth : 0;
+  const lightFar = Number.isFinite(maxDepth) ? maxDepth : MinSliceFarDepth;
+  const cameraFar =
+    Number.isFinite(visibleFarDepth) && visibleFarDepth > 0 ? visibleFarDepth : Number.POSITIVE_INFINITY;
+  const zFar = Math.max(Math.min(lightFar, cameraFar), MinSliceFarDepth);
+  // The ratio limits keep a valid mapping when the camera range does not overlap the lights: the cluster lists then
+  // only contain the lights whose spheres reach into the visible range (the border slices extend to infinity).
+  const cameraNear = Math.min(Math.max(visibleNearDepth, 0), zFar / MinSliceDepthRatio);
+  const zNear = Math.min(Math.max(lightNear, cameraNear, zFar / MaxSliceDepthRatio), zFar / MinSliceDepthRatio);
   const sliceScale = layout.gridZ / Math.log(zFar / zNear);
   const sliceBias = -Math.log(zNear) * sliceScale;
 

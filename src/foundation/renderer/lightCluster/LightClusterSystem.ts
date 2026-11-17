@@ -538,7 +538,9 @@ export class LightClusterSystem {
           projectionMatrix,
           this.__spheres,
           this.__localCount,
-          layout
+          layout,
+          camera.zNear,
+          camera.zFar
         );
         this.__prepareViewBuild(region.array, slot, isGpuBuild, layout);
         this.__slotLocalCounts[slot] = this.__localCount;

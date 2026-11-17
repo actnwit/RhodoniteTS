@@ -149,7 +149,7 @@ export class Config {
    * are the farthest ones. The cost of a fragment is bounded by this value.
    *
    * Memory per camera: about `16 * clusterCount * ceil(value / 4)` bytes, where clusterCount is the product of
-   * {@link Config.clusteredForwardGridSize} (31,104 by default). The default 96 is about 12 MB per camera.
+   * {@link Config.clusteredForwardGridSize} (62,208 by default). The default 96 is about 25 MB per camera.
    */
   clusteredForwardLightCapacityPerCluster = 96;
   /** The maximum number of enabled lights that are shaded. The other lights are ignored. (max: 65535) */

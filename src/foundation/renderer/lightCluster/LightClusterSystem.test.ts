@@ -12,8 +12,8 @@ type TestLightDesc = {
 
 async function createScene(config: Rn.Config, lightDescs: TestLightDesc[]) {
   // The None approach allocates 16 MB of GPU instance data, which is less than one view region of the default grid
-  // and capacity. Add a layer that is large enough for it.
-  config.bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 32, 5 / 32, 6 / 32, 12 / 32, 1];
+  // and capacity (about 25 MB). Add a layer that is large enough for it.
+  config.bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 32, 5 / 32, 6 / 32, 12 / 32, 2];
   const engine = await Rn.Engine.init({
     approach: Rn.ProcessApproach.None,
     canvas: document.getElementById('world') as HTMLCanvasElement,
@@ -330,10 +330,14 @@ test('keeps the nearest lights in a cluster that receives more lights than the c
     descs.push({ type: 'point', position: [0, 0, -33 - i * 0.15], range: 1 });
   }
   descs.push({ type: 'point', position: [0, 0, -991], range: 1 });
-  const { engine, camera, expression } = await createScene(
+  const { engine, camera, expression, runLogic } = await createScene(
     new Rn.Config({ clusteredForwardLightCapacityPerCluster: 16 }),
     descs
   );
+  // Keep the far light inside the camera range: the slices are fitted to the intersection of the light range and
+  // the camera range, and a light beyond the camera far plane must not widen them.
+  camera.zFar = 2000;
+  runLogic();
   engine.lightClusterSystem.update([expression]);
   const result = readView(engine, camera);
   expect(result).toBeDefined();
