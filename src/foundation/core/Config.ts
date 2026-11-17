@@ -109,7 +109,7 @@ export class Config {
    * fragment), and a finer grid increases the per-frame cluster build cost (the cost is paid once per frame, and the
    * build is proportional to the cluster count in the current implementation).
    */
-  clusteredForwardGridSize: [number, number, number] = [48, 27, 24];
+  clusteredForwardGridSize: [number, number, number] = [48, 27, 48];
   /**
    * The maximum number of cameras whose light clusters are built in one frame.
    * The other cameras evaluate all lights.
