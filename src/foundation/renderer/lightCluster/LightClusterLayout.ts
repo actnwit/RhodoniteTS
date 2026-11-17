@@ -12,8 +12,7 @@
  *       The lights that can not be culled (directional lights, lights without range) come first,
  *       then the local lights. Both groups are sorted by the light component SID.
  * ```
- * `sphereBase` is the absolute vec4 index of the local light spheres (only written when the clusters are built
- * on the GPU), -1 otherwise.
+ * `sphereBase` is -1 (the GPU cluster build receives its own sorted light input in a separate storage buffer).
  *
  * ## Light entry
  * `entry = lightComponentSID + 65536 * (shadowSlot + 1)` (`shadowSlot` is -1 when the light has no shadow slot).
@@ -24,12 +23,14 @@
  * [1] rowY      0.5 * gridY * (clipRow1 + clipRow3)
  * [2] rowW      clipRow3
  * [3] rowDepth  normalized view depth row: depth = dot(rowDepth, p) (positive in front of the camera)
- * [4] (gridX, gridY, gridZ, state)        state: 0 = valid, 1 = overflow (use the all-light list)
+ * [4] (gridX, gridY, gridZ, state)        state: 0 (valid; reserved)
  * [5] (sliceScale, sliceBias, zNear, zFar) slice = floor(log(depth) * sliceScale + sliceBias)
  * [6..] cluster table: one vec4 per cluster, (offset, count, 0, 0).
  *       offset is the vec4 index of the list of the cluster from the index list start.
- * [6 + clusterCount..] index list: 4 entries per vec4. The list of each cluster starts at a vec4 boundary and the
- *       rest of its last vec4 is zero.
+ * [6 + clusterCount..] index list: 4 entries per vec4.
+ *       The CPU build packs the lists densely (offset is the exclusive prefix sum of the cluster counts); the WebGPU
+ *       build gives every cluster its own `ceil(clusterLightCapacity / 4)` vec4s (offset = cluster * that). The rest
+ *       of the last vec4 of a list is zero.
  * ```
  * The cluster index is `(z * gridY + y) * gridX + x`. The clusters at the borders of the grid extend to infinity,
  * so clamping the cluster coordinates of a fragment is always correct.
@@ -50,8 +51,6 @@ export const LightClusterLayout = {
   viewGridOffset: 4,
   /** The vec4 offset of the slice info (sliceScale, sliceBias, zNear, zFar) in a view region. */
   viewSliceOffset: 5,
-  /** The state of a view whose light index list overflowed. */
-  stateOverflow: 1,
 } as const;
 
 /**
@@ -95,7 +94,7 @@ export type LightClusterViewLayout = {
   tableVec4Count: number;
   indexCapacity: number;
   indexVec4Count: number;
-  /** The number of lights per cluster the list is sized for. Every cluster is limited to this in the truncate mode. */
+  /** The maximum number of lights stored in one cluster. */
   clusterLightCapacity: number;
   viewVec4Count: number;
 };

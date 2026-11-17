@@ -191,18 +191,26 @@ function lightReaches(light: TestLight, p: number[]) {
   return true;
 }
 
-function buildView(
-  viewMatrix: Mat4,
-  projectionMatrix: Mat4,
-  lights: TestLight[],
-  capacityPerCluster = 64,
-  truncate = false
-) {
+/** Sorts the lights by their view depth, as the LightClusterSystem does when a cluster can be full. */
+function sortLightsByDepth(lights: TestLight[], viewMatrix: Mat4) {
+  const depth = (light: TestLight) =>
+    -(
+      viewMatrix[2] * light.position[0] +
+      viewMatrix[6] * light.position[1] +
+      viewMatrix[10] * light.position[2] +
+      viewMatrix[14]
+    );
+  return [...lights].sort((a, b) => depth(a) - depth(b));
+}
+
+function buildView(viewMatrix: Mat4, projectionMatrix: Mat4, lights: TestLight[], capacityPerCluster = 1024) {
   const layout = getLightClusterViewLayout([16, 9, 24], capacityPerCluster);
-  const spheres = new Float64Array(lights.length * 4);
+  // The builder expects the lights sorted by view depth when a cluster can be full.
+  const orderedLights = lights.length > capacityPerCluster ? sortLightsByDepth(lights, viewMatrix) : lights;
+  const spheres = new Float64Array(orderedLights.length * 4);
   const entries: number[] = [];
   let localCount = 0;
-  for (const light of lights) {
+  for (const light of orderedLights) {
     const r = computeLightBoundingSphere(
       light.type,
       light.position,
@@ -220,7 +228,7 @@ function buildView(
   const dst = new Float32Array(viewOffset + layout.viewVec4Count * 4);
   writeLightClusterViewHeader(dst, viewOffset, viewMatrix, projectionMatrix, spheres, localCount, layout);
   const scratch = createLightClusterBuildScratch(layout);
-  const built = buildLightClustersOnCpu(dst, viewOffset, layout, spheres, entries, localCount, scratch, truncate);
+  const built = buildLightClustersOnCpu(dst, viewOffset, layout, spheres, entries, localCount, scratch);
   return { dst, viewOffset, layout, spheres, entries, localCount, built };
 }
 
@@ -232,7 +240,7 @@ function checkNoLightIsMissed(
   random: () => number,
   sampleCount: number,
   ndcZRange: [number, number],
-  capacityPerCluster = 64
+  capacityPerCluster = Math.max(1, lights.length)
 ) {
   const { dst, viewOffset, layout, built } = buildView(viewMatrix, projectionMatrix, lights, capacityPerCluster);
   expect(built).toBe('built');
@@ -325,7 +333,7 @@ describe('LightClusterBuilder', () => {
     const projection = perspective(90, 1, 0.1, 100);
     // Lights all around the eye, including ones that contain the eye
     const lights = createLights(random, 200, [0, 0, 0], 10);
-    expect(checkNoLightIsMissed(view, projection, lights, random, 3000, [-1, 0.99], 1024)).toBeGreaterThan(500);
+    expect(checkNoLightIsMissed(view, projection, lights, random, 3000, [-1, 0.99])).toBeGreaterThan(500);
 
     // A light entirely behind the eye plane is not assigned to any cluster
     const behind: TestLight = {
@@ -347,7 +355,7 @@ describe('LightClusterBuilder', () => {
     const view = lookAt([2, 3, 9], [0, 0, 0], [0, 1, 0]);
     const projection = perspective(50, 1.5, 0.3, 80);
     const lights = createLights(random, 60, [0, 0, 0], 20);
-    const { dst, viewOffset, layout, spheres, entries, localCount } = buildView(view, projection, lights);
+    const { dst, viewOffset, layout, spheres, entries, localCount } = buildView(view, projection, lights, 64);
     for (let z = 0; z < layout.gridZ; z++) {
       for (let y = 0; y < layout.gridY; y++) {
         for (let x = 0; x < layout.gridX; x++) {
@@ -382,7 +390,7 @@ describe('LightClusterBuilder', () => {
     const view = lookAt([1, 4, 9], [0, 0, 0], [0, 1, 0]);
     const projection = perspective(55, 1.3, 0.2, 60);
     const lights = createLights(random, 90, [0, 0, 0], 14);
-    const { dst, viewOffset, layout } = buildView(view, projection, lights);
+    const { dst, viewOffset, layout } = buildView(view, projection, lights, lights.length);
     const tableOffset = viewOffset + LightClusterLayout.viewHeaderVec4Count * 4;
     const indexOffset = tableOffset + layout.tableVec4Count * 4;
     const owner = new Int32Array(layout.indexVec4Count).fill(-1);
@@ -402,78 +410,74 @@ describe('LightClusterBuilder', () => {
     }
   });
 
-  test('marks the view as overflowed when the index list is too small', () => {
+  test('a small capacity keeps the nearest lights of each cluster and never overflows', () => {
     const random = createRandom(6);
     const view = lookAt([0, 0, 10], [0, 0, 0], [0, 1, 0]);
     const projection = perspective(60, 1, 0.1, 100);
     const lights = createLights(random, 100, [0, 0, 0], 4);
-    const { dst, viewOffset, built } = buildView(view, projection, lights, 1);
-    expect(built).toBe('overflow');
-    expect(dst[viewOffset + LightClusterLayout.viewGridOffset * 4 + 3]).toBe(LightClusterLayout.stateOverflow);
-    expect(computeLightClusterIndex(dst, viewOffset, 0, 0, 0)).toBe(-1);
-  });
-
-  test('truncates each cluster to its first lights in the truncate mode', () => {
-    const random = createRandom(6);
-    const view = lookAt([0, 0, 10], [0, 0, 0], [0, 1, 0]);
-    const projection = perspective(60, 1, 0.1, 100);
-    const lights = createLights(random, 100, [0, 0, 0], 4);
-    const full = buildView(view, projection, lights, 1024);
+    // The full build in the same (view depth) order as the sorted truncated build
+    const sorted = sortLightsByDepth(lights, view);
+    const full = buildView(view, projection, sorted, sorted.length);
     expect(full.built).toBe('built');
-    const truncated = buildView(view, projection, lights, 1, true);
-    expect(truncated.built).toBe('truncated');
-    const { dst, viewOffset, layout } = truncated;
-    expect(layout.clusterLightCapacity).toBe(1);
-    expect(dst[viewOffset + LightClusterLayout.viewGridOffset * 4 + 3]).toBe(0);
+    const fixed = buildView(view, projection, lights, 4);
+    expect(fixed.built).toBe('truncated');
+    expect(fixed.layout.clusterLightCapacity).toBe(4);
+    // The view is always valid (it never overflows)
+    expect(fixed.dst[fixed.viewOffset + LightClusterLayout.viewGridOffset * 4 + 3]).toBe(0);
+    expect(computeLightClusterIndex(fixed.dst, fixed.viewOffset, 0, 0, 0)).toBeGreaterThanOrEqual(0);
 
     let truncatedClusters = 0;
-    const tableOffset = viewOffset + LightClusterLayout.viewHeaderVec4Count * 4;
-    const owner = new Int32Array(layout.indexVec4Count).fill(-1);
-    for (let c = 0; c < layout.clusterCount; c++) {
+    for (let c = 0; c < fixed.layout.clusterCount; c++) {
       const all = readLightClusterEntries(full.dst, full.viewOffset, full.layout, c);
-      const kept = readLightClusterEntries(dst, viewOffset, layout, c);
-      // The first lights (in the order of the light component SIDs) are kept
-      expect(kept).toEqual(all.slice(0, 1));
-      if (all.length > 1) truncatedClusters++;
-      // The lists still fit and do not overlap
-      const offsetVec4 = dst[tableOffset + c * 4];
-      for (let v = 0; v < Math.ceil(kept.length / 4); v++) {
-        expect(owner[offsetVec4 + v]).toBe(-1);
-        owner[offsetVec4 + v] = c;
-      }
+      const kept = readLightClusterEntries(fixed.dst, fixed.viewOffset, fixed.layout, c);
+      // The nearest lights (sorted by view depth) are kept
+      expect(kept).toEqual(all.slice(0, 4));
+      if (all.length > 4) truncatedClusters++;
     }
     expect(truncatedClusters).toBeGreaterThan(0);
-    expect(computeLightClusterIndex(dst, viewOffset, 0, 0, 0)).toBeGreaterThanOrEqual(0);
+
+    // The dense lists fit in the allocated list
+    const tableOffset = fixed.viewOffset + LightClusterLayout.viewHeaderVec4Count * 4;
+    let usedVec4 = 0;
+    for (let c = 0; c < fixed.layout.clusterCount; c++) {
+      usedVec4 += Math.ceil(fixed.dst[tableOffset + c * 4 + 1] / 4);
+    }
+    expect(usedVec4).toBeLessThanOrEqual(fixed.layout.indexVec4Count);
   });
 
-  test('the truncate mode limits every cluster even when the list has room', () => {
+  test('the capacity limits every cluster even when the list has room', () => {
     const random = createRandom(10);
     const view = lookAt([0, 0, 10], [0, 0, 0], [0, 1, 0]);
     const projection = perspective(60, 1, 0.1, 100);
     // A few overlapping lights: the list has plenty of room, but some clusters get more than 2 lights
     const lights = createLights(random, 6, [0, 0, 0], 1);
-    const free = buildView(view, projection, lights, 2);
-    expect(free.built).toBe('built');
-    const fixed = buildView(view, projection, lights, 2, true);
+    const sorted = sortLightsByDepth(lights, view);
+    const full = buildView(view, projection, sorted, sorted.length);
+    const fixed = buildView(view, projection, lights, 2);
     expect(fixed.built).toBe('truncated');
-    let freeOverCapacity = 0;
+    let fullOverCapacity = 0;
     for (let c = 0; c < fixed.layout.clusterCount; c++) {
-      const all = readLightClusterEntries(free.dst, free.viewOffset, free.layout, c);
-      if (all.length > 2) freeOverCapacity++;
+      const all = readLightClusterEntries(full.dst, full.viewOffset, full.layout, c);
+      if (all.length > 2) fullOverCapacity++;
       expect(readLightClusterEntries(fixed.dst, fixed.viewOffset, fixed.layout, c)).toEqual(all.slice(0, 2));
     }
-    expect(freeOverCapacity).toBeGreaterThan(0);
+    expect(fullOverCapacity).toBeGreaterThan(0);
   });
 
-  test('does not truncate in the truncate mode when no cluster exceeds the capacity', () => {
+  test('does not truncate when no cluster exceeds the capacity', () => {
     const random = createRandom(9);
     const view = lookAt([1, 2, 10], [0, 0, 0], [0, 1, 0]);
     const projection = perspective(60, 1, 0.1, 100);
     const lights = createLights(random, 30, [0, 0, 0], 16);
     const a = buildView(view, projection, lights, 64);
-    const b = buildView(view, projection, lights, 64, true);
+    const b = buildView(view, projection, lights, lights.length);
+    expect(a.built).toBe('built');
     expect(b.built).toBe('built');
-    expect(Array.from(b.dst)).toEqual(Array.from(a.dst));
+    for (let c = 0; c < a.layout.clusterCount; c++) {
+      expect(readLightClusterEntries(a.dst, a.viewOffset, a.layout, c)).toEqual(
+        readLightClusterEntries(b.dst, b.viewOffset, b.layout, c)
+      );
+    }
   });
 
   test('positions behind the eye plane use the all-light list', () => {

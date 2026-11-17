@@ -29,7 +29,6 @@ type ConfigInitDescription = {
   clusteredForwardGridSize?: [number, number, number];
   clusteredForwardMaxViewNumber?: number;
   clusteredForwardLightCapacityPerCluster?: number;
-  clusteredForwardOverflowMode?: ClusteredForwardOverflowMode;
   clusteredForwardMinLocalLightNumber?: number;
   maxLightListLength?: number;
   lightAutoRangeThreshold?: number;
@@ -41,18 +40,6 @@ type ConfigInitDescription = {
  * - `'cpu'`: Both backends build them on the CPU.
  */
 export type ClusteredForwardBuildMode = 'auto' | 'cpu';
-
-/**
- * How Clustered Forward rendering handles clusters with many lights
- * (see {@link Config.clusteredForwardLightCapacityPerCluster}).
- * - `'allLights'`: The clusters share the light index list freely, so a cluster can hold more lights than the
- *   capacity per cluster while others hold fewer. When the list overflows, the camera evaluates all lights in that
- *   frame. The image stays correct, but every fragment pays for every light.
- * - `'truncate'`: Every cluster always holds at most the capacity per cluster, whatever the other clusters hold.
- *   The lights beyond it are ignored in that cluster, in the order of the light component SIDs (the lights created
- *   first are kept). The cost per fragment is bounded, but the ignored lights are missing in the crowded clusters.
- */
-export type ClusteredForwardOverflowMode = 'allLights' | 'truncate';
 
 /**
  * Config is a configuration class that contains the configuration for the library.
@@ -112,8 +99,16 @@ export class Config {
   isClusteredForwardEnabled = true;
   /** Where the light clusters are built. See {@link ClusteredForwardBuildMode}. */
   clusteredForwardBuildMode: ClusteredForwardBuildMode = 'auto';
-  /** The number of clusters along the screen X, screen Y and view depth axes. */
-  clusteredForwardGridSize: [number, number, number] = [16, 9, 24];
+  /**
+   * The number of clusters along the screen X, screen Y and view depth axes.
+   *
+   * @remarks
+   * The default puts about a 40 pixel tile on a 1920x1080 canvas. The screen tiles should stay roughly 30-40 pixels
+   * at the rendered resolution: a coarser grid lets many lights share each cluster (the cost is paid by every
+   * fragment), and a finer grid increases the per-frame cluster build cost (the cost is paid once per frame, and the
+   * build is proportional to the cluster count in the current implementation).
+   */
+  clusteredForwardGridSize: [number, number, number] = [48, 27, 24];
   /**
    * The maximum number of cameras whose light clusters are built in one frame.
    * The other cameras evaluate all lights.
@@ -145,20 +140,17 @@ export class Config {
    */
   clusteredForwardMinLocalLightNumber = 1;
   /**
-   * The number of lights per cluster that the light index list of each camera is sized for.
+   * The maximum number of lights in the list of each cluster.
    *
    * @remarks
-   * In the `'allLights'` {@link Config.clusteredForwardOverflowMode}, the clusters share one list, so a cluster can
-   * hold more lights than this when other clusters hold fewer, and the list never overflows while no cluster has more
-   * lights than this value. In the `'truncate'` mode, every cluster holds at most this many lights.
-   * A warning is logged once when the list overflows or lights are ignored.
+   * Every cluster keeps at most this many lights. When the number of local lights is greater than this value, the
+   * lights are sorted by their view depth and each cluster keeps the nearest ones, so the lights that are dropped
+   * are the farthest ones. The cost of a fragment is bounded by this value.
    *
-   * Memory per camera: about `16 * clusterCount * ceil(value / 4) * 4` bytes, where clusterCount is the product of
-   * {@link Config.clusteredForwardGridSize} (3456 by default). The default 304 is about 4 MB per camera.
+   * Memory per camera: about `16 * clusterCount * ceil(value / 4)` bytes, where clusterCount is the product of
+   * {@link Config.clusteredForwardGridSize} (31,104 by default). The default 96 is about 12 MB per camera.
    */
-  clusteredForwardLightCapacityPerCluster = 304;
-  /** How clusters with many lights are handled. See {@link ClusteredForwardOverflowMode}. */
-  clusteredForwardOverflowMode: ClusteredForwardOverflowMode = 'allLights';
+  clusteredForwardLightCapacityPerCluster = 96;
   /** The maximum number of enabled lights that are shaded. The other lights are ignored. (max: 65535) */
   maxLightListLength = 1024;
   /**
@@ -305,9 +297,6 @@ export class Config {
     }
     if (initDescription.clusteredForwardLightCapacityPerCluster !== undefined) {
       this.clusteredForwardLightCapacityPerCluster = initDescription.clusteredForwardLightCapacityPerCluster;
-    }
-    if (initDescription.clusteredForwardOverflowMode !== undefined) {
-      this.clusteredForwardOverflowMode = initDescription.clusteredForwardOverflowMode;
     }
     if (initDescription.maxLightListLength !== undefined) {
       this.maxLightListLength = initDescription.maxLightListLength;

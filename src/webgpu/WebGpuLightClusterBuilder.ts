@@ -4,30 +4,30 @@ import type { LightClusterGpuBuildParams } from '../foundation/renderer/lightClu
  * The WGSL of the light cluster build. It implements the assignment test documented in LightClusterBuilder.ts
  * (`sphereIntersectsLightCluster`) and writes the same layout as `buildLightClustersOnCpu` (LightClusterLayout.ts).
  *
- * Three dispatches per view (no atomics, so the result is deterministic and ordered like the CPU build):
- * 1. countLights: each cluster counts its lights and writes the count to its table entry.
- * 2. computeOffsets: one workgroup computes the exclusive prefix sum of the list sizes in vec4 (the offsets) and the
- *    overflow state.
- * 3. fillLights: each cluster writes the entries of its lights to its own vec4s of the index list.
- *
- * Every invocation writes only whole vec4s that no other invocation of the same dispatch accesses. Some backends
- * store a vector component by rewriting the whole vector, so component writes to shared vec4s would lose data.
+ * One dispatch per view, one invocation per cluster, no atomics:
+ * - The caller sorts the local lights by view depth (nearest first) and passes the range of the sorted lights whose
+ *   sphere overlaps the depth slice of each cluster, so an invocation only tests the lights that can reach its slice.
+ * - Each cluster owns `entriesPerCluster` vec4s of the light index list and writes its nearest lights until it is full.
+ *   The table entry of the cluster holds the vec4 offset of its list and its light count; the clusters of the same view
+ *   do not share the list, so the shader reads it with the same table lookup as the CPU build.
+ * - Every invocation writes only whole vec4s that no other invocation of the dispatch accesses. Some backends store a
+ *   vector component by rewriting the whole vector, so component writes to shared vec4s would lose data.
  */
 const lightClusterBuildWgsl = /* wgsl */ `
 struct Params {
   viewBase: u32,
   sphereBase: u32,
-  allListBase: u32,
-  globalCount: u32,
+  entryBase: u32,
+  rangeBase: u32,
   localCount: u32,
   clusterCount: u32,
-  indexVec4Count: u32,
-  // > 0: every cluster keeps at most this many lights (truncate mode). 0: the clusters share the list freely.
-  truncateCapacity: u32,
+  entriesPerCluster: u32,
+  capacity: u32,
 }
 
 @group(0) @binding(0) var<storage, read_write> data: array<vec4<f32>>;
 @group(0) @binding(1) var<uniform> params: Params;
+@group(0) @binding(2) var<storage, read> buildData: array<f32>;
 
 fn tableBase() -> u32 {
   return params.viewBase + 6u;
@@ -35,10 +35,6 @@ fn tableBase() -> u32 {
 
 fn indexBase() -> u32 {
   return params.viewBase + 6u + params.clusterCount;
-}
-
-fn readCount(cluster: u32) -> u32 {
-  return u32(data[tableBase() + cluster].y);
 }
 
 fn planePasses(plane: vec4<f32>, center: vec3<f32>, radius: f32) -> bool {
@@ -49,10 +45,12 @@ fn planePasses(plane: vec4<f32>, center: vec3<f32>, radius: f32) -> bool {
   return (dot(plane.xyz, center) + plane.w) / planeLength >= -radius;
 }
 
-// Counts (fill == false) or writes (fill == true) the lights of a cluster.
-// offsetVec4 is the vec4 index of the list of the cluster from the index list start, and fillLimit is the number of
-// lights to write (the lights after it were truncated).
-fn processCluster(cluster: u32, fill: bool, offsetVec4: u32, fillLimit: u32) -> u32 {
+@compute @workgroup_size(64)
+fn buildClusters(@builtin(global_invocation_id) id: vec3<u32>) {
+  let cluster = id.x;
+  if (cluster >= params.clusterCount) {
+    return;
+  }
   let base = params.viewBase;
   let rowX = data[base];
   let rowY = data[base + 1u];
@@ -76,14 +74,21 @@ fn processCluster(cluster: u32, fill: bool, offsetVec4: u32, fillLimit: u32) -> 
   let sliceNear = exp((fz - slice.y) / slice.x);
   let sliceFar = exp((fz + 1.0 - slice.y) / slice.x);
   let wLength = length(rowW.xyz);
-  let listBase = indexBase() + offsetVec4;
+
+  let rangeBase = params.rangeBase + z * 2u;
+  let rangeStart = u32(buildData[rangeBase]);
+  let rangeEnd = u32(buildData[rangeBase + 1u]);
+  let listBase = indexBase() + cluster * params.entriesPerCluster;
 
   var count = 0u;
   var pending = vec4<f32>(0.0);
-  for (var i = 0u; i < params.localCount; i++) {
-    let sphere = data[params.sphereBase + i];
-    let center = sphere.xyz;
-    let radius = sphere.w;
+  for (var i = rangeStart; i < rangeEnd; i = i + 1u) {
+    if (count >= params.capacity) {
+      break;
+    }
+    let sphereBase = params.sphereBase + i * 4u;
+    let center = vec3<f32>(buildData[sphereBase], buildData[sphereBase + 1u], buildData[sphereBase + 2u]);
+    let radius = buildData[sphereBase + 3u];
     // entirely behind the eye plane
     if (wLength > 1e-30 && (dot(rowW.xyz, center) + rowW.w) / wLength <= -radius) {
       continue;
@@ -107,103 +112,40 @@ fn processCluster(cluster: u32, fill: bool, offsetVec4: u32, fillLimit: u32) -> 
     if (z < gridZ - 1u && depth - radius > sliceFar) {
       continue;
     }
-    if (fill) {
-      if (count >= fillLimit) {
-        break;
-      }
-      let entryIndex = params.globalCount + i;
-      pending[count & 3u] = data[params.allListBase + (entryIndex >> 2u)][entryIndex & 3u];
-      if ((count & 3u) == 3u) {
-        data[listBase + (count >> 2u)] = pending;
-        pending = vec4<f32>(0.0);
-      }
+    pending[count & 3u] = buildData[params.entryBase + i];
+    if ((count & 3u) == 3u) {
+      data[listBase + (count >> 2u)] = pending;
+      pending = vec4<f32>(0.0);
     }
     count++;
   }
-  if (fill && (count & 3u) != 0u) {
+  if ((count & 3u) != 0u) {
     data[listBase + (count >> 2u)] = pending;
   }
-  return count;
-}
-
-@compute @workgroup_size(64)
-fn countLights(@builtin(global_invocation_id) id: vec3<u32>) {
-  let cluster = id.x;
-  if (cluster >= params.clusterCount) {
-    return;
-  }
-  var count = processCluster(cluster, false, 0u, 0u);
-  if (params.truncateCapacity > 0u) {
-    // clusterCount * truncateCapacity entries always fit in the list, so it never overflows
-    count = min(count, params.truncateCapacity);
-  }
-  data[tableBase() + cluster] = vec4<f32>(0.0, f32(count), 0.0, 0.0);
-}
-
-var<workgroup> partialSums: array<u32, 256>;
-
-@compute @workgroup_size(256)
-fn computeOffsets(@builtin(local_invocation_index) index: u32) {
-  let clusterCount = params.clusterCount;
-  let chunk = (clusterCount + 255u) / 256u;
-  let start = min(index * chunk, clusterCount);
-  let end = min(start + chunk, clusterCount);
-  var sum = 0u;
-  for (var c = start; c < end; c++) {
-    sum += (readCount(c) + 3u) >> 2u;
-  }
-  partialSums[index] = sum;
-  workgroupBarrier();
-  if (index == 0u) {
-    var total = 0u;
-    for (var i = 0u; i < 256u; i++) {
-      let value = partialSums[i];
-      partialSums[i] = total;
-      total += value;
-    }
-    let grid = data[params.viewBase + 4u];
-    data[params.viewBase + 4u] = vec4<f32>(grid.xyz, select(0.0, 1.0, total > params.indexVec4Count));
-  }
-  workgroupBarrier();
-  var offset = partialSums[index];
-  for (var c = start; c < end; c++) {
-    let count = readCount(c);
-    data[tableBase() + c] = vec4<f32>(f32(offset), f32(count), 0.0, 0.0);
-    offset += (count + 3u) >> 2u;
-  }
-}
-
-@compute @workgroup_size(64)
-fn fillLights(@builtin(global_invocation_id) id: vec3<u32>) {
-  let cluster = id.x;
-  if (cluster >= params.clusterCount) {
-    return;
-  }
-  if (data[params.viewBase + 4u].w != 0.0) {
-    return; // overflow: the shaders use the all-light list
-  }
-  let table = data[tableBase() + cluster];
-  processCluster(cluster, true, u32(table.x), u32(table.y));
+  data[tableBase() + cluster] = vec4<f32>(f32(cluster * params.entriesPerCluster), f32(count), 0.0, 0.0);
 }
 `;
 
 const ParamsByteLength = 32;
-const CountWorkgroupSize = 64;
+const BuildWorkgroupSize = 64;
 
 /**
  * Builds the light cluster tables of Clustered Forward rendering with compute shaders.
  * The tables are written into the storage buffer of the GPU instance data, where the CPU build would write them.
+ *
+ * The sorted light input of the views (spheres, entries and Z slice ranges) is uploaded to a separate storage buffer,
+ * because it is small (some tens of KiB) and reused for all views.
  */
 export class WebGpuLightClusterBuilder {
   private __device: GPUDevice;
   private __bindGroupLayout: GPUBindGroupLayout;
-  private __countPipeline: GPUComputePipeline;
-  private __offsetPipeline: GPUComputePipeline;
-  private __fillPipeline: GPUComputePipeline;
+  private __pipeline: GPUComputePipeline;
   private __paramsBuffer?: GPUBuffer;
   private __paramsStride: number;
   private __paramsCapacity = 0;
   private __paramsArray = new Uint32Array(ParamsByteLength / 4);
+  private __buildDataBuffer?: GPUBuffer;
+  private __buildDataCapacity = 0;
   private __bindGroup?: GPUBindGroup;
   private __bindGroupStorageBuffer?: GPUBuffer;
 
@@ -219,24 +161,15 @@ export class WebGpuLightClusterBuilder {
           visibility: GPUShaderStage.COMPUTE,
           buffer: { type: 'uniform', hasDynamicOffset: true, minBindingSize: ParamsByteLength },
         },
+        { binding: 2, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'read-only-storage' } },
       ],
     });
     const layout = device.createPipelineLayout({ bindGroupLayouts: [this.__bindGroupLayout] });
     const module = device.createShaderModule({ label: 'LightClusterBuild', code: lightClusterBuildWgsl });
-    this.__countPipeline = device.createComputePipeline({
-      label: 'LightClusterBuild.countLights',
+    this.__pipeline = device.createComputePipeline({
+      label: 'LightClusterBuild.buildClusters',
       layout,
-      compute: { module, entryPoint: 'countLights' },
-    });
-    this.__offsetPipeline = device.createComputePipeline({
-      label: 'LightClusterBuild.computeOffsets',
-      layout,
-      compute: { module, entryPoint: 'computeOffsets' },
-    });
-    this.__fillPipeline = device.createComputePipeline({
-      label: 'LightClusterBuild.fillLights',
-      layout,
-      compute: { module, entryPoint: 'fillLights' },
+      compute: { module, entryPoint: 'buildClusters' },
     });
   }
 
@@ -245,10 +178,10 @@ export class WebGpuLightClusterBuilder {
    * GPU instance data (queue.writeBuffer) and before the render commands of the frame.
    *
    * @param storageBuffer - The storage buffer of the GPU instance data
-   * @param params - The views to build
+   * @param params - The views to build and their sorted light input
    */
   build(storageBuffer: GPUBuffer, params: LightClusterGpuBuildParams) {
-    const viewCount = params.viewVec4Bases.length;
+    const viewCount = params.views.length;
     if (viewCount === 0) {
       return;
     }
@@ -263,43 +196,65 @@ export class WebGpuLightClusterBuilder {
       });
       this.__bindGroup = undefined;
     }
+
+    let dataLength = 0;
+    for (const view of params.views) {
+      dataLength = Math.max(dataLength, view.dataOffset + params.dataStride);
+    }
+    if (this.__buildDataBuffer == null || this.__buildDataCapacity < dataLength) {
+      this.__buildDataBuffer?.destroy();
+      // Grow in powers of two to avoid recreating the buffer every time a view is added.
+      let capacity = 1;
+      while (capacity < dataLength) {
+        capacity *= 2;
+      }
+      this.__buildDataCapacity = capacity;
+      this.__buildDataBuffer = device.createBuffer({
+        label: 'LightClusterBuild.buildData',
+        size: capacity * 4,
+        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+      });
+      this.__bindGroup = undefined;
+    }
+    device.queue.writeBuffer(this.__buildDataBuffer!, 0, params.data.subarray(0, dataLength));
+
     if (this.__bindGroup == null || this.__bindGroupStorageBuffer !== storageBuffer) {
       this.__bindGroup = device.createBindGroup({
         label: 'LightClusterBuild',
         layout: this.__bindGroupLayout,
         entries: [
           { binding: 0, resource: { buffer: storageBuffer } },
-          { binding: 1, resource: { buffer: this.__paramsBuffer, size: ParamsByteLength } },
+          { binding: 1, resource: { buffer: this.__paramsBuffer!, size: ParamsByteLength } },
+          { binding: 2, resource: { buffer: this.__buildDataBuffer! } },
         ],
       });
       this.__bindGroupStorageBuffer = storageBuffer;
     }
 
     const layout = params.layout;
+    const capacity = layout.clusterLightCapacity;
+    const entriesPerCluster = Math.ceil(capacity / 4);
     const p = this.__paramsArray;
     for (let i = 0; i < viewCount; i++) {
-      p[0] = params.viewVec4Bases[i];
-      p[1] = params.sphereVec4Base;
-      p[2] = params.allListVec4Base;
-      p[3] = params.globalCount;
-      p[4] = params.localCount;
+      const view = params.views[i];
+      p[0] = view.viewVec4Base;
+      p[1] = view.dataOffset;
+      p[2] = view.dataOffset + params.localCapacity * 4;
+      p[3] = view.dataOffset + params.localCapacity * 5;
+      p[4] = view.localCount;
       p[5] = layout.clusterCount;
-      p[6] = layout.indexVec4Count;
-      p[7] = params.truncate ? layout.clusterLightCapacity : 0;
-      device.queue.writeBuffer(this.__paramsBuffer, i * this.__paramsStride, p);
+      p[6] = entriesPerCluster;
+      p[7] = capacity;
+      device.queue.writeBuffer(this.__paramsBuffer!, i * this.__paramsStride, p);
     }
 
     const encoder = device.createCommandEncoder({ label: 'LightClusterBuild' });
     const pass = encoder.beginComputePass({ label: 'LightClusterBuild' });
-    const clusterWorkgroupCount = Math.ceil(layout.clusterCount / CountWorkgroupSize);
+    const workgroupCount = Math.ceil(layout.clusterCount / BuildWorkgroupSize);
     for (let i = 0; i < viewCount; i++) {
       pass.setBindGroup(0, this.__bindGroup, [i * this.__paramsStride]);
-      pass.setPipeline(this.__countPipeline);
-      pass.dispatchWorkgroups(clusterWorkgroupCount);
-      pass.setPipeline(this.__offsetPipeline);
-      pass.dispatchWorkgroups(1);
-      pass.setPipeline(this.__fillPipeline);
-      pass.dispatchWorkgroups(clusterWorkgroupCount);
+      pass.setPipeline(this.__pipeline);
+      pass.dispatchWorkgroups(workgroupCount);
     }
     pass.end();
     device.queue.submit([encoder.finish()]);
@@ -311,6 +266,8 @@ export class WebGpuLightClusterBuilder {
   destroy() {
     this.__paramsBuffer?.destroy();
     this.__paramsBuffer = undefined;
+    this.__buildDataBuffer?.destroy();
+    this.__buildDataBuffer = undefined;
     this.__bindGroup = undefined;
     this.__bindGroupStorageBuffer = undefined;
   }

@@ -33,18 +33,23 @@ type GpuDataRegion = {
  *
  * @internal
  */
-export type LightClusterGpuBuildParams = {
-  /** The vec4 indices of the view regions to build. */
-  viewVec4Bases: readonly number[];
-  /** The vec4 index of the local light spheres. */
-  sphereVec4Base: number;
-  /** The vec4 index of the all-light list. */
-  allListVec4Base: number;
-  globalCount: number;
+export type LightClusterGpuBuildView = {
+  /** The vec4 index of the view region to build. */
+  viewVec4Base: number;
+  /** The number of local lights of the view. */
   localCount: number;
+  /** The float offset of the view in `data`. */
+  dataOffset: number;
+};
+
+export type LightClusterGpuBuildParams = {
+  views: readonly LightClusterGpuBuildView[];
+  /** The sorted light spheres, entries and Z slice ranges of the views, `dataStride` floats per view. */
+  data: Float32Array;
+  dataStride: number;
+  /** The maximum number of local lights stored in the build data of a view. */
+  localCapacity: number;
   layout: LightClusterViewLayout;
-  /** Whether every cluster keeps at most `layout.clusterLightCapacity` lights (truncate mode). */
-  truncate: boolean;
 };
 
 /** The maximum shadow slot that can be packed into a light entry exactly (entries must stay below 2^24). */
@@ -90,7 +95,6 @@ export class LightClusterSystem {
   private __prevGlobalCount = -1;
   private __prevSphereVec4Base = -1;
 
-  private __sphereRegion?: GpuDataRegion;
   private __viewRegions: (GpuDataRegion | undefined)[] = [];
   /** The camera component SID of each view slot (-1: free). */
   private __slotCameraSids: number[] = [];
@@ -102,9 +106,20 @@ export class LightClusterSystem {
   private __camerasWithView: Set<number> = new Set();
   private __isAllocationFailed = false;
   private __isCapacityWarned = false;
-  private __isIndexOverflowWarned = false;
 
-  private __gpuBuildViewVec4Bases: number[] = [];
+  /** The order of the local lights of the view being built, sorted by view depth when the number of lights is large. */
+  private __sortOrder: number[] = [];
+  private __sortDepths = new Float64Array(0);
+  private __sortedSpheres = new Float64Array(0);
+  private __sortedEntries = new Float64Array(0);
+  private __sliceRanges = new Uint32Array(0);
+
+  /** The GPU build inputs (sorted spheres, entries and slice ranges) of the views, stored per view slot. */
+  private __gpuBuildData = new Float32Array(0);
+  private __gpuBuildStride = 0;
+  private __gpuBuildViews: LightClusterGpuBuildView[] = [];
+  /** The number of local lights of the view built in each slot. */
+  private __slotLocalCounts: number[] = [];
   /**
    * The byte ranges (in the GPU instance data) of the cluster tables and light index lists of the views. They are
    * large and written by this system or the compute shaders, so the generic upload of the GPU instance data skips them.
@@ -142,22 +157,15 @@ export class LightClusterSystem {
    * @internal
    */
   _getGpuBuildParams(): LightClusterGpuBuildParams | undefined {
-    if (
-      !this.isGpuBuild ||
-      this.__gpuBuildViewVec4Bases.length === 0 ||
-      this.__sphereRegion == null ||
-      this.__layout == null
-    ) {
+    if (!this.isGpuBuild || this.__gpuBuildViews.length === 0 || this.__layout == null) {
       return undefined;
     }
     return {
-      viewVec4Bases: this.__gpuBuildViewVec4Bases,
-      sphereVec4Base: this.__sphereRegion.vec4Base,
-      allListVec4Base: this.__globalDataVec4Base + LightClusterLayout.globalHeaderVec4Count,
-      globalCount: this.__globalCount,
-      localCount: this.__localCount,
+      views: this.__gpuBuildViews,
+      data: this.__gpuBuildData,
+      dataStride: this.__gpuBuildStride,
+      localCapacity: this.__capacity,
       layout: this.__layout,
-      truncate: this.__engine.config.clusteredForwardOverflowMode === 'truncate',
     };
   }
 
@@ -232,19 +240,13 @@ export class LightClusterSystem {
         ? this.__collectCameras(expressions)
         : [];
 
-    // The sphere region is used by the compute shaders only.
-    if (isGpuBuild && cameraSids.length > 0 && this.__sphereRegion == null) {
-      this.__sphereRegion = this.__allocate(this.__capacity);
-    }
-    const sphereVec4Base = isGpuBuild && this.__sphereRegion != null ? this.__sphereRegion.vec4Base : -1;
-    if (isLightsChanged || sphereVec4Base !== this.__prevSphereVec4Base) {
-      this.__writeGlobalData(sphereVec4Base);
-      if (isGpuBuild && this.__sphereRegion != null) {
-        this.__sphereRegion.array.set(this.__spheres.subarray(0, this.__localCount * 4));
-      }
-      this.__prevSphereVec4Base = sphereVec4Base;
+    if (isLightsChanged) {
+      this.__writeGlobalData();
       isChanged = true;
     }
+
+    // The GPU build inputs of the views built in this frame.
+    this.__gpuBuildViews.length = 0;
 
     isChanged = this.__assignViews(cameraSids, maxViewNumber, isLightsChanged, isGpuBuild) || isChanged;
 
@@ -278,9 +280,16 @@ export class LightClusterSystem {
       config.clusteredForwardGridSize,
       config.clusteredForwardLightCapacityPerCluster
     );
+    this.__sortDepths = new Float64Array(this.__capacity);
+    this.__sortedSpheres = new Float64Array(this.__capacity * 4);
+    this.__sortedEntries = new Float64Array(this.__capacity);
+    this.__sliceRanges = new Uint32Array(this.__layout.gridZ * 2);
     const maxViewNumber = Math.max(0, Math.floor(config.clusteredForwardMaxViewNumber));
+    this.__gpuBuildStride = this.__capacity * 5 + this.__layout.gridZ * 2;
+    this.__gpuBuildData = new Float32Array(maxViewNumber * this.__gpuBuildStride);
     this.__slotCameraSids = new Array(maxViewNumber).fill(-1);
     this.__slotValid = new Array(maxViewNumber).fill(false);
+    this.__slotLocalCounts = new Array(maxViewNumber).fill(0);
     this.__slotMatrices = new Float32Array(maxViewNumber * 32);
     this.__viewRegions = new Array(maxViewNumber).fill(undefined);
     return true;
@@ -385,12 +394,13 @@ export class LightClusterSystem {
     return isChanged;
   }
 
-  private __writeGlobalData(sphereVec4Base: number) {
+  private __writeGlobalData() {
     const data = this.__globalData!;
     data[0] = this.__allCount;
     data[1] = this.__globalCount;
     data[2] = this.__localCount;
-    data[3] = sphereVec4Base;
+    // The sphere region is no longer stored in the GPU instance data (the GPU build receives its own sorted input).
+    data[3] = -1;
     const offset = LightClusterLayout.globalHeaderVec4Count * 4;
     data.set(this.__entries.subarray(0, this.__allCount), offset);
   }
@@ -479,7 +489,6 @@ export class LightClusterSystem {
       }
     }
 
-    this.__gpuBuildViewVec4Bases.length = 0;
     for (let slot = 0; slot < maxViewNumber; slot++) {
       const sid = newSlotCameraSids[slot];
       if (sid !== this.__slotCameraSids[slot]) {
@@ -531,30 +540,23 @@ export class LightClusterSystem {
           this.__localCount,
           layout
         );
+        this.__prepareViewBuild(region.array, slot, isGpuBuild, layout);
+        this.__slotLocalCounts[slot] = this.__localCount;
         if (!isGpuBuild) {
           this.__scratch ??= createLightClusterBuildScratch(layout);
-          const result = buildLightClustersOnCpu(
+          buildLightClustersOnCpu(
             region.array,
             0,
             layout,
-            this.__spheres,
-            this.__localEntries,
+            this.__sortedSpheres,
+            this.__sortedEntries,
             this.__localCount,
-            this.__scratch,
-            this.__engine.config.clusteredForwardOverflowMode === 'truncate'
+            this.__scratch
           );
           // Only the table and the used part of the light index list have to reach the GPU.
           const start = (region.vec4Base + LightClusterLayout.viewHeaderVec4Count) * 16;
           const usedVec4Count = layout.tableVec4Count + this.__scratch.usedIndexVec4Count;
           this.__dirtyByteRanges.push([start, start + usedVec4Count * 16]);
-          if (result !== 'built' && !this.__isIndexOverflowWarned) {
-            Logger.default.warn(
-              result === 'truncated'
-                ? `LightClusterSystem: Some clusters have more lights than Config.clusteredForwardLightCapacityPerCluster (${this.__engine.config.clusteredForwardLightCapacityPerCluster}). The other lights are ignored in those clusters.`
-                : `LightClusterSystem: The light index list of a camera overflowed (Config.clusteredForwardLightCapacityPerCluster: ${this.__engine.config.clusteredForwardLightCapacityPerCluster}). The camera evaluates all lights until the lights fit.`
-            );
-            this.__isIndexOverflowWarned = true;
-          }
         }
         this.__slotValid[slot] = true;
         isChanged = true;
@@ -566,11 +568,114 @@ export class LightClusterSystem {
         isChanged = true;
       }
       this.__camerasWithView.add(sid);
-      if (isGpuBuild) {
-        this.__gpuBuildViewVec4Bases.push(region.vec4Base);
+    }
+
+    // The GPU build needs the input of every valid view (to rebuild them after the storage buffer is recreated),
+    // and the input of each view is kept in the build data of its slot.
+    this.__gpuBuildViews.length = 0;
+    if (isGpuBuild) {
+      for (let slot = 0; slot < maxViewNumber; slot++) {
+        const region = this.__viewRegions[slot];
+        if (this.__slotValid[slot] && region != null && this.__slotCameraSids[slot] >= 0) {
+          this.__gpuBuildViews.push({
+            viewVec4Base: region.vec4Base,
+            localCount: this.__slotLocalCounts[slot],
+            dataOffset: slot * this.__gpuBuildStride,
+          });
+        }
       }
     }
     return isChanged;
+  }
+
+  /**
+   * Prepares the light order and the Z slice ranges of a view for the builders.
+   *
+   * The lights are sorted by their view depth when there are more local lights than the capacity of a cluster, so
+   * that a cluster which is full keeps its nearest lights. Otherwise the light component SID order is kept (no
+   * cluster can be full), which keeps the result identical to a build without a capacity.
+   *
+   * For the GPU build, the sorted spheres, entries and ranges are copied to the GPU build data of the view.
+   */
+  private __prepareViewBuild(header: Float32Array, slot: number, isGpuBuild: boolean, layout: LightClusterViewLayout) {
+    const localCount = this.__localCount;
+    const capacity = layout.clusterLightCapacity;
+    const gridZ = layout.gridZ;
+    const spheres = this.__spheres;
+    const localEntries = this.__localEntries;
+    const sortedSpheres = this.__sortedSpheres;
+    const sortedEntries = this.__sortedEntries;
+    const ranges = this.__sliceRanges;
+
+    if (localCount <= capacity) {
+      // No cluster can be full, so keep the SID order and let every slice scan all lights.
+      sortedSpheres.set(spheres.subarray(0, localCount * 4));
+      sortedEntries.set(localEntries.subarray(0, localCount));
+      for (let z = 0; z < gridZ; z++) {
+        ranges[z * 2] = 0;
+        ranges[z * 2 + 1] = localCount;
+      }
+    } else {
+      // Sort the lights by view depth (nearest first).
+      const depths = this.__sortDepths;
+      const order = this.__sortOrder;
+      order.length = localCount;
+      const dx = header[12];
+      const dy = header[13];
+      const dz = header[14];
+      const dw = header[15];
+      for (let i = 0; i < localCount; i++) {
+        depths[i] = dx * spheres[i * 4] + dy * spheres[i * 4 + 1] + dz * spheres[i * 4 + 2] + dw;
+        order[i] = i;
+      }
+      order.sort((a, b) => depths[a] - depths[b]);
+      for (let k = 0; k < localCount; k++) {
+        const src = order[k];
+        sortedSpheres[k * 4] = spheres[src * 4];
+        sortedSpheres[k * 4 + 1] = spheres[src * 4 + 1];
+        sortedSpheres[k * 4 + 2] = spheres[src * 4 + 2];
+        sortedSpheres[k * 4 + 3] = spheres[src * 4 + 3];
+        sortedEntries[k] = localEntries[src];
+      }
+
+      // The range of the sorted lights whose sphere overlaps the depth range of each slice. The ranges are
+      // conservative (they can include lights that do not overlap), which only costs a few tests.
+      const sliceScale = header[20];
+      const sliceBias = header[21];
+      for (let z = 0; z < gridZ; z++) {
+        const sliceNear = z === 0 ? Number.NEGATIVE_INFINITY : Math.exp((z - sliceBias) / sliceScale);
+        const sliceFar = z === gridZ - 1 ? Number.POSITIVE_INFINITY : Math.exp((z + 1 - sliceBias) / sliceScale);
+        let start = localCount;
+        let end = 0;
+        for (let k = 0; k < localCount; k++) {
+          const src = order[k];
+          const d = depths[src];
+          const r = spheres[src * 4 + 3];
+          if (d + r >= sliceNear && d - r <= sliceFar) {
+            if (k < start) start = k;
+            if (k + 1 > end) end = k + 1;
+          }
+        }
+        if (start >= end) {
+          start = 0;
+          end = 0;
+        }
+        ranges[z * 2] = start;
+        ranges[z * 2 + 1] = end;
+      }
+    }
+
+    if (isGpuBuild) {
+      const dataOffset = slot * this.__gpuBuildStride;
+      const localCapacity = this.__capacity;
+      const data = this.__gpuBuildData;
+      data.set(sortedSpheres.subarray(0, localCount * 4), dataOffset);
+      data.set(sortedEntries.subarray(0, localCount), dataOffset + localCapacity * 4);
+      const rangeBase = dataOffset + localCapacity * 5;
+      for (let i = 0; i < gridZ * 2; i++) {
+        data[rangeBase + i] = ranges[i];
+      }
+    }
   }
 
   /**

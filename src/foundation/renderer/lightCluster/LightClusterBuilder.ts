@@ -20,10 +20,9 @@ import { LightClusterLayout, type LightClusterViewLayout } from './LightClusterL
 /**
  * The result of a light cluster build.
  * - `'built'`: every light was stored.
- * - `'overflow'`: the light index list overflowed and the view uses the all-light list.
- * - `'truncated'`: some clusters had more than `clusterLightCapacity` lights and kept only their first lights.
+ * - `'truncated'`: some clusters had more lights than `clusterLightCapacity` and kept only their nearest lights.
  */
-export type LightClusterBuildResult = 'built' | 'overflow' | 'truncated';
+export type LightClusterBuildResult = 'built' | 'truncated';
 
 /** Scratch memory reused between builds. */
 export type LightClusterBuildScratch = {
@@ -346,15 +345,17 @@ function storePassRange(axisPass: Uint8Array, offset: number, count: number, out
 }
 
 /**
- * Visits the clusters a light touches (from its axis flags at `base`). Without `ends`, it increments `cursors` of
- * each cluster (counting). With `ends`, it writes `entry` at the cursor of each cluster and advances it while it is
- * below the end (filling).
+ * Visits the clusters a light touches (from its axis flags at `base`). Without `dst`, it increments `cursors` of each
+ * cluster while it is below `capacity` (counting). With `dst`, it writes `entry` at the cursor of each cluster while
+ * it is below the end (filling) and below `capacity`.
+ * @returns whether some cluster was full and skipped the light
  */
 function visitLightClusters(
   layout: LightClusterViewLayout,
   scratch: LightClusterBuildScratch,
   i: number,
   cursors: Uint32Array,
+  capacity: number,
   ends: Uint32Array | null,
   dst: Float32Array | null,
   indexOffset: number,
@@ -369,6 +370,7 @@ function visitLightClusters(
   const sliceBase = rowBase + gridY;
   const x0 = ranges[r];
   const x1 = ranges[r + 1];
+  let isFull = false;
   for (let z = ranges[r + 4]; z <= ranges[r + 5]; z++) {
     if (axisPass[sliceBase + z] === 0) continue;
     for (let y = ranges[r + 2]; y <= ranges[r + 3]; y++) {
@@ -378,7 +380,12 @@ function visitLightClusters(
         if (axisPass[base + x] === 0) continue;
         const c = rowStart + x;
         if (ends == null) {
-          cursors[c]++;
+          const cursor = cursors[c];
+          if (cursor < capacity) {
+            cursors[c] = cursor + 1;
+          } else {
+            isFull = true;
+          }
         } else if (cursors[c] < ends[c]) {
           dst![indexOffset + cursors[c]] = entry;
           cursors[c]++;
@@ -386,15 +393,16 @@ function visitLightClusters(
       }
     }
   }
+  return isFull;
 }
 
 /**
  * Builds the cluster table and the light index list of a view whose header has been written.
  *
- * The lights of each cluster are stored in the order of `localEntries` (sorted by the light component SID).
- * With `truncate`, every cluster keeps at most its first `layout.clusterLightCapacity` lights, whether or not the
- * list has room for more, so the list never overflows. Otherwise the clusters share the list freely, and when it
- * overflows the state of the view is set to overflow and the shaders use the all-light list for the whole view.
+ * The lights of each cluster are stored in the order of `localEntries`. The caller passes the lights sorted by their
+ * view depth (nearest first) when the number of local lights exceeds the capacity, so that a cluster which is full
+ * keeps its nearest lights. Every cluster keeps at most `layout.clusterLightCapacity` lights, so the list cannot
+ * overflow.
  */
 export function buildLightClustersOnCpu(
   dst: Float32Array,
@@ -403,10 +411,10 @@ export function buildLightClustersOnCpu(
   spheres: ArrayLike<number>,
   localEntries: ArrayLike<number>,
   localCount: number,
-  scratch: LightClusterBuildScratch,
-  truncate = false
+  scratch: LightClusterBuildScratch
 ): LightClusterBuildResult {
   const { gridX, gridY, gridZ, clusterCount } = layout;
+  const capacity = layout.clusterLightCapacity;
   const counts = scratch.counts;
   const offsets = scratch.offsets;
   counts.fill(0);
@@ -425,25 +433,13 @@ export function buildLightClustersOnCpu(
   }
   const isLightInView = scratch.isLightInView;
 
-  // Pass 1: evaluate the axes of each light once, and count the lights of each cluster
+  // Pass 1: evaluate the axes of each light once, and count the nearest lights of each cluster up to the capacity
+  let isTruncated = false;
   for (let i = 0; i < localCount; i++) {
     const inView = evaluateLightAxes(dst, viewOffset, layout, scratch, spheres, i);
     isLightInView[i] = inView ? 1 : 0;
     if (inView) {
-      visitLightClusters(layout, scratch, i, counts, null, null, 0, 0);
-    }
-  }
-
-  // Truncate mode: every cluster keeps at most its first lights (in the order of the light component SIDs).
-  // clusterCount * clusterLightCapacity entries always fit in the list.
-  let result: LightClusterBuildResult = 'built';
-  if (truncate) {
-    const capacity = layout.clusterLightCapacity;
-    for (let c = 0; c < clusterCount; c++) {
-      if (counts[c] > capacity) {
-        counts[c] = capacity;
-        result = 'truncated';
-      }
+      isTruncated = visitLightClusters(layout, scratch, i, counts, capacity, null, null, 0, 0) || isTruncated;
     }
   }
 
@@ -457,11 +453,6 @@ export function buildLightClustersOnCpu(
   const tableOffset = viewOffset + LightClusterLayout.viewHeaderVec4Count * 4;
   const indexOffset = tableOffset + layout.tableVec4Count * 4;
   const stateOffset = viewOffset + LightClusterLayout.viewGridOffset * 4 + 3;
-  if (totalVec4 > layout.indexVec4Count) {
-    dst[stateOffset] = LightClusterLayout.stateOverflow;
-    scratch.usedIndexVec4Count = 0;
-    return 'overflow';
-  }
   dst[stateOffset] = 0;
   scratch.usedIndexVec4Count = totalVec4;
 
@@ -486,10 +477,10 @@ export function buildLightClustersOnCpu(
   }
   for (let i = 0; i < localCount; i++) {
     if (isLightInView[i] !== 0) {
-      visitLightClusters(layout, scratch, i, offsets, counts, dst, indexOffset, localEntries[i]);
+      visitLightClusters(layout, scratch, i, offsets, capacity, counts, dst, indexOffset, localEntries[i]);
     }
   }
-  return result;
+  return isTruncated ? 'truncated' : 'built';
 }
 
 /**

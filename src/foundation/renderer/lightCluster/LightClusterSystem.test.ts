@@ -1,6 +1,6 @@
 import Rn from '../../../../dist/esm';
 import { computeLightClusterIndex, readLightClusterEntries } from './LightClusterBuilder';
-import { getLightClusterViewLayout, unpackLightEntry } from './LightClusterLayout';
+import { getLightClusterViewLayout, LightClusterLayout, unpackLightEntry } from './LightClusterLayout';
 
 type TestLightDesc = {
   type: 'directional' | 'point' | 'spot';
@@ -11,6 +11,9 @@ type TestLightDesc = {
 };
 
 async function createScene(config: Rn.Config, lightDescs: TestLightDesc[]) {
+  // The None approach allocates 16 MB of GPU instance data, which is less than one view region of the default grid
+  // and capacity. Add a layer that is large enough for it.
+  config.bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 32, 5 / 32, 6 / 32, 12 / 32, 1];
   const engine = await Rn.Engine.init({
     approach: Rn.ProcessApproach.None,
     canvas: document.getElementById('world') as HTMLCanvasElement,
@@ -317,4 +320,37 @@ test('the cluster lists are excluded from the generic upload, and the CPU-built 
   expect(dirty[0][1]).toBeGreaterThan((viewBase + 6 + layout.tableVec4Count) * 16);
   expect(dirty[0][1]).toBeLessThan((viewBase + layout.viewVec4Count) * 16);
   expect(system._takeDirtyByteRanges()).toEqual([]);
+});
+
+test('keeps the nearest lights in a cluster that receives more lights than the capacity', async () => {
+  const descs: TestLightDesc[] = [];
+  // All on the view axis (one screen tile), close in depth (one depth slice), nearest first. A light far behind the
+  // others widens the depth range of the slices, so that the spheres of all of them reach the cluster of the first.
+  for (let i = 0; i < 32; i++) {
+    descs.push({ type: 'point', position: [0, 0, -33 - i * 0.15], range: 1 });
+  }
+  descs.push({ type: 'point', position: [0, 0, -991], range: 1 });
+  const { engine, camera, expression } = await createScene(
+    new Rn.Config({ clusteredForwardLightCapacityPerCluster: 16 }),
+    descs
+  );
+  engine.lightClusterSystem.update([expression]);
+  const result = readView(engine, camera);
+  expect(result).toBeDefined();
+  const { view, layout } = result!;
+  expect(layout.clusterLightCapacity).toBe(16);
+
+  const cluster = computeLightClusterIndex(view, 0, 0, 0, -33);
+  expect(cluster).toBeGreaterThanOrEqual(0);
+  const sids = readLightClusterEntries(view, 0, layout, cluster).map(e => unpackLightEntry(e)[0]);
+  // The list is sorted by view depth, so the nearest 16 lights are kept.
+  expect(sids).toEqual(Array.from({ length: 16 }, (_, i) => i));
+
+  // No cluster of the view exceeds the capacity.
+  const tableOffset = LightClusterLayout.viewHeaderVec4Count * 4;
+  let maxCount = 0;
+  for (let i = 0; i < layout.clusterCount; i++) {
+    maxCount = Math.max(maxCount, view[tableOffset + i * 4 + 1]);
+  }
+  expect(maxCount).toBe(16);
 });
