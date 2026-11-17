@@ -27,12 +27,24 @@ export type LightClusterBuildResult = 'built' | 'overflow' | 'truncated';
 
 /** Scratch memory reused between builds. */
 export type LightClusterBuildScratch = {
+  /** The number of vec4 of the light index list used by the last build. */
+  usedIndexVec4Count: number;
   counts: Uint32Array;
   offsets: Uint32Array;
-  columnPass: Uint8Array;
-  rowPass: Uint8Array;
-  slicePass: Uint8Array;
   sliceBoundaries: Float64Array;
+  /** The normalized tile planes `rowX - k * rowW` (k = 0..gridX), (nx, ny, nz, w) each. Degenerate planes are 0. */
+  planesX: Float64Array;
+  /** The normalized tile planes `rowY - k * rowW` (k = 0..gridY). */
+  planesY: Float64Array;
+  /**
+   * The columns, rows and slices each light passes (gridX + gridY + gridZ flags per light), evaluated once and
+   * reused by the count and fill passes. Grown on demand.
+   */
+  axisPass: Uint8Array;
+  /** Whether each light touches any cluster. Grown on demand. */
+  isLightInView: Uint8Array;
+  /** The first and last passing column, row and slice of each light (6 per light). Grown on demand. */
+  axisRanges: Int32Array;
 };
 
 /**
@@ -40,12 +52,15 @@ export type LightClusterBuildScratch = {
  */
 export function createLightClusterBuildScratch(layout: LightClusterViewLayout): LightClusterBuildScratch {
   return {
+    usedIndexVec4Count: 0,
     counts: new Uint32Array(layout.clusterCount),
     offsets: new Uint32Array(layout.clusterCount),
-    columnPass: new Uint8Array(layout.gridX),
-    rowPass: new Uint8Array(layout.gridY),
-    slicePass: new Uint8Array(layout.gridZ),
     sliceBoundaries: new Float64Array(layout.gridZ + 1),
+    planesX: new Float64Array((layout.gridX + 1) * 4),
+    planesY: new Float64Array((layout.gridY + 1) * 4),
+    axisPass: new Uint8Array(0),
+    isLightInView: new Uint8Array(0),
+    axisRanges: new Int32Array(0),
   };
 }
 
@@ -201,59 +216,176 @@ function isSphereBehindEye(dst: Float32Array, viewOffset: number, cx: number, cy
 }
 
 /**
- * Evaluates the per-axis tests of a sphere. Returns false when the sphere can not touch any cluster.
+ * Normalizes the tile planes `base - k * step` (k = 0..count) once per view. A degenerate plane is stored as 0,
+ * and the tests treat it as passing (as `planeDistance` returns +Infinity for it).
  */
-function evaluateSphereAxes(
+function computeTilePlanes(
+  dst: Float32Array,
+  baseOffset: number,
+  stepOffset: number,
+  count: number,
+  out: Float64Array
+) {
+  for (let k = 0; k <= count; k++) {
+    const nx = dst[baseOffset] - k * dst[stepOffset];
+    const ny = dst[baseOffset + 1] - k * dst[stepOffset + 1];
+    const nz = dst[baseOffset + 2] - k * dst[stepOffset + 2];
+    const nw = dst[baseOffset + 3] - k * dst[stepOffset + 3];
+    const length = Math.hypot(nx, ny, nz);
+    const o = k * 4;
+    if (length > 1e-30) {
+      out[o] = nx / length;
+      out[o + 1] = ny / length;
+      out[o + 2] = nz / length;
+      out[o + 3] = nw / length;
+    } else {
+      out[o] = 0;
+      out[o + 1] = 0;
+      out[o + 2] = 0;
+      out[o + 3] = Number.NaN; // marks a degenerate plane
+    }
+  }
+}
+
+/**
+ * Evaluates the tile tests of one axis for a sphere and writes a pass flag per tile to `pass` at `passOffset`.
+ * Tile `t` passes when `t == 0 || dist(plane t) >= -r` and `t == count - 1 || -dist(plane t + 1) >= -r`
+ * (the right plane of a tile is the negated left plane of the next tile).
+ * @returns whether any tile passes
+ */
+function evaluateTileAxis(
+  planes: Float64Array,
+  count: number,
+  cx: number,
+  cy: number,
+  cz: number,
+  r: number,
+  pass: Uint8Array,
+  passOffset: number
+) {
+  let any = false;
+  // `leftPasses` is the test of the left plane of the current tile
+  let leftPasses = true;
+  for (let t = 0; t < count; t++) {
+    let rightPasses = true;
+    if (t < count - 1) {
+      const o = (t + 1) * 4;
+      const w = planes[o + 3];
+      if (!Number.isNaN(w)) {
+        // dist of the plane of the next tile; the right plane of this tile has the opposite sign
+        const distance = planes[o] * cx + planes[o + 1] * cy + planes[o + 2] * cz + w;
+        rightPasses = -distance >= -r;
+        pass[passOffset + t] = leftPasses && rightPasses ? 1 : 0;
+        any ||= leftPasses && rightPasses;
+        leftPasses = distance >= -r;
+        continue;
+      }
+    }
+    pass[passOffset + t] = leftPasses && rightPasses ? 1 : 0;
+    any ||= leftPasses && rightPasses;
+    leftPasses = true;
+  }
+  return any;
+}
+
+/**
+ * Evaluates the column, row and slice tests of light `i` into `scratch.axisPass`.
+ * @returns whether the light touches any cluster
+ */
+function evaluateLightAxes(
   dst: Float32Array,
   viewOffset: number,
   layout: LightClusterViewLayout,
   scratch: LightClusterBuildScratch,
-  cx: number,
-  cy: number,
-  cz: number,
-  r: number
+  spheres: ArrayLike<number>,
+  i: number
 ) {
-  if (isSphereBehindEye(dst, viewOffset, cx, cy, cz, r)) {
-    return false;
-  }
   const { gridX, gridY, gridZ } = layout;
-  const rowXOffset = viewOffset;
-  const rowYOffset = viewOffset + 4;
-  const rowWOffset = viewOffset + 8;
-
-  let anyColumn = false;
-  for (let x = 0; x < gridX; x++) {
-    const pass =
-      (x === 0 || planeDistance(dst, rowXOffset, rowWOffset, x, false, cx, cy, cz) >= -r) &&
-      (x === gridX - 1 || planeDistance(dst, rowXOffset, rowWOffset, x + 1, true, cx, cy, cz) >= -r);
-    scratch.columnPass[x] = pass ? 1 : 0;
-    anyColumn ||= pass;
-  }
-  if (!anyColumn) {
+  const cx = spheres[i * 4];
+  const cy = spheres[i * 4 + 1];
+  const cz = spheres[i * 4 + 2];
+  const r = spheres[i * 4 + 3];
+  const base = i * (gridX + gridY + gridZ);
+  const axisPass = scratch.axisPass;
+  if (
+    isSphereBehindEye(dst, viewOffset, cx, cy, cz, r) ||
+    !evaluateTileAxis(scratch.planesX, gridX, cx, cy, cz, r, axisPass, base) ||
+    !evaluateTileAxis(scratch.planesY, gridY, cx, cy, cz, r, axisPass, base + gridX)
+  ) {
     return false;
   }
-
-  let anyRow = false;
-  for (let y = 0; y < gridY; y++) {
-    const pass =
-      (y === 0 || planeDistance(dst, rowYOffset, rowWOffset, y, false, cx, cy, cz) >= -r) &&
-      (y === gridY - 1 || planeDistance(dst, rowYOffset, rowWOffset, y + 1, true, cx, cy, cz) >= -r);
-    scratch.rowPass[y] = pass ? 1 : 0;
-    anyRow ||= pass;
-  }
-  if (!anyRow) {
-    return false;
-  }
-
-  const d = dst[viewOffset + 12] * cx + dst[viewOffset + 13] * cy + dst[viewOffset + 14] * cz + dst[viewOffset + 15];
   const boundaries = scratch.sliceBoundaries;
+  const d = dst[viewOffset + 12] * cx + dst[viewOffset + 13] * cy + dst[viewOffset + 14] * cz + dst[viewOffset + 15];
+  const sliceBase = base + gridX + gridY;
   let anySlice = false;
   for (let z = 0; z < gridZ; z++) {
     const pass = (z === 0 || d + r >= boundaries[z]) && (z === gridZ - 1 || d - r <= boundaries[z + 1]);
-    scratch.slicePass[z] = pass ? 1 : 0;
+    axisPass[sliceBase + z] = pass ? 1 : 0;
     anySlice ||= pass;
   }
-  return anySlice;
+  if (!anySlice) {
+    return false;
+  }
+  // The range of the passing tiles of each axis, so that the visits skip the tiles outside it
+  const ranges = scratch.axisRanges;
+  const rangeOffset = i * 6;
+  storePassRange(axisPass, base, gridX, ranges, rangeOffset);
+  storePassRange(axisPass, base + gridX, gridY, ranges, rangeOffset + 2);
+  storePassRange(axisPass, sliceBase, gridZ, ranges, rangeOffset + 4);
+  return true;
+}
+
+/** Stores the first and the last passing tile of an axis (the axis has at least one passing tile). */
+function storePassRange(axisPass: Uint8Array, offset: number, count: number, out: Int32Array, outOffset: number) {
+  let first = 0;
+  while (axisPass[offset + first] === 0) first++;
+  let last = count - 1;
+  while (axisPass[offset + last] === 0) last--;
+  out[outOffset] = first;
+  out[outOffset + 1] = last;
+}
+
+/**
+ * Visits the clusters a light touches (from its axis flags at `base`). Without `ends`, it increments `cursors` of
+ * each cluster (counting). With `ends`, it writes `entry` at the cursor of each cluster and advances it while it is
+ * below the end (filling).
+ */
+function visitLightClusters(
+  layout: LightClusterViewLayout,
+  scratch: LightClusterBuildScratch,
+  i: number,
+  cursors: Uint32Array,
+  ends: Uint32Array | null,
+  dst: Float32Array | null,
+  indexOffset: number,
+  entry: number
+) {
+  const { gridX, gridY, gridZ } = layout;
+  const axisPass = scratch.axisPass;
+  const ranges = scratch.axisRanges;
+  const r = i * 6;
+  const base = i * (gridX + gridY + gridZ);
+  const rowBase = base + gridX;
+  const sliceBase = rowBase + gridY;
+  const x0 = ranges[r];
+  const x1 = ranges[r + 1];
+  for (let z = ranges[r + 4]; z <= ranges[r + 5]; z++) {
+    if (axisPass[sliceBase + z] === 0) continue;
+    for (let y = ranges[r + 2]; y <= ranges[r + 3]; y++) {
+      if (axisPass[rowBase + y] === 0) continue;
+      const rowStart = (z * gridY + y) * gridX;
+      for (let x = x0; x <= x1; x++) {
+        if (axisPass[base + x] === 0) continue;
+        const c = rowStart + x;
+        if (ends == null) {
+          cursors[c]++;
+        } else if (cursors[c] < ends[c]) {
+          dst![indexOffset + cursors[c]] = entry;
+          cursors[c]++;
+        }
+      }
+    }
+  }
 }
 
 /**
@@ -279,39 +411,26 @@ export function buildLightClustersOnCpu(
   const offsets = scratch.offsets;
   counts.fill(0);
   computeSliceBoundaries(dst, viewOffset, layout, scratch.sliceBoundaries);
+  computeTilePlanes(dst, viewOffset, viewOffset + 8, gridX, scratch.planesX);
+  computeTilePlanes(dst, viewOffset + 4, viewOffset + 8, gridY, scratch.planesY);
 
-  const forEachCluster = (visit: (clusterIndex: number) => void) => {
-    for (let z = 0; z < gridZ; z++) {
-      if (scratch.slicePass[z] === 0) continue;
-      for (let y = 0; y < gridY; y++) {
-        if (scratch.rowPass[y] === 0) continue;
-        const rowStart = (z * gridY + y) * gridX;
-        for (let x = 0; x < gridX; x++) {
-          if (scratch.columnPass[x] !== 0) {
-            visit(rowStart + x);
-          }
-        }
-      }
-    }
-  };
+  const axisStride = gridX + gridY + gridZ;
+  if (scratch.axisPass.length < localCount * axisStride) {
+    scratch.axisPass = new Uint8Array(Math.max(localCount * axisStride, scratch.axisPass.length * 2));
+  }
+  if (scratch.isLightInView.length < localCount) {
+    const length = Math.max(localCount, scratch.isLightInView.length * 2);
+    scratch.isLightInView = new Uint8Array(length);
+    scratch.axisRanges = new Int32Array(length * 6);
+  }
+  const isLightInView = scratch.isLightInView;
 
-  // Pass 1: count the lights of each cluster
+  // Pass 1: evaluate the axes of each light once, and count the lights of each cluster
   for (let i = 0; i < localCount; i++) {
-    if (
-      evaluateSphereAxes(
-        dst,
-        viewOffset,
-        layout,
-        scratch,
-        spheres[i * 4],
-        spheres[i * 4 + 1],
-        spheres[i * 4 + 2],
-        spheres[i * 4 + 3]
-      )
-    ) {
-      forEachCluster(c => {
-        counts[c]++;
-      });
+    const inView = evaluateLightAxes(dst, viewOffset, layout, scratch, spheres, i);
+    isLightInView[i] = inView ? 1 : 0;
+    if (inView) {
+      visitLightClusters(layout, scratch, i, counts, null, null, 0, 0);
     }
   }
 
@@ -340,9 +459,11 @@ export function buildLightClustersOnCpu(
   const stateOffset = viewOffset + LightClusterLayout.viewGridOffset * 4 + 3;
   if (totalVec4 > layout.indexVec4Count) {
     dst[stateOffset] = LightClusterLayout.stateOverflow;
+    scratch.usedIndexVec4Count = 0;
     return 'overflow';
   }
   dst[stateOffset] = 0;
+  scratch.usedIndexVec4Count = totalVec4;
 
   for (let c = 0; c < clusterCount; c++) {
     const o = tableOffset + c * 4;
@@ -364,25 +485,8 @@ export function buildLightClustersOnCpu(
     counts[c] += offsets[c];
   }
   for (let i = 0; i < localCount; i++) {
-    if (
-      evaluateSphereAxes(
-        dst,
-        viewOffset,
-        layout,
-        scratch,
-        spheres[i * 4],
-        spheres[i * 4 + 1],
-        spheres[i * 4 + 2],
-        spheres[i * 4 + 3]
-      )
-    ) {
-      const entry = localEntries[i];
-      forEachCluster(c => {
-        if (offsets[c] < counts[c]) {
-          dst[indexOffset + offsets[c]] = entry;
-          offsets[c]++;
-        }
-      });
+    if (isLightInView[i] !== 0) {
+      visitLightClusters(layout, scratch, i, offsets, counts, dst, indexOffset, localEntries[i]);
     }
   }
   return result;

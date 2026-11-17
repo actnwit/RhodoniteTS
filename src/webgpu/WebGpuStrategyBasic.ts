@@ -68,6 +68,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __lastLightClusterDataVersion = -1;
   private __lastLightComponentsUpdateCount = -1;
   private __lightClusterBuilder?: WebGpuLightClusterBuilder;
+  private __lastLightClusterBuildDataVersion = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastSceneGraphComponentsUpdateCount = -1;
   private __lastCameraComponentsUpdateCount = -1;
@@ -809,9 +810,14 @@ ${indexStr}
       this.__engine.lightClusterSystem.dataVersion !== this.__lastLightClusterDataVersion ||
       LightComponent.getUpdateCount(this.__engine) !== this.__lastLightComponentsUpdateCount
     ) {
-      this.__createAndUpdateStorageBuffer();
-      // The upload overwrites the light cluster tables built by the compute shaders, so build them again.
-      this.__buildLightClustersOnGpu();
+      const isStorageBufferRecreated = this.__createAndUpdateStorageBuffer();
+      // The compute shaders rebuild the light clusters when their inputs changed, and after a new storage buffer was
+      // created from the CPU data (which does not contain the clusters built on the GPU).
+      const lightClusterDataVersion = this.__engine.lightClusterSystem.dataVersion;
+      if (isStorageBufferRecreated || lightClusterDataVersion !== this.__lastLightClusterBuildDataVersion) {
+        this.__buildLightClustersOnGpu();
+        this.__lastLightClusterBuildDataVersion = lightClusterDataVersion;
+      }
       this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this.__engine);
       this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.getUpdateCount(this.__engine);
       this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this.__engine);
@@ -968,7 +974,7 @@ ${indexStr}
    * This buffer holds transform matrices, material properties, and other per-instance data
    * required for rendering all objects in the scene.
    */
-  private __createAndUpdateStorageBuffer() {
+  private __createAndUpdateStorageBuffer(): boolean {
     const memoryManager = this.__engine.memoryManager;
 
     // the GPU global Storage
@@ -984,12 +990,28 @@ ${indexStr}
     // const dataTextureByteSize =
     //   MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
     if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      // Update
-      webGpuResourceRepository.updateStorageBuffer(this.__storageBufferUid, gpuInstanceDataBuffers);
-    } else {
-      // Create
-      this.__storageBufferUid = webGpuResourceRepository.createStorageBuffer(gpuInstanceDataBuffers);
+      // Update. The light cluster lists are large and written by the compute shaders or uploaded as dirty ranges,
+      // so the generic upload skips them.
+      const lightClusterSystem = this.__engine.lightClusterSystem;
+      webGpuResourceRepository.updateStorageBuffer(
+        this.__storageBufferUid,
+        gpuInstanceDataBuffers,
+        lightClusterSystem._getExcludedByteRanges()
+      );
+      const dirtyRanges = lightClusterSystem._takeDirtyByteRanges();
+      if (dirtyRanges.length > 0) {
+        webGpuResourceRepository.updateStorageBufferRanges(
+          this.__storageBufferUid,
+          gpuInstanceDataBuffers,
+          dirtyRanges
+        );
+      }
+      return false;
     }
+    // Create (uploads everything, including the light clusters built on the CPU)
+    this.__storageBufferUid = webGpuResourceRepository.createStorageBuffer(gpuInstanceDataBuffers);
+    this.__engine.lightClusterSystem._takeDirtyByteRanges();
+    return true;
   }
 
   /**

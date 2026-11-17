@@ -12,6 +12,7 @@ import {
   getLightClusterViewLayout,
   LightClusterLayout,
   packLightEntry,
+  subtractByteRanges,
   unpackLightEntry,
 } from './LightClusterLayout';
 
@@ -525,5 +526,49 @@ describe('computeLightBoundingSphere', () => {
     expect(computeLightBoundingSphere(2, [0, 0, 0], [0, 0, -1], 10, Math.cos(1.2), out, 0)).toBeCloseTo(10.01);
     expect(computeLightBoundingSphere(2, [0, 0, 0], [0, 0, -2], 10, 0.95, out, 0)).toBeCloseTo(10.01);
     expect(Array.from(out.subarray(0, 3))).toEqual([0, 0, 0]);
+  });
+});
+
+describe('subtractByteRanges', () => {
+  test('returns the parts outside the excluded ranges', () => {
+    expect(subtractByteRanges(0, 100, [])).toEqual([[0, 100]]);
+    expect(
+      subtractByteRanges(0, 100, [
+        [10, 20],
+        [50, 60],
+      ])
+    ).toEqual([
+      [0, 10],
+      [20, 50],
+      [60, 100],
+    ]);
+    // ranges outside, touching and covering
+    expect(
+      subtractByteRanges(100, 200, [
+        [0, 50],
+        [90, 110],
+        [190, 300],
+      ])
+    ).toEqual([[110, 190]]);
+    expect(subtractByteRanges(100, 200, [[0, 300]])).toEqual([]);
+  });
+});
+
+describe('LightClusterBuilder scratch reuse', () => {
+  test('a scratch reused for different light counts gives the same result as a fresh one', () => {
+    const view = lookAt([1, 3, 10], [0, 0, 0], [0, 1, 0]);
+    const projection = perspective(60, 1.2, 0.1, 100);
+    const layout = getLightClusterViewLayout([16, 9, 24], 64);
+    const scratch = createLightClusterBuildScratch(layout);
+    for (const count of [5, 120, 30]) {
+      const lights = createLights(createRandom(count), count, [0, 0, 0], 12);
+      const fresh = buildView(view, projection, lights);
+      const dst = new Float32Array(fresh.dst.length);
+      writeLightClusterViewHeader(dst, fresh.viewOffset, view, projection, fresh.spheres, fresh.localCount, layout);
+      expect(
+        buildLightClustersOnCpu(dst, fresh.viewOffset, layout, fresh.spheres, fresh.entries, fresh.localCount, scratch)
+      ).toBe('built');
+      expect(Array.from(dst)).toEqual(Array.from(fresh.dst));
+    }
   });
 });

@@ -296,3 +296,25 @@ test('the WebGL2 view uniform holds the view header and the view index of the ca
   expect(system._getViewUniformData(camera.componentSID)[24]).toBe(-1);
   expect(system._getViewUniformData(-1)[24]).toBe(-1);
 });
+
+test('the cluster lists are excluded from the generic upload, and the CPU-built part is reported as dirty', async () => {
+  const { engine, camera, expression } = await createScene(new Rn.Config(), [
+    { type: 'point', position: [0, 0, 0], range: 1 },
+  ]);
+  const system = engine.lightClusterSystem;
+  system.update([expression]);
+  const viewBase = camera._lightClusterViewInfoForGpu._v[0];
+  const layout = getLightClusterViewLayout(
+    engine.config.clusteredForwardGridSize,
+    engine.config.clusteredForwardLightCapacityPerCluster
+  );
+  // Everything after the 6-vec4 header of the view
+  expect(system._getExcludedByteRanges()).toEqual([[(viewBase + 6) * 16, (viewBase + layout.viewVec4Count) * 16]]);
+  // The table and the used part of the light index list were built on the CPU
+  const dirty = system._takeDirtyByteRanges();
+  expect(dirty.length).toBe(1);
+  expect(dirty[0][0]).toBe((viewBase + 6) * 16);
+  expect(dirty[0][1]).toBeGreaterThan((viewBase + 6 + layout.tableVec4Count) * 16);
+  expect(dirty[0][1]).toBeLessThan((viewBase + layout.viewVec4Count) * 16);
+  expect(system._takeDirtyByteRanges()).toEqual([]);
+});

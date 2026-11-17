@@ -105,6 +105,13 @@ export class LightClusterSystem {
   private __isIndexOverflowWarned = false;
 
   private __gpuBuildViewVec4Bases: number[] = [];
+  /**
+   * The byte ranges (in the GPU instance data) of the cluster tables and light index lists of the views. They are
+   * large and written by this system or the compute shaders, so the generic upload of the GPU instance data skips them.
+   */
+  private __excludedByteRanges: [number, number][] = [];
+  /** The byte ranges built on the CPU since the last upload, which the rendering strategy uploads separately. */
+  private __dirtyByteRanges: [number, number][] = [];
   /** The data of `u_lightClusterView` of the WebGL2 shaders (7 vec4). */
   private __viewUniformData = new Float32Array(LightClusterLayout.viewHeaderVec4Count * 4 + 4);
 
@@ -152,6 +159,28 @@ export class LightClusterSystem {
       layout: this.__layout,
       truncate: this.__engine.config.clusteredForwardOverflowMode === 'truncate',
     };
+  }
+
+  /**
+   * The byte ranges of the GPU instance data that the generic upload must skip, sorted by the start.
+   * The ranges are uploaded by `_takeDirtyByteRanges` (CPU build) or written by the compute shaders (GPU build).
+   *
+   * @internal
+   */
+  _getExcludedByteRanges(): readonly [number, number][] {
+    return this.__excludedByteRanges;
+  }
+
+  /**
+   * Returns the byte ranges of the GPU instance data built on the CPU since the last call, and clears them.
+   * The rendering strategy uploads them after the generic upload.
+   *
+   * @internal
+   */
+  _takeDirtyByteRanges(): [number, number][] {
+    const ranges = this.__dirtyByteRanges;
+    this.__dirtyByteRanges = [];
+    return ranges;
   }
 
   /**
@@ -473,6 +502,10 @@ export class LightClusterSystem {
           continue;
         }
         this.__viewRegions[slot] = region;
+        // Everything after the header (the cluster table and the light index list) is uploaded separately.
+        const start = (region.vec4Base + LightClusterLayout.viewHeaderVec4Count) * 16;
+        this.__excludedByteRanges.push([start, (region.vec4Base + layout.viewVec4Count) * 16]);
+        this.__excludedByteRanges.sort((a, b) => a[0] - b[0]);
       }
 
       const viewMatrix = camera.viewMatrix._v;
@@ -510,6 +543,10 @@ export class LightClusterSystem {
             this.__scratch,
             this.__engine.config.clusteredForwardOverflowMode === 'truncate'
           );
+          // Only the table and the used part of the light index list have to reach the GPU.
+          const start = (region.vec4Base + LightClusterLayout.viewHeaderVec4Count) * 16;
+          const usedVec4Count = layout.tableVec4Count + this.__scratch.usedIndexVec4Count;
+          this.__dirtyByteRanges.push([start, start + usedVec4Count * 16]);
           if (result !== 'built' && !this.__isIndexOverflowWarned) {
             Logger.default.warn(
               result === 'truncated'

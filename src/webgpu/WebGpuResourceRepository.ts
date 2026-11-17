@@ -30,6 +30,7 @@ import {
   type ImageBitmapData,
 } from '../foundation/renderer/CGAPIResourceRepository';
 import type { FrameBuffer } from '../foundation/renderer/FrameBuffer';
+import { subtractByteRanges } from '../foundation/renderer/lightCluster/LightClusterLayout';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import type { Engine } from '../foundation/system/Engine';
 import type { AbstractTexture } from '../foundation/textures/AbstractTexture';
@@ -3207,7 +3208,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param storageBufferHandle - Handle to the storage buffer to update
    * @param gpuInstanceDataBuffers - New data to write to the buffer
    */
-  updateStorageBuffer(storageBufferHandle: WebGPUResourceHandle, gpuInstanceDataBuffers: Buffer[]) {
+  updateStorageBuffer(
+    storageBufferHandle: WebGPUResourceHandle,
+    gpuInstanceDataBuffers: Buffer[],
+    excludedByteRanges: readonly [number, number][] = []
+  ) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
     let offset = 0;
@@ -3216,8 +3221,39 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       const inputArray = new Float32Array(buffer.getArrayBuffer());
       WebGpuResourceRepository.__assertArrayBufferView(inputArray);
       const copySize = i === gpuInstanceDataBuffers.length - 1 ? buffer.takenSizeInByte : buffer.byteLength;
-      gpuDevice.queue.writeBuffer(storageBuffer, offset, inputArray, 0, copySize / 4);
-      offset += copySize;
+      // The excluded ranges (e.g. the light cluster lists) are written separately, so they are skipped here.
+      for (const [start, end] of subtractByteRanges(offset, offset + copySize, excludedByteRanges)) {
+        gpuDevice.queue.writeBuffer(storageBuffer, start, inputArray, (start - offset) / 4, (end - start) / 4);
+      }
+      offset += buffer.byteLength;
+    }
+  }
+
+  /**
+   * Writes byte ranges of the GPU instance data to the storage buffer.
+   *
+   * @param storageBufferHandle - Handle to the storage buffer
+   * @param gpuInstanceDataBuffers - The GPU instance data buffers (layers)
+   * @param byteRanges - The ranges `[start, end)` in the concatenated layers. A range must not span layers.
+   */
+  updateStorageBufferRanges(
+    storageBufferHandle: WebGPUResourceHandle,
+    gpuInstanceDataBuffers: Buffer[],
+    byteRanges: readonly [number, number][]
+  ) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
+    for (const [start, end] of byteRanges) {
+      let layerStart = 0;
+      for (const buffer of gpuInstanceDataBuffers) {
+        const layerEnd = layerStart + buffer.byteLength;
+        if (start >= layerStart && end <= layerEnd) {
+          const inputArray = new Float32Array(buffer.getArrayBuffer());
+          gpuDevice.queue.writeBuffer(storageBuffer, start, inputArray, (start - layerStart) / 4, (end - start) / 4);
+          break;
+        }
+        layerStart = layerEnd;
+      }
     }
   }
 

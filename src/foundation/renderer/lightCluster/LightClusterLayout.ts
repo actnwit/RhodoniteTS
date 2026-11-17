@@ -130,3 +130,22 @@ export function getLightClusterViewLayout(
     viewVec4Count: LightClusterLayout.viewHeaderVec4Count + tableVec4Count + indexVec4Count,
   };
 }
+
+/**
+ * Splits the byte range `[start, end)` into the parts outside the excluded ranges.
+ *
+ * @param excluded - Ranges `[start, end)` sorted by their start
+ * @returns The remaining ranges `[start, end)` in ascending order
+ */
+export function subtractByteRanges(start: number, end: number, excluded: readonly [number, number][]) {
+  const ranges: [number, number][] = [];
+  let cursor = start;
+  for (const [exStart, exEnd] of excluded) {
+    if (exEnd <= cursor) continue;
+    if (exStart >= end) break;
+    if (exStart > cursor) ranges.push([cursor, exStart]);
+    cursor = Math.max(cursor, exEnd);
+  }
+  if (cursor < end) ranges.push([cursor, end]);
+  return ranges;
+}
