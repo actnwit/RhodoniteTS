@@ -232,6 +232,14 @@ fn IBLContribution(materialSID: u32, cameraSID: u32,
   ) -> vec3f
 {
   let iblParameter: vec4f = get_iblParameter(materialSID, 0);
+  // The diffuse and the specular contribution multiply every IBL term (diffuse, specular, clearcoat and sheen).
+  // When both are 0, skip the texture samples and the BRDF work. Transmission adds the backbuffer refraction
+  // term, which does not use the contributions, so keep the old path there.
+  #ifndef RN_USE_TRANSMISSION
+    if (iblParameter.y == 0.0 && iblParameter.z == 0.0) {
+      return vec3f(0.0);
+    }
+  #endif
   let rot = iblParameter.w;
   let rotEnvMatrix = mat3x3<f32>(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   let hdriFormat: vec2<i32> = get_hdriFormat(materialSID, 0);
