@@ -109,6 +109,16 @@ fn pbrShader(
         continue;
       }
     #endif
+    // A light behind the surface does not contribute: the diffuse term is zero, and the specular
+    // term is proportional to NdotL, which lightingWithPunctualLight clamps to Epsilon. Skip the
+    // BRDF without changing the result. Transmission shaders can receive light from behind the
+    // surface, and a clearcoat normal map can make such a light visible to the coat, so those
+    // shaders keep the old behavior.
+    #if !defined(RN_USE_TRANSMISSION) && !defined(RN_USE_DIFFUSE_TRANSMISSION) && !defined(RN_USE_CLEARCOAT)
+      if (dot(normalInWorld, light.direction) <= 0.0) {
+        continue;
+      }
+    #endif
     var lighting = lightingWithPunctualLight(light, normalInWorld, viewDirection, NdotV, baseColor.rgb,
                       lightAlphaRoughness, lightAlphaRoughness2, sqrtNdotVTerm, diffuseBrdf,
                       metallic, specularProps.specularWeight, dielectricF0, dielectricF90, ior,

@@ -30,6 +30,7 @@ type ConfigInitDescription = {
     clusteredForwardMinLocalLightNumber?: number;
     maxLightListLength?: number;
     lightAutoRangeThreshold?: number;
+    lightRangeScale?: number;
 };
 /**
  * Where the light clusters of Clustered Forward rendering are built.
@@ -174,6 +175,39 @@ export declare class Config {
      *   updated next.
      */
     lightAutoRangeThreshold: number;
+    /**
+     * Scales the effective range of the point and spot lights, and raises their intensity to compensate.
+     * A shorter range reaches fewer clusters, so fewer fragments evaluate the light in Clustered Forward rendering.
+     *
+     * @remarks
+     * `1` (default) applies no adjustment. The measured presets are:
+     *
+     * | lightRangeScale | Intensity | GPU frame time (measured)  |
+     * |-----------------|-----------|----------------------------|
+     * | 1               | x1        | 5.5-6.4 ms                 |
+     * | 0.9             | x1.16     | 4.2-4.5 ms (-20 to -24%)   |
+     * | 0.8             | x1.35     | 3.1-3.2 ms (-43 to -50%)   |
+     *
+     * The measurement is a Sponza scene with 1000 animated point lights (WebGPU, 1920x1080, clustered forward).
+     * Intermediate values interpolate the measured intensity factors: `1 -> 1`, `0.9 -> 1.16`, `0.8 -> 1.35`,
+     * and below 0.8 the last slope continues. A constant factor cannot compensate the range window exactly: with
+     * a shorter range the falloff `(1 - (d / range)^4)^4 / d^2` is slightly dimmer at mid distances, and the lights
+     * fade out closer to their centers. 0.9 changes only 0.1% of the pixels by more than 32/255; 0.8 changes about
+     * 7% of the pixels that much (the lit area of each light becomes smaller).
+     *
+     * The engine does not change this value by itself. An application that targets a frame budget can adjust it
+     * at runtime (for example, from the measured GPU time and the display refresh interval).
+     *
+     * Only point and spot lights with a positive effective range are adjusted. Directional lights and lights without
+     * a range limit are unchanged. The values of `LightComponent.range` and `LightComponent.intensity` themselves are
+     * not modified: only the values uploaded to the GPU (and read by the light clusters and the shaders) are scaled,
+     * so all rendering paths see the same light.
+     */
+    private __lightRangeScale;
+    /** See {@link Config.lightRangeScale}. */
+    get lightRangeScale(): number;
+    /** See {@link Config.lightRangeScale}. */
+    set lightRangeScale(value: number);
     /**
      * Number of instances of each material type to be placed consecutively in memory.
      * This is on the memory layout, and the number of material instances that can be generated is not limited by this setting.

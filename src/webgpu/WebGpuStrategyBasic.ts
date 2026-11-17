@@ -1081,7 +1081,8 @@ ${indexStr}
     this.__lightClusterBuilder ??= new WebGpuLightClusterBuilder(
       webGpuResourceRepository.getWebGpuDeviceWrapper().gpuDevice
     );
-    this.__lightClusterBuilder.build(storageBuffer, params);
+    const gpuTimer = this.__engine.gpuTimerEnabled ? webGpuResourceRepository._getGpuTimer() : undefined;
+    this.__lightClusterBuilder.build(storageBuffer, params, gpuTimer);
   }
 
   /**

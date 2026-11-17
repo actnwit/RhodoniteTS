@@ -1,4 +1,5 @@
 import type { LightClusterGpuBuildParams } from '../foundation/renderer/lightCluster/LightClusterSystem';
+import type { WebGpuGpuTimer } from './WebGpuGpuTimer';
 /**
  * Builds the light cluster tables of Clustered Forward rendering with compute shaders.
  * The tables are written into the storage buffer of the GPU instance data, where the CPU build would write them.
@@ -25,8 +26,10 @@ export declare class WebGpuLightClusterBuilder {
      *
      * @param storageBuffer - The storage buffer of the GPU instance data
      * @param params - The views to build and their sorted light input
+     * @param gpuTimer - When set (and a frame is being measured), measures the build as the
+     *   'LightClusterBuild' pass
      */
-    build(storageBuffer: GPUBuffer, params: LightClusterGpuBuildParams): void;
+    build(storageBuffer: GPUBuffer, params: LightClusterGpuBuildParams, gpuTimer?: WebGpuGpuTimer): void;
     /**
      * Releases the GPU resources.
      */

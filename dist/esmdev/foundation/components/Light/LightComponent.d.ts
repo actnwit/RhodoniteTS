@@ -41,6 +41,7 @@ export declare class LightComponent extends Component {
     private __updateCount;
     private __lastUpdateCount;
     private __lastTransformUpdateCount;
+    private __lastRangeScale;
     /** The number of changes of all light components, per engine. */
     private static __updateCountMap;
     /**
@@ -295,6 +296,12 @@ export declare class LightComponent extends Component {
      * to avoid unnecessary recalculations when nothing has changed.
      */
     $logic(): void;
+    /**
+     * Returns the intensity factor that compensates the shortened range. The factors are the measured brightness
+     * balance of the Sponza scene: 0.9 -> 1.16 and 0.8 -> 1.35. Values in between interpolate; below 0.8 the last
+     * slope continues. A constant factor compensates the range window approximately, not exactly.
+     */
+    private static __getIntensityScale;
     /**
      * Returns the range used for shading. Point and spot lights without a range get an automatic range
      * when `Config.lightAutoRangeThreshold` is greater than 0.

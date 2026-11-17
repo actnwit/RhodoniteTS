@@ -2212,7 +2212,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (gpuTimer == null || renderPassDescriptor.timestampWrites != null) {
       return;
     }
-    const timestampWrites = gpuTimer.getTimestampWrites();
+    const timestampWrites = gpuTimer.getTimestampWrites(renderPassDescriptor.label ?? 'renderPass');
     if (timestampWrites != null) {
       renderPassDescriptor.timestampWrites = timestampWrites;
     }
@@ -3203,7 +3203,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const storageBuffer = gpuDevice.createBuffer({
       size: gpuInstanceDataBuffers.reduce((acc, buffer) => acc + buffer.byteLength, 0),
-      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE,
+      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
     });
     let offset = 0;
     for (let i = 0; i < gpuInstanceDataBuffers.length; i++) {

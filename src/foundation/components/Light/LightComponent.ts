@@ -54,6 +54,7 @@ export class LightComponent extends Component {
   private __updateCount = 0;
   private __lastUpdateCount = -1;
   private __lastTransformUpdateCount = -1;
+  private __lastRangeScale = -1;
   /** The number of changes of all light components, per engine. */
   private static __updateCountMap: Map<Engine, number> = new Map();
 
@@ -495,9 +496,11 @@ export class LightComponent extends Component {
    * to avoid unnecessary recalculations when nothing has changed.
    */
   $logic() {
+    const rangeScale = this.__engine.config.lightRangeScale;
     if (
       TransformComponent.getUpdateCount(this.__engine) === this.__lastTransformUpdateCount &&
-      this.__lastUpdateCount === this.__updateCount
+      this.__lastUpdateCount === this.__updateCount &&
+      this.__lastRangeScale === rangeScale
     ) {
       return;
     }
@@ -518,12 +521,17 @@ export class LightComponent extends Component {
     this._lightPosition._v[1] = lightPosition.y;
     this._lightPosition._v[2] = lightPosition.z;
 
-    this._lightIntensity._v[0] = this.__color.x * this.__intensity;
-    this._lightIntensity._v[1] = this.__color.y * this.__intensity;
-    this._lightIntensity._v[2] = this.__color.z * this.__intensity;
+    const effectiveRange = this.__getEffectiveRange();
+    const isRangedLocalLight = (this.type === LightType.Point || this.type === LightType.Spot) && effectiveRange > 0;
+    const intensityScale = isRangedLocalLight ? LightComponent.__getIntensityScale(rangeScale) : 1;
+    const appliedRangeScale = isRangedLocalLight ? rangeScale : 1;
+
+    this._lightIntensity._v[0] = this.__color.x * this.__intensity * intensityScale;
+    this._lightIntensity._v[1] = this.__color.y * this.__intensity * intensityScale;
+    this._lightIntensity._v[2] = this.__color.z * this.__intensity * intensityScale;
 
     this._lightProperty._v[0] = this.enable ? this.type.index : -1;
-    this._lightProperty._v[1] = this.__getEffectiveRange();
+    this._lightProperty._v[1] = effectiveRange * appliedRangeScale;
     this._lightProperty._v[2] = innerConeCos;
     this._lightProperty._v[3] = outerConeCos;
 
@@ -531,6 +539,25 @@ export class LightComponent extends Component {
 
     this.__lastTransformUpdateCount = TransformComponent.getUpdateCount(this.__engine);
     this.__lastUpdateCount = this.__updateCount;
+    this.__lastRangeScale = rangeScale;
+  }
+
+  /**
+   * Returns the intensity factor that compensates the shortened range. The factors are the measured brightness
+   * balance of the Sponza scene: 0.9 -> 1.16 and 0.8 -> 1.35. Values in between interpolate; below 0.8 the last
+   * slope continues. A constant factor compensates the range window approximately, not exactly.
+   */
+  private static __getIntensityScale(rangeScale: number): number {
+    if (rangeScale >= 1) {
+      return 1;
+    }
+    if (rangeScale >= 0.9) {
+      return 1 + (1 - rangeScale) * 1.6;
+    }
+    if (rangeScale >= 0.8) {
+      return 1.16 + (0.9 - rangeScale) * 1.9;
+    }
+    return 1.35 + (0.8 - rangeScale) * 1.9;
   }
 
   /**

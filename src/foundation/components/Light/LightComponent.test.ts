@@ -58,6 +58,62 @@ test('the GPU data follows enable, type and the cone angles', async () => {
   expect(property[0]).toBe(-1);
 });
 
+test('the GPU range and intensity follow the light range scale', async () => {
+  const { engine, light } = await createLight();
+  light.type = Rn.LightType.Point;
+  light.range = 10;
+  light.intensity = 2;
+  light.color = Rn.Vector3.fromCopy3(0.5, 0.25, 1);
+
+  light.$logic();
+  const property = light._lightPropertyForGpu._v;
+  const intensity = light._lightIntensityForGpu._v;
+  expect(property[1]).toBeCloseTo(10);
+  expect(intensity[0]).toBeCloseTo(1);
+  expect(intensity[1]).toBeCloseTo(0.5);
+  expect(intensity[2]).toBeCloseTo(2);
+
+  engine.config.lightRangeScale = 0.9;
+  light.$logic();
+  expect(property[1]).toBeCloseTo(9);
+  expect(intensity[0]).toBeCloseTo(1.16);
+  expect(intensity[1]).toBeCloseTo(0.58);
+  expect(intensity[2]).toBeCloseTo(2.32);
+
+  engine.config.lightRangeScale = 0.85;
+  light.$logic();
+  expect(property[1]).toBeCloseTo(8.5);
+  expect(intensity[2]).toBeCloseTo(2.51);
+
+  engine.config.lightRangeScale = 0.8;
+  light.$logic();
+  expect(property[1]).toBeCloseTo(8);
+  expect(intensity[2]).toBeCloseTo(2.7);
+
+  engine.config.lightRangeScale = 1;
+  light.$logic();
+  expect(property[1]).toBeCloseTo(10);
+  expect(intensity[2]).toBeCloseTo(2);
+});
+
+test('the light range scale does not change directional and unbounded lights', async () => {
+  const { engine, light } = await createLight();
+  engine.config.lightRangeScale = 0.8;
+
+  light.type = Rn.LightType.Point;
+  light.range = -1;
+  light.intensity = 2;
+  light.$logic();
+  expect(light._lightPropertyForGpu._v[1]).toBe(-1);
+  expect(light._lightIntensityForGpu._v[0]).toBeCloseTo(2);
+
+  light.type = Rn.LightType.Directional;
+  light.range = -1;
+  light.$logic();
+  expect(light._lightPropertyForGpu._v[1]).toBe(-1);
+  expect(light._lightIntensityForGpu._v[0]).toBeCloseTo(2);
+});
+
 test('creating and destroying a light increments the engine update count', async () => {
   const { engine } = await createLight();
   const count = Rn.LightComponent.getUpdateCount(engine);
