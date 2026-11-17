@@ -69,7 +69,7 @@ export class ShadowSystem {
       RenderableHelper.createFrameBufferTextureArray(engine, {
         width: shadowMapSize,
         height: shadowMapSize,
-        arrayLength: engine.config.maxLightNumber,
+        arrayLength: engine.config.maxLightNumberOrOne,
         level: 0,
         internalFormat: TextureFormat.RG16F,
         format: PixelFormat.RG,
@@ -81,7 +81,7 @@ export class ShadowSystem {
       RenderableHelper.createFrameBufferTextureArray(engine, {
         width: shadowMapSize,
         height: shadowMapSize,
-        arrayLength: engine.config.maxLightNumber,
+        arrayLength: engine.config.maxLightNumberOrOne,
         level: 0,
         internalFormat: TextureFormat.RGBA16F,
         format: PixelFormat.RGBA,
@@ -97,6 +97,12 @@ export class ShadowSystem {
    * @returns Array of Expression objects containing the shadow mapping render passes
    */
   public getExpressions(entities: ISceneGraphEntity[]) {
+    // With no shadow slots there is nothing to render into the shadow maps, and the materials have no
+    // shadow parameters (Config.maxLightNumber = 0 compiles the shadow code out).
+    if (this.__engine.config.maxLightNumber <= 0) {
+      return [];
+    }
+
     // Auto-fit DirectionalLight shadow camera volume before setting up shadow map render passes.
     // This ensures the shadow camera covers the entire scene when rendering the shadow map.
     this.__autoFitDirectionalLightShadowVolume(entities);
@@ -330,6 +336,11 @@ export class ShadowSystem {
    * @param entities - Array of scene graph entities to apply the bias matrices to
    */
   public setDepthBiasPV(entities: ISceneGraphEntity[]) {
+    // The materials have no depthBiasPV parameter when there are no shadow slots.
+    if (this.__engine.config.maxLightNumber <= 0) {
+      return;
+    }
+
     // Auto-fit DirectionalLight shadow camera volume to cover the whole scene.
     // Note: This does not move the light; it only adjusts shadowAreaSizeForDirectionalLight and range.
     this.__autoFitDirectionalLightShadowVolume(entities);

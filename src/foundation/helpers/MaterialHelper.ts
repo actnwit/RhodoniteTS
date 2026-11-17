@@ -436,7 +436,7 @@ function createPbrUberMaterial(
     });
   }
 
-  if (isShadow) {
+  if (isShadow && engine.config.maxLightNumber > 0) {
     additionalShaderSemanticInfo.push({
       semantic: 'depthTexture',
       componentType: ComponentType.Int,
@@ -483,7 +483,7 @@ function createPbrUberMaterial(
   if (isLighting) {
     definitions.push('RN_IS_LIGHTING');
   }
-  if (isShadow) {
+  if (isShadow && engine.config.maxLightNumber > 0) {
     definitions.push('RN_USE_SHADOW_MAPPING');
   }
   if (isSkinning) {
@@ -588,7 +588,7 @@ function createClassicUberMaterial(
     wrapT: TextureParameter.ClampToEdge,
   });
 
-  if (isShadow) {
+  if (isShadow && engine.config.maxLightNumber > 0) {
     additionalShaderSemanticInfo.push({
       semantic: 'depthTexture',
       componentType: ComponentType.Int,
@@ -664,7 +664,7 @@ function createClassicUberMaterial(
   if (isLighting) {
     material.addShaderDefine('RN_IS_LIGHTING');
   }
-  if (isShadow) {
+  if (isShadow && engine.config.maxLightNumber > 0) {
     material.addShaderDefine('RN_USE_SHADOW_MAPPING');
   }
   material.addShaderDefine('RN_USE_NORMAL_TEXTURE');
@@ -1706,7 +1706,7 @@ function reuseOrRecreateCustomMaterial(
 
   if (options.isLighting) {
     definitions.add('RN_IS_LIGHTING');
-    if (options.isShadow) {
+    if (options.isShadow && engine.config.maxLightNumber > 0) {
       definitions.add('RN_USE_SHADOW_MAPPING');
 
       const sampler = getSharedSampler(engine, {

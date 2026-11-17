@@ -126,15 +126,15 @@ fn main (
   let shadeShift: f32 = get_shadeShift(materialSID, 0);
   let shadeToony: f32 = get_shadeToony(materialSID, 0);
 
-  var lightings: array<vec3<f32>, /* shaderity: @{Config.maxLightNumber} */>;
-  var lightSids: array<i32, /* shaderity: @{Config.maxLightNumber} */>;
+  var lightings: array<vec3<f32>, /* shaderity: @{Config.maxLightNumberOrOne} */>;
+  var lightSids: array<i32, /* shaderity: @{Config.maxLightNumberOrOne} */>;
   #ifdef RN_MTOON_DEBUG_LITSHADERATE
-    var lightIntensities[/* shaderity: @{Config.maxLightNumber} */]: array<f32>;
+    var lightIntensities[/* shaderity: @{Config.maxLightNumberOrOne} */]: array<f32>;
   #endif
   let lightList = getLightList(input.position_inWorld.xyz, cameraSID);
-  // At most maxLightNumber lights (the size of the arrays above) are shaded.
-  let shadedLightCount = min(lightList.count, /* shaderity: @{Config.maxLightNumber} */u);
-  for (var i = 0u; i < /* shaderity: @{Config.maxLightNumber} */; i++) {
+  // At most maxLightNumberOrOne lights (the size of the arrays above) are shaded.
+  let shadedLightCount = min(lightList.count, /* shaderity: @{Config.maxLightNumberOrOne} */u);
+  for (var i = 0u; i < /* shaderity: @{Config.maxLightNumberOrOne} */; i++) {
     if (i >= shadedLightCount) {
       break;
     }
@@ -222,7 +222,7 @@ fn main (
 
     var staticRimLighting = 1.0;
     let rimLightingMix: f32 = get_rimLightingMix(materialSID, 0);
-    for (var i = 0u; i < /* shaderity: @{Config.maxLightNumber} */u; i++) {
+    for (var i = 0u; i < /* shaderity: @{Config.maxLightNumberOrOne} */u; i++) {
       if (i >= shadedLightCount) { break; }
 
       // Only the light with the component SID 0 gets the static rim lighting.
@@ -256,7 +256,7 @@ fn main (
     return rt0;
   #elif defined(RN_MTOON_DEBUG_LITSHADERATE)
     rt0 = vec4f(0.0);
-    for (var i = 0u; i < /* shaderity: @{Config.maxLightNumber} */u; i++) {
+    for (var i = 0u; i < /* shaderity: @{Config.maxLightNumberOrOne} */u; i++) {
       if (i >= shadedLightCount) { break; }
       rt0 += vec4f(lightIntensities[i] * lightings[i], alpha);
     }

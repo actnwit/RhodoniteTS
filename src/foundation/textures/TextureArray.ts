@@ -64,7 +64,7 @@ export class TextureArray extends AbstractTexture implements Disposable {
 
   /**
    * Loads a 1x1 texture array with a solid color.
-   * This creates a texture array with the specified number of layers (Config.maxLightNumber),
+   * This creates a texture array with the specified number of layers (Config.maxLightNumberOrOne),
    * each containing a single pixel of the specified color.
    *
    * @param rgbaStr - CSS color string in rgba format (default: 'rgba(0,0,0,1)' for black)
@@ -94,7 +94,7 @@ export class TextureArray extends AbstractTexture implements Disposable {
     const resourceUid = cgApiResourceRepository.createTextureArray(
       1,
       1,
-      this.__engine.config.maxLightNumber,
+      this.__engine.config.maxLightNumberOrOne,
       1,
       TextureFormat.RGBA8,
       PixelFormat.RGBA,
@@ -106,7 +106,7 @@ export class TextureArray extends AbstractTexture implements Disposable {
     if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2dArray(
         this._textureResourceUid,
-        this.__engine.config.maxLightNumber
+        this.__engine.config.maxLightNumberOrOne
       );
     }
 

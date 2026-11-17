@@ -129,19 +129,19 @@ void main (){
   float shadeShift = get_shadeShift(materialSID, 0u);
   float shadeToony = get_shadeToony(materialSID, 0u);
 
-  vec3 lightings[/* shaderity: @{Config.maxLightNumber} */];
-  int lightSids[/* shaderity: @{Config.maxLightNumber} */];
+  vec3 lightings[/* shaderity: @{Config.maxLightNumberOrOne} */];
+  int lightSids[/* shaderity: @{Config.maxLightNumberOrOne} */];
   #ifdef RN_MTOON_DEBUG_LITSHADERATE
-    float lightIntensities[/* shaderity: @{Config.maxLightNumber} */];
+    float lightIntensities[/* shaderity: @{Config.maxLightNumberOrOne} */];
   #endif
   LightList lightList;
   lightList.count = 0;
   #ifdef RN_IS_LIGHTING
     lightList = getLightList(v_position_inWorld.xyz, cameraSID);
   #endif
-  // At most maxLightNumber lights (the size of the arrays above) are shaded.
-  int shadedLightCount = min(lightList.count, /* shaderity: @{Config.maxLightNumber} */);
-  for (int i = 0; i < /* shaderity: @{Config.maxLightNumber} */; i++) {
+  // At most maxLightNumberOrOne lights (the size of the arrays above) are shaded.
+  int shadedLightCount = min(lightList.count, /* shaderity: @{Config.maxLightNumberOrOne} */);
+  for (int i = 0; i < /* shaderity: @{Config.maxLightNumberOrOne} */; i++) {
     if (i >= shadedLightCount) {
       break;
     }
@@ -230,7 +230,7 @@ void main (){
 
     float staticRimLighting = 1.0;
     float rimLightingMix = get_rimLightingMix(materialSID, 0u);
-    for (int i = 0; i < /* shaderity: @{Config.maxLightNumber} */; i++) {
+    for (int i = 0; i < /* shaderity: @{Config.maxLightNumberOrOne} */; i++) {
       if (i >= shadedLightCount) break;
 
       // Only the light with the component SID 0 gets the static rim lighting.
@@ -265,7 +265,7 @@ void main (){
     return;
   #elif defined(RN_MTOON_DEBUG_LITSHADERATE)
     rt0 = vec4(0.0);
-    for (int i = 0; i < /* shaderity: @{Config.maxLightNumber} */; i++) {
+    for (int i = 0; i < /* shaderity: @{Config.maxLightNumberOrOne} */; i++) {
       if (i >= shadedLightCount) break;
       rt0 += vec4(lightIntensities[i] * lightings[i], alpha);
     }

@@ -4,7 +4,7 @@
 
 /* eslint-disable prefer-const */
 import type { BoneDataTypeEnum } from '../definitions/BoneDataType';
-import { LogLevel } from '../misc/Logger';
+import { Logger, LogLevel } from '../misc/Logger';
 
 type ConfigInitDescription = {
   scenegraphComponentCountPerBufferView?: number;
@@ -60,8 +60,37 @@ export class Config {
   /**
    * The maximum number of lights that can cast shadows at the same time.
    * This is also the length of the per-light arrays of the MToon 0.x shader.
+   *
+   * @remarks
+   * 0 disables the per-light shadow map slots: the shaders compile out the shadow sampling and no shadow map
+   * textures are created. The shader arrays themselves cannot have a length of 0, so they use
+   * {@link Config.maxLightNumberOrOne} instead. Negative and NaN values are treated as 0.
    */
-  maxLightNumber = 6;
+  private __maxLightNumber = 6;
+  /** See {@link Config.maxLightNumber}. */
+  get maxLightNumber(): number {
+    return this.__maxLightNumber;
+  }
+  /** See {@link Config.maxLightNumber}. */
+  set maxLightNumber(value: number) {
+    if (!(value >= 0)) {
+      Logger.default.warn(`Config.maxLightNumber (${value}) is invalid. Values below 0 are treated as 0.`);
+      this.__maxLightNumber = 0;
+      return;
+    }
+    this.__maxLightNumber = value;
+  }
+  /**
+   * The length-safe value of {@link Config.maxLightNumber}: `maxLightNumber`, or 1 when it is 0.
+   *
+   * @remarks
+   * Shader arrays, material parameters and texture arrays cannot have a length of 0. The shaders use this value
+   * for their per-light array sizes and loop bounds. Shadow processing itself is controlled by
+   * {@link Config.maxLightNumber}: when it is 0, the shadow code is compiled out and no shadow slots are assigned.
+   */
+  get maxLightNumberOrOne(): number {
+    return this.__maxLightNumber > 0 ? this.__maxLightNumber : 1;
+  }
   /**
    * Whether Clustered Forward rendering is enabled.
    * When enabled, each fragment evaluates only the lights whose range reaches the cluster (froxel) of the fragment.
