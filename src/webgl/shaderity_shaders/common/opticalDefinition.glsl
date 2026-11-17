@@ -84,19 +84,18 @@ Light getLight(int lightIdx, vec3 v_position_inWorld) {
 
   if (0.75 < lightType) { // is point light or spot light
     light.pointToLight = lightPosition - v_position_inWorld;
-    light.direction = vec3(0.0);
+    light.direction = normalize(light.pointToLight);
     light.type = 1;
 
-    // The range attenuation is computed before the direction normalize, the intensity and (for spot lights)
-    // the object-space direction. A light outside its range contributes exactly zero, so the normalize and
-    // those reads are skipped. The callers only use the attenuated intensity of such a light.
+    // The attenuation is computed before the intensity and (for spot lights) the object-space direction are
+    // read. A light outside its range or cone contributes exactly zero, so those reads are skipped. The callers
+    // only use the attenuated intensity and the direction of such a light.
     float rangeAttenuation = getRangeAttenuationAt(dot(light.pointToLight, light.pointToLight), light.effectiveRange);
     if (!(rangeAttenuation > 0.0)) {
       light.intensity = vec3(0.0);
       light.attenuatedIntensity = vec3(0.0);
       return light;
     }
-    light.direction = normalize(light.pointToLight);
 
     if (lightType > 1.75) { // is spot light
       light.type = 2;
