@@ -12,18 +12,22 @@ struct Light {
 };
 
 // https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md#range-property
-fn getRangeAttenuation(light: Light) -> f32
+fn getRangeAttenuationAt(distanceSquared: f32, effectiveRange: f32) -> f32
 {
-  let distanceSquared = dot(light.pointToLight, light.pointToLight);
   // means no range limit
-  if (light.effectiveRange <= 0.0)
+  if (effectiveRange <= 0.0)
   {
     return 1.0 / distanceSquared;
   }
   // (distance / range)^4 as multiplications: this runs for every light in every fragment.
-  let invRangeSquared = 1.0 / (light.effectiveRange * light.effectiveRange);
+  let invRangeSquared = 1.0 / (effectiveRange * effectiveRange);
   let ratio4 = distanceSquared * distanceSquared * invRangeSquared * invRangeSquared;
   return max(min(1.0 - ratio4, 1.0), 0.0) / distanceSquared;
+}
+
+fn getRangeAttenuation(light: Light) -> f32
+{
+  return getRangeAttenuationAt(dot(light.pointToLight, light.pointToLight), light.effectiveRange);
 }
 
 // https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md#inner-and-outer-cone-angles
@@ -63,45 +67,65 @@ fn getLightAttenuated(light: Light) -> Light {
 
 fn getLight(lightIdx: u32, v_position_inWorld: vec3<f32>) -> Light {
   let lightPosition: vec3<f32> = get_lightPosition(lightIdx);
-  let lightIntensity: vec3<f32> = get_lightIntensity(lightIdx);
   let lightProperty: vec4<f32> = get_lightProperty(lightIdx);
   var light: Light;
   light.directionOfLightObject = vec3<f32>(0.0, 0.0, 0.0);
   let lightType = lightProperty.x;
-  // Only directional and spot lights use the object-space direction. Skipping the load for
-  // point lights removes a read of the light data buffer per light in every fragment.
-  if (lightType <= 0.75 || lightType > 1.75) {
-    light.directionOfLightObject = get_lightDirection(lightIdx);
-  }
   light.effectiveRange = lightProperty.y;
   light.innerConeCos = lightProperty.z;
   light.outerConeCos = lightProperty.w;
-
-  light.intensity = lightIntensity;
   light.position = lightPosition;
+
   if (lightType < -0.5) { // disabled light
     light.intensity = vec3f(0.0);
+    light.attenuatedIntensity = vec3f(0.0);
     light.lightType = -1;
-  } else if (0.75 < lightType) { // is pointlight or spotlight
+    return light;
+  }
+
+  if (0.75 < lightType) { // is point light or spot light
     light.pointToLight = lightPosition - v_position_inWorld;
     light.direction = normalize(light.pointToLight);
     light.lightType = 1;
-  } else { // is Directional Light
-    light.lightType = 0;
-    light.direction = normalize(light.directionOfLightObject * -1.0);
+
+    // The attenuation is computed before the intensity and (for spot lights) the object-space direction are
+    // read. A light outside its range or cone contributes exactly zero, so those reads are skipped. The callers
+    // only use the attenuated intensity and the direction of such a light.
+    let rangeAttenuation = getRangeAttenuationAt(
+      dot(light.pointToLight, light.pointToLight), light.effectiveRange);
+    if (!(rangeAttenuation > 0.0)) {
+      light.intensity = vec3f(0.0);
+      light.attenuatedIntensity = vec3f(0.0);
+      return light;
+    }
+
+    if (lightType > 1.75) { // is spot light
+      light.lightType = 2;
+      light.directionOfLightObject = get_lightDirection(lightIdx);
+      let spotAttenuation = getSpotAttenuation(light);
+      if (!(spotAttenuation > 0.0)) {
+        light.intensity = vec3f(0.0);
+        light.attenuatedIntensity = vec3f(0.0);
+        return light;
+      }
+      // Defer the intensity read until the light actually contributes.
+      light.intensity = get_lightIntensity(lightIdx) * M_PI; // Punctual Light
+      light.attenuatedIntensity = light.intensity * rangeAttenuation * spotAttenuation;
+      return light;
+    }
+
+    light.intensity = get_lightIntensity(lightIdx) * M_PI; // Punctual Light
+    light.attenuatedIntensity = light.intensity * rangeAttenuation;
+    return light;
   }
 
-  if (lightType > 1.75) { // is spotlight
-    light.lightType = 2;
-  }
-
-  light.intensity *= M_PI; // Punctual Light
-
-  // Attenuation
+  // is Directional Light
+  light.lightType = 0;
+  light.directionOfLightObject = get_lightDirection(lightIdx);
+  light.direction = normalize(light.directionOfLightObject * -1.0);
+  light.intensity = get_lightIntensity(lightIdx) * M_PI; // Punctual Light
   light.attenuatedIntensity = light.intensity;
-  let newLight = getLightAttenuated(light);
-
-  return newLight;
+  return light;
 }
 
 // Clustered Forward light list (see src/foundation/renderer/lightCluster/LightClusterLayout.ts).
