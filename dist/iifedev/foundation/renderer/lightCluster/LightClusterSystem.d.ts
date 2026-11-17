@@ -16,12 +16,16 @@ export type LightClusterGpuBuildView = {
 };
 export type LightClusterGpuBuildParams = {
     views: readonly LightClusterGpuBuildView[];
-    /** The sorted light spheres, entries and Z slice ranges of the views, `dataStride` floats per view. */
+    /** The sorted light spheres, entries and group candidate lists of the views, `dataStride` floats per view. */
     data: Float32Array;
     dataStride: number;
     /** The maximum number of local lights stored in the build data of a view. */
     localCapacity: number;
     layout: LightClusterViewLayout;
+    /** The log2 of the 2D tile group size used by the contribution selection. */
+    groupShift: number;
+    /** Whether the build data holds the group candidate lists instead of the per-slice ranges. */
+    useGroupLists: boolean;
 };
 /**
  * Builds the light lists of Clustered Forward rendering once per frame.
@@ -76,6 +80,23 @@ export declare class LightClusterSystem {
     private __sortedSpheres;
     private __sortedEntries;
     private __sliceRanges;
+    /** The maximum intensity (the largest color * intensity component) of each local light, in SID order. */
+    private __localIntensities;
+    /** The 2D tile group size (a power of two) used by the GPU build's importance selection. */
+    private readonly __groupShift;
+    private readonly __groupSize;
+    private __groupsX;
+    private __groupsY;
+    private __groupListCount;
+    /** The maximum number of candidates stored in one (group, slice) list. */
+    private readonly __groupListPerListCapacity;
+    /** The candidate list of each (group, slice), ordered by importance (or by depth for the nearest mode). */
+    private __groupListOffsets;
+    private __groupListIndices;
+    private __useGroupLists;
+    /** Scratch for sorting the candidates of a group by importance. */
+    private __sliceScores;
+    private __sliceCandidates;
     /** The GPU build inputs (sorted spheres, entries and slice ranges) of the views, stored per view slot. */
     private __gpuBuildData;
     private __gpuBuildStride;
@@ -164,6 +185,15 @@ export declare class LightClusterSystem {
      * For the GPU build, the sorted spheres, entries and ranges are copied to the GPU build data of the view.
      */
     private __prepareViewBuild;
+    /**
+     * Builds the candidate lists of the GPU build, one per (2D tile group, depth slice).
+     *
+     * When `useScore` is true, the candidates of a group are ordered by an approximation of their contribution at
+     * the group: the intensity, reduced by the range window and the squared distance from the light center to the
+     * closest point of the group. A cluster whose list reaches its capacity keeps the most important lights of its
+     * 2D group. Otherwise (no cluster can be full) the depth-sorted order is kept.
+     */
+    private __buildGroupLists;
     /**
      * Allocates a region in the GPU instance data. Returns undefined (and disables the clusters) when it fails.
      */

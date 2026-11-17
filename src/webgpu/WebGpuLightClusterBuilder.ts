@@ -6,11 +6,13 @@ import type { WebGpuGpuTimer } from './WebGpuGpuTimer';
  * (`sphereIntersectsLightCluster`) and writes the same layout as `buildLightClustersOnCpu` (LightClusterLayout.ts).
  *
  * One dispatch per view, one invocation per cluster, no atomics:
- * - The caller sorts the local lights by view depth (nearest first) and passes the range of the sorted lights whose
- *   sphere overlaps the depth slice of each cluster, so an invocation only tests the lights that can reach its slice.
- * - Each cluster owns `entriesPerCluster` vec4s of the light index list and writes its nearest lights until it is full.
- *   The table entry of the cluster holds the vec4 offset of its list and its light count; the clusters of the same view
- *   do not share the list, so the shader reads it with the same table lookup as the CPU build.
+ * - The caller sorts the local lights by view depth (nearest first) for the slice ranges, and passes for each
+ *   2D tile group and depth slice the candidate lights ordered by importance (the approximation of the light's
+ *   contribution at the group). A cluster that reaches its capacity keeps the strongest lights of its group,
+ *   so the lights that are dropped are the least important ones.
+ * - Each cluster owns `entriesPerCluster` vec4s of the light index list and writes its selected lights until it is
+ *   full. The table entry of the cluster holds the vec4 offset of its list and its light count; the clusters of the
+ *   same view do not share the list, so the shader reads it with the same table lookup as the CPU build.
  * - Every invocation writes only whole vec4s that no other invocation of the dispatch accesses. Some backends store a
  *   vector component by rewriting the whole vector, so component writes to shared vec4s would lose data.
  */
@@ -20,10 +22,18 @@ struct Params {
   sphereBase: u32,
   entryBase: u32,
   rangeBase: u32,
+  groupOffsetBase: u32,
+  groupIndexBase: u32,
   localCount: u32,
   clusterCount: u32,
   entriesPerCluster: u32,
   capacity: u32,
+  groupsX: u32,
+  groupsY: u32,
+  gridZ: u32,
+  groupShift: u32,
+  useGroupLists: u32,
+  _pad0: u32,
 }
 
 @group(0) @binding(0) var<storage, read_write> data: array<vec4<f32>>;
@@ -76,16 +86,33 @@ fn buildClusters(@builtin(global_invocation_id) id: vec3<u32>) {
   let sliceFar = exp((fz + 1.0 - slice.y) / slice.x);
   let wLength = length(rowW.xyz);
 
-  let rangeBase = params.rangeBase + z * 2u;
-  let rangeStart = u32(buildData[rangeBase]);
-  let rangeEnd = u32(buildData[rangeBase + 1u]);
+  var listStart: u32;
+  var listEnd: u32;
+  if (params.useGroupLists != 0u) {
+    let groupX = x >> params.groupShift;
+    let groupY = y >> params.groupShift;
+    let groupListIndex = (groupY * params.groupsX + groupX) * params.gridZ + z;
+    let groupListBase = params.groupOffsetBase + groupListIndex;
+    listStart = u32(buildData[groupListBase]);
+    listEnd = u32(buildData[groupListBase + 1u]);
+  } else {
+    let rangeBase = params.rangeBase + z * 2u;
+    listStart = u32(buildData[rangeBase]);
+    listEnd = u32(buildData[rangeBase + 1u]);
+  }
   let listBase = indexBase() + cluster * params.entriesPerCluster;
 
   var count = 0u;
   var pending = vec4<f32>(0.0);
-  for (var i = rangeStart; i < rangeEnd; i = i + 1u) {
+  for (var t = listStart; t < listEnd; t = t + 1u) {
     if (count >= params.capacity) {
       break;
+    }
+    var i: u32;
+    if (params.useGroupLists != 0u) {
+      i = u32(buildData[params.groupIndexBase + t]);
+    } else {
+      i = t;
     }
     let sphereBase = params.sphereBase + i * 4u;
     let center = vec3<f32>(buildData[sphereBase], buildData[sphereBase + 1u], buildData[sphereBase + 2u]);
@@ -127,7 +154,7 @@ fn buildClusters(@builtin(global_invocation_id) id: vec3<u32>) {
 }
 `;
 
-const ParamsByteLength = 32;
+const ParamsByteLength = 64;
 const BuildWorkgroupSize = 64;
 
 /**
@@ -237,17 +264,31 @@ export class WebGpuLightClusterBuilder {
     const layout = params.layout;
     const capacity = layout.clusterLightCapacity;
     const entriesPerCluster = Math.ceil(capacity / 4);
+    const groupSize = 1 << params.groupShift;
+    const groupsX = Math.ceil(layout.gridX / groupSize);
+    const groupsY = Math.ceil(layout.gridY / groupSize);
+    const groupListCount = groupsX * groupsY * layout.gridZ;
     const p = this.__paramsArray;
     for (let i = 0; i < viewCount; i++) {
       const view = params.views[i];
       p[0] = view.viewVec4Base;
       p[1] = view.dataOffset;
-      p[2] = view.dataOffset + params.localCapacity * 4;
-      p[3] = view.dataOffset + params.localCapacity * 5;
-      p[4] = view.localCount;
-      p[5] = layout.clusterCount;
-      p[6] = entriesPerCluster;
-      p[7] = capacity;
+      const entryBase = view.dataOffset + params.localCapacity * 4;
+      p[2] = entryBase;
+      const listBase = entryBase + params.localCapacity;
+      p[3] = params.useGroupLists ? 0 : listBase;
+      p[4] = params.useGroupLists ? listBase : 0;
+      p[5] = params.useGroupLists ? listBase + groupListCount + 1 : 0;
+      p[6] = view.localCount;
+      p[7] = layout.clusterCount;
+      p[8] = entriesPerCluster;
+      p[9] = capacity;
+      p[10] = groupsX;
+      p[11] = groupsY;
+      p[12] = layout.gridZ;
+      p[13] = params.groupShift;
+      p[14] = params.useGroupLists ? 1 : 0;
+      p[15] = 0;
       device.queue.writeBuffer(this.__paramsBuffer!, i * this.__paramsStride, p);
     }
 

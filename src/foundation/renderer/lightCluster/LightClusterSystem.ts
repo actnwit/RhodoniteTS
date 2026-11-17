@@ -44,12 +44,16 @@ export type LightClusterGpuBuildView = {
 
 export type LightClusterGpuBuildParams = {
   views: readonly LightClusterGpuBuildView[];
-  /** The sorted light spheres, entries and Z slice ranges of the views, `dataStride` floats per view. */
+  /** The sorted light spheres, entries and group candidate lists of the views, `dataStride` floats per view. */
   data: Float32Array;
   dataStride: number;
   /** The maximum number of local lights stored in the build data of a view. */
   localCapacity: number;
   layout: LightClusterViewLayout;
+  /** The log2 of the 2D tile group size used by the contribution selection. */
+  groupShift: number;
+  /** Whether the build data holds the group candidate lists instead of the per-slice ranges. */
+  useGroupLists: boolean;
 };
 
 /** The maximum shadow slot that can be packed into a light entry exactly (entries must stay below 2^24). */
@@ -113,6 +117,23 @@ export class LightClusterSystem {
   private __sortedSpheres = new Float64Array(0);
   private __sortedEntries = new Float64Array(0);
   private __sliceRanges = new Uint32Array(0);
+  /** The maximum intensity (the largest color * intensity component) of each local light, in SID order. */
+  private __localIntensities = new Float64Array(0);
+  /** The 2D tile group size (a power of two) used by the GPU build's importance selection. */
+  private readonly __groupShift = 3;
+  private readonly __groupSize = 1 << this.__groupShift;
+  private __groupsX = 0;
+  private __groupsY = 0;
+  private __groupListCount = 0;
+  /** The maximum number of candidates stored in one (group, slice) list. */
+  private readonly __groupListPerListCapacity = 128;
+  /** The candidate list of each (group, slice), ordered by importance (or by depth for the nearest mode). */
+  private __groupListOffsets = new Uint32Array(0);
+  private __groupListIndices = new Uint32Array(0);
+  private __useGroupLists = false;
+  /** Scratch for sorting the candidates of a group by importance. */
+  private __sliceScores = new Float64Array(0);
+  private __sliceCandidates: number[] = [];
 
   /** The GPU build inputs (sorted spheres, entries and slice ranges) of the views, stored per view slot. */
   private __gpuBuildData = new Float32Array(0);
@@ -166,6 +187,8 @@ export class LightClusterSystem {
       dataStride: this.__gpuBuildStride,
       localCapacity: this.__capacity,
       layout: this.__layout,
+      groupShift: this.__groupShift,
+      useGroupLists: this.__useGroupLists,
     };
   }
 
@@ -276,6 +299,7 @@ export class LightClusterSystem {
     this.__spheres = new Float64Array(this.__capacity * 4);
     this.__prevSpheres = new Float64Array(this.__capacity * 4);
     this.__localEntries = new Float64Array(this.__capacity);
+    this.__localIntensities = new Float64Array(this.__capacity);
     this.__layout = getLightClusterViewLayout(
       config.clusteredForwardGridSize,
       config.clusteredForwardLightCapacityPerCluster
@@ -284,8 +308,22 @@ export class LightClusterSystem {
     this.__sortedSpheres = new Float64Array(this.__capacity * 4);
     this.__sortedEntries = new Float64Array(this.__capacity);
     this.__sliceRanges = new Uint32Array(this.__layout.gridZ * 2);
+    this.__sliceScores = new Float64Array(this.__capacity);
+    this.__useGroupLists = config.clusteredForwardLightSelection === 'contribution';
+    this.__groupsX = Math.ceil(this.__layout.gridX / this.__groupSize);
+    this.__groupsY = Math.ceil(this.__layout.gridY / this.__groupSize);
+    this.__groupListCount = this.__groupsX * this.__groupsY * this.__layout.gridZ;
+    // The contribution selection stores at most 128 candidates per (group, slice) list. The cluster capacity
+    // is normally much smaller, so the selected lights are the most important candidates.
+    const groupListIndexCapacity = this.__useGroupLists ? this.__groupListCount * this.__groupListPerListCapacity : 0;
+    this.__groupListOffsets = new Uint32Array(this.__useGroupLists ? this.__groupListCount + 1 : 0);
+    this.__groupListIndices = new Uint32Array(groupListIndexCapacity);
     const maxViewNumber = Math.max(0, Math.floor(config.clusteredForwardMaxViewNumber));
-    this.__gpuBuildStride = this.__capacity * 5 + this.__layout.gridZ * 2;
+    // Per local light: the sphere (4 floats) and the entry (1 float), then either the per-slice ranges or the
+    // group list offsets and indices.
+    this.__gpuBuildStride =
+      this.__capacity * 5 +
+      (this.__useGroupLists ? this.__groupListCount + 1 + groupListIndexCapacity : this.__layout.gridZ * 2);
     this.__gpuBuildData = new Float32Array(maxViewNumber * this.__gpuBuildStride);
     this.__slotCameraSids = new Array(maxViewNumber).fill(-1);
     this.__slotValid = new Array(maxViewNumber).fill(false);
@@ -307,6 +345,7 @@ export class LightClusterSystem {
     const entries = this.__entries;
     const spheres = this.__spheres;
     const localEntries = this.__localEntries;
+    const localIntensities = this.__localIntensities;
     const maxShadowSlot = Math.min(this.__engine.config.maxLightNumber - 1, MaxPackableShadowSlot);
     let globalCount = 0;
     let localCount = 0;
@@ -345,12 +384,15 @@ export class LightClusterSystem {
         if (radius < 0) {
           entries[globalCount++] = entry;
         } else {
-          localEntries[localCount++] = entry;
+          localEntries[localCount] = entry;
           // A light without intensity lights nothing, so it does not make clustering worthwhile.
           const intensity = light._lightIntensityForGpu._v;
-          if (intensity[0] > 0 || intensity[1] > 0 || intensity[2] > 0) {
+          const maxIntensity = Math.max(intensity[0], intensity[1], intensity[2]);
+          localIntensities[localCount] = Math.max(maxIntensity, 0);
+          if (maxIntensity > 0) {
             emittingLocalCount++;
           }
+          localCount++;
         }
       }
     }
@@ -667,15 +709,218 @@ export class LightClusterSystem {
       }
     }
 
+    // The candidate lights of each (2D group, slice), ordered by importance. A cluster that reaches its
+    // capacity keeps the most important lights of its group instead of the nearest ones.
+    const useContribution = this.__useGroupLists && localCount > capacity;
+    if (this.__useGroupLists) {
+      this.__buildGroupLists(header, gridZ, useContribution);
+    }
+
     if (isGpuBuild) {
       const dataOffset = slot * this.__gpuBuildStride;
       const localCapacity = this.__capacity;
       const data = this.__gpuBuildData;
       data.set(sortedSpheres.subarray(0, localCount * 4), dataOffset);
-      data.set(sortedEntries.subarray(0, localCount), dataOffset + localCapacity * 4);
-      const rangeBase = dataOffset + localCapacity * 5;
-      for (let i = 0; i < gridZ * 2; i++) {
-        data[rangeBase + i] = ranges[i];
+      const entryBase = dataOffset + localCapacity * 4;
+      data.set(sortedEntries.subarray(0, localCount), entryBase);
+      if (this.__useGroupLists) {
+        const groupOffsetBase = entryBase + localCapacity;
+        data.set(this.__groupListOffsets, groupOffsetBase);
+        const groupIndexBase = groupOffsetBase + this.__groupListCount + 1;
+        data.set(this.__groupListIndices.subarray(0, this.__groupListOffsets[this.__groupListCount]), groupIndexBase);
+      } else {
+        const rangeBase = entryBase + localCapacity;
+        for (let i = 0; i < gridZ * 2; i++) {
+          data[rangeBase + i] = ranges[i];
+        }
+      }
+    }
+  }
+
+  /**
+   * Builds the candidate lists of the GPU build, one per (2D tile group, depth slice).
+   *
+   * When `useScore` is true, the candidates of a group are ordered by an approximation of their contribution at
+   * the group: the intensity, reduced by the range window and the squared distance from the light center to the
+   * closest point of the group. A cluster whose list reaches its capacity keeps the most important lights of its
+   * 2D group. Otherwise (no cluster can be full) the depth-sorted order is kept.
+   */
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: the per-candidate plane tests and score are kept in one loop to avoid per-light call overhead
+  private __buildGroupLists(header: Float32Array, gridZ: number, useScore: boolean) {
+    const ranges = this.__sliceRanges;
+    const offsets = this.__groupListOffsets;
+    const indices = this.__groupListIndices;
+    const scores = this.__sliceScores;
+    const candidates = this.__sliceCandidates;
+    const spheres = this.__spheres;
+    const intensities = this.__localIntensities;
+    const order = this.__sortOrder;
+    const groupsX = this.__groupsX;
+    const groupsY = this.__groupsY;
+    const gridX = this.__layout!.gridX;
+    const gridY = this.__layout!.gridY;
+    const groupSize = this.__groupSize;
+    const sliceScale = header[20];
+    const sliceBias = header[21];
+    const rowX = [header[0], header[1], header[2], header[3]];
+    const rowY = [header[4], header[5], header[6], header[7]];
+    const rowW = [header[8], header[9], header[10], header[11]];
+    const rowDepth = [header[12], header[13], header[14], header[15]];
+    const dot4 = (a: number[], x: number, y: number, z: number) => a[0] * x + a[1] * y + a[2] * z + a[3];
+    const planePasses = (
+      nx: number,
+      ny: number,
+      nz: number,
+      nw: number,
+      x: number,
+      y: number,
+      z: number,
+      r: number
+    ) => {
+      const length = Math.hypot(nx, ny, nz);
+      if (!(length > 1e-30)) {
+        return true;
+      }
+      return (nx * x + ny * y + nz * z + nw) / length >= -r;
+    };
+    const sliceNear = new Float64Array(gridZ);
+    const sliceFar = new Float64Array(gridZ);
+    for (let z = 0; z < gridZ; z++) {
+      sliceNear[z] = z === 0 ? Number.NEGATIVE_INFINITY : Math.exp((z - sliceBias) / sliceScale);
+      sliceFar[z] = z === gridZ - 1 ? Number.POSITIVE_INFINITY : Math.exp((z + 1 - sliceBias) / sliceScale);
+    }
+    const perListCapacity = this.__groupListPerListCapacity;
+    const candidateLimit = perListCapacity * 4;
+    let length = 0;
+    let listIndex = 0;
+    for (let gy = 0; gy < groupsY; gy++) {
+      const bottomK = gy * groupSize;
+      const topK = Math.min((gy + 1) * groupSize, gridY);
+      const cy = (bottomK + topK) * 0.5;
+      const nyLen = Math.hypot(rowY[0] - cy * rowW[0], rowY[1] - cy * rowW[1], rowY[2] - cy * rowW[2]);
+      const hasBottom = gy > 0;
+      const hasTop = topK < gridY;
+      const bottomW = rowY[3] - bottomK * rowW[3];
+      const topW = topK * rowW[3] - rowY[3];
+      for (let gx = 0; gx < groupsX; gx++) {
+        const leftK = gx * groupSize;
+        const rightK = Math.min((gx + 1) * groupSize, gridX);
+        const cx = (leftK + rightK) * 0.5;
+        const nxLen = Math.hypot(rowX[0] - cx * rowW[0], rowX[1] - cx * rowW[1], rowX[2] - cx * rowW[2]);
+        const hasLeft = gx > 0;
+        const hasRight = rightK < gridX;
+        const leftW = rowX[3] - leftK * rowW[3];
+        const rightW = rightK * rowW[3] - rowX[3];
+        for (let z = 0; z < gridZ; z++) {
+          offsets[listIndex] = length;
+          const start = ranges[z * 2];
+          const end = ranges[z * 2 + 1];
+          if (start < end) {
+            const near = sliceNear[z];
+            const far = sliceFar[z];
+            candidates.length = 0;
+            for (let k = start; k < end && candidates.length < candidateLimit; k++) {
+              const src = order[k];
+              const x = spheres[src * 4];
+              const y = spheres[src * 4 + 1];
+              const zz = spheres[src * 4 + 2];
+              const r = spheres[src * 4 + 3];
+              // The group's 2D planes. The screen border planes are skipped, as the cluster builder does.
+              if (
+                hasLeft &&
+                !planePasses(
+                  rowX[0] - leftK * rowW[0],
+                  rowX[1] - leftK * rowW[1],
+                  rowX[2] - leftK * rowW[2],
+                  leftW,
+                  x,
+                  y,
+                  zz,
+                  r
+                )
+              ) {
+                continue;
+              }
+              if (
+                hasRight &&
+                !planePasses(
+                  rightK * rowW[0] - rowX[0],
+                  rightK * rowW[1] - rowX[1],
+                  rightK * rowW[2] - rowX[2],
+                  rightW,
+                  x,
+                  y,
+                  zz,
+                  r
+                )
+              ) {
+                continue;
+              }
+              if (
+                hasBottom &&
+                !planePasses(
+                  rowY[0] - bottomK * rowW[0],
+                  rowY[1] - bottomK * rowW[1],
+                  rowY[2] - bottomK * rowW[2],
+                  bottomW,
+                  x,
+                  y,
+                  zz,
+                  r
+                )
+              ) {
+                continue;
+              }
+              if (
+                hasTop &&
+                !planePasses(
+                  topK * rowW[0] - rowY[0],
+                  topK * rowW[1] - rowY[1],
+                  topK * rowW[2] - rowY[2],
+                  topW,
+                  x,
+                  y,
+                  zz,
+                  r
+                )
+              ) {
+                continue;
+              }
+              if (useScore) {
+                const w = dot4(rowW, x, y, zz);
+                if (!(w > 1e-30)) {
+                  continue;
+                }
+                const u = dot4(rowX, x, y, zz) / w;
+                const v = dot4(rowY, x, y, zz) / w;
+                const scaleX = nxLen > 1e-30 ? w / nxLen : 0;
+                const scaleY = nyLen > 1e-30 ? w / nyLen : 0;
+                const du = (u - cx) * scaleX;
+                const dv = (v - cy) * scaleY;
+                const depth = dot4(rowDepth, x, y, zz);
+                const dz = Math.max(depth - far, near - depth, 0);
+                const distanceSq = du * du + dv * dv + dz * dz;
+                let window = 0;
+                if (r > 0) {
+                  const ratio2 = distanceSq / (r * r);
+                  const windowBase = Math.max(1 - ratio2 * ratio2, 0);
+                  window = windowBase * windowBase * windowBase * windowBase;
+                }
+                scores[k] = (intensities[src] * window) / Math.max(distanceSq, 1e-3);
+              }
+              candidates.push(k);
+            }
+            if (useScore) {
+              candidates.sort((a, b) => scores[b] - scores[a] || a - b);
+            }
+            const writeCount = Math.min(candidates.length, perListCapacity);
+            for (let i = 0; i < writeCount; i++) {
+              indices[length++] = candidates[i];
+            }
+          }
+          listIndex++;
+          offsets[listIndex] = length;
+        }
       }
     }
   }

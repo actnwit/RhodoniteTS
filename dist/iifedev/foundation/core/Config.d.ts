@@ -28,6 +28,7 @@ type ConfigInitDescription = {
     clusteredForwardMaxViewNumber?: number;
     clusteredForwardLightCapacityPerCluster?: number;
     clusteredForwardMinLocalLightNumber?: number;
+    clusteredForwardLightSelection?: ClusteredForwardLightSelection;
     maxLightListLength?: number;
     lightAutoRangeThreshold?: number;
     lightRangeAdjustmentLevel?: LightRangeAdjustmentLevel;
@@ -45,6 +46,14 @@ export type ClusteredForwardBuildMode = 'auto' | 'cpu';
  * - 2: Performance first (range x0.8, intensity x1.35).
  */
 export type LightRangeAdjustmentLevel = 0 | 1 | 2;
+/**
+ * How the lights are selected when a cluster reaches {@link Config.clusteredForwardLightCapacityPerCluster}.
+ * - `'nearest'`: keep the lights nearest to the camera (the historical behavior).
+ * - `'contribution'`: keep the lights that contribute most to the cluster, approximated from their intensity,
+ *   range window and distance to the cluster's 2D tile group. WebGPU only; the WebGL2/CPU build keeps the
+ *   nearest lights.
+ */
+export type ClusteredForwardLightSelection = 'nearest' | 'contribution';
 /**
  * Config is a configuration class that contains the configuration for the library.
  */
@@ -144,6 +153,16 @@ export declare class Config {
      * {@link Config.clusteredForwardGridSize} (62,208 by default). The default 96 is about 25 MB per camera.
      */
     clusteredForwardLightCapacityPerCluster: number;
+    /**
+     * How the lights are selected when a cluster reaches {@link Config.clusteredForwardLightCapacityPerCluster}.
+     *
+     * @remarks
+     * `'nearest'` (default) keeps the lights nearest to the camera, which is the historical behavior. `'contribution'`
+     * keeps the lights that contribute most to the cluster, approximated from the intensity, the range window and the
+     * distance to the 2D tile group of the cluster. It allows a smaller capacity with less visible darkening. The
+     * selection is done in the WebGPU compute build; the WebGL2/CPU build keeps the nearest lights.
+     */
+    clusteredForwardLightSelection: ClusteredForwardLightSelection;
     /** The maximum number of enabled lights that are shaded. The other lights are ignored. (max: 65535) */
     maxLightListLength: number;
     /**
