@@ -7,6 +7,7 @@ import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 import { Component, type MemberInfo } from '../foundation/core/Component';
+import { AlphaMode } from '../foundation/definitions/AlphaMode';
 import { BufferUse } from '../foundation/definitions/BufferUse';
 import { ComponentType } from '../foundation/definitions/ComponentType';
 import { CompositionType } from '../foundation/definitions/CompositionType';
@@ -867,12 +868,21 @@ ${indexStr}
 
     let renderedSomething = false;
     const isZWrite = renderPass.isDepthTest && renderPass.depthWriteMask;
+    const useDepthPrepass = this.__isDepthPrepassAvailable(renderPass);
+    // Draw the opaque primitives depth-only first, so the color pass can reject hidden fragments before shading.
+    if (useDepthPrepass) {
+      for (let i = renderPass._lastOpaqueIndex; i >= 0; i--) {
+        this.renderInner(primitiveUids[i], renderPass, true, displayIdx, { depthOnly: true });
+      }
+    }
     // For opaque primitives
     if (renderPass._toRenderOpaquePrimitives) {
       for (let i = renderPass._lastOpaqueIndex; i >= 0; i--) {
         // Drawing from the nearest object
         const primitiveUid = primitiveUids[i];
-        const rendered = this.renderInner(primitiveUid, renderPass, isZWrite, displayIdx);
+        const rendered = this.renderInner(primitiveUid, renderPass, isZWrite, displayIdx, {
+          allowEqualDepth: useDepthPrepass,
+        });
         renderedSomething ||= rendered;
       }
     }
@@ -927,6 +937,23 @@ ${indexStr}
   }
 
   /**
+   * Whether the depth prepass can run for the render pass: it must be enabled, draw the scene itself (render passes
+   * with a material override such as shadow maps and post effects are excluded), and write depth.
+   */
+  private __isDepthPrepassAvailable(renderPass: RenderPass) {
+    const framebuffer = renderPass.getFramebuffer();
+    return (
+      this.__engine.config.isDepthPrepassEnabled &&
+      renderPass.material == null &&
+      renderPass.isDepthTest &&
+      renderPass.depthWriteMask &&
+      (framebuffer == null || framebuffer.depthAttachment != null) &&
+      renderPass._toRenderOpaquePrimitives &&
+      renderPass._lastOpaqueIndex >= 0
+    );
+  }
+
+  /**
    * Renders a single primitive with the specified material and render settings.
    * Handles shader setup, uniform buffer updates, and the actual draw call.
    *
@@ -936,7 +963,13 @@ ${indexStr}
    * @param displayIdx - The index of the display to render to
    * @returns True if the primitive was successfully rendered
    */
-  renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, zWrite: boolean, displayIdx: Index) {
+  renderInner(
+    primitiveUid: PrimitiveUID,
+    renderPass: RenderPass,
+    zWrite: boolean,
+    displayIdx: Index,
+    options: { depthOnly?: boolean; allowEqualDepth?: boolean } = {}
+  ) {
     if (primitiveUid === -1) {
       return false;
     }
@@ -947,6 +980,14 @@ ${indexStr}
     const material: Material = renderPass.getAppropriateMaterial(primitive);
     this._setupShaderProgram(material, primitive);
     if (isSkipDrawing(material, primitive)) {
+      return false;
+    }
+    if (
+      options.depthOnly &&
+      (material.alphaMode === AlphaMode.Mask || material.alphaToCoverage || material.isShaderDefine('RN_USE_WIREFRAME'))
+    ) {
+      // The prepass cannot discard (or apply a per-sample coverage), so those primitives keep their normal draw
+      // and depth write. Including them would occlude the surfaces behind the discarded fragments.
       return false;
     }
 
@@ -965,7 +1006,16 @@ ${indexStr}
       primitiveIdxHasMorph,
       primitive.targets.length
     );
-    webGpuResourceRepository.draw(this.__engine, primitive, material, renderPass, cameraSID, zWrite, displayIdx);
+    webGpuResourceRepository.draw(
+      this.__engine,
+      primitive,
+      material,
+      renderPass,
+      cameraSID,
+      zWrite,
+      displayIdx,
+      options
+    );
     return true;
   }
 

@@ -24,6 +24,7 @@ type ConfigInitDescription = {
   bufferSizeDivisionRatiosForGPUInstanceDataUsage?: number[];
   logLevel?: LogLevel;
   isMultiDrawEnabled?: boolean;
+  isDepthPrepassEnabled?: boolean;
   isClusteredForwardEnabled?: boolean;
   clusteredForwardBuildMode?: ClusteredForwardBuildMode;
   clusteredForwardGridSize?: [number, number, number];
@@ -226,6 +227,30 @@ export class Config {
    * vertex/index buffers and consecutive draws with the same state are issued with WEBGL_multi_draw.
    */
   isMultiDrawEnabled = true;
+  /**
+   * Whether to render a depth prepass for the opaque primitives of the main render passes (WebGPU only).
+   *
+   * @remarks
+   * The prepass draws the opaque primitives with a depth-only pipeline before the color pass, and the color pass
+   * tests the depth with `less-equal`. Hidden fragments are rejected before the fragment shader, so the cost of the
+   * prepass (vertex processing and a trivial fragment shader) is traded for the shading of the overdrawn fragments.
+   *
+   * Primitives that alpha test (Mask), alpha-to-coverage, discard for wireframe, or blend are not part of the prepass:
+   * they keep their normal draw, depth test and depth write. A material that discards in another way should not be
+   * used with this option. At exactly coplanar surfaces the visible surface can change, because the color pass passes
+   * fragments whose depth is equal to the prepass depth (a few hundred pixels on a Sponza-scale scene).
+   *
+   * Render passes with a material override (shadow maps, post effects and other helper passes) are not affected.
+   * The prepass is per render pass, so stereo rendering runs it once per eye. The WebGL2 backend ignores this option
+   * (its multi-draw path keeps the material order).
+   *
+   * @remarks
+   * Measured on the 1000-point-light Sponza (WebGPU, Apple M2 Max): the GPU time fell by about 5-7% (1280x720:
+   * 4.46 -> 4.13 ms) and the frame wall time by about 0-10% (the run was thermally throttled, so treat the wall
+   * number as an upper bound). The gain grows with the amount of overdrawn shading. The default is off because the
+   * extra geometry pass hurts scenes with little overdraw or heavy vertex shaders.
+   */
+  isDepthPrepassEnabled = false;
 
   constructor(initDescription: ConfigInitDescription = {}) {
     if (initDescription.scenegraphComponentCountPerBufferView !== undefined) {
@@ -279,6 +304,9 @@ export class Config {
     }
     if (initDescription.isMultiDrawEnabled !== undefined) {
       this.isMultiDrawEnabled = initDescription.isMultiDrawEnabled;
+    }
+    if (initDescription.isDepthPrepassEnabled !== undefined) {
+      this.isDepthPrepassEnabled = initDescription.isDepthPrepassEnabled;
     }
     if (initDescription.isClusteredForwardEnabled !== undefined) {
       this.isClusteredForwardEnabled = initDescription.isClusteredForwardEnabled;
