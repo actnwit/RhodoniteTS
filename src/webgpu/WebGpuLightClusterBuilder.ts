@@ -1,4 +1,5 @@
 import type { LightClusterGpuBuildParams } from '../foundation/renderer/lightCluster/LightClusterSystem';
+import type { WebGpuGpuTimer } from './WebGpuGpuTimer';
 
 /**
  * The WGSL of the light cluster build. It implements the assignment test documented in LightClusterBuilder.ts
@@ -179,8 +180,10 @@ export class WebGpuLightClusterBuilder {
    *
    * @param storageBuffer - The storage buffer of the GPU instance data
    * @param params - The views to build and their sorted light input
+   * @param gpuTimer - When set (and a frame is being measured), measures the build as the
+   *   'LightClusterBuild' pass
    */
-  build(storageBuffer: GPUBuffer, params: LightClusterGpuBuildParams) {
+  build(storageBuffer: GPUBuffer, params: LightClusterGpuBuildParams, gpuTimer?: WebGpuGpuTimer) {
     const viewCount = params.views.length;
     if (viewCount === 0) {
       return;
@@ -249,7 +252,12 @@ export class WebGpuLightClusterBuilder {
     }
 
     const encoder = device.createCommandEncoder({ label: 'LightClusterBuild' });
-    const pass = encoder.beginComputePass({ label: 'LightClusterBuild' });
+    const passDescriptor: GPUComputePassDescriptor = { label: 'LightClusterBuild' };
+    const timestampWrites = gpuTimer?.getTimestampWrites('LightClusterBuild');
+    if (timestampWrites != null) {
+      passDescriptor.timestampWrites = timestampWrites;
+    }
+    const pass = encoder.beginComputePass(passDescriptor);
     const workgroupCount = Math.ceil(layout.clusterCount / BuildWorkgroupSize);
     for (let i = 0; i < viewCount; i++) {
       pass.setBindGroup(0, this.__bindGroup, [i * this.__paramsStride]);
@@ -257,7 +265,13 @@ export class WebGpuLightClusterBuilder {
       pass.dispatchWorkgroups(workgroupCount);
     }
     pass.end();
+    if (timestampWrites != null) {
+      gpuTimer!.encodeResolve(encoder);
+    }
     device.queue.submit([encoder.finish()]);
+    if (timestampWrites != null) {
+      gpuTimer!.afterSubmit();
+    }
   }
 
   /**

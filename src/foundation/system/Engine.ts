@@ -513,8 +513,9 @@ export class Engine extends RnObject {
    * @remarks
    * Undefined until a result is available, or when {@link gpuTimerEnabled} is false or the environment does
    * not support GPU timer queries. GPU results arrive asynchronously, so the value lags behind by a few
-   * frames. In WebGPU it is the sum of the durations of the render passes; in WebGL2 it is the time the GPU
-   * spent on all the commands issued during process().
+   * frames. In WebGPU it is the sum of the durations of the render passes and the compute passes (such as
+   * the light cluster build); in WebGL2 it is the time the GPU spent on all the commands issued during
+   * process().
    */
   public get gpuTimeMilliseconds(): number | undefined {
     if (!this.__gpuTimerEnabled) {
@@ -524,6 +525,22 @@ export class Engine extends RnObject {
       return this.__webGpuResourceRepository?._getGpuTimer().lastGpuTimeMilliseconds;
     }
     return this.__webglGpuTimer?.lastGpuTimeMilliseconds;
+  }
+
+  /**
+   * The GPU time of each pass of the latest measured process() call, in milliseconds, keyed by the pass label.
+   *
+   * @remarks
+   * WebGPU only. Undefined until a complete result is available, when {@link gpuTimerEnabled} is false, or
+   * when the GPU timer is not supported. The labels are the labels of the GPU passes: the unique names of the
+   * render passes, `DepthPrepass`, `LightClusterBuild`, and so on. Passes with the same label are summed.
+   * Like {@link gpuTimeMilliseconds}, the value lags behind by a few frames.
+   */
+  public get gpuPassTimesMilliseconds(): ReadonlyMap<string, number> | undefined {
+    if (!this.__gpuTimerEnabled || this.__processApproach !== ProcessApproach.WebGPU) {
+      return undefined;
+    }
+    return this.__webGpuResourceRepository?._getGpuTimer().lastPassGpuTimesMilliseconds;
   }
 
   private __getWebGLGpuTimer(): WebGLGpuTimer | undefined {

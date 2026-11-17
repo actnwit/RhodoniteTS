@@ -1,10 +1,12 @@
 /** Timestamps per query set: two per render pass (beginning and end). */
 const MAX_TIMESTAMPS = 512;
 /** Readback buffers in flight. While all of them are mapped, frames are not measured. */
-const MAX_READBACK_BUFFERS = 4;
+const MAX_READBACK_BUFFERS = 8;
 
 type GpuTimerFrame = {
   sumNanoseconds: number;
+  /** The duration of each pass label. A label that appears in several passes is summed. */
+  passNanoseconds: Map<string, number>;
   /** Readbacks of this frame that have not been read yet. */
   pendingReadbacks: number;
   ended: boolean;
@@ -15,16 +17,18 @@ type GpuTimerFrame = {
 type PendingReadback = {
   buffer: GPUBuffer;
   timestampCount: number;
+  /** The label of each measured pass, in the order of the timestamp pairs. */
+  labels: string[];
   frame: GpuTimerFrame;
 };
 
 /**
  * Measures the GPU time of each frame with the `timestamp-query` feature.
  *
- * Every render pass begun between beginFrame() and endFrame() writes timestamps at its beginning and end;
- * the frame's GPU time is the sum of the pass durations. The timestamps are resolved when the command
+ * Every render or compute pass begun between beginFrame() and endFrame() writes timestamps at its beginning and
+ * end; the frame's GPU time is the sum of the pass durations. The timestamps are resolved when the command
  * encoder is submitted and read back asynchronously, so `lastGpuTimeMilliseconds` reports the latest
- * frame whose results have arrived, not the current one.
+ * frame whose results have arrived, not the current one. The duration of each pass label is also published.
  *
  * Browsers may quantize timestamps (e.g. to 100µs) unless developer features are enabled.
  */
@@ -36,11 +40,14 @@ export class WebGpuGpuTimer {
   private __readbackBufferCount = 0;
   /** Timestamps written by passes recorded into the current command encoder. */
   private __timestampCount = 0;
+  /** The labels of the passes recorded into the current command encoder, one per pass. */
+  private __encoderPassLabels: string[] = [];
   /** The frame the timestamps of the current command encoder belong to. */
   private __encoderFrame?: GpuTimerFrame;
   private __currentFrame?: GpuTimerFrame;
   private __readbacksToMap: PendingReadback[] = [];
   private __lastGpuTimeMilliseconds?: number;
+  private __lastPassGpuTimesMilliseconds?: ReadonlyMap<string, number>;
 
   constructor(device: GPUDevice) {
     this.__device = device;
@@ -56,12 +63,26 @@ export class WebGpuGpuTimer {
     return this.__lastGpuTimeMilliseconds;
   }
 
-  /** Starts measuring the render passes begun from now on. */
+  /**
+   * The GPU time of each pass of the latest measured frame in milliseconds, keyed by the pass label.
+   * Undefined until a complete frame is available.
+   */
+  get lastPassGpuTimesMilliseconds(): ReadonlyMap<string, number> | undefined {
+    return this.__lastPassGpuTimesMilliseconds;
+  }
+
+  /** Starts measuring the render and compute passes begun from now on. */
   beginFrame() {
     if (!this.isSupported) {
       return;
     }
-    this.__currentFrame = { sumNanoseconds: 0, pendingReadbacks: 0, ended: false, isComplete: true };
+    this.__currentFrame = {
+      sumNanoseconds: 0,
+      passNanoseconds: new Map(),
+      pendingReadbacks: 0,
+      ended: false,
+      isComplete: true,
+    };
   }
 
   /** Stops measuring. The frame's time is published once all of its timestamps have been read back. */
@@ -76,10 +97,13 @@ export class WebGpuGpuTimer {
   }
 
   /**
-   * Returns the timestamp writes to set on a render pass descriptor, or undefined when the pass is not
-   * measured (outside a frame, or when the query set is full).
+   * Returns the timestamp writes to set on a render or compute pass descriptor, or undefined when the
+   * pass is not measured (outside a frame, or when the query set is full).
+   *
+   * @param label - The label of the pass, used to report its duration in
+   *   {@link WebGpuGpuTimer.lastPassGpuTimesMilliseconds}. Passes with the same label are summed.
    */
-  getTimestampWrites(): GPURenderPassTimestampWrites | undefined {
+  getTimestampWrites(label: string): GPURenderPassTimestampWrites | undefined {
     const frame = this.__currentFrame;
     if (frame == null) {
       return undefined;
@@ -102,6 +126,7 @@ export class WebGpuGpuTimer {
     }
     const index = this.__timestampCount;
     this.__timestampCount += 2;
+    this.__encoderPassLabels.push(label);
     this.__encoderFrame = frame;
     return {
       querySet: this.__querySet,
@@ -116,8 +141,10 @@ export class WebGpuGpuTimer {
    */
   encodeResolve(encoder: GPUCommandEncoder) {
     const timestampCount = this.__timestampCount;
+    const labels = this.__encoderPassLabels;
     const frame = this.__encoderFrame;
     this.__timestampCount = 0;
+    this.__encoderPassLabels = [];
     this.__encoderFrame = undefined;
     if (timestampCount === 0 || frame == null) {
       return;
@@ -137,7 +164,7 @@ export class WebGpuGpuTimer {
     encoder.resolveQuerySet(this.__querySet!, 0, timestampCount, this.__resolveBuffer!, 0);
     encoder.copyBufferToBuffer(this.__resolveBuffer!, 0, buffer, 0, timestampCount * 8);
     frame.pendingReadbacks++;
-    this.__readbacksToMap.push({ buffer, timestampCount, frame });
+    this.__readbacksToMap.push({ buffer, timestampCount, labels, frame });
   }
 
   /** Starts reading back the timestamps resolved by the encoder that has just been submitted. */
@@ -150,20 +177,23 @@ export class WebGpuGpuTimer {
   }
 
   private __readBack(readback: PendingReadback) {
-    const { buffer, timestampCount, frame } = readback;
+    const { buffer, timestampCount, labels, frame } = readback;
     const byteLength = timestampCount * 8;
     buffer
       .mapAsync(GPUMapMode.READ, 0, byteLength)
       .then(() => {
         const timestamps = new BigUint64Array(buffer.getMappedRange(0, byteLength));
-        for (let i = 0; i + 1 < timestampCount; i += 2) {
+        for (let i = 0, passIndex = 0; i + 1 < timestampCount; i += 2, passIndex++) {
           // Timestamps are nanoseconds. Numbers represent them exactly up to 2^53 ns (~104 days of uptime)
           // and within a few nanoseconds beyond, which is negligible for frame durations.
           const begin = Number(timestamps[i]);
           const end = Number(timestamps[i + 1]);
           // A timestamp that was not written resolves to 0, which would yield a meaningless duration.
           if (begin !== 0 && end > begin) {
-            frame.sumNanoseconds += end - begin;
+            const duration = end - begin;
+            frame.sumNanoseconds += duration;
+            const label = labels[passIndex] ?? 'pass';
+            frame.passNanoseconds.set(label, (frame.passNanoseconds.get(label) ?? 0) + duration);
           }
         }
         buffer.unmap();
@@ -182,6 +212,11 @@ export class WebGpuGpuTimer {
   private __tryPublish(frame: GpuTimerFrame) {
     if (frame.ended && frame.pendingReadbacks === 0 && frame.isComplete) {
       this.__lastGpuTimeMilliseconds = frame.sumNanoseconds / 1e6;
+      const passTimes = new Map<string, number>();
+      for (const [label, nanoseconds] of frame.passNanoseconds) {
+        passTimes.set(label, nanoseconds / 1e6);
+      }
+      this.__lastPassGpuTimesMilliseconds = passTimes;
     }
   }
 
@@ -195,5 +230,6 @@ export class WebGpuGpuTimer {
     this.__freeReadbackBuffers.length = 0;
     this.__querySet = undefined;
     this.__resolveBuffer = undefined;
+    this.__lastPassGpuTimesMilliseconds = undefined;
   }
 }
