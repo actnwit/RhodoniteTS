@@ -17,6 +17,7 @@ https://librn.com/
 * Component-oriented
 * Blittable Memory Architecture (Original GPU data storage system with floating point texture)
 * Physically-based Rendering with Image-based Lighting
+* Clustered Forward Rendering
 * Node-based Shader System
 * Node-based Raymarching System (with integration to polygon rendering)
 * Support loading the following 3D model files: [glTF2](https://github.com/KhronosGroup/glTF), glTF1, [VRM](https://vrm.dev/en/)
@@ -26,7 +27,6 @@ https://librn.com/
 * WebXR(VR) Support (in both WebGL & WebGPU)
 
 ## What's the "Blittable Memory Architecture"
-
 
 With the Blittable Memory Architecture, Rhodonite stores almost all of its data in a large pre-allocated ArrayBuffer. Data storage for matrix or vector classes in Rhodonite's component classes and materials are assigned from the memory pool, which means most of the data are on that memory pool, transferred to the GPU every frame as a floating-point texture.
 This architecture allows all shaders always to access a vast amount of data.
@@ -39,10 +39,10 @@ You can try our library via https://editor.librn.com/.
 This viewer supports glTF/VRM/efkpkg(Effekseer package) files Drag & Drop to display.
 (Drag & Drop all files if glTF data consists of multiple files.)
 
-Poly model
-![poly](./assets/images/screenshot_poly.jpg)
+Clustered Forward Rendering
+![poly](./assets/images/screenshot_clustered_forward.jpg)
 
-Advanced PBR
+Advanced PBR with Image-based Lighting
 ![PBR](./assets/images/screenshot_pbr.jpg)
 
 VRM avatar model and VRMA animation
