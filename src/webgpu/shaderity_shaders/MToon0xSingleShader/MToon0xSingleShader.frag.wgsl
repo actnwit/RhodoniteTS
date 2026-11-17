@@ -71,11 +71,19 @@ fn main (
     alpha = litTextureColor.a * litColorFactor.a;
   #endif
 
-  if (alpha < 0.01) {
-    discard;
-  } else {
-    rt0.w = alpha;
-  }
+  rt0.w = alpha;
+  // Discard only in the alpha modes that can make alpha small below. An unconditional discard would
+  // disable early depth testing for every MToon material, including opaque ones.
+  #ifdef RN_ALPHATEST_ON
+    if (alpha < 0.01) {
+      discard;
+    }
+  #endif
+  #ifdef RN_ALPHABLEND_ON
+    if (alpha < 0.01) {
+      discard;
+    }
+  #endif
 
 
   #ifdef RN_MTOON_IS_OUTLINE
