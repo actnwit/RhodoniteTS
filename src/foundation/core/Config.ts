@@ -28,7 +28,7 @@ type ConfigInitDescription = {
   clusteredForwardBuildMode?: ClusteredForwardBuildMode;
   clusteredForwardGridSize?: [number, number, number];
   clusteredForwardMaxViewNumber?: number;
-  clusteredForwardMaxLightIndexNumber?: number;
+  clusteredForwardLightCapacityPerCluster?: number;
   clusteredForwardMinLocalLightNumber?: number;
   maxLightListLength?: number;
   lightAutoRangeThreshold?: number;
@@ -132,11 +132,17 @@ export class Config {
    */
   clusteredForwardMinLocalLightNumber = 1;
   /**
-   * The capacity of the light index list of each camera, in light entries. The list of each cluster is padded to
-   * a multiple of 4 entries, so the capacity has to cover the sum of the padded light counts of all clusters.
-   * When the capacity is exceeded, the camera evaluates all lights in that frame.
+   * The number of lights per cluster that the light index list of each camera is sized for.
+   *
+   * @remarks
+   * The clusters share one list, so a cluster can hold more lights than this when other clusters hold fewer.
+   * The list never overflows while no cluster has more lights than this value. When the list overflows, the camera
+   * evaluates all lights in that frame (a warning is logged once).
+   *
+   * Memory per camera: about `16 * clusterCount * ceil(value / 4) * 4` bytes, where clusterCount is the product of
+   * {@link Config.clusteredForwardGridSize} (3456 by default). The default 304 is about 4 MB per camera.
    */
-  clusteredForwardMaxLightIndexNumber = 1048576;
+  clusteredForwardLightCapacityPerCluster = 304;
   /** The maximum number of enabled lights that are shaded. The other lights are ignored. (max: 65535) */
   maxLightListLength = 1024;
   /**
@@ -281,8 +287,8 @@ export class Config {
     if (initDescription.clusteredForwardMaxViewNumber !== undefined) {
       this.clusteredForwardMaxViewNumber = initDescription.clusteredForwardMaxViewNumber;
     }
-    if (initDescription.clusteredForwardMaxLightIndexNumber !== undefined) {
-      this.clusteredForwardMaxLightIndexNumber = initDescription.clusteredForwardMaxLightIndexNumber;
+    if (initDescription.clusteredForwardLightCapacityPerCluster !== undefined) {
+      this.clusteredForwardLightCapacityPerCluster = initDescription.clusteredForwardLightCapacityPerCluster;
     }
     if (initDescription.maxLightListLength !== undefined) {
       this.maxLightListLength = initDescription.maxLightListLength;

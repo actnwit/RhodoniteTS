@@ -67,7 +67,7 @@ function readView(engine: Rn.Engine, camera: Rn.CameraComponent) {
   if (viewBase < 0) return undefined;
   const layout = getLightClusterViewLayout(
     engine.config.clusteredForwardGridSize,
-    engine.config.clusteredForwardMaxLightIndexNumber
+    engine.config.clusteredForwardLightCapacityPerCluster
   );
   const view = engine.memoryManager.readFloat32Array(
     Rn.BufferUse.GPUInstanceData,
@@ -281,7 +281,7 @@ test('the WebGL2 view uniform holds the view header and the view index of the ca
   const uniform = Array.from(system._getViewUniformData(camera.componentSID));
   const layout = getLightClusterViewLayout(
     engine.config.clusteredForwardGridSize,
-    engine.config.clusteredForwardMaxLightIndexNumber
+    engine.config.clusteredForwardLightCapacityPerCluster
   );
   const view = engine.memoryManager.readFloat32Array(
     Rn.BufferUse.GPUInstanceData,

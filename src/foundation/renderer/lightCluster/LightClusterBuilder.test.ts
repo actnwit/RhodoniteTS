@@ -190,8 +190,8 @@ function lightReaches(light: TestLight, p: number[]) {
   return true;
 }
 
-function buildView(viewMatrix: Mat4, projectionMatrix: Mat4, lights: TestLight[], capacity = 1 << 16) {
-  const layout = getLightClusterViewLayout([16, 9, 24], capacity);
+function buildView(viewMatrix: Mat4, projectionMatrix: Mat4, lights: TestLight[], capacityPerCluster = 64) {
+  const layout = getLightClusterViewLayout([16, 9, 24], capacityPerCluster);
   const spheres = new Float64Array(lights.length * 4);
   const entries: number[] = [];
   let localCount = 0;
@@ -225,9 +225,9 @@ function checkNoLightIsMissed(
   random: () => number,
   sampleCount: number,
   ndcZRange: [number, number],
-  capacity = 1 << 16
+  capacityPerCluster = 64
 ) {
-  const { dst, viewOffset, layout, built } = buildView(viewMatrix, projectionMatrix, lights, capacity);
+  const { dst, viewOffset, layout, built } = buildView(viewMatrix, projectionMatrix, lights, capacityPerCluster);
   expect(built).toBe(true);
   const inverse = invert(multiply(projectionMatrix, viewMatrix));
   let checkedPairs = 0;
@@ -266,11 +266,13 @@ describe('LightClusterLayout', () => {
   test('computes the sizes of the regions', () => {
     expect(getLightClusterGlobalPropertyLength(1024)).toBe(1 + 256);
     expect(getLightClusterGlobalPropertyLength(1e9)).toBe(1 + Math.ceil(65535 / 4));
-    const layout = getLightClusterViewLayout([16, 9, 24], 16384);
+    const layout = getLightClusterViewLayout([16, 9, 24], 5);
     expect(layout.clusterCount).toBe(3456);
     expect(layout.tableVec4Count).toBe(3456);
-    expect(layout.indexCapacity).toBe(16384);
-    expect(layout.viewVec4Count).toBe(LightClusterLayout.viewHeaderVec4Count + 3456 + 4096);
+    // 5 lights per cluster are padded to 8 entries (2 vec4)
+    expect(layout.indexVec4Count).toBe(3456 * 2);
+    expect(layout.indexCapacity).toBe(3456 * 8);
+    expect(layout.viewVec4Count).toBe(LightClusterLayout.viewHeaderVec4Count + 3456 + 3456 * 2);
   });
 });
 
@@ -316,7 +318,7 @@ describe('LightClusterBuilder', () => {
     const projection = perspective(90, 1, 0.1, 100);
     // Lights all around the eye, including ones that contain the eye
     const lights = createLights(random, 200, [0, 0, 0], 10);
-    expect(checkNoLightIsMissed(view, projection, lights, random, 3000, [-1, 0.99], 1 << 21)).toBeGreaterThan(500);
+    expect(checkNoLightIsMissed(view, projection, lights, random, 3000, [-1, 0.99], 1024)).toBeGreaterThan(500);
 
     // A light entirely behind the eye plane is not assigned to any cluster
     const behind: TestLight = {
@@ -398,7 +400,7 @@ describe('LightClusterBuilder', () => {
     const view = lookAt([0, 0, 10], [0, 0, 0], [0, 1, 0]);
     const projection = perspective(60, 1, 0.1, 100);
     const lights = createLights(random, 100, [0, 0, 0], 4);
-    const { dst, viewOffset, built } = buildView(view, projection, lights, 64);
+    const { dst, viewOffset, built } = buildView(view, projection, lights, 1);
     expect(built).toBe(false);
     expect(dst[viewOffset + LightClusterLayout.viewGridOffset * 4 + 3]).toBe(LightClusterLayout.stateOverflow);
     expect(computeLightClusterIndex(dst, viewOffset, 0, 0, 0)).toBe(-1);

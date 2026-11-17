@@ -99,18 +99,20 @@ export type LightClusterViewLayout = {
 };
 
 /**
- * Computes the sizes of a view region from the grid size and the capacity of the light index list.
+ * Computes the sizes of a view region from the grid size and the number of lights per cluster the light index list
+ * is sized for. The list is shared by the clusters, and each cluster pads its list to a multiple of 4 entries, so
+ * the list never overflows while no cluster has more lights than `lightCapacityPerCluster`.
  */
 export function getLightClusterViewLayout(
   gridSize: readonly [number, number, number],
-  maxLightIndexNumber: number
+  lightCapacityPerCluster: number
 ): LightClusterViewLayout {
   const gridX = Math.max(1, Math.floor(gridSize[0]));
   const gridY = Math.max(1, Math.floor(gridSize[1]));
   const gridZ = Math.max(1, Math.floor(gridSize[2]));
   const clusterCount = gridX * gridY * gridZ;
   const tableVec4Count = clusterCount;
-  const indexVec4Count = Math.max(1, Math.ceil(Math.floor(maxLightIndexNumber) / 4));
+  const indexVec4Count = clusterCount * Math.max(1, Math.ceil(Math.floor(lightCapacityPerCluster) / 4));
   const indexCapacity = indexVec4Count * 4;
   return {
     gridX,

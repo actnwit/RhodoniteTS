@@ -244,7 +244,7 @@ export class LightClusterSystem {
     this.__localEntries = new Float64Array(this.__capacity);
     this.__layout = getLightClusterViewLayout(
       config.clusteredForwardGridSize,
-      config.clusteredForwardMaxLightIndexNumber
+      config.clusteredForwardLightCapacityPerCluster
     );
     const maxViewNumber = Math.max(0, Math.floor(config.clusteredForwardMaxViewNumber));
     this.__slotCameraSids = new Array(maxViewNumber).fill(-1);
@@ -508,7 +508,7 @@ export class LightClusterSystem {
           );
           if (!isBuilt && !this.__isIndexOverflowWarned) {
             Logger.default.warn(
-              `LightClusterSystem: The light index list of a camera exceeds Config.clusteredForwardMaxLightIndexNumber (${layout.indexCapacity}). The camera evaluates all lights until the lights fit.`
+              `LightClusterSystem: The light index list of a camera overflowed (Config.clusteredForwardLightCapacityPerCluster: ${this.__engine.config.clusteredForwardLightCapacityPerCluster}). The camera evaluates all lights until the lights fit.`
             );
             this.__isIndexOverflowWarned = true;
           }
