@@ -29,6 +29,7 @@ type ConfigInitDescription = {
   clusteredForwardGridSize?: [number, number, number];
   clusteredForwardMaxViewNumber?: number;
   clusteredForwardLightCapacityPerCluster?: number;
+  clusteredForwardOverflowMode?: ClusteredForwardOverflowMode;
   clusteredForwardMinLocalLightNumber?: number;
   maxLightListLength?: number;
   lightAutoRangeThreshold?: number;
@@ -40,6 +41,17 @@ type ConfigInitDescription = {
  * - `'cpu'`: Both backends build them on the CPU.
  */
 export type ClusteredForwardBuildMode = 'auto' | 'cpu';
+
+/**
+ * What Clustered Forward rendering does when the light index list of a camera overflows
+ * (see {@link Config.clusteredForwardLightCapacityPerCluster}).
+ * - `'allLights'`: The camera evaluates all lights in that frame. The image stays correct, but every fragment pays
+ *   for every light.
+ * - `'truncate'`: Each cluster keeps only its first lights, up to the capacity per cluster (rounded up to a multiple
+ *   of 4), in the order of the light component SIDs (the lights created first are kept). The cost stays bounded, but
+ *   the truncated lights are missing in the crowded clusters.
+ */
+export type ClusteredForwardOverflowMode = 'allLights' | 'truncate';
 
 /**
  * Config is a configuration class that contains the configuration for the library.
@@ -136,13 +148,15 @@ export class Config {
    *
    * @remarks
    * The clusters share one list, so a cluster can hold more lights than this when other clusters hold fewer.
-   * The list never overflows while no cluster has more lights than this value. When the list overflows, the camera
-   * evaluates all lights in that frame (a warning is logged once).
+   * The list never overflows while no cluster has more lights than this value. What happens when the list overflows
+   * is chosen by {@link Config.clusteredForwardOverflowMode} (a warning is logged once).
    *
    * Memory per camera: about `16 * clusterCount * ceil(value / 4) * 4` bytes, where clusterCount is the product of
    * {@link Config.clusteredForwardGridSize} (3456 by default). The default 304 is about 4 MB per camera.
    */
   clusteredForwardLightCapacityPerCluster = 304;
+  /** What happens when the light index list of a camera overflows. See {@link ClusteredForwardOverflowMode}. */
+  clusteredForwardOverflowMode: ClusteredForwardOverflowMode = 'allLights';
   /** The maximum number of enabled lights that are shaded. The other lights are ignored. (max: 65535) */
   maxLightListLength = 1024;
   /**
@@ -289,6 +303,9 @@ export class Config {
     }
     if (initDescription.clusteredForwardLightCapacityPerCluster !== undefined) {
       this.clusteredForwardLightCapacityPerCluster = initDescription.clusteredForwardLightCapacityPerCluster;
+    }
+    if (initDescription.clusteredForwardOverflowMode !== undefined) {
+      this.clusteredForwardOverflowMode = initDescription.clusteredForwardOverflowMode;
     }
     if (initDescription.maxLightListLength !== undefined) {
       this.maxLightListLength = initDescription.maxLightListLength;

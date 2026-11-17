@@ -22,7 +22,8 @@ struct Params {
   localCount: u32,
   clusterCount: u32,
   indexVec4Count: u32,
-  padding: u32,
+  // 0: on overflow, the shaders use the all-light list. > 0: on overflow, each cluster keeps this many lights.
+  truncateCapacity: u32,
 }
 
 @group(0) @binding(0) var<storage, read_write> data: array<vec4<f32>>;
@@ -49,8 +50,9 @@ fn planePasses(plane: vec4<f32>, center: vec3<f32>, radius: f32) -> bool {
 }
 
 // Counts (fill == false) or writes (fill == true) the lights of a cluster.
-// offsetVec4 is the vec4 index of the list of the cluster from the index list start.
-fn processCluster(cluster: u32, fill: bool, offsetVec4: u32) -> u32 {
+// offsetVec4 is the vec4 index of the list of the cluster from the index list start, and fillLimit is the number of
+// lights to write (the lights after it were truncated).
+fn processCluster(cluster: u32, fill: bool, offsetVec4: u32, fillLimit: u32) -> u32 {
   let base = params.viewBase;
   let rowX = data[base];
   let rowY = data[base + 1u];
@@ -106,6 +108,9 @@ fn processCluster(cluster: u32, fill: bool, offsetVec4: u32) -> u32 {
       continue;
     }
     if (fill) {
+      if (count >= fillLimit) {
+        break;
+      }
       let entryIndex = params.globalCount + i;
       pending[count & 3u] = data[params.allListBase + (entryIndex >> 2u)][entryIndex & 3u];
       if ((count & 3u) == 3u) {
@@ -127,11 +132,17 @@ fn countLights(@builtin(global_invocation_id) id: vec3<u32>) {
   if (cluster >= params.clusterCount) {
     return;
   }
-  let count = processCluster(cluster, false, 0u);
+  let count = processCluster(cluster, false, 0u, 0u);
   data[tableBase() + cluster] = vec4<f32>(0.0, f32(count), 0.0, 0.0);
 }
 
 var<workgroup> partialSums: array<u32, 256>;
+var<workgroup> truncatedPartialSums: array<u32, 256>;
+var<workgroup> isTruncating: u32;
+
+fn truncatedCount(count: u32) -> u32 {
+  return min(count, params.truncateCapacity);
+}
 
 @compute @workgroup_size(256)
 fn computeOffsets(@builtin(local_invocation_index) index: u32) {
@@ -140,25 +151,41 @@ fn computeOffsets(@builtin(local_invocation_index) index: u32) {
   let start = min(index * chunk, clusterCount);
   let end = min(start + chunk, clusterCount);
   var sum = 0u;
+  var truncatedSum = 0u;
   for (var c = start; c < end; c++) {
-    sum += (readCount(c) + 3u) >> 2u;
+    let count = readCount(c);
+    sum += (count + 3u) >> 2u;
+    truncatedSum += (truncatedCount(count) + 3u) >> 2u;
   }
   partialSums[index] = sum;
+  truncatedPartialSums[index] = truncatedSum;
   workgroupBarrier();
   if (index == 0u) {
     var total = 0u;
     for (var i = 0u; i < 256u; i++) {
-      let value = partialSums[i];
-      partialSums[i] = total;
-      total += value;
+      total += partialSums[i];
+    }
+    let isOverflow = total > params.indexVec4Count;
+    // Keep the first lights of each cluster (clusterCount * truncateCapacity entries always fit in the list).
+    let truncate = isOverflow && params.truncateCapacity > 0u;
+    isTruncating = select(0u, 1u, truncate);
+    var offset = 0u;
+    for (var i = 0u; i < 256u; i++) {
+      let value = select(partialSums[i], truncatedPartialSums[i], truncate);
+      partialSums[i] = offset;
+      offset += value;
     }
     let grid = data[params.viewBase + 4u];
-    data[params.viewBase + 4u] = vec4<f32>(grid.xyz, select(0.0, 1.0, total > params.indexVec4Count));
+    data[params.viewBase + 4u] = vec4<f32>(grid.xyz, select(0.0, 1.0, isOverflow && !truncate));
   }
   workgroupBarrier();
+  let truncate = workgroupUniformLoad(&isTruncating) != 0u;
   var offset = partialSums[index];
   for (var c = start; c < end; c++) {
-    let count = readCount(c);
+    var count = readCount(c);
+    if (truncate) {
+      count = truncatedCount(count);
+    }
     data[tableBase() + c] = vec4<f32>(f32(offset), f32(count), 0.0, 0.0);
     offset += (count + 3u) >> 2u;
   }
@@ -173,7 +200,8 @@ fn fillLights(@builtin(global_invocation_id) id: vec3<u32>) {
   if (data[params.viewBase + 4u].w != 0.0) {
     return; // overflow: the shaders use the all-light list
   }
-  processCluster(cluster, true, u32(data[tableBase() + cluster].x));
+  let table = data[tableBase() + cluster];
+  processCluster(cluster, true, u32(table.x), u32(table.y));
 }
 `;
 
@@ -275,7 +303,7 @@ export class WebGpuLightClusterBuilder {
       p[4] = params.localCount;
       p[5] = layout.clusterCount;
       p[6] = layout.indexVec4Count;
-      p[7] = 0;
+      p[7] = params.truncateOnOverflow ? layout.clusterLightCapacity : 0;
       device.queue.writeBuffer(this.__paramsBuffer, i * this.__paramsStride, p);
     }
 

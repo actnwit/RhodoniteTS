@@ -190,7 +190,13 @@ function lightReaches(light: TestLight, p: number[]) {
   return true;
 }
 
-function buildView(viewMatrix: Mat4, projectionMatrix: Mat4, lights: TestLight[], capacityPerCluster = 64) {
+function buildView(
+  viewMatrix: Mat4,
+  projectionMatrix: Mat4,
+  lights: TestLight[],
+  capacityPerCluster = 64,
+  truncateOnOverflow = false
+) {
   const layout = getLightClusterViewLayout([16, 9, 24], capacityPerCluster);
   const spheres = new Float64Array(lights.length * 4);
   const entries: number[] = [];
@@ -213,7 +219,16 @@ function buildView(viewMatrix: Mat4, projectionMatrix: Mat4, lights: TestLight[]
   const dst = new Float32Array(viewOffset + layout.viewVec4Count * 4);
   writeLightClusterViewHeader(dst, viewOffset, viewMatrix, projectionMatrix, spheres, localCount, layout);
   const scratch = createLightClusterBuildScratch(layout);
-  const built = buildLightClustersOnCpu(dst, viewOffset, layout, spheres, entries, localCount, scratch);
+  const built = buildLightClustersOnCpu(
+    dst,
+    viewOffset,
+    layout,
+    spheres,
+    entries,
+    localCount,
+    scratch,
+    truncateOnOverflow
+  );
   return { dst, viewOffset, layout, spheres, entries, localCount, built };
 }
 
@@ -228,7 +243,7 @@ function checkNoLightIsMissed(
   capacityPerCluster = 64
 ) {
   const { dst, viewOffset, layout, built } = buildView(viewMatrix, projectionMatrix, lights, capacityPerCluster);
-  expect(built).toBe(true);
+  expect(built).toBe('built');
   const inverse = invert(multiply(projectionMatrix, viewMatrix));
   let checkedPairs = 0;
   for (let i = 0; i < sampleCount; i++) {
@@ -401,9 +416,53 @@ describe('LightClusterBuilder', () => {
     const projection = perspective(60, 1, 0.1, 100);
     const lights = createLights(random, 100, [0, 0, 0], 4);
     const { dst, viewOffset, built } = buildView(view, projection, lights, 1);
-    expect(built).toBe(false);
+    expect(built).toBe('overflow');
     expect(dst[viewOffset + LightClusterLayout.viewGridOffset * 4 + 3]).toBe(LightClusterLayout.stateOverflow);
     expect(computeLightClusterIndex(dst, viewOffset, 0, 0, 0)).toBe(-1);
+  });
+
+  test('truncates each cluster to its first lights when the index list is too small in the truncate mode', () => {
+    const random = createRandom(6);
+    const view = lookAt([0, 0, 10], [0, 0, 0], [0, 1, 0]);
+    const projection = perspective(60, 1, 0.1, 100);
+    const lights = createLights(random, 100, [0, 0, 0], 4);
+    const full = buildView(view, projection, lights, 1024);
+    expect(full.built).toBe('built');
+    const truncated = buildView(view, projection, lights, 1, true);
+    expect(truncated.built).toBe('truncated');
+    const { dst, viewOffset, layout } = truncated;
+    expect(layout.clusterLightCapacity).toBe(4);
+    expect(dst[viewOffset + LightClusterLayout.viewGridOffset * 4 + 3]).toBe(0);
+
+    let truncatedClusters = 0;
+    const tableOffset = viewOffset + LightClusterLayout.viewHeaderVec4Count * 4;
+    const owner = new Int32Array(layout.indexVec4Count).fill(-1);
+    for (let c = 0; c < layout.clusterCount; c++) {
+      const all = readLightClusterEntries(full.dst, full.viewOffset, full.layout, c);
+      const kept = readLightClusterEntries(dst, viewOffset, layout, c);
+      // The first lights (in the order of the light component SIDs) are kept
+      expect(kept).toEqual(all.slice(0, 4));
+      if (all.length > 4) truncatedClusters++;
+      // The lists still fit and do not overlap
+      const offsetVec4 = dst[tableOffset + c * 4];
+      for (let v = 0; v < Math.ceil(kept.length / 4); v++) {
+        expect(owner[offsetVec4 + v]).toBe(-1);
+        owner[offsetVec4 + v] = c;
+      }
+    }
+    expect(truncatedClusters).toBeGreaterThan(0);
+    expect(computeLightClusterIndex(dst, viewOffset, 0, 0, 0)).toBeGreaterThanOrEqual(0);
+  });
+
+  test('does not truncate in the truncate mode when the lights fit', () => {
+    const random = createRandom(9);
+    const view = lookAt([1, 2, 10], [0, 0, 0], [0, 1, 0]);
+    const projection = perspective(60, 1, 0.1, 100);
+    const lights = createLights(random, 30, [0, 0, 0], 16);
+    const a = buildView(view, projection, lights, 64);
+    const b = buildView(view, projection, lights, 64, true);
+    expect(b.built).toBe('built');
+    expect(Array.from(b.dst)).toEqual(Array.from(a.dst));
   });
 
   test('positions behind the eye plane use the all-light list', () => {

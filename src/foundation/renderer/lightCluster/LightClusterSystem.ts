@@ -43,6 +43,8 @@ export type LightClusterGpuBuildParams = {
   globalCount: number;
   localCount: number;
   layout: LightClusterViewLayout;
+  /** Whether each cluster keeps its first lights instead of using the all-light list when the list overflows. */
+  truncateOnOverflow: boolean;
 };
 
 /** The maximum shadow slot that can be packed into a light entry exactly (entries must stay below 2^24). */
@@ -148,6 +150,7 @@ export class LightClusterSystem {
       globalCount: this.__globalCount,
       localCount: this.__localCount,
       layout: this.__layout,
+      truncateOnOverflow: this.__engine.config.clusteredForwardOverflowMode === 'truncate',
     };
   }
 
@@ -497,18 +500,23 @@ export class LightClusterSystem {
         );
         if (!isGpuBuild) {
           this.__scratch ??= createLightClusterBuildScratch(layout);
-          const isBuilt = buildLightClustersOnCpu(
+          const result = buildLightClustersOnCpu(
             region.array,
             0,
             layout,
             this.__spheres,
             this.__localEntries,
             this.__localCount,
-            this.__scratch
+            this.__scratch,
+            this.__engine.config.clusteredForwardOverflowMode === 'truncate'
           );
-          if (!isBuilt && !this.__isIndexOverflowWarned) {
+          if (result !== 'built' && !this.__isIndexOverflowWarned) {
             Logger.default.warn(
-              `LightClusterSystem: The light index list of a camera overflowed (Config.clusteredForwardLightCapacityPerCluster: ${this.__engine.config.clusteredForwardLightCapacityPerCluster}). The camera evaluates all lights until the lights fit.`
+              `LightClusterSystem: The light index list of a camera overflowed (Config.clusteredForwardLightCapacityPerCluster: ${this.__engine.config.clusteredForwardLightCapacityPerCluster}). ${
+                result === 'truncated'
+                  ? 'The lights beyond the capacity of each cluster are ignored until the lights fit.'
+                  : 'The camera evaluates all lights until the lights fit.'
+              }`
             );
             this.__isIndexOverflowWarned = true;
           }
