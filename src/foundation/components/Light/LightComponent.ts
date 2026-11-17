@@ -1,5 +1,6 @@
 import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
+import type { LightRangeAdjustmentLevel } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
 import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { BufferUse } from '../../definitions/BufferUse';
@@ -54,6 +55,7 @@ export class LightComponent extends Component {
   private __updateCount = 0;
   private __lastUpdateCount = -1;
   private __lastTransformUpdateCount = -1;
+  private __lastRangeAdjustmentLevel = -1;
   /** The number of changes of all light components, per engine. */
   private static __updateCountMap: Map<Engine, number> = new Map();
 
@@ -495,9 +497,11 @@ export class LightComponent extends Component {
    * to avoid unnecessary recalculations when nothing has changed.
    */
   $logic() {
+    const rangeAdjustmentLevel = this.__engine.config.lightRangeAdjustmentLevel;
     if (
       TransformComponent.getUpdateCount(this.__engine) === this.__lastTransformUpdateCount &&
-      this.__lastUpdateCount === this.__updateCount
+      this.__lastUpdateCount === this.__updateCount &&
+      this.__lastRangeAdjustmentLevel === rangeAdjustmentLevel
     ) {
       return;
     }
@@ -518,12 +522,18 @@ export class LightComponent extends Component {
     this._lightPosition._v[1] = lightPosition.y;
     this._lightPosition._v[2] = lightPosition.z;
 
-    this._lightIntensity._v[0] = this.__color.x * this.__intensity;
-    this._lightIntensity._v[1] = this.__color.y * this.__intensity;
-    this._lightIntensity._v[2] = this.__color.z * this.__intensity;
+    const effectiveRange = this.__getEffectiveRange();
+    const isRangedLocalLight = (this.type === LightType.Point || this.type === LightType.Spot) && effectiveRange > 0;
+    const [rangeScale, intensityScale] = isRangedLocalLight
+      ? LightComponent.__getRangeAdjustmentScales(rangeAdjustmentLevel)
+      : [1, 1];
+
+    this._lightIntensity._v[0] = this.__color.x * this.__intensity * intensityScale;
+    this._lightIntensity._v[1] = this.__color.y * this.__intensity * intensityScale;
+    this._lightIntensity._v[2] = this.__color.z * this.__intensity * intensityScale;
 
     this._lightProperty._v[0] = this.enable ? this.type.index : -1;
-    this._lightProperty._v[1] = this.__getEffectiveRange();
+    this._lightProperty._v[1] = effectiveRange * rangeScale;
     this._lightProperty._v[2] = innerConeCos;
     this._lightProperty._v[3] = outerConeCos;
 
@@ -531,6 +541,22 @@ export class LightComponent extends Component {
 
     this.__lastTransformUpdateCount = TransformComponent.getUpdateCount(this.__engine);
     this.__lastUpdateCount = this.__updateCount;
+    this.__lastRangeAdjustmentLevel = rangeAdjustmentLevel;
+  }
+
+  /**
+   * Returns the scale of the effective range and the compensation scale of the intensity for
+   * `Config.lightRangeAdjustmentLevel`. The scale of level 0 is not used because the adjustments are
+   * applied only to point and spot lights with a range.
+   */
+  private static __getRangeAdjustmentScales(level: LightRangeAdjustmentLevel): [number, number] {
+    if (level === 1) {
+      return [0.9, 1.16];
+    }
+    if (level === 2) {
+      return [0.8, 1.35];
+    }
+    return [1, 1];
   }
 
   /**

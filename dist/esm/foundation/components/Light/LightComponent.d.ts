@@ -41,6 +41,7 @@ export declare class LightComponent extends Component {
     private __updateCount;
     private __lastUpdateCount;
     private __lastTransformUpdateCount;
+    private __lastRangeAdjustmentLevel;
     /** The number of changes of all light components, per engine. */
     private static __updateCountMap;
     /**
@@ -295,6 +296,12 @@ export declare class LightComponent extends Component {
      * to avoid unnecessary recalculations when nothing has changed.
      */
     $logic(): void;
+    /**
+     * Returns the scale of the effective range and the compensation scale of the intensity for
+     * `Config.lightRangeAdjustmentLevel`. The scale of level 0 is not used because the adjustments are
+     * applied only to point and spot lights with a range.
+     */
+    private static __getRangeAdjustmentScales;
     /**
      * Returns the range used for shading. Point and spot lights without a range get an automatic range
      * when `Config.lightAutoRangeThreshold` is greater than 0.

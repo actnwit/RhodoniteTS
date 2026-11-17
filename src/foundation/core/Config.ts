@@ -33,6 +33,7 @@ type ConfigInitDescription = {
   clusteredForwardMinLocalLightNumber?: number;
   maxLightListLength?: number;
   lightAutoRangeThreshold?: number;
+  lightRangeAdjustmentLevel?: LightRangeAdjustmentLevel;
 };
 
 /**
@@ -41,6 +42,14 @@ type ConfigInitDescription = {
  * - `'cpu'`: Both backends build them on the CPU.
  */
 export type ClusteredForwardBuildMode = 'auto' | 'cpu';
+
+/**
+ * How much {@link Config.lightRangeAdjustmentLevel} shortens the range of point and spot lights.
+ * - 0: No adjustment.
+ * - 1: Mild (range x0.9, intensity x1.16).
+ * - 2: Performance first (range x0.8, intensity x1.35).
+ */
+export type LightRangeAdjustmentLevel = 0 | 1 | 2;
 
 /**
  * Config is a configuration class that contains the configuration for the library.
@@ -191,6 +200,49 @@ export class Config {
    */
   lightAutoRangeThreshold = 0;
   /**
+   * Shortens the effective range of the point and spot lights, and raises their intensity to compensate.
+   * A shorter range reaches fewer clusters, so fewer fragments evaluate the light in Clustered Forward rendering.
+   *
+   * @remarks
+   * | Level | Range   | Intensity | GPU frame time (measured)  |
+   * |-------|---------|-----------|----------------------------|
+   * | 0     | x1      | x1        | 5.5-6.4 ms                 |
+   * | 1     | x0.9    | x1.16     | 4.2-4.5 ms (-20 to -24%)   |
+   * | 2     | x0.8    | x1.35     | 3.1-3.2 ms (-43 to -50%)   |
+   *
+   * The measurement is a Sponza scene with 1000 animated point lights (WebGPU, 1920x1080, clustered forward). The
+   * intensity factors were chosen by comparing screenshots until the brightness looked close to level 0. A
+   * constant factor cannot compensate the range window exactly: with a shorter range the falloff
+   * `(1 - (d / range)^4)^4 / d^2` is slightly dimmer at mid distances, and the lights fade out closer to their
+   * centers. Level 1 changes only 0.1% of the pixels by more than 32/255. Level 2 changes about 7% of the pixels that
+   * much (the lit area of each light becomes smaller), so use it only when the frame rate matters more than the
+   * exact light distribution.
+   *
+   * Only point and spot lights with a positive effective range are adjusted. Directional lights and lights without
+   * a range limit are unchanged. The values of `LightComponent.range` and `LightComponent.intensity` themselves are
+   * not modified: only the values uploaded to the GPU (and read by the light clusters and the shaders) are scaled,
+   * so all rendering paths see the same light.
+   *
+   * Set this when initializing the engine. A change at runtime takes effect for each light when the light is
+   * updated next.
+   */
+  private __lightRangeAdjustmentLevel: LightRangeAdjustmentLevel = 0;
+  /** See {@link Config.lightRangeAdjustmentLevel}. */
+  get lightRangeAdjustmentLevel(): LightRangeAdjustmentLevel {
+    return this.__lightRangeAdjustmentLevel;
+  }
+  /** See {@link Config.lightRangeAdjustmentLevel}. */
+  set lightRangeAdjustmentLevel(value: LightRangeAdjustmentLevel) {
+    if (value !== 0 && value !== 1 && value !== 2) {
+      Logger.default.warn(
+        `Config.lightRangeAdjustmentLevel (${value}) is invalid. Values other than 0, 1 and 2 are treated as 0.`
+      );
+      this.__lightRangeAdjustmentLevel = 0;
+      return;
+    }
+    this.__lightRangeAdjustmentLevel = value;
+  }
+  /**
    * Number of instances of each material type to be placed consecutively in memory.
    * This is on the memory layout, and the number of material instances that can be generated is not limited by this setting.
    * If this limit is exceeded, the material type is internally treated as a separate material type.
@@ -331,6 +383,9 @@ export class Config {
     }
     if (initDescription.lightAutoRangeThreshold !== undefined) {
       this.lightAutoRangeThreshold = initDescription.lightAutoRangeThreshold;
+    }
+    if (initDescription.lightRangeAdjustmentLevel !== undefined) {
+      this.lightRangeAdjustmentLevel = initDescription.lightRangeAdjustmentLevel;
     }
   }
 }
