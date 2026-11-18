@@ -507,14 +507,17 @@ export class LightComponent extends Component {
 
     const sceneGraphComponent = this.entity.getSceneGraph();
 
-    this.__direction = sceneGraphComponent.normalMatrixInner.multiplyVector(this.__initialDirection);
+    // Only spot and directional lights use their direction in the shaders. Point lights skip the normal matrix
+    // computation, which matters when many point lights are animated.
+    if (this.type === LightType.Spot || this.type === LightType.Directional) {
+      this.__direction = sceneGraphComponent.normalMatrixInner.multiplyVector(this.__initialDirection);
+      this._lightDirection._v[0] = this.__direction.x;
+      this._lightDirection._v[1] = this.__direction.y;
+      this._lightDirection._v[2] = this.__direction.z;
+    }
 
     const innerConeCos = Math.cos(this.innerConeAngle);
     const outerConeCos = Math.cos(this.outerConeAngle);
-
-    this._lightDirection._v[0] = this.__direction.x;
-    this._lightDirection._v[1] = this.__direction.y;
-    this._lightDirection._v[2] = this.__direction.z;
 
     const lightPosition = sceneGraphComponent.worldPosition;
     this._lightPosition._v[0] = lightPosition.x;

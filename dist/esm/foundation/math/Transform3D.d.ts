@@ -26,6 +26,13 @@ export declare class Transform3D {
     private __scale;
     private __rotation;
     private __updateCount;
+    /** The local matrix composed from the current position, rotation and scale. */
+    private __matrix;
+    private __isMatrixUpToDate;
+    /** The position, rotation and scale the cached matrix was composed from (to detect direct inner mutations). */
+    private __matrixPosition;
+    private __matrixRotation;
+    private __matrixScale;
     private static __tmpMatrix44_0;
     private static __tmpVector3_0;
     private static __tmpVector3_1;
@@ -126,9 +133,15 @@ export declare class Transform3D {
     get rotationInner(): Quaternion;
     /**
      * Internal method to increment the update counter when transform changes.
+     *
+     * A position-only change updates the translation column of the cached matrix instead of invalidating it.
+     * Animations that move nodes (the common case with many lights) then avoid the quaternion-to-matrix
+     * composition every frame. A rotation or scale change invalidates the matrix.
+     *
+     * @param change - What changed: `'position'` or everything (`'all'`).
      * @private
      */
-    __updateTransform(): void;
+    __updateTransform(change?: 'all' | 'position'): void;
     /**
      * Sets the transform from a 4x4 transformation matrix.
      * Decomposes the matrix into position, rotation, and scale components.
@@ -147,8 +160,19 @@ export declare class Transform3D {
      */
     get matrixInner(): MutableMatrix44;
     /**
+     * Composes the local matrix from the current position, rotation and scale and stores it in the cache.
+     */
+    private __composeMatrix;
+    /**
+     * Brings the cached matrix up to date. Direct mutations of the inner vectors (positionInner and the like)
+     * bypass the setters, so they are detected here: a position-only change updates the translation column, and
+     * a rotation or scale change recomposes the matrix.
+     */
+    private __ensureMatrixUpToDate;
+    /**
      * Efficiently computes the transformation matrix and stores it in the provided matrix.
-     * This method avoids memory allocation by reusing an existing matrix object.
+     * The composed matrix is cached, so repeated reads (including animated translations) do not
+     * recompose the rotation and scale.
      * @param mat - The target matrix to store the result in
      */
     getMatrixInnerTo(mat: MutableMatrix44): void;
