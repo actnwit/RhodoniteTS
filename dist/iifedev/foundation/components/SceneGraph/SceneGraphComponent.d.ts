@@ -55,6 +55,8 @@ export declare class SceneGraphComponent extends Component {
     private __rotationGizmo?;
     private __scaleGizmo?;
     private __jointGizmo?;
+    /** True when any gizmo of this node has been set up: skips the per-frame gizmo checks of plain nodes. */
+    private __hasGizmos;
     private __transformGizmoSpace;
     private __latestPrimitivePositionAccessorVersion;
     toMakeWorldMatrixTheSameAsLocalMatrix: boolean;

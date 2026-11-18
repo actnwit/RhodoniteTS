@@ -73,6 +73,8 @@ export class SceneGraphComponent extends Component {
   private __rotationGizmo?: RotationGizmo;
   private __scaleGizmo?: ScaleGizmo;
   private __jointGizmo?: JointGizmo;
+  /** True when any gizmo of this node has been set up: skips the per-frame gizmo checks of plain nodes. */
+  private __hasGizmos = false;
   private __transformGizmoSpace: 'local' | 'world' = 'world';
   private __latestPrimitivePositionAccessorVersion = 0;
   public toMakeWorldMatrixTheSameAsLocalMatrix = false;
@@ -219,6 +221,7 @@ export class SceneGraphComponent extends Component {
    */
   set isAABBGizmoVisible(flg: boolean) {
     if (flg) {
+      this.__hasGizmos = true;
       if (Is.not.defined(this.__aabbGizmo)) {
         this.__aabbGizmo = new AABBGizmo(this.entity.engine, this.entity);
         this.__aabbGizmo._setup();
@@ -248,6 +251,7 @@ export class SceneGraphComponent extends Component {
    */
   set isLocatorGizmoVisible(flg: boolean) {
     if (flg) {
+      this.__hasGizmos = true;
       if (Is.not.defined(this.__locatorGizmo)) {
         this.__locatorGizmo = new LocatorGizmo(this.entity.engine, this.entity);
         this.__locatorGizmo._setup();
@@ -277,6 +281,7 @@ export class SceneGraphComponent extends Component {
    */
   set isTranslationGizmoVisible(flg: boolean) {
     if (flg) {
+      this.__hasGizmos = true;
       if (Is.not.defined(this.__translationGizmo)) {
         this.__translationGizmo = new TranslationGizmo(this.entity.engine, this.entity);
         this.__translationGizmo._setup();
@@ -311,6 +316,7 @@ export class SceneGraphComponent extends Component {
    */
   set isRotationGizmoVisible(flg: boolean) {
     if (flg) {
+      this.__hasGizmos = true;
       if (Is.not.defined(this.__rotationGizmo)) {
         this.__rotationGizmo = new RotationGizmo(this.entity.engine, this.entity);
         this.__rotationGizmo._setup();
@@ -344,6 +350,7 @@ export class SceneGraphComponent extends Component {
    */
   set isScaleGizmoVisible(flg: boolean) {
     if (flg) {
+      this.__hasGizmos = true;
       if (Is.not.defined(this.__scaleGizmo)) {
         this.__scaleGizmo = new ScaleGizmo(this.entity.engine, this.entity);
         this.__scaleGizmo._setup();
@@ -378,6 +385,7 @@ export class SceneGraphComponent extends Component {
    */
   set isJointGizmoVisible(flg: boolean) {
     if (flg && this.isJoint()) {
+      this.__hasGizmos = true;
       if (Is.not.defined(this.__jointGizmo)) {
         this.__jointGizmo = new JointGizmo(this.entity.engine, this.entity);
         this.__jointGizmo._setup();
@@ -1233,6 +1241,9 @@ export class SceneGraphComponent extends Component {
    * Updates all active gizmos for this scene graph node.
    */
   private __updateGizmos() {
+    if (!this.__hasGizmos) {
+      return;
+    }
     if (Is.exist(this.__aabbGizmo) && this.__aabbGizmo.isSetup && this.__aabbGizmo.isVisible) {
       this.__aabbGizmo._update();
     }
