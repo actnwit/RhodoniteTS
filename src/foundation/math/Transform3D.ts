@@ -29,6 +29,13 @@ export class Transform3D {
   private __rotation: MutableQuaternion;
 
   private __updateCount = 0;
+  /** The local matrix composed from the current position, rotation and scale. */
+  private __matrix = MutableMatrix44.identity();
+  private __isMatrixUpToDate = false;
+  /** The position, rotation and scale the cached matrix was composed from (to detect direct inner mutations). */
+  private __matrixPosition = new Float64Array(3);
+  private __matrixRotation = new Float64Array(4);
+  private __matrixScale = new Float64Array(3);
 
   private static __tmpMatrix44_0: MutableMatrix44 = MutableMatrix44.zero();
   private static __tmpVector3_0: MutableVector3 = MutableVector3.zero();
@@ -85,7 +92,7 @@ export class Transform3D {
    */
   set position(vec: IVector3) {
     this.__position.copyComponents(vec);
-    this.__updateTransform();
+    this.__updateTransform('position');
   }
 
   /**
@@ -96,7 +103,7 @@ export class Transform3D {
     this.__position._v[0] = array[0];
     this.__position._v[1] = array[1];
     this.__position._v[2] = array[2];
-    this.__updateTransform();
+    this.__updateTransform('position');
   }
 
   /**
@@ -227,10 +234,25 @@ export class Transform3D {
 
   /**
    * Internal method to increment the update counter when transform changes.
+   *
+   * A position-only change updates the translation column of the cached matrix instead of invalidating it.
+   * Animations that move nodes (the common case with many lights) then avoid the quaternion-to-matrix
+   * composition every frame. A rotation or scale change invalidates the matrix.
+   *
+   * @param change - What changed: `'position'` or everything (`'all'`).
    * @private
    */
-  __updateTransform() {
+  __updateTransform(change: 'all' | 'position' = 'all') {
     this.__updateCount++;
+    if (change === 'position' && this.__isMatrixUpToDate) {
+      const v = this.__matrix._v;
+      v[12] = this.__position._v[0];
+      v[13] = this.__position._v[1];
+      v[14] = this.__position._v[2];
+      this.__matrixPosition.set(this.__position._v);
+    } else {
+      this.__isMatrixUpToDate = false;
+    }
   }
 
   /**
@@ -259,6 +281,14 @@ export class Transform3D {
    * @returns A MutableMatrix44 representing the composed transformation
    */
   get matrixInner() {
+    this.__ensureMatrixUpToDate();
+    return this.__matrix.clone();
+  }
+
+  /**
+   * Composes the local matrix from the current position, rotation and scale and stores it in the cache.
+   */
+  private __composeMatrix() {
     // Clear and set Scale
     const scale = this.scaleInner;
     const n00 = scale._v[0];
@@ -309,8 +339,7 @@ export class Transform3D {
 
     const translate = this.positionInner;
 
-    // TranslateMatrix * RotateMatrix * ScaleMatrix
-    const mat = MutableMatrix44.fromCopy16RowMajor(
+    this.__matrix.setComponents(
       m00 * n00,
       m01 * n11,
       m02 * n22,
@@ -328,84 +357,67 @@ export class Transform3D {
       0,
       1
     );
+    this.__matrixPosition.set(this.__position._v);
+    this.__matrixRotation.set(this.__rotation._v);
+    this.__matrixScale.set(this.__scale._v);
+  }
 
-    return mat;
+  /**
+   * Brings the cached matrix up to date. Direct mutations of the inner vectors (positionInner and the like)
+   * bypass the setters, so they are detected here: a position-only change updates the translation column, and
+   * a rotation or scale change recomposes the matrix.
+   */
+  private __ensureMatrixUpToDate() {
+    if (!this.__isMatrixUpToDate) {
+      this.__composeMatrix();
+      this.__isMatrixUpToDate = true;
+      return;
+    }
+    const p = this.__position._v;
+    const q = this.__rotation._v;
+    const s = this.__scale._v;
+    const mp = this.__matrixPosition;
+    const mq = this.__matrixRotation;
+    const ms = this.__matrixScale;
+    let rotationScaleChanged = false;
+    for (let i = 0; i < 4; i++) {
+      if (q[i] !== mq[i]) {
+        rotationScaleChanged = true;
+        break;
+      }
+    }
+    if (!rotationScaleChanged) {
+      for (let i = 0; i < 3; i++) {
+        if (s[i] !== ms[i]) {
+          rotationScaleChanged = true;
+          break;
+        }
+      }
+    }
+    if (rotationScaleChanged) {
+      this.__composeMatrix();
+      return;
+    }
+    if (p[0] !== mp[0] || p[1] !== mp[1] || p[2] !== mp[2]) {
+      const v = this.__matrix._v;
+      v[12] = p[0];
+      v[13] = p[1];
+      v[14] = p[2];
+      mp[0] = p[0];
+      mp[1] = p[1];
+      mp[2] = p[2];
+    }
   }
 
   /**
    * Efficiently computes the transformation matrix and stores it in the provided matrix.
-   * This method avoids memory allocation by reusing an existing matrix object.
+   * The composed matrix is cached, so repeated reads (including animated translations) do not
+   * recompose the rotation and scale.
    * @param mat - The target matrix to store the result in
    */
   getMatrixInnerTo(mat: MutableMatrix44) {
-    // Clear and set Scale
-    const scale = this.scaleInner;
-    const n00 = scale._v[0];
-    // const n01 = 0;
-    // const n02 = 0;
-    // const n03 = 0;
-    // const n10 = 0;
-    const n11 = scale._v[1];
-    // const n12 = 0;
-    // const n13 = 0;
-    // const n20 = 0;
-    // const n21 = 0;
-    const n22 = scale._v[2];
-    // const n23 = 0;
-    // const n30 = 0;
-    // const n31 = 0;
-    // const n32 = 0;
-    // const n33 = 1;
-
-    const q = this.rotationInner;
-    const sx = q._v[0] * q._v[0];
-    const sy = q._v[1] * q._v[1];
-    const sz = q._v[2] * q._v[2];
-    const cx = q._v[1] * q._v[2];
-    const cy = q._v[0] * q._v[2];
-    const cz = q._v[0] * q._v[1];
-    const wx = q._v[3] * q._v[0];
-    const wy = q._v[3] * q._v[1];
-    const wz = q._v[3] * q._v[2];
-
-    const m00 = 1.0 - 2.0 * (sy + sz);
-    const m01 = 2.0 * (cz - wz);
-    const m02 = 2.0 * (cy + wy);
-    // const m03 = 0.0;
-    const m10 = 2.0 * (cz + wz);
-    const m11 = 1.0 - 2.0 * (sx + sz);
-    const m12 = 2.0 * (cx - wx);
-    // const m13 = 0.0;
-    const m20 = 2.0 * (cy - wy);
-    const m21 = 2.0 * (cx + wx);
-    const m22 = 1.0 - 2.0 * (sx + sy);
-
-    // const m23 = 0.0;
-    // const m30 = 0.0;
-    // const m31 = 0.0;
-    // const m32 = 0.0;
-    // const m33 = 1.0;
-
-    const translate = this.positionInner;
-
-    mat.setComponents(
-      m00 * n00,
-      m01 * n11,
-      m02 * n22,
-      translate.x,
-      m10 * n00,
-      m11 * n11,
-      m12 * n22,
-      translate.y,
-      m20 * n00,
-      m21 * n11,
-      m22 * n22,
-      translate.z,
-      0,
-      0,
-      0,
-      1
-    );
+    this.__ensureMatrixUpToDate();
+    mat.copyComponents(this.__matrix);
   }
 
   /**
