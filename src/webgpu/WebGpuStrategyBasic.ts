@@ -801,6 +801,9 @@ ${indexStr}
    * This method should be called once per frame before any rendering operations.
    */
   prerender(): void {
+    // Re-upload the GPU instance data when any of its sources changed. The light cluster system writes the
+    // all-light list and the cluster tables into the same storage buffer, so its `dataVersion` is compared here
+    // like the component update counts.
     if (
       AnimationComponent.getIsAnimating(this.__engine) ||
       TransformComponent.getUpdateCount(this.__engine) !== this.__lastTransformComponentsUpdateCount ||
@@ -814,6 +817,8 @@ ${indexStr}
       const isStorageBufferRecreated = this.__createAndUpdateStorageBuffer();
       // The compute shaders rebuild the light clusters when their inputs changed, and after a new storage buffer was
       // created from the CPU data (which does not contain the clusters built on the GPU).
+      // The order matters: the build dispatches must be recorded after the uploads, so that they overwrite the
+      // (stale or zeroed) cluster regions of the CPU data.
       const lightClusterDataVersion = this.__engine.lightClusterSystem.dataVersion;
       if (isStorageBufferRecreated || lightClusterDataVersion !== this.__lastLightClusterBuildDataVersion) {
         this.__buildLightClustersOnGpu();

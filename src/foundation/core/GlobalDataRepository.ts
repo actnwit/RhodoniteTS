@@ -93,7 +93,9 @@ export class GlobalDataRepository {
     this.__registerProperty(lightNumberInfo, 1);
     this.takeOne('lightNumber');
 
-    // Clustered Forward light list (see LightClusterLayout)
+    // Clustered Forward light list (see LightClusterLayout): a vec4 array the shaders read through
+    // get_clusteredLightData(). LightClusterSystem writes the all-light list into it every frame; the view regions
+    // (the per-camera cluster tables) are not part of this property, they live in the GPU instance data.
     const clusteredLightDataLength = getLightClusterGlobalPropertyLength(this.__engine.config.maxLightListLength);
     const clusteredLightDataInfo = {
       semantic: 'clusteredLightData',

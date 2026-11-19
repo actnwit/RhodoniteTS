@@ -69,6 +69,17 @@ const MaxPackableShadowSlot = 254;
  *
  * The data lives in the GPU instance data, so it is uploaded by the rendering strategy. `dataVersion` changes
  * whenever this system writes the data, and the strategies upload the data when it changes.
+ *
+ * ## Reading guide (the order of the code below)
+ * 1. `update()` is the frame entry point, called by `Engine` after the Logic stage.
+ * 2. `__collectLights()` turns the light components into the all-light list (`__entries`) and the light spheres
+ *    (`__spheres`), and detects whether anything changed since the previous frame.
+ * 3. `__writeGlobalData()` publishes the all-light list in the `clusteredLightData` global property.
+ * 4. `__collectCameras()` / `__assignViews()` choose the cameras whose fragments use clusters, allocate their
+ *    view regions (header + cluster table + light index list) and build them (`LightClusterBuilder.ts` on the CPU,
+ *    `WebGpuLightClusterBuilder.ts` on the GPU).
+ * 5. The fragment shaders (`opticalDefinition.glsl` / `.wgsl`, `getLightList`) look up the cluster of a fragment
+ *    and read its light list. The layout of both the list and the view region is in `LightClusterLayout.ts`.
  */
 export class LightClusterSystem {
   private __engine: Engine;
@@ -201,13 +212,17 @@ export class LightClusterSystem {
   _getViewUniformData(cameraSid: number): Float32Array {
     const data = this.__viewUniformData;
     const headerLength = LightClusterLayout.viewHeaderVec4Count * 4;
+    // The slot is resolved from the camera SID, because a slot may hold another camera's region after a swap.
     const slot = cameraSid >= 0 ? this.__slotCameraSids.indexOf(cameraSid) : -1;
     const region = slot >= 0 ? this.__viewRegions[slot] : undefined;
     if (region == null || !this.__camerasWithView.has(cameraSid)) {
+      // No clusters for this camera: the shader reads the view index -1 and uses the all-light list.
       data.fill(0);
       data[headerLength] = -1;
       return data;
     }
+    // The header is copied from the region (the shader would otherwise fetch 6 vec4s from the data texture),
+    // and the last vec4 carries the vec4 index of the region, where the table and the index list live.
     data.set(region.array.subarray(0, headerLength));
     data[headerLength] = region.vec4Base;
     return data;
@@ -224,13 +239,16 @@ export class LightClusterSystem {
     if (!this.__initialize()) {
       return;
     }
+    // 1. Gather the enabled lights into the all-light list and the local light spheres, and detect whether the
+    //    input changed since the previous frame (the rest of the update is skipped when nothing changed).
     let isChanged = this.__collectLights();
     const isLightsChanged = isChanged;
 
     const config = this.__engine.config;
     const isGpuBuild = this.isGpuBuild;
     const maxViewNumber = Math.max(0, Math.floor(config.clusteredForwardMaxViewNumber));
-    // With few lights, plain forward rendering (the all-light list) can be cheaper than the cluster lookup.
+    // 2. Decide whether clustering is worthwhile. With few lights, plain forward rendering (the all-light list)
+    //    can be cheaper than the cluster lookup, so the cameras get no view and the shaders use the all-light list.
     const minLocalLightNumber = Math.max(1, Math.floor(config.clusteredForwardMinLocalLightNumber));
     const cameraSids =
       config.isClusteredForwardEnabled &&
@@ -240,6 +258,8 @@ export class LightClusterSystem {
         ? this.__collectCameras(expressions)
         : [];
 
+    // 3. Publish the all-light list in the global data (the shaders read it for the cameras and fragments without
+    //    a cluster).
     if (isLightsChanged) {
       this.__writeGlobalData();
       isChanged = true;
@@ -248,6 +268,7 @@ export class LightClusterSystem {
     // The GPU build inputs of the views built in this frame.
     this.__gpuBuildViews.length = 0;
 
+    // 4. Give the cameras view slots, rebuild the views whose inputs changed and point the cameras at them.
     isChanged = this.__assignViews(cameraSids, maxViewNumber, isLightsChanged, isGpuBuild) || isChanged;
 
     if (isChanged) {
@@ -267,10 +288,15 @@ export class LightClusterSystem {
     this.__globalData = value._v as Float32Array;
     this.__globalDataVec4Base = engine.globalDataRepository.getLocationOffsetOfProperty('clusteredLightData');
     const config = engine.config;
+    // The capacity is limited by both the configured list length and the size of the global property, so the
+    // all-light list can never write outside the property.
     this.__capacity = Math.min(
       getLightListCapacity(config.maxLightListLength),
       (this.__globalData.length / 4 - LightClusterLayout.globalHeaderVec4Count) * 4
     );
+    // The per-frame scratch. Float64Array is used because these buffers are CPU-only working memory: the values
+    // that reach the GPU are copied to Float32Array storage, and the change detection above compares these
+    // buffers bit-exactly, so it must not lose precision of the values computed from the light properties.
     this.__entries = new Float64Array(this.__capacity);
     this.__prevEntries = new Float64Array(this.__capacity);
     this.__spheres = new Float64Array(this.__capacity * 4);
@@ -300,13 +326,19 @@ export class LightClusterSystem {
    * @returns true if the lists changed since the previous frame
    */
   private __collectLights() {
+    // Iterate the components by SID: the light list order (and therefore the generated shader loops) follows the
+    // component order, which keeps the all-light list stable across frames as long as the lights do not change.
     const lightComponents = this.__engine.componentRepository._getComponents(LightComponent) as
       | (LightComponent | undefined)[]
       | undefined;
     const capacity = this.__capacity;
+    // entries: the all-light list ([global lights..., local lights...]); localEntries: the local lights only;
+    // spheres: (cx, cy, cz, r) per local light, parallel to localEntries.
     const entries = this.__entries;
     const spheres = this.__spheres;
     const localEntries = this.__localEntries;
+    // A shadow slot that does not fit into the packed entry (or is above Config.maxLightNumber) is stored as -1:
+    // the light is then shaded without its shadow map rather than corrupting another light's slot.
     const maxShadowSlot = Math.min(this.__engine.config.maxLightNumber - 1, MaxPackableShadowSlot);
     let globalCount = 0;
     let localCount = 0;
@@ -319,11 +351,15 @@ export class LightClusterSystem {
         if (light == null || !light._isAlive) {
           continue;
         }
+        // The values are read from the data uploaded to the GPU, so the clusters always match what the shaders
+        // evaluate (including any clamping applied by the light component).
         const property = light._lightPropertyForGpu._v;
         const typeValue = property[0];
         if (typeValue < -0.5) {
           continue; // disabled
         }
+        // The entry packing limits the SID to 16 bits, and the list has a fixed capacity; the lights beyond it are
+        // ignored (a warning is logged once below) instead of overflowing the buffers.
         if (globalCount + localCount >= capacity || light.componentSID >= LightClusterLayout.entryRadix) {
           isCapacityExceeded = true;
           continue;
@@ -342,6 +378,8 @@ export class LightClusterSystem {
           spheres,
           localCount * 4
         );
+        // radius < 0: directional light or a light without a range, which cannot be culled by a cluster.
+        // Otherwise the light is local and its sphere was written at spheres[localCount * 4].
         if (radius < 0) {
           entries[globalCount++] = entry;
         } else {
@@ -361,6 +399,7 @@ export class LightClusterSystem {
       this.__isCapacityWarned = true;
     }
     // all-light list = [lights that can not be culled..., local lights...]
+    // The local entries are collected in a separate array first, because they go into both lists.
     entries.set(localEntries.subarray(0, localCount), globalCount);
     const allCount = globalCount + localCount;
     this.__allCount = allCount;
@@ -368,6 +407,9 @@ export class LightClusterSystem {
     this.__localCount = localCount;
     this.__emittingLocalCount = emittingLocalCount;
 
+    // Change detection against the previous frame: if neither the entries nor the spheres changed, the cluster
+    // tables built in the previous frame are still valid, so the CPU build and the GPU dispatch are skipped.
+    // The counts are compared first (cheap), then the elements of the used part only.
     let isChanged = allCount !== this.__prevAllCount || globalCount !== this.__prevGlobalCount;
     if (!isChanged) {
       for (let i = 0; i < allCount; i++) {
@@ -394,6 +436,13 @@ export class LightClusterSystem {
     return isChanged;
   }
 
+  /**
+   * Writes the all-light list into the `clusteredLightData` global property.
+   *
+   * The layout is documented in LightClusterLayout.ts: (allCount, globalCount, localCount, sphereBase) followed by
+   * the entries, 4 per vec4. The shaders read the counts from the header: `globalCount` is how many entries they
+   * read from the all-light list, and the rest of the list of a clustered fragment comes from the view region.
+   */
   private __writeGlobalData() {
     const data = this.__globalData!;
     data[0] = this.__allCount;
@@ -402,6 +451,8 @@ export class LightClusterSystem {
     // The sphere region is no longer stored in the GPU instance data (the GPU build receives its own sorted input).
     data[3] = -1;
     const offset = LightClusterLayout.globalHeaderVec4Count * 4;
+    // Only the used part is copied: the rest of the list is never read (the counts bound the shader loops), and
+    // leaving it untouched avoids uploading large ranges when the scene has few lights.
     data.set(this.__entries.subarray(0, this.__allCount), offset);
   }
 
@@ -421,17 +472,20 @@ export class LightClusterSystem {
     for (const expression of expressions) {
       for (const renderPass of expression.renderPasses) {
         // Screen-space passes and passes overriding the material (shadow maps, blur, ...) have no lit materials.
+        // They use neither the all-light list nor the clusters, so their cameras do not need a view.
         if (renderPass.isBufferLessRenderingMode() || renderPass.material != null) {
           continue;
         }
         if (webXRSystem.isWebXRMode && renderPass.isVrRendering) {
-          // In multiview rendering, the fragment shaders can not tell which eye they render.
+          // In multiview rendering, the fragment shaders can not tell which eye they render, so there is one
+          // view region per eye and the shader reads the uniform of the pass instead of the camera.
           if (!webXRSystem.isMultiView()) {
             add(webXRSystem._getCameraComponentSIDAt(0));
             add(webXRSystem._getCameraComponentSIDAt(1));
           }
           continue;
         }
+        // A pass without a camera uses the current camera, the same fallback the strategies use for the draw.
         let cameraComponent = renderPass.cameraComponent;
         if (cameraComponent == null) {
           cameraComponent = engine.componentRepository.getComponent(
@@ -439,6 +493,7 @@ export class LightClusterSystem {
             CameraComponent.getCurrent(engine)
           ) as CameraComponent | undefined;
         }
+        // A camera synced to the sun light has no meaningful view of the scene (shadow map cameras).
         if (cameraComponent == null || cameraComponent.isSyncToLight) {
           continue;
         }
@@ -458,7 +513,10 @@ export class LightClusterSystem {
     const layout = this.__layout!;
     let isChanged = false;
 
-    // Keep the slot of a camera that had one, then give the free slots to the other cameras.
+    // Slots are sticky: a camera keeps the slot it had in the previous frame. The region memory, the excluded byte
+    // ranges and the per-slot matrices then stay associated with the same camera, so a static scene does not
+    // rebuild anything, and the cameras that appear later fill the free slots in the order of the render passes.
+    // More cameras than slots is allowed: the extra ones use the all-light list.
     const newSlotCameraSids: number[] = new Array(maxViewNumber).fill(-1);
     for (const sid of cameraSids) {
       const slot = this.__slotCameraSids.indexOf(sid);
@@ -521,6 +579,8 @@ export class LightClusterSystem {
       const projectionMatrix = camera._projectionMatrixForGpu._v;
       const matrices = this.__slotMatrices;
       const matrixOffset = slot * 32;
+      // The previous matrices are kept per slot, so a view is rebuilt only when its inputs changed: the lights, the
+      // camera matrices, or the slot itself (a new camera, or a rebuild forced by the GPU build).
       let isMatrixChanged = false;
       for (let i = 0; i < 16; i++) {
         if (matrices[matrixOffset + i] !== viewMatrix[i] || matrices[matrixOffset + 16 + i] !== projectionMatrix[i]) {
@@ -531,6 +591,7 @@ export class LightClusterSystem {
       if (isLightsChanged || isMatrixChanged || !this.__slotValid[slot]) {
         matrices.set(viewMatrix, matrixOffset);
         matrices.set(projectionMatrix, matrixOffset + 16);
+        // The header holds the clip rows, the depth row, the grid size and the slice range (see LightClusterLayout).
         writeLightClusterViewHeader(
           region.array,
           0,
@@ -542,9 +603,13 @@ export class LightClusterSystem {
           camera.zNear,
           camera.zFar
         );
+        // The light order and the per-slice light ranges for the builders (and the GPU build input of the slot).
         this.__prepareViewBuild(region.array, slot, isGpuBuild, layout);
         this.__slotLocalCounts[slot] = this.__localCount;
         if (!isGpuBuild) {
+          // CPU build: write the table and the index list directly into the region memory. The compute shader
+          // writes the same bytes into the same region, which is why the shaders and the strategy do not care
+          // which backend built the view.
           this.__scratch ??= createLightClusterBuildScratch(layout);
           buildLightClustersOnCpu(
             region.array,
@@ -564,6 +629,8 @@ export class LightClusterSystem {
         isChanged = true;
       }
 
+      // Publish the region to the camera. The shaders read this value as the view index (`viewBase`), so -1 (set
+      // above when the camera lost its view) makes them use the all-light list.
       const viewInfo = camera._lightClusterViewInfoForGpu._v;
       if (viewInfo[0] !== region.vec4Base) {
         viewInfo[0] = region.vec4Base;
@@ -611,6 +678,7 @@ export class LightClusterSystem {
 
     if (localCount <= capacity) {
       // No cluster can be full, so keep the SID order and let every slice scan all lights.
+      // Every slice range is the whole list: 0 = no sorting work and a build identical to the unsorted order.
       sortedSpheres.set(spheres.subarray(0, localCount * 4));
       sortedEntries.set(localEntries.subarray(0, localCount));
       for (let z = 0; z < gridZ; z++) {
@@ -618,7 +686,8 @@ export class LightClusterSystem {
         ranges[z * 2 + 1] = localCount;
       }
     } else {
-      // Sort the lights by view depth (nearest first).
+      // Sort the lights by view depth (nearest first). The depth row of the view header (12..15) is already
+      // normalized, so the depth is a distance in world units and can be compared directly.
       const depths = this.__sortDepths;
       const order = this.__sortOrder;
       order.length = localCount;
@@ -631,6 +700,8 @@ export class LightClusterSystem {
         order[i] = i;
       }
       order.sort((a, b) => depths[a] - depths[b]);
+      // Apply the order once: both the spheres and the entries are passed to the builders in this order, so a
+      // cluster that reaches its capacity keeps the nearest lights (the builders store the first lights they see).
       for (let k = 0; k < localCount; k++) {
         const src = order[k];
         sortedSpheres[k * 4] = spheres[src * 4];
@@ -640,8 +711,10 @@ export class LightClusterSystem {
         sortedEntries[k] = localEntries[src];
       }
 
-      // The range of the sorted lights whose sphere overlaps the depth range of each slice. The ranges are
-      // conservative (they can include lights that do not overlap), which only costs a few tests.
+      // The range of the sorted lights whose sphere overlaps the depth range of each slice. The GPU build tests
+      // only the lights of the range of the cluster's slice instead of all lights.
+      // The ranges are conservative (they can include lights that do not overlap), which only costs a few tests.
+      // The first and last slices extend to infinity, like the clusters at the border of the grid.
       const sliceScale = header[20];
       const sliceBias = header[21];
       for (let z = 0; z < gridZ; z++) {
@@ -668,6 +741,9 @@ export class LightClusterSystem {
     }
 
     if (isGpuBuild) {
+      // Copy the inputs into the per-slot build data of WebGpuLightClusterBuilder. The slot stride reserves the
+      // full capacity for every view (spheres, then entries, then the per-slice ranges), so a view whose light
+      // count shrinks does not move the data of the other views, and the storage buffer offsets stay valid.
       const dataOffset = slot * this.__gpuBuildStride;
       const localCapacity = this.__capacity;
       const data = this.__gpuBuildData;
@@ -682,10 +758,15 @@ export class LightClusterSystem {
 
   /**
    * Allocates a region in the GPU instance data. Returns undefined (and disables the clusters) when it fails.
+   *
+   * The region is ordinary GPU instance data: the WebGL2 data texture / the WebGPU storage buffer. That is why the
+   * shaders can read the table with the same `fetchElement` / `get_clusteredLightData` accessor as any other data,
+   * and why the strategies have to skip it in the generic upload (see `_getExcludedByteRanges`).
    */
   private __allocate(vec4Count: number): GpuDataRegion | undefined {
     const memoryManager = this.__engine.memoryManager;
     const byteLength = vec4Count * 16;
+    // The GPU instance data can be split over several buffers (BufferUse layers); the first one with room wins.
     const layerCount = this.__engine.config.bufferSizeDivisionRatiosForGPUInstanceDataUsage.length;
     for (let layer = 0; layer < layerCount; layer++) {
       const buffer = memoryManager.createOrGetBuffer(BufferUse.GPUInstanceData, layer);
@@ -697,6 +778,7 @@ export class LightClusterSystem {
         continue;
       }
       const bufferView = bufferViewResult.get();
+      // The base offset in the whole instance data (all layers), so `vec4Base` is directly usable as a shader index.
       const byteOffset =
         memoryManager.getByteOffsetOfExistingBuffers(BufferUse.GPUInstanceData, buffer.indexOfTheBufferUsage) +
         bufferView.byteOffsetInBuffer;
@@ -705,6 +787,8 @@ export class LightClusterSystem {
         bufferView.byteOffsetInRawArrayBufferOfBuffer,
         vec4Count * 4
       );
+      // Zero the region: stale data from a previous allocation could be read before the first build writes it
+      // (the GPU build after a storage buffer recreation in particular).
       array.fill(0);
       return { array, vec4Base: byteOffset / 16 };
     }
