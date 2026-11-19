@@ -37,6 +37,17 @@ export type LightClusterGpuBuildParams = {
  *
  * The data lives in the GPU instance data, so it is uploaded by the rendering strategy. `dataVersion` changes
  * whenever this system writes the data, and the strategies upload the data when it changes.
+ *
+ * ## Reading guide (the order of the code below)
+ * 1. `update()` is the frame entry point, called by `Engine` after the Logic stage.
+ * 2. `__collectLights()` turns the light components into the all-light list (`__entries`) and the light spheres
+ *    (`__spheres`), and detects whether anything changed since the previous frame.
+ * 3. `__writeGlobalData()` publishes the all-light list in the `clusteredLightData` global property.
+ * 4. `__collectCameras()` / `__assignViews()` choose the cameras whose fragments use clusters, allocate their
+ *    view regions (header + cluster table + light index list) and build them (`LightClusterBuilder.ts` on the CPU,
+ *    `WebGpuLightClusterBuilder.ts` on the GPU).
+ * 5. The fragment shaders (`opticalDefinition.glsl` / `.wgsl`, `getLightList`) look up the cluster of a fragment
+ *    and read its light list. The layout of both the list and the view region is in `LightClusterLayout.ts`.
  */
 export declare class LightClusterSystem {
     private __engine;
@@ -142,6 +153,13 @@ export declare class LightClusterSystem {
      * @returns true if the lists changed since the previous frame
      */
     private __collectLights;
+    /**
+     * Writes the all-light list into the `clusteredLightData` global property.
+     *
+     * The layout is documented in LightClusterLayout.ts: (allCount, globalCount, localCount, sphereBase) followed by
+     * the entries, 4 per vec4. The shaders read the counts from the header: `globalCount` is how many entries they
+     * read from the all-light list, and the rest of the list of a clustered fragment comes from the view region.
+     */
     private __writeGlobalData;
     /**
      * Lists the cameras of the render passes that may draw lit materials, in the order of the render passes.
@@ -166,6 +184,10 @@ export declare class LightClusterSystem {
     private __prepareViewBuild;
     /**
      * Allocates a region in the GPU instance data. Returns undefined (and disables the clusters) when it fails.
+     *
+     * The region is ordinary GPU instance data: the WebGL2 data texture / the WebGPU storage buffer. That is why the
+     * shaders can read the table with the same `fetchElement` / `get_clusteredLightData` accessor as any other data,
+     * and why the strategies have to skip it in the generic upload (see `_getExcludedByteRanges`).
      */
     private __allocate;
 }
