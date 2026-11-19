@@ -127,8 +127,12 @@ Light getLight(int lightIdx, vec3 v_position_inWorld) {
 }
 
 // Clustered Forward light list (see src/foundation/renderer/lightCluster/LightClusterLayout.ts).
-// The list is the lights that can not be culled followed by the local lights of the cluster of the position,
-// or all enabled lights when the camera has no light clusters.
+// The list a fragment iterates is a concatenation of two parts:
+// - the "first" part: lights that are always evaluated (directional lights and lights without a range), read from
+//   the all-light list in the clusteredLightData global property;
+// - the "second" part: the local lights of the cluster of the fragment, read from the light index list of the
+//   camera's view region (only when the camera has light clusters).
+// Without a view region the list is the all-light list, i.e. all enabled lights.
 #if defined(RN_IS_PIXEL_SHADER) && !defined(WEBGL2_MULTI_VIEW)
 // The light cluster view of the camera of the draw, uploaded per draw by WebGLStrategyWebGL2:
 // [0..5] the view header (see LightClusterLayout.ts), [6] (vec4 index of the view in the data texture, 0, 0, 0).
@@ -136,12 +140,15 @@ Light getLight(int lightIdx, vec3 v_position_inWorld) {
 uniform highp vec4 u_lightClusterView[7]; // skipProcess=true
 #endif
 
+// The two-part list above. secondBase is meaningful only for the second part: when the camera has no clusters,
+// firstCount == count and the second part is empty.
 struct LightList {
   int count;      // the number of lights in the list
   int firstCount; // the number of lights read from the all-light list
   int secondBase; // the vec4 index of the cluster lights in the light index list of the view
 };
 
+// The default is the all-light list (no clustering): every fragment evaluates all enabled lights.
 LightList getLightList(vec3 positionInWorld, uint cameraSID) {
   vec4 header = get_clusteredLightData(0u, 0u); // (allCount, globalCount, localCount, sphereBase)
   LightList list;
@@ -149,14 +156,20 @@ LightList getLightList(vec3 positionInWorld, uint cameraSID) {
   list.firstCount = int(header.x);
   list.secondBase = 0;
 #if defined(RN_IS_PIXEL_SHADER) && !defined(WEBGL2_MULTI_VIEW)
+  // The vec4 index of the view region of this camera, -1 when the camera has no clusters (LightClusterSystem
+  // sets it on the camera). It is the x component of the last vec4 of the per-draw uniform.
   int viewBase = int(u_lightClusterView[6].x);
   if (viewBase >= 0) {
     vec4 grid = u_lightClusterView[4]; // (gridX, gridY, gridZ, state)
     if (grid.w == 0.0) {
       vec4 p = vec4(positionInWorld, 1.0);
+      // w is the eye-plane distance: fragments behind the near plane (w <= 0) use the all-light list.
       float w = dot(u_lightClusterView[2], p);
       if (w > 0.0) {
         vec4 slice = u_lightClusterView[5]; // (sliceScale, sliceBias, zNear, zFar)
+        // The tile coordinates are already in grid units (the header rows are scaled by 0.5 * grid), and the
+        // depth slice uses the same logarithmic mapping as the cluster build. Clamping is correct because the
+        // clusters at the border of the grid extend to infinity.
         vec3 cell = vec3(
           dot(u_lightClusterView[0], p) / w,
           dot(u_lightClusterView[1], p) / w,
@@ -164,9 +177,13 @@ LightList getLightList(vec3 positionInWorld, uint cameraSID) {
         ivec3 c = ivec3(clamp(floor(cell), vec3(0.0), grid.xyz - 1.0));
         int gridX = int(grid.x);
         int gridY = int(grid.y);
+        // The cluster index layout: (z * gridY + y) * gridX + x.
         int clusterIndex = (c.z * gridY + c.y) * gridX + c.x;
+        // The cluster table starts after the 6 header vec4s; the light index list after the table.
         vec4 tableEntry = fetchElement(viewBase + 6 + clusterIndex); // (offset, count, 0, 0)
         int clusterCount = gridX * gridY * int(grid.z);
+        // The first part is only the lights that can not be culled; the local lights of the whole scene are
+        // replaced by the local lights of this cluster.
         list.firstCount = int(header.y);
         list.secondBase = viewBase + 6 + clusterCount + int(tableEntry.x);
         list.count = list.firstCount + int(tableEntry.y);
@@ -178,12 +195,16 @@ LightList getLightList(vec3 positionInWorld, uint cameraSID) {
 }
 
 // Returns (light component SID, shadow slot (-1: none)) of the n-th light of the list.
+// The entries are packed as lightComponentSID + 65536 * (shadowSlot + 1) (see LightClusterLayout.ts), so the SID is
+// the low 16 bits and the slot is the next bits minus one. Entries are stored 4 per vec4 in both parts of the list.
 ivec2 getLightRef(LightList list, int n) {
   float entry;
   if (n < list.firstCount) {
+    // First part: the all-light list, which starts after the global header vec4.
     vec4 entries = get_clusteredLightData(0u, uint(1 + (n >> 2)));
     entry = entries[n & 3];
   } else {
+    // Second part: the light index list of the cluster, at secondBase (plus the vec4 and the component of n).
     int e = n - list.firstCount;
     vec4 entries = fetchElement(list.secondBase + (e >> 2));
     entry = entries[e & 3];

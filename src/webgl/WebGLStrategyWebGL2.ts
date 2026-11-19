@@ -1066,6 +1066,9 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
 
         layerByteOffset += gpuInstanceDataBuffer.byteLength;
       }
+      // Upload the byte ranges the light cluster system rebuilt on the CPU since the last frame. They were skipped
+      // by the generic upload above; the ranges of a view never cross a buffer boundary (a view region is allocated
+      // in one buffer), so the layer can be found with a simple containment test.
       for (const [start, end] of lightClusterSystem._takeDirtyByteRanges()) {
         let layerStart = 0;
         for (const buffer of gpuInstanceDataBuffers) {
@@ -1251,6 +1254,10 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       }
     }
 
+    // Re-upload the GPU instance data when any of its sources changed. The light cluster system is one of them:
+    // it writes the all-light list and the cluster tables into the same data, so its `dataVersion` has to be
+    // compared like the component update counts. (The cluster tables themselves are uploaded as dirty ranges by
+    // __createAndUpdateDataTextureInner.)
     if (
       AnimationComponent.getIsAnimating(this.__engine) ||
       TransformComponent.getUpdateCount(this.__engine) !== this.__lastTransformComponentsUpdateCount ||
@@ -2377,13 +2384,12 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
   }
 
   /**
-   * Uploads the currentComponentSIDs uniform unless the same values were already uploaded to the
-   * same program by the previous upload. Uniform values persist in the program object, so
-   * consecutive draws of the same material (e.g. a shadow pass) do not need to upload again.
-   */
-  /**
    * Uploads the light cluster view of the camera of the draw (`u_lightClusterView`) when the program uses it and
    * the camera or the light cluster data changed since the last upload to the program.
+   *
+   * The 7 vec4 are [header (6 vec4)][(view vec4 index, 0, 0, 0)], or a view index of -1 when the camera has no
+   * clusters. Uniform values persist in the program object, so consecutive draws of the same camera skip the
+   * upload; the check keeps the per-draw cost to a comparison in the common case.
    */
   private __uploadLightClusterView(gl: WebGLRenderingContext | WebGL2RenderingContext, shaderProgram: WebGLProgram) {
     const program = shaderProgram as any;
@@ -2402,6 +2408,11 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     program._lightClusterViewVersion = version;
   }
 
+  /**
+   * Uploads the currentComponentSIDs uniform unless the same values were already uploaded to the
+   * same program by the previous upload. Uniform values persist in the program object, so
+   * consecutive draws of the same material (e.g. a shadow pass) do not need to upload again.
+   */
   private __uploadCurrentComponentSIDs(
     gl: WebGLRenderingContext | WebGL2RenderingContext,
     shaderProgram: WebGLProgram

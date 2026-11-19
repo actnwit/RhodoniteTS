@@ -59,7 +59,10 @@ export class CameraComponent extends Component {
   private _projectionMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _viewMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _viewPosition: MutableVector3 = MutableVector3.dummy();
-  // x: the vec4 index of the light cluster view region of this camera in the GPU data (-1: none). Written by LightClusterSystem.
+  // x: the vec4 index of the light cluster view region of this camera in the GPU data (-1: none). Written by
+  // LightClusterSystem every frame (see LightClusterSystem.__assignViews). The shaders read it as the base of the
+  // view header, the cluster table and the light index list (WebGL2: through the u_lightClusterView uniform,
+  // WebGPU: from the GPU instance data).
   private _lightClusterViewInfo: MutableVector4 = MutableVector4.dummy();
   private static __currentMap: Map<number, ComponentSID> = new Map();
   private static returnVector3 = MutableVector3.zero();

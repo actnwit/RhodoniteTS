@@ -62,6 +62,9 @@ export function getLightListCapacity(maxLightListLength: number) {
 
 /**
  * Returns the array length (in vec4) of the `clusteredLightData` global property.
+ *
+ * The light entries are read 4 at a time (`entries[n >> 2][n & 3]` in the shaders), so the list is rounded up to
+ * whole vec4s: the last vec4 can hold fewer than 4 lights.
  */
 export function getLightClusterGlobalPropertyLength(maxLightListLength: number) {
   return LightClusterLayout.globalHeaderVec4Count + Math.ceil(getLightListCapacity(maxLightListLength) / 4);
@@ -69,6 +72,10 @@ export function getLightClusterGlobalPropertyLength(maxLightListLength: number) 
 
 /**
  * Packs a light component SID and a shadow slot into a light entry.
+ *
+ * The SID is stored in the low 16 bits and `shadowSlot + 1` above them, so -1 (no shadow slot) is representable
+ * without a sign. The shaders unpack the same way: `(entry & 0xFFFF, (entry >> 16) - 1)`.
+ * The value stays below 2^24, so a float32 stores it exactly.
  */
 export function packLightEntry(lightComponentSid: number, shadowSlot: number) {
   return lightComponentSid + LightClusterLayout.entryRadix * (shadowSlot + 1);
@@ -112,8 +119,12 @@ export function getLightClusterViewLayout(
   const gridY = Math.max(1, Math.floor(gridSize[1]));
   const gridZ = Math.max(1, Math.floor(gridSize[2]));
   const clusterCount = gridX * gridY * gridZ;
+  // One vec4 of the cluster table per cluster (offset, count, 0, 0).
   const tableVec4Count = clusterCount;
   const clusterLightCapacity = Math.max(1, Math.floor(lightCapacityPerCluster));
+  // The per-cluster list is rounded up to whole vec4s so that the GPU build can write it with vec4 stores
+  // (see the note on vec4 ownership at the top of this file). The CPU build stores its lists densely, but
+  // sizes the region as if every cluster were padded, which makes the region layout independent of the content.
   const clusterVec4Capacity = Math.ceil(clusterLightCapacity / 4);
   const indexVec4Count = clusterCount * clusterVec4Capacity;
   const indexCapacity = indexVec4Count * 4;
@@ -126,12 +137,18 @@ export function getLightClusterViewLayout(
     indexCapacity,
     indexVec4Count,
     clusterLightCapacity,
+    // view = header + table + index list. Every view region has this same size, so a view slot can be reused
+    // for another camera without reallocating, only the contents are rebuilt.
     viewVec4Count: LightClusterLayout.viewHeaderVec4Count + tableVec4Count + indexVec4Count,
   };
 }
 
 /**
  * Splits the byte range `[start, end)` into the parts outside the excluded ranges.
+ *
+ * The rendering strategies use this to upload the whole GPU instance data in one call while leaving out the
+ * regions owned by the light cluster system: the cluster tables are large, are unchanged for many frames and
+ * may be written by compute shaders, so they are uploaded (or not uploaded) separately as dirty ranges.
  *
  * @param excluded - Ranges `[start, end)` sorted by their start
  * @returns The remaining ranges `[start, end)` in ascending order
