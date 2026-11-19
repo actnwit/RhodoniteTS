@@ -477,8 +477,11 @@ export class LightClusterSystem {
           continue;
         }
         if (webXRSystem.isWebXRMode && renderPass.isVrRendering) {
-          // In multiview rendering, the fragment shaders can not tell which eye they render, so there is one
-          // view region per eye and the shader reads the uniform of the pass instead of the camera.
+          // With separate per-eye passes, each eye has its own camera component and pass, so each eye gets its
+          // own view region (two views in the worst case).
+          // In multiview rendering one pass draws both eyes and the fragment shaders can not tell which eye they
+          // render, so a single view region could not be correct for both eyes: no view is created and both eyes
+          // use the all-light list.
           if (!webXRSystem.isMultiView()) {
             add(webXRSystem._getCameraComponentSIDAt(0));
             add(webXRSystem._getCameraComponentSIDAt(1));
