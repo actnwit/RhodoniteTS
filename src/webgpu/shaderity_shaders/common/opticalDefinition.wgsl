@@ -131,7 +131,7 @@ fn getLight(lightIdx: u32, v_position_inWorld: vec3<f32>) -> Light {
 // Clustered Forward light list (see src/foundation/renderer/lightCluster/LightClusterLayout.ts).
 // The list a fragment iterates is a concatenation of two parts:
 // - the "first" part: lights that are always evaluated (directional lights and lights without a range), read from
-//   the all-light list in the `clusteredLightData` global property;
+//   the all-light list in the clusteredLightData global property;
 // - the "second" part: the local lights of the cluster of the fragment, read from the light index list of the
 //   camera's view region (only when the camera has light clusters).
 // Without a view region the list is the all-light list, i.e. all enabled lights.

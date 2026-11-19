@@ -159,6 +159,25 @@ src/xr/                 # WebXR support
 - Support both WebGL and WebGPU rendering strategies
 - Follow established patterns for resource management
 
+### Shader Sources (GLSL / WGSL)
+- **Never use backticks in `src/webgl/shaderity_shaders/**` or `src/webgpu/shaderity_shaders/**`, not even in comments.**
+  At runtime Shaderity's `ShaderEditor._fillTemplate` evaluates the whole shader source as a template literal
+  (``new Function("return `" + code + "`;")``). A backtick closes that template, and the following shader text is
+  parsed as JavaScript:
+  `SyntaxError: Unexpected identifier '...'` at `new Function` / `ShaderEditor._fillTemplate`.
+- `${...}` is intentional template substitution (e.g. `u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}]`
+  in `viewingTransform.glsl`, and the `/* shaderity: @{...} */` markers). Do not write a literal `${` unless it is
+  meant to be substituted.
+- The failure happens when a shader program is created, not at build time, so a build passing does not prove the
+  shaders are valid. Run the E2E samples (or reproduce the evaluation) after editing shader sources:
+  ```bash
+  node -e 'const fs=require("fs"); for (const f of process.argv.slice(1)) {
+    new Function("return `" + fs.readFileSync(f, "utf8") + "`;"); console.log("OK", f); }' \
+    src/webgl/shaderity_shaders/common/opticalDefinition.glsl
+  ```
+- Shader changes are embedded in `dist/` by `esbuild-plugin-shaderity`, so rebuild the bundle
+  (`pnpm build` / `pnpm watch-esm-dev`) before re-running the samples or the editor.
+
 ## Dependencies
 
 ### Runtime Dependencies
