@@ -58,10 +58,17 @@ export declare const LightClusterLayout: {
 export declare function getLightListCapacity(maxLightListLength: number): number;
 /**
  * Returns the array length (in vec4) of the `clusteredLightData` global property.
+ *
+ * The light entries are read 4 at a time (`entries[n >> 2][n & 3]` in the shaders), so the list is rounded up to
+ * whole vec4s: the last vec4 can hold fewer than 4 lights.
  */
 export declare function getLightClusterGlobalPropertyLength(maxLightListLength: number): number;
 /**
  * Packs a light component SID and a shadow slot into a light entry.
+ *
+ * The SID is stored in the low 16 bits and `shadowSlot + 1` above them, so -1 (no shadow slot) is representable
+ * without a sign. The shaders unpack the same way: `(entry & 0xFFFF, (entry >> 16) - 1)`.
+ * The value stays below 2^24, so a float32 stores it exactly.
  */
 export declare function packLightEntry(lightComponentSid: number, shadowSlot: number): number;
 /**
@@ -91,6 +98,10 @@ export type LightClusterViewLayout = {
 export declare function getLightClusterViewLayout(gridSize: readonly [number, number, number], lightCapacityPerCluster: number): LightClusterViewLayout;
 /**
  * Splits the byte range `[start, end)` into the parts outside the excluded ranges.
+ *
+ * The rendering strategies use this to upload the whole GPU instance data in one call while leaving out the
+ * regions owned by the light cluster system: the cluster tables are large, are unchanged for many frames and
+ * may be written by compute shaders, so they are uploaded (or not uploaded) separately as dirty ranges.
  *
  * @param excluded - Ranges `[start, end)` sorted by their start
  * @returns The remaining ranges `[start, end)` in ascending order

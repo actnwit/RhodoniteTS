@@ -79,13 +79,19 @@ export declare function buildLightClustersOnCpu(dst: Float32Array, viewOffset: n
  */
 export declare function sphereIntersectsLightCluster(dst: Float32Array, viewOffset: number, layout: LightClusterViewLayout, x: number, y: number, z: number, cx: number, cy: number, cz: number, r: number): boolean;
 /**
- * The reference implementation of the cluster lookup of the shaders (`getLightList`).
+ * The reference implementation of the cluster lookup of the shaders (`getLightList` in opticalDefinition.glsl /
+ * .wgsl), used by the tests and by CPU-side code that needs the cluster of a position.
+ *
+ * It reads the same header rows as the shaders, so a change to one form must be made to the other.
  *
  * @returns The cluster index, or -1 when the position uses the all-light list (behind the eye plane or overflow).
  */
 export declare function computeLightClusterIndex(dst: Float32Array, viewOffset: number, px: number, py: number, pz: number): number;
 /**
  * Reads the light entries of a cluster built by `buildLightClustersOnCpu` (or by the compute shader).
+ *
+ * This follows the same two-level lookup as the shaders: the table entry gives the vec4 offset and the entry count
+ * of the cluster, and the entries themselves are read from the index list from that offset.
  */
 export declare function readLightClusterEntries(dst: Float32Array, viewOffset: number, layout: LightClusterViewLayout, clusterIndex: number): number[];
 /**

@@ -49,6 +49,12 @@ export class SceneGraphComponent extends Component {
   private __isGizmoChild = false;
   private __physicsComponentCountInSubtree = 0;
   private static __hierarchyVersion = 0;
+  /**
+   * Validity epoch of the per-node `__aabbDirtyChainEpoch` marks. Advancing it invalidates all marks at
+   * once; this is required whenever an AABB-dirty flag is cleared or a parent-child link changes, since
+   * either can break the "this node and all ancestors are AABB-dirty" guarantee of a mark.
+   */
+  private static __aabbDirtyChainEpoch = 1;
   private _worldMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _worldMatrixRest: MutableMatrix44 = MutableMatrix44.identity();
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
@@ -65,6 +71,16 @@ export class SceneGraphComponent extends Component {
   private __worldMergedAABBWithSkeletal = new AABB();
   private __worldMergedAABB = new AABB();
   private __isWorldAABBDirty = true;
+  /**
+   * Epoch at which this node was last visited by {@link setWorldAABBDirtyParentRecursively}.
+   * While it equals the static epoch, this node and all of its ancestors are known to be AABB-dirty,
+   * so an upward propagation reaching this node can stop here.
+   */
+  private __aabbDirtyChainEpoch = 0;
+  /** `__worldMatrixVersion` when logicForce last ran; while unchanged, $logic has nothing to update. */
+  private __settledWorldMatrixVersion = -1;
+  /** Component creation count when logicForce last ran (a mesh may have been attached since). */
+  private __settledComponentCreationCount = -1;
   private _isVisible: MutableScalar = MutableScalar.dummy();
   private _isBillboard: MutableScalar = MutableScalar.dummy();
   private __aabbGizmo?: AABBGizmo;
@@ -446,6 +462,14 @@ export class SceneGraphComponent extends Component {
     return SceneGraphComponent.__hierarchyVersion;
   }
 
+  /**
+   * Advances the hierarchy version after a parent-child relationship changed.
+   */
+  private static __bumpHierarchyVersion(): void {
+    SceneGraphComponent.__hierarchyVersion++;
+    SceneGraphComponent.__aabbDirtyChainEpoch++;
+  }
+
   static get componentTID() {
     return WellKnownComponentTIDs.SceneGraphComponentTID;
   }
@@ -531,11 +555,24 @@ export class SceneGraphComponent extends Component {
   }
 
   /**
-   * Recursively marks the world AABB as dirty up the parent hierarchy.
+   * Marks the world AABB of this node and all of its ancestors as dirty.
+   *
+   * The walk stops at the first node already marked in the current epoch: that node and all of its
+   * ancestors are known to be dirty. Many nodes of the same subtree changing in one frame (e.g. every
+   * joint of an animated skeleton) therefore cost O(number of distinct ancestors) in total instead of
+   * O(changed nodes * depth).
    */
   setWorldAABBDirtyParentRecursively() {
-    this.__isWorldAABBDirty = true;
-    this.parent?.setWorldAABBDirtyParentRecursively();
+    const epoch = SceneGraphComponent.__aabbDirtyChainEpoch;
+    let node: SceneGraphComponent | undefined = this;
+    while (node != null) {
+      node.__isWorldAABBDirty = true;
+      if (node.__aabbDirtyChainEpoch === epoch) {
+        return;
+      }
+      node.__aabbDirtyChainEpoch = epoch;
+      node = node.__parent;
+    }
   }
 
   /**
@@ -557,7 +594,7 @@ export class SceneGraphComponent extends Component {
     }
     sg.__parent = this;
     this.__children.push(sg);
-    SceneGraphComponent.__hierarchyVersion++;
+    SceneGraphComponent.__bumpHierarchyVersion();
     this.__adjustPhysicsComponentCountInSubtree(sg.__physicsComponentCountInSubtree);
 
     if (keepPoseInWorldSpace) {
@@ -567,6 +604,8 @@ export class SceneGraphComponent extends Component {
     }
 
     sg.setWorldMatrixDirtyRecursively();
+    // The new child contributes to the merged AABB of this node and its ancestors.
+    this.setWorldAABBDirtyParentRecursively();
   }
 
   /**
@@ -585,7 +624,13 @@ export class SceneGraphComponent extends Component {
     }
     sg.__parent = undefined;
     sg.__isGizmoChild = false;
-    SceneGraphComponent.__hierarchyVersion++;
+    SceneGraphComponent.__bumpHierarchyVersion();
+    // The detached subtree no longer inherits this node's world matrix.
+    sg.setWorldMatrixDirtyRecursively();
+    if (index >= 0) {
+      // The removed child no longer contributes to the merged AABB of this node and its ancestors.
+      this.setWorldAABBDirtyParentRecursively();
+    }
   }
 
   /**
@@ -596,7 +641,7 @@ export class SceneGraphComponent extends Component {
     sg.__parent = this;
     sg.__isGizmoChild = true;
     this.__gizmoChildren.push(sg);
-    SceneGraphComponent.__hierarchyVersion++;
+    SceneGraphComponent.__bumpHierarchyVersion();
   }
 
   /**
@@ -1001,6 +1046,7 @@ export class SceneGraphComponent extends Component {
     if (this.__isWorldAABBDirty) {
       this.calcWorldMergedAABB();
       this.__isWorldAABBDirty = false;
+      SceneGraphComponent.__aabbDirtyChainEpoch++;
     }
     return this.__worldMergedAABB;
   }
@@ -1050,6 +1096,7 @@ export class SceneGraphComponent extends Component {
     if (this.__isWorldAABBDirty) {
       this.calcWorldMergedAABBWithSkeletal();
       this.__isWorldAABBDirty = false;
+      SceneGraphComponent.__aabbDirtyChainEpoch++;
     }
     return this.__worldMergedAABBWithSkeletal;
   }
@@ -1201,6 +1248,16 @@ export class SceneGraphComponent extends Component {
    * Executes logic stage processing including matrix updates and gizmo updates.
    */
   $logic() {
+    // Nothing this node derives has changed since the last logicForce. Most nodes of a large scene are
+    // static, and this check avoids the entity and mesh lookups of logicForce for them.
+    if (
+      this.__settledWorldMatrixVersion === this.__worldMatrixVersion &&
+      this.__isWorldMatrixUpToDate &&
+      !this.__hasGizmos &&
+      this.__settledComponentCreationCount === this.__engine.componentRepository._componentCreationCount
+    ) {
+      return;
+    }
     if (this.__lastTransformComponentsUpdateCount === TransformComponent.getUpdateCount(this.__engine)) {
       return;
     }
@@ -1235,6 +1292,8 @@ export class SceneGraphComponent extends Component {
       this.normalMatrixInner;
     }
     this.__updateGizmos();
+    this.__settledWorldMatrixVersion = this.__worldMatrixVersion;
+    this.__settledComponentCreationCount = this.__engine.componentRepository._componentCreationCount;
   }
 
   /**
@@ -1660,7 +1719,7 @@ export class SceneGraphComponent extends Component {
   private __copyChild(child: SceneGraphComponent): ISceneGraphEntity {
     const newChild = child.entity.engine.entityRepository._shallowCopyEntityInner(child.entity) as ISceneGraphEntity;
     newChild.getSceneGraph().__parent = this;
-    SceneGraphComponent.__hierarchyVersion++;
+    SceneGraphComponent.__bumpHierarchyVersion();
     return newChild;
   }
 
@@ -1673,7 +1732,7 @@ export class SceneGraphComponent extends Component {
 
     this.__parent = component.__parent;
     this.__children = [];
-    SceneGraphComponent.__hierarchyVersion++;
+    SceneGraphComponent.__bumpHierarchyVersion();
     this.__physicsComponentCountInSubtree = 0;
     for (let i = 0; i < component.__children.length; i++) {
       const copyChild = this.__copyChild(component.__children[i]).getSceneGraph();
@@ -1730,7 +1789,7 @@ export class SceneGraphComponent extends Component {
    */
   _destroy() {
     super._destroy();
-    SceneGraphComponent.__hierarchyVersion++;
+    SceneGraphComponent.__bumpHierarchyVersion();
     SceneGraphComponent.__transformGizmoOwners.get(this.__engine.objectUID)?.delete(this);
     this.__aabbGizmo?._destroy();
     this.__locatorGizmo?._destroy();

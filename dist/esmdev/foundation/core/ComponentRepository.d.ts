@@ -15,7 +15,14 @@ export declare class ComponentRepository {
     private __renderingComponentTIDs;
     static readonly invalidComponentSID = -1;
     private __engine;
+    private __componentCreationCount;
     constructor(engine: Engine);
+    /**
+     * Number of components created in this repository so far, of any type.
+     * Consumers compare it with a remembered value to detect that components were attached to entities.
+     * @internal
+     */
+    get _componentCreationCount(): number;
     /**
      * Registers a component class with the repository.
      * This method associates a component class with its unique ComponentTID for later instantiation.

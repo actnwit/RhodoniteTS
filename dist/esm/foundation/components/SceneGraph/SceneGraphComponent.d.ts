@@ -31,6 +31,12 @@ export declare class SceneGraphComponent extends Component {
     private __isGizmoChild;
     private __physicsComponentCountInSubtree;
     private static __hierarchyVersion;
+    /**
+     * Validity epoch of the per-node `__aabbDirtyChainEpoch` marks. Advancing it invalidates all marks at
+     * once; this is required whenever an AABB-dirty flag is cleared or a parent-child link changes, since
+     * either can break the "this node and all ancestors are AABB-dirty" guarantee of a mark.
+     */
+    private static __aabbDirtyChainEpoch;
     private _worldMatrix;
     private _worldMatrixRest;
     private _normalMatrix;
@@ -47,6 +53,16 @@ export declare class SceneGraphComponent extends Component {
     private __worldMergedAABBWithSkeletal;
     private __worldMergedAABB;
     private __isWorldAABBDirty;
+    /**
+     * Epoch at which this node was last visited by {@link setWorldAABBDirtyParentRecursively}.
+     * While it equals the static epoch, this node and all of its ancestors are known to be AABB-dirty,
+     * so an upward propagation reaching this node can stop here.
+     */
+    private __aabbDirtyChainEpoch;
+    /** `__worldMatrixVersion` when logicForce last ran; while unchanged, $logic has nothing to update. */
+    private __settledWorldMatrixVersion;
+    /** Component creation count when logicForce last ran (a mesh may have been attached since). */
+    private __settledComponentCreationCount;
     private _isVisible;
     private _isBillboard;
     private __aabbGizmo?;
@@ -223,6 +239,10 @@ export declare class SceneGraphComponent extends Component {
      * @returns The hierarchy version counter
      */
     static get hierarchyVersion(): number;
+    /**
+     * Advances the hierarchy version after a parent-child relationship changed.
+     */
+    private static __bumpHierarchyVersion;
     static get componentTID(): 4;
     /**
      * Gets the component type identifier for this instance.
@@ -257,7 +277,12 @@ export declare class SceneGraphComponent extends Component {
      */
     setWorldMatrixDirtyRecursively(): void;
     /**
-     * Recursively marks the world AABB as dirty up the parent hierarchy.
+     * Marks the world AABB of this node and all of its ancestors as dirty.
+     *
+     * The walk stops at the first node already marked in the current epoch: that node and all of its
+     * ancestors are known to be dirty. Many nodes of the same subtree changing in one frame (e.g. every
+     * joint of an animated skeleton) therefore cost O(number of distinct ancestors) in total instead of
+     * O(changed nodes * depth).
      */
     setWorldAABBDirtyParentRecursively(): void;
     /**

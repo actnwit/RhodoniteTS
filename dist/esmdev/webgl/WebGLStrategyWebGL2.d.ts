@@ -490,15 +490,19 @@ export declare class WebGLStrategyWebGL2 implements CGAPIStrategy, WebGLStrategy
      */
     private __renderInner;
     /**
+     * Uploads the light cluster view of the camera of the draw (`u_lightClusterView`) when the program uses it and
+     * the camera or the light cluster data changed since the last upload to the program.
+     *
+     * The 7 vec4 are [header (6 vec4)][(view vec4 index, 0, 0, 0)], or a view index of -1 when the camera has no
+     * clusters. Uniform values persist in the program object, so consecutive draws of the same camera skip the
+     * upload; the check keeps the per-draw cost to a comparison in the common case.
+     */
+    private __uploadLightClusterView;
+    /**
      * Uploads the currentComponentSIDs uniform unless the same values were already uploaded to the
      * same program by the previous upload. Uniform values persist in the program object, so
      * consecutive draws of the same material (e.g. a shadow pass) do not need to upload again.
      */
-    /**
-     * Uploads the light cluster view of the camera of the draw (`u_lightClusterView`) when the program uses it and
-     * the camera or the light cluster data changed since the last upload to the program.
-     */
-    private __uploadLightClusterView;
     private __uploadCurrentComponentSIDs;
     /**
      * Binds the data texture to the WebGL context for shader access.
