@@ -17,9 +17,19 @@ export class ComponentRepository {
   private __renderingComponentTIDs: Array<ComponentTID> = [];
   static readonly invalidComponentSID = -1;
   private __engine: Engine;
+  private __componentCreationCount = 0;
 
   constructor(engine: Engine) {
     this.__engine = engine;
+  }
+
+  /**
+   * Number of components created in this repository so far, of any type.
+   * Consumers compare it with a remembered value to detect that components were attached to entities.
+   * @internal
+   */
+  get _componentCreationCount(): number {
+    return this.__componentCreationCount;
   }
 
   /**
@@ -123,6 +133,7 @@ export class ComponentRepository {
         componentSid = undefinedSid;
         isReUse = true;
       }
+      this.__componentCreationCount++;
       // create the component
       const component = new componentClass(
         this.__engine,

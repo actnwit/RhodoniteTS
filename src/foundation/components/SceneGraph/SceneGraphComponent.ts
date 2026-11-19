@@ -77,6 +77,10 @@ export class SceneGraphComponent extends Component {
    * so an upward propagation reaching this node can stop here.
    */
   private __aabbDirtyChainEpoch = 0;
+  /** `__worldMatrixVersion` when logicForce last ran; while unchanged, $logic has nothing to update. */
+  private __settledWorldMatrixVersion = -1;
+  /** Component creation count when logicForce last ran (a mesh may have been attached since). */
+  private __settledComponentCreationCount = -1;
   private _isVisible: MutableScalar = MutableScalar.dummy();
   private _isBillboard: MutableScalar = MutableScalar.dummy();
   private __aabbGizmo?: AABBGizmo;
@@ -1244,6 +1248,16 @@ export class SceneGraphComponent extends Component {
    * Executes logic stage processing including matrix updates and gizmo updates.
    */
   $logic() {
+    // Nothing this node derives has changed since the last logicForce. Most nodes of a large scene are
+    // static, and this check avoids the entity and mesh lookups of logicForce for them.
+    if (
+      this.__settledWorldMatrixVersion === this.__worldMatrixVersion &&
+      this.__isWorldMatrixUpToDate &&
+      !this.__hasGizmos &&
+      this.__settledComponentCreationCount === this.__engine.componentRepository._componentCreationCount
+    ) {
+      return;
+    }
     if (this.__lastTransformComponentsUpdateCount === TransformComponent.getUpdateCount(this.__engine)) {
       return;
     }
@@ -1278,6 +1292,8 @@ export class SceneGraphComponent extends Component {
       this.normalMatrixInner;
     }
     this.__updateGizmos();
+    this.__settledWorldMatrixVersion = this.__worldMatrixVersion;
+    this.__settledComponentCreationCount = this.__engine.componentRepository._componentCreationCount;
   }
 
   /**
