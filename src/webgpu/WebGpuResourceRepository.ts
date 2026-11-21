@@ -44,7 +44,7 @@ import { TextureArray } from '../foundation/textures/TextureArray';
 import type { BasisFile } from '../types/BasisTexture';
 import type { Count, Index, Size, TypedArray, WebGLResourceHandle, WebGPUResourceHandle } from '../types/CommonTypes';
 import type { TextureData, VertexHandles } from '../webgl/WebGLResourceRepository';
-import { convertFloat32ToFloat16Bits } from './convertFloat32ToFloat16Bits';
+import { packRgbaRowsForUpload } from './packRgbaRowsForUpload';
 import { WebGpuBufferArena, type WebGpuBufferRange } from './WebGpuBufferArena';
 import type { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 import { WebGpuGpuTimer } from './WebGpuGpuTimer';
@@ -3091,34 +3091,18 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           }
 
           const isFloat16 = cubemapFormat === 'rgba16float';
-          const texelSize = isFloat16 ? 4 * Uint16Array.BYTES_PER_ELEMENT : 4 * Float32Array.BYTES_PER_ELEMENT;
-          // Align the row data size to multiple of 256 bytes
-          const bytesPerRow = imageBitmap.width * texelSize;
-          const paddedBytesPerRow = Math.ceil(bytesPerRow / 256) * 256; // 256-byte alignment (GPUImageCopyBuffer.bytesPerRow). See: https://www.w3.org/TR/webgpu/#gpuimagecopybuffer
-          const paddedRowSize = paddedBytesPerRow / texelSize;
+          const packed = packRgbaRowsForUpload(newFloat323Array, imageBitmap.width, imageBitmap.height, isFloat16);
 
           const buffer = gpuDevice.createBuffer({
-            size: paddedBytesPerRow * imageBitmap.height,
+            size: packed.data.byteLength,
             usage: GPUBufferUsage.COPY_SRC,
             mappedAtCreation: true,
           });
 
-          const mappedRange = buffer.getMappedRange();
           if (isFloat16) {
-            const halfFloatData = convertFloat32ToFloat16Bits(newFloat323Array);
-            const mapped = new Uint16Array(mappedRange);
-            for (let y = 0; y < imageBitmap.height; y++) {
-              const sourceStart = y * imageBitmap.width * 4;
-              const sourceEnd = sourceStart + imageBitmap.width * 4;
-              mapped.set(halfFloatData.subarray(sourceStart, sourceEnd), y * paddedRowSize);
-            }
+            new Uint16Array(buffer.getMappedRange()).set(packed.data as Uint16Array);
           } else {
-            const mapped = new Float32Array(mappedRange);
-            for (let y = 0; y < imageBitmap.height; y++) {
-              const sourceStart = y * imageBitmap.width * 4;
-              const sourceEnd = sourceStart + imageBitmap.width * 4;
-              mapped.set(newFloat323Array.subarray(sourceStart, sourceEnd), y * paddedRowSize);
-            }
+            new Float32Array(buffer.getMappedRange()).set(packed.data as Float32Array);
           }
           buffer.unmap();
 
@@ -3127,7 +3111,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           commandEncoder.copyBufferToTexture(
             {
               buffer: buffer,
-              bytesPerRow: paddedBytesPerRow,
+              bytesPerRow: packed.bytesPerRow,
               rowsPerImage: imageBitmap.height,
             },
             { texture: cubemapTexture, origin: [0, 0, j], mipLevel: i },
