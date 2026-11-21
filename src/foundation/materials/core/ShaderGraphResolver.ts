@@ -81,10 +81,15 @@ import { OpUnionShaderNode } from '../nodes/raymarching/OpUnionShaderNode';
 import { OutDistanceShaderNode } from '../nodes/raymarching/OutDistanceShaderNode';
 import { OutShadingColorShaderNode } from '../nodes/raymarching/OutShadingColorShaderNode';
 import { OutUnionShaderNode } from '../nodes/raymarching/OutUnionShaderNode';
+import { RaymarchCameraPositionShaderNode } from '../nodes/raymarching/RaymarchCameraPositionShaderNode';
+import { RaymarchHitDistanceShaderNode } from '../nodes/raymarching/RaymarchHitDistanceShaderNode';
 import { RaymarchHitNormalShaderNode } from '../nodes/raymarching/RaymarchHitNormalShaderNode';
 import { RaymarchHitPositionShaderNode } from '../nodes/raymarching/RaymarchHitPositionShaderNode';
 import { RaymarchObjectIdShaderNode } from '../nodes/raymarching/RaymarchObjectIdShaderNode';
 import { RaymarchObjectIdUniformShaderNode } from '../nodes/raymarching/RaymarchObjectIdUniformShaderNode';
+import { RaymarchRayDirectionShaderNode } from '../nodes/raymarching/RaymarchRayDirectionShaderNode';
+import { RaymarchTBNShaderNode } from '../nodes/raymarching/RaymarchTBNShaderNode';
+import { RaymarchViewDirectionShaderNode } from '../nodes/raymarching/RaymarchViewDirectionShaderNode';
 import { SdApplyTransformShaderNode } from '../nodes/raymarching/SdApplyTransformShaderNode';
 import { SdApplyWorldMatrixShaderNode } from '../nodes/raymarching/SdApplyWorldMatrixShaderNode';
 import { SdBarXShaderNode } from '../nodes/raymarching/SdBarXShaderNode';
@@ -2183,6 +2188,31 @@ function constructNodes(json: ShaderNodeJson): {
       case 'RaymarchObjectIdUniform': {
         const nodeInstance = new RaymarchObjectIdUniformShaderNode();
         nodeInstance.setUniformDataName(node.controls.name.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'RaymarchViewDirection': {
+        const nodeInstance = new RaymarchViewDirectionShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'RaymarchCameraPosition': {
+        const nodeInstance = new RaymarchCameraPositionShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'RaymarchHitDistance': {
+        const nodeInstance = new RaymarchHitDistanceShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'RaymarchRayDirection': {
+        const nodeInstance = new RaymarchRayDirectionShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'RaymarchTBN': {
+        const nodeInstance = new RaymarchTBNShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }
