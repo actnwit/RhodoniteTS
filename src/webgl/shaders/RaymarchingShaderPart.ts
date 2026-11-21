@@ -6,7 +6,7 @@ import type { Socket, SocketDefaultValue } from '../../foundation/materials/core
 import type { Engine } from '../../foundation/system/Engine';
 import PbrShaderityObjectWGSL from '../../webgpu/shaderity_shaders/nodes/PbrShader.wgsl';
 import PbrShaderityObjectGLSL from '../shaderity_shaders/nodes/PbrShader.glsl';
-import { CommonShaderPart } from './CommonShaderPart';
+import { CommonShaderPart, type ShadingSection } from './CommonShaderPart';
 
 /**
  * RaymarchingShaderPart is a class that provides common shader functionality for both WebGL and WebGPU rendering approaches.
@@ -58,23 +58,30 @@ float map(vec3 p){
   `;
   }
 
+  get hasShadingSection() {
+    return true;
+  }
+
+  getShadingFunctionNamePrefix() {
+    return 'shade';
+  }
+
   /**
-   * Opens the optional shading section emitted from the graph nodes reachable to
-   * an OutShadingColor node. It runs once per hit fragment, after `map()` has
-   * been evaluated during the ray march.
+   * Opens one per-object shading function emitted from the graph nodes of a
+   * component that are reachable to its OutShadingColor node.
    */
-  getShadingSectionBegin(engine: Engine): string {
+  getShadingSectionBegin(engine: Engine, functionName: string): string {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-fn shade() {
+fn ${functionName}() {
 `;
     }
     return `
-void shade() {
+void ${functionName}() {
 `;
   }
 
-  /** Closes the shading section opened by getShadingSectionBegin. */
+  /** Closes the shading function opened by getShadingSectionBegin. */
   getShadingSectionEnd(_engine: Engine): string {
     return `}
 `;
@@ -86,37 +93,57 @@ void shade() {
    *
    * @param engine - The engine instance
    * @param isVertexStage - True if generating code for vertex shader, false for fragment shader
-   * @param shadingSectionBody - Optional body of the shading section (see getShadingSectionBegin)
+   * @param shadingSections - Per-object shading functions selected by the hit object id
    * @returns The shader code string for the main function ending
    */
-  getMainEnd(engine: Engine, isVertexStage: boolean, shadingSectionBody?: string) {
+  getMainEnd(engine: Engine, isVertexStage: boolean, shadingSections?: readonly ShadingSection[]) {
+    const sections = shadingSections ?? [];
+    const sectionsCode = sections
+      .map(
+        section =>
+          this.getShadingSectionBegin(engine, section.functionName) + section.body + this.getShadingSectionEnd(engine)
+      )
+      .join('');
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (isVertexStage) {
         return `
 `;
       }
+      const fallbackCode = `
+      #ifdef RN_USE_PBR
+        color = raymarchingPbr(p, normal).rgb;
+      #else
+        let lightList = getLightList(p, cameraSID);
+        for(var n=0u; n<lightList.count; n++){
+          let lightRef = getLightRef(lightList, n);
+          let light = getLight(u32(lightRef.x), p);
+          if (all(light.attenuatedIntensity == vec3f(0.0))) { continue; }
+          let NdotL = max(dot(normal, light.direction), 0.0);
+          color += light.attenuatedIntensity * NdotL * RECIPROCAL_PI;
+        }
+      #endif // RN_USE_PBR
+`;
       const hitShading =
-        shadingSectionBody != null
+        sections.length === 0
           ? `
+    var color = vec3f(0.0);
+${fallbackCode}`
+          : `
     g_hitPosition = p;
     g_hitNormal = normal;
-    shade();
-    let color = g_shadingColor.rgb;
-`
-          : `
+    let hitObjectId = i32(g_hitObjectId + 0.5);
     var color = vec3f(0.0);
-    #ifdef RN_USE_PBR
-      color = raymarchingPbr(p, normal).rgb;
-    #else
-      let lightList = getLightList(p, cameraSID);
-      for(var n=0u; n<lightList.count; n++){
-        let lightRef = getLightRef(lightList, n);
-        let light = getLight(u32(lightRef.x), p);
-        if (all(light.attenuatedIntensity == vec3f(0.0))) { continue; }
-        let NdotL = max(dot(normal, light.direction), 0.0);
-        color += light.attenuatedIntensity * NdotL * RECIPROCAL_PI;
-      }
-    #endif // RN_USE_PBR
+${sections
+  .map(
+    (section, index) =>
+      `    ${index === 0 ? 'if' : 'else if'} (hitObjectId == ${section.objectId}) {
+      ${section.functionName}();
+      color = g_shadingColor.rgb;
+    }
+`
+  )
+  .join('')}    else {
+${fallbackCode}    }
 `;
       return `
   return g_distance;
@@ -132,7 +159,7 @@ fn calcNormal(p: vec3f) -> vec3f {
     )
   );
 }
-${shadingSectionBody ?? ''}
+${sectionsCode}
 struct FragmentOutput {
   @location(0) color: vec4<f32>,
   @builtin(frag_depth) depth: f32,
@@ -198,30 +225,43 @@ ${hitShading}
       return '';
     }
 
+    const fallbackCode = `
+      #ifdef RN_USE_PBR
+      color = raymarchingPbr(p, normal).rgb;
+      #else
+      LightList lightList = getLightList(p, cameraSID);
+      for (int n = 0; n < lightList.count; n++) {
+        ivec2 lightRef = getLightRef(lightList, n);
+        Light light = getLight(lightRef.x, p);
+        if (all(equal(light.attenuatedIntensity, vec3(0.0)))) {
+          continue;
+        }
+        float NdotL = max(dot(normal, light.direction), 0.0);
+        color += light.attenuatedIntensity * NdotL * RECIPROCAL_PI;
+      }
+      #endif // RN_USE_PBR
+`;
     const hitShading =
-      shadingSectionBody != null
+      sections.length === 0
         ? `
+    vec3 color = vec3(0.0);
+${fallbackCode}`
+        : `
     g_hitPosition = p;
     g_hitNormal = normal;
-    shade();
-    vec3 color = g_shadingColor.rgb;
-`
-        : `
+    int hitObjectId = int(g_hitObjectId + 0.5);
     vec3 color = vec3(0.0);
-#ifdef RN_USE_PBR
-    color = raymarchingPbr(p, normal).rgb;
-#else
-    LightList lightList = getLightList(p, cameraSID);
-    for (int n = 0; n < lightList.count; n++) {
-      ivec2 lightRef = getLightRef(lightList, n);
-      Light light = getLight(lightRef.x, p);
-      if (all(equal(light.attenuatedIntensity, vec3(0.0)))) {
-        continue;
-      }
-      float NdotL = max(dot(normal, light.direction), 0.0);
-      color += light.attenuatedIntensity * NdotL * RECIPROCAL_PI;
+${sections
+  .map(
+    (section, index) =>
+      `    ${index === 0 ? 'if' : 'else if'} (hitObjectId == ${section.objectId}) {
+      ${section.functionName}();
+      color = g_shadingColor.rgb;
     }
-#endif // RN_USE_PBR
+`
+  )
+  .join('')}    else {
+${fallbackCode}    }
 `;
 
     return `
@@ -236,7 +276,7 @@ vec3 calcNormal(vec3 p){
       e.xxx*map(p+e.xxx)
   );
 }
-${shadingSectionBody ?? ''}
+${sectionsCode}
 void main() {
   uint cameraSID = uint(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */]);
   #if defined(WEBGL2_MULTI_VIEW) && defined(RN_IS_VERTEX_SHADER)

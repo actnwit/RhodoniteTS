@@ -1,6 +1,6 @@
 import type { Index } from '../../../types/CommonTypes';
 import type { ShaderNodeJson } from '../../../types/ShaderNodeJson';
-import type { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
+import type { CommonShaderPart, ShadingSection } from '../../../webgl/shaders/CommonShaderPart';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
@@ -191,7 +191,12 @@ export class ShaderGraphResolver {
    * @param isFullVersion - Whether to generate a full version with all prerequisites and boilerplate
    * @returns Complete fragment shader code as a string, or undefined if generation fails
    */
-  static createPixelShaderCode(engine: Engine, pixelNodes: AbstractShaderNode[], commonShaderPart: CommonShaderPart) {
+  static createPixelShaderCode(
+    engine: Engine,
+    pixelNodes: AbstractShaderNode[],
+    commonShaderPart: CommonShaderPart,
+    shadingGroups?: ReadonlyMap<number, AbstractShaderNode[]>
+  ) {
     const shaderNodes = pixelNodes.concat();
 
     // const isValid = this.__validateShaderNodes(shaderNodes);
@@ -213,14 +218,16 @@ export class ShaderGraphResolver {
       ShaderType.PixelShader
     );
 
-    // Optional second section (e.g. the raymarching shading graph). It is emitted
-    // before the fragment main and runs once per fragment, unlike the main body,
-    // which the raymarching part emits into its distance function map().
-    let shadingSectionBody: string | undefined;
-    const shadingSectionBegin = commonShaderPart.getShadingSectionBegin(engine);
-    if (shadingSectionBegin != null) {
-      const shadingNodes = filterNodesInner(sortedShaderNodes, 'outShadingColor');
-      if (shadingNodes.length > 0) {
+    // Per-object shading sections (e.g. the raymarching shading graphs). Each
+    // component's outShadingColor subgraph becomes its own function, emitted
+    // before the fragment main and selected by the recorded object id.
+    let shadingSections: ShadingSection[] | undefined;
+    if (commonShaderPart.hasShadingSection && shadingGroups != null && shadingGroups.size > 0) {
+      const functionPrefix = commonShaderPart.getShadingFunctionNamePrefix();
+      shadingSections = [];
+      const sortedObjectIds = Array.from(shadingGroups.keys()).sort((a, b) => a - b);
+      for (const objectId of sortedObjectIds) {
+        const shadingNodes = shadingGroups.get(objectId)!;
         const sortedShadingNodes = this.__sortTopologically(shadingNodes);
         const { varInputNames, varOutputNames, collectedShaderBody } = this.__collectVariableNames(
           engine,
@@ -228,11 +235,10 @@ export class ShaderGraphResolver {
           false,
           commonShaderPart
         );
-        shadingSectionBody =
-          shadingSectionBegin +
+        const body =
           collectedShaderBody +
-          this.__generateShaderCode(engine, sortedShadingNodes, varInputNames, varOutputNames, false) +
-          commonShaderPart.getShadingSectionEnd(engine);
+          this.__generateShaderCode(engine, sortedShadingNodes, varInputNames, varOutputNames, false);
+        shadingSections.push({ objectId, functionName: `${functionPrefix}_${objectId}`, body });
       }
     }
 
@@ -243,7 +249,7 @@ export class ShaderGraphResolver {
         sortedShaderNodes,
         false,
         commonShaderPart,
-        shadingSectionBody
+        shadingSections
       );
     } catch (e) {
       Logger.default.error(e as string);
@@ -253,6 +259,59 @@ export class ShaderGraphResolver {
     const shader = pixelShaderPrerequisites + shaderBody;
 
     return shader;
+  }
+
+  /**
+   * Groups the nodes reachable to each outShadingColor terminal by the component
+   * that authored it. Merged raymarching graphs prefix node ids with `comp<N>_`,
+   * where N is the component index and also the recorded object id.
+   *
+   * Graphs without that prefix (e.g. a single component built directly) are grouped
+   * under object id 0.
+   */
+  private static __collectShadingGroups(
+    json: ShaderNodeJson,
+    nodeInstances: Record<string, AbstractShaderNode>
+  ): Map<number, AbstractShaderNode[]> {
+    const groups = new Map<number, AbstractShaderNode[]>();
+    const incoming = new Map<string, string[]>();
+    for (const connection of json.connections) {
+      const list = incoming.get(connection.to.id);
+      if (list == null) {
+        incoming.set(connection.to.id, [connection.from.id]);
+      } else {
+        list.push(connection.from.id);
+      }
+    }
+
+    for (const node of json.nodes) {
+      if (node.name !== 'OutShadingColor') {
+        continue;
+      }
+      const prefixMatch = /^comp(\d+)_/.exec(node.id);
+      const objectId = prefixMatch != null ? Number.parseInt(prefixMatch[1], 10) : 0;
+      const group = groups.get(objectId) ?? [];
+      const groupUids = new Set<number>(group.map(groupNode => groupNode.shaderNodeUid));
+      const visited = new Set<string>();
+      const stack = [node.id];
+      while (stack.length > 0) {
+        const id = stack.pop()!;
+        if (visited.has(id)) {
+          continue;
+        }
+        visited.add(id);
+        const instance = nodeInstances[id];
+        if (instance != null && !groupUids.has(instance.shaderNodeUid)) {
+          group.push(instance);
+          groupUids.add(instance.shaderNodeUid);
+        }
+        for (const fromId of incoming.get(id) ?? []) {
+          stack.push(fromId);
+        }
+      }
+      groups.set(objectId, group);
+    }
+    return groups;
   }
 
   /**
@@ -904,7 +963,7 @@ export class ShaderGraphResolver {
     shaderNodes: AbstractShaderNode[],
     isVertexStage: boolean,
     commonShaderPart: CommonShaderPart,
-    shadingSectionBody?: string
+    shadingSections?: readonly ShadingSection[]
   ) {
     let shaderBody = '';
 
@@ -930,7 +989,7 @@ export class ShaderGraphResolver {
       shaderBody += this.__handleVertexToFragmentPassing(engine, shaderNodes, varInputNames, varOutputNames);
     }
 
-    shaderBody += commonShaderPart.getMainEnd(engine, isVertexStage, shadingSectionBody);
+    shaderBody += commonShaderPart.getMainEnd(engine, isVertexStage, shadingSections);
 
     return shaderBody;
   }
@@ -993,7 +1052,8 @@ export class ShaderGraphResolver {
       allVaryingNodes,
       commonShaderPart
     );
-    const pixelRet = ShaderGraphResolver.createPixelShaderCode(engine, pixelNodes, commonShaderPart);
+    const shadingGroups = this.__collectShadingGroups(json, nodeInstances);
+    const pixelRet = ShaderGraphResolver.createPixelShaderCode(engine, pixelNodes, commonShaderPart, shadingGroups);
     if (vertexRet == null || pixelRet == null) {
       return;
     }

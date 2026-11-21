@@ -2793,12 +2793,12 @@ function collectRrnJson(engine: Engine): NodeJSON {
     // keep the graph the user authored.
     const objectIdNodeId = `${prefix}__raymarchObjectId`;
     const objectIdOutputId = `${prefix}__raymarchObjectIdOut`;
-    const unionsWithoutObjectId = prefixedNodes.filter(
+    const terminalsWithoutObjectId = prefixedNodes.filter(
       node =>
-        node.name === 'OutUnion' &&
+        (node.name === 'OutUnion' || node.name === 'OutDistance') &&
         !prefixedConnections.some(connection => connection.to.id === node.id && connection.to.portName === 'objectId')
     );
-    if (unionsWithoutObjectId.length > 0) {
+    if (terminalsWithoutObjectId.length > 0) {
       prefixedNodes.push({
         id: objectIdNodeId,
         name: 'RaymarchObjectIdUniform',
@@ -2809,11 +2809,11 @@ function collectRrnJson(engine: Engine): NodeJSON {
         controls: { name: { value: `raymarchObjectId_${raymarchingComponent.componentSID}` } },
         position: { x: 0, y: 0 },
       });
-      for (const union of unionsWithoutObjectId) {
+      for (const terminal of terminalsWithoutObjectId) {
         prefixedConnections.push({
-          id: `${prefix}__raymarchObjectId_${union.id}`,
+          id: `${prefix}__raymarchObjectId_${terminal.id}`,
           from: { id: objectIdNodeId, portName: 'out1' },
-          to: { id: union.id, portName: 'objectId' },
+          to: { id: terminal.id, portName: 'objectId' },
         });
       }
     }
