@@ -1,7 +1,8 @@
 {
   "extends": "./../tsconfig.json",
   "include": ["./simple", "./test_e2e/", "./issues/"],
-  "exclude": ["./simple/4DViews/"],
+  // Overrides the root config's "exclude" (which excludes ./samples). An empty array keeps every sample included.
+  "exclude": [],
   "compilerOptions": {
     "module": "ESNext",
     "rootDir": "..",
