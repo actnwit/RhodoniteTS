@@ -44,7 +44,7 @@
     "test-e2e": "npm run test-e2e-part -- ./samples/test_e2e",
     "test-e2e-serial": "npm run test-e2e-part -- --runInBand ./samples/test_e2e",
     "test-e2e-part": "npx vitest run --config ./config/test/vitest.config.e2e.ts",
-    "test-e2e-update": "npm run test-e2e-part -- --update ./samples/test_e2e",
+    "test-e2e-update": "npm run test-e2e-part -- ./samples/test_e2e --update=all",
     "test-e2e:docker": "bash ./config/e2e/run-in-docker.sh test",
     "test-e2e:docker:update": "bash ./config/e2e/run-in-docker.sh update",
     "test-e2e:docker:shell": "bash ./config/e2e/run-in-docker.sh shell",
