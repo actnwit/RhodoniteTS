@@ -3185,13 +3185,28 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
             imageData.byteOffset,
             imageData.byteLength / Uint8ClampedArray.BYTES_PER_ELEMENT
           );
-    const imageData2 = new ImageData(pixelData, width, height);
+
+    // Upload the bytes with writeTexture instead of copyExternalImageToTexture: not every browser's
+    // WebGPU implementation accepts ImageData as a copy source (Firefox rejects it).
+    const bytesPerRow = width * 4;
+    let uploadData: Uint8ClampedArray = pixelData;
+    let uploadBytesPerRow = bytesPerRow;
+    if (height > 1 && bytesPerRow % 256 !== 0) {
+      // writeTexture requires each row of a multi-row copy to be 256-byte aligned.
+      uploadBytesPerRow = Math.ceil(bytesPerRow / 256) * 256;
+      uploadData = new Uint8ClampedArray(uploadBytesPerRow * height);
+      for (let y = 0; y < height; y++) {
+        uploadData.set(pixelData.subarray(y * bytesPerRow, (y + 1) * bytesPerRow), y * uploadBytesPerRow);
+      }
+    }
 
     for (let i = 0; i < arrayLength; i++) {
-      gpuDevice.queue.copyExternalImageToTexture({ source: imageData2 }, { texture: gpuTexture, origin: [0, 0, i] }, [
-        width,
-        height,
-      ]);
+      gpuDevice.queue.writeTexture(
+        { texture: gpuTexture, origin: [0, 0, i] },
+        uploadData,
+        { bytesPerRow: uploadBytesPerRow, rowsPerImage: height },
+        [width, height, 1]
+      );
     }
 
     const textureHandle = this.__registerResource(gpuTexture);
