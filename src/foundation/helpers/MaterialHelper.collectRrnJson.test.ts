@@ -20,7 +20,11 @@ function createUnionOnlyGraph(): any {
   };
 }
 
-test('collectRrnJson assigns an object id to each raymarching component', async () => {
+function getObjectIdNodes(collected: any) {
+  return collected.nodes.filter((node: any) => node.name === 'RaymarchObjectIdUniform');
+}
+
+test('collectRrnJson assigns a stable component SID based object id', async () => {
   const engine = await Engine.init({
     approach: ProcessApproach.None,
     canvas: document.createElement('canvas'),
@@ -31,7 +35,7 @@ test('collectRrnJson assigns an object id to each raymarching component', async 
   entityB.getRaymarching().rrnJson = createUnionOnlyGraph();
 
   const collected = MaterialHelper.collectRrnJson(engine) as any;
-  const objectIdNodes = collected.nodes.filter((node: any) => node.name === 'RaymarchObjectIdUniform');
+  const objectIdNodes = getObjectIdNodes(collected);
   expect(objectIdNodes).toHaveLength(2);
   expect(new Set(objectIdNodes.map((node: any) => node.controls.name.value)).size).toBe(2);
 
@@ -44,8 +48,19 @@ test('collectRrnJson assigns an object id to each raymarching component', async 
     expect(connection).toBeDefined();
     const source = objectIdNodes.find((node: any) => node.id === connection.from.id);
     expect(source).toBeDefined();
-    // The id node of a component feeds only that component's unions.
-    const componentPrefix = source.id.split('__')[0];
-    expect(union.id.startsWith(componentPrefix)).toBe(true);
+    // The id node of a component feeds only that component's unions and its id is
+    // derived from the component SID, which is also the node id prefix.
+    const sid = Number.parseInt(source.controls.name.value.replace('raymarchObjectId_', ''), 10);
+    expect(source.id.startsWith(`comp${sid}_`)).toBe(true);
+    expect(union.id.startsWith(`comp${sid}_`)).toBe(true);
   }
+
+  // The ids do not change when another component is removed.
+  const survivor = objectIdNodes[1];
+  engine.entityRepository.deleteEntityRecursively(entityA.entityUID);
+  const collectedAfterDelete = MaterialHelper.collectRrnJson(engine) as any;
+  const remainingNodes = getObjectIdNodes(collectedAfterDelete);
+  expect(remainingNodes).toHaveLength(1);
+  expect(remainingNodes[0].controls.name.value).toBe(survivor.controls.name.value);
+  expect(remainingNodes[0].id).toBe(survivor.id);
 });

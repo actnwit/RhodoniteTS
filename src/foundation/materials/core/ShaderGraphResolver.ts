@@ -265,7 +265,7 @@ export class ShaderGraphResolver {
   /**
    * Groups the nodes reachable to each outShadingColor terminal by the component
    * that authored it. Merged raymarching graphs prefix node ids with `comp<N>_`,
-   * where N is the component index and also the recorded object id.
+   * where N is the component SID and also the recorded object id.
    *
    * Graphs without that prefix (e.g. a single component built directly) are grouped
    * under object id 0.

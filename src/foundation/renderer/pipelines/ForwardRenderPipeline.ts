@@ -1310,14 +1310,17 @@ export class ForwardRenderPipeline extends RnObject {
       const raymarchingComponents = this.__engine.componentRepository.getComponentsWithType(
         RaymarchingComponent
       ) as RaymarchingComponent[];
-      for (let i = 0; i < raymarchingComponents.length; i++) {
-        const raymarchingComponent = raymarchingComponents[i];
+      for (const raymarchingComponent of raymarchingComponents) {
         const material = renderPass.material;
         const sceneGraph = raymarchingComponent.entity.tryToGetSceneGraph();
         if (material != null && sceneGraph != null) {
           material.setParameter(`worldMatrix_${raymarchingComponent.componentSID}`, sceneGraph.matrixInner);
-          // Matches the component order used when the graphs are merged (collectRrnJson).
-          material.setParameter(`raymarchObjectId_${raymarchingComponent.componentSID}`, Scalar.fromCopyNumber(i));
+          // The object id is the stable component SID, matching the node id prefix
+          // used when the graphs are merged (collectRrnJson).
+          material.setParameter(
+            `raymarchObjectId_${raymarchingComponent.componentSID}`,
+            Scalar.fromCopyNumber(raymarchingComponent.componentSID)
+          );
         }
       }
     });

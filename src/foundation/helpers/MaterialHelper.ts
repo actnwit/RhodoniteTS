@@ -2749,13 +2749,14 @@ function collectRrnJson(engine: Engine): NodeJSON {
   };
 
   const raymarchingComponents = engine.componentRepository.getComponentsWithType(RaymarchingComponent);
-  let componentIndex = 0;
   for (const component of raymarchingComponents) {
     const raymarchingComponent = component as RaymarchingComponent;
     const rrnJson = raymarchingComponent.rrnJson;
 
-    // Create a prefix to avoid id collisions between different components
-    const prefix = `comp${componentIndex}_`;
+    // Prefix node ids with the component SID to avoid collisions and to keep the
+    // object id (used by the per-component shading dispatch) stable when other
+    // components are added or removed.
+    const prefix = `comp${raymarchingComponent.componentSID}_`;
 
     // Clone and update node ids with prefix
     const prefixedNodes = rrnJson.nodes.map(node => {
@@ -2820,7 +2821,6 @@ function collectRrnJson(engine: Engine): NodeJSON {
 
     collectedRrnJson.nodes.push(...prefixedNodes);
     collectedRrnJson.connections.push(...prefixedConnections);
-    componentIndex++;
   }
 
   return collectedRrnJson;
