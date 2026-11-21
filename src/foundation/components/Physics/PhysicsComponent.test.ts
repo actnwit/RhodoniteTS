@@ -317,6 +317,37 @@ describe('PhysicsComponent shape bindings', async () => {
     expect(fixture.clearCount).toBe(1);
   });
 
+  test('toggles the move flag across the motion and all shape bindings', () => {
+    const fixture = createFixture();
+    const physics = fixture.entity.getPhysics();
+    physics.bindShape({
+      shapeComponent: fixture.shape,
+      shapeIndex: 0,
+      body: { move: false, density: 1 },
+      collider,
+    });
+    physics.bindShape({
+      shapeComponent: fixture.shape,
+      shapeIndex: 1,
+      body: { move: false, density: 2 },
+      collider,
+    });
+
+    expect(physics.bodyMove).toBe(false);
+
+    physics.setBodyMove(true);
+    expect(physics.bodyMove).toBe(true);
+    expect(physics.motionProperty?.move).toBe(true);
+    expect(fixture.calls.at(-1)?.every(binding => binding.body.move)).toBe(true);
+    expect(fixture.motionCalls.at(-1)?.move).toBe(true);
+
+    physics.setBodyMove(false);
+    expect(physics.bodyMove).toBe(false);
+    expect(physics.motionProperty?.move).toBe(false);
+    expect(fixture.calls.at(-1)?.every(binding => binding.body.move === false)).toBe(true);
+    expect(fixture.motionCalls.at(-1)?.move).toBe(false);
+  });
+
   test('keeps shape references stable when an earlier shape is removed', () => {
     const fixture = createFixture();
     const physics = fixture.entity.getPhysics();
