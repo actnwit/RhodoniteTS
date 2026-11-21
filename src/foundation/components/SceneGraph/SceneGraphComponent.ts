@@ -71,6 +71,8 @@ export class SceneGraphComponent extends Component {
   private __worldMergedAABBWithSkeletal = new AABB();
   private __worldMergedAABB = new AABB();
   private __isWorldAABBDirty = true;
+  /** Separate dirty flag: the skeletal and non-skeletal merged AABBs are cached independently. */
+  private __isWorldAABBDirtyWithSkeletal = true;
   /**
    * Epoch at which this node was last visited by {@link setWorldAABBDirtyParentRecursively}.
    * While it equals the static epoch, this node and all of its ancestors are known to be AABB-dirty,
@@ -538,7 +540,8 @@ export class SceneGraphComponent extends Component {
       !this.__isWorldMatrixUpToDate &&
       !this.__isNormalMatrixUpToDate &&
       !this.__isWorldRotationUpToDate &&
-      this.__isWorldAABBDirty
+      this.__isWorldAABBDirty &&
+      this.__isWorldAABBDirtyWithSkeletal
     ) {
       return;
     }
@@ -548,6 +551,7 @@ export class SceneGraphComponent extends Component {
     this.__isNormalMatrixUpToDate = false;
     this.__isWorldRotationUpToDate = false;
     this.__isWorldAABBDirty = true;
+    this.__isWorldAABBDirtyWithSkeletal = true;
 
     for (const child of this.children) {
       child.setWorldMatrixDirtyRecursively();
@@ -567,6 +571,7 @@ export class SceneGraphComponent extends Component {
     let node: SceneGraphComponent | undefined = this;
     while (node != null) {
       node.__isWorldAABBDirty = true;
+      node.__isWorldAABBDirtyWithSkeletal = true;
       if (node.__aabbDirtyChainEpoch === epoch) {
         return;
       }
@@ -1109,9 +1114,9 @@ export class SceneGraphComponent extends Component {
    * @returns The merged world AABB with skeletal transformations
    */
   get worldMergedAABBWithSkeletal() {
-    if (this.__isWorldAABBDirty) {
+    if (this.__isWorldAABBDirtyWithSkeletal) {
       this.calcWorldMergedAABBWithSkeletal();
-      this.__isWorldAABBDirty = false;
+      this.__isWorldAABBDirtyWithSkeletal = false;
       SceneGraphComponent.__aabbDirtyChainEpoch++;
     }
     return this.__worldMergedAABBWithSkeletal;
@@ -1806,6 +1811,7 @@ export class SceneGraphComponent extends Component {
     this.__worldMatrixVersion++;
     this.__worldMergedAABBWithSkeletal = component.__worldMergedAABBWithSkeletal.clone();
     this.__isWorldAABBDirty = true;
+    this.__isWorldAABBDirtyWithSkeletal = true;
     this._isVisible.copyComponents(component._isVisible);
     this._isBillboard.copyComponents(component._isBillboard);
     // this.__aabbGizmo = component.__aabbGizmo;
