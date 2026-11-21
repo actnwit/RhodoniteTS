@@ -173,11 +173,6 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 
 /* shaderity: @{opticalDefinition} */
 
-#ifdef RN_USE_SHADOW_MAPPING
-  uniform float u_pointLightFarPlane; // initialValue=1000.0
-  uniform float u_pointLightShadowMapUvScale; // initialValue=0.93
-#endif
-
 /* shaderity: @{shadowDefinition} */
 
 /* shaderity: @{pbrDefinition} */

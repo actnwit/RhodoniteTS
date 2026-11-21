@@ -142,7 +142,7 @@ void pbrShader(
     int shadowSlot = lightRef.y;
     int depthTextureIndex = shadowSlot >= 0 ? get_depthTextureIndexList(materialSID, uint(shadowSlot)) : -1;
     if (light.type == 1 && depthTextureIndex >= 0) { // Point Light
-      float pointLightFarPlane = get_pointLightFarPlane(materialSID, 0u);
+      float pointLightFarPlane = get_pointLightFarPlane(materialSID, uint(shadowSlot));
       float pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0u);
       float shadowContribution = varianceShadowContributionParaboloid(positionInWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, depthTextureIndex);
       lighting *= shadowContribution;

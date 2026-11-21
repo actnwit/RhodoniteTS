@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest';
+import { CompositionType } from '../definitions/CompositionType';
 import { ProcessApproach } from '../definitions/ProcessApproach';
 import { Engine } from '../system/Engine';
 import { MaterialHelper } from './MaterialHelper';
@@ -92,6 +93,11 @@ test('raymarching material enables PBR shading and its material parameters', asy
   ]) {
     expect(material._allFieldsInfo.has(semantic)).toBe(true);
   }
+
+  // The far plane is per shadow slot, because each point light can use its own effective range.
+  const farPlaneInfo = material._allFieldsInfo.get('pointLightFarPlane');
+  expect(farPlaneInfo?.compositionType).toBe(CompositionType.ScalarArray);
+  expect(farPlaneInfo?.arrayLength).toBe(engine.config.maxLightNumber);
 });
 
 test('raymarching material exposes Texture2D semantics and enables normal mapping', async () => {

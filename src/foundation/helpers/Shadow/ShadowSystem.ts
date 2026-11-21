@@ -55,6 +55,8 @@ export class ShadowSystem {
   private __needsRefresh = false;
   /** Last shadow state, so a material assigned later (e.g. the raymarching material) can receive it. */
   private __depthTextureIndexList: number[] = [];
+  /** Far plane of the paraboloid shadow map of each shadow slot (indexed by slot). */
+  private __pointLightFarPlaneList: number[] = [];
   private __directionalShadowMap?: { texture: RenderTargetTexture; sampler: Sampler };
   private __paraboloidShadowMap?: { texture: RenderTargetTexture; sampler: Sampler };
 
@@ -118,6 +120,7 @@ export class ShadowSystem {
     const expressions = [];
     // The shadow data of a light is stored at its shadow slot, so the list is indexed by the slot.
     const depthTextureIndexList: number[] = new Array(this.__engine.config.maxLightNumber).fill(-1);
+    const pointLightFarPlaneList: number[] = new Array(this.__engine.config.maxLightNumber).fill(1000);
 
     let depthTextureCount = 0;
     let pointDepthTextureCount = 0;
@@ -140,12 +143,14 @@ export class ShadowSystem {
       }
 
       if (lightComponent.type === LightType.Point) {
+        const farPlane = this.__getPointLightFarPlane(lightComponent);
         const shadowMapExpression = new Expression();
         shadowMapExpression.addRenderPasses(
           this.__pointShadowMap.getRenderPasses(
             shadowCasters,
             lightComponent.entity as ISceneGraphEntity & ILightEntityMethods,
-            shadowSlot
+            shadowSlot,
+            farPlane
           )
         );
         expressions.push(shadowMapExpression);
@@ -169,6 +174,7 @@ export class ShadowSystem {
         this.__setParaboloidBlurredShadowMap(blurredRenderTargetPointLight, entities, additionalMaterials);
         expressions.push(blurExpressionPointLight);
         depthTextureIndexList[shadowSlot] = pointDepthTextureCount;
+        pointLightFarPlaneList[shadowSlot] = farPlane;
         pointDepthTextureCount++;
       } else if (lightComponent.type === LightType.Spot || lightComponent.type === LightType.Directional) {
         const shadowMapExpression = new Expression();
@@ -205,6 +211,8 @@ export class ShadowSystem {
 
     this.__depthTextureIndexList = depthTextureIndexList;
     this.__setDepthTextureIndexList(entities, depthTextureIndexList, additionalMaterials);
+    this.__pointLightFarPlaneList = pointLightFarPlaneList;
+    this.__setPointLightFarPlaneList(entities, pointLightFarPlaneList, additionalMaterials);
 
     return expressions;
   }
@@ -362,6 +370,61 @@ export class ShadowSystem {
   }
 
   /**
+   * Returns the far plane used to normalize the paraboloid shadow map of a point light.
+   *
+   * The far plane is the effective range of the light: the range bounds the shadow volume,
+   * so it keeps the cleared background depth (1.0) close to the shadow casters. With the
+   * legacy unlimited far plane of 1000, the Gaussian blur mixes the far background into the
+   * moments and the shadows of scenes much smaller than 1000 units disappear.
+   *
+   * @param lightComponent - The point light component
+   */
+  private __getPointLightFarPlane(lightComponent: LightComponent) {
+    const effectiveRange = lightComponent._lightPropertyForGpu._v[1];
+    if (effectiveRange > 0) {
+      return effectiveRange;
+    }
+    if (lightComponent.range > 0) {
+      return lightComponent.range;
+    }
+    // The light logic has not run yet (or the light is unlimited): derive the automatic range here.
+    const threshold = this.__engine.config.lightAutoRangeThreshold;
+    if (threshold > 0) {
+      const color = lightComponent.color;
+      const maxIntensity = Math.max(color.x, color.y, color.z) * lightComponent.intensity;
+      return Math.max(Math.sqrt(Math.max(maxIntensity, 0) / threshold), 1e-6);
+    }
+    return 1000;
+  }
+
+  /**
+   * Sets the per-shadow-slot far planes of the paraboloid shadow maps on all entity materials.
+   * @param entities - Array of scene graph entities to apply the far planes to
+   * @param pointLightFarPlaneList - Far plane of each shadow slot (1000 for slots without a point light)
+   * @private
+   */
+  private __setPointLightFarPlaneList(
+    entities: ISceneGraphEntity[],
+    pointLightFarPlaneList: number[],
+    additionalMaterials: readonly Material[] = []
+  ) {
+    // setParameter() copies the values into each material, so one VectorN can be shared.
+    const farPlaneList = new VectorN(new Float32Array(pointLightFarPlaneList));
+    for (const entity of entities) {
+      const meshComponent = entity.tryToGetMesh();
+      if (meshComponent != null && meshComponent.mesh != null) {
+        for (let i = 0; i < meshComponent.mesh.getPrimitiveNumber(); i++) {
+          const primitive = meshComponent.mesh.getPrimitiveAt(i);
+          primitive.material.setParameter('pointLightFarPlane', farPlaneList);
+        }
+      }
+    }
+    for (const material of additionalMaterials) {
+      material.setParameter('pointLightFarPlane', farPlaneList);
+    }
+  }
+
+  /**
    * Sets the depth bias projection-view matrices for shadow mapping on all PBR materials.
    * Calculates and applies bias matrices for directional and spot lights to reduce shadow acne.
    * @param entities - Array of scene graph entities to apply the bias matrices to
@@ -484,8 +547,16 @@ export class ShadowSystem {
           : new Array(this.__engine.config.maxLightNumber).fill(-1)
       )
     );
+    const farPlaneList = new VectorN(
+      new Float32Array(
+        this.__pointLightFarPlaneList.length > 0
+          ? this.__pointLightFarPlaneList
+          : new Array(this.__engine.config.maxLightNumber).fill(1000)
+      )
+    );
     for (const material of materials) {
       material.setParameter('depthTextureIndexList', indexList);
+      material.setParameter('pointLightFarPlane', farPlaneList);
       if (this.__directionalShadowMap != null) {
         material.setTextureParameter(
           'depthTexture',
@@ -630,6 +701,18 @@ export class ShadowSystem {
         this.__lightSids[i] !== lightComponent.componentSID
       ) {
         return true;
+      }
+      // A changed range changes the far plane of the paraboloid shadow map of a point light,
+      // which is baked into the shadow map render passes and the receiving materials.
+      if (lightComponent.type === LightType.Point && this.__pointLightFarPlaneList.length > 0) {
+        const shadowSlot = lightComponent._shadowSlot;
+        if (
+          shadowSlot >= 0 &&
+          shadowSlot < this.__pointLightFarPlaneList.length &&
+          Math.abs(this.__pointLightFarPlaneList[shadowSlot] - this.__getPointLightFarPlane(lightComponent)) > 1e-6
+        ) {
+          return true;
+        }
       }
     }
     return false;

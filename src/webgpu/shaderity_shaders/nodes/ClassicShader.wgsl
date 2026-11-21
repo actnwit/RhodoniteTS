@@ -49,7 +49,7 @@ fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseT
           let depthTextureIndex = get_depthTextureIndexList(materialSID, shadowSlot);
           if (depthTextureIndex >= 0) {
             if (light.lightType == 1) { // Point Light
-              let pointLightFarPlane = get_pointLightFarPlane(materialSID, 0);
+              let pointLightFarPlane = get_pointLightFarPlane(materialSID, shadowSlot);
               let pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0);
               let shadowContributionParaboloid = varianceShadowContributionParaboloid(positionInWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, u32(depthTextureIndex));
               diffuse *= shadowContributionParaboloid;

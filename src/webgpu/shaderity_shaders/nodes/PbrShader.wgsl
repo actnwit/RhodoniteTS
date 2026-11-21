@@ -147,7 +147,7 @@ fn pbrShader(
         let depthTextureIndex = get_depthTextureIndexList(materialSID, shadowSlot);
         if (depthTextureIndex >= 0) {
           if (light.lightType == 1) { // Point Light
-            let pointLightFarPlane = get_pointLightFarPlane(materialSID, 0);
+            let pointLightFarPlane = get_pointLightFarPlane(materialSID, shadowSlot);
             let pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0);
             lighting *= varianceShadowContributionParaboloid(positionInWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, u32(depthTextureIndex));
           } else if (light.lightType == 0 || light.lightType == 2) { // Directional Light or Spot Light

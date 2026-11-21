@@ -178,10 +178,6 @@
 // #param iblParameter: vec4<f32>; // initialValue=(1,1,1,1), isInternalSetting=true
 // #param hdriFormat: vec2<i32>; // initialValue=(0,0), isInternalSetting=true
 // #param inverseEnvironment: bool; // initialValue=false
-#ifdef RN_USE_SHADOW_MAPPING
-  // #param pointLightFarPlane: f32; // initialValue=1000.0
-  // #param pointLightShadowMapUvScale: f32; // initialValue=0.93
-#endif
 
 /* shaderity: @{shadowDefinition} */
 /* shaderity: @{pbrDefinition} */

@@ -477,6 +477,27 @@ function createPbrUberMaterial(
       min: 0,
       max: Number.MAX_VALUE,
     });
+    // The paraboloid shadow map stores depth divided by a far plane. It is an array because
+    // each point light with a shadow slot can use a different far plane (its effective range).
+    additionalShaderSemanticInfo.push({
+      semantic: 'pointLightFarPlane',
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.ScalarArray,
+      arrayLength: engine.config.maxLightNumber,
+      stage: ShaderType.PixelShader,
+      initialValue: new VectorN(new Float32Array(engine.config.maxLightNumber).fill(1000.0)),
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+    additionalShaderSemanticInfo.push({
+      semantic: 'pointLightShadowMapUvScale',
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.Scalar,
+      stage: ShaderType.PixelShader,
+      initialValue: Scalar.fromCopyNumber(0.93),
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
   }
 
   const definitions = [];
@@ -632,9 +653,10 @@ function createClassicUberMaterial(
     additionalShaderSemanticInfo.push({
       semantic: 'pointLightFarPlane',
       componentType: ComponentType.Float,
-      compositionType: CompositionType.Scalar,
+      compositionType: CompositionType.ScalarArray,
+      arrayLength: engine.config.maxLightNumber,
       stage: ShaderType.PixelShader,
-      initialValue: Scalar.fromCopyNumber(1000.0),
+      initialValue: new VectorN(new Float32Array(engine.config.maxLightNumber).fill(1000.0)),
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -1759,9 +1781,10 @@ function reuseOrRecreateCustomMaterial(
       additionalShaderSemanticInfo.push({
         semantic: 'pointLightFarPlane',
         componentType: ComponentType.Float,
-        compositionType: CompositionType.Scalar,
+        compositionType: CompositionType.ScalarArray,
+        arrayLength: engine.config.maxLightNumber,
         stage: ShaderType.VertexAndPixelShader,
-        initialValue: Scalar.fromCopyNumber(1000.0),
+        initialValue: new VectorN(new Float32Array(engine.config.maxLightNumber).fill(1000.0)),
         min: 0,
         max: Number.MAX_VALUE,
       });
