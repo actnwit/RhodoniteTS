@@ -76,7 +76,10 @@ import { InitialPositionShaderNode } from '../nodes/raymarching/InitialPositionS
 import { OpSubtractionShaderNode } from '../nodes/raymarching/OpSubtractionShaderNode';
 import { OpUnionShaderNode } from '../nodes/raymarching/OpUnionShaderNode';
 import { OutDistanceShaderNode } from '../nodes/raymarching/OutDistanceShaderNode';
+import { OutShadingColorShaderNode } from '../nodes/raymarching/OutShadingColorShaderNode';
 import { OutUnionShaderNode } from '../nodes/raymarching/OutUnionShaderNode';
+import { RaymarchHitNormalShaderNode } from '../nodes/raymarching/RaymarchHitNormalShaderNode';
+import { RaymarchHitPositionShaderNode } from '../nodes/raymarching/RaymarchHitPositionShaderNode';
 import { SdApplyTransformShaderNode } from '../nodes/raymarching/SdApplyTransformShaderNode';
 import { SdApplyWorldMatrixShaderNode } from '../nodes/raymarching/SdApplyWorldMatrixShaderNode';
 import { SdBarXShaderNode } from '../nodes/raymarching/SdBarXShaderNode';
@@ -205,9 +208,38 @@ export class ShaderGraphResolver {
       ShaderType.PixelShader
     );
 
+    // Optional second section (e.g. the raymarching shading graph). It is emitted
+    // before the fragment main and runs once per fragment, unlike the main body,
+    // which the raymarching part emits into its distance function map().
+    let shadingSectionBody: string | undefined;
+    const shadingSectionBegin = commonShaderPart.getShadingSectionBegin(engine);
+    if (shadingSectionBegin != null) {
+      const shadingNodes = filterNodesInner(sortedShaderNodes, 'outShadingColor');
+      if (shadingNodes.length > 0) {
+        const sortedShadingNodes = this.__sortTopologically(shadingNodes);
+        const { varInputNames, varOutputNames, collectedShaderBody } = this.__collectVariableNames(
+          engine,
+          sortedShadingNodes,
+          false,
+          commonShaderPart
+        );
+        shadingSectionBody =
+          shadingSectionBegin +
+          collectedShaderBody +
+          this.__generateShaderCode(engine, sortedShadingNodes, varInputNames, varOutputNames, false) +
+          commonShaderPart.getShadingSectionEnd(engine);
+      }
+    }
+
     // main process
     try {
-      shaderBody += ShaderGraphResolver.__constructShaderWithNodes(engine, sortedShaderNodes, false, commonShaderPart);
+      shaderBody += ShaderGraphResolver.__constructShaderWithNodes(
+        engine,
+        sortedShaderNodes,
+        false,
+        commonShaderPart,
+        shadingSectionBody
+      );
     } catch (e) {
       Logger.default.error(e as string);
       return undefined;
@@ -866,7 +898,8 @@ export class ShaderGraphResolver {
     engine: Engine,
     shaderNodes: AbstractShaderNode[],
     isVertexStage: boolean,
-    commonShaderPart: CommonShaderPart
+    commonShaderPart: CommonShaderPart,
+    shadingSectionBody?: string
   ) {
     let shaderBody = '';
 
@@ -892,7 +925,7 @@ export class ShaderGraphResolver {
       shaderBody += this.__handleVertexToFragmentPassing(engine, shaderNodes, varInputNames, varOutputNames);
     }
 
-    shaderBody += commonShaderPart.getMainEnd(engine, isVertexStage);
+    shaderBody += commonShaderPart.getMainEnd(engine, isVertexStage, shadingSectionBody);
 
     return shaderBody;
   }
@@ -937,7 +970,13 @@ export class ShaderGraphResolver {
     const allVaryingNodes = [...new Set([...varyingNodes, ...varyingNodesForDiscard])];
 
     const vertexNodes = filterNodes(nodes, ['outPosition']);
-    const pixelNodes = filterNodes(nodes, ['outColor', 'conditionalDiscard', 'outDistance', 'outUnion']);
+    const pixelNodes = filterNodes(nodes, [
+      'outColor',
+      'conditionalDiscard',
+      'outDistance',
+      'outUnion',
+      'outShadingColor',
+    ]);
 
     // if (vertexNodes.length === 0 || pixelNodes.length === 0) {
     //   return;
@@ -1989,6 +2028,21 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'OutUnion': {
         const nodeInstance = new OutUnionShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'OutShadingColor': {
+        const nodeInstance = new OutShadingColorShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'RaymarchHitPosition': {
+        const nodeInstance = new RaymarchHitPositionShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'RaymarchHitNormal': {
+        const nodeInstance = new RaymarchHitNormalShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }
