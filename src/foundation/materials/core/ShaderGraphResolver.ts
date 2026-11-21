@@ -11,9 +11,12 @@ import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
+import { AbsShaderNode } from '../nodes/AbsShaderNode';
+import { AcosShaderNode } from '../nodes/AcosShaderNode';
 import { AddShaderNode } from '../nodes/AddShaderNode';
 import { AlphaTestShaderNode } from '../nodes/AlphaTestShaderNode';
 import { AndShaderNode } from '../nodes/AndShaderNode';
+import { Atan2ShaderNode } from '../nodes/Atan2ShaderNode';
 import { AttributeColorShaderNode } from '../nodes/AttributeColorShaderNode';
 import { AttributeInstanceIdsShaderNode } from '../nodes/AttributeInstanceIdsShaderNode';
 import { AttributeJointShaderNode } from '../nodes/AttributeJointShaderNode';
@@ -1319,6 +1322,63 @@ function constructNodes(json: ShaderNodeJson): {
           nodeInstance = new MinShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
           Logger.default.error(`Min node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Abs': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: AbsShaderNode;
+        if (socketName.startsWith('Scalar')) {
+          nodeInstance = new AbsShaderNode(CompositionType.Scalar, ComponentType.Float);
+        } else if (socketName.startsWith('Vector2')) {
+          nodeInstance = new AbsShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName.startsWith('Vector3')) {
+          nodeInstance = new AbsShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName.startsWith('Vector4')) {
+          nodeInstance = new AbsShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          Logger.default.error(`Abs node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Acos': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: AcosShaderNode;
+        if (socketName.startsWith('Scalar')) {
+          nodeInstance = new AcosShaderNode(CompositionType.Scalar, ComponentType.Float);
+        } else if (socketName.startsWith('Vector2')) {
+          nodeInstance = new AcosShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName.startsWith('Vector3')) {
+          nodeInstance = new AcosShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName.startsWith('Vector4')) {
+          nodeInstance = new AcosShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          Logger.default.error(`Acos node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Atan2': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: Atan2ShaderNode;
+        if (socketName.startsWith('Scalar')) {
+          nodeInstance = new Atan2ShaderNode(CompositionType.Scalar, ComponentType.Float);
+        } else if (socketName.startsWith('Vector2')) {
+          nodeInstance = new Atan2ShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName.startsWith('Vector3')) {
+          nodeInstance = new Atan2ShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName.startsWith('Vector4')) {
+          nodeInstance = new Atan2ShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          Logger.default.error(`Atan2 node: Unknown socket name: ${socketName}`);
           break;
         }
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
