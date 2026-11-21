@@ -21,11 +21,12 @@ pointLight.getLight().type = Rn.LightType.Point;
 pointLight.getLight().castShadow = true;
 pointLight.getLight().color = Rn.Vector3.fromCopyArray([1, 1, 1]);
 pointLight.getLight().intensity = 20;
+pointLight.getLight().range = 20;
 pointLight.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
 const pointGroupEntity = Rn.createGroupEntity(engine);
 pointGroupEntity.addChild(pointLight.getSceneGraph());
 pointGroupEntity.localPosition = Rn.Vector3.fromCopyArray([2, 0, 2]);
-pointLight.localPosition = Rn.Vector3.fromCopyArray([2, 0, 0]);
+pointLight.localPosition = Rn.Vector3.fromCopyArray([2, 2, 3]);
 
 // Point Light 2
 let pointLight2 = Rn.MeshHelper.createSphere(engine) as Rn.IMeshEntity & Rn.ILightEntityMethods;
@@ -37,11 +38,12 @@ pointLight2.getLight().type = Rn.LightType.Point;
 pointLight2.getLight().castShadow = true;
 pointLight2.getLight().color = Rn.Vector3.fromCopyArray([1, 1, 1]);
 pointLight2.getLight().intensity = 20;
+pointLight2.getLight().range = 20;
 pointLight2.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
 const pointGroupEntity2 = Rn.createGroupEntity(engine);
 pointGroupEntity2.addChild(pointLight2.getSceneGraph());
 pointGroupEntity2.localPosition = Rn.Vector3.fromCopyArray([-2, 0, 2]);
-pointLight2.localPosition = Rn.Vector3.fromCopyArray([-2, 0, 0]);
+pointLight2.localPosition = Rn.Vector3.fromCopyArray([-2, 2, 3]);
 
 // Spot Light 1
 let spotLight = Rn.MeshHelper.createSphere(engine) as Rn.IMeshEntity & Rn.ILightEntityMethods & Rn.ICameraEntityMethods;
@@ -57,7 +59,7 @@ spotLight.getCamera().isSyncToLight = true;
 spotLight.getLight().castShadow = true;
 spotLight.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
 spotLight.getLight().type = Rn.LightType.Spot;
-spotLight.getLight().range = 1000.0;
+spotLight.getLight().range = 20;
 spotLight.getLight().outerConeAngle = Rn.MathUtil.degreeToRadian(120);
 spotLight.localEulerAngles = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
 spotLight.localPosition = Rn.Vector3.fromCopy3(0.0, 6.0, 0.0);
@@ -78,7 +80,7 @@ spotLight2.getCamera().isSyncToLight = true;
 spotLight2.getLight().castShadow = true;
 spotLight2.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
 spotLight2.getLight().type = Rn.LightType.Spot;
-spotLight2.getLight().range = 1000.0;
+spotLight2.getLight().range = 20;
 spotLight2.getLight().outerConeAngle = Rn.MathUtil.degreeToRadian(120);
 spotLight2.localEulerAngles = Rn.Vector3.fromCopy3(Math.PI / 2, 0, 0);
 spotLight2.localPosition = Rn.Vector3.fromCopy3(0.0, -6.0, 0.0);

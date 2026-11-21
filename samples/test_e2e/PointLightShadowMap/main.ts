@@ -12,6 +12,8 @@ const engine = await Rn.Engine.init({
   config: new Rn.Config({ cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Debug }),
 });
 
+const POINT_LIGHT_FAR_PLANE = 20;
+
 // Point Light
 let pointLight = Rn.MeshHelper.createSphere(engine) as Rn.IMeshEntity & Rn.ILightEntityMethods;
 pointLight = engine.entityRepository.tryToAddComponentToEntityByTID(
@@ -21,10 +23,12 @@ pointLight = engine.entityRepository.tryToAddComponentToEntityByTID(
 pointLight.getLight().type = Rn.LightType.Point;
 pointLight.getLight().color = Rn.Vector3.fromCopyArray([1, 1, 1]);
 pointLight.getLight().intensity = 20;
+pointLight.getLight().range = POINT_LIGHT_FAR_PLANE;
+pointLight.getLight().castShadow = true;
 pointLight.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
 const pointGroupEntity = Rn.createGroupEntity(engine);
 pointGroupEntity.addChild(pointLight.getSceneGraph());
-pointGroupEntity.localPosition = Rn.Vector3.fromCopyArray([2, 0, 2]);
+pointGroupEntity.localPosition = Rn.Vector3.fromCopyArray([2, 2, 4]);
 pointLight.localPosition = Rn.Vector3.fromCopyArray([2, 0, 0]);
 
 // Main Camera
@@ -49,7 +53,11 @@ const [pointShadowMapArrayFramebuffer, _pointShadowMapArrayRenderTargetTexture] 
   });
 const shadowMapExpression = new Rn.Expression();
 const pointShadowMap = new PointShadowMap(engine);
-const renderPasses = pointShadowMap.getRenderPasses([groupEntity, backgroundEntity]);
+const renderPasses = pointShadowMap.getRenderPasses(
+  [groupEntity, backgroundEntity],
+  pointLight.getLight().componentSID,
+  POINT_LIGHT_FAR_PLANE
+);
 shadowMapExpression.addRenderPasses(renderPasses);
 const gaussianBlur = new Rn.GaussianBlur(engine);
 const { blurExpression, blurredRenderTarget } = gaussianBlur.createGaussianBlurExpression({
@@ -71,7 +79,7 @@ mainRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
 mainRenderPass.toClearColorBuffer = true;
 mainRenderPass.toClearDepthBuffer = true;
 mainRenderPass.addEntities([groupEntity, backgroundEntity, pointLight]);
-setParaboloidBlurredShadowMap(blurredRenderTarget, [groupEntity, backgroundEntity]);
+setParaboloidBlurredShadowMap(blurredRenderTarget, [groupEntity, backgroundEntity], POINT_LIGHT_FAR_PLANE);
 // setParaboloidBlurredShadowMap(
 //   renderPassesBlurred[9].getFramebuffer()!.getColorAttachedRenderTargetTexture(0)!,
 //   [groupEntity, backgroundEntity]
@@ -99,7 +107,11 @@ engine.startRenderLoop(() => {
   count++;
 });
 
-function setParaboloidBlurredShadowMap(blurredRenderTarget: Rn.RenderTargetTexture, entities: Rn.ISceneGraphEntity[]) {
+function setParaboloidBlurredShadowMap(
+  blurredRenderTarget: Rn.RenderTargetTexture,
+  entities: Rn.ISceneGraphEntity[],
+  farPlane: number
+) {
   const sampler = new Rn.Sampler(engine, {
     minFilter: Rn.TextureParameter.Linear,
     magFilter: Rn.TextureParameter.Linear,
@@ -107,6 +119,7 @@ function setParaboloidBlurredShadowMap(blurredRenderTarget: Rn.RenderTargetTextu
     wrapT: Rn.TextureParameter.ClampToEdge,
   });
   sampler.create();
+  const farPlaneList = new Rn.VectorN(new Float32Array(engine.config.maxLightNumber).fill(farPlane));
 
   for (const entity of entities) {
     const meshComponent = entity.tryToGetMesh();
@@ -114,6 +127,11 @@ function setParaboloidBlurredShadowMap(blurredRenderTarget: Rn.RenderTargetTextu
       for (let i = 0; i < meshComponent.mesh.getPrimitiveNumber(); i++) {
         const primitive = meshComponent.mesh.getPrimitiveAt(i);
         primitive.material.setTextureParameter('paraboloidDepthTexture', blurredRenderTarget, sampler);
+        primitive.material.setParameter('pointLightFarPlane', farPlaneList);
+        primitive.material.setParameter(
+          'depthTextureIndexList',
+          new Rn.VectorN(new Int32Array(engine.config.maxLightNumber))
+        );
       }
     }
   }
