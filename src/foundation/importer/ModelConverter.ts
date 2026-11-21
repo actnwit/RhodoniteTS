@@ -8,6 +8,7 @@ import {
   TagKhrNodeVisibilityEnabled,
   TagKhrNodeVisibilityVisible,
 } from '../../types/glTF2';
+import type { NodeJSON } from '../../types/NodeJSON';
 import type {
   RnM2,
   RnM2Accessor,
@@ -49,6 +50,7 @@ import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
 import { LightType } from '../definitions/LightType';
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
+import { SdfShapeType } from '../definitions/SdfShapeType';
 import type { ShaderSemanticsName } from '../definitions/ShaderSemantics';
 import { ShadingModel } from '../definitions/ShadingModel';
 import { TextureParameter } from '../definitions/TextureParameter';
@@ -60,6 +62,7 @@ import type {
   ICameraEntity,
   ILightEntity,
   IMeshEntity,
+  IRaymarchingEntity,
   ISceneGraphEntity,
 } from '../helpers/EntityHelper';
 import { MaterialHelper } from '../helpers/MaterialHelper';
@@ -1335,6 +1338,36 @@ export class ModelConverter {
           group.tryToSetUniqueName(node.name, true);
         }
         entity = group;
+      }
+
+      // Rhodonite raymarching component. The shared raymarching material is built by the
+      // application (the editor's node editor) from the restored graph.
+      const raymarchingExtension = (
+        node.extensions as
+          | {
+              RHODONITE_raymarching?: {
+                graph?: NodeJSON | null;
+                sdfShapeType?: number;
+                isPickable?: boolean;
+              };
+            }
+          | undefined
+      )?.RHODONITE_raymarching;
+      if (raymarchingExtension != null && entity.tryToGetRaymarching() == null) {
+        const raymarchingEntity = engine.entityRepository.tryToAddComponentToEntityByTID(
+          WellKnownComponentTIDs.RaymarchingComponentTID,
+          entity
+        ) as IRaymarchingEntity;
+        const raymarchingComponent = raymarchingEntity.getRaymarching();
+        if (raymarchingExtension.graph != null) {
+          raymarchingComponent.rrnJson = raymarchingExtension.graph;
+        } else if (raymarchingExtension.sdfShapeType != null) {
+          raymarchingComponent.sdfShapeType = SdfShapeType.from(raymarchingExtension.sdfShapeType);
+        }
+        if (raymarchingExtension.isPickable != null) {
+          raymarchingComponent.isPickable = raymarchingExtension.isPickable;
+        }
+        entity = raymarchingEntity as unknown as ISceneGraphEntity;
       }
 
       if (this.__isMorphing(node, gltfModel)) {
