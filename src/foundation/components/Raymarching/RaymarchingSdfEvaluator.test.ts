@@ -143,6 +143,119 @@ describe('RaymarchingSdfEvaluator', () => {
     expectBounds(evaluator.calcBounds(), [-1, -2, -1], [1, 0, 1]);
   });
 
+  test('extracts a single sphere primitive', () => {
+    const evaluator = new RaymarchingSdfEvaluator(sphereGraph(2), Matrix44.identity());
+
+    const sphere = evaluator.calcSphere();
+    expect(sphere).not.toBeNull();
+    expect(sphere?.center.isEqual(Vector3.zero())).toBe(true);
+    expect(sphere?.radius).toBeCloseTo(2);
+    expect(sphere?.usesWorldMatrix).toBe(false);
+  });
+
+  test('marks a sphere under SdApplyWorldMatrix', () => {
+    const initial = createNode('InitialPosition');
+    const worldMatrix = createNode('SdApplyWorldMatrix');
+    const sphere = createNode('SdSphere');
+    const out = createNode('OutUnion');
+
+    const graph: NodeJSON = {
+      nodes: [initial, worldMatrix, sphere, out],
+      connections: [
+        connect(initial, 'outPosition', worldMatrix, 'position'),
+        connect(worldMatrix, 'outTransformedPosition', sphere, 'position'),
+        connect(sphere, 'outDistance', out, 'in1'),
+      ],
+    };
+
+    const evaluator = new RaymarchingSdfEvaluator(graph, Matrix44.identity());
+    const primitive = evaluator.calcSphere();
+
+    expect(primitive?.usesWorldMatrix).toBe(true);
+    expect(primitive?.center.isEqual(Vector3.zero())).toBe(true);
+    expect(primitive?.radius).toBeCloseTo(1);
+  });
+
+  test('folds transforms into the sphere primitive', () => {
+    const initial = createNode('InitialPosition');
+    const euler = createNode('ConstantVector3Float', vec3(0, 0, Math.PI / 2));
+    const rotation = createNode('SdApplyTransform');
+    const translation = createNode('ConstantVector3Float', vec3(1, 0, 0));
+    const translate = createNode('SdApplyTransform');
+    const sphere = createNode('SdSphere');
+    const out = createNode('OutUnion');
+
+    const graph: NodeJSON = {
+      nodes: [initial, euler, rotation, translation, translate, sphere, out],
+      connections: [
+        connect(initial, 'outPosition', rotation, 'position'),
+        connect(euler, 'out1', rotation, 'xyzEulerAngles'),
+        connect(rotation, 'outTransformedPosition', translate, 'position'),
+        connect(translation, 'out1', translate, 'translation'),
+        connect(translate, 'outTransformedPosition', sphere, 'position'),
+        connect(sphere, 'outDistance', out, 'in1'),
+      ],
+    };
+
+    const evaluator = new RaymarchingSdfEvaluator(graph, Matrix44.identity());
+    const primitive = evaluator.calcSphere();
+
+    expect(primitive?.center.x).toBeCloseTo(0);
+    expect(primitive?.center.y).toBeCloseTo(-1);
+    expect(primitive?.center.z).toBeCloseTo(0);
+    expect(primitive?.radius).toBeCloseTo(1);
+  });
+
+  test('uses the largest axis scale for a non-uniform sphere', () => {
+    const initial = createNode('InitialPosition');
+    const scale = createNode('ConstantVector3Float', vec3(2, 1, 1));
+    const transform = createNode('SdApplyTransform');
+    const sphere = createNode('SdSphere');
+    const out = createNode('OutUnion');
+
+    const graph: NodeJSON = {
+      nodes: [initial, scale, transform, sphere, out],
+      connections: [
+        connect(initial, 'outPosition', transform, 'position'),
+        connect(scale, 'out1', transform, 'scale'),
+        connect(transform, 'outTransformedPosition', sphere, 'position'),
+        connect(sphere, 'outDistance', out, 'in1'),
+      ],
+    };
+
+    const evaluator = new RaymarchingSdfEvaluator(graph, Matrix44.identity());
+
+    expect(evaluator.calcSphere()?.radius).toBeCloseTo(2);
+  });
+
+  test('does not extract a sphere from a union or a box', () => {
+    const initial = createNode('InitialPosition');
+    const sphereA = createNode('SdSphere');
+    const sphereB = createNode('SdSphere');
+    const union = createNode('OpUnion');
+    const out = createNode('OutUnion');
+
+    const unionGraph: NodeJSON = {
+      nodes: [initial, sphereA, sphereB, union, out],
+      connections: [
+        connect(initial, 'outPosition', sphereA, 'position'),
+        connect(initial, 'outPosition', sphereB, 'position'),
+        connect(sphereA, 'outDistance', union, 'lhs'),
+        connect(sphereB, 'outDistance', union, 'rhs'),
+        connect(union, 'outValue', out, 'in1'),
+      ],
+    };
+    expect(new RaymarchingSdfEvaluator(unionGraph, Matrix44.identity()).calcSphere()).toBeNull();
+
+    const box = createNode('SdBox');
+    const boxOut = createNode('OutUnion');
+    const boxGraph: NodeJSON = {
+      nodes: [initial, box, boxOut],
+      connections: [connect(initial, 'outPosition', box, 'position'), connect(box, 'outDistance', boxOut, 'in1')],
+    };
+    expect(new RaymarchingSdfEvaluator(boxGraph, Matrix44.identity()).calcSphere()).toBeNull();
+  });
+
   test('applies SdApplyWorldMatrix', () => {
     const initial = createNode('InitialPosition');
     const worldMatrix = createNode('SdApplyWorldMatrix');

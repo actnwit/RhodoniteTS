@@ -35,6 +35,18 @@ export type RaymarchingRaycastHit = {
   position: Vector3;
 };
 
+/**
+ * A single sphere primitive extracted from an SDF graph.
+ */
+export type RaymarchingSpherePrimitive = {
+  /** Sphere center in the evaluator's output space. */
+  center: Vector3;
+  /** Conservative sphere radius in the evaluator's output space. */
+  radius: number;
+  /** Whether the sphere's position chain contains SdApplyWorldMatrix. */
+  usesWorldMatrix: boolean;
+};
+
 const ZERO = Vector3.fromCopy3(0, 0, 0);
 const ONE = Vector3.fromCopy3(1, 1, 1);
 const IDENTITY_MATRIX = Matrix44.fromCopyMatrix44(Matrix44.identity());
@@ -123,6 +135,63 @@ export class RaymarchingSdfEvaluator {
     }
 
     return merged.isVanilla() ? null : merged;
+  }
+
+  /**
+   * Returns the sphere primitive when the graph evaluates to a single sphere.
+   *
+   * The center and radius are expressed in the evaluator's output space
+   * (the space produced by this evaluator's world matrix). Any transform chain
+   * before the sphere is folded into the result. A non-uniform local scale is
+   * approximated by the largest axis scale so the returned sphere contains the
+   * resulting ellipsoid.
+   *
+   * @returns The sphere primitive, or null for any other graph
+   */
+  calcSphere(): RaymarchingSpherePrimitive | null {
+    if (this.__outputNodes.length !== 1) {
+      return null;
+    }
+
+    const output = this.__outputNodes[0];
+    const inputNode = this.__inputNode(output.id, 'in1') ?? this.__inputNode(output.id, 'value');
+    if (inputNode == null || inputNode.name !== 'SdSphere') {
+      return null;
+    }
+
+    const radius = this.__readScalarInput(inputNode, 'radius', 1);
+    if (radius == null) {
+      return null;
+    }
+
+    const positionNode = this.__inputNode(inputNode.id, 'position');
+    if (positionNode == null) {
+      return null;
+    }
+    const chain = this.__positionChainToWorld(positionNode);
+    if (chain == null) {
+      return null;
+    }
+
+    const center = chain.multiplyVector3(ZERO);
+    const axisX = Vector3.subtract(chain.multiplyVector3(Vector3.fromCopy3(1, 0, 0)), center);
+    const axisY = Vector3.subtract(chain.multiplyVector3(Vector3.fromCopy3(0, 1, 0)), center);
+    const axisZ = Vector3.subtract(chain.multiplyVector3(Vector3.fromCopy3(0, 0, 1)), center);
+
+    const scaleX = Math.hypot(axisX.x, axisY.x, axisZ.x);
+    const scaleY = Math.hypot(axisX.y, axisY.y, axisZ.y);
+    const scaleZ = Math.hypot(axisX.z, axisY.z, axisZ.z);
+    const maxScale = Math.max(scaleX, scaleY, scaleZ);
+    const sphereRadius = Math.abs(radius) * maxScale;
+    if (!Number.isFinite(sphereRadius) || sphereRadius <= 0) {
+      return null;
+    }
+
+    return {
+      center,
+      radius: sphereRadius,
+      usesWorldMatrix: this.__positionChainUsesWorldMatrix(positionNode),
+    };
   }
 
   /**
@@ -684,6 +753,24 @@ export class RaymarchingSdfEvaluator {
     const worldBounds = new AABB();
     AABB.multiplyMatrixTo(chain, localBounds, worldBounds);
     return worldBounds.isVanilla() ? null : worldBounds;
+  }
+
+  /**
+   * Returns true when a position chain contains SdApplyWorldMatrix.
+   * A graph without this node is authored in world space and does not follow
+   * the component entity transform.
+   */
+  private __positionChainUsesWorldMatrix(node: NodeJSONNode): boolean {
+    const visited = new Set<string>();
+    let current: NodeJSONNode | undefined = node;
+    while (current != null && !visited.has(current.id)) {
+      if (current.name === 'SdApplyWorldMatrix') {
+        return true;
+      }
+      visited.add(current.id);
+      current = this.__inputNode(current.id, 'position');
+    }
+    return false;
   }
 
   /**

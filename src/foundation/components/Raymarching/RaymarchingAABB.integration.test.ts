@@ -67,6 +67,52 @@ function createSphereGraph(): Rn.NodeJSON {
   };
 }
 
+function createSphereGraphWithoutWorldMatrix(): Rn.NodeJSON {
+  const initialNode = {
+    id: 'initial',
+    name: 'InitialPosition',
+    outputs: { outPosition: { id: 'initial_out', label: 'Out Position', socket: { name: 'Vector3<float>' } } },
+    inputs: {},
+    controls: {},
+    position: { x: 0, y: 0 },
+  };
+  const sphereNode = {
+    id: 'sphere',
+    name: 'SdSphere',
+    outputs: { outDistance: { id: 'sphere_out', label: 'Out Distance', socket: { name: 'Scalar<float>' } } },
+    inputs: {
+      position: { id: 'sphere_in', label: 'Position', socket: { name: 'Vector3<float>' } },
+      radius: { id: 'sphere_radius', label: 'Radius', socket: { name: 'Scalar<float>' } },
+    },
+    controls: {},
+    position: { x: 0, y: 0 },
+  };
+  const outNode = {
+    id: 'out',
+    name: 'OutUnion',
+    outputs: {},
+    inputs: { in1: { id: 'out_in', label: 'In Scalar<float>', socket: { name: 'Scalar<float>' } } },
+    controls: {},
+    position: { x: 0, y: 0 },
+  };
+
+  return {
+    nodes: [initialNode, sphereNode, outNode] as Rn.NodeJSON['nodes'],
+    connections: [
+      {
+        id: 'c1',
+        from: { id: 'initial', portName: 'outPosition' },
+        to: { id: 'sphere', portName: 'position' },
+      },
+      {
+        id: 'c2',
+        from: { id: 'sphere', portName: 'outDistance' },
+        to: { id: 'out', portName: 'in1' },
+      },
+    ],
+  };
+}
+
 describe('Raymarching AABB integration', async () => {
   const engine = await Rn.Engine.init({
     approach: Rn.ProcessApproach.None,
@@ -108,6 +154,45 @@ describe('Raymarching AABB integration', async () => {
       expect(shape.shape.size.z).toBeCloseTo(2);
     }
     expect(shape?.localPosition.isEqual(Rn.Vector3.zero())).toBe(true);
+  });
+
+  test('creates an exact sphere collider for a single sphere SDF', () => {
+    const entity = Rn.createRaymarchingEntity(engine);
+    const component = entity.getRaymarching();
+    component.rrnJson = createSphereGraph();
+
+    const sphere = component.calcLocalSphereCollider();
+    expect(sphere).not.toBeNull();
+    expect(sphere?.center.isEqual(Rn.Vector3.zero())).toBe(true);
+    expect(sphere?.radius).toBeCloseTo(1);
+
+    const result = component.addColliderShape();
+    expect(result?.shapeType).toBe('sphere');
+    if (result?.shapeType !== 'sphere') {
+      return;
+    }
+    const shape = entity.tryToGetShape()?.getShape(result.shapeIndex);
+    expect(shape?.shape.type).toBe('sphere');
+    if (shape?.shape.type === 'sphere') {
+      expect(shape.shape.radius).toBeCloseTo(1);
+    }
+    expect(shape?.localPosition.isEqual(Rn.Vector3.zero())).toBe(true);
+  });
+
+  test('falls back to a box without SdApplyWorldMatrix', () => {
+    const entity = Rn.createRaymarchingEntity(engine);
+    const component = entity.getRaymarching();
+    component.rrnJson = createSphereGraphWithoutWorldMatrix();
+
+    expect(component.calcLocalSphereCollider()).toBeNull();
+    const result = component.addColliderShape();
+    expect(result?.shapeType).toBe('box');
+    if (result?.shapeType !== 'box') {
+      return;
+    }
+    expect(result.aabb.sizeX).toBeCloseTo(2);
+    const shape = entity.tryToGetShape()?.getShape(result.shapeIndex);
+    expect(shape?.shape.type).toBe('box');
   });
 
   test('copies the SDF graph when the component is copied', () => {

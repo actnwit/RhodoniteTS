@@ -37,6 +37,35 @@ export type RaymarchingAabbShapeOptions = {
 };
 
 /**
+ * A sphere collider extracted from a single-sphere SDF graph.
+ */
+export type RaymarchingSphereCollider = {
+  /** Sphere center in the component entity's local space. */
+  center: Vector3;
+  /** Sphere radius in the component entity's local space. */
+  radius: number;
+};
+
+/**
+ * Options for creating a collider shape from the SDF.
+ */
+export type RaymarchingColliderShapeOptions = {
+  /** Local-space AABB to use for the box fallback. */
+  aabb?: AABB;
+  /** ShapeComponent that receives the shape. Defaults to the entity's ShapeComponent. */
+  shapeComponent?: ShapeComponent;
+  /** Origin expressed in the same local space as the AABB (box fallback only). */
+  origin?: IVector3;
+};
+
+/**
+ * The collider shape created from an SDF graph.
+ */
+export type RaymarchingColliderShapeResult =
+  | { shapeIndex: number; shapeType: 'sphere'; center: Vector3; radius: number }
+  | { shapeIndex: number; shapeType: 'box'; aabb: AABB };
+
+/**
  * RaymarchingComponent is a component that manages raymarching for an entity.
  * This component handles the raymarching of the entity.
  */
@@ -447,6 +476,64 @@ export class RaymarchingComponent extends Component {
   }
 
   /**
+   * Returns an exact sphere collider when the graph is a single SdSphere.
+   *
+   * The result is expressed in the component entity's local space and is only
+   * returned when the sphere's position chain contains SdApplyWorldMatrix,
+   * which makes the SDF follow the entity transform.
+   *
+   * @returns The local-space sphere, or null when the graph is not a single
+   * transformed sphere
+   */
+  calcLocalSphereCollider(): RaymarchingSphereCollider | null {
+    const evaluator = new RaymarchingSdfEvaluator(this.__rrnJson, Matrix44.identity(), this.__uniformValueProvider);
+    const sphere = evaluator.calcSphere();
+    if (sphere == null || !sphere.usesWorldMatrix) {
+      return null;
+    }
+    return { center: sphere.center, radius: sphere.radius };
+  }
+
+  /**
+   * Adds a collider shape for the SDF.
+   *
+   * Uses an exact sphere when the graph is a single transformed sphere;
+   * otherwise falls back to a conservative AABB box.
+   *
+   * @param options - Shape creation options
+   * @returns The created shape information, or undefined when no finite shape exists
+   */
+  addColliderShape(options: RaymarchingColliderShapeOptions = {}): RaymarchingColliderShapeResult | undefined {
+    const sphere = this.calcLocalSphereCollider();
+    if (sphere != null) {
+      const shapeComponent = this.__getOrCreateShapeComponent(options.shapeComponent);
+      if (shapeComponent == null) {
+        return undefined;
+      }
+      const shapeIndex = shapeComponent.addShape(
+        { type: 'sphere', radius: sphere.radius },
+        { position: sphere.center }
+      );
+      return { shapeIndex, shapeType: 'sphere', center: sphere.center, radius: sphere.radius };
+    }
+
+    const localAABB = options.aabb ?? this.calcLocalAABB();
+    if (localAABB == null || localAABB.isVanilla()) {
+      return undefined;
+    }
+    if (localAABB.sizeX <= 0 || localAABB.sizeY <= 0 || localAABB.sizeZ <= 0) {
+      return undefined;
+    }
+
+    const shapeComponent = this.__getOrCreateShapeComponent(options.shapeComponent);
+    if (shapeComponent == null) {
+      return undefined;
+    }
+    const shapeIndex = shapeComponent.addBoxFromAabb(localAABB, { origin: options.origin });
+    return { shapeIndex, shapeType: 'box', aabb: localAABB };
+  }
+
+  /**
    * Adds a box shape fitted to the SDF bounds to a ShapeComponent.
    * The shape can then be bound to a PhysicsComponent as a collider.
    * @param options - Shape creation options
@@ -461,16 +548,21 @@ export class RaymarchingComponent extends Component {
       return undefined;
     }
 
-    let shapeComponent = options.shapeComponent ?? this.entity.tryToGetShape();
-    if (shapeComponent == null) {
-      this.__entityRepository.tryToAddComponentToEntityByTID(WellKnownComponentTIDs.ShapeComponentTID, this.entity);
-      shapeComponent = this.entity.tryToGetShape();
-    }
+    const shapeComponent = this.__getOrCreateShapeComponent(options.shapeComponent);
     if (shapeComponent == null) {
       return undefined;
     }
 
     return shapeComponent.addBoxFromAabb(localAABB, { origin: options.origin });
+  }
+
+  private __getOrCreateShapeComponent(shapeComponent?: ShapeComponent): ShapeComponent | undefined {
+    let component = shapeComponent ?? this.entity.tryToGetShape();
+    if (component == null) {
+      this.__entityRepository.tryToAddComponentToEntityByTID(WellKnownComponentTIDs.ShapeComponentTID, this.entity);
+      component = this.entity.tryToGetShape();
+    }
+    return component;
   }
 
   /**
