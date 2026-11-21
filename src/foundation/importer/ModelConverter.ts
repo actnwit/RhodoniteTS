@@ -1426,6 +1426,18 @@ export class ModelConverter {
    */
   private static __setupLight(engine: Engine, light: KHR_lights_punctual_Light, gltfModel: RnM2): ILightEntity {
     const lightEntity = this.__generateLightEntity(engine, gltfModel);
+    const lightType = LightType.fromString(light.type);
+    if (lightType === LightType.Spot || lightType === LightType.Directional) {
+      // Spot and directional shadow maps are rendered from a camera synchronized to the light
+      // (ShadowMap uses lightEntity.getCamera()). Editor-created lights carry such a camera on
+      // their own node, but assets authored elsewhere usually have light-only nodes, so attach
+      // the shadow camera here as the editor does when creating a light.
+      const lightCameraEntity = engine.entityRepository.tryToAddComponentToEntityByTID(
+        WellKnownComponentTIDs.CameraComponentTID,
+        lightEntity
+      ) as unknown as ILightEntity & ICameraEntity;
+      lightCameraEntity.getCamera().isSyncToLight = true;
+    }
     const lightComponent = lightEntity.getComponent(LightComponent)! as LightComponent;
     this.__configureLightComponent(lightComponent, light);
     return lightEntity as ILightEntity;
