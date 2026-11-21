@@ -147,6 +147,25 @@ describe('ShapeComponent', async () => {
     expect(() => component.addCapsuleFromAabb(aabb, { maxRadiusToHeightRatio: 0.5 })).toThrow('between 0 and 0.5');
   });
 
+  test('fits a box to an AABB and rejects invalid AABBs', () => {
+    const aabb = new Rn.AABB();
+    aabb.addPosition(Rn.Vector3.fromCopy3(-1, -2, -3));
+    aabb.addPosition(Rn.Vector3.fromCopy3(3, 3, 5));
+    const component = Rn.createShapeEntity(engine).getShape();
+    const index = component.addBoxFromAabb(aabb);
+
+    const shape = component.getShape(index)?.shape;
+    expect(shape?.type).toBe('box');
+    if (shape?.type === 'box') {
+      expect(shape.size.isEqual(Rn.Vector3.fromCopy3(4, 5, 8))).toBe(true);
+    }
+    expect(component.getShape(index)?.localPosition.isEqual(Rn.Vector3.fromCopy3(1, 0.5, 1))).toBe(true);
+
+    const shifted = component.addBoxFromAabb(aabb, { origin: Rn.Vector3.fromCopy3(1, 0.5, 1) });
+    expect(component.getShape(shifted)?.localPosition.isEqual(Rn.Vector3.zero())).toBe(true);
+    expect(() => component.addBoxFromAabb(new Rn.AABB())).toThrow('uninitialized AABB');
+  });
+
   test('creates and toggles an empty shape gizmo without a rendering backend', () => {
     const entity = Rn.createShapeEntity(engine);
     const component = entity.getShape();

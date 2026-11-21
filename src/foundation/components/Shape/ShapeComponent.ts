@@ -83,6 +83,22 @@ export class ShapeComponent extends Component {
     return index;
   }
 
+  /** Adds a box fitted to a local-space AABB and returns its new shape index. */
+  addBoxFromAabb(aabb: AABB, options: BoxFromAabbOptions = {}): number {
+    if (aabb.isVanilla()) {
+      throw new Error('Cannot create a box from an uninitialized AABB.');
+    }
+    const origin = options.origin ?? Vector3.zero();
+    const values = [aabb.sizeX, aabb.sizeY, aabb.sizeZ, origin.x, origin.y, origin.z];
+    if (values.some(value => !Number.isFinite(value)) || aabb.sizeX <= 0 || aabb.sizeY <= 0 || aabb.sizeZ <= 0) {
+      throw new Error('Box AABB and origin must contain finite values and positive dimensions.');
+    }
+    return this.addShape(
+      { type: 'box', size: Vector3.fromCopy3(aabb.sizeX, aabb.sizeY, aabb.sizeZ) },
+      { position: Vector3.subtract(aabb.centerPoint, origin) }
+    );
+  }
+
   /** Fits a foot-to-head capsule to an AABB and returns its new shape index. */
   addCapsuleFromAabb(aabb: AABB, options: CapsuleFromAabbOptions = {}): number {
     if (aabb.isVanilla()) {
@@ -192,6 +208,11 @@ export class ShapeComponent extends Component {
     applyMixins(base, ShapeEntity);
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
+}
+
+export interface BoxFromAabbOptions {
+  /** Origin expressed in the same coordinates as the AABB. */
+  origin?: IVector3;
 }
 
 export interface CapsuleFromAabbOptions {

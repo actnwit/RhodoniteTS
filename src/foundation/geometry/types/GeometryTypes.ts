@@ -1,5 +1,6 @@
 import type { MeshComponent, Primitive } from '../../../import';
 import type { MeshUID } from '../../../types/CommonTypes';
+import type { RaymarchingComponent } from '../../components/Raymarching/RaymarchingComponent';
 import type { IVector3 } from '../../math/IVector';
 
 /**
@@ -28,7 +29,8 @@ export interface RaycastResultEx1 {
 }
 
 /**
- * Extended raycast result that includes the intersection position and the selected mesh component.
+ * Extended raycast result that includes the intersection position and the selected component.
+ * Exactly one of selectedMeshComponent and selectedRaymarchingComponent is set when result is true.
  */
 export interface RaycastResultEx2 {
   result: boolean;
@@ -37,7 +39,8 @@ export interface RaycastResultEx2 {
     u: number; // intersected position in the triangle
     v: number; // intersected position in the triangle
     position: IVector3; // position must be set valid value if result is true
-    selectedMeshComponent: MeshComponent;
+    selectedMeshComponent?: MeshComponent;
+    selectedRaymarchingComponent?: RaymarchingComponent;
   };
 }
 
