@@ -1,6 +1,7 @@
 import type { ICameraEntityMethods } from '../../components/Camera/ICameraEntity';
 import type { ILightEntityMethods } from '../../components/Light/ILightEntity';
 import { LightComponent } from '../../components/Light/LightComponent';
+import { RaymarchingComponent } from '../../components/Raymarching/RaymarchingComponent';
 import { TransformComponent } from '../../components/Transform';
 import { ComponentType } from '../../definitions/ComponentType';
 import { LightType, type LightTypeEnum } from '../../definitions/LightType';
@@ -144,7 +145,7 @@ export class ShadowSystem {
       }
 
       if (lightComponent.type === LightType.Point) {
-        const farPlane = this.__getPointLightFarPlane(lightComponent);
+        const farPlane = this.__getPointLightFarPlane(lightComponent, entities);
         const shadowMapExpression = new Expression();
         shadowMapExpression.addRenderPasses(
           this.__pointShadowMap.getRenderPasses(
@@ -373,14 +374,20 @@ export class ShadowSystem {
   /**
    * Returns the far plane used to normalize the paraboloid shadow map of a point light.
    *
-   * The far plane is the effective range of the light: the range bounds the shadow volume,
-   * so it keeps the cleared background depth (1.0) close to the shadow casters. With the
-   * legacy unlimited far plane of 1000, the Gaussian blur mixes the far background into the
+   * The priority is the explicit `pointLightShadowFarPlane`, the effective range of the
+   * light, its automatic range, and finally the farthest shadow receiver in the scene.
+   * A finite far plane keeps the cleared background depth close to the casters; with the
+   * legacy unlimited far plane of 1000 the Gaussian blur mixes the far background into the
    * moments and the shadows of scenes much smaller than 1000 units disappear.
    *
    * @param lightComponent - The point light component
+   * @param entities - The entities in the scene (used for the automatic far plane)
    */
-  private __getPointLightFarPlane(lightComponent: LightComponent) {
+  private __getPointLightFarPlane(lightComponent: LightComponent, entities: ISceneGraphEntity[]) {
+    const explicitFarPlane = lightComponent.pointLightShadowFarPlane;
+    if (explicitFarPlane > 0) {
+      return explicitFarPlane;
+    }
     const effectiveRange = lightComponent._lightPropertyForGpu._v[1];
     if (effectiveRange > 0) {
       return effectiveRange;
@@ -395,7 +402,124 @@ export class ShadowSystem {
       const maxIntensity = Math.max(color.x, color.y, color.z) * lightComponent.intensity;
       return Math.max(Math.sqrt(Math.max(maxIntensity, 0) / threshold), 1e-6);
     }
-    return 1000;
+    return this.__getSceneFarPlaneForPointLight(lightComponent, entities);
+  }
+
+  /**
+   * Returns a far plane that covers every shadow receiver of an unlimited point light.
+   *
+   * The farthest corner of the merged AABBs is used so that receivers at the far side of
+   * an object are still inside the shadow map. Background assets and light gizmos are
+   * ignored. When the scene has no receiver, the legacy value is kept.
+   *
+   * @param lightComponent - The point light component
+   * @param entities - The entities in the scene
+   * @private
+   */
+  private __getSceneFarPlaneForPointLight(lightComponent: LightComponent, entities: ISceneGraphEntity[]): number {
+    const lightPositionArray = lightComponent._lightPositionForGpu._v;
+    const lightPosition = {
+      x: lightPositionArray[0],
+      y: lightPositionArray[1],
+      z: lightPositionArray[2],
+    };
+    let farthestDistanceSquared = 0;
+    const receivers = entities.filter(
+      entity => ShadowSystem.__isShadowCaster(entity) && !ShadowSystem.__isLightEntity(entity)
+    );
+    for (const entity of receivers) {
+      const sceneGraph = entity.getSceneGraph();
+      const aabb = sceneGraph.worldMergedAABB;
+      if (aabb != null && !aabb.isVanilla()) {
+        const min = aabb.minPoint;
+        const max = aabb.maxPoint;
+        const dx = Math.max(Math.abs(lightPosition.x - min.x), Math.abs(lightPosition.x - max.x));
+        const dy = Math.max(Math.abs(lightPosition.y - min.y), Math.abs(lightPosition.y - max.y));
+        const dz = Math.max(Math.abs(lightPosition.z - min.z), Math.abs(lightPosition.z - max.z));
+        farthestDistanceSquared = Math.max(farthestDistanceSquared, dx * dx + dy * dy + dz * dz);
+      } else {
+        const position = sceneGraph.worldPosition;
+        const dx = position.x - lightPosition.x;
+        const dy = position.y - lightPosition.y;
+        const dz = position.z - lightPosition.z;
+        farthestDistanceSquared = Math.max(farthestDistanceSquared, dx * dx + dy * dy + dz * dz);
+      }
+    }
+
+    // Raymarching receivers are not in the render expressions' entity list.
+    const raymarchingComponents = this.__engine.componentRepository.getComponentsWithType(
+      RaymarchingComponent
+    ) as RaymarchingComponent[];
+    for (const raymarchingComponent of raymarchingComponents) {
+      const aabb = raymarchingComponent.calcWorldAABB();
+      if (aabb == null || aabb.isVanilla()) {
+        continue;
+      }
+      const min = aabb.minPoint;
+      const max = aabb.maxPoint;
+      const dx = Math.max(Math.abs(lightPosition.x - min.x), Math.abs(lightPosition.x - max.x));
+      const dy = Math.max(Math.abs(lightPosition.y - min.y), Math.abs(lightPosition.y - max.y));
+      const dz = Math.max(Math.abs(lightPosition.z - min.z), Math.abs(lightPosition.z - max.z));
+      farthestDistanceSquared = Math.max(farthestDistanceSquared, dx * dx + dy * dy + dz * dz);
+    }
+
+    if (farthestDistanceSquared <= 0) {
+      return 1000;
+    }
+    // A small margin keeps the farthest receiver inside the shadow map.
+    return Math.sqrt(farthestDistanceSquared) * 1.05 + 0.1;
+  }
+
+  /**
+   * Updates the per-slot far planes of the point light shadow maps when they change.
+   * Calling this every frame keeps the automatic far plane in sync with moving lights,
+   * casters and receivers without rebuilding the shadow expressions.
+   *
+   * @param entities - The entities in the scene
+   * @param additionalMaterials - Materials that are not reached through the entities
+   *   (for example the raymarching material)
+   */
+  public updatePointLightFarPlanes(entities: ISceneGraphEntity[], additionalMaterials: readonly Material[] = []) {
+    if (this.__engine.config.maxLightNumber <= 0) {
+      return;
+    }
+    const lightComponents = this.__engine.componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
+    const pointLights = lightComponents.filter(
+      lightComponent =>
+        lightComponent.type === LightType.Point &&
+        lightComponent.enable &&
+        lightComponent.castShadow &&
+        lightComponent._shadowSlot >= 0
+    );
+    if (pointLights.length === 0) {
+      return;
+    }
+
+    const maxLightNumber = this.__engine.config.maxLightNumber;
+    const newList: number[] = new Array(maxLightNumber).fill(1000);
+    for (const lightComponent of pointLights) {
+      newList[lightComponent._shadowSlot] = this.__getPointLightFarPlane(lightComponent, entities);
+    }
+
+    let changed = this.__pointLightFarPlaneList.length !== maxLightNumber;
+    if (!changed) {
+      for (let i = 0; i < maxLightNumber; i++) {
+        if (Math.abs(newList[i] - this.__pointLightFarPlaneList[i]) > 1e-4) {
+          changed = true;
+          break;
+        }
+      }
+    }
+    if (!changed) {
+      return;
+    }
+
+    for (const lightComponent of pointLights) {
+      const shadowSlot = lightComponent._shadowSlot;
+      this.__pointShadowMap.setFarPlane(shadowSlot, newList[shadowSlot]);
+    }
+    this.__pointLightFarPlaneList = newList;
+    this.__setPointLightFarPlaneList(entities, newList, additionalMaterials);
   }
 
   /**
@@ -530,6 +654,7 @@ export class ShadowSystem {
     // Note: This does not move the light; it only adjusts shadowAreaSizeForDirectionalLight and range.
     this.__autoFitDirectionalLightShadowVolume(entities);
     this.__updateSpotLightShadowZNear(entities);
+    this.updatePointLightFarPlanes(entities, additionalMaterials);
 
     // This runs every frame, so the arrays and the VectorN are reused. setParameter() copies the
     // values into the material's own variable, so sharing one VectorN between materials is safe.
@@ -793,18 +918,6 @@ export class ShadowSystem {
         this.__lightSids[i] !== lightComponent.componentSID
       ) {
         return true;
-      }
-      // A changed range changes the far plane of the paraboloid shadow map of a point light,
-      // which is baked into the shadow map render passes and the receiving materials.
-      if (lightComponent.type === LightType.Point && this.__pointLightFarPlaneList.length > 0) {
-        const shadowSlot = lightComponent._shadowSlot;
-        if (
-          shadowSlot >= 0 &&
-          shadowSlot < this.__pointLightFarPlaneList.length &&
-          Math.abs(this.__pointLightFarPlaneList[shadowSlot] - this.__getPointLightFarPlane(lightComponent)) > 1e-6
-        ) {
-          return true;
-        }
       }
     }
     return false;

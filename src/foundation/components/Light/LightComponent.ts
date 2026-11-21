@@ -42,6 +42,7 @@ export class LightComponent extends Component {
   private __shadowZNearForDirectionalLight = 0.1;
   private __shadowZNearForSpotLight = 0.1;
   private __isShadowZNearForSpotLightAuto = true;
+  private __pointLightShadowFarPlane = -1;
   private __shadowCameraOffsetForDirectionalLight = Vector3.zero();
   public castShadow = false;
   private _lightPosition = MutableVector4.dummy();
@@ -331,6 +332,30 @@ export class LightComponent extends Component {
    */
   get shadowZNearForSpotLight(): number {
     return this.__shadowZNearForSpotLight;
+  }
+
+  /**
+   * Sets the far plane of the paraboloid shadow map of this PointLight.
+   *
+   * @remarks
+   * The far plane normalizes the stored depth. A smaller value keeps the blurred
+   * background out of the shadow moments, but receivers farther than the far plane
+   * cannot be shaded correctly. -1 (the default) fits it automatically: the light's
+   * effective range when available, otherwise the farthest shadow receiver in the scene.
+   * Updating this property increments updateCount.
+   */
+  set pointLightShadowFarPlane(value: number) {
+    if (this.__pointLightShadowFarPlane !== value) {
+      this.__pointLightShadowFarPlane = value;
+      this.__markUpdated();
+    }
+  }
+
+  /**
+   * Gets the explicit far plane of the PointLight shadow map (-1: automatic).
+   */
+  get pointLightShadowFarPlane(): number {
+    return this.__pointLightShadowFarPlane;
   }
 
   /**

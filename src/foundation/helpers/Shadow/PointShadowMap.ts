@@ -47,6 +47,18 @@ export class PointShadowMap {
   }
 
   /**
+   * Updates the far plane of the paraboloid depth encoding for a shadow slot.
+   * The receiving materials must use the same value in their `pointLightFarPlane` entry.
+   *
+   * @param shadowSlot - The shadow slot of the light
+   * @param farPlane - The new far plane
+   */
+  public setFarPlane(shadowSlot: number, farPlane: number) {
+    this.__shadowMomentFrontMaterials[shadowSlot]?.setParameter('farPlane', farPlane);
+    this.__shadowMomentBackMaterials[shadowSlot]?.setParameter('farPlane', farPlane);
+  }
+
+  /**
    * Generates render passes for creating shadow maps from a point light source.
    * Creates two render passes: one for the front hemisphere and one for the back hemisphere
    * of the paraboloid shadow mapping technique.
