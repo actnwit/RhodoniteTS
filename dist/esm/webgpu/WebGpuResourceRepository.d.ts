@@ -21,6 +21,7 @@ import type { Count, Index, Size, TypedArray, WebGLResourceHandle, WebGPUResourc
 import type { TextureData, VertexHandles } from '../webgl/WebGLResourceRepository';
 import { type WebGpuBufferRange } from './WebGpuBufferArena';
 import type { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
+import { WebGpuGpuCulling } from './WebGpuGpuCulling';
 import { WebGpuGpuTimer } from './WebGpuGpuTimer';
 export type WebGpuResource = GPUTexture | GPUBuffer | GPUSampler | GPUTextureView | GPUBufferBinding | GPURenderPipeline | GPUComputePipeline | GPUBindGroupLayout | GPUBindGroup | GPUShaderModule | GPUCommandEncoder | GPUComputePassEncoder | GPURenderPassEncoder | GPUComputePipeline | GPURenderPipeline | GPUQuerySet | object;
 /**
@@ -45,6 +46,8 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     private __storageBindGroupBuffers;
     /** Bound to the blend shape slot of group 0 when there is no blend shape buffer. */
     private __dummyBlendShapeBuffer?;
+    /** Bound at group 0, binding 4 while the GPU culling (and its deformed vertex buffer) does not exist. */
+    private __dummyDeformedVerticesBuffer?;
     private __webGpuRenderPipelineMap;
     private __materialStateVersionMap;
     private __bindGroupLayoutCache;
@@ -63,7 +66,11 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     private __drawParametersBuffers;
     private __drawParametersEntryCountInLastBuffer;
     private static readonly __drawParametersEntriesPerBuffer;
+    /** The byte size of UniformDrawParameters (prerequisites.wgsl). */
+    private static readonly __drawParametersByteSize;
     private static __drawParametersValues;
+    /** The arguments of the last setDrawParameters() call (without the deformed vertex offset). */
+    private __lastDrawParameters;
     private __bindGroupLayoutUniformDrawParameters?;
     /** The group 3 bind group selected by setDrawParameters() for the next draw(). */
     private __currentDrawParametersBindGroup?;
@@ -92,6 +99,17 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     /** Cached `gpuDevice.queue` ([SameObject]), read on every frame by flush(). */
     private __gpuQueue?;
     private __renderBundles;
+    /**
+     * The GPU frustum culling of the instances (Config.isGpuCullingEnabled), created on first use. Its allocations
+     * are owned by the render bundles in `__renderBundles`, so every change of that map is reported to it
+     * (see __clearRenderBundleCache).
+     */
+    private __gpuCulling?;
+    /** Set when the GPU culling recreated its buffers: the render bundles binding them were dropped. */
+    private __isGpuCullingResetPending;
+    private __lastIsGpuCullingEnabled?;
+    private __lastIsComputeSkinningEnabled?;
+    private __lastIsFrustumCullingEnabled?;
     /** Fragment module of the depth prepass pipelines (it writes nothing; the color targets use writeMask 0). */
     private __depthOnlyFragmentModule?;
     private __renderBundleEncoder?;
@@ -486,6 +504,31 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
         allowEqualDepth?: boolean;
     }): void;
     /**
+     * Registers the draw of a primitive for GPU culling when it applies, so that it is recorded as an indirect draw.
+     * The condition must match the one of the CPU culling (MeshRendererComponent.__cullingWithViewFrustum), which
+     * keeps the primitives of such meshes in the render list regardless of their visibility.
+     *
+     * @returns The indirect draw, or undefined to draw every instance directly (GPU culling disabled, not applicable,
+     *   or its tables are full for this frame)
+     */
+    private __registerGpuCulledDraw;
+    /**
+     * Notifies the GPU culling that the GPU instance data (transforms, visibility, cameras) was uploaded, so the
+     * culling runs again in this frame.
+     * @internal
+     */
+    _markGpuCullingInputsDirty(): void;
+    /**
+     * The GPU culling of the instances, if it was created (for tests and statistics).
+     * @internal
+     */
+    _getGpuCulling(): WebGpuGpuCulling | undefined;
+    /**
+     * Releases the GPU culling resources. The render bundles recording culled draws are dropped with them.
+     * @internal
+     */
+    _destroyGpuCulling(): void;
+    /**
      * Creates a render bundle encoder for efficient rendering.
      * Render bundles allow pre-recording of rendering commands for better performance.
      *
@@ -575,6 +618,15 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
      * Begins a new render pass encoder for the render pass. The caller must have ended any open encoder.
      */
     private __beginRenderPassEncoder;
+    /**
+     * Drops every cached render bundle. The GPU culling allocations of the dropped bundles are released after the
+     * frame (a dropped bundle may already have been executed in it).
+     */
+    private __clearRenderBundleCache;
+    /**
+     * Caches a recorded render bundle, or drops the cache when caching is disabled.
+     */
+    private __cacheRenderBundle;
     private __toClearRenderBundles;
     renderWithRenderBundle(engine: Engine, renderPass: RenderPass, displayIdx: number): boolean;
     renderWithRenderBundleAndKeepRenderPass(engine: Engine, renderPass: RenderPass, displayIdx: number): GPURenderPassEncoder | undefined;
@@ -685,8 +737,14 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
      * @param cameraSID - The camera component SID
      * @param currentPrimitiveIdx - The index of the primitive among the primitives with morph targets
      * @param morphTargetNumber - The number of morph targets of the primitive
+     * @param deformedVertexOffset - The offset of the primitive in the deformed vertices of its mesh instance (see
+     *   processGeometry), for a draw of the vertices deformed by the GPU culling's compute shader
      */
-    setDrawParameters(materialSid: Index, cameraSID: Index, currentPrimitiveIdx: Index, morphTargetNumber: Count): void;
+    setDrawParameters(materialSid: Index, cameraSID: Index, currentPrimitiveIdx: Index, morphTargetNumber: Count, deformedVertexOffset?: Index): void;
+    /**
+     * Selects the draw parameters of the last setDrawParameters() call with another deformed vertex offset.
+     */
+    private __selectDeformedVertexOffset;
     createUniformMorphOffsetsBuffer(sizeInByte: Count): number;
     updateUniformMorphOffsetsBuffer(inputArray: Uint32Array, elementNum: Count): void;
     createUniformMorphWeightsBuffer(sizeInByte: Count): number;
@@ -706,7 +764,11 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
      */
     private __getDummyTextureView;
     /**
-     * Returns the group 0 bind group (storage buffer, blend shape buffer and morph uniform buffers).
+     * The buffer bound at group 0, binding 4: the vertices deformed by the GPU culling, or a dummy buffer without it.
+     */
+    private __getDeformedVerticesBuffer;
+    /**
+     * Returns the group 0 bind group (storage buffer, blend shape buffer, morph uniform buffers, deformed vertices).
      * It is recreated only when one of those buffers is replaced.
      */
     private __getStorageBindGroup;

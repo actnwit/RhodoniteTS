@@ -181,6 +181,9 @@ export declare class MeshRendererComponent extends Component {
      * @param outPrimitives - Reusable output array. It is cleared and filled with the primitives that passed culling
      * @param scratch - The scratch of the render pass. The entities culled in this pass are stamped into it
      *                  so that instanced draw calls can skip their instances
+     * @param isGpuCullingActive - Whether the render pass culls on the GPU (see `_isGpuCullingActive`). The primitives
+     *                  of the meshes culled on the GPU are kept regardless of their visibility, so that the render
+     *                  list (and the WebGPU render bundles) does not change when the camera moves
      * @returns The `outPrimitives` array (same reference) for convenience
      */
     private static __cullingWithViewFrustum;
@@ -192,14 +195,45 @@ export declare class MeshRendererComponent extends Component {
      * the original model, while its shallow copies are drawn through instancing. Such sibling instances are
      * culled with the camera of this render pass as well, once per mesh. Their visibility flags are left
      * untouched because they belong to the render passes the entities are registered in.
+     *
+     * The meshes culled on the GPU (`isGpuCullingActive` and `Mesh._isGpuCullable`) are skipped: their instances,
+     * siblings included, are culled per instance by the culling compute pass, so testing them here would only cost
+     * CPU time.
      */
     private static __cullSiblingInstances;
+    /**
+     * Remembers a culled mesh component whose mesh is shared by other instances: an instanced draw call renders
+     * every instance of the mesh, so the mesh must still be drawn when another instance is visible.
+     */
+    private static __deferCulledInstancedMesh;
+    private static __markMeshAppended;
+    /**
+     * Appends the primitives of the instanced meshes whose registered instances were all culled but which have
+     * another instance that was not culled.
+     *
+     * The culling is decided per entity registered in the render pass, while an instanced draw call renders every
+     * entity sharing the mesh (e.g. a template entity registered in the render pass and its shallow copies). Dropping
+     * the mesh because its registered entity is outside of the view would also drop its visible copies. The culled
+     * entities stay stamped in `culledEntityStamp`, so the per-instance culling of the WebGL strategy does not draw
+     * them; the WebGPU strategy without GPU culling draws every instance (the hidden ones are collapsed by the vertex
+     * shader and the culled ones are outside of the view).
+     *
+     * Must run after `__cullSiblingInstances`, which stamps the culled instances that are not registered in the pass.
+     */
+    private static __appendPrimitivesOfCulledInstancedMeshes;
     private static __stampCulledEntity;
     /**
      * Writes `cullTick` into `stamp[entityUID]`, growing the array up to the largest EntityUID seen so far.
      * @returns The stamp array, which is a new array when it has grown
      */
     private static __stampEntity;
+    /**
+     * Whether the meshes of a render pass are frustum culled on the GPU (WebGPU, `Config.isGpuCullingEnabled`).
+     * The CPU culling and the WebGPU draw recording both use this, so that a mesh the CPU keeps for the GPU is
+     * recorded as a culled indirect draw. Meshes whose `Mesh._isGpuCullable` is false keep the CPU culling.
+     * @internal
+     */
+    static _isGpuCullingActive(engine: Engine, renderPass: RenderPass): boolean;
     /**
      * Gets the latest culling result of a render pass for per-instance culling of instanced draw calls.
      * The result stays valid while `sort_$render` reuses its cached primitive list for the render pass.

@@ -32,6 +32,17 @@ export declare class Mesh implements IMesh {
     private __variationEntityInfo?;
     /** EntityUIDs of the instances stored in `__variationEntityInfo`. */
     private __variationEntityUIDs?;
+    /** Whether the mesh has instances (see `_isGpuCullable`). */
+    private __hasInstances;
+    /** Whether an instance has a skeletal component (see `_needsComputeDeformation`). */
+    private __hasSkeletalInstance;
+    /** Whether an instance has a blend shape component (see `_needsComputeDeformation`). */
+    private __hasBlendShapeInstance;
+    /** Cache of `_isComputeDeformable`, valid for the primitive count, position update count and skeletal flag below. */
+    private __isComputeDeformable;
+    private __computeDeformablePrimitiveCount;
+    private __computeDeformablePositionUpdateCount;
+    private __computeDeformableHasSkeletal;
     /** Mirror of the current content of the variation VBO (WebGL). */
     private __variationVBOContent?;
     /** Scratch buffer to pack the instance variation data of the visible instances. */
@@ -75,6 +86,14 @@ export declare class Mesh implements IMesh {
     private static __tmpReturnVec3_1;
     private static __tmpReturnVec3_2;
     private __primitivePositionUpdateCount;
+    /** Incremented when the primitive positions of any mesh are updated. */
+    private static __primitivePositionUpdateVersion;
+    /**
+     * A version incremented whenever the primitive positions of any mesh are updated (see
+     * `primitivePositionUpdateCount`), so that caches of the local bounding boxes can be revalidated cheaply.
+     * @internal
+     */
+    static get _primitivePositionUpdateVersion(): number;
     /**
      * Constructor
      */
@@ -247,6 +266,35 @@ export declare class Mesh implements IMesh {
      * @internal
      */
     get _variationVBOUid(): CGAPIResourceHandle;
+    /**
+     * The instance variation data of the instances, as written to the variation VBO by `updateVariationVBO`:
+     * `[sceneGraphSID, skeletalSID, blendShapeSID, 0]` per instance, in the order of `meshEntitiesInner`.
+     * @internal
+     */
+    get _variationEntityInfo(): Uint32Array | undefined;
+    /**
+     * Whether the instances of this mesh can be culled on the GPU (WebGPU GPU culling).
+     * The bounding boxes of the deformed instances (skinning, blend shapes) depend on the deformation: they are culled on
+     * the GPU only when their vertices are deformed by the compute shader (`Config.isComputeSkinningEnabled` and
+     * `_isComputeDeformable`), which computes their bounding boxes. Otherwise they are culled on the CPU.
+     * Updated by `updateVariationVBO`.
+     * @internal
+     */
+    get _isGpuCullable(): boolean;
+    /**
+     * Whether the vertices of the instances are deformed when drawn: an instance has a skeletal component, or a blend
+     * shape component while a primitive has morph targets. Updated by `updateVariationVBO`.
+     * @internal
+     */
+    get _needsComputeDeformation(): boolean;
+    /**
+     * Whether the compute shader of the WebGPU GPU culling can deform the vertices of this mesh like the vertex shaders
+     * do (processGeometry): every primitive has a POSITION attribute, plus JOINTS_0 and WEIGHTS_0 when an instance is
+     * skinned, and every morph target has a POSITION attribute.
+     * @internal
+     */
+    get _isComputeDeformable(): boolean;
+    private __checkComputeDeformable;
     /**
      * Called when primitive position data is updated.
      * Updates the position update counter and moves related entities to Load stage.

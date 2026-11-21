@@ -22,6 +22,8 @@ type ConfigInitDescription = {
     logLevel?: LogLevel;
     isMultiDrawEnabled?: boolean;
     isDepthPrepassEnabled?: boolean;
+    isGpuCullingEnabled?: boolean;
+    isComputeSkinningEnabled?: boolean;
     isClusteredForwardEnabled?: boolean;
     clusteredForwardBuildMode?: ClusteredForwardBuildMode;
     clusteredForwardGridSize?: [number, number, number];
@@ -269,6 +271,35 @@ export declare class Config {
      * extra geometry pass hurts scenes with little overdraw or heavy vertex shaders.
      */
     isDepthPrepassEnabled: boolean;
+    /**
+     * Whether to cull the instances against the view frustum on the GPU (WebGPU only).
+     *
+     * @remarks
+     * Each frame, one compute pass tests the instances of the drawn meshes against the frustum of the render pass camera
+     * and writes the visible instances and their count for indirect draws (`drawIndexedIndirect`). The render bundles
+     * record the indirect draws, so they no longer have to be re-recorded when the camera moves and the set of visible
+     * objects changes, and the instances of an instanced mesh are culled one by one.
+     *
+     * Meshes with skinning or blend shapes are culled on the GPU too when `isComputeSkinningEnabled` is true (their
+     * vertices are deformed by a compute shader, which also computes their bounding boxes); otherwise they keep the CPU
+     * frustum culling. A culled mesh still records its (zero-instance) draw, so its pipeline and bind groups are still set.
+     * The WebGL2 backend ignores this option. `MeshRendererComponent._isFrustumCullingEnabled = false` disables both
+     * the CPU and the GPU culling.
+     */
+    isGpuCullingEnabled: boolean;
+    /**
+     * Whether to deform (morph, then skin) the vertices of the meshes with skinning or blend shapes in a compute shader
+     * (WebGPU only, used with `isGpuCullingEnabled`).
+     *
+     * @remarks
+     * Once per frame, a compute pass applies the blend shapes and the skinning to the vertices of each instance of such
+     * meshes and computes the bounding box of each deformed instance. The vertex shaders read the deformed vertices
+     * instead of deforming them in every render pass (e.g. the shadow and depth prepasses), and the GPU frustum culling
+     * tests the deformed bounding boxes, so these meshes are culled per instance on the GPU like the other meshes.
+     * The draws that are not GPU culled (e.g. when the culling tables are full or for a multi-view pass) keep the
+     * vertex shader deformation.
+     */
+    isComputeSkinningEnabled: boolean;
     constructor(initDescription?: ConfigInitDescription);
 }
 export {};
