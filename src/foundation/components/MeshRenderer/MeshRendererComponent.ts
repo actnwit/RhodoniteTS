@@ -64,6 +64,13 @@ type MeshRendererSortScratch = {
   keyedPrimitives: { primitive: Primitive | null; keyId: number; index: number }[];
   /** Whether the latest sort ran with GPU culling active (see `_isGpuCullingActive`); undefined before the first. */
   isGpuCullingActive: boolean | undefined;
+  /**
+   * The culled mesh components of the latest culling whose mesh is shared by other instances. Their primitives are
+   * still drawn when another instance of the mesh is visible (see `__appendPrimitivesOfCulledInstancedMeshes`).
+   */
+  culledInstancedMeshComponents: MeshComponent[];
+  /** Per-mesh stamp; the primitives of the mesh were appended by the latest culling while it equals `cullTick`. */
+  meshAppendTick: WeakMap<object, number>;
 };
 
 /**
@@ -574,10 +581,13 @@ export class MeshRendererComponent extends Component {
       scratch.culledEntityStamp.fill(0);
       scratch.handledEntityStamp.fill(0);
       scratch.meshCullTick = new WeakMap();
+      scratch.meshAppendTick = new WeakMap();
       cullTick = 1;
     }
     scratch.cullTick = cullTick;
     scratch.culledEntityCount = 0;
+    const culledInstancedMeshComponents = scratch.culledInstancedMeshComponents;
+    culledInstancedMeshComponents.length = 0;
     scratch.cullingId = ++MeshRendererComponent.__cullingIdCounter;
 
     // A single pass over the mesh components: cull, update visibility flags and
@@ -605,10 +615,12 @@ export class MeshRendererComponent extends Component {
         // Culled per instance on the GPU, including the visibility flag (WebGpuGpuCulling).
         sceneGraph._isCulled = false;
         MeshRendererComponent.__appendPrimitivesOfMeshComponent(meshComponent, cameraComponent, outPrimitives);
+        MeshRendererComponent.__markMeshAppended(meshComponent, scratch, cullTick);
         continue;
       }
       if (!sceneGraph.isVisible) {
         MeshRendererComponent.__stampCulledEntity(scratch, meshComponent.entityUID, cullTick);
+        MeshRendererComponent.__deferCulledInstancedMesh(meshComponent, scratch);
         continue;
       }
 
@@ -622,14 +634,17 @@ export class MeshRendererComponent extends Component {
         }
         if (!visible) {
           MeshRendererComponent.__stampCulledEntity(scratch, meshComponent.entityUID, cullTick);
+          MeshRendererComponent.__deferCulledInstancedMesh(meshComponent, scratch);
           continue;
         }
       }
 
       MeshRendererComponent.__appendPrimitivesOfMeshComponent(meshComponent, cameraComponent, outPrimitives);
+      MeshRendererComponent.__markMeshAppended(meshComponent, scratch, cullTick);
     }
 
     MeshRendererComponent.__cullSiblingInstances(meshComponents, frustum, scratch, cullTick, isGpuCullingActive);
+    MeshRendererComponent.__appendPrimitivesOfCulledInstancedMeshes(cameraComponent, outPrimitives, scratch, cullTick);
 
     return outPrimitives;
   }
@@ -687,6 +702,69 @@ export class MeshRendererComponent extends Component {
         }
       }
     }
+  }
+
+  /**
+   * Remembers a culled mesh component whose mesh is shared by other instances: an instanced draw call renders
+   * every instance of the mesh, so the mesh must still be drawn when another instance is visible.
+   */
+  private static __deferCulledInstancedMesh(meshComponent: MeshComponent, scratch: MeshRendererSortScratch) {
+    const mesh = meshComponent.mesh;
+    if (mesh !== undefined && mesh.meshEntitiesInner.length > 1) {
+      scratch.culledInstancedMeshComponents.push(meshComponent);
+    }
+  }
+
+  private static __markMeshAppended(meshComponent: MeshComponent, scratch: MeshRendererSortScratch, cullTick: number) {
+    const mesh = meshComponent.mesh;
+    if (mesh !== undefined) {
+      scratch.meshAppendTick.set(mesh, cullTick);
+    }
+  }
+
+  /**
+   * Appends the primitives of the instanced meshes whose registered instances were all culled but which have
+   * another instance that was not culled.
+   *
+   * The culling is decided per entity registered in the render pass, while an instanced draw call renders every
+   * entity sharing the mesh (e.g. a template entity registered in the render pass and its shallow copies). Dropping
+   * the mesh because its registered entity is outside of the view would also drop its visible copies. The culled
+   * entities stay stamped in `culledEntityStamp`, so the per-instance culling of the WebGL strategy does not draw
+   * them; the WebGPU strategy without GPU culling draws every instance (the hidden ones are collapsed by the vertex
+   * shader and the culled ones are outside of the view).
+   *
+   * Must run after `__cullSiblingInstances`, which stamps the culled instances that are not registered in the pass.
+   */
+  private static __appendPrimitivesOfCulledInstancedMeshes(
+    cameraComponent: CameraComponent,
+    outPrimitives: Primitive[],
+    scratch: MeshRendererSortScratch,
+    cullTick: number
+  ) {
+    const meshComponents = scratch.culledInstancedMeshComponents;
+    const culledEntityStamp = scratch.culledEntityStamp;
+    for (let i = 0; i < meshComponents.length; i++) {
+      const meshComponent = meshComponents[i];
+      const mesh = meshComponent.mesh;
+      if (mesh === undefined || scratch.meshAppendTick.get(mesh) === cullTick) {
+        continue;
+      }
+      // Decided once per mesh, whether or not it is drawn.
+      scratch.meshAppendTick.set(mesh, cullTick);
+      const instances = mesh.meshEntitiesInner;
+      let hasVisibleInstance = false;
+      for (let j = 0; j < instances.length; j++) {
+        const entityUID = instances[j].entityUID;
+        if (entityUID >= culledEntityStamp.length || culledEntityStamp[entityUID] !== cullTick) {
+          hasVisibleInstance = true;
+          break;
+        }
+      }
+      if (hasVisibleInstance) {
+        MeshRendererComponent.__appendPrimitivesOfMeshComponent(meshComponent, cameraComponent, outPrimitives);
+      }
+    }
+    meshComponents.length = 0;
   }
 
   private static __stampCulledEntity(scratch: MeshRendererSortScratch, entityUID: EntityUID, cullTick: number) {
@@ -860,6 +938,8 @@ export class MeshRendererComponent extends Component {
         cullingId: 0,
         keyedPrimitives: [],
         isGpuCullingActive: undefined,
+        culledInstancedMeshComponents: [],
+        meshAppendTick: new WeakMap(),
       };
       MeshRendererComponent.__sortScratchMap.set(renderPass, scratch);
     }

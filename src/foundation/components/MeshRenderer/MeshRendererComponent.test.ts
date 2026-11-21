@@ -168,3 +168,50 @@ describe('MeshRendererComponent.__cullSiblingInstances', () => {
     expect(scratch.culledEntityCount).toBe(2);
   });
 });
+
+describe('MeshRendererComponent.__appendPrimitivesOfCulledInstancedMeshes', () => {
+  function setUp(culledEntityUIDs: number[]) {
+    const primitives = [createPrimitive(10), createPrimitive(11)];
+    const instances = [1, 2, 3].map(entityUID => ({ entityUID }));
+    const mesh = { meshEntitiesInner: instances, primitives };
+    const meshComponent = { _isAlive: true, mesh, entityUID: 1 };
+    const scratch = {
+      culledEntityStamp: new Uint32Array(8),
+      culledInstancedMeshComponents: [meshComponent],
+      meshAppendTick: new WeakMap(),
+    };
+    for (const entityUID of culledEntityUIDs) {
+      scratch.culledEntityStamp[entityUID] = 1;
+    }
+    return { mesh, scratch };
+  }
+
+  test('draws the mesh when an instance other than the culled registered one is visible', () => {
+    const { scratch } = setUp([1, 3]);
+    const outPrimitives: unknown[] = [];
+
+    helpers.__appendPrimitivesOfCulledInstancedMeshes(undefined, outPrimitives, scratch, 1);
+
+    expect(collectUids(outPrimitives)).toEqual([10, 11]);
+    expect(scratch.culledInstancedMeshComponents.length).toBe(0);
+  });
+
+  test('drops the mesh when every instance is culled', () => {
+    const { scratch } = setUp([1, 2, 3]);
+    const outPrimitives: unknown[] = [];
+
+    helpers.__appendPrimitivesOfCulledInstancedMeshes(undefined, outPrimitives, scratch, 1);
+
+    expect(outPrimitives.length).toBe(0);
+  });
+
+  test('does not append a mesh whose primitives were already appended by a visible registered instance', () => {
+    const { mesh, scratch } = setUp([1]);
+    scratch.meshAppendTick.set(mesh, 1);
+    const outPrimitives: unknown[] = [];
+
+    helpers.__appendPrimitivesOfCulledInstancedMeshes(undefined, outPrimitives, scratch, 1);
+
+    expect(outPrimitives.length).toBe(0);
+  });
+});
