@@ -74,7 +74,12 @@ fn main(
 
   #ifdef RN_MTOON_IS_OUTLINE
     #ifdef RN_MTOON_HAS_OUTLINE_WIDTH_TEXTURE
-      let outlineTex = textureSampleLevel(outlineWidthTexture, outlineWidthSampler, texcoord_0, 0.0).r;
+      #ifdef RN_USE_TEXCOORD_0
+        let outlineTex = textureSampleLevel(outlineWidthTexture, outlineWidthSampler, texcoord_0, 0.0).r;
+      #else
+        // Without TEXCOORD_0 the texture cannot be sampled, so the multiplier is the default (1.0).
+        let outlineTex = 1.0;
+      #endif
     #else
       let outlineTex = 1.0;
     #endif
@@ -111,7 +116,9 @@ fn main(
     output.bitangent_inWorld = cross(output.normal_inWorld, output.tangent_inWorld) * tangent.w;
   #endif
 
-  output.texcoord_0 = texcoord_0;
+  #ifdef RN_USE_TEXCOORD_0
+    output.texcoord_0 = texcoord_0;
+  #endif
   output.baryCentricCoord = baryCentricCoord.xyz;
 
   return output;
