@@ -388,21 +388,20 @@ export class ShadowSystem {
     if (explicitFarPlane > 0) {
       return explicitFarPlane;
     }
-    const effectiveRange = lightComponent._lightPropertyForGpu._v[1];
-    if (effectiveRange > 0) {
-      return effectiveRange;
-    }
     if (lightComponent.range > 0) {
       return lightComponent.range;
     }
-    // The light logic has not run yet (or the light is unlimited): derive the automatic range here.
-    const threshold = this.__engine.config.lightAutoRangeThreshold;
-    if (threshold > 0) {
-      const color = lightComponent.color;
-      const maxIntensity = Math.max(color.x, color.y, color.z) * lightComponent.intensity;
-      return Math.max(Math.sqrt(Math.max(maxIntensity, 0) / threshold), 1e-6);
+    // The effective range includes the automatic range (Config.lightAutoRangeThreshold) and
+    // Config.lightRangeScale. That range is a light-culling/shading bound, not a scene bound: with
+    // the editor's threshold of 0.01 an intensity-20 light gets a range of 44.7 even in a scene
+    // only a few units large. Fit the far plane to the receivers instead and use the effective
+    // range only as an upper bound (receivers beyond it are unlit anyway).
+    const sceneFarPlane = this.__getSceneFarPlaneForPointLight(lightComponent, entities);
+    const effectiveRange = lightComponent._lightPropertyForGpu._v[1];
+    if (effectiveRange > 0) {
+      return Math.min(sceneFarPlane, effectiveRange);
     }
-    return this.__getSceneFarPlaneForPointLight(lightComponent, entities);
+    return sceneFarPlane;
   }
 
   /**
@@ -429,6 +428,9 @@ export class ShadowSystem {
     );
     for (const entity of receivers) {
       const sceneGraph = entity.getSceneGraph();
+      if (!sceneGraph.isVisible) {
+        continue;
+      }
       const aabb = sceneGraph.worldMergedAABB;
       if (aabb != null && !aabb.isVanilla()) {
         const min = aabb.minPoint;
@@ -451,6 +453,10 @@ export class ShadowSystem {
       RaymarchingComponent
     ) as RaymarchingComponent[];
     for (const raymarchingComponent of raymarchingComponents) {
+      const raymarchingSceneGraph = raymarchingComponent.entity.tryToGetSceneGraph();
+      if (raymarchingSceneGraph == null || !raymarchingSceneGraph.isVisible) {
+        continue;
+      }
       const aabb = raymarchingComponent.calcWorldAABB();
       if (aabb == null || aabb.isVanilla()) {
         continue;
