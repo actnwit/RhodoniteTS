@@ -629,7 +629,7 @@ export class MeshRendererComponent extends Component {
       MeshRendererComponent.__appendPrimitivesOfMeshComponent(meshComponent, cameraComponent, outPrimitives);
     }
 
-    MeshRendererComponent.__cullSiblingInstances(meshComponents, frustum, scratch, cullTick);
+    MeshRendererComponent.__cullSiblingInstances(meshComponents, frustum, scratch, cullTick, isGpuCullingActive);
 
     return outPrimitives;
   }
@@ -642,12 +642,17 @@ export class MeshRendererComponent extends Component {
    * the original model, while its shallow copies are drawn through instancing. Such sibling instances are
    * culled with the camera of this render pass as well, once per mesh. Their visibility flags are left
    * untouched because they belong to the render passes the entities are registered in.
+   *
+   * The meshes culled on the GPU (`isGpuCullingActive` and `Mesh._isGpuCullable`) are skipped: their instances,
+   * siblings included, are culled per instance by the culling compute pass, so testing them here would only cost
+   * CPU time.
    */
   private static __cullSiblingInstances(
     meshComponents: MeshComponent[],
     frustum: CameraComponent['frustum'] | undefined,
     scratch: MeshRendererSortScratch,
-    cullTick: number
+    cullTick: number,
+    isGpuCullingActive: boolean
   ) {
     for (let i = 0; i < meshComponents.length; i++) {
       const meshComponent = meshComponents[i];
@@ -656,6 +661,9 @@ export class MeshRendererComponent extends Component {
       }
       const mesh = meshComponent.mesh;
       if (mesh === undefined) {
+        continue;
+      }
+      if (isGpuCullingActive && mesh._isGpuCullable) {
         continue;
       }
       const siblings = mesh.meshEntitiesInner;
