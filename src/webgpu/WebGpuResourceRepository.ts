@@ -44,6 +44,7 @@ import { TextureArray } from '../foundation/textures/TextureArray';
 import type { BasisFile } from '../types/BasisTexture';
 import type { Count, Index, Size, TypedArray, WebGLResourceHandle, WebGPUResourceHandle } from '../types/CommonTypes';
 import type { TextureData, VertexHandles } from '../webgl/WebGLResourceRepository';
+import { packRgbaRowsForUpload } from './packRgbaRowsForUpload';
 import { WebGpuBufferArena, type WebGpuBufferRange } from './WebGpuBufferArena';
 import type { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 import { WebGpuGpuTimer } from './WebGpuGpuTimer';
@@ -3056,10 +3057,20 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       mipmaps.push(imageBitmaps);
     }
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const isHdrLinear = (mipmaps[0][0] as any)?.hdriFormat === HdriFormat.HDR_LINEAR;
+    // A 32-bit float texture is only filterable with the optional float32-filterable feature. The
+    // texture bind group layouts use the default sampleType 'float', so on devices without the
+    // feature (iOS Safari) binding an rgba32float texture is a validation error and every draw
+    // using it is dropped. Half float filtering is core WebGPU, so use it as the fallback.
+    const cubemapFormat: GPUTextureFormat = isHdrLinear
+      ? gpuDevice.features.has('float32-filterable')
+        ? 'rgba32float'
+        : 'rgba16float'
+      : 'rgba8unorm';
     const cubemapTexture = gpuDevice.createTexture({
       dimension: '2d',
       size: [width, height, 6],
-      format: (mipmaps[0][0] as any).hdriFormat === HdriFormat.HDR_LINEAR ? 'rgba32float' : 'rgba8unorm',
+      format: cubemapFormat,
       mipLevelCount: mipLevelCount,
       usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
     });
@@ -3079,25 +3090,20 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
             newFloat323Array[k * 4 + 3] = 1.0;
           }
 
-          // Align the row data size to multiple of 256 bytes
-          const bytesPerRow = imageBitmap.width * 4 * Float32Array.BYTES_PER_ELEMENT;
-          const paddedBytesPerRow = Math.ceil(bytesPerRow / 256) * 256; // 256-byte alignment (GPUImageCopyBuffer.bytesPerRow). See: https://www.w3.org/TR/webgpu/#gpuimagecopybuffer
-          const paddedRowSize = paddedBytesPerRow / Float32Array.BYTES_PER_ELEMENT;
-          const paddedFloatData = new Float32Array(paddedRowSize * imageBitmap.height);
-          for (let y = 0; y < imageBitmap.height; y++) {
-            const sourceStart = y * imageBitmap.width * 4;
-            const sourceEnd = sourceStart + imageBitmap.width * 4;
-            const destStart = y * paddedRowSize;
-            paddedFloatData.set(newFloat323Array.subarray(sourceStart, sourceEnd), destStart);
-          }
+          const isFloat16 = cubemapFormat === 'rgba16float';
+          const packed = packRgbaRowsForUpload(newFloat323Array, imageBitmap.width, imageBitmap.height, isFloat16);
 
           const buffer = gpuDevice.createBuffer({
-            size: paddedFloatData.byteLength,
+            size: packed.data.byteLength,
             usage: GPUBufferUsage.COPY_SRC,
             mappedAtCreation: true,
           });
 
-          new Float32Array(buffer.getMappedRange()).set(paddedFloatData);
+          if (isFloat16) {
+            new Uint16Array(buffer.getMappedRange()).set(packed.data as Uint16Array);
+          } else {
+            new Float32Array(buffer.getMappedRange()).set(packed.data as Float32Array);
+          }
           buffer.unmap();
 
           const commandEncoder = gpuDevice.createCommandEncoder();
@@ -3105,7 +3111,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           commandEncoder.copyBufferToTexture(
             {
               buffer: buffer,
-              bytesPerRow: paddedBytesPerRow,
+              bytesPerRow: packed.bytesPerRow,
               rowsPerImage: imageBitmap.height,
             },
             { texture: cubemapTexture, origin: [0, 0, j], mipLevel: i },
