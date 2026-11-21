@@ -112,6 +112,7 @@ export class ShadowSystem {
     // Auto-fit DirectionalLight shadow camera volume before setting up shadow map render passes.
     // This ensures the shadow camera covers the entire scene when rendering the shadow map.
     this.__autoFitDirectionalLightShadowVolume(entities);
+    this.__updateSpotLightShadowZNear(entities);
 
     // Only these entities are rendered into the shadow maps. Every entity still receives shadows,
     // so `entities` keeps being used for the material setup below.
@@ -425,6 +426,96 @@ export class ShadowSystem {
   }
 
   /**
+   * Fits the zNear of the spot light shadow cameras to the scene.
+   *
+   * A perspective shadow map spends most of its depth range near the far plane, which makes
+   * variance shadow maps shallow. Setting zNear below the nearest caster makes the depth
+   * distribution more linear. The value is limited to 5% of the light range and to 1.0 so
+   * that it stays conservative.
+   *
+   * @param entities - The entities in the scene
+   * @private
+   */
+  private __updateSpotLightShadowZNear(entities: ISceneGraphEntity[]) {
+    const lightComponents = this.__engine.componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
+    const spotLights = lightComponents.filter(
+      lightComponent => lightComponent.type === LightType.Spot && lightComponent.enable && lightComponent.castShadow
+    );
+    if (spotLights.length === 0) {
+      return;
+    }
+
+    const shadowCasters = entities.filter(
+      entity => ShadowSystem.__isShadowCaster(entity) && !ShadowSystem.__isLightEntity(entity)
+    );
+
+    for (const lightComponent of spotLights) {
+      const lightPositionArray = lightComponent._lightPositionForGpu._v;
+      const lightPosition = {
+        x: lightPositionArray[0],
+        y: lightPositionArray[1],
+        z: lightPositionArray[2],
+      };
+      let nearestDistanceSquared = Number.MAX_VALUE;
+      for (const entity of shadowCasters) {
+        const sceneGraph = entity.getSceneGraph();
+        const aabb = sceneGraph.worldMergedAABB;
+        let distanceSquared: number;
+        if (aabb != null && !aabb.isVanilla()) {
+          const min = aabb.minPoint;
+          const max = aabb.maxPoint;
+          // A caster that encloses the light (for example a background sphere) does not bound
+          // zNear: its surface can be far from the light even when its AABB contains it.
+          if (
+            min.x <= lightPosition.x &&
+            lightPosition.x <= max.x &&
+            min.y <= lightPosition.y &&
+            lightPosition.y <= max.y &&
+            min.z <= lightPosition.z &&
+            lightPosition.z <= max.z
+          ) {
+            continue;
+          }
+          const dx =
+            lightPosition.x < min.x ? min.x - lightPosition.x : lightPosition.x > max.x ? lightPosition.x - max.x : 0;
+          const dy =
+            lightPosition.y < min.y ? min.y - lightPosition.y : lightPosition.y > max.y ? lightPosition.y - max.y : 0;
+          const dz =
+            lightPosition.z < min.z ? min.z - lightPosition.z : lightPosition.z > max.z ? lightPosition.z - max.z : 0;
+          distanceSquared = dx * dx + dy * dy + dz * dz;
+        } else {
+          // Procedural meshes can have a vanilla merged AABB. Their world position is still
+          // a useful conservative bound: zNear stays at half the distance to the center.
+          const position = sceneGraph.worldPosition;
+          const dx = position.x - lightPosition.x;
+          const dy = position.y - lightPosition.y;
+          const dz = position.z - lightPosition.z;
+          distanceSquared = dx * dx + dy * dy + dz * dz;
+        }
+        if (distanceSquared < nearestDistanceSquared) {
+          nearestDistanceSquared = distanceSquared;
+        }
+      }
+
+      let zNear = 0.1;
+      if (lightComponent.range > 0 && Number.isFinite(nearestDistanceSquared)) {
+        const rangeCap = Math.min(lightComponent.range * 0.05, 1.0);
+        zNear = Math.max(0.01, Math.min(Math.sqrt(nearestDistanceSquared) * 0.5, rangeCap));
+      }
+      lightComponent._setShadowZNearForSpotLightAuto(zNear);
+    }
+  }
+
+  private static __isLightEntity(entity: ISceneGraphEntity) {
+    try {
+      const getLight = (entity as unknown as { getLight?: () => unknown }).getLight;
+      return typeof getLight === 'function' && getLight.call(entity) != null;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Sets the depth bias projection-view matrices for shadow mapping on all PBR materials.
    * Calculates and applies bias matrices for directional and spot lights to reduce shadow acne.
    * @param entities - Array of scene graph entities to apply the bias matrices to
@@ -438,6 +529,7 @@ export class ShadowSystem {
     // Auto-fit DirectionalLight shadow camera volume to cover the whole scene.
     // Note: This does not move the light; it only adjusts shadowAreaSizeForDirectionalLight and range.
     this.__autoFitDirectionalLightShadowVolume(entities);
+    this.__updateSpotLightShadowZNear(entities);
 
     // This runs every frame, so the arrays and the VectorN are reused. setParameter() copies the
     // values into the material's own variable, so sharing one VectorN between materials is safe.

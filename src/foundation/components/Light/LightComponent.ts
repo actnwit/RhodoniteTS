@@ -40,6 +40,8 @@ export class LightComponent extends Component {
   private __enable = true;
   private __shadowAreaSizeForDirectionalLight = 10;
   private __shadowZNearForDirectionalLight = 0.1;
+  private __shadowZNearForSpotLight = 0.1;
+  private __isShadowZNearForSpotLightAuto = true;
   private __shadowCameraOffsetForDirectionalLight = Vector3.zero();
   public castShadow = false;
   private _lightPosition = MutableVector4.dummy();
@@ -303,6 +305,55 @@ export class LightComponent extends Component {
    */
   get shadowZNearForDirectionalLight(): number {
     return this.__shadowZNearForDirectionalLight;
+  }
+
+  /**
+   * Sets the zNear value of the SpotLight shadow camera.
+   *
+   * @remarks
+   * A larger zNear makes the perspective depth of the shadow map more linear, which
+   * improves the contrast of variance shadow maps. It must stay below the distance
+   * from the light to the nearest shadow caster, or that caster is clipped.
+   * Setting this property disables the automatic fitting of `ShadowSystem`
+   * (`isShadowZNearForSpotLightAuto` becomes false).
+   * Updating this property increments updateCount so the camera sync is refreshed.
+   */
+  set shadowZNearForSpotLight(value: number) {
+    if (this.__shadowZNearForSpotLight !== value || this.__isShadowZNearForSpotLightAuto) {
+      this.__shadowZNearForSpotLight = value;
+      this.__isShadowZNearForSpotLightAuto = false;
+      this.__markUpdated();
+    }
+  }
+
+  /**
+   * Gets the zNear value used for SpotLight shadow camera.
+   */
+  get shadowZNearForSpotLight(): number {
+    return this.__shadowZNearForSpotLight;
+  }
+
+  /**
+   * Whether the SpotLight shadow camera zNear is fitted automatically from the
+   * distance to the nearest shadow caster.
+   */
+  get isShadowZNearForSpotLightAuto(): boolean {
+    return this.__isShadowZNearForSpotLightAuto;
+  }
+
+  /**
+   * Sets the automatically fitted zNear value. Does nothing when the user set
+   * `shadowZNearForSpotLight` explicitly.
+   * @internal
+   */
+  _setShadowZNearForSpotLightAuto(value: number) {
+    if (!this.__isShadowZNearForSpotLightAuto) {
+      return;
+    }
+    if (this.__shadowZNearForSpotLight !== value) {
+      this.__shadowZNearForSpotLight = value;
+      this.__markUpdated();
+    }
   }
 
   /**
