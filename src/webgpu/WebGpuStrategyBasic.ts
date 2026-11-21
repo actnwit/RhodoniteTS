@@ -815,6 +815,8 @@ ${indexStr}
       LightComponent.getUpdateCount(this.__engine) !== this.__lastLightComponentsUpdateCount
     ) {
       const isStorageBufferRecreated = this.__createAndUpdateStorageBuffer();
+      // The GPU culling reads the transforms and the visibility of the instances from the GPU instance data.
+      this.__engine.webGpuResourceRepository._markGpuCullingInputsDirty();
       // The compute shaders rebuild the light clusters when their inputs changed, and after a new storage buffer was
       // created from the CPU data (which does not contain the clusters built on the GPU).
       // The order matters: the build dispatches must be recorded after the uploads, so that they overwrite the
@@ -1239,6 +1241,7 @@ ${indexStr}
     const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
     this.__lightClusterBuilder?.destroy();
     this.__lightClusterBuilder = undefined;
+    webGpuResourceRepository._destroyGpuCulling();
     if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       webGpuResourceRepository.destroyStorageBuffer(this.__storageBufferUid);
       this.__storageBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;

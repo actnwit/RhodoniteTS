@@ -62,6 +62,8 @@ type MeshRendererSortScratch = {
   cullingId: number;
   /** Reused objects of the opaque multi-draw reorder, so a sort does not allocate per primitive. */
   keyedPrimitives: { primitive: Primitive | null; keyId: number; index: number }[];
+  /** Whether the latest sort ran with GPU culling active (see `_isGpuCullingActive`); undefined before the first. */
+  isGpuCullingActive: boolean | undefined;
 };
 
 /**
@@ -357,14 +359,18 @@ export class MeshRendererComponent extends Component {
     const webglResourceRepository = engine.webglResourceRepository;
     const multiDrawGroupVersion =
       webglResourceRepository != null ? webglResourceRepository.getMultiDrawRepository(engine).version : 0;
+    const scratch = MeshRendererComponent.__getSortScratch(renderPass);
+    const isGpuCullingActive = MeshRendererComponent._isGpuCullingActive(engine, renderPass);
     if (
       TransformComponent.getUpdateCount(engine) === renderPass._lastTransformComponentsUpdateCount &&
       CameraControllerComponent.getUpdateCount(engine) === renderPass._lastCameraControllerComponentsUpdateCount &&
       SceneGraphComponent.getUpdateCount(engine) === renderPass._lastSceneGraphComponentsUpdateCount &&
-      multiDrawGroupVersion === renderPass._lastMultiDrawGroupVersion
+      multiDrawGroupVersion === renderPass._lastMultiDrawGroupVersion &&
+      isGpuCullingActive === scratch.isGpuCullingActive
     ) {
       return renderPass._lastPrimitiveUids;
     }
+    scratch.isGpuCullingActive = isGpuCullingActive;
 
     // get CameraComponent
     let cameraComponent = renderPass.cameraComponent;
@@ -391,12 +397,12 @@ export class MeshRendererComponent extends Component {
     }
 
     // FrustumCulling (writes into the reusable per-render-pass scratch array)
-    const scratch = MeshRendererComponent.__getSortScratch(renderPass);
     const primitives = MeshRendererComponent.__cullingWithViewFrustum(
       cameraComponent,
       renderPass._optimizedMeshComponents,
       scratch.primitives,
-      scratch
+      scratch,
+      isGpuCullingActive
     );
 
     // After Frustum Culling, remove duplicated Primitives
@@ -511,9 +517,12 @@ export class MeshRendererComponent extends Component {
     if (primitiveUids.length !== renderPass._lastPrimitiveUids.length) {
       resultChanged ||= true;
     } else {
-      // Check if the order of the blend primitives has changed
-      for (let i = _lastTranslucentIndex + 1; i < primitiveUids.length; i++) {
-        if (primitiveUids[i] !== renderPass._lastPrimitiveUids[i]) {
+      // Check if a primitive or the order of the primitives has changed. All the ranges are compared: the culling
+      // can replace an opaque primitive with another one while the counts stay the same, and the WebGPU render
+      // bundles must then be re-recorded.
+      const lastPrimitiveUids = renderPass._lastPrimitiveUids;
+      for (let i = 0; i < primitiveUids.length; i++) {
+        if (primitiveUids[i] !== lastPrimitiveUids[i]) {
           resultChanged ||= true;
           break;
         }
@@ -545,13 +554,17 @@ export class MeshRendererComponent extends Component {
    * @param outPrimitives - Reusable output array. It is cleared and filled with the primitives that passed culling
    * @param scratch - The scratch of the render pass. The entities culled in this pass are stamped into it
    *                  so that instanced draw calls can skip their instances
+   * @param isGpuCullingActive - Whether the render pass culls on the GPU (see `_isGpuCullingActive`). The primitives
+   *                  of the meshes culled on the GPU are kept regardless of their visibility, so that the render
+   *                  list (and the WebGPU render bundles) does not change when the camera moves
    * @returns The `outPrimitives` array (same reference) for convenience
    */
   private static __cullingWithViewFrustum(
     cameraComponent: CameraComponent,
     meshComponents: MeshComponent[],
     outPrimitives: Primitive[],
-    scratch: MeshRendererSortScratch
+    scratch: MeshRendererSortScratch,
+    isGpuCullingActive: boolean
   ): Primitive[] {
     outPrimitives.length = 0;
 
@@ -588,6 +601,12 @@ export class MeshRendererComponent extends Component {
         meshComponent.entityUID,
         cullTick
       );
+      if (isGpuCullingActive && meshComponent.mesh?._isGpuCullable === true) {
+        // Culled per instance on the GPU, including the visibility flag (WebGpuGpuCulling).
+        sceneGraph._isCulled = false;
+        MeshRendererComponent.__appendPrimitivesOfMeshComponent(meshComponent, cameraComponent, outPrimitives);
+        continue;
+      }
       if (!sceneGraph.isVisible) {
         MeshRendererComponent.__stampCulledEntity(scratch, meshComponent.entityUID, cullTick);
         continue;
@@ -679,6 +698,29 @@ export class MeshRendererComponent extends Component {
     }
     result[entityUID] = cullTick;
     return result;
+  }
+
+  /**
+   * Whether the meshes of a render pass are frustum culled on the GPU (WebGPU, `Config.isGpuCullingEnabled`).
+   * The CPU culling and the WebGPU draw recording both use this, so that a mesh the CPU keeps for the GPU is
+   * recorded as a culled indirect draw. Meshes whose `Mesh._isGpuCullable` is false keep the CPU culling.
+   * @internal
+   */
+  static _isGpuCullingActive(engine: Engine, renderPass: RenderPass): boolean {
+    if (
+      !engine.config.isGpuCullingEnabled ||
+      !MeshRendererComponent._isFrustumCullingEnabled ||
+      !ProcessApproach.isWebGpuApproach(engine.engineState.currentProcessApproach) ||
+      renderPass.isBufferLessRenderingMode()
+    ) {
+      return false;
+    }
+    // A multi-view draw renders both eyes, which have different frusta.
+    const webxrSystem = engine.webXRSystem;
+    if (renderPass.isVrRendering && webxrSystem.isWebXRMode && webxrSystem.isMultiView()) {
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -809,6 +851,7 @@ export class MeshRendererComponent extends Component {
         culledEntityCount: 0,
         cullingId: 0,
         keyedPrimitives: [],
+        isGpuCullingActive: undefined,
       };
       MeshRendererComponent.__sortScratchMap.set(renderPass, scratch);
     }
