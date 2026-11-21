@@ -6,6 +6,8 @@ export * from './OutShadingColorShaderNode';
 export * from './OutUnionShaderNode';
 export * from './RaymarchHitNormalShaderNode';
 export * from './RaymarchHitPositionShaderNode';
+export * from './RaymarchObjectIdShaderNode';
+export * from './RaymarchObjectIdUniformShaderNode';
 export * from './SdApplyTransformShaderNode';
 export * from './SdApplyWorldMatrixShaderNode';
 export * from './SdBarXShaderNode';

@@ -83,6 +83,8 @@ import { OutShadingColorShaderNode } from '../nodes/raymarching/OutShadingColorS
 import { OutUnionShaderNode } from '../nodes/raymarching/OutUnionShaderNode';
 import { RaymarchHitNormalShaderNode } from '../nodes/raymarching/RaymarchHitNormalShaderNode';
 import { RaymarchHitPositionShaderNode } from '../nodes/raymarching/RaymarchHitPositionShaderNode';
+import { RaymarchObjectIdShaderNode } from '../nodes/raymarching/RaymarchObjectIdShaderNode';
+import { RaymarchObjectIdUniformShaderNode } from '../nodes/raymarching/RaymarchObjectIdUniformShaderNode';
 import { SdApplyTransformShaderNode } from '../nodes/raymarching/SdApplyTransformShaderNode';
 import { SdApplyWorldMatrixShaderNode } from '../nodes/raymarching/SdApplyWorldMatrixShaderNode';
 import { SdBarXShaderNode } from '../nodes/raymarching/SdBarXShaderNode';
@@ -2103,6 +2105,17 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'RaymarchHitNormal': {
         const nodeInstance = new RaymarchHitNormalShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'RaymarchObjectId': {
+        const nodeInstance = new RaymarchObjectIdShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'RaymarchObjectIdUniform': {
+        const nodeInstance = new RaymarchObjectIdUniformShaderNode();
+        nodeInstance.setUniformDataName(node.controls.name.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }

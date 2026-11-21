@@ -1,3 +1,6 @@
-void outUnion(in float value) {
-  g_distance = min(g_distance, value);
+void outUnion(in float value, in float objectId) {
+  if (value < g_distance) {
+    g_distance = value;
+    g_hitObjectId = objectId;
+  }
 }

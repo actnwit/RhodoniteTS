@@ -1,3 +1,6 @@
-fn outUnion(value: f32) {
-  g_distance = min(g_distance, value);
+fn outUnion(value: f32, objectId: f32) {
+  if (value < g_distance) {
+    g_distance = value;
+    g_hitObjectId = objectId;
+  }
 }

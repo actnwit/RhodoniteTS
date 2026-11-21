@@ -2254,7 +2254,7 @@ function addPbrSheenSemanticInfo(
   });
 }
 
-function addWorldMatrixSemanticsInfoToRaymarchingMaterial(shaderNodeJson: ShaderNodeJson) {
+function addRaymarchingComponentSemanticsInfo(shaderNodeJson: ShaderNodeJson) {
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
   for (const node of shaderNodeJson.nodes) {
     if (node.name === 'SdApplyWorldMatrix' && node.controls.name.value) {
@@ -2264,6 +2264,19 @@ function addWorldMatrixSemanticsInfoToRaymarchingMaterial(shaderNodeJson: Shader
         compositionType: CompositionType.Mat4,
         stage: ShaderType.PixelShader,
         initialValue: Matrix44.fromCopy16RowMajor(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1),
+        min: 0,
+        max: Number.MAX_VALUE,
+      });
+    }
+    // Only the injected per-component id node has a name control; the shading node
+    // (used in the shading section) has none.
+    if (node.name === 'RaymarchObjectIdUniform' && node.controls?.name?.value) {
+      additionalShaderSemanticInfo.push({
+        semantic: node.controls.name.value,
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader,
+        initialValue: Scalar.fromCopyNumber(0),
         min: 0,
         max: Number.MAX_VALUE,
       });
@@ -2359,7 +2372,7 @@ function createNodeBasedRaymarchingCustomMaterial(
     return undefined;
   }
 
-  const additionalShaderSemanticInfo = addWorldMatrixSemanticsInfoToRaymarchingMaterial(shaderNodeJson);
+  const additionalShaderSemanticInfo = addRaymarchingComponentSemanticsInfo(shaderNodeJson);
 
   // The raymarching shader shades hit points with the shared PBR shader function,
   // so the material needs the lighting/PBR defines and the IBL/PBR parameters.
@@ -2774,6 +2787,36 @@ function collectRrnJson(engine: Engine): NodeJSON {
       from: { ...conn.from, id: `${prefix}${conn.from.id}` },
       to: { ...conn.to, id: `${prefix}${conn.to.id}` },
     }));
+
+    // Record which component was hit: add an object id node and feed it to every
+    // OutUnion of the component. Unions that already have an objectId connection
+    // keep the graph the user authored.
+    const objectIdNodeId = `${prefix}__raymarchObjectId`;
+    const objectIdOutputId = `${prefix}__raymarchObjectIdOut`;
+    const unionsWithoutObjectId = prefixedNodes.filter(
+      node =>
+        node.name === 'OutUnion' &&
+        !prefixedConnections.some(connection => connection.to.id === node.id && connection.to.portName === 'objectId')
+    );
+    if (unionsWithoutObjectId.length > 0) {
+      prefixedNodes.push({
+        id: objectIdNodeId,
+        name: 'RaymarchObjectIdUniform',
+        outputs: {
+          out1: { id: objectIdOutputId, label: 'Out Object Id', socket: { name: 'Scalar<float>' } },
+        },
+        inputs: {},
+        controls: { name: { value: `raymarchObjectId_${raymarchingComponent.componentSID}` } },
+        position: { x: 0, y: 0 },
+      });
+      for (const union of unionsWithoutObjectId) {
+        prefixedConnections.push({
+          id: `${prefix}__raymarchObjectId_${union.id}`,
+          from: { id: objectIdNodeId, portName: 'out1' },
+          to: { id: union.id, portName: 'objectId' },
+        });
+      }
+    }
 
     collectedRrnJson.nodes.push(...prefixedNodes);
     collectedRrnJson.connections.push(...prefixedConnections);

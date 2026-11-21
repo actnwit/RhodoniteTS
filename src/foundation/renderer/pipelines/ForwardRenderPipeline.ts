@@ -13,6 +13,7 @@ import { RenderableHelper } from '../../helpers/RenderableHelper';
 import { RenderPassHelper } from '../../helpers/RenderPassHelper';
 import { ShadowSystem } from '../../helpers/Shadow/ShadowSystem';
 import type { Material } from '../../materials/core/Material';
+import { Scalar } from '../../math/Scalar';
 import { Vector2 } from '../../math/Vector2';
 import { Vector4 } from '../../math/Vector4';
 import { MiscUtil } from '../../misc';
@@ -1309,11 +1310,14 @@ export class ForwardRenderPipeline extends RnObject {
       const raymarchingComponents = this.__engine.componentRepository.getComponentsWithType(
         RaymarchingComponent
       ) as RaymarchingComponent[];
-      for (const raymarchingComponent of raymarchingComponents) {
+      for (let i = 0; i < raymarchingComponents.length; i++) {
+        const raymarchingComponent = raymarchingComponents[i];
         const material = renderPass.material;
         const sceneGraph = raymarchingComponent.entity.tryToGetSceneGraph();
         if (material != null && sceneGraph != null) {
           material.setParameter(`worldMatrix_${raymarchingComponent.componentSID}`, sceneGraph.matrixInner);
+          // Matches the component order used when the graphs are merged (collectRrnJson).
+          material.setParameter(`raymarchObjectId_${raymarchingComponent.componentSID}`, Scalar.fromCopyNumber(i));
         }
       }
     });

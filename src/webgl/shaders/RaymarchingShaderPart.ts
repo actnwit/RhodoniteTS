@@ -380,6 +380,7 @@ var<private> g_distance: f32 = 1e20; // distance to the surface
 var<private> g_rayPosition: vec3<f32> = vec3f(0.0, 0.0, 0.0);
 var<private> g_hitPosition: vec3<f32> = vec3f(0.0, 0.0, 0.0);
 var<private> g_hitNormal: vec3<f32> = vec3f(0.0, 0.0, 1.0);
+var<private> g_hitObjectId: f32 = 0.0;
 var<private> g_shadingColor: vec4<f32> = vec4f(0.0, 0.0, 0.0, 1.0);
 
 fn rotateX(angle: f32) -> mat3x3<f32> {
@@ -530,6 +531,7 @@ float g_distance = 1e20; // distance to the surface
 vec3 g_rayPosition = vec3(0,0,0);
 vec3 g_hitPosition = vec3(0.0);
 vec3 g_hitNormal = vec3(0.0, 0.0, 1.0);
+float g_hitObjectId = 0.0;
 vec4 g_shadingColor = vec4(0.0, 0.0, 0.0, 1.0);
 
 mat3 rotateX(float angle){
