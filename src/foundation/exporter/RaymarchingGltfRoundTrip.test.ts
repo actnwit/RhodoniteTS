@@ -1,7 +1,13 @@
 import { expect, test } from 'vitest';
+import type { RnM2 } from '../../types';
 import type { NodeJSON } from '../../types/NodeJSON';
 import { createRaymarchingEntity } from '../components/Raymarching/createRaymarchingEntity';
 import { ProcessApproach } from '../definitions/ProcessApproach';
+import { SdfShapeType } from '../definitions/SdfShapeType';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { MaterialHelper } from '../helpers/MaterialHelper';
+import { Gltf2Importer } from '../importer/Gltf2Importer';
+import { ModelConverter } from '../importer/ModelConverter';
 import { Vector3 } from '../math/Vector3';
 import { Engine } from '../system/Engine';
 import { GLTF2_EXPORT_NO_DOWNLOAD, Gltf2Exporter } from './Gltf2Exporter';
@@ -62,26 +68,93 @@ function parseGlbJson(buffer: ArrayBuffer) {
   return JSON.parse(new TextDecoder().decode(new Uint8Array(buffer, 20, jsonLength)));
 }
 
-test('exports a RaymarchingComponent graph as a glTF node extension', async () => {
+async function createExportEngine() {
+  return Engine.init({
+    approach: ProcessApproach.None,
+    canvas: document.createElement('canvas'),
+    notToDisplayRnInfoAtInit: true,
+  });
+}
+
+async function exportEntity(engine: Engine, entity: ISceneGraphEntity, name: string) {
+  return Gltf2Exporter.export(engine, name, {
+    entities: [entity],
+    type: GLTF2_EXPORT_NO_DOWNLOAD,
+  });
+}
+
+/**
+ * Imports the JSON chunk of an exported GLB through the same conversion path the importer uses.
+ * This keeps the test free of the WebGL-only parts of the importer while still exercising the
+ * RHODONITE_raymarching node extension handling.
+ */
+async function importGltfJson(gltfModel: RnM2) {
+  gltfModel.asset.extras ??= {};
   const engine = await Engine.init({
     approach: ProcessApproach.None,
     canvas: document.createElement('canvas'),
     notToDisplayRnInfoAtInit: true,
   });
-  const entity = createRaymarchingEntity(engine);
+  await Gltf2Importer._loadInner(gltfModel, {}, {});
+  ModelConverter.convertToRhodoniteObjectSimple(engine, gltfModel);
+  const rnEntities = (gltfModel.asset.extras as { rnEntities: ISceneGraphEntity[] }).rnEntities;
+  return { engine, rnEntities };
+}
+
+test('exports a RaymarchingComponent graph as a glTF node extension', async () => {
+  const exportEngine = await createExportEngine();
+  const entity = createRaymarchingEntity(exportEngine);
   entity.position = Vector3.fromCopy3(1, 2, 3);
   entity.tryToSetUniqueName('Test Raymarching', true);
   entity.getRaymarching().rrnJson = createSphereGraph();
   entity.getRaymarching().isPickable = false;
 
-  const buffer = await Gltf2Exporter.export(engine, 'RaymarchingRoundTrip', {
-    entities: [entity],
-    type: GLTF2_EXPORT_NO_DOWNLOAD,
-  });
+  const buffer = await exportEntity(exportEngine, entity, 'RaymarchingExport');
   const json = parseGlbJson(buffer);
   const extension = json.nodes[0].extensions.RHODONITE_raymarching;
   expect(json.extensionsUsed).toContain('RHODONITE_raymarching');
   expect(extension.graph.nodes).toHaveLength(4);
   expect(extension.isPickable).toBe(false);
   expect(json.nodes[0].translation).toEqual([1, 2, 3]);
+});
+
+test('imports a RHODONITE_raymarching node and rebuilds the material from its graph', async () => {
+  const exportEngine = await createExportEngine();
+  const entity = createRaymarchingEntity(exportEngine);
+  entity.getTransform().localPosition = Vector3.fromCopy3(0.5, 0, 0);
+  entity.getRaymarching().rrnJson = createSphereGraph();
+  entity.getRaymarching().isPickable = false;
+
+  const buffer = await exportEntity(exportEngine, entity, 'RaymarchingImport');
+  const gltfModel = parseGlbJson(buffer) as RnM2;
+  const { engine, rnEntities } = await importGltfJson(gltfModel);
+
+  const imported = rnEntities.find(rnEntity => rnEntity.tryToGetRaymarching() != null);
+  const raymarching = imported!.tryToGetRaymarching()!;
+  expect(raymarching.rrnJson.nodes).toHaveLength(4);
+  expect(raymarching.rrnJson.connections).toHaveLength(3);
+  expect(raymarching.isPickable).toBe(false);
+  expect(imported!.getTransform().localPosition._v[0]).toBeCloseTo(0.5, 5);
+
+  // The application (the editor's node editor) rebuilds the shared material from the graph.
+  const result = MaterialHelper.createNodeBasedRaymarchingCustomMaterial(engine, raymarching.rrnJson as any);
+  expect(result).toBeDefined();
+  expect(result!.material.getShaderDefines()).toContain('RN_USE_PBR');
+});
+
+test('imports the sdfShapeType when the node extension has no graph', async () => {
+  const exportEngine = await createExportEngine();
+  const entity = createRaymarchingEntity(exportEngine);
+  entity.getRaymarching().sdfShapeType = SdfShapeType.Sphere;
+
+  const buffer = await exportEntity(exportEngine, entity, 'RaymarchingShapeOnly');
+  const gltfModel = parseGlbJson(buffer) as RnM2;
+  const extension = (gltfModel.nodes![0].extensions as Record<string, any>).RHODONITE_raymarching;
+  // The graph is optional: assets that only use the built-in SDF shape store no graph.
+  extension.graph = undefined;
+  extension.sdfShapeType = SdfShapeType.Box.index;
+
+  const { rnEntities } = await importGltfJson(gltfModel);
+  const imported = rnEntities.find(rnEntity => rnEntity.tryToGetRaymarching() != null);
+  expect(imported!.tryToGetRaymarching()!.sdfShapeType.index).toBe(SdfShapeType.Box.index);
 });
