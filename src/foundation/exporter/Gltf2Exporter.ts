@@ -597,6 +597,20 @@ export class Gltf2Exporter {
       };
     }
 
+    // Rhodonite-specific light state that glTF does not represent. The editor uses this to
+    // restore shadow casting and the shadow camera overrides after loading a saved scene.
+    const rhodoniteExtras: Record<string, unknown> = {
+      castShadow: lightComponent.castShadow,
+      pointLightShadowFarPlane: lightComponent.pointLightShadowFarPlane,
+    };
+    if (!lightComponent.isShadowZNearForSpotLightAuto) {
+      rhodoniteExtras.shadowZNearForSpotLight = lightComponent.shadowZNearForSpotLight;
+    }
+    gltfLight.extras = {
+      ...(gltfLight.extras ?? {}),
+      rhodonite: rhodoniteExtras,
+    };
+
     const lightsExtension = this.__ensureLightsExtension(json);
     const lightIndex = lightsExtension.lights.length;
     lightsExtension.lights.push(gltfLight);
