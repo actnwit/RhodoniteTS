@@ -5,6 +5,7 @@ import type { IEntity } from '../../core/Entity';
 import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { SdfShapeType, type SdfShapeTypeEnum } from '../../definitions/SdfShapeType';
+import type { ShapeInstance } from '../../geometry/Shape';
 import { AABB } from '../../math/AABB';
 import type { IVector3 } from '../../math/IVector';
 import { MathClassUtil } from '../../math/MathClassUtil';
@@ -57,6 +58,13 @@ export type RaymarchingColliderShapeOptions = {
   /** Origin expressed in the same local space as the AABB (box fallback only). */
   origin?: IVector3;
 };
+
+/**
+ * A collider shape descriptor computed from an SDF graph.
+ */
+export type RaymarchingColliderShapeDescriptor =
+  | { shapeType: 'sphere'; center: Vector3; radius: number }
+  | { shapeType: 'box'; aabb: AABB };
 
 /**
  * The collider shape created from an SDF graph.
@@ -258,6 +266,7 @@ export class RaymarchingComponent extends Component {
 
   private __sdfShapeType: SdfShapeTypeEnum = SdfShapeType.Custom;
   private __uniformValueProvider?: RaymarchingUniformValueProvider;
+  private __generatedColliderShapeIndices: number[] = [];
 
   /**
    * Whether this raymarching component participates in ray casting.
@@ -504,24 +513,8 @@ export class RaymarchingComponent extends Component {
    * @returns The created shape information, or undefined when no finite shape exists
    */
   addColliderShape(options: RaymarchingColliderShapeOptions = {}): RaymarchingColliderShapeResult | undefined {
-    const sphere = this.calcLocalSphereCollider();
-    if (sphere != null) {
-      const shapeComponent = this.__getOrCreateShapeComponent(options.shapeComponent);
-      if (shapeComponent == null) {
-        return undefined;
-      }
-      const shapeIndex = shapeComponent.addShape(
-        { type: 'sphere', radius: sphere.radius },
-        { position: sphere.center }
-      );
-      return { shapeIndex, shapeType: 'sphere', center: sphere.center, radius: sphere.radius };
-    }
-
-    const localAABB = options.aabb ?? this.calcLocalAABB();
-    if (localAABB == null || localAABB.isVanilla()) {
-      return undefined;
-    }
-    if (localAABB.sizeX <= 0 || localAABB.sizeY <= 0 || localAABB.sizeZ <= 0) {
+    const descriptor = this.__calcColliderShape(options.aabb);
+    if (descriptor == null) {
       return undefined;
     }
 
@@ -529,8 +522,150 @@ export class RaymarchingComponent extends Component {
     if (shapeComponent == null) {
       return undefined;
     }
-    const shapeIndex = shapeComponent.addBoxFromAabb(localAABB, { origin: options.origin });
-    return { shapeIndex, shapeType: 'box', aabb: localAABB };
+
+    if (descriptor.shapeType === 'sphere') {
+      const shapeIndex = shapeComponent.addShape(
+        { type: 'sphere', radius: descriptor.radius },
+        { position: descriptor.center }
+      );
+      this.__trackGeneratedColliderShape(shapeIndex, shapeComponent);
+      return { shapeIndex, shapeType: 'sphere', center: descriptor.center, radius: descriptor.radius };
+    }
+
+    const shapeIndex = shapeComponent.addBoxFromAabb(descriptor.aabb, { origin: options.origin });
+    this.__trackGeneratedColliderShape(shapeIndex, shapeComponent);
+    return { shapeIndex, shapeType: 'box', aabb: descriptor.aabb };
+  }
+
+  /**
+   * Recomputes every collider shape previously created by addColliderShape().
+   *
+   * Shapes are replaced in place so physics bindings keep their shape indices,
+   * and the entity's PhysicsComponent is rebuilt when anything changed. When the
+   * SDF no longer has a finite collider shape, the generated shapes and their
+   * bindings are removed.
+   *
+   * @returns The number of collider shapes that were updated or removed
+   */
+  updateColliderShapes(): number {
+    if (this.__generatedColliderShapeIndices.length === 0) {
+      return 0;
+    }
+
+    const shapeComponent = this.entity.tryToGetShape();
+    if (shapeComponent == null) {
+      this.__generatedColliderShapeIndices = [];
+      return 0;
+    }
+
+    const descriptor = this.__calcColliderShape();
+    const physicsComponent = this.entity.tryToGetPhysics();
+    const keptIndices: number[] = [];
+    let updated = 0;
+    let removed = 0;
+
+    for (const shapeIndex of this.__generatedColliderShapeIndices) {
+      const existing = shapeComponent.getShape(shapeIndex);
+      if (existing == null) {
+        continue;
+      }
+
+      if (descriptor == null) {
+        physicsComponent?.removeShapeBindingsForShape(shapeComponent, shapeIndex);
+        shapeComponent.removeShape(shapeIndex);
+        removed++;
+        continue;
+      }
+
+      if (RaymarchingComponent.__shapeMatchesDescriptor(existing, descriptor)) {
+        keptIndices.push(shapeIndex);
+        continue;
+      }
+
+      if (descriptor.shapeType === 'sphere') {
+        shapeComponent.updateShape(
+          shapeIndex,
+          { type: 'sphere', radius: descriptor.radius },
+          { position: descriptor.center }
+        );
+      } else {
+        shapeComponent.updateShape(
+          shapeIndex,
+          {
+            type: 'box',
+            size: Vector3.fromCopy3(descriptor.aabb.sizeX, descriptor.aabb.sizeY, descriptor.aabb.sizeZ),
+          },
+          { position: descriptor.aabb.centerPoint }
+        );
+      }
+      keptIndices.push(shapeIndex);
+      updated++;
+    }
+
+    this.__generatedColliderShapeIndices = keptIndices;
+
+    if (
+      updated > 0 &&
+      physicsComponent != null &&
+      physicsComponent.shapeBindingCount > 0 &&
+      physicsComponent.strategy != null
+    ) {
+      physicsComponent.rebuildShapeBindings();
+    }
+
+    return updated + removed;
+  }
+
+  private __calcColliderShape(aabb?: AABB): RaymarchingColliderShapeDescriptor | undefined {
+    const sphere = this.calcLocalSphereCollider();
+    if (sphere != null) {
+      return { shapeType: 'sphere', center: sphere.center, radius: sphere.radius };
+    }
+
+    const localAABB = aabb ?? this.calcLocalAABB();
+    if (localAABB == null || localAABB.isVanilla()) {
+      return undefined;
+    }
+    if (localAABB.sizeX <= 0 || localAABB.sizeY <= 0 || localAABB.sizeZ <= 0) {
+      return undefined;
+    }
+    return { shapeType: 'box', aabb: localAABB };
+  }
+
+  private __trackGeneratedColliderShape(shapeIndex: number, shapeComponent: ShapeComponent): void {
+    if (shapeComponent !== this.entity.tryToGetShape()) {
+      return;
+    }
+    if (!this.__generatedColliderShapeIndices.includes(shapeIndex)) {
+      this.__generatedColliderShapeIndices.push(shapeIndex);
+    }
+  }
+
+  private static __shapeMatchesDescriptor(
+    instance: ShapeInstance,
+    descriptor: RaymarchingColliderShapeDescriptor
+  ): boolean {
+    const isNear = (a: number, b: number) => Math.abs(a - b) <= 1e-5 * Math.max(1, Math.abs(a), Math.abs(b));
+    const isSamePosition = (position: { x: number; y: number; z: number }) =>
+      isNear(instance.localPosition.x, position.x) &&
+      isNear(instance.localPosition.y, position.y) &&
+      isNear(instance.localPosition.z, position.z);
+
+    if (descriptor.shapeType === 'sphere') {
+      return (
+        instance.shape.type === 'sphere' &&
+        isNear(instance.shape.radius, descriptor.radius) &&
+        isSamePosition(descriptor.center)
+      );
+    }
+
+    return (
+      instance.shape.type === 'box' &&
+      isNear(instance.shape.size.x, descriptor.aabb.sizeX) &&
+      isNear(instance.shape.size.y, descriptor.aabb.sizeY) &&
+      isNear(instance.shape.size.z, descriptor.aabb.sizeZ) &&
+      isSamePosition(descriptor.aabb.centerPoint)
+    );
   }
 
   /**
@@ -576,6 +711,7 @@ export class RaymarchingComponent extends Component {
     this.__rrnJson = JSON.parse(JSON.stringify(raymarchingComponent.__rrnJson));
     this.__sdfShapeType = raymarchingComponent.__sdfShapeType;
     this.__uniformValueProvider = raymarchingComponent.__uniformValueProvider;
+    this.__generatedColliderShapeIndices = [...raymarchingComponent.__generatedColliderShapeIndices];
     this.isPickable = raymarchingComponent.isPickable;
     this.invalidateAABB();
   }

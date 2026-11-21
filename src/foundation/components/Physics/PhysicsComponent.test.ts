@@ -348,6 +348,29 @@ describe('PhysicsComponent shape bindings', async () => {
     expect(fixture.motionCalls.at(-1)?.move).toBe(false);
   });
 
+  test('removes all bindings that reference one shape index', () => {
+    const fixture = createFixture();
+    const physics = fixture.entity.getPhysics();
+    physics.bindShape({
+      shapeComponent: fixture.shape,
+      shapeIndex: 0,
+      body: { move: false, density: 1 },
+      collider,
+    });
+    physics.bindShape({
+      shapeComponent: fixture.shape,
+      shapeIndex: 1,
+      body: { move: false, density: 1 },
+      collider,
+    });
+
+    expect(physics.removeShapeBindingsForShape(fixture.shape, 0)).toBe(1);
+    expect(physics.shapeBindingCount).toBe(1);
+    expect(fixture.calls.at(-1)).toHaveLength(1);
+    expect(fixture.calls.at(-1)?.[0].shape.shape.type).toBe('sphere');
+    expect(physics.removeShapeBindingsForShape(fixture.shape, 0)).toBe(0);
+  });
+
   test('keeps shape references stable when an earlier shape is removed', () => {
     const fixture = createFixture();
     const physics = fixture.entity.getPhysics();

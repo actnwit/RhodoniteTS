@@ -113,6 +113,75 @@ function createSphereGraphWithoutWorldMatrix(): Rn.NodeJSON {
   };
 }
 
+function createSphereGraphWithRadius(radius: number): Rn.NodeJSON {
+  const graph = createSphereGraph();
+  const radiusNode = {
+    id: 'radius',
+    name: 'ConstantScalarFloat',
+    outputs: { out1: { id: 'radius_out', label: 'Scalar<float> Out', socket: { name: 'Scalar<float>' } } },
+    inputs: {},
+    controls: { in1: { value: radius } },
+    position: { x: 0, y: 0 },
+  };
+  const sphere = graph.nodes.find(node => node.name === 'SdSphere');
+  if (sphere == null) {
+    throw new Error('Sphere node is missing.');
+  }
+  graph.nodes.push(radiusNode as Rn.NodeJSON['nodes'][number]);
+  graph.connections.push({
+    id: 'c_radius',
+    from: { id: 'radius', portName: 'out1' },
+    to: { id: sphere.id, portName: 'radius' },
+  });
+  return graph;
+}
+
+function createInfiniteTubeGraph(): Rn.NodeJSON {
+  const initialNode = {
+    id: 'initial',
+    name: 'InitialPosition',
+    outputs: { outPosition: { id: 'initial_out', label: 'Out Position', socket: { name: 'Vector3<float>' } } },
+    inputs: {},
+    controls: {},
+    position: { x: 0, y: 0 },
+  };
+  const tubeNode = {
+    id: 'tube',
+    name: 'SdTubeX',
+    outputs: { outDistance: { id: 'tube_out', label: 'Out Distance', socket: { name: 'Scalar<float>' } } },
+    inputs: {
+      position: { id: 'tube_in', label: 'Position', socket: { name: 'Vector3<float>' } },
+      width: { id: 'tube_width', label: 'Width', socket: { name: 'Scalar<float>' } },
+    },
+    controls: {},
+    position: { x: 0, y: 0 },
+  };
+  const outNode = {
+    id: 'out',
+    name: 'OutUnion',
+    outputs: {},
+    inputs: { in1: { id: 'out_in', label: 'In Scalar<float>', socket: { name: 'Scalar<float>' } } },
+    controls: {},
+    position: { x: 0, y: 0 },
+  };
+
+  return {
+    nodes: [initialNode, tubeNode, outNode] as Rn.NodeJSON['nodes'],
+    connections: [
+      {
+        id: 'c1',
+        from: { id: 'initial', portName: 'outPosition' },
+        to: { id: 'tube', portName: 'position' },
+      },
+      {
+        id: 'c2',
+        from: { id: 'tube', portName: 'outDistance' },
+        to: { id: 'out', portName: 'in1' },
+      },
+    ],
+  };
+}
+
 describe('Raymarching AABB integration', async () => {
   const engine = await Rn.Engine.init({
     approach: Rn.ProcessApproach.None,
@@ -193,6 +262,62 @@ describe('Raymarching AABB integration', async () => {
     expect(result.aabb.sizeX).toBeCloseTo(2);
     const shape = entity.tryToGetShape()?.getShape(result.shapeIndex);
     expect(shape?.shape.type).toBe('box');
+  });
+
+  test('updates generated collider shapes when the graph changes', () => {
+    const entity = Rn.createRaymarchingEntity(engine);
+    const component = entity.getRaymarching();
+    component.rrnJson = createSphereGraphWithRadius(1);
+
+    const result = component.addColliderShape();
+    expect(result?.shapeType).toBe('sphere');
+    if (result?.shapeType !== 'sphere') {
+      return;
+    }
+
+    const shapeComponent = entity.tryToGetShape();
+    expect(shapeComponent).toBeDefined();
+    if (shapeComponent == null) {
+      return;
+    }
+
+    const physicsEntity = entity.engine.entityRepository.addComponentToEntity(Rn.PhysicsComponent, entity);
+    const physics = physicsEntity.getPhysics();
+    const bindingCalls: Array<readonly Rn.PhysicsShapeInstanceBinding[]> = [];
+    physics.setStrategy({
+      update: () => {},
+      setShapeInstances: bindings => {
+        bindingCalls.push(bindings);
+      },
+      clearShapeInstances: () => {},
+    });
+    physics.bindShape({
+      shapeComponent,
+      shapeIndex: result.shapeIndex,
+      body: { move: false, density: 1 },
+      collider: { friction: 0.5, restitution: 0 },
+    });
+
+    expect(component.updateColliderShapes()).toBe(0);
+
+    component.rrnJson = createSphereGraphWithRadius(3);
+    expect(component.updateColliderShapes()).toBe(1);
+
+    const updated = shapeComponent.getShape(result.shapeIndex);
+    expect(updated?.shape.type).toBe('sphere');
+    if (updated?.shape.type === 'sphere') {
+      expect(updated.shape.radius).toBeCloseTo(3);
+    }
+    const latestBinding = bindingCalls.at(-1)?.[0];
+    expect(latestBinding?.shape.shape.type).toBe('sphere');
+    if (latestBinding?.shape.shape.type === 'sphere') {
+      expect(latestBinding.shape.shape.radius).toBeCloseTo(3);
+    }
+
+    component.rrnJson = createInfiniteTubeGraph();
+    expect(component.updateColliderShapes()).toBe(1);
+    expect(shapeComponent.getShape(result.shapeIndex)).toBeUndefined();
+    expect(physics.shapeBindingCount).toBe(0);
   });
 
   test('copies the SDF graph when the component is copied', () => {

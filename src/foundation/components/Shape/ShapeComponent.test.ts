@@ -166,6 +166,27 @@ describe('ShapeComponent', async () => {
     expect(() => component.addBoxFromAabb(new Rn.AABB())).toThrow('uninitialized AABB');
   });
 
+  test('replaces a shape in place while keeping its index', () => {
+    const component = Rn.createShapeEntity(engine).getShape();
+    const index = component.addShape(
+      { type: 'box', size: Rn.Vector3.fromCopy3(2, 4, 6) },
+      { position: Rn.Vector3.fromCopy3(1, 2, 3) }
+    );
+
+    expect(
+      component.updateShape(index, { type: 'sphere', radius: 2 }, { position: Rn.Vector3.fromCopy3(4, 5, 6) })
+    ).toBe(true);
+    expect(component.shapeCount).toBe(1);
+
+    const instance = component.getShape(index);
+    expect(instance?.shape.type).toBe('sphere');
+    if (instance?.shape.type === 'sphere') {
+      expect(instance.shape.radius).toBe(2);
+    }
+    expect(instance?.localPosition.isEqual(Rn.Vector3.fromCopy3(4, 5, 6))).toBe(true);
+    expect(component.updateShape(999, { type: 'sphere', radius: 1 })).toBe(false);
+  });
+
   test('creates and toggles an empty shape gizmo without a rendering backend', () => {
     const entity = Rn.createShapeEntity(engine);
     const component = entity.getShape();

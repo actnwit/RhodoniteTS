@@ -205,6 +205,39 @@ export class PhysicsComponent extends Component {
     }
   }
 
+  /**
+   * Removes every shape binding that references one ShapeComponent shape.
+   * @param shapeComponent - ShapeComponent owning the shape
+   * @param shapeIndex - Shape index referenced by the bindings
+   * @returns The number of removed bindings
+   */
+  removeShapeBindingsForShape(shapeComponent: ShapeComponent, shapeIndex: number): number {
+    const next = new Map<number, PhysicsShapeBinding>();
+    const sensorBindingIds: number[] = [];
+    let removed = 0;
+    for (const [bindingId, binding] of this.__shapeBindings) {
+      if (binding.shapeComponent === shapeComponent && (binding.shapeIndex ?? 0) === shapeIndex) {
+        removed++;
+        if (binding.collider.isSensor) {
+          sensorBindingIds.push(bindingId);
+        }
+        continue;
+      }
+      next.set(bindingId, binding);
+    }
+
+    if (removed === 0) {
+      return 0;
+    }
+
+    this.__applyShapeBindingsTransaction(next);
+    this.__shapeBindings = next;
+    for (const bindingId of sensorBindingIds) {
+      TriggerComponent._unregisterSensorBinding(this.__engine, this.entity.entityUID, bindingId);
+    }
+    return removed;
+  }
+
   removeShapeBinding(bindingId: number): boolean {
     const removed = this.__shapeBindings.get(bindingId);
     if (removed == null) {
