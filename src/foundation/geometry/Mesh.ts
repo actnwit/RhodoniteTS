@@ -55,6 +55,8 @@ export class Mesh implements IMesh {
   private __variationEntityInfo?: Uint32Array;
   /** EntityUIDs of the instances stored in `__variationEntityInfo`. */
   private __variationEntityUIDs?: Int32Array;
+  /** Whether no instance has a skeletal or blend shape component (see `_isGpuCullable`). */
+  private __isGpuCullable = false;
   /** Mirror of the current content of the variation VBO (WebGL). */
   private __variationVBOContent?: Uint32Array;
   /** Scratch buffer to pack the instance variation data of the visible instances. */
@@ -103,6 +105,17 @@ export class Mesh implements IMesh {
   private static __tmpReturnVec3_2: MutableVector3 = MutableVector3.zero();
 
   private __primitivePositionUpdateCount = 0;
+  /** Incremented when the primitive positions of any mesh are updated. */
+  private static __primitivePositionUpdateVersion = 0;
+
+  /**
+   * A version incremented whenever the primitive positions of any mesh are updated (see
+   * `primitivePositionUpdateCount`), so that caches of the local bounding boxes can be revalidated cheaply.
+   * @internal
+   */
+  static get _primitivePositionUpdateVersion(): number {
+    return Mesh.__primitivePositionUpdateVersion;
+  }
 
   /**
    * Constructor
@@ -350,6 +363,7 @@ export class Mesh implements IMesh {
     // const entityInfo = new Float32Array(instanceNum);
     const entityInfo = new Uint32Array(instanceNum * 4);
     const entityUIDs = new Int32Array(instanceNum);
+    let isGpuCullable = instanceNum > 0;
     for (let i = 0; i < instanceNum; i++) {
       entityUIDs[i] = this.__belongToEntities[i].entityUID;
       entityInfo[4 * i + 0] = this.__belongToEntities[i].getSceneGraph().componentSID;
@@ -365,7 +379,11 @@ export class Mesh implements IMesh {
       } else {
         entityInfo[4 * i + 2] = INVALID_ID;
       }
+      if (skeletal != null || blendShape != null) {
+        isGpuCullable = false;
+      }
     }
+    this.__isGpuCullable = isGpuCullable;
     if (this.__isInstanceSidTextureMode()) {
       // The instance identities live in the engine-wide SID table instead of a per-mesh VBO.
       this.__variationVBOUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -699,12 +717,32 @@ export class Mesh implements IMesh {
   }
 
   /**
+   * The instance variation data of the instances, as written to the variation VBO by `updateVariationVBO`:
+   * `[sceneGraphSID, skeletalSID, blendShapeSID, 0]` per instance, in the order of `meshEntitiesInner`.
+   * @internal
+   */
+  get _variationEntityInfo(): Uint32Array | undefined {
+    return this.__variationEntityInfo;
+  }
+
+  /**
+   * Whether the instances of this mesh can be culled on the GPU (WebGPU GPU culling).
+   * False when an instance has a skeletal or blend shape component: their bounding boxes depend on the deformation,
+   * so they are culled on the CPU. Updated by `updateVariationVBO`.
+   * @internal
+   */
+  get _isGpuCullable(): boolean {
+    return this.__isGpuCullable;
+  }
+
+  /**
    * Called when primitive position data is updated.
    * Updates the position update counter and moves related entities to Load stage.
    * @internal
    */
   _onPrimitivePositionUpdated() {
     this.__primitivePositionUpdateCount++;
+    Mesh.__primitivePositionUpdateVersion++;
     for (const entity of this.__belongToEntities) {
       entity.getMeshRenderer().moveStageTo(ProcessStage.Load);
     }

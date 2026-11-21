@@ -25,6 +25,7 @@ type ConfigInitDescription = {
   logLevel?: LogLevel;
   isMultiDrawEnabled?: boolean;
   isDepthPrepassEnabled?: boolean;
+  isGpuCullingEnabled?: boolean;
   isClusteredForwardEnabled?: boolean;
   clusteredForwardBuildMode?: ClusteredForwardBuildMode;
   clusteredForwardGridSize?: [number, number, number];
@@ -294,6 +295,21 @@ export class Config {
    * extra geometry pass hurts scenes with little overdraw or heavy vertex shaders.
    */
   isDepthPrepassEnabled = false;
+  /**
+   * Whether to cull the instances against the view frustum on the GPU (WebGPU only).
+   *
+   * @remarks
+   * Each frame, one compute pass tests the instances of the drawn meshes against the frustum of the render pass camera
+   * and writes the visible instances and their count for indirect draws (`drawIndexedIndirect`). The render bundles
+   * record the indirect draws, so they no longer have to be re-recorded when the camera moves and the set of visible
+   * objects changes, and the instances of an instanced mesh are culled one by one.
+   *
+   * Meshes with skinning or blend shapes keep the CPU frustum culling (their bounding boxes depend on the deformation).
+   * A culled mesh still records its (zero-instance) draw, so its pipeline and bind groups are still set.
+   * The WebGL2 backend ignores this option. `MeshRendererComponent._isFrustumCullingEnabled = false` disables both
+   * the CPU and the GPU culling.
+   */
+  isGpuCullingEnabled = true;
 
   constructor(initDescription: ConfigInitDescription = {}) {
     if (initDescription.scenegraphComponentCountPerBufferView !== undefined) {
@@ -350,6 +366,9 @@ export class Config {
     }
     if (initDescription.isDepthPrepassEnabled !== undefined) {
       this.isDepthPrepassEnabled = initDescription.isDepthPrepassEnabled;
+    }
+    if (initDescription.isGpuCullingEnabled !== undefined) {
+      this.isGpuCullingEnabled = initDescription.isGpuCullingEnabled;
     }
     if (initDescription.isClusteredForwardEnabled !== undefined) {
       this.isClusteredForwardEnabled = initDescription.isClusteredForwardEnabled;

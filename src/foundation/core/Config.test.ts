@@ -13,3 +13,8 @@ test('Config.maxLightNumberOrOne keeps shader array lengths valid', () => {
   expect(new Config({ maxLightNumber: 3 }).maxLightNumberOrOne).toBe(3);
   expect(new Config().maxLightNumberOrOne).toBe(6);
 });
+
+test('Config.isGpuCullingEnabled defaults to true and can be disabled', () => {
+  expect(new Config().isGpuCullingEnabled).toBe(true);
+  expect(new Config({ isGpuCullingEnabled: false }).isGpuCullingEnabled).toBe(false);
+});

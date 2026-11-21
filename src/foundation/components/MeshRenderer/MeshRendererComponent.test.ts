@@ -106,3 +106,112 @@ describe('MeshRendererComponent.__comparePrimitives', () => {
     expect(collectUids(primitives)).toEqual([1, 2, 0, 3]);
   });
 });
+
+describe('MeshRendererComponent.__cullSiblingInstances', () => {
+  function createSibling(entityUID: number) {
+    return { entityUID, getSceneGraph: () => ({ isVisible: true }), getTagValue: () => undefined, getMesh: () => ({}) };
+  }
+
+  function createCullingScratch() {
+    return {
+      culledEntityStamp: new Uint32Array(8),
+      handledEntityStamp: new Uint32Array(8),
+      meshCullTick: new WeakMap(),
+      culledEntityCount: 0,
+    };
+  }
+
+  function setUp(isGpuCullable: boolean) {
+    const siblings = [createSibling(1), createSibling(2), createSibling(3)];
+    const mesh = { meshEntitiesInner: siblings, _isGpuCullable: isGpuCullable };
+    const meshComponent = { _isAlive: true, mesh };
+    let cullingCalls = 0;
+    // A frustum that culls everything it is asked about.
+    const frustum = {
+      culling: () => {
+        cullingCalls++;
+        return false;
+      },
+    };
+    const scratch = createCullingScratch();
+    // The registered entity (1) was handled by the main culling loop.
+    scratch.handledEntityStamp[1] = 1;
+    return { meshComponent, frustum, scratch, getCullingCalls: () => cullingCalls };
+  }
+
+  test('culls the siblings that are not registered in the render pass on the CPU', () => {
+    const { meshComponent, frustum, scratch, getCullingCalls } = setUp(true);
+
+    helpers.__cullSiblingInstances([meshComponent], frustum, scratch, 1, false);
+
+    expect(getCullingCalls()).toBe(2);
+    expect(scratch.culledEntityStamp[2]).toBe(1);
+    expect(scratch.culledEntityStamp[3]).toBe(1);
+    expect(scratch.culledEntityCount).toBe(2);
+  });
+
+  test('skips the meshes culled on the GPU', () => {
+    const { meshComponent, frustum, scratch, getCullingCalls } = setUp(true);
+
+    helpers.__cullSiblingInstances([meshComponent], frustum, scratch, 1, true);
+
+    expect(getCullingCalls()).toBe(0);
+    expect(scratch.culledEntityCount).toBe(0);
+  });
+
+  test('keeps culling the siblings of meshes that are not GPU cullable', () => {
+    const { meshComponent, frustum, scratch, getCullingCalls } = setUp(false);
+
+    helpers.__cullSiblingInstances([meshComponent], frustum, scratch, 1, true);
+
+    expect(getCullingCalls()).toBe(2);
+    expect(scratch.culledEntityCount).toBe(2);
+  });
+});
+
+describe('MeshRendererComponent.__appendPrimitivesOfCulledInstancedMeshes', () => {
+  function setUp(culledEntityUIDs: number[]) {
+    const primitives = [createPrimitive(10), createPrimitive(11)];
+    const instances = [1, 2, 3].map(entityUID => ({ entityUID }));
+    const mesh = { meshEntitiesInner: instances, primitives };
+    const meshComponent = { _isAlive: true, mesh, entityUID: 1 };
+    const scratch = {
+      culledEntityStamp: new Uint32Array(8),
+      culledInstancedMeshComponents: [meshComponent],
+      meshAppendTick: new WeakMap(),
+    };
+    for (const entityUID of culledEntityUIDs) {
+      scratch.culledEntityStamp[entityUID] = 1;
+    }
+    return { mesh, scratch };
+  }
+
+  test('draws the mesh when an instance other than the culled registered one is visible', () => {
+    const { scratch } = setUp([1, 3]);
+    const outPrimitives: unknown[] = [];
+
+    helpers.__appendPrimitivesOfCulledInstancedMeshes(undefined, outPrimitives, scratch, 1);
+
+    expect(collectUids(outPrimitives)).toEqual([10, 11]);
+    expect(scratch.culledInstancedMeshComponents.length).toBe(0);
+  });
+
+  test('drops the mesh when every instance is culled', () => {
+    const { scratch } = setUp([1, 2, 3]);
+    const outPrimitives: unknown[] = [];
+
+    helpers.__appendPrimitivesOfCulledInstancedMeshes(undefined, outPrimitives, scratch, 1);
+
+    expect(outPrimitives.length).toBe(0);
+  });
+
+  test('does not append a mesh whose primitives were already appended by a visible registered instance', () => {
+    const { mesh, scratch } = setUp([1]);
+    scratch.meshAppendTick.set(mesh, 1);
+    const outPrimitives: unknown[] = [];
+
+    helpers.__appendPrimitivesOfCulledInstancedMeshes(undefined, outPrimitives, scratch, 1);
+
+    expect(outPrimitives.length).toBe(0);
+  });
+});

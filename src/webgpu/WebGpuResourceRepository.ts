@@ -47,6 +47,7 @@ import type { TextureData, VertexHandles } from '../webgl/WebGLResourceRepositor
 import { packRgbaRowsForUpload } from './packRgbaRowsForUpload';
 import { WebGpuBufferArena, type WebGpuBufferRange } from './WebGpuBufferArena';
 import type { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
+import { type GpuCulledDraw, WebGpuGpuCulling } from './WebGpuGpuCulling';
 import { WebGpuGpuTimer } from './WebGpuGpuTimer';
 
 export type WebGpuResource =
@@ -170,7 +171,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   /** State last recorded into the current render bundle encoder, used to skip redundant commands. */
   private __bundlePipeline?: GPURenderPipeline;
   private __bundleBindGroups: (GPUBindGroup | undefined)[] = [];
-  private __bundleVertexBuffers: (WebGpuBufferRange | undefined)[] = [];
+  private __bundleVertexBuffers: ({ buffer: GPUBuffer; offset: number; size: number } | undefined)[] = [];
   private __bundleIndexBuffer?: WebGpuBufferRange;
   /**
    * Vertex and index data of all primitives (and the per-mesh instance buffers), packed into a few
@@ -185,6 +186,16 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   /** Cached `gpuDevice.queue` ([SameObject]), read on every frame by flush(). */
   private __gpuQueue?: GPUQueue;
   private __renderBundles: Map<string, GPURenderBundle> = new Map();
+  /**
+   * The GPU frustum culling of the instances (Config.isGpuCullingEnabled), created on first use. Its allocations
+   * are owned by the render bundles in `__renderBundles`, so every change of that map is reported to it
+   * (see __clearRenderBundleCache).
+   */
+  private __gpuCulling?: WebGpuGpuCulling;
+  /** Set when the GPU culling recreated its buffers: the render bundles binding them were dropped. */
+  private __isGpuCullingResetPending = false;
+  private __lastIsGpuCullingEnabled?: boolean;
+  private __lastIsFrustumCullingEnabled?: boolean;
   /** Fragment module of the depth prepass pipelines (it writes nothing; the color targets use writeMask 0). */
   private __depthOnlyFragmentModule?: GPUShaderModule;
   private __renderBundleEncoder?: GPURenderBundleEncoder;
@@ -271,7 +282,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     this.__samplerBindGroupCache.clear();
     this.__bindGroupStorageBuffer = undefined;
     this.__storageBindGroupBuffers.length = 0;
-    this.__renderBundles.clear();
+    this.__clearRenderBundleCache();
   }
 
   /**
@@ -1231,7 +1242,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     // A released range can be reused for other data right away. Recorded render bundles may still bind
     // it, so drop them; they are re-recorded on the next frame. Releases are rare (meshes or instances
     // being replaced), so this does not affect static scenes.
-    this.__renderBundles.clear();
+    this.__clearRenderBundleCache();
     return true;
   }
 
@@ -1747,10 +1758,13 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       // Vertex and index data are ranges of a few shared buffers (see WebGpuBufferArena).
       const vertexBufferRanges = this.__vertexBufferRanges;
       const boundVertexBuffers = this.__bundleVertexBuffers;
-      const variationVBO = vertexBufferRanges.get(mesh._variationVBOUid)!;
-      if (boundVertexBuffers[0] !== variationVBO) {
-        renderBundleEncoder.setVertexBuffer(0, variationVBO.buffer, variationVBO.offset, variationVBO.size);
-        boundVertexBuffers[0] = variationVBO;
+      // With GPU culling, the instance vertex buffer is the range of the visible instances written by the culling
+      // compute pass (same layout as the variation VBO), and the instance count comes from an indirect buffer.
+      const culledDraw = this.__registerGpuCulledDraw(engine, primitive, mesh, renderPass, cameraId);
+      const instanceBuffer = culledDraw?.instanceVertexBuffer ?? vertexBufferRanges.get(mesh._variationVBOUid)!;
+      if (boundVertexBuffers[0] !== instanceBuffer) {
+        renderBundleEncoder.setVertexBuffer(0, instanceBuffer.buffer, instanceBuffer.offset, instanceBuffer.size);
+        boundVertexBuffers[0] = instanceBuffer;
       }
       const vboHandles = VertexHandles!.vboHandles;
       for (let i = 0; i < vboHandles.length; i++) {
@@ -1774,13 +1788,79 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           this.__bundleIndexBuffer = indicesBuffer;
           this.__bundleIndexFormat = indexBitSize;
         }
-        const indicesAccessor = primitive.indicesAccessor!;
-        renderBundleEncoder.drawIndexed(indicesAccessor.elementCount, mesh.meshEntitiesInner.length);
+        if (culledDraw != null) {
+          renderBundleEncoder.drawIndexedIndirect(culledDraw.indirectBuffer, culledDraw.indirectOffset);
+        } else {
+          const indicesAccessor = primitive.indicesAccessor!;
+          renderBundleEncoder.drawIndexed(indicesAccessor.elementCount, mesh.meshEntitiesInner.length);
+        }
+      } else if (culledDraw != null) {
+        renderBundleEncoder.drawIndirect(culledDraw.indirectBuffer, culledDraw.indirectOffset);
       } else {
         const vertexCount = primitive.attributeAccessors[0].elementCount;
         renderBundleEncoder.draw(vertexCount, mesh.meshEntitiesInner.length);
       }
     }
+  }
+
+  /**
+   * Registers the draw of a primitive for GPU culling when it applies, so that it is recorded as an indirect draw.
+   * The condition must match the one of the CPU culling (MeshRendererComponent.__cullingWithViewFrustum), which
+   * keeps the primitives of such meshes in the render list regardless of their visibility.
+   *
+   * @returns The indirect draw, or undefined to draw every instance directly (GPU culling disabled, not applicable,
+   *   or its tables are full for this frame)
+   */
+  private __registerGpuCulledDraw(
+    engine: Engine,
+    primitive: Primitive,
+    mesh: Mesh,
+    renderPass: RenderPass,
+    cameraId: number
+  ): GpuCulledDraw | undefined {
+    const gpuCulling = this.__gpuCulling;
+    if (
+      gpuCulling == null ||
+      !gpuCulling.isRecording ||
+      !mesh._isGpuCullable ||
+      !MeshRendererComponent._isGpuCullingActive(engine, renderPass)
+    ) {
+      return undefined;
+    }
+    const elementCount = primitive.hasIndices()
+      ? primitive.indicesAccessor!.elementCount
+      : primitive.attributeAccessors[0].elementCount;
+    return gpuCulling.registerDraw(engine, mesh, cameraId, elementCount);
+  }
+
+  /**
+   * Notifies the GPU culling that the GPU instance data (transforms, visibility, cameras) was uploaded, so the
+   * culling runs again in this frame.
+   * @internal
+   */
+  _markGpuCullingInputsDirty() {
+    this.__gpuCulling?.markInputsDirty();
+  }
+
+  /**
+   * The GPU culling of the instances, if it was created (for tests and statistics).
+   * @internal
+   */
+  _getGpuCulling(): WebGpuGpuCulling | undefined {
+    return this.__gpuCulling;
+  }
+
+  /**
+   * Releases the GPU culling resources. The render bundles recording culled draws are dropped with them.
+   * @internal
+   */
+  _destroyGpuCulling() {
+    if (this.__gpuCulling == null) {
+      return;
+    }
+    this.__clearRenderBundleCache();
+    this.__gpuCulling.destroy();
+    this.__gpuCulling = undefined;
   }
 
   /**
@@ -1999,6 +2079,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     this.__renderBundleEncoder = gpuDevice.createRenderBundleEncoder(renderBundleDescriptor);
     this.__renderBundleEncoderKey = descriptorKey;
     this.__resetBundleEncoderState();
+    // The GPU culling allocations made by the draws of this encoder belong to the bundle it produces.
+    if (engine.config.isGpuCullingEnabled) {
+      this.__gpuCulling ??= new WebGpuGpuCulling(gpuDevice);
+    }
+    this.__gpuCulling?.beginRecording();
   }
 
   /**
@@ -2325,6 +2410,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   }
 
   private __clearRenderBundleEncoder() {
+    // The bundle of the encoder is either dropped or executed once without being cached: in both cases the GPU
+    // culling allocations of its draws are released after the frame.
+    this.__gpuCulling?.abortRecording();
     this.__renderBundleEncoder = undefined;
     this.__resetBundleEncoderState();
     this.__renderBundleEncoderKey = undefined;
@@ -2495,7 +2583,42 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     }
   }
 
+  /**
+   * Drops every cached render bundle. The GPU culling allocations of the dropped bundles are released after the
+   * frame (a dropped bundle may already have been executed in it).
+   */
+  private __clearRenderBundleCache() {
+    this.__renderBundles.clear();
+    this.__gpuCulling?.retireAllBundles();
+  }
+
+  /**
+   * Caches a recorded render bundle, or drops the cache when caching is disabled.
+   */
+  private __cacheRenderBundle(engine: Engine, renderBundleKey: string, renderBundle: GPURenderBundle) {
+    if (engine.config.cacheWebGpuRenderBundles) {
+      this.__gpuCulling?.finishRecording(renderBundleKey);
+      this.__renderBundles.set(renderBundleKey, renderBundle);
+    } else {
+      this.__gpuCulling?.finishRecording(undefined);
+      this.__clearRenderBundleCache();
+    }
+  }
+
   private __toClearRenderBundles(engine: Engine) {
+    // The draws are recorded differently with and without GPU culling (see draw()), and the CPU culling result
+    // that selects the recorded primitives depends on both flags (MeshRendererComponent._isGpuCullingActive).
+    if (
+      this.__isGpuCullingResetPending ||
+      engine.config.isGpuCullingEnabled !== this.__lastIsGpuCullingEnabled ||
+      MeshRendererComponent._isFrustumCullingEnabled !== this.__lastIsFrustumCullingEnabled
+    ) {
+      this.__clearRenderBundleCache();
+      engine.engineState.webgpuRenderBundleMode = false;
+      this.__isGpuCullingResetPending = false;
+      this.__lastIsGpuCullingEnabled = engine.config.isGpuCullingEnabled;
+      this.__lastIsFrustumCullingEnabled = MeshRendererComponent._isFrustumCullingEnabled;
+    }
     // Recorded bundles bind group 0, which must be rebuilt when one of its buffers was replaced.
     const storageBindGroupBuffers = this.__storageBindGroupBuffers;
     if (
@@ -2505,7 +2628,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         storageBindGroupBuffers[2] !== this.__uniformMorphOffsetsBuffer ||
         storageBindGroupBuffers[3] !== this.__uniformMorphWeightsBuffer)
     ) {
-      this.__renderBundles.clear();
+      this.__clearRenderBundleCache();
       engine.engineState.webgpuRenderBundleMode = false;
     }
     if (
@@ -2515,7 +2638,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       Primitive.variantUpdateCount !== this.__lastPrimitivesMaterialVariantUpdateCount ||
       MeshRendererComponent.updateCount !== this.__lastMeshRendererComponentsUpdateCount
     ) {
-      this.__renderBundles.clear();
+      this.__clearRenderBundleCache();
       engine.engineState.webgpuRenderBundleMode = false;
       this.__lastCurrentCameraComponentSid = CameraComponent.getCurrent(engine);
       this.__lastBindingStateVersion = engine.materialRepository.bindingStateVersion;
@@ -2528,7 +2651,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   renderWithRenderBundle(engine: Engine, renderPass: RenderPass, displayIdx: number) {
     this.__toClearRenderBundles(engine);
     if (renderPass._isChangedSortRenderResult || !engine.config.cacheWebGpuRenderBundles) {
-      this.__renderBundles.clear();
+      this.__clearRenderBundleCache();
     }
 
     const renderBundleKey = `${renderPass.renderPassUID}-${displayIdx}`;
@@ -2554,7 +2677,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   ): GPURenderPassEncoder | undefined {
     this.__toClearRenderBundles(engine);
     if (renderPass._isChangedSortRenderResult || !engine.config.cacheWebGpuRenderBundles) {
-      this.__renderBundles.clear();
+      this.__clearRenderBundleCache();
     }
 
     const renderBundleKey = `${renderPass.renderPassUID}-${displayIdx}`;
@@ -2579,12 +2702,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
 
     if (this.__renderPassEncoder != null && this.__renderBundleEncoder != null) {
       const renderBundle = this.__renderBundleEncoder.finish();
-      if (engine.config.cacheWebGpuRenderBundles) {
-        const renderBundleKey = `${renderPass.renderPassUID}-${displayIdx}`;
-        this.__renderBundles.set(renderBundleKey, renderBundle);
-      } else {
-        this.__renderBundles.clear();
-      }
+      this.__cacheRenderBundle(engine, `${renderPass.renderPassUID}-${displayIdx}`, renderBundle);
       this.__executeRenderBundle(renderBundle);
       // Left open for merging. See renderWithRenderBundle().
       this.__clearRenderBundleEncoder();
@@ -2602,12 +2720,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
 
     if (this.__renderPassEncoder != null && this.__renderBundleEncoder != null) {
       const renderBundle = this.__renderBundleEncoder.finish();
-      if (engine.config.cacheWebGpuRenderBundles) {
-        const renderBundleKey = `${renderPass.renderPassUID}-${displayIdx}`;
-        this.__renderBundles.set(renderBundleKey, renderBundle);
-      } else {
-        this.__renderBundles.clear();
-      }
+      this.__cacheRenderBundle(engine, `${renderPass.renderPassUID}-${displayIdx}`, renderBundle);
       this.__executeRenderBundle(renderBundle);
       this.__clearRenderBundleEncoder();
     }
@@ -2835,10 +2948,20 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     }
     this.__flushRenderPassWork();
     const gpuTimer = this.__gpuTimer;
+    const gpuCulling = this.__gpuCulling;
+    // The culling is recorded after the render commands (their draws register what to cull while the bundles are
+    // recorded), but it is submitted before them.
+    const cullingCommands = gpuCulling?.encode(this.__storageBuffer, gpuTimer);
     gpuTimer?.encodeResolve(this.__commandEncoder!);
-    this.__gpuQueue!.submit([this.__commandEncoder!.finish()]);
+    const commands = this.__commandEncoder!.finish();
+    this.__gpuQueue!.submit(cullingCommands != null ? [cullingCommands, commands] : [commands]);
     gpuTimer?.afterSubmit();
     this.__commandEncoder = gpuDevice.createCommandEncoder();
+    if (gpuCulling?.afterSubmit()) {
+      // The culling buffers bound in the bundles were replaced: re-record every bundle on the next frame.
+      this.__clearRenderBundleCache();
+      this.__isGpuCullingResetPending = true;
+    }
 
     if (this.__contextCurrentTextureView != null) {
       this.__contextCurrentTextureView = undefined;
@@ -3609,7 +3732,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     this.__bindGroupLayoutStorageBuffer = layout;
     this.__bindGroupLayoutKeyStorageBuffer = layoutKey;
     // Render bundles recorded before bind the previous group 0, whose buffers may have been destroyed.
-    this.__renderBundles.clear();
+    this.__clearRenderBundleCache();
     return this.__bindGroupStorageBuffer;
   }
 
