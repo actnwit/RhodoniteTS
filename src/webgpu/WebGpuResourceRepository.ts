@@ -132,6 +132,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   private __storageBindGroupBuffers: (GPUBuffer | undefined)[] = [];
   /** Bound to the blend shape slot of group 0 when there is no blend shape buffer. */
   private __dummyBlendShapeBuffer?: GPUBuffer;
+  /** Bound at group 0, binding 4 while the GPU culling (and its deformed vertex buffer) does not exist. */
+  private __dummyDeformedVerticesBuffer?: GPUBuffer;
   private __webGpuRenderPipelineMap: Map<RenderPipelineId, GPURenderPipeline> = new Map();
   private __materialStateVersionMap: Map<RenderPipelineId, number> = new Map();
   private __bindGroupLayoutCache: Map<string, GPUBindGroupLayout> = new Map();
@@ -150,7 +152,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   private __drawParametersBuffers: GPUBuffer[] = [];
   private __drawParametersEntryCountInLastBuffer = 0;
   private static readonly __drawParametersEntriesPerBuffer = 1024;
-  private static __drawParametersValues = new Uint32Array(4);
+  /** The byte size of UniformDrawParameters (prerequisites.wgsl). */
+  private static readonly __drawParametersByteSize = 32;
+  private static __drawParametersValues = new Uint32Array(WebGpuResourceRepository.__drawParametersByteSize / 4);
+  /** The arguments of the last setDrawParameters() call (without the deformed vertex offset). */
+  private __lastDrawParameters = [0, 0, 0, 0];
   private __bindGroupLayoutUniformDrawParameters?: GPUBindGroupLayout;
   /** The group 3 bind group selected by setDrawParameters() for the next draw(). */
   private __currentDrawParametersBindGroup?: GPUBindGroup;
@@ -195,6 +201,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   /** Set when the GPU culling recreated its buffers: the render bundles binding them were dropped. */
   private __isGpuCullingResetPending = false;
   private __lastIsGpuCullingEnabled?: boolean;
+  private __lastIsComputeSkinningEnabled?: boolean;
   private __lastIsFrustumCullingEnabled?: boolean;
   /** Fragment module of the depth prepass pipelines (it writes nothing; the color targets use writeMask 0). */
   private __depthOnlyFragmentModule?: GPUShaderModule;
@@ -1746,6 +1753,15 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       renderBundleEncoder.setBindGroup(2, bindGroups.sampler);
       boundBindGroups[2] = bindGroups.sampler;
     }
+    // With GPU culling, the instance vertex buffer is the range of the visible instances written by the culling
+    // compute pass (same layout as the variation VBO), and the instance count comes from an indirect buffer.
+    const culledDraw = isBufferLessRendering
+      ? undefined
+      : this.__registerGpuCulledDraw(engine, primitive, primitive.mesh as Mesh, renderPass, cameraId);
+    if (culledDraw?.deformedVertexOffset !== undefined) {
+      // The vertex shader reads the vertices deformed by the compute shader at this offset (processGeometry).
+      this.__selectDeformedVertexOffset(culledDraw.deformedVertexOffset);
+    }
     const drawParametersBindGroup = this.__currentDrawParametersBindGroup!;
     if (boundBindGroups[3] !== drawParametersBindGroup) {
       renderBundleEncoder.setBindGroup(3, drawParametersBindGroup);
@@ -1758,9 +1774,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       // Vertex and index data are ranges of a few shared buffers (see WebGpuBufferArena).
       const vertexBufferRanges = this.__vertexBufferRanges;
       const boundVertexBuffers = this.__bundleVertexBuffers;
-      // With GPU culling, the instance vertex buffer is the range of the visible instances written by the culling
-      // compute pass (same layout as the variation VBO), and the instance count comes from an indirect buffer.
-      const culledDraw = this.__registerGpuCulledDraw(engine, primitive, mesh, renderPass, cameraId);
       const instanceBuffer = culledDraw?.instanceVertexBuffer ?? vertexBufferRanges.get(mesh._variationVBOUid)!;
       if (boundVertexBuffers[0] !== instanceBuffer) {
         renderBundleEncoder.setVertexBuffer(0, instanceBuffer.buffer, instanceBuffer.offset, instanceBuffer.size);
@@ -1830,7 +1843,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const elementCount = primitive.hasIndices()
       ? primitive.indicesAccessor!.elementCount
       : primitive.attributeAccessors[0].elementCount;
-    return gpuCulling.registerDraw(engine, mesh, cameraId, elementCount);
+    return gpuCulling.registerDraw(engine, mesh, primitive, cameraId, elementCount);
   }
 
   /**
@@ -2611,12 +2624,14 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (
       this.__isGpuCullingResetPending ||
       engine.config.isGpuCullingEnabled !== this.__lastIsGpuCullingEnabled ||
+      engine.config.isComputeSkinningEnabled !== this.__lastIsComputeSkinningEnabled ||
       MeshRendererComponent._isFrustumCullingEnabled !== this.__lastIsFrustumCullingEnabled
     ) {
       this.__clearRenderBundleCache();
       engine.engineState.webgpuRenderBundleMode = false;
       this.__isGpuCullingResetPending = false;
       this.__lastIsGpuCullingEnabled = engine.config.isGpuCullingEnabled;
+      this.__lastIsComputeSkinningEnabled = engine.config.isComputeSkinningEnabled;
       this.__lastIsFrustumCullingEnabled = MeshRendererComponent._isFrustumCullingEnabled;
     }
     // Recorded bundles bind group 0, which must be rebuilt when one of its buffers was replaced.
@@ -2626,7 +2641,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       (storageBindGroupBuffers[0] !== this.__storageBuffer ||
         storageBindGroupBuffers[1] !== this.__storageBlendShapeBuffer ||
         storageBindGroupBuffers[2] !== this.__uniformMorphOffsetsBuffer ||
-        storageBindGroupBuffers[3] !== this.__uniformMorphWeightsBuffer)
+        storageBindGroupBuffers[3] !== this.__uniformMorphWeightsBuffer ||
+        storageBindGroupBuffers[4] !== this.__getDeformedVerticesBuffer())
     ) {
       this.__clearRenderBundleCache();
       engine.engineState.webgpuRenderBundleMode = false;
@@ -2951,7 +2967,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const gpuCulling = this.__gpuCulling;
     // The culling is recorded after the render commands (their draws register what to cull while the bundles are
     // recorded), but it is submitted before them.
-    const cullingCommands = gpuCulling?.encode(this.__storageBuffer, gpuTimer);
+    const cullingCommands = gpuCulling?.encode(this.__storageBuffer, gpuTimer, {
+      blendShapeData: this.__storageBlendShapeBuffer,
+      morphOffsets: this.__uniformMorphOffsetsBuffer,
+      morphWeights: this.__uniformMorphWeightsBuffer,
+    });
     gpuTimer?.encodeResolve(this.__commandEncoder!);
     const commands = this.__commandEncoder!.finish();
     this.__gpuQueue!.submit(cullingCommands != null ? [cullingCommands, commands] : [commands]);
@@ -3534,14 +3554,30 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param cameraSID - The camera component SID
    * @param currentPrimitiveIdx - The index of the primitive among the primitives with morph targets
    * @param morphTargetNumber - The number of morph targets of the primitive
+   * @param deformedVertexOffset - The offset of the primitive in the deformed vertices of its mesh instance (see
+   *   processGeometry), for a draw of the vertices deformed by the GPU culling's compute shader
    */
-  setDrawParameters(materialSid: Index, cameraSID: Index, currentPrimitiveIdx: Index, morphTargetNumber: Count) {
-    const key = `${materialSid},${cameraSID},${currentPrimitiveIdx},${morphTargetNumber}`;
+  setDrawParameters(
+    materialSid: Index,
+    cameraSID: Index,
+    currentPrimitiveIdx: Index,
+    morphTargetNumber: Count,
+    deformedVertexOffset: Index = 0
+  ) {
+    const lastDrawParameters = this.__lastDrawParameters;
+    lastDrawParameters[0] = materialSid;
+    lastDrawParameters[1] = cameraSID;
+    lastDrawParameters[2] = currentPrimitiveIdx;
+    lastDrawParameters[3] = morphTargetNumber;
+    const key = `${materialSid},${cameraSID},${currentPrimitiveIdx},${morphTargetNumber},${deformedVertexOffset}`;
     let bindGroup = this.__drawParametersBindGroupCache.get(key);
     if (bindGroup == null) {
       const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
       const entriesPerBuffer = WebGpuResourceRepository.__drawParametersEntriesPerBuffer;
-      const stride = Math.max(gpuDevice.limits.minUniformBufferOffsetAlignment, 16);
+      const stride = Math.max(
+        gpuDevice.limits.minUniformBufferOffsetAlignment,
+        WebGpuResourceRepository.__drawParametersByteSize
+      );
       let uniformBuffer = this.__drawParametersBuffers[this.__drawParametersBuffers.length - 1];
       if (uniformBuffer == null || this.__drawParametersEntryCountInLastBuffer >= entriesPerBuffer) {
         uniformBuffer = gpuDevice.createBuffer({
@@ -3557,6 +3593,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       values[1] = cameraSID;
       values[2] = currentPrimitiveIdx;
       values[3] = morphTargetNumber;
+      values[4] = deformedVertexOffset;
       gpuDevice.queue.writeBuffer(uniformBuffer, offset, values);
 
       bindGroup = gpuDevice.createBindGroup({
@@ -3567,7 +3604,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
             resource: {
               buffer: uniformBuffer,
               offset,
-              size: 16,
+              size: WebGpuResourceRepository.__drawParametersByteSize,
             },
           },
         ],
@@ -3577,11 +3614,20 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     this.__currentDrawParametersBindGroup = bindGroup;
   }
 
+  /**
+   * Selects the draw parameters of the last setDrawParameters() call with another deformed vertex offset.
+   */
+  private __selectDeformedVertexOffset(deformedVertexOffset: Index) {
+    const p = this.__lastDrawParameters;
+    this.setDrawParameters(p[0], p[1], p[2], p[3], deformedVertexOffset);
+  }
+
   createUniformMorphOffsetsBuffer(sizeInByte: Count) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const uniformBuffer = gpuDevice.createBuffer({
       size: sizeInByte,
-      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
+      // STORAGE: also read by the vertex deformation compute shader (WebGpuVertexDeformer).
+      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM | GPUBufferUsage.STORAGE,
     });
 
     this.__uniformMorphOffsetsBuffer = uniformBuffer;
@@ -3604,7 +3650,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const uniformBuffer = gpuDevice.createBuffer({
       size: sizeInByte,
-      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
+      // STORAGE: also read by the vertex deformation compute shader (WebGpuVertexDeformer).
+      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM | GPUBufferUsage.STORAGE,
     });
 
     this.__uniformMorphWeightsBuffer = uniformBuffer;
@@ -3675,7 +3722,22 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   }
 
   /**
-   * Returns the group 0 bind group (storage buffer, blend shape buffer and morph uniform buffers).
+   * The buffer bound at group 0, binding 4: the vertices deformed by the GPU culling, or a dummy buffer without it.
+   */
+  private __getDeformedVerticesBuffer(): GPUBuffer {
+    const deformedVerticesBuffer = this.__gpuCulling?.deformedVerticesBuffer;
+    if (deformedVerticesBuffer != null) {
+      return deformedVerticesBuffer;
+    }
+    this.__dummyDeformedVerticesBuffer ??= this.__webGpuDeviceWrapper!.gpuDevice.createBuffer({
+      size: 32,
+      usage: GPUBufferUsage.STORAGE,
+    });
+    return this.__dummyDeformedVerticesBuffer;
+  }
+
+  /**
+   * Returns the group 0 bind group (storage buffer, blend shape buffer, morph uniform buffers, deformed vertices).
    * It is recreated only when one of those buffers is replaced.
    */
   private __getStorageBindGroup(): GPUBindGroup {
@@ -3685,7 +3747,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       buffers[0] === this.__storageBuffer &&
       buffers[1] === this.__storageBlendShapeBuffer &&
       buffers[2] === this.__uniformMorphOffsetsBuffer &&
-      buffers[3] === this.__uniformMorphWeightsBuffer
+      buffers[3] === this.__uniformMorphWeightsBuffer &&
+      buffers[4] === this.__getDeformedVerticesBuffer()
     ) {
       return this.__bindGroupStorageBuffer;
     }
@@ -3693,6 +3756,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     buffers[1] = this.__storageBlendShapeBuffer;
     buffers[2] = this.__uniformMorphOffsetsBuffer;
     buffers[3] = this.__uniformMorphWeightsBuffer;
+    buffers[4] = this.__getDeformedVerticesBuffer();
 
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT;
@@ -3725,6 +3789,10 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       layoutEntries.push({ binding: 3, buffer: { type: 'uniform' }, visibility });
       layoutKey += 'w';
     }
+    // The vertices deformed by the GPU culling's compute shader (read by processGeometry in the vertex shaders).
+    entries.push({ binding: 4, resource: { buffer: buffers[4]! } });
+    layoutEntries.push({ binding: 4, buffer: { type: 'read-only-storage' }, visibility: GPUShaderStage.VERTEX });
+    layoutKey += 'd';
     layoutKey = `storage:${layoutKey}`;
 
     const layout = this.__getOrCreateBindGroupLayout(layoutKey, layoutEntries);

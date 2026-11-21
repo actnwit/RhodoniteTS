@@ -14,12 +14,19 @@ struct UniformMorphWeights {
   data: array<vec4<f32>, /* shaderity: @{maxMorphWeightsDataNumber} */ >,
 }
 @group(0) @binding(3) var<uniform> uniformMorphWeights: UniformMorphWeights;
+// The vertices morphed and skinned by the compute shader of the GPU culling (2 vec4 per vertex, see processGeometry)
+@group(0) @binding(4) var<storage> deformedVertices: array<vec4<f32>>;
 
 struct UniformDrawParameters {
   materialSid: u32,
   cameraSID: u32,
   currentPrimitiveIdx: u32,
   morphTargetNumber: u32,
+  // The index of the first deformed vertex of the drawn primitive in the deformed vertices of its mesh instance
+  deformedVertexOffset: u32,
+  padding0: u32,
+  padding1: u32,
+  padding2: u32,
 }
 
 @group(3) @binding(0) var<uniform> uniformDrawParameters: UniformDrawParameters;

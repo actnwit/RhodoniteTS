@@ -64,6 +64,8 @@ type MeshRendererSortScratch = {
   keyedPrimitives: { primitive: Primitive | null; keyId: number; index: number }[];
   /** Whether the latest sort ran with GPU culling active (see `_isGpuCullingActive`); undefined before the first. */
   isGpuCullingActive: boolean | undefined;
+  /** `Config.isComputeSkinningEnabled` of the latest sort; undefined before the first. */
+  isComputeSkinningEnabled: boolean | undefined;
   /**
    * The culled mesh components of the latest culling whose mesh is shared by other instances. Their primitives are
    * still drawn when another instance of the mesh is visible (see `__appendPrimitivesOfCulledInstancedMeshes`).
@@ -373,11 +375,14 @@ export class MeshRendererComponent extends Component {
       CameraControllerComponent.getUpdateCount(engine) === renderPass._lastCameraControllerComponentsUpdateCount &&
       SceneGraphComponent.getUpdateCount(engine) === renderPass._lastSceneGraphComponentsUpdateCount &&
       multiDrawGroupVersion === renderPass._lastMultiDrawGroupVersion &&
-      isGpuCullingActive === scratch.isGpuCullingActive
+      isGpuCullingActive === scratch.isGpuCullingActive &&
+      engine.config.isComputeSkinningEnabled === scratch.isComputeSkinningEnabled
     ) {
       return renderPass._lastPrimitiveUids;
     }
     scratch.isGpuCullingActive = isGpuCullingActive;
+    // Mesh._isGpuCullable of the deformed meshes depends on it.
+    scratch.isComputeSkinningEnabled = engine.config.isComputeSkinningEnabled;
 
     // get CameraComponent
     let cameraComponent = renderPass.cameraComponent;
@@ -614,6 +619,17 @@ export class MeshRendererComponent extends Component {
       if (isGpuCullingActive && meshComponent.mesh?._isGpuCullable === true) {
         // Culled per instance on the GPU, including the visibility flag (WebGpuGpuCulling).
         sceneGraph._isCulled = false;
+        const skeletal = meshComponent.entity.tryToGetSkeletal();
+        if (skeletal !== undefined) {
+          // The joints of a skeleton outside of the view are not updated (SkeletalComponent.$logic). This keeps the
+          // approximate test of the CPU culling for it; the GPU culling decides from the deformed bounding box whether
+          // the mesh is drawn.
+          let visible = sceneGraph.isVisible;
+          if (visible && frustum != null && meshComponent.entity.getTagValue('type') !== 'background-assets') {
+            visible = frustum.culling(meshComponent);
+          }
+          skeletal._isCulled = !visible;
+        }
         MeshRendererComponent.__appendPrimitivesOfMeshComponent(meshComponent, cameraComponent, outPrimitives);
         MeshRendererComponent.__markMeshAppended(meshComponent, scratch, cullTick);
         continue;
@@ -938,6 +954,7 @@ export class MeshRendererComponent extends Component {
         cullingId: 0,
         keyedPrimitives: [],
         isGpuCullingActive: undefined,
+        isComputeSkinningEnabled: undefined,
         culledInstancedMeshComponents: [],
         meshAppendTick: new WeakMap(),
       };

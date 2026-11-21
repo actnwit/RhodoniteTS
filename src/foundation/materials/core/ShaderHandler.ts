@@ -19,6 +19,7 @@ import type { AttributeNames } from '../../../webgl/types/CommonTypes';
 import type { WebGLContextWrapper } from '../../../webgl/WebGLContextWrapper';
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
 import { alphaProcessWgsl } from '../../../webgpu/shaderity_shaders/common/alphaProcess';
+import { boneDecodeWgsl } from '../../../webgpu/shaderity_shaders/common/boneDecode';
 import { fullscreenWgsl } from '../../../webgpu/shaderity_shaders/common/fullscreen';
 import { iblDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/iblDefinition';
 import { mainPrerequisitesWgsl } from '../../../webgpu/shaderity_shaders/common/mainPrerequisites';
@@ -504,7 +505,8 @@ export function _createProgramAsSingleOperationWebGpu(
       pbrDefinition: pbrDefinitionWgsl.code,
       iblDefinition: iblDefinitionWgsl.code,
       alphaProcess: alphaProcessWgsl.code,
-      processGeometry: processGeometryWgsl.code,
+      // The bone decoding is shared with the skinning compute shader (WebGpuVertexDeformer).
+      processGeometry: `#ifdef RN_IS_SKINNING\n${boneDecodeWgsl.code}\n#endif\n${processGeometryWgsl.code}`,
       Config: engine.config,
     }
   );

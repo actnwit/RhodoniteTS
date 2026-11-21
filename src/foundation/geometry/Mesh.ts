@@ -55,8 +55,17 @@ export class Mesh implements IMesh {
   private __variationEntityInfo?: Uint32Array;
   /** EntityUIDs of the instances stored in `__variationEntityInfo`. */
   private __variationEntityUIDs?: Int32Array;
-  /** Whether no instance has a skeletal or blend shape component (see `_isGpuCullable`). */
-  private __isGpuCullable = false;
+  /** Whether the mesh has instances (see `_isGpuCullable`). */
+  private __hasInstances = false;
+  /** Whether an instance has a skeletal component (see `_needsComputeDeformation`). */
+  private __hasSkeletalInstance = false;
+  /** Whether an instance has a blend shape component (see `_needsComputeDeformation`). */
+  private __hasBlendShapeInstance = false;
+  /** Cache of `_isComputeDeformable`, valid for the primitive count, position update count and skeletal flag below. */
+  private __isComputeDeformable = false;
+  private __computeDeformablePrimitiveCount = -1;
+  private __computeDeformablePositionUpdateCount = -1;
+  private __computeDeformableHasSkeletal = false;
   /** Mirror of the current content of the variation VBO (WebGL). */
   private __variationVBOContent?: Uint32Array;
   /** Scratch buffer to pack the instance variation data of the visible instances. */
@@ -363,7 +372,8 @@ export class Mesh implements IMesh {
     // const entityInfo = new Float32Array(instanceNum);
     const entityInfo = new Uint32Array(instanceNum * 4);
     const entityUIDs = new Int32Array(instanceNum);
-    let isGpuCullable = instanceNum > 0;
+    let hasSkeletalInstance = false;
+    let hasBlendShapeInstance = false;
     for (let i = 0; i < instanceNum; i++) {
       entityUIDs[i] = this.__belongToEntities[i].entityUID;
       entityInfo[4 * i + 0] = this.__belongToEntities[i].getSceneGraph().componentSID;
@@ -379,11 +389,12 @@ export class Mesh implements IMesh {
       } else {
         entityInfo[4 * i + 2] = INVALID_ID;
       }
-      if (skeletal != null || blendShape != null) {
-        isGpuCullable = false;
-      }
+      hasSkeletalInstance ||= skeletal != null;
+      hasBlendShapeInstance ||= blendShape != null;
     }
-    this.__isGpuCullable = isGpuCullable;
+    this.__hasInstances = instanceNum > 0;
+    this.__hasSkeletalInstance = hasSkeletalInstance;
+    this.__hasBlendShapeInstance = hasBlendShapeInstance;
     if (this.__isInstanceSidTextureMode()) {
       // The instance identities live in the engine-wide SID table instead of a per-mesh VBO.
       this.__variationVBOUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -727,12 +738,92 @@ export class Mesh implements IMesh {
 
   /**
    * Whether the instances of this mesh can be culled on the GPU (WebGPU GPU culling).
-   * False when an instance has a skeletal or blend shape component: their bounding boxes depend on the deformation,
-   * so they are culled on the CPU. Updated by `updateVariationVBO`.
+   * The bounding boxes of the deformed instances (skinning, blend shapes) depend on the deformation: they are culled on
+   * the GPU only when their vertices are deformed by the compute shader (`Config.isComputeSkinningEnabled` and
+   * `_isComputeDeformable`), which computes their bounding boxes. Otherwise they are culled on the CPU.
+   * Updated by `updateVariationVBO`.
    * @internal
    */
   get _isGpuCullable(): boolean {
-    return this.__isGpuCullable;
+    if (!this.__hasInstances) {
+      return false;
+    }
+    if (!this._needsComputeDeformation) {
+      return true;
+    }
+    return this.__engine.config.isComputeSkinningEnabled && this._isComputeDeformable;
+  }
+
+  /**
+   * Whether the vertices of the instances are deformed when drawn: an instance has a skeletal component, or a blend
+   * shape component while a primitive has morph targets. Updated by `updateVariationVBO`.
+   * @internal
+   */
+  get _needsComputeDeformation(): boolean {
+    if (this.__hasSkeletalInstance) {
+      return true;
+    }
+    if (!this.__hasBlendShapeInstance) {
+      return false;
+    }
+    for (let i = 0; i < this.__primitives.length; i++) {
+      if (this.__primitives[i].targets.length > 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Whether the compute shader of the WebGPU GPU culling can deform the vertices of this mesh like the vertex shaders
+   * do (processGeometry): every primitive has a POSITION attribute, plus JOINTS_0 and WEIGHTS_0 when an instance is
+   * skinned, and every morph target has a POSITION attribute.
+   * @internal
+   */
+  get _isComputeDeformable(): boolean {
+    if (
+      this.__computeDeformablePrimitiveCount === this.__primitives.length &&
+      this.__computeDeformablePositionUpdateCount === this.__primitivePositionUpdateCount &&
+      this.__computeDeformableHasSkeletal === this.__hasSkeletalInstance
+    ) {
+      return this.__isComputeDeformable;
+    }
+    this.__computeDeformablePrimitiveCount = this.__primitives.length;
+    this.__computeDeformablePositionUpdateCount = this.__primitivePositionUpdateCount;
+    this.__computeDeformableHasSkeletal = this.__hasSkeletalInstance;
+    this.__isComputeDeformable = this.__checkComputeDeformable();
+    return this.__isComputeDeformable;
+  }
+
+  private __checkComputeDeformable(): boolean {
+    if (this.__primitives.length === 0) {
+      return false;
+    }
+    const hasAttribute = (semantics: string[], name: string) => semantics.some(s => s.split('.')[0] === name);
+    for (const primitive of this.__primitives) {
+      const semantics = primitive.attributeSemantics;
+      if (!hasAttribute(semantics, 'POSITION')) {
+        return false;
+      }
+      if (
+        this.__hasSkeletalInstance &&
+        (!hasAttribute(semantics, 'JOINTS_0') || !hasAttribute(semantics, 'WEIGHTS_0'))
+      ) {
+        return false;
+      }
+      for (const target of primitive.targets) {
+        let hasPosition = false;
+        for (const semantic of target.keys()) {
+          if (semantic.split('.')[0] === 'POSITION') {
+            hasPosition = true;
+          }
+        }
+        if (!hasPosition) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   /**

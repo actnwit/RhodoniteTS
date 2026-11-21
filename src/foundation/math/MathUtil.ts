@@ -256,7 +256,7 @@ function isUniformScale(x: number, y: number, z: number): boolean {
 
 /**
  * The range of log2(scale) that the uniform scale of the Vec4x1 bone data type can represent: [-16, 16].
- * Must match RN_VEC4X1_LOG2_SCALE_RANGE in the shaders (processGeometry.glsl / processGeometry.wgsl).
+ * Must match RN_VEC4X1_LOG2_SCALE_RANGE in the shaders (processGeometry.glsl / boneDecode.wgsl).
  */
 const VEC4X1_LOG2_SCALE_RANGE = 16;
 
