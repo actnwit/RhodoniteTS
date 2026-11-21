@@ -32,7 +32,9 @@ fn pbrShader(
   let NdotV = saturate(dot(normalInWorld, viewDirection));
 
   // Roughness
-  #ifdef RN_IS_PIXEL_SHADER
+  // Raymarching shades only hit points (non-uniform control flow), where WGSL forbids
+  // derivatives, so it disables the derivative-based specular AA with RN_DISABLE_SPECULAR_AA.
+  #if defined(RN_IS_PIXEL_SHADER) && !defined(RN_DISABLE_SPECULAR_AA)
     let alphaRoughness = perceptualRoughness_ * perceptualRoughness_;
     let alphaRoughness2 = alphaRoughness * alphaRoughness;
     // filter NDF for specular AA --- https://jcgt.org/published/0010/02/02/

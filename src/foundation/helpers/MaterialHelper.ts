@@ -82,6 +82,7 @@ import { ShaderGraphResolver } from '../materials/core/ShaderGraphResolver';
 import { Matrix44 } from '../math/Matrix44';
 import { Scalar } from '../math/Scalar';
 import { Vector2 } from '../math/Vector2';
+import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { VectorN } from '../math/VectorN';
 import { DataUtil } from '../misc/DataUtil';
@@ -2051,6 +2052,157 @@ function addPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: Sha
 }
 
 /**
+ * Adds the material parameters used by the fixed PBR shading of the raymarching
+ * material (base color, metallic, roughness, emissive and the specular/F0 terms).
+ *
+ * @param additionalShaderSemanticInfo - Array to add semantic info to
+ */
+function addRaymarchingPbrSemanticInfo(additionalShaderSemanticInfo: ShaderSemanticsInfo[]) {
+  additionalShaderSemanticInfo.push({
+    semantic: 'raymarchingBaseColor',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Vec4,
+    stage: ShaderType.PixelShader,
+    initialValue: Vector4.fromCopy4(0.8, 0.8, 0.8, 1.0),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'raymarchingMetallic',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Scalar,
+    stage: ShaderType.PixelShader,
+    initialValue: Scalar.fromCopyNumber(0.0),
+    min: 0,
+    max: 1,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'raymarchingRoughness',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Scalar,
+    stage: ShaderType.PixelShader,
+    initialValue: Scalar.fromCopyNumber(0.5),
+    min: 0,
+    max: 1,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'raymarchingEmissive',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Vec3,
+    stage: ShaderType.PixelShader,
+    initialValue: Vector3.fromCopy3(0.0, 0.0, 0.0),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'raymarchingEmissiveStrength',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Scalar,
+    stage: ShaderType.PixelShader,
+    initialValue: Scalar.fromCopyNumber(1.0),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'raymarchingIor',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Scalar,
+    stage: ShaderType.PixelShader,
+    initialValue: Scalar.fromCopyNumber(1.5),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'raymarchingSpecularWeight',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Scalar,
+    stage: ShaderType.PixelShader,
+    initialValue: Scalar.fromCopyNumber(1.0),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'raymarchingSpecularColor',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Vec3,
+    stage: ShaderType.PixelShader,
+    initialValue: Vector3.fromCopy3(1.0, 1.0, 1.0),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+}
+
+/**
+ * Adds the IBL semantics used by the PBR shading of the raymarching material.
+ *
+ * Unlike the mesh material IBL semantics, these are not internal settings: the
+ * raymarching full-screen draw has no mesh renderer component, so the pipeline
+ * sets the environment textures and parameters on the material directly and the
+ * generic per-material upload path has to see them.
+ *
+ * The transmission back buffer texture is intentionally omitted (unused without
+ * RN_USE_TRANSMISSION).
+ */
+function addRaymarchingPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: ShaderSemanticsInfo[]) {
+  const cubeSampler = getSharedSampler(engine, {
+    minFilter: TextureParameter.LinearMipmapLinear,
+    magFilter: TextureParameter.Linear,
+    wrapS: TextureParameter.ClampToEdge,
+    wrapT: TextureParameter.ClampToEdge,
+    wrapR: TextureParameter.ClampToEdge,
+  });
+  const stage = ShaderType.VertexAndPixelShader;
+
+  additionalShaderSemanticInfo.push({
+    semantic: 'diffuseEnvTexture',
+    componentType: ComponentType.Int,
+    compositionType: CompositionType.TextureCube,
+    stage,
+    initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, cubeSampler],
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'specularEnvTexture',
+    componentType: ComponentType.Int,
+    compositionType: CompositionType.TextureCube,
+    stage,
+    initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, cubeSampler],
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'inverseEnvironment',
+    componentType: ComponentType.Bool,
+    compositionType: CompositionType.Scalar,
+    stage,
+    initialValue: Scalar.fromCopyNumber(0),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+  // y and z are the diffuse/specular contributions. Zero by default so that the
+  // IBL work is skipped until the pipeline supplies an environment.
+  additionalShaderSemanticInfo.push({
+    semantic: 'iblParameter',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Vec4,
+    stage,
+    initialValue: Vector4.fromCopy4(1, 0, 0, 0),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'hdriFormat',
+    componentType: ComponentType.Int,
+    compositionType: CompositionType.Vec2,
+    stage,
+    initialValue: Vector2.fromCopy2(0, 0),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+}
+
+/**
  * Adds Sheen related semantic info for PBR shading with sheen.
  * This adds the sheenLutTexture needed for sheen BRDF calculations.
  *
@@ -2137,11 +2289,21 @@ function createNodeBasedRaymarchingCustomMaterial(
 
   const additionalShaderSemanticInfo = addWorldMatrixSemanticsInfoToRaymarchingMaterial(shaderNodeJson);
 
+  // The raymarching shader shades hit points with the shared PBR shader function,
+  // so the material needs the lighting/PBR defines and the IBL/PBR parameters.
+  addRaymarchingPbrIblSemanticInfo(engine, additionalShaderSemanticInfo);
+  addRaymarchingPbrSemanticInfo(additionalShaderSemanticInfo);
+
   const material = reuseOrRecreateCustomMaterial(
     engine,
     shaderCode.vertexShader,
     shaderCode.pixelShader,
-    { additionalShaderSemanticInfo },
+    {
+      isLighting: true,
+      isPbr: true,
+      isShadow: false,
+      additionalShaderSemanticInfo,
+    },
     currentMaterial
   );
 

@@ -4,6 +4,8 @@ import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
 import type { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
 import type { Socket, SocketDefaultValue } from '../../foundation/materials/core/Socket';
 import type { Engine } from '../../foundation/system/Engine';
+import PbrShaderityObjectWGSL from '../../webgpu/shaderity_shaders/nodes/PbrShader.wgsl';
+import PbrShaderityObjectGLSL from '../shaderity_shaders/nodes/PbrShader.glsl';
 import { CommonShaderPart } from './CommonShaderPart';
 
 /**
@@ -131,14 +133,18 @@ fn main(
     let normal=calcNormal(p);
 
     var color = vec3f(0.0);
-    let lightList = getLightList(p, cameraSID);
-    for(var n=0u; n<lightList.count; n++){
-      let lightRef = getLightRef(lightList, n);
-      let light = getLight(u32(lightRef.x), p);
-      if (all(light.attenuatedIntensity == vec3f(0.0))) { continue; }
-      let NdotL = max(dot(normal, light.direction), 0.0);
-      color += light.attenuatedIntensity * NdotL * RECIPROCAL_PI;
-    }
+    #ifdef RN_USE_PBR
+      color = raymarchingPbr(p, normal).rgb;
+    #else
+      let lightList = getLightList(p, cameraSID);
+      for(var n=0u; n<lightList.count; n++){
+        let lightRef = getLightRef(lightList, n);
+        let light = getLight(u32(lightRef.x), p);
+        if (all(light.attenuatedIntensity == vec3f(0.0))) { continue; }
+        let NdotL = max(dot(normal, light.direction), 0.0);
+        color += light.attenuatedIntensity * NdotL * RECIPROCAL_PI;
+      }
+    #endif // RN_USE_PBR
 
     rt0=vec4f(pow(color, vec3f(0.4545)),1.0);// Gamma correction
 
@@ -211,6 +217,9 @@ void main() {
     vec3 normal=calcNormal(p);
 
     vec3 color = vec3(0.0);
+#ifdef RN_USE_PBR
+    color = raymarchingPbr(p, normal).rgb;
+#else
     LightList lightList = getLightList(p, cameraSID);
     for (int n = 0; n < lightList.count; n++) {
       ivec2 lightRef = getLightRef(lightList, n);
@@ -221,6 +230,7 @@ void main() {
       float NdotL = max(dot(normal, light.direction), 0.0);
       color += light.attenuatedIntensity * NdotL * RECIPROCAL_PI;
     }
+#endif // RN_USE_PBR
 
     rt0=vec4(pow(color, vec3(0.4545)),1);// Gamma correction
 
@@ -309,6 +319,8 @@ struct VertexOutput {
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 /* shaderity: @{opticalDefinition} */
+/* shaderity: @{pbrDefinition} */
+/* shaderity: @{iblDefinition} */
 var<private> g_distance: f32 = 1e20; // distance to the surface
 var<private> g_rayPosition: vec3<f32> = vec3f(0.0, 0.0, 0.0);
 
@@ -434,7 +446,8 @@ fn inverseMat4(m: mat4x4<f32>) -> mat4x4<f32> {
     )
   );
 }
-  `;
+`;
+      pixelShaderPrerequisites += RaymarchingShaderPart.__getPbrFunctionsWGSL();
       return pixelShaderPrerequisites;
     }
     let pixelShaderPrerequisites = '';
@@ -449,6 +462,8 @@ in vec2 v_texcoord_0;
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 /* shaderity: @{opticalDefinition} */
+/* shaderity: @{pbrDefinition} */
+/* shaderity: @{iblDefinition} */
 layout(location = 0) out vec4 rt0;
 float g_distance = 1e20; // distance to the surface
 vec3 g_rayPosition = vec3(0,0,0);
@@ -526,7 +541,143 @@ mat4 inverseTransform(mat4 m){
     return inv;
 }
 `;
+    pixelShaderPrerequisites += RaymarchingShaderPart.__getPbrFunctionsGLSL();
     return pixelShaderPrerequisites;
+  }
+
+  /**
+   * Returns the PBR shading function definitions shared with the PBR material
+   * plus the raymarching PBR wrapper used by the fragment shader.
+   */
+  private static __getPbrFunctionsWGSL(): string {
+    return `
+#ifdef RN_USE_PBR
+// Shading runs only for hit points (non-uniform control flow), where WGSL forbids derivatives.
+#define RN_DISABLE_SPECULAR_AA
+${PbrShaderityObjectWGSL.code}
+fn raymarchingPbr(positionInWorld: vec3f, normalInWorld: vec3f) -> vec4f {
+  let materialSID = uniformDrawParameters.materialSid;
+  let occlusionProps = OcclusionProps(vec4f(1.0), 1.0);
+  let emissiveProps = EmissiveProps(
+    get_raymarchingEmissive(materialSID, 0u),
+    get_raymarchingEmissiveStrength(materialSID, 0u)
+  );
+  let specularProps = SpecularProps(
+    get_raymarchingSpecularWeight(materialSID, 0u),
+    get_raymarchingSpecularColor(materialSID, 0u)
+  );
+  let volumeProps = VolumeProps(0.0, vec3f(1.0), 1e20);
+  let clearcoatProps = ClearcoatProps(
+    0.0, 0.0, vec3f(0.0), vec3f(0.0), vec3f(0.0), vec3f(0.0, 0.0, 1.0), normalInWorld, 0.0
+  );
+  let anisotropyProps = AnisotropyProps(0.0, vec3f(0.0), vec3f(0.0), 0.0, 0.0, vec2f(0.0));
+  let sheenProps = SheenProps(vec3f(0.0), 0.0, 1.0);
+  let iridescenceProps = IridescenceProps(0.0, 1.3, 0.0, vec3f(0.0), vec3f(0.0));
+  let diffuseTransmissionProps = DiffuseTransmissionProps(0.0, vec3f(0.0), 0.0);
+
+  var outColor = vec4f(0.0);
+  pbrShader(
+    vec4f(positionInWorld, 1.0), normalInWorld, normalInWorld,
+    mat3x3f(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0),
+    get_raymarchingBaseColor(materialSID, 0u),
+    get_raymarchingMetallic(materialSID, 0u),
+    get_raymarchingRoughness(materialSID, 0u),
+    occlusionProps,
+    emissiveProps,
+    get_raymarchingIor(materialSID, 0u),
+    0.0,
+    specularProps,
+    volumeProps,
+    clearcoatProps,
+    anisotropyProps,
+    sheenProps,
+    iridescenceProps,
+    diffuseTransmissionProps,
+    0.0,
+    &outColor
+  );
+  return outColor;
+}
+#endif // RN_USE_PBR
+`;
+  }
+
+  private static __getPbrFunctionsGLSL(): string {
+    return `
+#ifdef RN_USE_PBR
+// Shading runs only for hit points (non-uniform control flow); keep both backends consistent.
+#define RN_DISABLE_SPECULAR_AA
+${PbrShaderityObjectGLSL.code}
+vec4 raymarchingPbr(vec3 positionInWorld, vec3 normalInWorld) {
+  uint materialSID = uint(u_currentComponentSIDs[0]);
+  OcclusionProps occlusionProps;
+  occlusionProps.occlusionTexture = vec4(1.0);
+  occlusionProps.occlusionStrength = 1.0;
+  EmissiveProps emissiveProps;
+  emissiveProps.emissive = get_raymarchingEmissive(materialSID, 0u);
+  emissiveProps.emissiveStrength = get_raymarchingEmissiveStrength(materialSID, 0u);
+  SpecularProps specularProps;
+  specularProps.specularWeight = get_raymarchingSpecularWeight(materialSID, 0u);
+  specularProps.specularColor = get_raymarchingSpecularColor(materialSID, 0u);
+  VolumeProps volumeProps;
+  volumeProps.thickness = 0.0;
+  volumeProps.attenuationColor = vec3(1.0);
+  volumeProps.attenuationDistance = 1e20;
+  ClearcoatProps clearcoatProps;
+  clearcoatProps.clearcoat = 0.0;
+  clearcoatProps.clearcoatRoughness = 0.0;
+  clearcoatProps.clearcoatF0 = vec3(0.0);
+  clearcoatProps.clearcoatF90 = vec3(0.0);
+  clearcoatProps.clearcoatFresnel = vec3(0.0);
+  clearcoatProps.clearcoatNormal_inTangent = vec3(0.0, 0.0, 1.0);
+  clearcoatProps.clearcoatNormal_inWorld = normalInWorld;
+  clearcoatProps.VdotNc = 0.0;
+  AnisotropyProps anisotropyProps;
+  anisotropyProps.anisotropy = 0.0;
+  anisotropyProps.anisotropicT = vec3(0.0);
+  anisotropyProps.anisotropicB = vec3(0.0);
+  anisotropyProps.BdotV = 0.0;
+  anisotropyProps.TdotV = 0.0;
+  anisotropyProps.direction = vec2(0.0);
+  SheenProps sheenProps;
+  sheenProps.sheenColor = vec3(0.0);
+  sheenProps.sheenRoughness = 0.0;
+  sheenProps.albedoSheenScalingNdotV = 1.0;
+  IridescenceProps iridescenceProps;
+  iridescenceProps.iridescence = 0.0;
+  iridescenceProps.iridescenceIor = 1.3;
+  iridescenceProps.iridescenceThickness = 0.0;
+  iridescenceProps.fresnelDielectric = vec3(0.0);
+  iridescenceProps.fresnelMetal = vec3(0.0);
+  DiffuseTransmissionProps diffuseTransmissionProps;
+  diffuseTransmissionProps.diffuseTransmission = 0.0;
+  diffuseTransmissionProps.diffuseTransmissionColor = vec3(0.0);
+  diffuseTransmissionProps.diffuseTransmissionThickness = 0.0;
+
+  vec4 outColor;
+  pbrShader(
+    vec4(positionInWorld, 1.0), normalInWorld, normalInWorld, mat3(1.0),
+    get_raymarchingBaseColor(materialSID, 0u),
+    get_raymarchingMetallic(materialSID, 0u),
+    get_raymarchingRoughness(materialSID, 0u),
+    occlusionProps,
+    emissiveProps,
+    get_raymarchingIor(materialSID, 0u),
+    0.0,
+    specularProps,
+    volumeProps,
+    clearcoatProps,
+    anisotropyProps,
+    sheenProps,
+    iridescenceProps,
+    diffuseTransmissionProps,
+    0.0,
+    outColor
+  );
+  return outColor;
+}
+#endif // RN_USE_PBR
+`;
   }
 
   /**

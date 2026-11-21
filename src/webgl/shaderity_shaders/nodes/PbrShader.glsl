@@ -40,7 +40,7 @@ void pbrShader(
   float NdotV = saturate(dot(normalInWorld, viewDirection));
 
   // Roughness
-  #ifdef RN_IS_PIXEL_SHADER
+  #if defined(RN_IS_PIXEL_SHADER) && !defined(RN_DISABLE_SPECULAR_AA)
     float alphaRoughness = perceptualRoughness * perceptualRoughness;
     float alphaRoughness2 = alphaRoughness * alphaRoughness;
     // filter NDF for specular AA --- https://jcgt.org/published/0010/02/02/
