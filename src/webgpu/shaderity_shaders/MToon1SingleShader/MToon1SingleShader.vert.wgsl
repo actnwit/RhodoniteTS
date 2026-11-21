@@ -10,8 +10,8 @@
 
 // #param outlineWidthMode: i32; // initialValue=0
 // #param outlineWidthFactor: f32; // initialValue=0.0008
-@group(1) @binding(1) var outlineWidthTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(1) var outlineWidthSampler: sampler;
+@group(1) @binding(1) var outlineWidthMultiplyTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(1) var outlineWidthMultiplySampler: sampler;
 
 @vertex
 fn main(
@@ -86,7 +86,13 @@ fn main(
     let outlineWidthFactor = get_outlineWidthFactor(materialSID, 0);
     var outlineOffset = outlineWidthFactor * worldNormalLength * output.normal_inWorld;
 
-    let outlineWidthMultiply = textureSampleLevel(outlineWidthTexture, outlineWidthSampler, texcoord_0, 0.0).r;
+#ifdef RN_USE_TEXCOORD_0
+    // The green channel is used by the MToon 1.0 specification.
+    let outlineWidthMultiply = textureSampleLevel(outlineWidthMultiplyTexture, outlineWidthMultiplySampler, texcoord_0, 0.0).g;
+#else
+    // Without TEXCOORD_0 the texture cannot be sampled, so the multiplier is the default (1.0).
+    let outlineWidthMultiply = 1.0;
+#endif
     outlineOffset *= outlineWidthMultiply;
 
     if (outlineWidthType == 2) { // "screenCoordinates"

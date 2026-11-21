@@ -429,7 +429,9 @@ export class VrmImporter {
         material.extras = {};
       }
 
-      if (mtoonMaterial.outlineWidthMode !== 'none') {
+      // The VRM 1.0 specification defaults outlineWidthMode to "none" when it is omitted.
+      const outlineWidthMode = mtoonMaterial.outlineWidthMode;
+      if (outlineWidthMode === 'worldCoordinates' || outlineWidthMode === 'screenCoordinates') {
         isOutline = true;
       }
     }

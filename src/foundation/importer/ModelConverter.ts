@@ -1715,7 +1715,9 @@ export class ModelConverter {
       //exist outline
       if (renderPassOutline != null) {
         let outlineMaterial: Material | undefined;
-        if (VRMC_materials_mtoon.outlineWidthMode !== 'none') {
+        // The VRM 1.0 specification defaults outlineWidthMode to "none" when it is omitted.
+        const outlineWidthMode = VRMC_materials_mtoon.outlineWidthMode;
+        if (outlineWidthMode === 'worldCoordinates' || outlineWidthMode === 'screenCoordinates') {
           outlineMaterial = MaterialHelper.createMToon1Material(engine, {
             additionalName,
             isMorphing,
