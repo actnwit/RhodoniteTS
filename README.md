@@ -18,7 +18,7 @@ https://librn.com/
 * Blittable Memory Architecture (Original GPU data storage system with floating point texture)
 * Physically-based Rendering with Image-based Lighting
 * Clustered Forward Rendering
-* GPU culling (including skinned and morph meshes)
+* GPU frustum culling (including skinned and morph meshes)
 * Node-based Shader System
 * Node-based Raymarching System (with integration to polygon rendering)
 * Support loading the following 3D model files: [glTF2](https://github.com/KhronosGroup/glTF), glTF1, [VRM](https://vrm.dev/en/)
