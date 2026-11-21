@@ -1,7 +1,7 @@
 import type { ISceneGraphEntity } from '../../../helpers/EntityHelper';
 import { type IVector3 } from '../../../math';
 import type { IQuaternion } from '../../../math/IQuaternion';
-import type { IAnimationRetarget } from './AnimationRetarget';
+import { type IAnimationRetarget } from './AnimationRetarget';
 /**
  * Global retargeting implementation for animation retargeting.
  * This class handles retargeting of animations from one entity to another using global space transformations.
