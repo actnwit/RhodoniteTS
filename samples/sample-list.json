@@ -55,6 +55,7 @@
     "PointLightShadowMap",
     "Primitives",
     "Raymarching",
+    "RaymarchingShadow/?mode=webgl2&light=point",
     "ShadowMapDebugMode",
     "ShadowMapVariance",
     "Simple",
