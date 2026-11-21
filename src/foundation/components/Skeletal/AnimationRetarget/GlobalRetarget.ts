@@ -3,7 +3,7 @@ import type { ISceneGraphEntity } from '../../../helpers/EntityHelper';
 import { type IVector3, Quaternion, Vector3 } from '../../../math';
 import type { IQuaternion } from '../../../math/IQuaternion';
 import { Is } from '../../../misc/Is';
-import type { IAnimationRetarget } from './AnimationRetarget';
+import { getTranslationScale, type IAnimationRetarget } from './AnimationRetarget';
 
 /**
  * Global retargeting implementation for animation retargeting.
@@ -121,7 +121,7 @@ export class GlobalRetarget implements IAnimationRetarget {
     const dstPgRestQ = this.getDstPGRestQ(dstEntity);
 
     // scale animation translate to match dst scale
-    const scale = dstRestT.length() / srcRestT.length();
+    const scale = getTranslationScale(srcEntity, dstEntity, srcRestT, dstRestT);
     const scaledAnimT = Vector3.multiply(AnimT, scale);
 
     const dstPoseT = Vector3.add(dstPgRestQ.transformVector3Inverse(scaledAnimT), dstRestT);
