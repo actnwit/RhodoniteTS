@@ -1,5 +1,6 @@
 import type { MeshComponent, Primitive } from '../../../import';
 import type { MeshUID } from '../../../types/CommonTypes';
+import type { RaymarchingComponent } from '../../components/Raymarching/RaymarchingComponent';
 import type { IVector3 } from '../../math/IVector';
 /**
  * Result of a basic raycast operation against geometry.
@@ -25,7 +26,8 @@ export interface RaycastResultEx1 {
     };
 }
 /**
- * Extended raycast result that includes the intersection position and the selected mesh component.
+ * Extended raycast result that includes the intersection position and the selected component.
+ * Exactly one of selectedMeshComponent and selectedRaymarchingComponent is set when result is true.
  */
 export interface RaycastResultEx2 {
     result: boolean;
@@ -34,7 +36,8 @@ export interface RaycastResultEx2 {
         u: number;
         v: number;
         position: IVector3;
-        selectedMeshComponent: MeshComponent;
+        selectedMeshComponent?: MeshComponent;
+        selectedRaymarchingComponent?: RaymarchingComponent;
     };
 }
 /**

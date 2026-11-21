@@ -56,9 +56,32 @@ export declare class PhysicsComponent extends Component {
     /** Sets properties shared by the complete rigid body and rebuilds its colliders. */
     setMotionProperty(motion: PhysicsMotionProperty): void;
     get motionProperty(): PhysicsMotionProperty | undefined;
+    /**
+     * Whether the rigid body is allowed to move. False means a fixed body.
+     * When no motion property is set, the first shape binding's body is used.
+     */
+    get bodyMove(): boolean;
+    /**
+     * Sets whether the rigid body may move and rebuilds its colliders.
+     *
+     * The move flag is shared by the rigid body and every collider, so this
+     * updates the motion property and all shape bindings together. A fixed body
+     * clears the kinematic flag; enabling move keeps the current kinematic flag
+     * when one is set, otherwise the body becomes dynamic.
+     *
+     * @param move - True for a movable body, false for a fixed body
+     */
+    setBodyMove(move: boolean): void;
     /** Adds one generic ShapeComponent instance to this physical body. */
     bindShape(binding: PhysicsShapeBinding): number;
     updateShapeBinding(bindingId: number, binding: PhysicsShapeBinding): void;
+    /**
+     * Removes every shape binding that references one ShapeComponent shape.
+     * @param shapeComponent - ShapeComponent owning the shape
+     * @param shapeIndex - Shape index referenced by the bindings
+     * @returns The number of removed bindings
+     */
+    removeShapeBindingsForShape(shapeComponent: ShapeComponent, shapeIndex: number): number;
     removeShapeBinding(bindingId: number): boolean;
     clearShapeBindings(): void;
     rebuildShapeBindings(): void;
