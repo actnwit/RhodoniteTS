@@ -2209,7 +2209,11 @@ function addRaymarchingPbrIblSemanticInfo(engine: Engine, additionalShaderSemant
  * @param engine - The engine instance
  * @param additionalShaderSemanticInfo - Array to add semantic info to
  */
-function addPbrSheenSemanticInfo(engine: Engine, additionalShaderSemanticInfo: ShaderSemanticsInfo[]) {
+function addPbrSheenSemanticInfo(
+  engine: Engine,
+  additionalShaderSemanticInfo: ShaderSemanticsInfo[],
+  { sheenEnvIsInternalSetting = true }: { sheenEnvIsInternalSetting?: boolean } = {}
+) {
   // Create a sampler for sheen LUT texture
   const sampler = getSharedSampler(engine, {
     minFilter: TextureParameter.Linear,
@@ -2243,7 +2247,7 @@ function addPbrSheenSemanticInfo(engine: Engine, additionalShaderSemanticInfo: S
     componentType: ComponentType.Int,
     compositionType: CompositionType.TextureCube,
     stage: ShaderType.VertexAndPixelShader,
-    isInternalSetting: true,
+    isInternalSetting: sheenEnvIsInternalSetting,
     initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, cubeSampler],
     min: 0,
     max: Number.MAX_VALUE,
@@ -2282,7 +2286,15 @@ function detectRaymarchingPbrFeatures(shaderNodeJson: ShaderNodeJson) {
     | Array<{ from: { id: string; portName: string }; to: { id: string; portName: string } }>
     | undefined;
   if (nodes == null || connections == null) {
-    return { useNormalTexture: false, isOcclusion: false };
+    return {
+      useNormalTexture: false,
+      isOcclusion: false,
+      isClearcoat: false,
+      isSheen: false,
+      isIridescence: false,
+      isAnisotropy: false,
+      isDiffuseTransmission: false,
+    };
   }
 
   const findNode = (name: string) => nodes.find(node => node.name === name);
@@ -2291,6 +2303,13 @@ function detectRaymarchingPbrFeatures(shaderNodeJson: ShaderNodeJson) {
 
   const pbrShaderNode = findNode('PbrShader');
   const normalPropsNode = findNode('PbrNormalProps');
+
+  const isPropsConnected = (sourceName: string, portName: string) => {
+    if (pbrShaderNode == null) return false;
+    const connection = isConnectedTo(pbrShaderNode.id, portName);
+    if (connection == null) return false;
+    return nodes.find(node => node.id === connection.from.id)?.name === sourceName;
+  };
 
   // A normal texture affects shading only when the normal props node samples a
   // Texture2D and feeds the PBR shader's normal.
@@ -2303,15 +2322,22 @@ function detectRaymarchingPbrFeatures(shaderNodeJson: ShaderNodeJson) {
     return isConnectedTo(pbrShaderNode.id, 'normalInWorld')?.from.id === normalPropsNode.id;
   })();
 
-  const isOcclusion = (() => {
-    if (pbrShaderNode == null) return false;
-    const occlusionConnection = isConnectedTo(pbrShaderNode.id, 'occlusionProps');
-    if (occlusionConnection == null) return false;
-    const sourceNode = nodes.find(node => node.id === occlusionConnection.from.id);
-    return sourceNode?.name === 'PbrOcclusionProps';
-  })();
+  const isOcclusion = isPropsConnected('PbrOcclusionProps', 'occlusionProps');
+  const isClearcoat = isPropsConnected('PbrClearcoatProps', 'clearcoatProps');
+  const isSheen = isPropsConnected('PbrSheenProps', 'sheenProps');
+  const isIridescence = isPropsConnected('PbrIridescenceProps', 'iridescenceProps');
+  const isAnisotropy = isPropsConnected('PbrAnisotropyProps', 'anisotropyProps');
+  const isDiffuseTransmission = isPropsConnected('PbrDiffuseTransmissionProps', 'diffuseTransmissionProps');
 
-  return { useNormalTexture, isOcclusion };
+  return {
+    useNormalTexture,
+    isOcclusion,
+    isClearcoat,
+    isSheen,
+    isIridescence,
+    isAnisotropy,
+    isDiffuseTransmission,
+  };
 }
 
 /**
@@ -2343,6 +2369,11 @@ function createNodeBasedRaymarchingCustomMaterial(
   additionalShaderSemanticInfo.push(...buildTextureSemanticInfo(engine, shaderCode.textureInfos));
 
   const pbrFeatures = detectRaymarchingPbrFeatures(shaderNodeJson);
+  if (pbrFeatures.isSheen) {
+    // The sheen environment texture must be settable by the pipeline on the
+    // buffer-less raymarching draw, so it is not an internal setting here.
+    addPbrSheenSemanticInfo(engine, additionalShaderSemanticInfo, { sheenEnvIsInternalSetting: false });
+  }
   const material = reuseOrRecreateCustomMaterial(
     engine,
     shaderCode.vertexShader,
@@ -2353,6 +2384,11 @@ function createNodeBasedRaymarchingCustomMaterial(
       isShadow: false,
       useNormalTexture: pbrFeatures.useNormalTexture,
       isOcclusion: pbrFeatures.isOcclusion,
+      isClearcoat: pbrFeatures.isClearcoat,
+      isSheen: pbrFeatures.isSheen,
+      isIridescence: pbrFeatures.isIridescence,
+      isAnisotropy: pbrFeatures.isAnisotropy,
+      isDiffuseTransmission: pbrFeatures.isDiffuseTransmission,
       additionalShaderSemanticInfo,
     },
     currentMaterial

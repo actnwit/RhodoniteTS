@@ -1350,6 +1350,8 @@ export class ForwardRenderPipeline extends RnObject {
       // The raymarching material is not using PBR shading.
       return;
     }
+    // Present only when the shading graph uses sheen.
+    const sheenEnvValue = material.getTextureParameter(ShaderSemantics.SheenEnvTexture.str);
     const diffuse = this.__diffuseCubeTexture;
     const specular = this.__specularCubeTexture;
     if (diffuse == null || specular == null) {
@@ -1359,9 +1361,9 @@ export class ForwardRenderPipeline extends RnObject {
     // The textures may become ready after this is called, so re-apply when anything changed.
     const state = `${material.objectUID}:${diffuse.objectUID}:${diffuse.isTextureReady}:${specular.objectUID}:${
       specular.isTextureReady
-    }:${this.__sheenCubeTexture?.objectUID ?? -1}:${this.__iblRotation}:${this.__diffuseIblContribution}:${
-      this.__specularIblContribution
-    }`;
+    }:${this.__sheenCubeTexture?.objectUID ?? -1}:${this.__sheenCubeTexture?.isTextureReady ?? false}:${
+      this.__iblRotation
+    }:${this.__diffuseIblContribution}:${this.__specularIblContribution}`;
     if (state === this.__raymarchingIblState) {
       return;
     }
@@ -1374,6 +1376,11 @@ export class ForwardRenderPipeline extends RnObject {
     }
     if (specular.isTextureReady) {
       material.setTextureParameter(ShaderSemantics.SpecularEnvTexture.str, specular, sampler);
+      if (sheenEnvValue != null) {
+        const sheen = this.__sheenCubeTexture?.isTextureReady ? this.__sheenCubeTexture : specular;
+        const sheenSampler = (sheenEnvValue[2] as Sampler | undefined) ?? sampler;
+        material.setTextureParameter(ShaderSemantics.SheenEnvTexture.str, sheen, sheenSampler);
+      }
     }
     material.setParameter(
       'iblParameter',

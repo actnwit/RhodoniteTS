@@ -84,7 +84,12 @@ fn pbrShader(
   // Sheen
   var sheenProps: SheenProps = sheenProps_;
   #ifdef RN_USE_SHEEN
-    sheenProps.albedoSheenScalingNdotV = 1.0 - max3(sheenProps.sheenColor) * textureSample(sheenLutTexture, sheenLutSampler, vec2(NdotV, sheenProps.sheenRoughness)).r;
+    #ifdef RN_RAYMARCHING_SHADING
+      // Raymarching shades hit points in non-uniform control flow, where implicit derivatives are not allowed.
+      sheenProps.albedoSheenScalingNdotV = 1.0 - max3(sheenProps.sheenColor) * textureSampleLevel(sheenLutTexture, sheenLutSampler, vec2(NdotV, sheenProps.sheenRoughness), 0.0).r;
+    #else
+      sheenProps.albedoSheenScalingNdotV = 1.0 - max3(sheenProps.sheenColor) * textureSample(sheenLutTexture, sheenLutSampler, vec2(NdotV, sheenProps.sheenRoughness)).r;
+    #endif
   #else
     sheenProps.albedoSheenScalingNdotV = 1.0;
   #endif // RN_USE_SHEEN

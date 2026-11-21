@@ -198,3 +198,119 @@ test('raymarching material exposes Texture2D semantics and enables normal mappin
   // A normal texture on PbrNormalProps enables normal mapping in the shared PBR shader.
   expect(material.getShaderDefines()).toContain('RN_USE_NORMAL_TEXTURE');
 });
+
+test('enables the PBR extension features connected to the PbrShader node', async () => {
+  const engine = await Engine.init({
+    approach: ProcessApproach.None,
+    canvas: document.createElement('canvas'),
+  });
+
+  const vector3 = { name: 'Vector3<float>' };
+  const vector4 = { name: 'Vector4<float>' };
+  const graph = createSphereGraph();
+  const propsDefinitions = [
+    { id: 'clearcoatProps', name: 'PbrClearcoatProps', output: 'outClearcoatProps', port: 'clearcoatProps' },
+    { id: 'sheenProps', name: 'PbrSheenProps', output: 'outSheenProps', port: 'sheenProps' },
+    { id: 'anisotropyProps', name: 'PbrAnisotropyProps', output: 'outAnisotropyProps', port: 'anisotropyProps' },
+    { id: 'iridescenceProps', name: 'PbrIridescenceProps', output: 'outIridescenceProps', port: 'iridescenceProps' },
+    {
+      id: 'diffuseTransmissionProps',
+      name: 'PbrDiffuseTransmissionProps',
+      output: 'outDiffuseTransmissionProps',
+      port: 'diffuseTransmissionProps',
+    },
+  ];
+
+  graph.nodes.push(
+    {
+      id: 'hitPosition',
+      name: 'RaymarchHitPosition',
+      outputs: { outPosition: { id: 'hitPosition_out', label: 'Out Position', socket: vector4 } },
+      inputs: {},
+      controls: {},
+      position: { x: 0, y: 0 },
+    },
+    {
+      id: 'hitNormal',
+      name: 'RaymarchHitNormal',
+      outputs: { outNormal: { id: 'hitNormal_out', label: 'Out Normal', socket: vector3 } },
+      inputs: {},
+      controls: {},
+      position: { x: 0, y: 0 },
+    },
+    ...propsDefinitions.map(definition => ({
+      id: definition.id,
+      name: definition.name,
+      outputs: {
+        [definition.output]: { id: `${definition.id}_out`, label: 'Out Props', socket: { name: 'Struct' } },
+      },
+      inputs: {},
+      controls: { shaderStage: { value: 'Neutral' } },
+      position: { x: 0, y: 0 },
+    })),
+    {
+      id: 'pbr',
+      name: 'PbrShader',
+      outputs: { outColor: { id: 'pbr_out', label: 'Out Color', socket: vector4 } },
+      inputs: {
+        positionInWorld: { id: 'pbr_position', label: 'In Position', socket: vector4 },
+        normalInWorld: { id: 'pbr_normal', label: 'In Normal', socket: vector3 },
+        ...Object.fromEntries(
+          propsDefinitions.map(definition => [
+            definition.port,
+            { id: `pbr_${definition.port}`, label: 'In Props', socket: { name: 'Struct' } },
+          ])
+        ),
+      },
+      controls: { shaderStage: { value: 'Neutral' } },
+      position: { x: 0, y: 0 },
+    },
+    {
+      id: 'outShading',
+      name: 'OutShadingColor',
+      outputs: {},
+      inputs: { value: { id: 'outShading_in', label: 'In Color', socket: vector4 } },
+      controls: {},
+      position: { x: 0, y: 0 },
+    }
+  );
+  graph.connections.push(
+    {
+      id: 'e1',
+      from: { id: 'hitPosition', portName: 'outPosition' },
+      to: { id: 'pbr', portName: 'positionInWorld' },
+    },
+    {
+      id: 'e2',
+      from: { id: 'hitNormal', portName: 'outNormal' },
+      to: { id: 'pbr', portName: 'normalInWorld' },
+    },
+    ...propsDefinitions.map((definition, index) => ({
+      id: `e_props_${index}`,
+      from: { id: definition.id, portName: definition.output },
+      to: { id: 'pbr', portName: definition.port },
+    })),
+    {
+      id: 'e3',
+      from: { id: 'pbr', portName: 'outColor' },
+      to: { id: 'outShading', portName: 'value' },
+    }
+  );
+
+  const result = MaterialHelper.createNodeBasedRaymarchingCustomMaterial(engine, graph);
+  expect(result).toBeDefined();
+  const material = result!.material;
+
+  for (const define of [
+    'RN_USE_CLEARCOAT',
+    'RN_USE_SHEEN',
+    'RN_USE_ANISOTROPY',
+    'RN_USE_IRIDESCENCE',
+    'RN_USE_DIFFUSE_TRANSMISSION',
+  ]) {
+    expect(material.getShaderDefines()).toContain(define);
+  }
+  // Sheen needs its LUT and environment cube textures.
+  expect(material._allFieldsInfo.has('sheenLutTexture')).toBe(true);
+  expect(material._allFieldsInfo.has('sheenEnvTexture')).toBe(true);
+});

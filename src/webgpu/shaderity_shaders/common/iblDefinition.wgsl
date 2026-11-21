@@ -73,7 +73,12 @@ fn sheenIBL(NdotV: f32, sheenPerceptualRoughness: f32, sheenColor: vec3f, iblPar
   let lod = (sheenPerceptualRoughness * (mipCount - 1.0));
 
   let sheenLutUV = vec2f(NdotV, sheenPerceptualRoughness);
-  let brdf = textureSample(sheenLutTexture, sheenLutSampler, sheenLutUV).b;
+  #ifdef RN_RAYMARCHING_SHADING
+    // Raymarching shades hit points in non-uniform control flow, where implicit derivatives are not allowed.
+    let brdf = textureSampleLevel(sheenLutTexture, sheenLutSampler, sheenLutUV, 0.0).b;
+  #else
+    let brdf = textureSample(sheenLutTexture, sheenLutSampler, sheenLutUV).b;
+  #endif
   var sheenLight = get_radiance_sheen(reflection, lod, hdriFormat);
   let IBLSpecularContribution = iblParameter.z;
   sheenLight *= IBLSpecularContribution;
