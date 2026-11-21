@@ -57,12 +57,14 @@ cameraComponent.aspect = 1;
 cameraEntity.localPosition = Rn.Vector3.fromCopy3(0, 1.5, 8);
 cameraEntity.localEulerAngles = Rn.Vector3.fromCopy3(-10.6 * (Math.PI / 180), 0, 0);
 
-// The pipeline's initial expression clears the buffers; clearing again in the main pass
-// would let the transmission clone wipe the frame.
+// The main pass clears the buffers, which is the natural setup for an application-owned
+// render pass. The pipeline's transmission clone must not clear the main color buffer
+// again after this pass has drawn.
 const expression = new Rn.Expression();
 const renderPass = new Rn.RenderPass(engine);
-renderPass.toClearColorBuffer = false;
-renderPass.toClearDepthBuffer = false;
+renderPass.clearColor = Rn.Vector4.fromCopyArray([0.15, 0.15, 0.15, 1]);
+renderPass.toClearColorBuffer = true;
+renderPass.toClearDepthBuffer = true;
 renderPass.cameraComponent = cameraComponent;
 renderPass.addEntities([rootGroup]);
 expression.addRenderPasses([renderPass]);

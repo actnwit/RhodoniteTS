@@ -830,6 +830,10 @@ export class ForwardRenderPipeline extends RnObject {
         rp.setToRenderBlendWithZWritePrimitives(false);
         rp.setToRenderBlendWithoutZWritePrimitives(false);
         rp.toClearDepthBuffer = false;
+        // This clone draws translucent primitives over the already rendered main image, and it
+        // renders into the main framebuffer, so clearing the color buffer here would wipe the
+        // main pass. The clear flags are inherited from the application's render pass.
+        rp.toClearColorBuffer = false;
         // rp.isDepthTest = false;
         // rp.depthWriteMask = false;
         if (!this.__isSimple) {
