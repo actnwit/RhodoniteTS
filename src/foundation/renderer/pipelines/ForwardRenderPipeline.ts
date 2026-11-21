@@ -373,7 +373,7 @@ export class ForwardRenderPipeline extends RnObject {
       const entities = this.__expressions.flatMap(expression =>
         expression.renderPasses.flatMap(renderPass => renderPass.entities)
       ) as ISceneGraphEntity[];
-      this.__shadowExpressions = this.__shadowSystem.getExpressions(entities);
+      this.__shadowExpressions = this.__shadowSystem.getExpressions(entities, this.__getAdditionalShadowMaterials());
     }
 
     this.__setUpExpressionsForRendering();
@@ -430,11 +430,12 @@ export class ForwardRenderPipeline extends RnObject {
       if (shadowSystem != null) {
         // update shadow expressions if shadow mapping is enabled
         const entities = this.__entitiesForShadow;
+        const additionalMaterials = this.__getAdditionalShadowMaterials();
         if (shadowSystem.isLightChanged()) {
-          this.__shadowExpressions = shadowSystem.getExpressions(entities);
+          this.__shadowExpressions = shadowSystem.getExpressions(entities, additionalMaterials);
           this.__setUpExpressionsForRendering();
         }
-        shadowSystem.setDepthBiasPV(entities);
+        shadowSystem.setDepthBiasPV(entities, additionalMaterials);
       }
       func(this.__frame!);
     });
@@ -1326,6 +1327,15 @@ export class ForwardRenderPipeline extends RnObject {
   public setRaymarchingMaterial(material: Material) {
     this.__raymarchingRenderPass?.setBufferLessFullScreenRendering(material);
     this.__applyIblToRaymarchingMaterial();
+    // The raymarching material is not part of any mesh primitive, so the shadow
+    // parameters of the last shadow pass setup have to be applied explicitly.
+    this.__shadowSystem?.applyShadowParametersToMaterials([material]);
+  }
+
+  /** Materials outside mesh primitives that still receive shadows (the raymarching material). */
+  private __getAdditionalShadowMaterials(): Material[] {
+    const material = this.getRaymarchingMaterial();
+    return material != null ? [material] : [];
   }
 
   public getRaymarchingMaterial(): Material | undefined {
@@ -1421,15 +1431,16 @@ export class ForwardRenderPipeline extends RnObject {
     // initial expression for clearing the frame buffer
     frame.addExpression(this.__initialExpression!);
 
-    if (this.__raymarchingExpression != null) {
-      frame.addExpression(this.__raymarchingExpression);
-    }
-
     if (!this.__isSimple) {
-      // depth map generation for shadow mapping
+      // depth map generation for shadow mapping. This runs before the raymarching
+      // pass so that the raymarching material reads the shadow maps of this frame.
       for (const exp of this.__shadowExpressions) {
         frame.addExpression(exp);
       }
+    }
+
+    if (this.__raymarchingExpression != null) {
+      frame.addExpression(this.__raymarchingExpression);
     }
 
     // main expressions for opaque rendering

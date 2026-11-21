@@ -53,6 +53,10 @@ export class ShadowSystem {
   private __lastAutoFitCenter = Vector3.fromCopy3(0, 0, 0);
   private __lastAutoFitRadius = 1;
   private __needsRefresh = false;
+  /** Last shadow state, so a material assigned later (e.g. the raymarching material) can receive it. */
+  private __depthTextureIndexList: number[] = [];
+  private __directionalShadowMap?: { texture: RenderTargetTexture; sampler: Sampler };
+  private __paraboloidShadowMap?: { texture: RenderTargetTexture; sampler: Sampler };
 
   /**
    * Creates a new ShadowSystem instance with the specified shadow map resolution.
@@ -96,7 +100,7 @@ export class ShadowSystem {
    * @param entities - Array of scene graph entities to be rendered for shadow mapping
    * @returns Array of Expression objects containing the shadow mapping render passes
    */
-  public getExpressions(entities: ISceneGraphEntity[]) {
+  public getExpressions(entities: ISceneGraphEntity[], additionalMaterials: readonly Material[] = []) {
     // With no shadow slots there is nothing to render into the shadow maps, and the materials have no
     // shadow parameters (Config.maxLightNumber = 0 compiles the shadow code out).
     if (this.__engine.config.maxLightNumber <= 0) {
@@ -162,7 +166,7 @@ export class ShadowSystem {
             outputFrameBufferLayerIndex: pointDepthTextureCount,
           },
         });
-        this.__setParaboloidBlurredShadowMap(blurredRenderTargetPointLight, entities);
+        this.__setParaboloidBlurredShadowMap(blurredRenderTargetPointLight, entities, additionalMaterials);
         expressions.push(blurExpressionPointLight);
         depthTextureIndexList[shadowSlot] = pointDepthTextureCount;
         pointDepthTextureCount++;
@@ -192,14 +196,15 @@ export class ShadowSystem {
             outputFrameBufferLayerIndex: depthTextureCount,
           },
         });
-        this.__setBlurredShadowMap(blurredRenderTargetSpotLight, entities);
+        this.__setBlurredShadowMap(blurredRenderTargetSpotLight, entities, additionalMaterials);
         expressions.push(blurExpressionSpotLight);
         depthTextureIndexList[shadowSlot] = depthTextureCount;
         depthTextureCount++;
       }
     }
 
-    this.__setDepthTextureIndexList(entities, depthTextureIndexList);
+    this.__depthTextureIndexList = depthTextureIndexList;
+    this.__setDepthTextureIndexList(entities, depthTextureIndexList, additionalMaterials);
 
     return expressions;
   }
@@ -262,7 +267,11 @@ export class ShadowSystem {
    * @param entities - Array of scene graph entities to apply the shadow map to
    * @private
    */
-  private __setBlurredShadowMap(blurredRenderTarget: RenderTargetTexture, entities: ISceneGraphEntity[]) {
+  private __setBlurredShadowMap(
+    blurredRenderTarget: RenderTargetTexture,
+    entities: ISceneGraphEntity[],
+    additionalMaterials: readonly Material[] = []
+  ) {
     const sampler = new Sampler(this.__engine, {
       minFilter: TextureParameter.Linear,
       magFilter: TextureParameter.Linear,
@@ -280,6 +289,10 @@ export class ShadowSystem {
         }
       }
     }
+    for (const material of additionalMaterials) {
+      material.setTextureParameter('depthTexture', blurredRenderTarget, sampler);
+    }
+    this.__directionalShadowMap = { texture: blurredRenderTarget, sampler };
   }
 
   /**
@@ -290,7 +303,11 @@ export class ShadowSystem {
    * @param entities - Array of scene graph entities to apply the shadow map to
    * @private
    */
-  private __setParaboloidBlurredShadowMap(blurredRenderTarget: RenderTargetTexture, entities: ISceneGraphEntity[]) {
+  private __setParaboloidBlurredShadowMap(
+    blurredRenderTarget: RenderTargetTexture,
+    entities: ISceneGraphEntity[],
+    additionalMaterials: readonly Material[] = []
+  ) {
     const sampler = new Sampler(this.__engine, {
       minFilter: TextureParameter.Linear,
       magFilter: TextureParameter.Linear,
@@ -309,6 +326,11 @@ export class ShadowSystem {
         }
       }
     }
+    for (const material of additionalMaterials) {
+      material.setTextureParameter('paraboloidDepthTexture', blurredRenderTarget, sampler);
+      material.setParameter('pointLightShadowMapUvScale', 0.93);
+    }
+    this.__paraboloidShadowMap = { texture: blurredRenderTarget, sampler };
   }
 
   /**
@@ -318,15 +340,24 @@ export class ShadowSystem {
    * @param depthTextureIndexList - Array of indices mapping lights to shadow map textures (-1 for no shadow)
    * @private
    */
-  private __setDepthTextureIndexList(entities: ISceneGraphEntity[], depthTextureIndexList: number[]) {
+  private __setDepthTextureIndexList(
+    entities: ISceneGraphEntity[],
+    depthTextureIndexList: number[],
+    additionalMaterials: readonly Material[] = []
+  ) {
+    // setParameter() copies the values into each material, so one VectorN can be shared.
+    const indexList = new VectorN(new Int32Array(depthTextureIndexList));
     for (const entity of entities) {
       const meshComponent = entity.tryToGetMesh();
       if (meshComponent != null && meshComponent.mesh != null) {
         for (let i = 0; i < meshComponent.mesh.getPrimitiveNumber(); i++) {
           const primitive = meshComponent.mesh.getPrimitiveAt(i);
-          primitive.material.setParameter('depthTextureIndexList', new VectorN(new Int32Array(depthTextureIndexList)));
+          primitive.material.setParameter('depthTextureIndexList', indexList);
         }
       }
+    }
+    for (const material of additionalMaterials) {
+      material.setParameter('depthTextureIndexList', indexList);
     }
   }
 
@@ -335,7 +366,7 @@ export class ShadowSystem {
    * Calculates and applies bias matrices for directional and spot lights to reduce shadow acne.
    * @param entities - Array of scene graph entities to apply the bias matrices to
    */
-  public setDepthBiasPV(entities: ISceneGraphEntity[]) {
+  public setDepthBiasPV(entities: ISceneGraphEntity[], additionalMaterials: readonly Material[] = []) {
     // The materials have no depthBiasPV parameter when there are no shadow slots.
     if (this.__engine.config.maxLightNumber <= 0) {
       return;
@@ -423,6 +454,52 @@ export class ShadowSystem {
             versionOfMaterials[materialUid] = version;
           }
         }
+      }
+    }
+    for (const material of additionalMaterials) {
+      const materialUid = material.materialUID;
+      if (versionOfMaterials[materialUid] === version) {
+        continue;
+      }
+      material.setParameter('depthBiasPV', depthBiasPV);
+      if (material._allFieldsInfo.has('depthBiasPV')) {
+        versionOfMaterials[materialUid] = version;
+      }
+    }
+  }
+
+  /**
+   * Applies the last computed shadow state (shadow maps, index list and bias matrices)
+   * to materials that are assigned after getExpressions() ran, for example the
+   * raymarching material of the buffer-less full-screen pass.
+   */
+  public applyShadowParametersToMaterials(materials: readonly Material[]) {
+    if (this.__engine.config.maxLightNumber <= 0) {
+      return;
+    }
+    const indexList = new VectorN(
+      new Int32Array(
+        this.__depthTextureIndexList.length > 0
+          ? this.__depthTextureIndexList
+          : new Array(this.__engine.config.maxLightNumber).fill(-1)
+      )
+    );
+    for (const material of materials) {
+      material.setParameter('depthTextureIndexList', indexList);
+      if (this.__directionalShadowMap != null) {
+        material.setTextureParameter(
+          'depthTexture',
+          this.__directionalShadowMap.texture,
+          this.__directionalShadowMap.sampler
+        );
+      }
+      if (this.__paraboloidShadowMap != null) {
+        material.setTextureParameter(
+          'paraboloidDepthTexture',
+          this.__paraboloidShadowMap.texture,
+          this.__paraboloidShadowMap.sampler
+        );
+        material.setParameter('pointLightShadowMapUvScale', 0.93);
       }
     }
   }

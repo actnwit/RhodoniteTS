@@ -373,6 +373,7 @@ struct VertexOutput {
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 /* shaderity: @{opticalDefinition} */
+/* shaderity: @{shadowDefinition} */
 /* shaderity: @{pbrDefinition} */
 /* shaderity: @{iblDefinition} */
 var<private> g_distance: f32 = 1e20; // distance to the surface
@@ -521,6 +522,7 @@ in vec2 v_texcoord_0;
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 /* shaderity: @{opticalDefinition} */
+/* shaderity: @{shadowDefinition} */
 /* shaderity: @{pbrDefinition} */
 /* shaderity: @{iblDefinition} */
 layout(location = 0) out vec4 rt0;

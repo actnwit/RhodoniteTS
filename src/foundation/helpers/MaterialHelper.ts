@@ -2381,7 +2381,9 @@ function createNodeBasedRaymarchingCustomMaterial(
     {
       isLighting: true,
       isPbr: true,
-      isShadow: false,
+      // The raymarching material receives shadows from mesh casters. ForwardRenderPipeline
+      // feeds the shadow maps/parameters to it because it is not attached to a primitive.
+      isShadow: true,
       useNormalTexture: pbrFeatures.useNormalTexture,
       isOcclusion: pbrFeatures.isOcclusion,
       isClearcoat: pbrFeatures.isClearcoat,

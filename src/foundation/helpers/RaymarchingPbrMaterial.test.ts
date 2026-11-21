@@ -79,6 +79,19 @@ test('raymarching material enables PBR shading and its material parameters', asy
   }
   // The transmission back buffer texture is not used without RN_USE_TRANSMISSION.
   expect(material._allFieldsInfo.has('backBufferTexture')).toBe(false);
+
+  // Shadow mapping: the pipeline feeds the shadow maps and parameters to this material.
+  expect(defines).toContain('RN_USE_SHADOW_MAPPING');
+  for (const semantic of [
+    'depthTexture',
+    'paraboloidDepthTexture',
+    'depthTextureIndexList',
+    'depthBiasPV',
+    'pointLightFarPlane',
+    'pointLightShadowMapUvScale',
+  ]) {
+    expect(material._allFieldsInfo.has(semantic)).toBe(true);
+  }
 });
 
 test('raymarching material exposes Texture2D semantics and enables normal mapping', async () => {
