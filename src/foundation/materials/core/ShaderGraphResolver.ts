@@ -215,7 +215,8 @@ export class ShaderGraphResolver {
     shaderBody += ShaderGraphResolver.__getFunctionDefinition(
       engine,
       sortedShaderNodes.filter(node => node.getShaderStage() !== 'Vertex'),
-      ShaderType.PixelShader
+      ShaderType.PixelShader,
+      new Set(commonShaderPart.getEmbeddedShaderFunctionNames())
     );
 
     // Per-object shading sections (e.g. the raymarching shading graphs). Each
@@ -426,7 +427,8 @@ export class ShaderGraphResolver {
   private static __getFunctionDefinition(
     engine: Engine,
     shaderNodes: AbstractShaderNode[],
-    shaderType: ShaderTypeEnum
+    shaderType: ShaderTypeEnum,
+    embeddedShaderFunctionNames?: ReadonlySet<string>
   ) {
     let shaderText = '';
     const existVertexFunctions: string[] = [];
@@ -435,8 +437,13 @@ export class ShaderGraphResolver {
       if (existVertexFunctions.indexOf(materialNode.shaderFunctionName) !== -1) {
         continue;
       }
-      shaderText += materialNode.getShaderCode(engine, shaderType);
       existVertexFunctions.push(materialNode.shaderFunctionName);
+      // Functions the shader part already embeds in its prerequisites must not be
+      // defined again by the graph nodes (e.g. the raymarching PBR shader).
+      if (embeddedShaderFunctionNames?.has(materialNode.shaderFunctionName)) {
+        continue;
+      }
+      shaderText += materialNode.getShaderCode(engine, shaderType);
     }
 
     return shaderText;

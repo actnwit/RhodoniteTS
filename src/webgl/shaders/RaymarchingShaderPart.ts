@@ -391,10 +391,15 @@ out vec2 v_texcoord_0;
    * @param shaderNodes - Array of shader nodes used to generate varying variables for WebGPU
    * @returns The complete fragment shader prerequisites code string
    */
-  getPixelPrerequisites(engine: Engine, shaderNodes: AbstractShaderNode[]) {
-    // When the graph itself contains a PbrShader node (the shading section), the
-    // resolver emits its function definition, so do not embed it here as well.
-    const hasPbrShaderNode = shaderNodes.some(shaderNode => shaderNode.shaderFunctionName === 'pbrShader');
+  /**
+   * The PBR shader function is embedded in the prerequisites below. The resolver
+   * skips the duplicate definition emitted by a PbrShader node in a shading graph.
+   */
+  getEmbeddedShaderFunctionNames(): readonly string[] {
+    return ['pbrShader'];
+  }
+
+  getPixelPrerequisites(engine: Engine, _shaderNodes: AbstractShaderNode[]) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       let pixelShaderPrerequisites = '';
       pixelShaderPrerequisites += `
@@ -546,9 +551,7 @@ fn inverseMat4(m: mat4x4<f32>) -> mat4x4<f32> {
   );
 }
 `;
-      if (!hasPbrShaderNode) {
-        pixelShaderPrerequisites += RaymarchingShaderPart.__getPbrFunctionsWGSL();
-      }
+      pixelShaderPrerequisites += RaymarchingShaderPart.__getPbrFunctionsWGSL();
       return pixelShaderPrerequisites;
     }
     let pixelShaderPrerequisites = '';
@@ -647,9 +650,7 @@ mat4 inverseTransform(mat4 m){
     return inv;
 }
 `;
-    if (!hasPbrShaderNode) {
-      pixelShaderPrerequisites += RaymarchingShaderPart.__getPbrFunctionsGLSL();
-    }
+    pixelShaderPrerequisites += RaymarchingShaderPart.__getPbrFunctionsGLSL();
     return pixelShaderPrerequisites;
   }
 

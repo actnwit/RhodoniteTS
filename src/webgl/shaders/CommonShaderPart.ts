@@ -39,6 +39,14 @@ export abstract class CommonShaderPart {
     return 'shade';
   }
 
+  /**
+   * Shader function names this part already embeds in its prerequisites. The
+   * resolver does not emit definitions for graph nodes with these names.
+   */
+  getEmbeddedShaderFunctionNames(): readonly string[] {
+    return [];
+  }
+
   /** Returns the opening code of one per-object shading function. */
   getShadingSectionBegin(_engine: Engine, _functionName: string): string {
     return '';
