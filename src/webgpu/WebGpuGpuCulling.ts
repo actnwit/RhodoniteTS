@@ -2,14 +2,18 @@ import { CameraComponent } from '../foundation/components/Camera/CameraComponent
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
 import { Component } from '../foundation/core/Component';
 import { Mesh } from '../foundation/geometry/Mesh';
+import type { Primitive } from '../foundation/geometry/Primitive';
 import type { Engine } from '../foundation/system/Engine';
+import { DirtyRange } from './DirtyRange';
 import {
   type GpuCullingCapacities,
   GpuCullingChunkSize,
   type GpuCullingGroup,
   GpuCullingRegistry,
 } from './GpuCullingRegistry';
+import type { GpuDeformEntry } from './GpuDeformRegistry';
 import type { WebGpuGpuTimer } from './WebGpuGpuTimer';
+import { type GpuDeformMorphBuffers, WebGpuVertexDeformer } from './WebGpuVertexDeformer';
 
 /**
  * The WGSL shared by the culling passes.
@@ -62,8 +66,8 @@ struct CullRecord {
   extent: vec3<f32>,          // the half size of the local AABB of the mesh
   isVisibleIndex: u32,        // float index of the isVisible flag of the instance in data
   isBillboardIndex: u32,      // float index of the isBillboard flag of the instance in data
-  flags: u32,                 // bit 0: always visible (not culled)
-  pad0: u32,
+  flags: u32,                 // bit 0: always visible (not culled), bit 1: deformed (the AABB is in bounds)
+  boundsSlot: u32,            // the deformed bounding box of the instance (WebGpuVertexDeformer)
   pad1: u32,
 }
 
@@ -82,8 +86,16 @@ struct CullView {
 @group(0) @binding(5) var<storage, read> chunks: array<vec2<u32>>;
 @group(0) @binding(6) var<storage, read_write> scratchIds: array<vec4<u32>>;
 @group(0) @binding(7) var<storage, read_write> chunkCounts: array<u32>;
+// The local bounding boxes of the deformed instances (2 vec4 per instance: ~min.xyz and max.xyz, encoded by
+// encodeOrderedFloat in WebGpuVertexDeformer; all 0 before the first deformation)
+@group(0) @binding(8) var<storage, read> bounds: array<vec4<u32>>;
 
 const ALWAYS_VISIBLE: u32 = 1u;
+const DEFORMED: u32 = 2u;
+
+fn decodeOrderedFloat(encoded: vec3<u32>) -> vec3<f32> {
+  return bitcast<vec3<f32>>(select(~encoded, encoded & vec3<u32>(0x7fffffffu), (encoded & vec3<u32>(0x80000000u)) != vec3<u32>(0u)));
+}
 
 var<workgroup> scan: array<u32, 64>;
 
@@ -107,6 +119,19 @@ fn isInstanceVisible(record: CullRecord, view: CullView) -> bool {
   if (fetchScalar(record.isBillboardIndex) > 0.5) {
     return true;
   }
+  var localCenter = record.center;
+  var localExtent = record.extent;
+  if ((record.flags & DEFORMED) != 0u) {
+    let encodedMax = bounds[record.boundsSlot * 2u + 1u];
+    if (encodedMax.x == 0u) {
+      // Not deformed yet.
+      return true;
+    }
+    let localMin = decodeOrderedFloat(~bounds[record.boundsSlot * 2u].xyz);
+    let localMax = decodeOrderedFloat(encodedMax.xyz);
+    localCenter = (localMin + localMax) * 0.5;
+    localExtent = (localMax - localMin) * 0.5;
+  }
   let m = mat4x4<f32>(
     data[record.worldMatrixIndex],
     data[record.worldMatrixIndex + 1u],
@@ -114,8 +139,8 @@ fn isInstanceVisible(record: CullRecord, view: CullView) -> bool {
     data[record.worldMatrixIndex + 3u]
   );
   // The world AABB of the transformed local AABB (the same box as transforming its 8 corners).
-  let center = (m * vec4<f32>(record.center, 1.0)).xyz;
-  let extent = abs(m[0].xyz) * record.extent.x + abs(m[1].xyz) * record.extent.y + abs(m[2].xyz) * record.extent.z;
+  let center = (m * vec4<f32>(localCenter, 1.0)).xyz;
+  let extent = abs(m[0].xyz) * localExtent.x + abs(m[1].xyz) * localExtent.y + abs(m[2].xyz) * localExtent.z;
   let minPoint = center - extent;
   let maxPoint = center + extent;
 
@@ -282,6 +307,7 @@ const InstanceByteSize = 16;
 const ParamsByteSize = 16;
 const InvalidGroup = 0xffffffff;
 const FlagAlwaysVisible = 1;
+const FlagDeformed = 2;
 
 /** The byte size of a chunk table entry (group index, first instance in the group). */
 const ChunkByteSize = 8;
@@ -296,27 +322,11 @@ export interface GpuCulledDraw {
   readonly indirectBuffer: GPUBuffer;
   /** The byte offset of the draw's arguments in `indirectBuffer`. */
   readonly indirectOffset: number;
-}
-
-/** A dirty range of slots [min, max). */
-class DirtyRange {
-  min = Number.POSITIVE_INFINITY;
-  max = 0;
-  add(begin: number, end: number) {
-    if (begin < this.min) {
-      this.min = begin;
-    }
-    if (end > this.max) {
-      this.max = end;
-    }
-  }
-  get isEmpty() {
-    return this.max <= this.min;
-  }
-  clear() {
-    this.min = Number.POSITIVE_INFINITY;
-    this.max = 0;
-  }
+  /**
+   * For a mesh deformed by the compute shader (WebGpuVertexDeformer): the index of the first deformed vertex of the
+   * primitive among the deformed vertices of an instance (`UniformDrawParameters.deformedVertexOffset`).
+   */
+  readonly deformedVertexOffset?: number;
 }
 
 /** A compute pipeline of the culling and its bind group. */
@@ -359,6 +369,10 @@ export class WebGpuGpuCulling {
   };
   /** The storage buffer of the GPU instance data bound in the cull bind group. */
   private __cullBindGroupStorageBuffer?: GPUBuffer;
+  /** The deformed bounding box buffer bound in the cull bind group. */
+  private __cullBindGroupBoundsBuffer?: GPUBuffer;
+  /** The vertex deformation (skinning, blend shapes) of the deformed meshes (Config.isComputeSkinningEnabled). */
+  private __deformer: WebGpuVertexDeformer;
 
   private __paramsBuffer: GPUBuffer;
   private __paramsArray = new Uint32Array(ParamsByteSize / 4);
@@ -403,6 +417,10 @@ export class WebGpuGpuCulling {
         mesh: Mesh;
         entityInfo: Uint32Array;
         positionUpdateCount: number;
+        /** The deformation of the instances, for a deformed mesh. */
+        deform: GpuDeformEntry | undefined;
+        /** Whether the mesh needs a deformation that could not be allocated (its draws are not culled). */
+        isDeformFailed: boolean;
       }
     | undefined
   )[] = [];
@@ -417,6 +435,8 @@ export class WebGpuGpuCulling {
   constructor(device: GPUDevice) {
     this.__device = device;
     this.__registry = new GpuCullingRegistry(InitialCapacities);
+    // Created up front, so that the deformed vertex buffer exists before the first draw binds group 0.
+    this.__deformer = new WebGpuVertexDeformer(device);
     const createStage = (label: string, code: string, entryPoint: string, types: GPUBufferBindingType[]) => {
       const layout = device.createBindGroupLayout({
         label: `GpuCulling.${label}`,
@@ -433,7 +453,7 @@ export class WebGpuGpuCulling {
     const w = 'storage';
     const u = 'uniform';
     this.__passes = {
-      cull: createStage('cullChunks', cullChunksWgsl, 'cullChunks', [r, u, r, r, r, r, w, w]),
+      cull: createStage('cullChunks', cullChunksWgsl, 'cullChunks', [r, u, r, r, r, r, w, w, r]),
       prefix: createStage('prefixGroups', prefixGroupsWgsl, 'prefixGroups', [u, r, r, w, w]),
       scatter: createStage('scatter', scatterWgsl, 'scatter', [u, r, r, r, r, r, w]),
       finalize: createStage('finalize', finalizeWgsl, 'finalize', [u, r, r, w]),
@@ -449,6 +469,16 @@ export class WebGpuGpuCulling {
   /** The bookkeeping of the allocations (exposed for tests and statistics). */
   get registry(): GpuCullingRegistry {
     return this.__registry;
+  }
+
+  /** The vertex deformation of the deformed meshes (exposed for tests and statistics). */
+  get deformer(): WebGpuVertexDeformer {
+    return this.__deformer;
+  }
+
+  /** The deformed vertices, bound at group 0, binding 4 of the draws (see processGeometry). */
+  get deformedVerticesBuffer(): GPUBuffer {
+    return this.__deformer.deformedVerticesBuffer;
   }
 
   /** Starts a render bundle recording. See GpuCullingRegistry.beginRecording. */
@@ -489,11 +519,18 @@ export class WebGpuGpuCulling {
    *
    * @param engine - The engine
    * @param mesh - The mesh drawn (its instances are culled)
+   * @param primitive - The primitive drawn
    * @param cameraSID - The camera the draw renders with; its frustum is used for the culling
    * @param elementCount - The index count (indexed draw) or the vertex count of the primitive
    * @returns The draw, or undefined when the draw cannot be culled on the GPU (draw it without culling)
    */
-  registerDraw(engine: Engine, mesh: Mesh, cameraSID: number, elementCount: number): GpuCulledDraw | undefined {
+  registerDraw(
+    engine: Engine,
+    mesh: Mesh,
+    primitive: Primitive,
+    cameraSID: number,
+    elementCount: number
+  ): GpuCulledDraw | undefined {
     const registry = this.__registry;
     if (!registry.isRecording) {
       return undefined;
@@ -513,6 +550,9 @@ export class WebGpuGpuCulling {
     }
     let groupEntry = this.__groupVertexRanges[group.index];
     if (groupEntry === undefined || groupEntry.group !== group) {
+      // The deformation is shared by the groups of the mesh (views, render bundles) and released with each group.
+      const needsDeformation = mesh._needsComputeDeformation;
+      const deform = needsDeformation ? this.__deformer.acquire(engine, mesh, entityInfo) : undefined;
       groupEntry = {
         group,
         range: {
@@ -524,9 +564,22 @@ export class WebGpuGpuCulling {
         mesh,
         entityInfo,
         positionUpdateCount: mesh.primitivePositionUpdateCount,
+        deform,
+        isDeformFailed: needsDeformation && deform === undefined,
       };
       this.__groupVertexRanges[group.index] = groupEntry;
-      this.__writeGroup(engine, mesh, group, entityInfo);
+      this.__writeGroup(engine, mesh, group, entityInfo, deform);
+    }
+    if (groupEntry.isDeformFailed) {
+      // The deformation tables are full: the draw deforms in the vertex shader without culling, until they grow.
+      return undefined;
+    }
+    let deformedVertexOffset: number | undefined;
+    if (groupEntry.deform !== undefined) {
+      deformedVertexOffset = this.__deformer.getPrimitiveOffset(groupEntry.deform, primitive);
+      if (deformedVertexOffset === undefined) {
+        return undefined;
+      }
     }
     const slot = registry.allocateDraw();
     if (slot < 0) {
@@ -549,6 +602,7 @@ export class WebGpuGpuCulling {
       instanceVertexBuffer: groupEntry.range,
       indirectBuffer: this.__argsBuffer,
       indirectOffset: slot * GpuCullingArgsByteSize,
+      deformedVertexOffset,
     };
   }
 
@@ -556,11 +610,20 @@ export class WebGpuGpuCulling {
    * Records the culling compute pass when its inputs changed since the last one.
    * Submit the returned command buffer before the render commands that execute the culled draws.
    *
+   * The vertex deformation of the deformed meshes is recorded first in the same command buffer, when its inputs
+   * changed (the GPU instance data holds the bone data).
+   *
    * @param storageBuffer - The storage buffer of the GPU instance data
-   * @param gpuTimer - When set (and a frame is being measured), measures the culling as the 'GpuCulling' pass
+   * @param gpuTimer - When set (and a frame is being measured), measures the culling as the 'GpuCulling' pass and
+   *   the deformation as the 'GpuSkinning' pass
+   * @param morphBuffers - The buffers of the morph targets, read by the deformation
    * @returns The command buffer, or undefined when nothing has to be dispatched
    */
-  encode(storageBuffer: GPUBuffer | undefined, gpuTimer?: WebGpuGpuTimer): GPUCommandBuffer | undefined {
+  encode(
+    storageBuffer: GPUBuffer | undefined,
+    gpuTimer?: WebGpuGpuTimer,
+    morphBuffers: GpuDeformMorphBuffers = {}
+  ): GPUCommandBuffer | undefined {
     const registry = this.__registry;
     const groupCount = registry.groupHighWater;
     const drawCount = registry.drawHighWater;
@@ -573,8 +636,15 @@ export class WebGpuGpuCulling {
       this.__lastPositionUpdateVersion = positionUpdateVersion;
       this.__refreshChangedBounds();
     }
+    const deformer = this.__deformer;
+    deformer.refresh();
+    // The deformation inputs are the bone data and the blend shape weights (both marked as inputs), and the tables.
+    const needsDeformation =
+      deformer.hasEntries &&
+      (this.__inputsDirty || deformer.isChanged || this.__cullBindGroupStorageBuffer !== storageBuffer);
     if (
       !this.__inputsDirty &&
+      !needsDeformation &&
       this.__recordsDirty.isEmpty &&
       !viewsChanged &&
       registry.version === this.__lastEncodedRegistryVersion &&
@@ -602,7 +672,11 @@ export class WebGpuGpuCulling {
     device.queue.writeBuffer(this.__paramsBuffer, 0, params);
 
     const passes = this.__passes;
-    if (passes.cull.bindGroup == null || this.__cullBindGroupStorageBuffer !== storageBuffer) {
+    if (
+      passes.cull.bindGroup == null ||
+      this.__cullBindGroupStorageBuffer !== storageBuffer ||
+      this.__cullBindGroupBoundsBuffer !== deformer.boundsBuffer
+    ) {
       passes.cull.bindGroup = this.__createBindGroup(passes.cull, [
         storageBuffer,
         this.__paramsBuffer,
@@ -612,8 +686,10 @@ export class WebGpuGpuCulling {
         this.__chunksBuffer,
         this.__scratchIdsBuffer,
         this.__chunkCountsBuffer,
+        deformer.boundsBuffer,
       ]);
       this.__cullBindGroupStorageBuffer = storageBuffer;
+      this.__cullBindGroupBoundsBuffer = deformer.boundsBuffer;
     }
     passes.prefix.bindGroup ??= this.__createBindGroup(passes.prefix, [
       this.__paramsBuffer,
@@ -639,6 +715,10 @@ export class WebGpuGpuCulling {
     ]);
 
     const encoder = device.createCommandEncoder({ label: 'GpuCulling' });
+    if (needsDeformation) {
+      // The deformed bounding boxes are written before the culling reads them (a separate pass).
+      deformer.encode(encoder, storageBuffer, morphBuffers, gpuTimer);
+    }
     const passDescriptor: GPUComputePassDescriptor = { label: 'GpuCulling' };
     const timestampWrites = gpuTimer?.getTimestampWrites('GpuCulling');
     if (timestampWrites != null) {
@@ -698,7 +778,11 @@ export class WebGpuGpuCulling {
           chunks[(group.chunkBase + k) * 2 + 1] = 0;
         }
         this.__chunksDirty.add(group.chunkBase, group.chunkBase + group.chunkCount);
-        if (this.__groupVertexRanges[group.index]?.group === group) {
+        const groupEntry = this.__groupVertexRanges[group.index];
+        if (groupEntry?.group === group) {
+          if (groupEntry.deform !== undefined) {
+            this.__deformer.release(groupEntry.deform);
+          }
           this.__groupVertexRanges[group.index] = undefined;
         }
       }
@@ -708,8 +792,32 @@ export class WebGpuGpuCulling {
         this.__drawGroupsDirty.add(draw, draw + 1);
       }
     }
-    if (!registry.isOverflowed) {
+    const deformer = this.__deformer;
+    const cullingCapacities = this.__getGrownCapacities();
+    const deformCapacities = deformer.getGrownCapacities();
+    if (cullingCapacities === undefined && deformCapacities === undefined && !deformer.isResetRequested) {
+      // Nothing overflowed, or the device limits are reached: keep the tables; the draws that do not fit stay unculled.
       return false;
+    }
+    // The cull groups refer to the deformation entries (and the bundles to both), so both start over.
+    const capacities = cullingCapacities ?? { ...registry.capacities };
+    this.__destroyTables();
+    this.__createTables(capacities);
+    registry.reset(capacities);
+    deformer.reset(deformCapacities ?? { ...deformer.capacities });
+    this.__groupVertexRanges.length = 0;
+    this.__inputsDirty = true;
+    return true;
+  }
+
+  /**
+   * The capacities the culling tables must grow to after an allocation failed, or undefined when they did not
+   * overflow or cannot grow (the device limits are reached).
+   */
+  private __getGrownCapacities(): GpuCullingCapacities | undefined {
+    const registry = this.__registry;
+    if (!registry.isOverflowed) {
+      return undefined;
     }
     const required = registry.requiredCapacities;
     const current = registry.capacities;
@@ -735,15 +843,9 @@ export class WebGpuGpuCulling {
       capacities.draws === current.draws &&
       capacities.chunks === current.chunks
     ) {
-      // The device limits are reached. Keep the tables; the draws that do not fit stay unculled.
-      return false;
+      return undefined;
     }
-    this.__destroyTables();
-    this.__createTables(capacities);
-    registry.reset(capacities);
-    this.__groupVertexRanges.length = 0;
-    this.__inputsDirty = true;
-    return true;
+    return capacities;
   }
 
   /**
@@ -751,6 +853,7 @@ export class WebGpuGpuCulling {
    */
   destroy() {
     this.__destroyTables();
+    this.__deformer.destroy();
     this.__paramsBuffer.destroy();
     this.__viewsBuffer?.destroy();
     this.__viewsBuffer = undefined;
@@ -879,14 +982,21 @@ export class WebGpuGpuCulling {
         continue;
       }
       entry.positionUpdateCount = entry.mesh.primitivePositionUpdateCount;
-      this.__writeGroup(entry.engine, entry.mesh, entry.group, entry.entityInfo);
+      this.__writeGroup(entry.engine, entry.mesh, entry.group, entry.entityInfo, entry.deform);
     }
   }
 
   /**
    * Writes the group table entry and the per-instance records of a group.
+   * The records of a deformed group point to the deformed vertices (instance ids w) and bounding box of each instance.
    */
-  private __writeGroup(engine: Engine, mesh: Mesh, group: GpuCullingGroup, entityInfo: Uint32Array) {
+  private __writeGroup(
+    engine: Engine,
+    mesh: Mesh,
+    group: GpuCullingGroup,
+    entityInfo: Uint32Array,
+    deform: GpuDeformEntry | undefined
+  ) {
     const groups = this.__groupsU32;
     const g = group.index * 4;
     groups[g] = group.rangeBase;
@@ -930,6 +1040,7 @@ export class WebGpuGpuCulling {
     const u32 = this.__recordsU32;
     const f32 = this.__recordsF32;
     const entities = mesh.meshEntitiesInner;
+    const deformer = this.__deformer;
     for (let i = 0; i < group.instanceCount; i++) {
       const r = (group.rangeBase + i) * RecordWordSize;
       const sid = entityInfo[4 * i];
@@ -938,7 +1049,8 @@ export class WebGpuGpuCulling {
       u32[r] = sid;
       u32[r + 1] = entityInfo[4 * i + 1];
       u32[r + 2] = entityInfo[4 * i + 2];
-      u32[r + 3] = entityInfo[4 * i + 3];
+      // 1 + the first deformed vertex of the instance, read by processGeometry (0: deformed in the vertex shader).
+      u32[r + 3] = deform !== undefined ? deformer.getInstanceDeformedBase(deform, i) + 1 : entityInfo[4 * i + 3];
       f32[r + 4] = cx;
       f32[r + 5] = cy;
       f32[r + 6] = cz;
@@ -950,8 +1062,14 @@ export class WebGpuGpuCulling {
       u32[r + 12] = (isBillboardOffsets[bufferViewIndex] ?? 0) * 4 + indexInBufferView;
       // The same exception as the CPU culling (MeshRendererComponent.__cullingWithViewFrustum).
       const isBackgroundAsset = entities[i]?.getTagValue('type') === 'background-assets';
-      u32[r + 13] = !isAabbValid || isBackgroundAsset ? FlagAlwaysVisible : 0;
-      u32[r + 14] = 0;
+      if (deform !== undefined) {
+        // The bounding box of the deformed vertices is computed on the GPU.
+        u32[r + 13] = FlagDeformed | (isBackgroundAsset ? FlagAlwaysVisible : 0);
+        u32[r + 14] = deformer.getInstanceBoundsSlot(deform, i);
+      } else {
+        u32[r + 13] = !isAabbValid || isBackgroundAsset ? FlagAlwaysVisible : 0;
+        u32[r + 14] = 0;
+      }
       u32[r + 15] = 0;
     }
     this.__recordsDirty.add(group.rangeBase, group.rangeBase + group.instanceCount);

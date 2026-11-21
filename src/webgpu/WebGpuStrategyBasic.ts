@@ -839,6 +839,8 @@ ${indexStr}
     if (morphMaxIndex !== this.__lastMorphMaxIndex) {
       this.__createOrUpdateStorageBlendShapeBuffer();
       this.__lastMorphMaxIndex = morphMaxIndex;
+      // The vertex deformation of the GPU culling reads the morph targets.
+      this.__engine.webGpuResourceRepository._markGpuCullingInputsDirty();
     }
 
     if (
@@ -846,6 +848,8 @@ ${indexStr}
       BlendShapeComponent.getCountOfBlendShapeComponents(this.__engine) !== this.__countOfBlendShapeComponents
     ) {
       this.__updateMorphWeightsUniformBuffer();
+      // The vertex deformation of the GPU culling reads the blend shape weights.
+      this.__engine.webGpuResourceRepository._markGpuCullingInputsDirty();
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
       this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents(this.__engine);
       this.__engine.materialRepository._makeShaderInvalidateToMorphMaterials();

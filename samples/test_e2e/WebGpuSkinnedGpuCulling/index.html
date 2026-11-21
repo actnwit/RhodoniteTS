@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>WebGpuSkinnedGpuCulling</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <style>
+    main {
+      display: flex;
+    }
+    section {
+      background-color: darkgray;
+      padding: 10px;
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 class="header-title">Rhodonite E2E Test - WebGpuSkinnedGpuCulling</h1>
+  </header>
+  <main>
+    <section class="test">
+      <h2>Rendering Test Image</h2>
+      <canvas id="world" width="600" height="600"></canvas>
+      <div>
+        <button type="button" onclick="window.isAnimating = !window.isAnimating;">Animate</button>
+        <a href="?computeSkinning=0">Vertex shader skinning</a> / <a href="?computeSkinning=1">Compute skinning</a>
+      </div>
+    </section>
+    <section class="correct">
+      <h2>Correct PNG Image</h2>
+      <img src="__image_snapshots__/test-js-regression-test-web-gpu-skinned-gpu-culling-1-snap.png" alt="Expected rendering result" />
+    </section>
+  </main>
+  <script src="../../assets/navigate.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stats.js/r16/Stats.min.js"></script>
+  <script type="module" src="./main.js"></script>
+</body>
+
+</html>

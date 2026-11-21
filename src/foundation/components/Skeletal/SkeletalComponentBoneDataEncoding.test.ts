@@ -2,7 +2,7 @@ import Rn from '../../../../dist/esm';
 
 /**
  * These tests decode the GPU bone data on the CPU in the same way as the shaders
- * (getBoneMatrix in processGeometry.glsl / processGeometry.wgsl) and compare the result
+ * (getBoneMatrix in processGeometry.glsl, decodeBoneMatrix in boneDecode.wgsl) and compare the result
  * with the joint matrix that the skinning should use.
  */
 
