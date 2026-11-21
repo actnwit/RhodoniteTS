@@ -309,6 +309,7 @@ ${hitShading}
 #define RN_IS_NODE_SHADER
 // Shading runs only for hit points (non-uniform control flow), where WGSL forbids derivatives.
 #define RN_DISABLE_SPECULAR_AA
+#define RN_RAYMARCHING_SHADING
 
 struct VertexOutput {
   @builtin(position) position : vec4<f32>,
@@ -332,6 +333,7 @@ precision highp int;
 #define RN_IS_NODE_SHADER
 // Shading runs only for hit points (non-uniform control flow); keep both backends consistent.
 #define RN_DISABLE_SPECULAR_AA
+#define RN_RAYMARCHING_SHADING
 /* shaderity: @{prerequisites} */
 
 out vec2 v_texcoord_0;
@@ -360,6 +362,7 @@ out vec2 v_texcoord_0;
 #define RN_IS_NODE_SHADER
 // Shading runs only for hit points (non-uniform control flow), where WGSL forbids derivatives.
 #define RN_DISABLE_SPECULAR_AA
+#define RN_RAYMARCHING_SHADING
 
 struct VertexOutput {
   @builtin(position) position : vec4<f32>,

@@ -82,11 +82,17 @@ fn ${this.__functionName}(uv: vec2f, scale: vec2f, offset: vec2f, rotation: f32,
   let ${textureName}TexUv = uvTransform(scale, offset, rotation, uv);
   var lodFloat = lod;
   var rgbaValue: vec4<f32>;
-  if (lodFloat < 0.0) {
-    rgbaValue = textureSample(${textureName}, ${samplerName}, ${textureName}TexUv);
-  } else {
-    rgbaValue = textureSampleLevel(${textureName}, ${samplerName}, ${textureName}TexUv, lodFloat);
-  }
+  #ifdef RN_RAYMARCHING_SHADING
+    // The raymarching shading section runs in non-uniform control flow, where implicit
+    // derivatives (textureSample) are not allowed in WGSL.
+    rgbaValue = textureSampleLevel(${textureName}, ${samplerName}, ${textureName}TexUv, max(lodFloat, 0.0));
+  #else
+    if (lodFloat < 0.0) {
+      rgbaValue = textureSample(${textureName}, ${samplerName}, ${textureName}TexUv);
+    } else {
+      rgbaValue = textureSampleLevel(${textureName}, ${samplerName}, ${textureName}TexUv, lodFloat);
+    }
+  #endif
   ${this.__sRGB ? 'rgbaValue = vec4f(srgbToLinear(rgbaValue.rgb), rgbaValue.a);' : ''}
   *rgba = rgbaValue;
   *rgb = rgbaValue.rgb;

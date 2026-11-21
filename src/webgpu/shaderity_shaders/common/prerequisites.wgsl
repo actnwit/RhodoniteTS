@@ -325,7 +325,27 @@ fn inverse4x4(m: mat4x4<f32>) -> mat4x4<f32> {
 var<private> g_isFront: bool = true;
 
 // getTBN: Compute tangent-to-world matrix for normal mapping
-#ifdef RN_USE_TANGENT
+#if defined(RN_RAYMARCHING_SHADING)
+  // Raymarching shades hit points in non-uniform control flow, where derivatives are not
+  // allowed (dpdx/dpdy), and there is no triangle UV parameterization. Build a deterministic
+  // orthonormal frame from the surface normal and the given tangent instead.
+  fn getTBN(normal_inWorld: vec3f, tangent_inWorld_: vec3f, bitangent_inWorld_: vec3f, viewVector: vec3f, texcoord: vec2f) -> mat3x3<f32> {
+    let n = normalize(normal_inWorld);
+    var t = tangent_inWorld_ - n * dot(n, tangent_inWorld_);
+    if (dot(t, t) < 1e-8) {
+      var helper: vec3f;
+      if (abs(n.y) < 0.999) {
+        helper = vec3f(0.0, 1.0, 0.0);
+      } else {
+        helper = vec3f(1.0, 0.0, 0.0);
+      }
+      t = cross(helper, n);
+    }
+    t = normalize(t);
+    let b = cross(n, t);
+    return mat3x3<f32>(t, b, n);
+  }
+#elif defined(RN_USE_TANGENT)
   // When tangent attributes are available
   fn getTBN(normal_inWorld: vec3f, tangent_inWorld_: vec3f, bitangent_inWorld_: vec3f, viewVector: vec3f, texcoord: vec2f) -> mat3x3<f32> {
     let tangent_inWorld = normalize(tangent_inWorld_);

@@ -2269,6 +2269,52 @@ function addWorldMatrixSemanticsInfoToRaymarchingMaterial(shaderNodeJson: Shader
 }
 
 /**
+ * Detects the PBR features the raymarching graph uses so that the material
+ * enables the matching shader defines.
+ *
+ * Normal mapping additionally relies on the raymarching-specific getTBN variant
+ * (RN_RAYMARCHING_SHADING), because the shading section runs in non-uniform
+ * control flow where derivatives are not allowed.
+ */
+function detectRaymarchingPbrFeatures(shaderNodeJson: ShaderNodeJson) {
+  const nodes = shaderNodeJson.nodes as Array<{ id: string; name: string }> | undefined;
+  const connections = shaderNodeJson.connections as
+    | Array<{ from: { id: string; portName: string }; to: { id: string; portName: string } }>
+    | undefined;
+  if (nodes == null || connections == null) {
+    return { useNormalTexture: false, isOcclusion: false };
+  }
+
+  const findNode = (name: string) => nodes.find(node => node.name === name);
+  const isConnectedTo = (targetNodeId: string, portName: string) =>
+    connections.find(connection => connection.to.id === targetNodeId && connection.to.portName === portName);
+
+  const pbrShaderNode = findNode('PbrShader');
+  const normalPropsNode = findNode('PbrNormalProps');
+
+  // A normal texture affects shading only when the normal props node samples a
+  // Texture2D and feeds the PBR shader's normal.
+  const useNormalTexture = (() => {
+    if (pbrShaderNode == null || normalPropsNode == null) return false;
+    const normalConnection = isConnectedTo(normalPropsNode.id, 'normalTexture');
+    if (normalConnection == null) return false;
+    const sourceNode = nodes.find(node => node.id === normalConnection.from.id);
+    if (sourceNode?.name !== 'Texture2D') return false;
+    return isConnectedTo(pbrShaderNode.id, 'normalInWorld')?.from.id === normalPropsNode.id;
+  })();
+
+  const isOcclusion = (() => {
+    if (pbrShaderNode == null) return false;
+    const occlusionConnection = isConnectedTo(pbrShaderNode.id, 'occlusionProps');
+    if (occlusionConnection == null) return false;
+    const sourceNode = nodes.find(node => node.id === occlusionConnection.from.id);
+    return sourceNode?.name === 'PbrOcclusionProps';
+  })();
+
+  return { useNormalTexture, isOcclusion };
+}
+
+/**
  *
  * Creates a node-based raymarching custom material.
  * @param engine
@@ -2293,7 +2339,10 @@ function createNodeBasedRaymarchingCustomMaterial(
   // so the material needs the lighting/PBR defines and the IBL/PBR parameters.
   addRaymarchingPbrIblSemanticInfo(engine, additionalShaderSemanticInfo);
   addRaymarchingPbrSemanticInfo(additionalShaderSemanticInfo);
+  // Texture2D nodes in the graph sample these material textures.
+  additionalShaderSemanticInfo.push(...buildTextureSemanticInfo(engine, shaderCode.textureInfos));
 
+  const pbrFeatures = detectRaymarchingPbrFeatures(shaderNodeJson);
   const material = reuseOrRecreateCustomMaterial(
     engine,
     shaderCode.vertexShader,
@@ -2302,6 +2351,8 @@ function createNodeBasedRaymarchingCustomMaterial(
       isLighting: true,
       isPbr: true,
       isShadow: false,
+      useNormalTexture: pbrFeatures.useNormalTexture,
+      isOcclusion: pbrFeatures.isOcclusion,
       additionalShaderSemanticInfo,
     },
     currentMaterial
