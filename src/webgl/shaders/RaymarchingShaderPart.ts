@@ -129,17 +129,18 @@ fn main(
   if(h<.01){
     let p = ro+rd*t;
     let normal=calcNormal(p);
-    let light=vec3f(0,2,0);
 
-    // Calculate diffuse lighting by taking the dot product of
-    // the light direction (light-p) and the normal.
-    var dif=clamp(dot(normal,normalize(light-p)),0.,1.);
+    var color = vec3f(0.0);
+    let lightList = getLightList(p, cameraSID);
+    for(var n=0u; n<lightList.count; n++){
+      let lightRef = getLightRef(lightList, n);
+      let light = getLight(u32(lightRef.x), p);
+      if (all(light.attenuatedIntensity == vec3f(0.0))) { continue; }
+      let NdotL = max(dot(normal, light.direction), 0.0);
+      color += light.attenuatedIntensity * NdotL * RECIPROCAL_PI;
+    }
 
-    // Multiply by light intensity (5) and divide by the square
-    // of the distance to the light.
-    dif*=5.0/dot(light-p,light-p);
-
-    rt0=vec4f(vec3f(pow(dif,.4545)),1.0);// Gamma correction
+    rt0=vec4f(pow(color, vec3f(0.4545)),1.0);// Gamma correction
 
     // Calculate depth from raymarching hit position
     let clipPos = projectionMatrix * viewMatrix * vec4f(p, 1.0);
@@ -208,17 +209,20 @@ void main() {
   if(h<.01){
     vec3 p=ro+rd*t;
     vec3 normal=calcNormal(p);
-    vec3 light=vec3(0,2,0);
 
-    // Calculate diffuse lighting by taking the dot product of
-    // the light direction (light-p) and the normal.
-    float dif=clamp(dot(normal,normalize(light-p)),0.,1.);
+    vec3 color = vec3(0.0);
+    LightList lightList = getLightList(p, cameraSID);
+    for (int n = 0; n < lightList.count; n++) {
+      ivec2 lightRef = getLightRef(lightList, n);
+      Light light = getLight(lightRef.x, p);
+      if (all(equal(light.attenuatedIntensity, vec3(0.0)))) {
+        continue;
+      }
+      float NdotL = max(dot(normal, light.direction), 0.0);
+      color += light.attenuatedIntensity * NdotL * RECIPROCAL_PI;
+    }
 
-    // Multiply by light intensity (5) and divide by the square
-    // of the distance to the light.
-    dif*=5./dot(light-p,light-p);
-
-    rt0=vec4(vec3(pow(dif,.4545)),1);// Gamma correction
+    rt0=vec4(pow(color, vec3(0.4545)),1);// Gamma correction
 
     // Calculate depth from raymarching hit position
     vec4 clipPos = projectionMatrix * viewMatrix * vec4(p, 1.0);
@@ -304,6 +308,7 @@ struct VertexOutput {
 /* shaderity: @{prerequisites} */
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
+/* shaderity: @{opticalDefinition} */
 var<private> g_distance: f32 = 1e20; // distance to the surface
 var<private> g_rayPosition: vec3<f32> = vec3f(0.0, 0.0, 0.0);
 
@@ -443,6 +448,7 @@ precision highp int;
 in vec2 v_texcoord_0;
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
+/* shaderity: @{opticalDefinition} */
 layout(location = 0) out vec4 rt0;
 float g_distance = 1e20; // distance to the surface
 vec3 g_rayPosition = vec3(0,0,0);

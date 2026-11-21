@@ -73,6 +73,14 @@ function createSpheres() {
 }
 
 const earth = createEarth();
+
+// The raymarching shader reads LightComponent lights through the clustered
+// forward light list, so the sample needs a real light.
+const lightEntity = Rn.createLightEntity(engine);
+lightEntity.getLight().type = Rn.LightType.Directional;
+lightEntity.getLight().color = Rn.Vector3.fromCopy3(0.8, 0.8, 0.8);
+lightEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopy3(-Math.PI / 4, Math.PI / 4, 0);
+
 const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 cameraEntity.getCameraController().controller.setTarget(earth);
 
