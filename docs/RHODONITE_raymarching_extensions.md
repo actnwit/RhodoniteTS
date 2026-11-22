@@ -39,6 +39,18 @@ The node transform (translation/rotation/scale) is stored by the standard glTF n
 The importer sets `RaymarchingComponent.rrnJson` from `graph`, or `sdfShapeType` when the graph is
 missing, then restores `isPickable`.
 
+### Per-object uniforms
+
+Uniform nodes (`UniformScalarFloat`, `UniformVector2Float`, `UniformVector3Float`,
+`UniformVector4Float`) are per component. When the graphs are merged, `collectRrnJson` postfixes
+each uniform name with the component SID, so the shared material receives one uniform per
+component (for example `roughness_0` and `roughness_1`). Components can therefore share a graph
+while using different values.
+
+The component's own graph keeps the user-authored name (for example `roughness`), and its control
+values are what the inspector edits. Because the graphs are stored by this extension, per-object
+uniform values survive save/load without additional extension fields.
+
 ## `RHODONITE_raymarching_materials` (root extension)
 
 The raymarching material is shared by every `RaymarchingComponent`, so its user-assigned textures

@@ -254,3 +254,49 @@ test('parses the raymarching material texture assignments from the root extensio
     ModelConverter.getRaymarchingMaterialTextureAssignments({ asset: { version: '2.0' } } as unknown as RnM2)
   ).toEqual([]);
 });
+
+test('postfixes uniform names per component so shared graphs can differ', async () => {
+  const engine = await createExportEngine();
+  const entity = createRaymarchingEntity(engine);
+
+  const graph = createSphereGraph();
+  graph.nodes.push(
+    {
+      id: 'shading',
+      name: 'OutShadingColor',
+      outputs: {},
+      inputs: { value: { id: 'shading_in', label: 'In Color', socket: { name: 'Vector4<float>' } } },
+      controls: { shaderStage: { value: 'Fragment' } },
+      position: { x: 0, y: 0 },
+    },
+    {
+      id: 'color',
+      name: 'UniformVector4Float',
+      outputs: { out1: { id: 'color_out', label: 'Vector4 Out', socket: { name: 'Vector4<float>' } } },
+      inputs: {},
+      controls: {
+        name: { value: 'objectColor' },
+        initialX: { value: 0.25 },
+        initialY: { value: 0.5 },
+        initialZ: { value: 0.75 },
+        initialW: { value: 1 },
+      },
+      position: { x: 0, y: 0 },
+    }
+  );
+  graph.connections.push({
+    id: 'c5',
+    from: { id: 'color', portName: 'out1' },
+    to: { id: 'shading', portName: 'value' },
+  });
+  entity.getRaymarching().rrnJson = graph;
+
+  const componentSID = entity.getRaymarching().componentSID;
+  const collected = MaterialHelper.collectRrnJson(engine);
+  const uniformNode = collected.nodes.find(node => node.name === 'UniformVector4Float')!;
+  expect(uniformNode.controls.name.value).toBe(`objectColor_${componentSID}`);
+
+  const result = MaterialHelper.createNodeBasedRaymarchingCustomMaterial(engine, collected as any);
+  expect(result).toBeDefined();
+  expect(result!.material._allFieldsInfo.has(`objectColor_${componentSID}` as any)).toBe(true);
+});
