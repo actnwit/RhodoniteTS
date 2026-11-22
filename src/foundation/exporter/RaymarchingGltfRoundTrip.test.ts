@@ -226,6 +226,8 @@ test('exports the shared raymarching material textures as a root extension', asy
   expect(json.images).toHaveLength(1);
   expect(json.images[0].mimeType).toBe('image/png');
   expect(json.images[0].bufferView).toBeDefined();
+  // GLB images have no uri, so the name has to carry the texture name for the importer.
+  expect(json.images[0].name).toBe('TestTexture');
 });
 
 test('parses the raymarching material texture assignments from the root extension', () => {
