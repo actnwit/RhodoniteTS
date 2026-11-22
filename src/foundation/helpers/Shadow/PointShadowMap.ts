@@ -47,6 +47,18 @@ export class PointShadowMap {
   }
 
   /**
+   * Updates the far plane of the paraboloid depth encoding for a shadow slot.
+   * The receiving materials must use the same value in their `pointLightFarPlane` entry.
+   *
+   * @param shadowSlot - The shadow slot of the light
+   * @param farPlane - The new far plane
+   */
+  public setFarPlane(shadowSlot: number, farPlane: number) {
+    this.__shadowMomentFrontMaterials[shadowSlot]?.setParameter('farPlane', farPlane);
+    this.__shadowMomentBackMaterials[shadowSlot]?.setParameter('farPlane', farPlane);
+  }
+
+  /**
    * Generates render passes for creating shadow maps from a point light source.
    * Creates two render passes: one for the front hemisphere and one for the back hemisphere
    * of the paraboloid shadow mapping technique.
@@ -55,12 +67,15 @@ export class PointShadowMap {
    * @param lightEntity - The point light entity that casts shadows
    * @param shadowSlot - The shadow slot of the light (below `Config.maxLightNumber`). Defaults to the shadow slot
    *   of the light component.
+   * @param farPlane - The far plane used to normalize the stored depth (the receiving materials must use the
+   *   same value in their `pointLightFarPlane` entry). Defaults to 1000.
    * @returns An array containing two render passes: [frontRenderPass, backRenderPass]
    */
   public getRenderPasses(
     entities: ISceneGraphEntity[],
     lightEntity: ISceneGraphEntity & ILightEntityMethods,
-    shadowSlot?: number
+    shadowSlot?: number,
+    farPlane = 1000
   ) {
     const lightComponent = lightEntity.getLight();
     const lightComponentSid = lightComponent.componentSID;
@@ -80,6 +95,7 @@ export class PointShadowMap {
     shadowMomentFrontRenderPass.setFramebuffer(this.__shadowMomentFramebuffer);
     shadowMomentFrontRenderPass.setMaterial(frontMaterial);
     frontMaterial.setParameter('lightIndex', lightComponentSid);
+    frontMaterial.setParameter('farPlane', farPlane);
     const shadowMomentBackRenderPass = new RenderPass(lightEntity.engine);
     shadowMomentBackRenderPass.toClearColorBuffer = false;
     shadowMomentBackRenderPass.toClearDepthBuffer = true;
@@ -87,6 +103,7 @@ export class PointShadowMap {
     shadowMomentBackRenderPass.setFramebuffer(this.__shadowMomentFramebuffer);
     shadowMomentBackRenderPass.setMaterial(backMaterial);
     backMaterial.setParameter('lightIndex', lightComponentSid);
+    backMaterial.setParameter('farPlane', farPlane);
 
     return [shadowMomentFrontRenderPass, shadowMomentBackRenderPass];
   }

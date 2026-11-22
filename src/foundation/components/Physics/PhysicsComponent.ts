@@ -118,6 +118,68 @@ export class PhysicsComponent extends Component {
     return this.__motion == null ? undefined : PhysicsComponent.__copyMotion(this.__motion);
   }
 
+  /**
+   * Whether the rigid body is allowed to move. False means a fixed body.
+   * When no motion property is set, the first shape binding's body is used.
+   */
+  get bodyMove(): boolean {
+    if (this.__motion != null) {
+      return this.__motion.move;
+    }
+    for (const binding of this.__shapeBindings.values()) {
+      return binding.body.move;
+    }
+    return false;
+  }
+
+  /**
+   * Sets whether the rigid body may move and rebuilds its colliders.
+   *
+   * The move flag is shared by the rigid body and every collider, so this
+   * updates the motion property and all shape bindings together. A fixed body
+   * clears the kinematic flag; enabling move keeps the current kinematic flag
+   * when one is set, otherwise the body becomes dynamic.
+   *
+   * @param move - True for a movable body, false for a fixed body
+   */
+  setBodyMove(move: boolean): void {
+    const nextIsKinematic = move ? (this.__motion?.isKinematic ?? false) : false;
+    const nextMotion: PhysicsMotionProperty = {
+      ...(this.__motion ?? {}),
+      move,
+      isKinematic: nextIsKinematic,
+    };
+    const previousMotion = this.__motion;
+    const previousBindings = this.__shapeBindings;
+
+    const nextBindings = new Map<number, PhysicsShapeBinding>();
+    for (const [bindingId, binding] of this.__shapeBindings) {
+      nextBindings.set(bindingId, {
+        ...binding,
+        body: { ...binding.body, move, isKinematic: nextIsKinematic },
+      });
+    }
+
+    this.__motion = PhysicsComponent.__copyMotion(nextMotion);
+    this.__shapeBindings = nextBindings;
+
+    if (nextBindings.size === 0) {
+      return;
+    }
+
+    try {
+      this.__applyShapeBindings(nextBindings, () => {
+        this.__motion = previousMotion;
+        this.__shapeBindings = previousBindings;
+        this.__applyShapeBindings(previousBindings);
+      });
+    } catch (error) {
+      this.__motion = previousMotion;
+      this.__shapeBindings = previousBindings;
+      throw error;
+    }
+  }
+
   /** Adds one generic ShapeComponent instance to this physical body. */
   bindShape(binding: PhysicsShapeBinding): number {
     const id = this.__nextShapeBindingId;
@@ -141,6 +203,39 @@ export class PhysicsComponent extends Component {
     if (previous.collider.isSensor && !binding.collider.isSensor) {
       TriggerComponent._unregisterSensorBinding(this.__engine, this.entity.entityUID, bindingId);
     }
+  }
+
+  /**
+   * Removes every shape binding that references one ShapeComponent shape.
+   * @param shapeComponent - ShapeComponent owning the shape
+   * @param shapeIndex - Shape index referenced by the bindings
+   * @returns The number of removed bindings
+   */
+  removeShapeBindingsForShape(shapeComponent: ShapeComponent, shapeIndex: number): number {
+    const next = new Map<number, PhysicsShapeBinding>();
+    const sensorBindingIds: number[] = [];
+    let removed = 0;
+    for (const [bindingId, binding] of this.__shapeBindings) {
+      if (binding.shapeComponent === shapeComponent && (binding.shapeIndex ?? 0) === shapeIndex) {
+        removed++;
+        if (binding.collider.isSensor) {
+          sensorBindingIds.push(bindingId);
+        }
+        continue;
+      }
+      next.set(bindingId, binding);
+    }
+
+    if (removed === 0) {
+      return 0;
+    }
+
+    this.__applyShapeBindingsTransaction(next);
+    this.__shapeBindings = next;
+    for (const bindingId of sensorBindingIds) {
+      TriggerComponent._unregisterSensorBinding(this.__engine, this.entity.entityUID, bindingId);
+    }
+    return removed;
   }
 
   removeShapeBinding(bindingId: number): boolean {

@@ -32,7 +32,9 @@ fn pbrShader(
   let NdotV = saturate(dot(normalInWorld, viewDirection));
 
   // Roughness
-  #ifdef RN_IS_PIXEL_SHADER
+  // Raymarching shades only hit points (non-uniform control flow), where WGSL forbids
+  // derivatives, so it disables the derivative-based specular AA with RN_DISABLE_SPECULAR_AA.
+  #if defined(RN_IS_PIXEL_SHADER) && !defined(RN_DISABLE_SPECULAR_AA)
     let alphaRoughness = perceptualRoughness_ * perceptualRoughness_;
     let alphaRoughness2 = alphaRoughness * alphaRoughness;
     // filter NDF for specular AA --- https://jcgt.org/published/0010/02/02/
@@ -82,7 +84,12 @@ fn pbrShader(
   // Sheen
   var sheenProps: SheenProps = sheenProps_;
   #ifdef RN_USE_SHEEN
-    sheenProps.albedoSheenScalingNdotV = 1.0 - max3(sheenProps.sheenColor) * textureSample(sheenLutTexture, sheenLutSampler, vec2(NdotV, sheenProps.sheenRoughness)).r;
+    #ifdef RN_RAYMARCHING_SHADING
+      // Raymarching shades hit points in non-uniform control flow, where implicit derivatives are not allowed.
+      sheenProps.albedoSheenScalingNdotV = 1.0 - max3(sheenProps.sheenColor) * textureSampleLevel(sheenLutTexture, sheenLutSampler, vec2(NdotV, sheenProps.sheenRoughness), 0.0).r;
+    #else
+      sheenProps.albedoSheenScalingNdotV = 1.0 - max3(sheenProps.sheenColor) * textureSample(sheenLutTexture, sheenLutSampler, vec2(NdotV, sheenProps.sheenRoughness)).r;
+    #endif
   #else
     sheenProps.albedoSheenScalingNdotV = 1.0;
   #endif // RN_USE_SHEEN
@@ -140,7 +147,7 @@ fn pbrShader(
         let depthTextureIndex = get_depthTextureIndexList(materialSID, shadowSlot);
         if (depthTextureIndex >= 0) {
           if (light.lightType == 1) { // Point Light
-            let pointLightFarPlane = get_pointLightFarPlane(materialSID, 0);
+            let pointLightFarPlane = get_pointLightFarPlane(materialSID, shadowSlot);
             let pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0);
             lighting *= varianceShadowContributionParaboloid(positionInWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, u32(depthTextureIndex));
           } else if (light.lightType == 0 || light.lightType == 2) { // Directional Light or Spot Light

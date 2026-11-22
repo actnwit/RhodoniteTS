@@ -82,6 +82,7 @@ import { ShaderGraphResolver } from '../materials/core/ShaderGraphResolver';
 import { Matrix44 } from '../math/Matrix44';
 import { Scalar } from '../math/Scalar';
 import { Vector2 } from '../math/Vector2';
+import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { VectorN } from '../math/VectorN';
 import { DataUtil } from '../misc/DataUtil';
@@ -476,6 +477,27 @@ function createPbrUberMaterial(
       min: 0,
       max: Number.MAX_VALUE,
     });
+    // The paraboloid shadow map stores depth divided by a far plane. It is an array because
+    // each point light with a shadow slot can use a different far plane (its effective range).
+    additionalShaderSemanticInfo.push({
+      semantic: 'pointLightFarPlane',
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.ScalarArray,
+      arrayLength: engine.config.maxLightNumber,
+      stage: ShaderType.PixelShader,
+      initialValue: new VectorN(new Float32Array(engine.config.maxLightNumber).fill(1000.0)),
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+    additionalShaderSemanticInfo.push({
+      semantic: 'pointLightShadowMapUvScale',
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.Scalar,
+      stage: ShaderType.PixelShader,
+      initialValue: Scalar.fromCopyNumber(0.93),
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
   }
 
   const definitions = [];
@@ -631,9 +653,10 @@ function createClassicUberMaterial(
     additionalShaderSemanticInfo.push({
       semantic: 'pointLightFarPlane',
       componentType: ComponentType.Float,
-      compositionType: CompositionType.Scalar,
+      compositionType: CompositionType.ScalarArray,
+      arrayLength: engine.config.maxLightNumber,
       stage: ShaderType.PixelShader,
-      initialValue: Scalar.fromCopyNumber(1000.0),
+      initialValue: new VectorN(new Float32Array(engine.config.maxLightNumber).fill(1000.0)),
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -1758,9 +1781,10 @@ function reuseOrRecreateCustomMaterial(
       additionalShaderSemanticInfo.push({
         semantic: 'pointLightFarPlane',
         componentType: ComponentType.Float,
-        compositionType: CompositionType.Scalar,
+        compositionType: CompositionType.ScalarArray,
+        arrayLength: engine.config.maxLightNumber,
         stage: ShaderType.VertexAndPixelShader,
-        initialValue: Scalar.fromCopyNumber(1000.0),
+        initialValue: new VectorN(new Float32Array(engine.config.maxLightNumber).fill(1000.0)),
         min: 0,
         max: Number.MAX_VALUE,
       });
@@ -2051,13 +2075,168 @@ function addPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: Sha
 }
 
 /**
+ * Adds the material parameters used by the fixed PBR shading of the raymarching
+ * material (base color, metallic, roughness, emissive and the specular/F0 terms).
+ *
+ * @param additionalShaderSemanticInfo - Array to add semantic info to
+ */
+function addRaymarchingPbrSemanticInfo(additionalShaderSemanticInfo: ShaderSemanticsInfo[]) {
+  additionalShaderSemanticInfo.push({
+    semantic: 'raymarchingBaseColor',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Vec4,
+    stage: ShaderType.PixelShader,
+    initialValue: Vector4.fromCopy4(0.8, 0.8, 0.8, 1.0),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'raymarchingMetallic',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Scalar,
+    stage: ShaderType.PixelShader,
+    initialValue: Scalar.fromCopyNumber(0.0),
+    min: 0,
+    max: 1,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'raymarchingRoughness',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Scalar,
+    stage: ShaderType.PixelShader,
+    initialValue: Scalar.fromCopyNumber(0.5),
+    min: 0,
+    max: 1,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'raymarchingEmissive',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Vec3,
+    stage: ShaderType.PixelShader,
+    initialValue: Vector3.fromCopy3(0.0, 0.0, 0.0),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'raymarchingEmissiveStrength',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Scalar,
+    stage: ShaderType.PixelShader,
+    initialValue: Scalar.fromCopyNumber(1.0),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'raymarchingIor',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Scalar,
+    stage: ShaderType.PixelShader,
+    initialValue: Scalar.fromCopyNumber(1.5),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'raymarchingSpecularWeight',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Scalar,
+    stage: ShaderType.PixelShader,
+    initialValue: Scalar.fromCopyNumber(1.0),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'raymarchingSpecularColor',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Vec3,
+    stage: ShaderType.PixelShader,
+    initialValue: Vector3.fromCopy3(1.0, 1.0, 1.0),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+}
+
+/**
+ * Adds the IBL semantics used by the PBR shading of the raymarching material.
+ *
+ * Unlike the mesh material IBL semantics, these are not internal settings: the
+ * raymarching full-screen draw has no mesh renderer component, so the pipeline
+ * sets the environment textures and parameters on the material directly and the
+ * generic per-material upload path has to see them.
+ *
+ * The transmission back buffer texture is intentionally omitted (unused without
+ * RN_USE_TRANSMISSION).
+ */
+function addRaymarchingPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: ShaderSemanticsInfo[]) {
+  const cubeSampler = getSharedSampler(engine, {
+    minFilter: TextureParameter.LinearMipmapLinear,
+    magFilter: TextureParameter.Linear,
+    wrapS: TextureParameter.ClampToEdge,
+    wrapT: TextureParameter.ClampToEdge,
+    wrapR: TextureParameter.ClampToEdge,
+  });
+  const stage = ShaderType.VertexAndPixelShader;
+
+  additionalShaderSemanticInfo.push({
+    semantic: 'diffuseEnvTexture',
+    componentType: ComponentType.Int,
+    compositionType: CompositionType.TextureCube,
+    stage,
+    initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, cubeSampler],
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'specularEnvTexture',
+    componentType: ComponentType.Int,
+    compositionType: CompositionType.TextureCube,
+    stage,
+    initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, cubeSampler],
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'inverseEnvironment',
+    componentType: ComponentType.Bool,
+    compositionType: CompositionType.Scalar,
+    stage,
+    initialValue: Scalar.fromCopyNumber(0),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+  // y and z are the diffuse/specular contributions. Zero by default so that the
+  // IBL work is skipped until the pipeline supplies an environment.
+  additionalShaderSemanticInfo.push({
+    semantic: 'iblParameter',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Vec4,
+    stage,
+    initialValue: Vector4.fromCopy4(1, 0, 0, 0),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'hdriFormat',
+    componentType: ComponentType.Int,
+    compositionType: CompositionType.Vec2,
+    stage,
+    initialValue: Vector2.fromCopy2(0, 0),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+}
+
+/**
  * Adds Sheen related semantic info for PBR shading with sheen.
  * This adds the sheenLutTexture needed for sheen BRDF calculations.
  *
  * @param engine - The engine instance
  * @param additionalShaderSemanticInfo - Array to add semantic info to
  */
-function addPbrSheenSemanticInfo(engine: Engine, additionalShaderSemanticInfo: ShaderSemanticsInfo[]) {
+function addPbrSheenSemanticInfo(
+  engine: Engine,
+  additionalShaderSemanticInfo: ShaderSemanticsInfo[],
+  { sheenEnvIsInternalSetting = true }: { sheenEnvIsInternalSetting?: boolean } = {}
+) {
   // Create a sampler for sheen LUT texture
   const sampler = getSharedSampler(engine, {
     minFilter: TextureParameter.Linear,
@@ -2091,14 +2270,14 @@ function addPbrSheenSemanticInfo(engine: Engine, additionalShaderSemanticInfo: S
     componentType: ComponentType.Int,
     compositionType: CompositionType.TextureCube,
     stage: ShaderType.VertexAndPixelShader,
-    isInternalSetting: true,
+    isInternalSetting: sheenEnvIsInternalSetting,
     initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, cubeSampler],
     min: 0,
     max: Number.MAX_VALUE,
   });
 }
 
-function addWorldMatrixSemanticsInfoToRaymarchingMaterial(shaderNodeJson: ShaderNodeJson) {
+function addRaymarchingComponentSemanticsInfo(shaderNodeJson: ShaderNodeJson) {
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
   for (const node of shaderNodeJson.nodes) {
     if (node.name === 'SdApplyWorldMatrix' && node.controls.name.value) {
@@ -2112,8 +2291,89 @@ function addWorldMatrixSemanticsInfoToRaymarchingMaterial(shaderNodeJson: Shader
         max: Number.MAX_VALUE,
       });
     }
+    // Only the injected per-component id node has a name control; the shading node
+    // (used in the shading section) has none.
+    if (node.name === 'RaymarchObjectIdUniform' && node.controls?.name?.value) {
+      additionalShaderSemanticInfo.push({
+        semantic: node.controls.name.value,
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader,
+        initialValue: Scalar.fromCopyNumber(0),
+        min: 0,
+        max: Number.MAX_VALUE,
+      });
+    }
   }
   return additionalShaderSemanticInfo;
+}
+
+/**
+ * Detects the PBR features the raymarching graph uses so that the material
+ * enables the matching shader defines.
+ *
+ * Normal mapping additionally relies on the raymarching-specific getTBN variant
+ * (RN_RAYMARCHING_SHADING), because the shading section runs in non-uniform
+ * control flow where derivatives are not allowed.
+ */
+function detectRaymarchingPbrFeatures(shaderNodeJson: ShaderNodeJson) {
+  const nodes = shaderNodeJson.nodes as Array<{ id: string; name: string }> | undefined;
+  const connections = shaderNodeJson.connections as
+    | Array<{ from: { id: string; portName: string }; to: { id: string; portName: string } }>
+    | undefined;
+  if (nodes == null || connections == null) {
+    return {
+      useNormalTexture: false,
+      isOcclusion: false,
+      isClearcoat: false,
+      isSheen: false,
+      isIridescence: false,
+      isAnisotropy: false,
+      isDiffuseTransmission: false,
+    };
+  }
+
+  const findNode = (name: string) => nodes.find(node => node.name === name);
+  const isConnectedTo = (targetNodeId: string, portName: string) =>
+    connections.find(connection => connection.to.id === targetNodeId && connection.to.portName === portName);
+
+  const pbrShaderNode = findNode('PbrShader');
+  const normalPropsNode = findNode('PbrNormalProps');
+
+  const isPropsConnected = (sourceName: string, portName: string) => {
+    if (pbrShaderNode == null) return false;
+    const connection = isConnectedTo(pbrShaderNode.id, portName);
+    if (connection == null) return false;
+    return nodes.find(node => node.id === connection.from.id)?.name === sourceName;
+  };
+
+  // A normal texture affects shading only when the normal props node samples a
+  // Texture2D and feeds the PBR shader's normal.
+  const useNormalTexture = (() => {
+    if (pbrShaderNode == null || normalPropsNode == null) return false;
+    const normalConnection = isConnectedTo(normalPropsNode.id, 'normalTexture');
+    if (normalConnection == null) return false;
+    const sourceNode = nodes.find(node => node.id === normalConnection.from.id);
+    if (sourceNode?.name !== 'Texture2D') return false;
+    return isConnectedTo(pbrShaderNode.id, 'normalInWorld')?.from.id === normalPropsNode.id;
+  })();
+
+  const isOcclusion = isPropsConnected('PbrOcclusionProps', 'occlusionProps');
+  const isClearcoat = isPropsConnected('PbrClearcoatProps', 'clearcoatProps');
+  const isSheen = isPropsConnected('PbrSheenProps', 'sheenProps');
+  const isIridescence = isPropsConnected('PbrIridescenceProps', 'iridescenceProps');
+  const isAnisotropy = isPropsConnected('PbrAnisotropyProps', 'anisotropyProps');
+  const isDiffuseTransmission = isPropsConnected('PbrDiffuseTransmissionProps', 'diffuseTransmissionProps');
+
+  return {
+    useNormalTexture,
+    isOcclusion,
+    isClearcoat,
+    isSheen,
+    isIridescence,
+    isAnisotropy,
+    isDiffuseTransmission,
+  };
 }
 
 /**
@@ -2135,13 +2395,40 @@ function createNodeBasedRaymarchingCustomMaterial(
     return undefined;
   }
 
-  const additionalShaderSemanticInfo = addWorldMatrixSemanticsInfoToRaymarchingMaterial(shaderNodeJson);
+  const additionalShaderSemanticInfo = addRaymarchingComponentSemanticsInfo(shaderNodeJson);
 
+  // The raymarching shader shades hit points with the shared PBR shader function,
+  // so the material needs the lighting/PBR defines and the IBL/PBR parameters.
+  addRaymarchingPbrIblSemanticInfo(engine, additionalShaderSemanticInfo);
+  addRaymarchingPbrSemanticInfo(additionalShaderSemanticInfo);
+  // Texture2D nodes in the graph sample these material textures.
+  additionalShaderSemanticInfo.push(...buildTextureSemanticInfo(engine, shaderCode.textureInfos));
+
+  const pbrFeatures = detectRaymarchingPbrFeatures(shaderNodeJson);
+  if (pbrFeatures.isSheen) {
+    // The sheen environment texture must be settable by the pipeline on the
+    // buffer-less raymarching draw, so it is not an internal setting here.
+    addPbrSheenSemanticInfo(engine, additionalShaderSemanticInfo, { sheenEnvIsInternalSetting: false });
+  }
   const material = reuseOrRecreateCustomMaterial(
     engine,
     shaderCode.vertexShader,
     shaderCode.pixelShader,
-    { additionalShaderSemanticInfo },
+    {
+      isLighting: true,
+      isPbr: true,
+      // The raymarching material receives shadows from mesh casters. ForwardRenderPipeline
+      // feeds the shadow maps/parameters to it because it is not attached to a primitive.
+      isShadow: true,
+      useNormalTexture: pbrFeatures.useNormalTexture,
+      isOcclusion: pbrFeatures.isOcclusion,
+      isClearcoat: pbrFeatures.isClearcoat,
+      isSheen: pbrFeatures.isSheen,
+      isIridescence: pbrFeatures.isIridescence,
+      isAnisotropy: pbrFeatures.isAnisotropy,
+      isDiffuseTransmission: pbrFeatures.isDiffuseTransmission,
+      additionalShaderSemanticInfo,
+    },
     currentMaterial
   );
 
@@ -2485,13 +2772,14 @@ function collectRrnJson(engine: Engine): NodeJSON {
   };
 
   const raymarchingComponents = engine.componentRepository.getComponentsWithType(RaymarchingComponent);
-  let componentIndex = 0;
   for (const component of raymarchingComponents) {
     const raymarchingComponent = component as RaymarchingComponent;
     const rrnJson = raymarchingComponent.rrnJson;
 
-    // Create a prefix to avoid id collisions between different components
-    const prefix = `comp${componentIndex}_`;
+    // Prefix node ids with the component SID to avoid collisions and to keep the
+    // object id (used by the per-component shading dispatch) stable when other
+    // components are added or removed.
+    const prefix = `comp${raymarchingComponent.componentSID}_`;
 
     // Clone and update node ids with prefix
     const prefixedNodes = rrnJson.nodes.map(node => {
@@ -2524,9 +2812,38 @@ function collectRrnJson(engine: Engine): NodeJSON {
       to: { ...conn.to, id: `${prefix}${conn.to.id}` },
     }));
 
+    // Record which component was hit: add an object id node and feed it to every
+    // OutUnion of the component. Unions that already have an objectId connection
+    // keep the graph the user authored.
+    const objectIdNodeId = `${prefix}__raymarchObjectId`;
+    const objectIdOutputId = `${prefix}__raymarchObjectIdOut`;
+    const terminalsWithoutObjectId = prefixedNodes.filter(
+      node =>
+        (node.name === 'OutUnion' || node.name === 'OutDistance') &&
+        !prefixedConnections.some(connection => connection.to.id === node.id && connection.to.portName === 'objectId')
+    );
+    if (terminalsWithoutObjectId.length > 0) {
+      prefixedNodes.push({
+        id: objectIdNodeId,
+        name: 'RaymarchObjectIdUniform',
+        outputs: {
+          out1: { id: objectIdOutputId, label: 'Out Object Id', socket: { name: 'Scalar<float>' } },
+        },
+        inputs: {},
+        controls: { name: { value: `raymarchObjectId_${raymarchingComponent.componentSID}` } },
+        position: { x: 0, y: 0 },
+      });
+      for (const terminal of terminalsWithoutObjectId) {
+        prefixedConnections.push({
+          id: `${prefix}__raymarchObjectId_${terminal.id}`,
+          from: { id: objectIdNodeId, portName: 'out1' },
+          to: { id: terminal.id, portName: 'objectId' },
+        });
+      }
+    }
+
     collectedRrnJson.nodes.push(...prefixedNodes);
     collectedRrnJson.connections.push(...prefixedConnections);
-    componentIndex++;
   }
 
   return collectedRrnJson;

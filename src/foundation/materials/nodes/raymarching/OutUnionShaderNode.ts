@@ -33,6 +33,9 @@ export class OutUnionShaderNode extends AbstractShaderNode {
     this.setShaderStage('Fragment');
 
     this.__inputs.push(new Socket('value', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.0)));
+    // The object id recorded when this component's SDF wins the union. The engine
+    // connects a per-component id automatically; graphs without it record 0.
+    this.__inputs.push(new Socket('objectId', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.0)));
   }
 
   /**

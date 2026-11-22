@@ -17,6 +17,21 @@ export declare class ShapeComponent extends Component {
     static get componentTID(): 18;
     get componentTID(): ComponentTID;
     addShape(descriptor: ShapeDescriptor, localTransform?: ShapeLocalTransform): number;
+    /**
+     * Replaces the shape stored at an existing index while preserving the index.
+     *
+     * Physics bindings reference shapes by index, so callers can update a
+     * collider in place and then call {@link PhysicsComponent.rebuildShapeBindings}.
+     *
+     * @param index - Stable shape index returned by {@link addShape}
+     * @param descriptor - New shape descriptor
+     * @param localTransform - New local position and rotation
+     * @returns True when the index existed and the shape was replaced
+     */
+    updateShape(index: number, descriptor: ShapeDescriptor, localTransform?: ShapeLocalTransform): boolean;
+    private __createShapeInstance;
+    /** Adds a box fitted to a local-space AABB and returns its new shape index. */
+    addBoxFromAabb(aabb: AABB, options?: BoxFromAabbOptions): number;
     /** Fits a foot-to-head capsule to an AABB and returns its new shape index. */
     addCapsuleFromAabb(aabb: AABB, options?: CapsuleFromAabbOptions): number;
     getShape(index?: number): ShapeInstance | undefined;
@@ -33,6 +48,10 @@ export declare class ShapeComponent extends Component {
     _shallowCopyFrom(component_: Component): void;
     _destroy(): void;
     addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBase;
+}
+export interface BoxFromAabbOptions {
+    /** Origin expressed in the same coordinates as the AABB. */
+    origin?: IVector3;
 }
 export interface CapsuleFromAabbOptions {
     /** Origin expressed in the same coordinates as the AABB. */

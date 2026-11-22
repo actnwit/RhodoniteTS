@@ -391,7 +391,22 @@ vec2 uvTransform(vec2 scale, vec2 offset, float rotation, vec2 uv) {
 }
 
 // getTBN: Compute tangent-to-world matrix for normal mapping
-#ifdef RN_USE_TANGENT
+#if defined(RN_RAYMARCHING_SHADING)
+  // Raymarching shades hit points in non-uniform control flow, where derivatives are not
+  // allowed (WGSL) and there is no triangle UV parameterization. Build a deterministic
+  // orthonormal frame from the surface normal and the given tangent instead.
+  mat3 getTBN(vec3 normal_inWorld, vec3 tangent_inWorld_, vec3 bitangent_inWorld_, vec3 viewVector, vec2 texcoord) {
+    vec3 n = normalize(normal_inWorld);
+    vec3 t = tangent_inWorld_ - n * dot(n, tangent_inWorld_);
+    if (dot(t, t) < 1e-8) {
+      vec3 helper = abs(n.y) < 0.999 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
+      t = cross(helper, n);
+    }
+    t = normalize(t);
+    vec3 b = cross(n, t);
+    return mat3(t, b, n);
+  }
+#elif defined(RN_USE_TANGENT)
   // When tangent attributes are available
   mat3 getTBN(vec3 normal_inWorld, vec3 tangent_inWorld_, vec3 bitangent_inWorld_, vec3 viewVector, vec2 texcoord) {
     vec3 tangent_inWorld = normalize(tangent_inWorld_);

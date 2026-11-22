@@ -24,6 +24,26 @@ describe('SceneGraph dirty propagation', async () => {
     return nodes;
   };
   const isAABBDirty = (sg: SceneGraphComponent) => (sg as any).__isWorldAABBDirty as boolean;
+  const isSkeletalAABBDirty = (sg: SceneGraphComponent) => (sg as any).__isWorldAABBDirtyWithSkeletal as boolean;
+
+  test('keeps the normal and skeletal merged AABB dirty flags independent', () => {
+    const [root] = createChain(1);
+    expect(isAABBDirty(root)).toBe(true);
+    expect(isSkeletalAABBDirty(root)).toBe(true);
+
+    // Reading the skeletal variant must not leave the normal variant stale.
+    root.worldMergedAABBWithSkeletal;
+    expect(isSkeletalAABBDirty(root)).toBe(false);
+    expect(isAABBDirty(root)).toBe(true);
+
+    root.worldMergedAABB;
+    expect(isAABBDirty(root)).toBe(false);
+    expect(isSkeletalAABBDirty(root)).toBe(false);
+
+    root.setWorldMatrixDirty();
+    expect(isAABBDirty(root)).toBe(true);
+    expect(isSkeletalAABBDirty(root)).toBe(true);
+  });
 
   test('marks every ancestor AABB dirty, also when siblings share the ancestors', () => {
     const [root, a, b] = createChain(3);

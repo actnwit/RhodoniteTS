@@ -4,7 +4,9 @@ import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
 import type { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
 import type { Socket, SocketDefaultValue } from '../../foundation/materials/core/Socket';
 import type { Engine } from '../../foundation/system/Engine';
-import { CommonShaderPart } from './CommonShaderPart';
+import PbrShaderityObjectWGSL from '../../webgpu/shaderity_shaders/nodes/PbrShader.wgsl';
+import PbrShaderityObjectGLSL from '../shaderity_shaders/nodes/PbrShader.glsl';
+import { CommonShaderPart, type ShadingSection } from './CommonShaderPart';
 
 /**
  * RaymarchingShaderPart is a class that provides common shader functionality for both WebGL and WebGPU rendering approaches.
@@ -56,20 +58,93 @@ float map(vec3 p){
   `;
   }
 
+  get hasShadingSection() {
+    return true;
+  }
+
+  getShadingFunctionNamePrefix() {
+    return 'shade';
+  }
+
+  /**
+   * Opens one per-object shading function emitted from the graph nodes of a
+   * component that are reachable to its OutShadingColor node.
+   */
+  getShadingSectionBegin(engine: Engine, functionName: string): string {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
+      return `
+fn ${functionName}() {
+`;
+    }
+    return `
+void ${functionName}() {
+`;
+  }
+
+  /** Closes the shading function opened by getShadingSectionBegin. */
+  getShadingSectionEnd(_engine: Engine): string {
+    return `}
+`;
+  }
+
   /**
    * Generates the main function ending code for vertex or fragment shaders.
    * Handles differences between WebGL (GLSL) and WebGPU (WGSL) shader languages.
    *
    * @param engine - The engine instance
    * @param isVertexStage - True if generating code for vertex shader, false for fragment shader
+   * @param shadingSections - Per-object shading functions selected by the hit object id
    * @returns The shader code string for the main function ending
    */
-  getMainEnd(engine: Engine, isVertexStage: boolean) {
+  getMainEnd(engine: Engine, isVertexStage: boolean, shadingSections?: readonly ShadingSection[]) {
+    const sections = shadingSections ?? [];
+    const sectionsCode = sections
+      .map(
+        section =>
+          this.getShadingSectionBegin(engine, section.functionName) + section.body + this.getShadingSectionEnd(engine)
+      )
+      .join('');
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (isVertexStage) {
         return `
 `;
       }
+      const fallbackCode = `
+      #ifdef RN_USE_PBR
+        color = raymarchingPbr(p, normal).rgb;
+      #else
+        let lightList = getLightList(p, cameraSID);
+        for(var n=0u; n<lightList.count; n++){
+          let lightRef = getLightRef(lightList, n);
+          let light = getLight(u32(lightRef.x), p);
+          if (all(light.attenuatedIntensity == vec3f(0.0))) { continue; }
+          let NdotL = max(dot(normal, light.direction), 0.0);
+          color += light.attenuatedIntensity * NdotL * RECIPROCAL_PI;
+        }
+      #endif // RN_USE_PBR
+`;
+      const hitShading =
+        sections.length === 0
+          ? `
+    var color = vec3f(0.0);
+${fallbackCode}`
+          : `
+    g_hitPosition = p;
+    g_hitNormal = normal;
+    let hitObjectId = i32(g_hitObjectId + 0.5);
+    var color = vec3f(0.0);
+${sections
+  .map(
+    (section, index) =>
+      `    ${index === 0 ? 'if' : 'else if'} (hitObjectId == ${section.objectId}) {
+      ${section.functionName}();
+      color = g_shadingColor.rgb;
+    }
+`
+  )
+  .join('')}    else {
+${fallbackCode}    }
+`;
       return `
   return g_distance;
 }
@@ -84,7 +159,7 @@ fn calcNormal(p: vec3f) -> vec3f {
     )
   );
 }
-
+${sectionsCode}
 struct FragmentOutput {
   @location(0) color: vec4<f32>,
   @builtin(frag_depth) depth: f32,
@@ -129,17 +204,8 @@ fn main(
   if(h<.01){
     let p = ro+rd*t;
     let normal=calcNormal(p);
-    let light=vec3f(0,2,0);
-
-    // Calculate diffuse lighting by taking the dot product of
-    // the light direction (light-p) and the normal.
-    var dif=clamp(dot(normal,normalize(light-p)),0.,1.);
-
-    // Multiply by light intensity (5) and divide by the square
-    // of the distance to the light.
-    dif*=5.0/dot(light-p,light-p);
-
-    rt0=vec4f(vec3f(pow(dif,.4545)),1.0);// Gamma correction
+${hitShading}
+    rt0=vec4f(pow(color, vec3f(0.4545)),1.0);// Gamma correction
 
     // Calculate depth from raymarching hit position
     let clipPos = projectionMatrix * viewMatrix * vec4f(p, 1.0);
@@ -159,6 +225,45 @@ fn main(
       return '';
     }
 
+    const fallbackCode = `
+      #ifdef RN_USE_PBR
+      color = raymarchingPbr(p, normal).rgb;
+      #else
+      LightList lightList = getLightList(p, cameraSID);
+      for (int n = 0; n < lightList.count; n++) {
+        ivec2 lightRef = getLightRef(lightList, n);
+        Light light = getLight(lightRef.x, p);
+        if (all(equal(light.attenuatedIntensity, vec3(0.0)))) {
+          continue;
+        }
+        float NdotL = max(dot(normal, light.direction), 0.0);
+        color += light.attenuatedIntensity * NdotL * RECIPROCAL_PI;
+      }
+      #endif // RN_USE_PBR
+`;
+    const hitShading =
+      sections.length === 0
+        ? `
+    vec3 color = vec3(0.0);
+${fallbackCode}`
+        : `
+    g_hitPosition = p;
+    g_hitNormal = normal;
+    int hitObjectId = int(g_hitObjectId + 0.5);
+    vec3 color = vec3(0.0);
+${sections
+  .map(
+    (section, index) =>
+      `    ${index === 0 ? 'if' : 'else if'} (hitObjectId == ${section.objectId}) {
+      ${section.functionName}();
+      color = g_shadingColor.rgb;
+    }
+`
+  )
+  .join('')}    else {
+${fallbackCode}    }
+`;
+
     return `
   return g_distance;
 }
@@ -171,7 +276,7 @@ vec3 calcNormal(vec3 p){
       e.xxx*map(p+e.xxx)
   );
 }
-
+${sectionsCode}
 void main() {
   uint cameraSID = uint(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */]);
   #if defined(WEBGL2_MULTI_VIEW) && defined(RN_IS_VERTEX_SHADER)
@@ -208,17 +313,8 @@ void main() {
   if(h<.01){
     vec3 p=ro+rd*t;
     vec3 normal=calcNormal(p);
-    vec3 light=vec3(0,2,0);
-
-    // Calculate diffuse lighting by taking the dot product of
-    // the light direction (light-p) and the normal.
-    float dif=clamp(dot(normal,normalize(light-p)),0.,1.);
-
-    // Multiply by light intensity (5) and divide by the square
-    // of the distance to the light.
-    dif*=5./dot(light-p,light-p);
-
-    rt0=vec4(vec3(pow(dif,.4545)),1);// Gamma correction
+${hitShading}
+    rt0=vec4(pow(color, vec3(0.4545)),1);// Gamma correction
 
     // Calculate depth from raymarching hit position
     vec4 clipPos = projectionMatrix * viewMatrix * vec4(p, 1.0);
@@ -251,6 +347,9 @@ void main() {
       vertexShaderPrerequisites += `
 /* shaderity: @{definitions} */
 #define RN_IS_NODE_SHADER
+// Shading runs only for hit points (non-uniform control flow), where WGSL forbids derivatives.
+#define RN_DISABLE_SPECULAR_AA
+#define RN_RAYMARCHING_SHADING
 
 struct VertexOutput {
   @builtin(position) position : vec4<f32>,
@@ -272,6 +371,9 @@ precision highp float;
 precision highp int;
 /* shaderity: @{definitions} */
 #define RN_IS_NODE_SHADER
+// Shading runs only for hit points (non-uniform control flow); keep both backends consistent.
+#define RN_DISABLE_SPECULAR_AA
+#define RN_RAYMARCHING_SHADING
 /* shaderity: @{prerequisites} */
 
 out vec2 v_texcoord_0;
@@ -289,12 +391,23 @@ out vec2 v_texcoord_0;
    * @param shaderNodes - Array of shader nodes used to generate varying variables for WebGPU
    * @returns The complete fragment shader prerequisites code string
    */
+  /**
+   * The PBR shader function is embedded in the prerequisites below. The resolver
+   * skips the duplicate definition emitted by a PbrShader node in a shading graph.
+   */
+  getEmbeddedShaderFunctionNames(): readonly string[] {
+    return ['pbrShader'];
+  }
+
   getPixelPrerequisites(engine: Engine, _shaderNodes: AbstractShaderNode[]) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       let pixelShaderPrerequisites = '';
       pixelShaderPrerequisites += `
 /* shaderity: @{definitions} */
 #define RN_IS_NODE_SHADER
+// Shading runs only for hit points (non-uniform control flow), where WGSL forbids derivatives.
+#define RN_DISABLE_SPECULAR_AA
+#define RN_RAYMARCHING_SHADING
 
 struct VertexOutput {
   @builtin(position) position : vec4<f32>,
@@ -304,8 +417,16 @@ struct VertexOutput {
 /* shaderity: @{prerequisites} */
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
+/* shaderity: @{opticalDefinition} */
+/* shaderity: @{shadowDefinition} */
+/* shaderity: @{pbrDefinition} */
+/* shaderity: @{iblDefinition} */
 var<private> g_distance: f32 = 1e20; // distance to the surface
 var<private> g_rayPosition: vec3<f32> = vec3f(0.0, 0.0, 0.0);
+var<private> g_hitPosition: vec3<f32> = vec3f(0.0, 0.0, 0.0);
+var<private> g_hitNormal: vec3<f32> = vec3f(0.0, 0.0, 1.0);
+var<private> g_hitObjectId: f32 = 0.0;
+var<private> g_shadingColor: vec4<f32> = vec4f(0.0, 0.0, 0.0, 1.0);
 
 fn rotateX(angle: f32) -> mat3x3<f32> {
   let c=cos(angle);
@@ -429,7 +550,8 @@ fn inverseMat4(m: mat4x4<f32>) -> mat4x4<f32> {
     )
   );
 }
-  `;
+`;
+      pixelShaderPrerequisites += RaymarchingShaderPart.__getPbrFunctionsWGSL();
       return pixelShaderPrerequisites;
     }
     let pixelShaderPrerequisites = '';
@@ -443,9 +565,17 @@ precision highp int;
 in vec2 v_texcoord_0;
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
+/* shaderity: @{opticalDefinition} */
+/* shaderity: @{shadowDefinition} */
+/* shaderity: @{pbrDefinition} */
+/* shaderity: @{iblDefinition} */
 layout(location = 0) out vec4 rt0;
 float g_distance = 1e20; // distance to the surface
 vec3 g_rayPosition = vec3(0,0,0);
+vec3 g_hitPosition = vec3(0.0);
+vec3 g_hitNormal = vec3(0.0, 0.0, 1.0);
+float g_hitObjectId = 0.0;
+vec4 g_shadingColor = vec4(0.0, 0.0, 0.0, 1.0);
 
 mat3 rotateX(float angle){
     float c=cos(angle);
@@ -520,7 +650,139 @@ mat4 inverseTransform(mat4 m){
     return inv;
 }
 `;
+    pixelShaderPrerequisites += RaymarchingShaderPart.__getPbrFunctionsGLSL();
     return pixelShaderPrerequisites;
+  }
+
+  /**
+   * Returns the PBR shading function definitions shared with the PBR material
+   * plus the raymarching PBR wrapper used by the fragment shader.
+   */
+  private static __getPbrFunctionsWGSL(): string {
+    return `
+#ifdef RN_USE_PBR
+${PbrShaderityObjectWGSL.code}
+fn raymarchingPbr(positionInWorld: vec3f, normalInWorld: vec3f) -> vec4f {
+  let materialSID = uniformDrawParameters.materialSid;
+  let occlusionProps = OcclusionProps(vec4f(1.0), 1.0);
+  let emissiveProps = EmissiveProps(
+    get_raymarchingEmissive(materialSID, 0u),
+    get_raymarchingEmissiveStrength(materialSID, 0u)
+  );
+  let specularProps = SpecularProps(
+    get_raymarchingSpecularWeight(materialSID, 0u),
+    get_raymarchingSpecularColor(materialSID, 0u)
+  );
+  let volumeProps = VolumeProps(0.0, vec3f(1.0), 1e20);
+  let clearcoatProps = ClearcoatProps(
+    0.0, 0.0, vec3f(0.0), vec3f(0.0), vec3f(0.0), vec3f(0.0, 0.0, 1.0), normalInWorld, 0.0
+  );
+  let anisotropyProps = AnisotropyProps(0.0, vec3f(0.0), vec3f(0.0), 0.0, 0.0, vec2f(0.0));
+  let sheenProps = SheenProps(vec3f(0.0), 0.0, 1.0);
+  let iridescenceProps = IridescenceProps(0.0, 1.3, 0.0, vec3f(0.0), vec3f(0.0));
+  let diffuseTransmissionProps = DiffuseTransmissionProps(0.0, vec3f(0.0), 0.0);
+
+  var outColor = vec4f(0.0);
+  pbrShader(
+    vec4f(positionInWorld, 1.0), normalInWorld, normalInWorld,
+    mat3x3f(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0),
+    get_raymarchingBaseColor(materialSID, 0u),
+    get_raymarchingMetallic(materialSID, 0u),
+    get_raymarchingRoughness(materialSID, 0u),
+    occlusionProps,
+    emissiveProps,
+    get_raymarchingIor(materialSID, 0u),
+    0.0,
+    specularProps,
+    volumeProps,
+    clearcoatProps,
+    anisotropyProps,
+    sheenProps,
+    iridescenceProps,
+    diffuseTransmissionProps,
+    0.0,
+    &outColor
+  );
+  return outColor;
+}
+#endif // RN_USE_PBR
+`;
+  }
+
+  private static __getPbrFunctionsGLSL(): string {
+    return `
+#ifdef RN_USE_PBR
+${PbrShaderityObjectGLSL.code}
+vec4 raymarchingPbr(vec3 positionInWorld, vec3 normalInWorld) {
+  uint materialSID = uint(u_currentComponentSIDs[0]);
+  OcclusionProps occlusionProps;
+  occlusionProps.occlusionTexture = vec4(1.0);
+  occlusionProps.occlusionStrength = 1.0;
+  EmissiveProps emissiveProps;
+  emissiveProps.emissive = get_raymarchingEmissive(materialSID, 0u);
+  emissiveProps.emissiveStrength = get_raymarchingEmissiveStrength(materialSID, 0u);
+  SpecularProps specularProps;
+  specularProps.specularWeight = get_raymarchingSpecularWeight(materialSID, 0u);
+  specularProps.specularColor = get_raymarchingSpecularColor(materialSID, 0u);
+  VolumeProps volumeProps;
+  volumeProps.thickness = 0.0;
+  volumeProps.attenuationColor = vec3(1.0);
+  volumeProps.attenuationDistance = 1e20;
+  ClearcoatProps clearcoatProps;
+  clearcoatProps.clearcoat = 0.0;
+  clearcoatProps.clearcoatRoughness = 0.0;
+  clearcoatProps.clearcoatF0 = vec3(0.0);
+  clearcoatProps.clearcoatF90 = vec3(0.0);
+  clearcoatProps.clearcoatFresnel = vec3(0.0);
+  clearcoatProps.clearcoatNormal_inTangent = vec3(0.0, 0.0, 1.0);
+  clearcoatProps.clearcoatNormal_inWorld = normalInWorld;
+  clearcoatProps.VdotNc = 0.0;
+  AnisotropyProps anisotropyProps;
+  anisotropyProps.anisotropy = 0.0;
+  anisotropyProps.anisotropicT = vec3(0.0);
+  anisotropyProps.anisotropicB = vec3(0.0);
+  anisotropyProps.BdotV = 0.0;
+  anisotropyProps.TdotV = 0.0;
+  anisotropyProps.direction = vec2(0.0);
+  SheenProps sheenProps;
+  sheenProps.sheenColor = vec3(0.0);
+  sheenProps.sheenRoughness = 0.0;
+  sheenProps.albedoSheenScalingNdotV = 1.0;
+  IridescenceProps iridescenceProps;
+  iridescenceProps.iridescence = 0.0;
+  iridescenceProps.iridescenceIor = 1.3;
+  iridescenceProps.iridescenceThickness = 0.0;
+  iridescenceProps.fresnelDielectric = vec3(0.0);
+  iridescenceProps.fresnelMetal = vec3(0.0);
+  DiffuseTransmissionProps diffuseTransmissionProps;
+  diffuseTransmissionProps.diffuseTransmission = 0.0;
+  diffuseTransmissionProps.diffuseTransmissionColor = vec3(0.0);
+  diffuseTransmissionProps.diffuseTransmissionThickness = 0.0;
+
+  vec4 outColor;
+  pbrShader(
+    vec4(positionInWorld, 1.0), normalInWorld, normalInWorld, mat3(1.0),
+    get_raymarchingBaseColor(materialSID, 0u),
+    get_raymarchingMetallic(materialSID, 0u),
+    get_raymarchingRoughness(materialSID, 0u),
+    occlusionProps,
+    emissiveProps,
+    get_raymarchingIor(materialSID, 0u),
+    0.0,
+    specularProps,
+    volumeProps,
+    clearcoatProps,
+    anisotropyProps,
+    sheenProps,
+    iridescenceProps,
+    diffuseTransmissionProps,
+    0.0,
+    outColor
+  );
+  return outColor;
+}
+#endif // RN_USE_PBR
+`;
   }
 
   /**

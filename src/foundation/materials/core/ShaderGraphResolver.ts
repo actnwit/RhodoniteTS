@@ -1,6 +1,6 @@
 import type { Index } from '../../../types/CommonTypes';
 import type { ShaderNodeJson } from '../../../types/ShaderNodeJson';
-import type { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
+import type { CommonShaderPart, ShadingSection } from '../../../webgl/shaders/CommonShaderPart';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
@@ -11,9 +11,12 @@ import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
+import { AbsShaderNode } from '../nodes/AbsShaderNode';
+import { AcosShaderNode } from '../nodes/AcosShaderNode';
 import { AddShaderNode } from '../nodes/AddShaderNode';
 import { AlphaTestShaderNode } from '../nodes/AlphaTestShaderNode';
 import { AndShaderNode } from '../nodes/AndShaderNode';
+import { Atan2ShaderNode } from '../nodes/Atan2ShaderNode';
 import { AttributeColorShaderNode } from '../nodes/AttributeColorShaderNode';
 import { AttributeInstanceIdsShaderNode } from '../nodes/AttributeInstanceIdsShaderNode';
 import { AttributeJointShaderNode } from '../nodes/AttributeJointShaderNode';
@@ -76,7 +79,17 @@ import { InitialPositionShaderNode } from '../nodes/raymarching/InitialPositionS
 import { OpSubtractionShaderNode } from '../nodes/raymarching/OpSubtractionShaderNode';
 import { OpUnionShaderNode } from '../nodes/raymarching/OpUnionShaderNode';
 import { OutDistanceShaderNode } from '../nodes/raymarching/OutDistanceShaderNode';
+import { OutShadingColorShaderNode } from '../nodes/raymarching/OutShadingColorShaderNode';
 import { OutUnionShaderNode } from '../nodes/raymarching/OutUnionShaderNode';
+import { RaymarchCameraPositionShaderNode } from '../nodes/raymarching/RaymarchCameraPositionShaderNode';
+import { RaymarchHitDistanceShaderNode } from '../nodes/raymarching/RaymarchHitDistanceShaderNode';
+import { RaymarchHitNormalShaderNode } from '../nodes/raymarching/RaymarchHitNormalShaderNode';
+import { RaymarchHitPositionShaderNode } from '../nodes/raymarching/RaymarchHitPositionShaderNode';
+import { RaymarchObjectIdShaderNode } from '../nodes/raymarching/RaymarchObjectIdShaderNode';
+import { RaymarchObjectIdUniformShaderNode } from '../nodes/raymarching/RaymarchObjectIdUniformShaderNode';
+import { RaymarchRayDirectionShaderNode } from '../nodes/raymarching/RaymarchRayDirectionShaderNode';
+import { RaymarchTBNShaderNode } from '../nodes/raymarching/RaymarchTBNShaderNode';
+import { RaymarchViewDirectionShaderNode } from '../nodes/raymarching/RaymarchViewDirectionShaderNode';
 import { SdApplyTransformShaderNode } from '../nodes/raymarching/SdApplyTransformShaderNode';
 import { SdApplyWorldMatrixShaderNode } from '../nodes/raymarching/SdApplyWorldMatrixShaderNode';
 import { SdBarXShaderNode } from '../nodes/raymarching/SdBarXShaderNode';
@@ -183,7 +196,12 @@ export class ShaderGraphResolver {
    * @param isFullVersion - Whether to generate a full version with all prerequisites and boilerplate
    * @returns Complete fragment shader code as a string, or undefined if generation fails
    */
-  static createPixelShaderCode(engine: Engine, pixelNodes: AbstractShaderNode[], commonShaderPart: CommonShaderPart) {
+  static createPixelShaderCode(
+    engine: Engine,
+    pixelNodes: AbstractShaderNode[],
+    commonShaderPart: CommonShaderPart,
+    shadingGroups?: ReadonlyMap<number, AbstractShaderNode[]>
+  ) {
     const shaderNodes = pixelNodes.concat();
 
     // const isValid = this.__validateShaderNodes(shaderNodes);
@@ -202,12 +220,43 @@ export class ShaderGraphResolver {
     shaderBody += ShaderGraphResolver.__getFunctionDefinition(
       engine,
       sortedShaderNodes.filter(node => node.getShaderStage() !== 'Vertex'),
-      ShaderType.PixelShader
+      ShaderType.PixelShader,
+      new Set(commonShaderPart.getEmbeddedShaderFunctionNames())
     );
+
+    // Per-object shading sections (e.g. the raymarching shading graphs). Each
+    // component's outShadingColor subgraph becomes its own function, emitted
+    // before the fragment main and selected by the recorded object id.
+    let shadingSections: ShadingSection[] | undefined;
+    if (commonShaderPart.hasShadingSection && shadingGroups != null && shadingGroups.size > 0) {
+      const functionPrefix = commonShaderPart.getShadingFunctionNamePrefix();
+      shadingSections = [];
+      const sortedObjectIds = Array.from(shadingGroups.keys()).sort((a, b) => a - b);
+      for (const objectId of sortedObjectIds) {
+        const shadingNodes = shadingGroups.get(objectId)!;
+        const sortedShadingNodes = this.__sortTopologically(shadingNodes);
+        const { varInputNames, varOutputNames, collectedShaderBody } = this.__collectVariableNames(
+          engine,
+          sortedShadingNodes,
+          false,
+          commonShaderPart
+        );
+        const body =
+          collectedShaderBody +
+          this.__generateShaderCode(engine, sortedShadingNodes, varInputNames, varOutputNames, false);
+        shadingSections.push({ objectId, functionName: `${functionPrefix}_${objectId}`, body });
+      }
+    }
 
     // main process
     try {
-      shaderBody += ShaderGraphResolver.__constructShaderWithNodes(engine, sortedShaderNodes, false, commonShaderPart);
+      shaderBody += ShaderGraphResolver.__constructShaderWithNodes(
+        engine,
+        sortedShaderNodes,
+        false,
+        commonShaderPart,
+        shadingSections
+      );
     } catch (e) {
       Logger.default.error(e as string);
       return undefined;
@@ -216,6 +265,59 @@ export class ShaderGraphResolver {
     const shader = pixelShaderPrerequisites + shaderBody;
 
     return shader;
+  }
+
+  /**
+   * Groups the nodes reachable to each outShadingColor terminal by the component
+   * that authored it. Merged raymarching graphs prefix node ids with `comp<N>_`,
+   * where N is the component SID and also the recorded object id.
+   *
+   * Graphs without that prefix (e.g. a single component built directly) are grouped
+   * under object id 0.
+   */
+  private static __collectShadingGroups(
+    json: ShaderNodeJson,
+    nodeInstances: Record<string, AbstractShaderNode>
+  ): Map<number, AbstractShaderNode[]> {
+    const groups = new Map<number, AbstractShaderNode[]>();
+    const incoming = new Map<string, string[]>();
+    for (const connection of json.connections) {
+      const list = incoming.get(connection.to.id);
+      if (list == null) {
+        incoming.set(connection.to.id, [connection.from.id]);
+      } else {
+        list.push(connection.from.id);
+      }
+    }
+
+    for (const node of json.nodes) {
+      if (node.name !== 'OutShadingColor') {
+        continue;
+      }
+      const prefixMatch = /^comp(\d+)_/.exec(node.id);
+      const objectId = prefixMatch != null ? Number.parseInt(prefixMatch[1], 10) : 0;
+      const group = groups.get(objectId) ?? [];
+      const groupUids = new Set<number>(group.map(groupNode => groupNode.shaderNodeUid));
+      const visited = new Set<string>();
+      const stack = [node.id];
+      while (stack.length > 0) {
+        const id = stack.pop()!;
+        if (visited.has(id)) {
+          continue;
+        }
+        visited.add(id);
+        const instance = nodeInstances[id];
+        if (instance != null && !groupUids.has(instance.shaderNodeUid)) {
+          group.push(instance);
+          groupUids.add(instance.shaderNodeUid);
+        }
+        for (const fromId of incoming.get(id) ?? []) {
+          stack.push(fromId);
+        }
+      }
+      groups.set(objectId, group);
+    }
+    return groups;
   }
 
   /**
@@ -330,7 +432,8 @@ export class ShaderGraphResolver {
   private static __getFunctionDefinition(
     engine: Engine,
     shaderNodes: AbstractShaderNode[],
-    shaderType: ShaderTypeEnum
+    shaderType: ShaderTypeEnum,
+    embeddedShaderFunctionNames?: ReadonlySet<string>
   ) {
     let shaderText = '';
     const existVertexFunctions: string[] = [];
@@ -339,8 +442,13 @@ export class ShaderGraphResolver {
       if (existVertexFunctions.indexOf(materialNode.shaderFunctionName) !== -1) {
         continue;
       }
-      shaderText += materialNode.getShaderCode(engine, shaderType);
       existVertexFunctions.push(materialNode.shaderFunctionName);
+      // Functions the shader part already embeds in its prerequisites must not be
+      // defined again by the graph nodes (e.g. the raymarching PBR shader).
+      if (embeddedShaderFunctionNames?.has(materialNode.shaderFunctionName)) {
+        continue;
+      }
+      shaderText += materialNode.getShaderCode(engine, shaderType);
     }
 
     return shaderText;
@@ -866,7 +974,8 @@ export class ShaderGraphResolver {
     engine: Engine,
     shaderNodes: AbstractShaderNode[],
     isVertexStage: boolean,
-    commonShaderPart: CommonShaderPart
+    commonShaderPart: CommonShaderPart,
+    shadingSections?: readonly ShadingSection[]
   ) {
     let shaderBody = '';
 
@@ -892,7 +1001,7 @@ export class ShaderGraphResolver {
       shaderBody += this.__handleVertexToFragmentPassing(engine, shaderNodes, varInputNames, varOutputNames);
     }
 
-    shaderBody += commonShaderPart.getMainEnd(engine, isVertexStage);
+    shaderBody += commonShaderPart.getMainEnd(engine, isVertexStage, shadingSections);
 
     return shaderBody;
   }
@@ -937,7 +1046,13 @@ export class ShaderGraphResolver {
     const allVaryingNodes = [...new Set([...varyingNodes, ...varyingNodesForDiscard])];
 
     const vertexNodes = filterNodes(nodes, ['outPosition']);
-    const pixelNodes = filterNodes(nodes, ['outColor', 'conditionalDiscard', 'outDistance', 'outUnion']);
+    const pixelNodes = filterNodes(nodes, [
+      'outColor',
+      'conditionalDiscard',
+      'outDistance',
+      'outUnion',
+      'outShadingColor',
+    ]);
 
     // if (vertexNodes.length === 0 || pixelNodes.length === 0) {
     //   return;
@@ -949,7 +1064,8 @@ export class ShaderGraphResolver {
       allVaryingNodes,
       commonShaderPart
     );
-    const pixelRet = ShaderGraphResolver.createPixelShaderCode(engine, pixelNodes, commonShaderPart);
+    const shadingGroups = this.__collectShadingGroups(json, nodeInstances);
+    const pixelRet = ShaderGraphResolver.createPixelShaderCode(engine, pixelNodes, commonShaderPart, shadingGroups);
     if (vertexRet == null || pixelRet == null) {
       return;
     }
@@ -1280,6 +1396,63 @@ function constructNodes(json: ShaderNodeJson): {
           nodeInstance = new MinShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
           Logger.default.error(`Min node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Abs': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: AbsShaderNode;
+        if (socketName.startsWith('Scalar')) {
+          nodeInstance = new AbsShaderNode(CompositionType.Scalar, ComponentType.Float);
+        } else if (socketName.startsWith('Vector2')) {
+          nodeInstance = new AbsShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName.startsWith('Vector3')) {
+          nodeInstance = new AbsShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName.startsWith('Vector4')) {
+          nodeInstance = new AbsShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          Logger.default.error(`Abs node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Acos': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: AcosShaderNode;
+        if (socketName.startsWith('Scalar')) {
+          nodeInstance = new AcosShaderNode(CompositionType.Scalar, ComponentType.Float);
+        } else if (socketName.startsWith('Vector2')) {
+          nodeInstance = new AcosShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName.startsWith('Vector3')) {
+          nodeInstance = new AcosShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName.startsWith('Vector4')) {
+          nodeInstance = new AcosShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          Logger.default.error(`Acos node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Atan2': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: Atan2ShaderNode;
+        if (socketName.startsWith('Scalar')) {
+          nodeInstance = new Atan2ShaderNode(CompositionType.Scalar, ComponentType.Float);
+        } else if (socketName.startsWith('Vector2')) {
+          nodeInstance = new Atan2ShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName.startsWith('Vector3')) {
+          nodeInstance = new Atan2ShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName.startsWith('Vector4')) {
+          nodeInstance = new Atan2ShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          Logger.default.error(`Atan2 node: Unknown socket name: ${socketName}`);
           break;
         }
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
@@ -1989,6 +2162,57 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'OutUnion': {
         const nodeInstance = new OutUnionShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'OutShadingColor': {
+        const nodeInstance = new OutShadingColorShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'RaymarchHitPosition': {
+        const nodeInstance = new RaymarchHitPositionShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'RaymarchHitNormal': {
+        const nodeInstance = new RaymarchHitNormalShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'RaymarchObjectId': {
+        const nodeInstance = new RaymarchObjectIdShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'RaymarchObjectIdUniform': {
+        const nodeInstance = new RaymarchObjectIdUniformShaderNode();
+        nodeInstance.setUniformDataName(node.controls.name.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'RaymarchViewDirection': {
+        const nodeInstance = new RaymarchViewDirectionShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'RaymarchCameraPosition': {
+        const nodeInstance = new RaymarchCameraPositionShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'RaymarchHitDistance': {
+        const nodeInstance = new RaymarchHitDistanceShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'RaymarchRayDirection': {
+        const nodeInstance = new RaymarchRayDirectionShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'RaymarchTBN': {
+        const nodeInstance = new RaymarchTBNShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }

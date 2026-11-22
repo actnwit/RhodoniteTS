@@ -130,6 +130,10 @@ src/xr/                 # WebXR support
 - **Same environment locally**: `pnpm test-e2e:docker` (strict run) and
   `pnpm test-e2e:docker:update` (regenerate reference images) use the CI
   container, so local and CI compare against the same rendering
+- **Filtered reference updates**: to regenerate only one sample, run
+  `npx vitest run --config ./config/test/vitest.config.e2e.ts ./samples/test_e2e/<Sample> --update=all`
+  (in the container shell: `bash config/e2e/run-in-docker.sh shell`). `--update` takes an
+  optional value, so `--update ./samples/<Sample>` swallows the path and updates the whole suite.
 - **Snapshots**: Image comparison with automatic snapshot updating
 
 ## Development Patterns

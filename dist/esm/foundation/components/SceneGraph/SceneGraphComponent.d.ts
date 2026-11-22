@@ -474,7 +474,7 @@ export declare class SceneGraphComponent extends Component {
      */
     get worldMergedAABBWithSkeletal(): AABB;
     /**
-     * Performs ray casting against all mesh components in this hierarchy.
+     * Performs ray casting against all mesh and raymarching components in this hierarchy.
      *
      * @param srcPointInWorld - The ray origin point in world space
      * @param directionInWorld - The ray direction vector in world space (should be normalized)
@@ -484,7 +484,7 @@ export declare class SceneGraphComponent extends Component {
      */
     castRay(srcPointInWorld: Vector3, directionInWorld: Vector3, dotThreshold?: number, ignoreMeshComponents?: MeshComponent[]): RaycastResultEx2;
     /**
-     * Performs ray casting from screen coordinates against all mesh components in this hierarchy.
+     * Performs ray casting from screen coordinates against all mesh and raymarching components in this hierarchy.
      *
      * @param x - Screen x coordinate
      * @param y - Screen y coordinate

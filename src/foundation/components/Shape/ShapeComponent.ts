@@ -43,6 +43,34 @@ export class ShapeComponent extends Component {
   }
 
   addShape(descriptor: ShapeDescriptor, localTransform: ShapeLocalTransform = {}): number {
+    const instance = this.__createShapeInstance(descriptor, localTransform);
+    const index = this.__nextShapeIndex++;
+    this.__shapes.set(index, instance);
+    this.__shapeGizmo?.rebuild();
+    return index;
+  }
+
+  /**
+   * Replaces the shape stored at an existing index while preserving the index.
+   *
+   * Physics bindings reference shapes by index, so callers can update a
+   * collider in place and then call {@link PhysicsComponent.rebuildShapeBindings}.
+   *
+   * @param index - Stable shape index returned by {@link addShape}
+   * @param descriptor - New shape descriptor
+   * @param localTransform - New local position and rotation
+   * @returns True when the index existed and the shape was replaced
+   */
+  updateShape(index: number, descriptor: ShapeDescriptor, localTransform: ShapeLocalTransform = {}): boolean {
+    if (!this.__shapes.has(index)) {
+      return false;
+    }
+    this.__shapes.set(index, this.__createShapeInstance(descriptor, localTransform));
+    this.__shapeGizmo?.rebuild();
+    return true;
+  }
+
+  private __createShapeInstance(descriptor: ShapeDescriptor, localTransform: ShapeLocalTransform): ShapeInstance {
     const shape = normalizeShapeDescriptor(descriptor);
     const positionX = localTransform.position?.x ?? 0;
     const positionY = localTransform.position?.y ?? 0;
@@ -67,7 +95,7 @@ export class ShapeComponent extends Component {
       throw new Error('Shape local rotation must be a non-zero quaternion.');
     }
     const inverseRotationLength = 1 / rotationLength;
-    const instance: ShapeInstance = Object.freeze({
+    return Object.freeze({
       shape,
       localPosition,
       localRotation: Quaternion.fromCopy4(
@@ -77,10 +105,22 @@ export class ShapeComponent extends Component {
         rotationW * inverseRotationLength
       ),
     });
-    const index = this.__nextShapeIndex++;
-    this.__shapes.set(index, instance);
-    this.__shapeGizmo?.rebuild();
-    return index;
+  }
+
+  /** Adds a box fitted to a local-space AABB and returns its new shape index. */
+  addBoxFromAabb(aabb: AABB, options: BoxFromAabbOptions = {}): number {
+    if (aabb.isVanilla()) {
+      throw new Error('Cannot create a box from an uninitialized AABB.');
+    }
+    const origin = options.origin ?? Vector3.zero();
+    const values = [aabb.sizeX, aabb.sizeY, aabb.sizeZ, origin.x, origin.y, origin.z];
+    if (values.some(value => !Number.isFinite(value)) || aabb.sizeX <= 0 || aabb.sizeY <= 0 || aabb.sizeZ <= 0) {
+      throw new Error('Box AABB and origin must contain finite values and positive dimensions.');
+    }
+    return this.addShape(
+      { type: 'box', size: Vector3.fromCopy3(aabb.sizeX, aabb.sizeY, aabb.sizeZ) },
+      { position: Vector3.subtract(aabb.centerPoint, origin) }
+    );
   }
 
   /** Fits a foot-to-head capsule to an AABB and returns its new shape index. */
@@ -192,6 +232,11 @@ export class ShapeComponent extends Component {
     applyMixins(base, ShapeEntity);
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
+}
+
+export interface BoxFromAabbOptions {
+  /** Origin expressed in the same coordinates as the AABB. */
+  origin?: IVector3;
 }
 
 export interface CapsuleFromAabbOptions {

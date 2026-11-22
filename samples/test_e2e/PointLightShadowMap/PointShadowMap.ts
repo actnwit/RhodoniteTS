@@ -24,7 +24,7 @@ export class PointShadowMap {
     this.__shadowMomentBackMaterial.setParameter('frontHemisphere', false);
   }
 
-  public getRenderPasses(entities: Rn.ISceneGraphEntity[]) {
+  public getRenderPasses(entities: Rn.ISceneGraphEntity[], lightComponentSid: number, farPlane: number) {
     const shadowMomentFrontRenderPass = new Rn.RenderPass(this.__engine);
     shadowMomentFrontRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
     shadowMomentFrontRenderPass.toClearColorBuffer = true;
@@ -32,6 +32,8 @@ export class PointShadowMap {
     shadowMomentFrontRenderPass.addEntities(entities);
     shadowMomentFrontRenderPass.setFramebuffer(this.__shadowMomentFramebuffer);
     shadowMomentFrontRenderPass.setMaterial(this.__shadowMomentFrontMaterial);
+    this.__shadowMomentFrontMaterial.setParameter('lightIndex', lightComponentSid);
+    this.__shadowMomentFrontMaterial.setParameter('farPlane', farPlane);
 
     const shadowMomentBackRenderPass = new Rn.RenderPass(this.__engine);
     shadowMomentBackRenderPass.toClearColorBuffer = false;
@@ -39,6 +41,8 @@ export class PointShadowMap {
     shadowMomentBackRenderPass.addEntities(entities);
     shadowMomentBackRenderPass.setFramebuffer(this.__shadowMomentFramebuffer);
     shadowMomentBackRenderPass.setMaterial(this.__shadowMomentBackMaterial);
+    this.__shadowMomentBackMaterial.setParameter('lightIndex', lightComponentSid);
+    this.__shadowMomentBackMaterial.setParameter('farPlane', farPlane);
 
     return [shadowMomentFrontRenderPass, shadowMomentBackRenderPass];
   }

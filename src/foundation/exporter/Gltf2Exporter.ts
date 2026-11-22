@@ -490,6 +490,7 @@ export class Gltf2Exporter {
         this.__cameraComponentToCameraIndex.set(cameraComponent, node.camera);
       }
       this.__exportLight(json, entity, node as Gltf2Node);
+      this.__exportRaymarching(json, entity, node as Gltf2Node);
     }
 
     // According to glTF specification, nodes with both skin and mesh should be placed directly under the root.
@@ -597,6 +598,20 @@ export class Gltf2Exporter {
       };
     }
 
+    // Rhodonite-specific light state that glTF does not represent. The editor uses this to
+    // restore shadow casting and the shadow camera overrides after loading a saved scene.
+    const rhodoniteExtras: Record<string, unknown> = {
+      castShadow: lightComponent.castShadow,
+      pointLightShadowFarPlane: lightComponent.pointLightShadowFarPlane,
+    };
+    if (!lightComponent.isShadowZNearForSpotLightAuto) {
+      rhodoniteExtras.shadowZNearForSpotLight = lightComponent.shadowZNearForSpotLight;
+    }
+    gltfLight.extras = {
+      ...(gltfLight.extras ?? {}),
+      rhodonite: rhodoniteExtras,
+    };
+
     const lightsExtension = this.__ensureLightsExtension(json);
     const lightIndex = lightsExtension.lights.length;
     lightsExtension.lights.push(gltfLight);
@@ -627,6 +642,31 @@ export class Gltf2Exporter {
       };
     }
     return rootExtensions.KHR_lights_punctual!;
+  }
+
+  /**
+   * Exports the graph of a RaymarchingComponent as a Rhodonite node extension.
+   * The raymarching material is shared by every component and is rebuilt by the
+   * editor from the graphs, so only the per-component graph is stored here.
+   *
+   * @param json - The output glTF JSON
+   * @param entity - The entity to export
+   * @param node - The glTF node of the entity
+   */
+  private static __exportRaymarching(json: Gltf2Ex, entity: ISceneGraphEntity, node: Gltf2Node) {
+    const raymarchingComponent = entity.tryToGetRaymarching?.();
+    if (Is.not.exist(raymarchingComponent)) {
+      return;
+    }
+    if (Is.not.exist(node.extensions)) {
+      node.extensions = {};
+    }
+    node.extensions.RHODONITE_raymarching = {
+      graph: raymarchingComponent.rrnJson ?? null,
+      sdfShapeType: raymarchingComponent.sdfShapeType.index,
+      isPickable: raymarchingComponent.isPickable,
+    };
+    this.__ensureExtensionUsed(json, 'RHODONITE_raymarching');
   }
 
   private static __ensureExtensionUsed(json: Gltf2Ex, extensionName: string) {

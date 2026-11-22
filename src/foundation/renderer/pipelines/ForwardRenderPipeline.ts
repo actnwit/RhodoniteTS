@@ -3,6 +3,7 @@ import type { WebXRSystem } from '../../../xr/WebXRSystem';
 import { RaymarchingComponent } from '../../components/Raymarching/RaymarchingComponent';
 import { RnObject } from '../../core/RnObject';
 import { ComponentType, PixelFormat, ToneMappingType, type ToneMappingTypeEnum } from '../../definitions';
+import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { TextureFormat } from '../../definitions/TextureFormat';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { Bloom } from '../../helpers/BloomHelper';
@@ -12,6 +13,8 @@ import { RenderableHelper } from '../../helpers/RenderableHelper';
 import { RenderPassHelper } from '../../helpers/RenderPassHelper';
 import { ShadowSystem } from '../../helpers/Shadow/ShadowSystem';
 import type { Material } from '../../materials/core/Material';
+import { Scalar } from '../../math/Scalar';
+import { Vector2 } from '../../math/Vector2';
 import { Vector4 } from '../../math/Vector4';
 import { MiscUtil } from '../../misc';
 import { Is } from '../../misc/Is';
@@ -104,6 +107,10 @@ export class ForwardRenderPipeline extends RnObject {
   private __diffuseCubeTexture?: CubeTexture;
   private __specularCubeTexture?: CubeTexture;
   private __sheenCubeTexture?: CubeTexture;
+  private __iblRotation = 0;
+  private __diffuseIblContribution = 1.0;
+  private __specularIblContribution = 1.0;
+  private __raymarchingIblState = '';
   private __samplerForBackBuffer?: Sampler;
   private __toneMappingType = ToneMappingType.GT_ToneMap;
   private __bloomHelper: Bloom;
@@ -367,7 +374,7 @@ export class ForwardRenderPipeline extends RnObject {
       const entities = this.__expressions.flatMap(expression =>
         expression.renderPasses.flatMap(renderPass => renderPass.entities)
       ) as ISceneGraphEntity[];
-      this.__shadowExpressions = this.__shadowSystem.getExpressions(entities);
+      this.__shadowExpressions = this.__shadowSystem.getExpressions(entities, this.__getAdditionalShadowMaterials());
     }
 
     this.__setUpExpressionsForRendering();
@@ -424,11 +431,12 @@ export class ForwardRenderPipeline extends RnObject {
       if (shadowSystem != null) {
         // update shadow expressions if shadow mapping is enabled
         const entities = this.__entitiesForShadow;
+        const additionalMaterials = this.__getAdditionalShadowMaterials();
         if (shadowSystem.isLightChanged()) {
-          this.__shadowExpressions = shadowSystem.getExpressions(entities);
+          this.__shadowExpressions = shadowSystem.getExpressions(entities, additionalMaterials);
           this.__setUpExpressionsForRendering();
         }
-        shadowSystem.setDepthBiasPV(entities);
+        shadowSystem.setDepthBiasPV(entities, additionalMaterials);
       }
       func(this.__frame!);
     });
@@ -585,6 +593,7 @@ export class ForwardRenderPipeline extends RnObject {
     }
     this.__setIblInner();
     this.__setIblInnerForTransparentOnly();
+    this.__applyIblToRaymarchingMaterial();
 
     this.__setUpExpressionsForRendering();
   }
@@ -639,6 +648,8 @@ export class ForwardRenderPipeline extends RnObject {
    * ```
    */
   setDiffuseIBLContribution(value: number) {
+    this.__diffuseIblContribution = value;
+    this.__applyIblToRaymarchingMaterial();
     for (const expression of this.__expressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
@@ -684,6 +695,8 @@ export class ForwardRenderPipeline extends RnObject {
    * ```
    */
   setSpecularIBLContribution(value: number) {
+    this.__specularIblContribution = value;
+    this.__applyIblToRaymarchingMaterial();
     for (const expression of this.__expressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
@@ -733,6 +746,8 @@ export class ForwardRenderPipeline extends RnObject {
    * ```
    */
   setIBLRotation(radian: number) {
+    this.__iblRotation = radian;
+    this.__applyIblToRaymarchingMaterial();
     for (const expression of this.__expressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
@@ -815,6 +830,10 @@ export class ForwardRenderPipeline extends RnObject {
         rp.setToRenderBlendWithZWritePrimitives(false);
         rp.setToRenderBlendWithoutZWritePrimitives(false);
         rp.toClearDepthBuffer = false;
+        // This clone draws translucent primitives over the already rendered main image, and it
+        // renders into the main framebuffer, so clearing the color buffer here would wipe the
+        // main pass. The clear flags are inherited from the application's render pass.
+        rp.toClearColorBuffer = false;
         // rp.isDepthTest = false;
         // rp.depthWriteMask = false;
         if (!this.__isSimple) {
@@ -1291,6 +1310,7 @@ export class ForwardRenderPipeline extends RnObject {
       }
     }
     renderPass.setPreRenderFunction(() => {
+      this.__applyIblToRaymarchingMaterial();
       const raymarchingComponents = this.__engine.componentRepository.getComponentsWithType(
         RaymarchingComponent
       ) as RaymarchingComponent[];
@@ -1299,6 +1319,12 @@ export class ForwardRenderPipeline extends RnObject {
         const sceneGraph = raymarchingComponent.entity.tryToGetSceneGraph();
         if (material != null && sceneGraph != null) {
           material.setParameter(`worldMatrix_${raymarchingComponent.componentSID}`, sceneGraph.matrixInner);
+          // The object id is the stable component SID, matching the node id prefix
+          // used when the graphs are merged (collectRrnJson).
+          material.setParameter(
+            `raymarchObjectId_${raymarchingComponent.componentSID}`,
+            Scalar.fromCopyNumber(raymarchingComponent.componentSID)
+          );
         }
       }
     });
@@ -1311,10 +1337,82 @@ export class ForwardRenderPipeline extends RnObject {
 
   public setRaymarchingMaterial(material: Material) {
     this.__raymarchingRenderPass?.setBufferLessFullScreenRendering(material);
+    this.__applyIblToRaymarchingMaterial();
+    // The raymarching material is not part of any mesh primitive, so the shadow
+    // parameters of the last shadow pass setup have to be applied explicitly.
+    this.__shadowSystem?.applyShadowParametersToMaterials([material]);
+  }
+
+  /** Materials outside mesh primitives that still receive shadows (the raymarching material). */
+  private __getAdditionalShadowMaterials(): Material[] {
+    const material = this.getRaymarchingMaterial();
+    return material != null ? [material] : [];
   }
 
   public getRaymarchingMaterial(): Material | undefined {
     return this.__raymarchingRenderPass?.material;
+  }
+
+  /**
+   * Applies the pipeline's IBL environment to the raymarching PBR material.
+   *
+   * The raymarching draw is buffer-less and has no mesh renderer component, so
+   * the IBL parameters that material contents normally read from the mesh
+   * renderer are set on the material here instead.
+   */
+  private __applyIblToRaymarchingMaterial() {
+    const material = this.getRaymarchingMaterial();
+    if (material == null) {
+      return;
+    }
+    const diffuseEnvValue = material.getTextureParameter(ShaderSemantics.DiffuseEnvTexture.str);
+    const specularEnvValue = material.getTextureParameter(ShaderSemantics.SpecularEnvTexture.str);
+    if (diffuseEnvValue == null || specularEnvValue == null) {
+      // The raymarching material is not using PBR shading.
+      return;
+    }
+    // Present only when the shading graph uses sheen.
+    const sheenEnvValue = material.getTextureParameter(ShaderSemantics.SheenEnvTexture.str);
+    const diffuse = this.__diffuseCubeTexture;
+    const specular = this.__specularCubeTexture;
+    if (diffuse == null || specular == null) {
+      return;
+    }
+
+    // The textures may become ready after this is called, so re-apply when anything changed.
+    const state = `${material.objectUID}:${diffuse.objectUID}:${diffuse.isTextureReady}:${specular.objectUID}:${
+      specular.isTextureReady
+    }:${this.__sheenCubeTexture?.objectUID ?? -1}:${this.__sheenCubeTexture?.isTextureReady ?? false}:${
+      this.__iblRotation
+    }:${this.__diffuseIblContribution}:${this.__specularIblContribution}`;
+    if (state === this.__raymarchingIblState) {
+      return;
+    }
+    this.__raymarchingIblState = state;
+
+    // Reuse the shared cube sampler created for the material's env texture semantics.
+    const sampler = diffuseEnvValue[2] as Sampler;
+    if (diffuse.isTextureReady) {
+      material.setTextureParameter(ShaderSemantics.DiffuseEnvTexture.str, diffuse, sampler);
+    }
+    if (specular.isTextureReady) {
+      material.setTextureParameter(ShaderSemantics.SpecularEnvTexture.str, specular, sampler);
+      if (sheenEnvValue != null) {
+        const sheen = this.__sheenCubeTexture?.isTextureReady ? this.__sheenCubeTexture : specular;
+        const sheenSampler = (sheenEnvValue[2] as Sampler | undefined) ?? sampler;
+        material.setTextureParameter(ShaderSemantics.SheenEnvTexture.str, sheen, sheenSampler);
+      }
+    }
+    material.setParameter(
+      'iblParameter',
+      Vector4.fromCopy4(
+        specular.mipmapLevelNumber,
+        this.__diffuseIblContribution,
+        this.__specularIblContribution,
+        this.__iblRotation
+      )
+    );
+    material.setParameter('hdriFormat', Vector2.fromCopy2(diffuse.hdriFormat.index, specular.hdriFormat.index));
   }
 
   /**
@@ -1344,15 +1442,16 @@ export class ForwardRenderPipeline extends RnObject {
     // initial expression for clearing the frame buffer
     frame.addExpression(this.__initialExpression!);
 
-    if (this.__raymarchingExpression != null) {
-      frame.addExpression(this.__raymarchingExpression);
-    }
-
     if (!this.__isSimple) {
-      // depth map generation for shadow mapping
+      // depth map generation for shadow mapping. This runs before the raymarching
+      // pass so that the raymarching material reads the shadow maps of this frame.
       for (const exp of this.__shadowExpressions) {
         frame.addExpression(exp);
       }
+    }
+
+    if (this.__raymarchingExpression != null) {
+      frame.addExpression(this.__raymarchingExpression);
     }
 
     // main expressions for opaque rendering

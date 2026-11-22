@@ -147,6 +147,46 @@ describe('ShapeComponent', async () => {
     expect(() => component.addCapsuleFromAabb(aabb, { maxRadiusToHeightRatio: 0.5 })).toThrow('between 0 and 0.5');
   });
 
+  test('fits a box to an AABB and rejects invalid AABBs', () => {
+    const aabb = new Rn.AABB();
+    aabb.addPosition(Rn.Vector3.fromCopy3(-1, -2, -3));
+    aabb.addPosition(Rn.Vector3.fromCopy3(3, 3, 5));
+    const component = Rn.createShapeEntity(engine).getShape();
+    const index = component.addBoxFromAabb(aabb);
+
+    const shape = component.getShape(index)?.shape;
+    expect(shape?.type).toBe('box');
+    if (shape?.type === 'box') {
+      expect(shape.size.isEqual(Rn.Vector3.fromCopy3(4, 5, 8))).toBe(true);
+    }
+    expect(component.getShape(index)?.localPosition.isEqual(Rn.Vector3.fromCopy3(1, 0.5, 1))).toBe(true);
+
+    const shifted = component.addBoxFromAabb(aabb, { origin: Rn.Vector3.fromCopy3(1, 0.5, 1) });
+    expect(component.getShape(shifted)?.localPosition.isEqual(Rn.Vector3.zero())).toBe(true);
+    expect(() => component.addBoxFromAabb(new Rn.AABB())).toThrow('uninitialized AABB');
+  });
+
+  test('replaces a shape in place while keeping its index', () => {
+    const component = Rn.createShapeEntity(engine).getShape();
+    const index = component.addShape(
+      { type: 'box', size: Rn.Vector3.fromCopy3(2, 4, 6) },
+      { position: Rn.Vector3.fromCopy3(1, 2, 3) }
+    );
+
+    expect(
+      component.updateShape(index, { type: 'sphere', radius: 2 }, { position: Rn.Vector3.fromCopy3(4, 5, 6) })
+    ).toBe(true);
+    expect(component.shapeCount).toBe(1);
+
+    const instance = component.getShape(index);
+    expect(instance?.shape.type).toBe('sphere');
+    if (instance?.shape.type === 'sphere') {
+      expect(instance.shape.radius).toBe(2);
+    }
+    expect(instance?.localPosition.isEqual(Rn.Vector3.fromCopy3(4, 5, 6))).toBe(true);
+    expect(component.updateShape(999, { type: 'sphere', radius: 1 })).toBe(false);
+  });
+
   test('creates and toggles an empty shape gizmo without a rendering backend', () => {
     const entity = Rn.createShapeEntity(engine);
     const component = entity.getShape();

@@ -80,6 +80,10 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __diffuseCubeTexture?;
     private __specularCubeTexture?;
     private __sheenCubeTexture?;
+    private __iblRotation;
+    private __diffuseIblContribution;
+    private __specularIblContribution;
+    private __raymarchingIblState;
     private __samplerForBackBuffer?;
     private __toneMappingType;
     private __bloomHelper;
@@ -544,6 +548,14 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __setupRaymarchingExpression;
     setRaymarchingMaterial(material: Material): void;
     getRaymarchingMaterial(): Material | undefined;
+    /**
+     * Applies the pipeline's IBL environment to the raymarching PBR material.
+     *
+     * The raymarching draw is buffer-less and has no mesh renderer component, so
+     * the IBL parameters that material contents normally read from the mesh
+     * renderer are set on the material here instead.
+     */
+    private __applyIblToRaymarchingMaterial;
     /**
      * Internal method to set up the frame with all configured expressions.
      *

@@ -1188,7 +1188,7 @@ export class CameraComponent extends Component {
         this.setFovyAndChangeFilmSize(MathUtil.radianToDegree(lightComponent.outerConeAngle * 2.0));
         this._cornerInner.copyComponents(this._corner);
         this.aspect = 1;
-        this.zNear = 0.1;
+        this.zNear = lightComponent.shadowZNearForSpotLight;
         // Use a reasonable default zFar for shadow mapping to maintain depth precision
         this.zFar = lightComponent.range !== -1 ? lightComponent.range : 100;
         this._parametersInner.copyComponents(this._parameters);

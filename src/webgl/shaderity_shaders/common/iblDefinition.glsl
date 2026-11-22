@@ -188,7 +188,12 @@ vec3 sheenIBL(float NdotV, float sheenPerceptualRoughness, vec3 sheenColor, vec4
   float lod = (sheenPerceptualRoughness * (mipCount - 1.0));
 
   vec2 sheenLutUV = vec2(NdotV, sheenPerceptualRoughness);
-  float brdf = texture(u_sheenLutTexture, sheenLutUV).b;
+  #ifdef RN_RAYMARCHING_SHADING
+    // Raymarching shades hit points in non-uniform control flow (implicit derivatives are unsafe).
+    float brdf = textureLod(u_sheenLutTexture, sheenLutUV, 0.0).b;
+  #else
+    float brdf = texture(u_sheenLutTexture, sheenLutUV).b;
+  #endif
   vec3 sheenLight = get_radiance_sheen(reflection, lod, hdriFormat);
   float IBLSpecularContribution = iblParameter.z;
   sheenLight *= IBLSpecularContribution;

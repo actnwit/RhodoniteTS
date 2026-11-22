@@ -40,7 +40,7 @@ void pbrShader(
   float NdotV = saturate(dot(normalInWorld, viewDirection));
 
   // Roughness
-  #ifdef RN_IS_PIXEL_SHADER
+  #if defined(RN_IS_PIXEL_SHADER) && !defined(RN_DISABLE_SPECULAR_AA)
     float alphaRoughness = perceptualRoughness * perceptualRoughness;
     float alphaRoughness2 = alphaRoughness * alphaRoughness;
     // filter NDF for specular AA --- https://jcgt.org/published/0010/02/02/
@@ -85,7 +85,12 @@ void pbrShader(
 
   // Sheen
   #ifdef RN_USE_SHEEN
-    sheenProps.albedoSheenScalingNdotV = 1.0 - max3(sheenProps.sheenColor) * texture(u_sheenLutTexture, vec2(NdotV, sheenProps.sheenRoughness)).r;
+    #ifdef RN_RAYMARCHING_SHADING
+      // Raymarching shades hit points in non-uniform control flow (implicit derivatives are unsafe).
+      sheenProps.albedoSheenScalingNdotV = 1.0 - max3(sheenProps.sheenColor) * textureLod(u_sheenLutTexture, vec2(NdotV, sheenProps.sheenRoughness), 0.0).r;
+    #else
+      sheenProps.albedoSheenScalingNdotV = 1.0 - max3(sheenProps.sheenColor) * texture(u_sheenLutTexture, vec2(NdotV, sheenProps.sheenRoughness)).r;
+    #endif
   #else
     sheenProps.albedoSheenScalingNdotV = 1.0;
   #endif // RN_USE_SHEEN
@@ -137,7 +142,7 @@ void pbrShader(
     int shadowSlot = lightRef.y;
     int depthTextureIndex = shadowSlot >= 0 ? get_depthTextureIndexList(materialSID, uint(shadowSlot)) : -1;
     if (light.type == 1 && depthTextureIndex >= 0) { // Point Light
-      float pointLightFarPlane = get_pointLightFarPlane(materialSID, 0u);
+      float pointLightFarPlane = get_pointLightFarPlane(materialSID, uint(shadowSlot));
       float pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0u);
       float shadowContribution = varianceShadowContributionParaboloid(positionInWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, depthTextureIndex);
       lighting *= shadowContribution;

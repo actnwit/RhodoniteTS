@@ -1,6 +1,7 @@
 import type { ICameraEntityMethods } from '../../components/Camera/ICameraEntity';
 import type { ILightEntityMethods } from '../../components/Light/ILightEntity';
 import { LightComponent } from '../../components/Light/LightComponent';
+import { RaymarchingComponent } from '../../components/Raymarching/RaymarchingComponent';
 import { TransformComponent } from '../../components/Transform';
 import { ComponentType } from '../../definitions/ComponentType';
 import { LightType, type LightTypeEnum } from '../../definitions/LightType';
@@ -53,6 +54,12 @@ export class ShadowSystem {
   private __lastAutoFitCenter = Vector3.fromCopy3(0, 0, 0);
   private __lastAutoFitRadius = 1;
   private __needsRefresh = false;
+  /** Last shadow state, so a material assigned later (e.g. the raymarching material) can receive it. */
+  private __depthTextureIndexList: number[] = [];
+  /** Far plane of the paraboloid shadow map of each shadow slot (indexed by slot). */
+  private __pointLightFarPlaneList: number[] = [];
+  private __directionalShadowMap?: { texture: RenderTargetTexture; sampler: Sampler };
+  private __paraboloidShadowMap?: { texture: RenderTargetTexture; sampler: Sampler };
 
   /**
    * Creates a new ShadowSystem instance with the specified shadow map resolution.
@@ -96,7 +103,7 @@ export class ShadowSystem {
    * @param entities - Array of scene graph entities to be rendered for shadow mapping
    * @returns Array of Expression objects containing the shadow mapping render passes
    */
-  public getExpressions(entities: ISceneGraphEntity[]) {
+  public getExpressions(entities: ISceneGraphEntity[], additionalMaterials: readonly Material[] = []) {
     // With no shadow slots there is nothing to render into the shadow maps, and the materials have no
     // shadow parameters (Config.maxLightNumber = 0 compiles the shadow code out).
     if (this.__engine.config.maxLightNumber <= 0) {
@@ -106,6 +113,7 @@ export class ShadowSystem {
     // Auto-fit DirectionalLight shadow camera volume before setting up shadow map render passes.
     // This ensures the shadow camera covers the entire scene when rendering the shadow map.
     this.__autoFitDirectionalLightShadowVolume(entities);
+    this.__updateSpotLightShadowZNear(entities);
 
     // Only these entities are rendered into the shadow maps. Every entity still receives shadows,
     // so `entities` keeps being used for the material setup below.
@@ -114,6 +122,7 @@ export class ShadowSystem {
     const expressions = [];
     // The shadow data of a light is stored at its shadow slot, so the list is indexed by the slot.
     const depthTextureIndexList: number[] = new Array(this.__engine.config.maxLightNumber).fill(-1);
+    const pointLightFarPlaneList: number[] = new Array(this.__engine.config.maxLightNumber).fill(1000);
 
     let depthTextureCount = 0;
     let pointDepthTextureCount = 0;
@@ -136,12 +145,14 @@ export class ShadowSystem {
       }
 
       if (lightComponent.type === LightType.Point) {
+        const farPlane = this.__getPointLightFarPlane(lightComponent, entities);
         const shadowMapExpression = new Expression();
         shadowMapExpression.addRenderPasses(
           this.__pointShadowMap.getRenderPasses(
             shadowCasters,
             lightComponent.entity as ISceneGraphEntity & ILightEntityMethods,
-            shadowSlot
+            shadowSlot,
+            farPlane
           )
         );
         expressions.push(shadowMapExpression);
@@ -162,9 +173,10 @@ export class ShadowSystem {
             outputFrameBufferLayerIndex: pointDepthTextureCount,
           },
         });
-        this.__setParaboloidBlurredShadowMap(blurredRenderTargetPointLight, entities);
+        this.__setParaboloidBlurredShadowMap(blurredRenderTargetPointLight, entities, additionalMaterials);
         expressions.push(blurExpressionPointLight);
         depthTextureIndexList[shadowSlot] = pointDepthTextureCount;
+        pointLightFarPlaneList[shadowSlot] = farPlane;
         pointDepthTextureCount++;
       } else if (lightComponent.type === LightType.Spot || lightComponent.type === LightType.Directional) {
         const shadowMapExpression = new Expression();
@@ -192,14 +204,17 @@ export class ShadowSystem {
             outputFrameBufferLayerIndex: depthTextureCount,
           },
         });
-        this.__setBlurredShadowMap(blurredRenderTargetSpotLight, entities);
+        this.__setBlurredShadowMap(blurredRenderTargetSpotLight, entities, additionalMaterials);
         expressions.push(blurExpressionSpotLight);
         depthTextureIndexList[shadowSlot] = depthTextureCount;
         depthTextureCount++;
       }
     }
 
-    this.__setDepthTextureIndexList(entities, depthTextureIndexList);
+    this.__depthTextureIndexList = depthTextureIndexList;
+    this.__setDepthTextureIndexList(entities, depthTextureIndexList, additionalMaterials);
+    this.__pointLightFarPlaneList = pointLightFarPlaneList;
+    this.__setPointLightFarPlaneList(entities, pointLightFarPlaneList, additionalMaterials);
 
     return expressions;
   }
@@ -262,7 +277,11 @@ export class ShadowSystem {
    * @param entities - Array of scene graph entities to apply the shadow map to
    * @private
    */
-  private __setBlurredShadowMap(blurredRenderTarget: RenderTargetTexture, entities: ISceneGraphEntity[]) {
+  private __setBlurredShadowMap(
+    blurredRenderTarget: RenderTargetTexture,
+    entities: ISceneGraphEntity[],
+    additionalMaterials: readonly Material[] = []
+  ) {
     const sampler = new Sampler(this.__engine, {
       minFilter: TextureParameter.Linear,
       magFilter: TextureParameter.Linear,
@@ -280,6 +299,10 @@ export class ShadowSystem {
         }
       }
     }
+    for (const material of additionalMaterials) {
+      material.setTextureParameter('depthTexture', blurredRenderTarget, sampler);
+    }
+    this.__directionalShadowMap = { texture: blurredRenderTarget, sampler };
   }
 
   /**
@@ -290,7 +313,11 @@ export class ShadowSystem {
    * @param entities - Array of scene graph entities to apply the shadow map to
    * @private
    */
-  private __setParaboloidBlurredShadowMap(blurredRenderTarget: RenderTargetTexture, entities: ISceneGraphEntity[]) {
+  private __setParaboloidBlurredShadowMap(
+    blurredRenderTarget: RenderTargetTexture,
+    entities: ISceneGraphEntity[],
+    additionalMaterials: readonly Material[] = []
+  ) {
     const sampler = new Sampler(this.__engine, {
       minFilter: TextureParameter.Linear,
       magFilter: TextureParameter.Linear,
@@ -309,6 +336,11 @@ export class ShadowSystem {
         }
       }
     }
+    for (const material of additionalMaterials) {
+      material.setTextureParameter('paraboloidDepthTexture', blurredRenderTarget, sampler);
+      material.setParameter('pointLightShadowMapUvScale', 0.93);
+    }
+    this.__paraboloidShadowMap = { texture: blurredRenderTarget, sampler };
   }
 
   /**
@@ -318,15 +350,298 @@ export class ShadowSystem {
    * @param depthTextureIndexList - Array of indices mapping lights to shadow map textures (-1 for no shadow)
    * @private
    */
-  private __setDepthTextureIndexList(entities: ISceneGraphEntity[], depthTextureIndexList: number[]) {
+  private __setDepthTextureIndexList(
+    entities: ISceneGraphEntity[],
+    depthTextureIndexList: number[],
+    additionalMaterials: readonly Material[] = []
+  ) {
+    // setParameter() copies the values into each material, so one VectorN can be shared.
+    const indexList = new VectorN(new Int32Array(depthTextureIndexList));
     for (const entity of entities) {
       const meshComponent = entity.tryToGetMesh();
       if (meshComponent != null && meshComponent.mesh != null) {
         for (let i = 0; i < meshComponent.mesh.getPrimitiveNumber(); i++) {
           const primitive = meshComponent.mesh.getPrimitiveAt(i);
-          primitive.material.setParameter('depthTextureIndexList', new VectorN(new Int32Array(depthTextureIndexList)));
+          primitive.material.setParameter('depthTextureIndexList', indexList);
         }
       }
+    }
+    for (const material of additionalMaterials) {
+      material.setParameter('depthTextureIndexList', indexList);
+    }
+  }
+
+  /**
+   * Returns the far plane used to normalize the paraboloid shadow map of a point light.
+   *
+   * The priority is the explicit `pointLightShadowFarPlane`, the effective range of the
+   * light, its automatic range, and finally the farthest shadow receiver in the scene.
+   * A finite far plane keeps the cleared background depth close to the casters; with the
+   * legacy unlimited far plane of 1000 the Gaussian blur mixes the far background into the
+   * moments and the shadows of scenes much smaller than 1000 units disappear.
+   *
+   * @param lightComponent - The point light component
+   * @param entities - The entities in the scene (used for the automatic far plane)
+   */
+  private __getPointLightFarPlane(lightComponent: LightComponent, entities: ISceneGraphEntity[]) {
+    const explicitFarPlane = lightComponent.pointLightShadowFarPlane;
+    if (explicitFarPlane > 0) {
+      return explicitFarPlane;
+    }
+    if (lightComponent.range > 0) {
+      return lightComponent.range;
+    }
+    // The effective range includes the automatic range (Config.lightAutoRangeThreshold) and
+    // Config.lightRangeScale. That range is a light-culling/shading bound, not a scene bound: with
+    // the editor's threshold of 0.01 an intensity-20 light gets a range of 44.7 even in a scene
+    // only a few units large. Fit the far plane to the receivers instead and use the effective
+    // range only as an upper bound (receivers beyond it are unlit anyway).
+    const sceneFarPlane = this.__getSceneFarPlaneForPointLight(lightComponent, entities);
+    const effectiveRange = lightComponent._lightPropertyForGpu._v[1];
+    if (effectiveRange > 0) {
+      return Math.min(sceneFarPlane, effectiveRange);
+    }
+    return sceneFarPlane;
+  }
+
+  /**
+   * Returns a far plane that covers every shadow receiver of an unlimited point light.
+   *
+   * The farthest corner of the merged AABBs is used so that receivers at the far side of
+   * an object are still inside the shadow map. Background assets and light gizmos are
+   * ignored. When the scene has no receiver, the legacy value is kept.
+   *
+   * @param lightComponent - The point light component
+   * @param entities - The entities in the scene
+   * @private
+   */
+  private __getSceneFarPlaneForPointLight(lightComponent: LightComponent, entities: ISceneGraphEntity[]): number {
+    const lightPositionArray = lightComponent._lightPositionForGpu._v;
+    const lightPosition = {
+      x: lightPositionArray[0],
+      y: lightPositionArray[1],
+      z: lightPositionArray[2],
+    };
+    let farthestDistanceSquared = 0;
+    const receivers = entities.filter(
+      entity => ShadowSystem.__isShadowCaster(entity) && !ShadowSystem.__isLightEntity(entity)
+    );
+    for (const entity of receivers) {
+      const sceneGraph = entity.getSceneGraph();
+      if (!sceneGraph.isVisible) {
+        continue;
+      }
+      const aabb = sceneGraph.worldMergedAABB;
+      if (aabb != null && !aabb.isVanilla()) {
+        const min = aabb.minPoint;
+        const max = aabb.maxPoint;
+        const dx = Math.max(Math.abs(lightPosition.x - min.x), Math.abs(lightPosition.x - max.x));
+        const dy = Math.max(Math.abs(lightPosition.y - min.y), Math.abs(lightPosition.y - max.y));
+        const dz = Math.max(Math.abs(lightPosition.z - min.z), Math.abs(lightPosition.z - max.z));
+        farthestDistanceSquared = Math.max(farthestDistanceSquared, dx * dx + dy * dy + dz * dz);
+      } else {
+        const position = sceneGraph.worldPosition;
+        const dx = position.x - lightPosition.x;
+        const dy = position.y - lightPosition.y;
+        const dz = position.z - lightPosition.z;
+        farthestDistanceSquared = Math.max(farthestDistanceSquared, dx * dx + dy * dy + dz * dz);
+      }
+    }
+
+    // Raymarching receivers are not in the render expressions' entity list.
+    const raymarchingComponents = this.__engine.componentRepository.getComponentsWithType(
+      RaymarchingComponent
+    ) as RaymarchingComponent[];
+    for (const raymarchingComponent of raymarchingComponents) {
+      const raymarchingSceneGraph = raymarchingComponent.entity.tryToGetSceneGraph();
+      if (raymarchingSceneGraph == null || !raymarchingSceneGraph.isVisible) {
+        continue;
+      }
+      const aabb = raymarchingComponent.calcWorldAABB();
+      if (aabb == null || aabb.isVanilla()) {
+        continue;
+      }
+      const min = aabb.minPoint;
+      const max = aabb.maxPoint;
+      const dx = Math.max(Math.abs(lightPosition.x - min.x), Math.abs(lightPosition.x - max.x));
+      const dy = Math.max(Math.abs(lightPosition.y - min.y), Math.abs(lightPosition.y - max.y));
+      const dz = Math.max(Math.abs(lightPosition.z - min.z), Math.abs(lightPosition.z - max.z));
+      farthestDistanceSquared = Math.max(farthestDistanceSquared, dx * dx + dy * dy + dz * dz);
+    }
+
+    if (farthestDistanceSquared <= 0) {
+      return 1000;
+    }
+    // A small margin keeps the farthest receiver inside the shadow map.
+    return Math.sqrt(farthestDistanceSquared) * 1.05 + 0.1;
+  }
+
+  /**
+   * Updates the per-slot far planes of the point light shadow maps when they change.
+   * Calling this every frame keeps the automatic far plane in sync with moving lights,
+   * casters and receivers without rebuilding the shadow expressions.
+   *
+   * @param entities - The entities in the scene
+   * @param additionalMaterials - Materials that are not reached through the entities
+   *   (for example the raymarching material)
+   */
+  public updatePointLightFarPlanes(entities: ISceneGraphEntity[], additionalMaterials: readonly Material[] = []) {
+    if (this.__engine.config.maxLightNumber <= 0) {
+      return;
+    }
+    const lightComponents = this.__engine.componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
+    const pointLights = lightComponents.filter(
+      lightComponent =>
+        lightComponent.type === LightType.Point &&
+        lightComponent.enable &&
+        lightComponent.castShadow &&
+        lightComponent._shadowSlot >= 0
+    );
+    if (pointLights.length === 0) {
+      return;
+    }
+
+    const maxLightNumber = this.__engine.config.maxLightNumber;
+    const newList: number[] = new Array(maxLightNumber).fill(1000);
+    for (const lightComponent of pointLights) {
+      newList[lightComponent._shadowSlot] = this.__getPointLightFarPlane(lightComponent, entities);
+    }
+
+    let changed = this.__pointLightFarPlaneList.length !== maxLightNumber;
+    if (!changed) {
+      for (let i = 0; i < maxLightNumber; i++) {
+        if (Math.abs(newList[i] - this.__pointLightFarPlaneList[i]) > 1e-4) {
+          changed = true;
+          break;
+        }
+      }
+    }
+    if (!changed) {
+      return;
+    }
+
+    for (const lightComponent of pointLights) {
+      const shadowSlot = lightComponent._shadowSlot;
+      this.__pointShadowMap.setFarPlane(shadowSlot, newList[shadowSlot]);
+    }
+    this.__pointLightFarPlaneList = newList;
+    this.__setPointLightFarPlaneList(entities, newList, additionalMaterials);
+  }
+
+  /**
+   * Sets the per-shadow-slot far planes of the paraboloid shadow maps on all entity materials.
+   * @param entities - Array of scene graph entities to apply the far planes to
+   * @param pointLightFarPlaneList - Far plane of each shadow slot (1000 for slots without a point light)
+   * @private
+   */
+  private __setPointLightFarPlaneList(
+    entities: ISceneGraphEntity[],
+    pointLightFarPlaneList: number[],
+    additionalMaterials: readonly Material[] = []
+  ) {
+    // setParameter() copies the values into each material, so one VectorN can be shared.
+    const farPlaneList = new VectorN(new Float32Array(pointLightFarPlaneList));
+    for (const entity of entities) {
+      const meshComponent = entity.tryToGetMesh();
+      if (meshComponent != null && meshComponent.mesh != null) {
+        for (let i = 0; i < meshComponent.mesh.getPrimitiveNumber(); i++) {
+          const primitive = meshComponent.mesh.getPrimitiveAt(i);
+          primitive.material.setParameter('pointLightFarPlane', farPlaneList);
+        }
+      }
+    }
+    for (const material of additionalMaterials) {
+      material.setParameter('pointLightFarPlane', farPlaneList);
+    }
+  }
+
+  /**
+   * Fits the zNear of the spot light shadow cameras to the scene.
+   *
+   * A perspective shadow map spends most of its depth range near the far plane, which makes
+   * variance shadow maps shallow. Setting zNear below the nearest caster makes the depth
+   * distribution more linear. The value is limited to 5% of the light range and to 1.0 so
+   * that it stays conservative.
+   *
+   * @param entities - The entities in the scene
+   * @private
+   */
+  private __updateSpotLightShadowZNear(entities: ISceneGraphEntity[]) {
+    const lightComponents = this.__engine.componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
+    const spotLights = lightComponents.filter(
+      lightComponent => lightComponent.type === LightType.Spot && lightComponent.enable && lightComponent.castShadow
+    );
+    if (spotLights.length === 0) {
+      return;
+    }
+
+    const shadowCasters = entities.filter(
+      entity => ShadowSystem.__isShadowCaster(entity) && !ShadowSystem.__isLightEntity(entity)
+    );
+
+    for (const lightComponent of spotLights) {
+      const lightPositionArray = lightComponent._lightPositionForGpu._v;
+      const lightPosition = {
+        x: lightPositionArray[0],
+        y: lightPositionArray[1],
+        z: lightPositionArray[2],
+      };
+      let nearestDistanceSquared = Number.MAX_VALUE;
+      for (const entity of shadowCasters) {
+        const sceneGraph = entity.getSceneGraph();
+        const aabb = sceneGraph.worldMergedAABB;
+        let distanceSquared: number;
+        if (aabb != null && !aabb.isVanilla()) {
+          const min = aabb.minPoint;
+          const max = aabb.maxPoint;
+          // A caster that encloses the light (for example a background sphere) does not bound
+          // zNear: its surface can be far from the light even when its AABB contains it.
+          if (
+            min.x <= lightPosition.x &&
+            lightPosition.x <= max.x &&
+            min.y <= lightPosition.y &&
+            lightPosition.y <= max.y &&
+            min.z <= lightPosition.z &&
+            lightPosition.z <= max.z
+          ) {
+            continue;
+          }
+          const dx =
+            lightPosition.x < min.x ? min.x - lightPosition.x : lightPosition.x > max.x ? lightPosition.x - max.x : 0;
+          const dy =
+            lightPosition.y < min.y ? min.y - lightPosition.y : lightPosition.y > max.y ? lightPosition.y - max.y : 0;
+          const dz =
+            lightPosition.z < min.z ? min.z - lightPosition.z : lightPosition.z > max.z ? lightPosition.z - max.z : 0;
+          distanceSquared = dx * dx + dy * dy + dz * dz;
+        } else {
+          // Procedural meshes can have a vanilla merged AABB. Their world position is still
+          // a useful conservative bound: zNear stays at half the distance to the center.
+          const position = sceneGraph.worldPosition;
+          const dx = position.x - lightPosition.x;
+          const dy = position.y - lightPosition.y;
+          const dz = position.z - lightPosition.z;
+          distanceSquared = dx * dx + dy * dy + dz * dz;
+        }
+        if (distanceSquared < nearestDistanceSquared) {
+          nearestDistanceSquared = distanceSquared;
+        }
+      }
+
+      let zNear = 0.1;
+      if (lightComponent.range > 0 && Number.isFinite(nearestDistanceSquared)) {
+        const rangeCap = Math.min(lightComponent.range * 0.05, 1.0);
+        zNear = Math.max(0.01, Math.min(Math.sqrt(nearestDistanceSquared) * 0.5, rangeCap));
+      }
+      lightComponent._setShadowZNearForSpotLightAuto(zNear);
+    }
+  }
+
+  private static __isLightEntity(entity: ISceneGraphEntity) {
+    try {
+      const getLight = (entity as unknown as { getLight?: () => unknown }).getLight;
+      return typeof getLight === 'function' && getLight.call(entity) != null;
+    } catch {
+      return false;
     }
   }
 
@@ -335,7 +650,7 @@ export class ShadowSystem {
    * Calculates and applies bias matrices for directional and spot lights to reduce shadow acne.
    * @param entities - Array of scene graph entities to apply the bias matrices to
    */
-  public setDepthBiasPV(entities: ISceneGraphEntity[]) {
+  public setDepthBiasPV(entities: ISceneGraphEntity[], additionalMaterials: readonly Material[] = []) {
     // The materials have no depthBiasPV parameter when there are no shadow slots.
     if (this.__engine.config.maxLightNumber <= 0) {
       return;
@@ -344,6 +659,8 @@ export class ShadowSystem {
     // Auto-fit DirectionalLight shadow camera volume to cover the whole scene.
     // Note: This does not move the light; it only adjusts shadowAreaSizeForDirectionalLight and range.
     this.__autoFitDirectionalLightShadowVolume(entities);
+    this.__updateSpotLightShadowZNear(entities);
+    this.updatePointLightFarPlanes(entities, additionalMaterials);
 
     // This runs every frame, so the arrays and the VectorN are reused. setParameter() copies the
     // values into the material's own variable, so sharing one VectorN between materials is safe.
@@ -423,6 +740,60 @@ export class ShadowSystem {
             versionOfMaterials[materialUid] = version;
           }
         }
+      }
+    }
+    for (const material of additionalMaterials) {
+      const materialUid = material.materialUID;
+      if (versionOfMaterials[materialUid] === version) {
+        continue;
+      }
+      material.setParameter('depthBiasPV', depthBiasPV);
+      if (material._allFieldsInfo.has('depthBiasPV')) {
+        versionOfMaterials[materialUid] = version;
+      }
+    }
+  }
+
+  /**
+   * Applies the last computed shadow state (shadow maps, index list and bias matrices)
+   * to materials that are assigned after getExpressions() ran, for example the
+   * raymarching material of the buffer-less full-screen pass.
+   */
+  public applyShadowParametersToMaterials(materials: readonly Material[]) {
+    if (this.__engine.config.maxLightNumber <= 0) {
+      return;
+    }
+    const indexList = new VectorN(
+      new Int32Array(
+        this.__depthTextureIndexList.length > 0
+          ? this.__depthTextureIndexList
+          : new Array(this.__engine.config.maxLightNumber).fill(-1)
+      )
+    );
+    const farPlaneList = new VectorN(
+      new Float32Array(
+        this.__pointLightFarPlaneList.length > 0
+          ? this.__pointLightFarPlaneList
+          : new Array(this.__engine.config.maxLightNumber).fill(1000)
+      )
+    );
+    for (const material of materials) {
+      material.setParameter('depthTextureIndexList', indexList);
+      material.setParameter('pointLightFarPlane', farPlaneList);
+      if (this.__directionalShadowMap != null) {
+        material.setTextureParameter(
+          'depthTexture',
+          this.__directionalShadowMap.texture,
+          this.__directionalShadowMap.sampler
+        );
+      }
+      if (this.__paraboloidShadowMap != null) {
+        material.setTextureParameter(
+          'paraboloidDepthTexture',
+          this.__paraboloidShadowMap.texture,
+          this.__paraboloidShadowMap.sampler
+        );
+        material.setParameter('pointLightShadowMapUvScale', 0.93);
       }
     }
   }

@@ -1713,6 +1713,21 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       specularCubeMap = meshRendererComponent.specularCubeMap;
       sheenCubeMap = meshRendererComponent.sheenCubeMap;
       meshRendererComponentFingerPrint = meshRendererComponent.getFingerPrint();
+    } else {
+      // A buffer-less draw (e.g. the raymarching full-screen pass) has no mesh
+      // renderer component, so take the IBL environment from the material.
+      const diffuseEnvValue = material.getTextureParameter(ShaderSemantics.DiffuseEnvTexture.str);
+      if (diffuseEnvValue != null) {
+        diffuseCubeMap = diffuseEnvValue[1] as CubeTexture | RenderTargetTextureCube;
+      }
+      const specularEnvValue = material.getTextureParameter(ShaderSemantics.SpecularEnvTexture.str);
+      if (specularEnvValue != null) {
+        specularCubeMap = specularEnvValue[1] as CubeTexture | RenderTargetTextureCube;
+      }
+      const sheenEnvValue = material.getTextureParameter(ShaderSemantics.SheenEnvTexture.str);
+      if (sheenEnvValue != null) {
+        sheenCubeMap = sheenEnvValue[1] as CubeTexture | RenderTargetTextureCube;
+      }
     }
 
     const renderPipelineId = `${primitive._getFingerPrint()} ${material._getFingerPrint()} ${material.__materialTypeName} ${

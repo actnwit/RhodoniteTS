@@ -69,14 +69,20 @@ export class OutDistanceShader extends RaymarchingShaderPart {
   getPixelShaderDefinitions(engine: Engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-      fn outDistance(value: f32) {
-        g_distance = value;
+      fn outDistance(value: f32, objectId: f32) {
+        if (value < g_distance) {
+          g_distance = value;
+          g_hitObjectId = objectId;
+        }
       }
       `;
     }
     return `
-      void outDistance(in float value) {
-        g_distance = value;
+      void outDistance(in float value, in float objectId) {
+        if (value < g_distance) {
+          g_distance = value;
+          g_hitObjectId = objectId;
+        }
       }
       `;
   }

@@ -66,6 +66,10 @@ export class MeshComponent extends Component {
     }
     this.__mesh = mesh;
     mesh._belongToMeshComponent(this);
+    // The mesh contributes to the merged world AABB of this entity and its ancestors. The
+    // merged AABB may have been computed before the mesh was attached (for example during
+    // entity creation), so it has to be recomputed now.
+    this.entity.tryToGetSceneGraph()?.setWorldAABBDirtyParentRecursively();
   }
 
   /**
@@ -78,6 +82,7 @@ export class MeshComponent extends Component {
     }
     this.__mesh._removeMeshComponent(this);
     this.__mesh = void 0;
+    this.entity.tryToGetSceneGraph()?.setWorldAABBDirtyParentRecursively();
 
     return true;
   }

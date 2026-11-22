@@ -8,6 +8,7 @@ import {
   TagKhrNodeVisibilityEnabled,
   TagKhrNodeVisibilityVisible,
 } from '../../types/glTF2';
+import type { NodeJSON } from '../../types/NodeJSON';
 import type {
   RnM2,
   RnM2Accessor,
@@ -40,6 +41,7 @@ import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
+import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { AlphaMode } from '../definitions/AlphaMode';
 import { AnimationInterpolation } from '../definitions/AnimationInterpolation';
 import { BufferUse } from '../definitions/BufferUse';
@@ -48,6 +50,7 @@ import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
 import { LightType } from '../definitions/LightType';
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
+import { SdfShapeType } from '../definitions/SdfShapeType';
 import type { ShaderSemanticsName } from '../definitions/ShaderSemantics';
 import { ShadingModel } from '../definitions/ShadingModel';
 import { TextureParameter } from '../definitions/TextureParameter';
@@ -59,6 +62,7 @@ import type {
   ICameraEntity,
   ILightEntity,
   IMeshEntity,
+  IRaymarchingEntity,
   ISceneGraphEntity,
 } from '../helpers/EntityHelper';
 import { MaterialHelper } from '../helpers/MaterialHelper';
@@ -1309,10 +1313,22 @@ export class ModelConverter {
         entity = meshEntity;
       } else if (node.cameraObject != null) {
         const cameraEntity = this.__setupCamera(engine, node.cameraObject, gltfModel);
-        if (node.name) {
-          cameraEntity.tryToSetUniqueName(node.name, true);
+        let entityWithOptionalLight: ISceneGraphEntity = cameraEntity;
+        // A glTF node can carry both a camera and a light. Editor-created lights are such
+        // nodes: createLightWithCameraEntity attaches the light camera to the light entity.
+        if (node.extensions?.KHR_lights_punctual != null) {
+          const lightEntity = engine.entityRepository.tryToAddComponentToEntityByTID(
+            WellKnownComponentTIDs.LightComponentTID,
+            cameraEntity
+          ) as unknown as ICameraEntity & ILightEntity;
+          this.__configureLightComponent(lightEntity.getLight(), node.extensions.KHR_lights_punctual.light);
+          lightEntity.getCamera().isSyncToLight = true;
+          entityWithOptionalLight = lightEntity as unknown as ISceneGraphEntity;
         }
-        entity = cameraEntity;
+        if (node.name) {
+          entityWithOptionalLight.tryToSetUniqueName(node.name, true);
+        }
+        entity = entityWithOptionalLight;
       } else if (node.extensions?.KHR_lights_punctual) {
         const lightEntity = this.__setupLight(engine, node.extensions.KHR_lights_punctual.light, gltfModel);
         entity = lightEntity;
@@ -1322,6 +1338,36 @@ export class ModelConverter {
           group.tryToSetUniqueName(node.name, true);
         }
         entity = group;
+      }
+
+      // Rhodonite raymarching component. The shared raymarching material is built by the
+      // application (the editor's node editor) from the restored graph.
+      const raymarchingExtension = (
+        node.extensions as
+          | {
+              RHODONITE_raymarching?: {
+                graph?: NodeJSON | null;
+                sdfShapeType?: number;
+                isPickable?: boolean;
+              };
+            }
+          | undefined
+      )?.RHODONITE_raymarching;
+      if (raymarchingExtension != null && entity.tryToGetRaymarching() == null) {
+        const raymarchingEntity = engine.entityRepository.tryToAddComponentToEntityByTID(
+          WellKnownComponentTIDs.RaymarchingComponentTID,
+          entity
+        ) as IRaymarchingEntity;
+        const raymarchingComponent = raymarchingEntity.getRaymarching();
+        if (raymarchingExtension.graph != null) {
+          raymarchingComponent.rrnJson = raymarchingExtension.graph;
+        } else if (raymarchingExtension.sdfShapeType != null) {
+          raymarchingComponent.sdfShapeType = SdfShapeType.from(raymarchingExtension.sdfShapeType);
+        }
+        if (raymarchingExtension.isPickable != null) {
+          raymarchingComponent.isPickable = raymarchingExtension.isPickable;
+        }
+        entity = raymarchingEntity as unknown as ISceneGraphEntity;
       }
 
       if (this.__isMorphing(node, gltfModel)) {
@@ -1380,33 +1426,79 @@ export class ModelConverter {
    */
   private static __setupLight(engine: Engine, light: KHR_lights_punctual_Light, gltfModel: RnM2): ILightEntity {
     const lightEntity = this.__generateLightEntity(engine, gltfModel);
+    const lightType = LightType.fromString(light.type);
+    if (lightType === LightType.Spot || lightType === LightType.Directional) {
+      // Spot and directional shadow maps are rendered from a camera synchronized to the light
+      // (ShadowMap uses lightEntity.getCamera()). Editor-created lights carry such a camera on
+      // their own node, but assets authored elsewhere usually have light-only nodes, so attach
+      // the shadow camera here as the editor does when creating a light.
+      const lightCameraEntity = engine.entityRepository.tryToAddComponentToEntityByTID(
+        WellKnownComponentTIDs.CameraComponentTID,
+        lightEntity
+      ) as unknown as ILightEntity & ICameraEntity;
+      lightCameraEntity.getCamera().isSyncToLight = true;
+    }
     const lightComponent = lightEntity.getComponent(LightComponent)! as LightComponent;
+    this.__configureLightComponent(lightComponent, light);
+    return lightEntity as ILightEntity;
+  }
+
+  /**
+   * Applies glTF light data to a LightComponent. This is used for nodes that contain only a
+   * light and for nodes that contain both a camera and a light.
+   * @param lightComponent - The component to configure
+   * @param light - The glTF light data
+   */
+  private static __configureLightComponent(lightComponent: LightComponent, light: KHR_lights_punctual_Light) {
     if (light.name != null) {
       lightComponent.tryToSetUniqueName(light.name, true);
-      lightComponent.type = LightType.fromString(light.type);
-      let color = Vector3.fromCopyArray3([1, 1, 1]);
-      let intensity = 1;
-      if (light.color != null) {
-        color = Vector3.fromCopyArray3(light.color);
+    }
+    lightComponent.type = LightType.fromString(light.type);
+    let color = Vector3.fromCopyArray3([1, 1, 1]);
+    let intensity = 1;
+    if (light.color != null) {
+      color = Vector3.fromCopyArray3(light.color);
+    }
+    if (light.intensity != null) {
+      intensity = light.intensity;
+    }
+    lightComponent.color = color;
+    lightComponent.intensity = intensity;
+    if (light.range != null) {
+      lightComponent.range = light.range;
+    }
+    if (light.type === 'spot') {
+      if (light.spot?.innerConeAngle != null) {
+        lightComponent.innerConeAngle = light.spot.innerConeAngle;
       }
-      if (light.intensity != null) {
-        intensity = light.intensity;
-      }
-      lightComponent.color = color;
-      lightComponent.intensity = intensity;
-      if (light.range != null) {
-        lightComponent.range = light.range;
-      }
-      if (light.type === 'spot') {
-        if (light.spot?.innerConeAngle != null) {
-          lightComponent.innerConeAngle = light.spot.innerConeAngle;
-        }
-        if (light.spot?.outerConeAngle != null) {
-          lightComponent.outerConeAngle = light.spot.outerConeAngle;
-        }
+      if (light.spot?.outerConeAngle != null) {
+        lightComponent.outerConeAngle = light.spot.outerConeAngle;
       }
     }
-    return lightEntity as ILightEntity;
+
+    // Restore the Rhodonite-specific light state stored by Gltf2Exporter.
+    const rhodoniteExtras = (
+      light.extras as
+        | {
+            rhodonite?: {
+              castShadow?: boolean;
+              pointLightShadowFarPlane?: number;
+              shadowZNearForSpotLight?: number;
+            };
+          }
+        | undefined
+    )?.rhodonite;
+    if (rhodoniteExtras != null) {
+      if (rhodoniteExtras.castShadow != null) {
+        lightComponent.castShadow = rhodoniteExtras.castShadow;
+      }
+      if (rhodoniteExtras.pointLightShadowFarPlane != null) {
+        lightComponent.pointLightShadowFarPlane = rhodoniteExtras.pointLightShadowFarPlane;
+      }
+      if (rhodoniteExtras.shadowZNearForSpotLight != null) {
+        lightComponent.shadowZNearForSpotLight = rhodoniteExtras.shadowZNearForSpotLight;
+      }
+    }
   }
 
   /**
