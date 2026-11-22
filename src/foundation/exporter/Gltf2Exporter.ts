@@ -1278,6 +1278,8 @@ export class Gltf2Exporter {
       if (!match) {
         const glTF2ImageEx: Gltf2ImageEx = {
           uri: rnTexture.name,
+          // GLB exports drop the uri, so keep the texture name for the importer.
+          name: rnTexture.name || undefined,
           extras: {
             rnTextureUID: rnTexture.textureUID,
           },
@@ -1484,6 +1486,8 @@ export class Gltf2Exporter {
       if (!match) {
         const glTF2ImageEx: Gltf2ImageEx = {
           uri: rnTexture.name,
+          // GLB exports drop the uri, so keep the texture name for the importer.
+          name: rnTexture.name || undefined,
           extras: {
             rnTextureUID: rnTexture.textureUID,
           },
