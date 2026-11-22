@@ -93,6 +93,11 @@ export interface Gltf2ExporterArguments {
   type: Gltf2ExportType;
   /** Tags to exclude from export */
   excludeTags?: Tag[];
+  /**
+   * The shared raymarching material. Its user-assigned Texture2D parameters are exported to the
+   * RHODONITE_raymarching_materials extension so that they survive a save/load round trip.
+   */
+  raymarchingMaterial?: Material;
 }
 
 /**
@@ -152,6 +157,7 @@ export class Gltf2Exporter {
     this.__createNodes(json, collectedEntities, topLevelEntities);
 
     await this.__createMaterials(json, collectedEntities as unknown as IMeshEntity[], option);
+    await this.__exportRaymarchingMaterials(json, option);
 
     this.__createAnimationData(json, collectedEntities as unknown as IAnimationEntity[]);
 
@@ -1231,7 +1237,8 @@ export class Gltf2Exporter {
     json: Gltf2Ex,
     promises: Promise<any>[],
     bufferIdx: number,
-    option: Gltf2ExporterArguments
+    option: Gltf2ExporterArguments,
+    semanticFilter: (semantic: string) => boolean = () => true
   ): Promise<{ [name: string]: { index: number } }> {
     const textureUniforms: { [name: string]: { index: number } } = {};
     const existedImages: string[] = [];
@@ -1339,6 +1346,10 @@ export class Gltf2Exporter {
     for (const info of fieldsInfo) {
       const compositionType = info.compositionType;
 
+      if (!semanticFilter(info.semantic)) {
+        continue;
+      }
+
       // Check if this field is a texture type
       if (
         compositionType.index === 7 || // Texture2D
@@ -1363,6 +1374,71 @@ export class Gltf2Exporter {
     }
 
     return textureUniforms;
+  }
+
+  /**
+   * Exports the user-assigned textures of the shared raymarching material.
+   *
+   * The raymarching material is shared by every raymarching component, so its texture parameters
+   * live at the glTF root instead of the per-node RHODONITE_raymarching extension. The images are
+   * written into the standard glTF images/textures/samplers arrays, and the extension maps each
+   * shader semantic to its texture index. Only textures declared by Texture2D nodes in the
+   * material's graph are exported; engine-managed textures (IBL, shadow maps, the sheen LUT and
+   * the transmission back buffer) are not.
+   *
+   * @param json - The output glTF JSON
+   * @param option - Export options, including the raymarching material to export
+   */
+  private static async __exportRaymarchingMaterials(json: Gltf2Ex, option: Gltf2ExporterArguments) {
+    const raymarchingMaterial = option.raymarchingMaterial;
+    if (raymarchingMaterial == null) {
+      return;
+    }
+
+    // Only textures declared by Texture2D nodes in the graph are user-authored. The material
+    // also carries engine-managed textures (IBL, shadows, the sheen LUT, the transmission back
+    // buffer), and exporting those would embed environment/shadow data into the scene.
+    const shaderNodeJson = raymarchingMaterial.shaderNodeJson as
+      | { nodes?: { name?: string; controls?: { name?: { value?: string } } }[] }
+      | undefined;
+    const userTextureSemantics = new Set<string>();
+    for (const node of shaderNodeJson?.nodes ?? []) {
+      if (node.name === 'Texture2D') {
+        const semantic = node.controls?.name?.value;
+        if (typeof semantic === 'string' && semantic.length > 0) {
+          userTextureSemantics.add(semantic);
+        }
+      }
+    }
+    if (userTextureSemantics.size === 0) {
+      return;
+    }
+
+    const promises: Promise<any>[] = [];
+    json.extras.bufferViewByteLengthAccumulatedArray.push(0);
+    const bufferIdx = json.extras.bufferViewByteLengthAccumulatedArray.length - 1;
+
+    const textures = await this.__processNodeBasedMaterialTextures(
+      raymarchingMaterial,
+      json,
+      promises,
+      bufferIdx,
+      option,
+      semantic => userTextureSemantics.has(semantic)
+    );
+    await Promise.all(promises);
+
+    if (Object.keys(textures).length === 0) {
+      return;
+    }
+
+    if (Is.not.exist(json.extensions)) {
+      json.extensions = {};
+    }
+    (json.extensions as Record<string, unknown>).RHODONITE_raymarching_materials = {
+      textures,
+    };
+    this.__ensureExtensionUsed(json, 'RHODONITE_raymarching_materials');
   }
 
   private static async __setupMaterial(

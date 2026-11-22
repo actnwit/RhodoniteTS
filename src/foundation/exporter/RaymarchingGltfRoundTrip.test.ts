@@ -2,12 +2,14 @@ import { expect, test } from 'vitest';
 import type { RnM2 } from '../../types';
 import type { NodeJSON } from '../../types/NodeJSON';
 import { createRaymarchingEntity } from '../components/Raymarching/createRaymarchingEntity';
+import { CompositionType } from '../definitions/CompositionType';
 import { ProcessApproach } from '../definitions/ProcessApproach';
 import { SdfShapeType } from '../definitions/SdfShapeType';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { MaterialHelper } from '../helpers/MaterialHelper';
 import { Gltf2Importer } from '../importer/Gltf2Importer';
 import { ModelConverter } from '../importer/ModelConverter';
+import type { Material } from '../materials/core/Material';
 import { Vector3 } from '../math/Vector3';
 import { Engine } from '../system/Engine';
 import { GLTF2_EXPORT_NO_DOWNLOAD, Gltf2Exporter } from './Gltf2Exporter';
@@ -101,6 +103,47 @@ async function importGltfJson(gltfModel: RnM2) {
   return { engine, rnEntities };
 }
 
+/**
+ * A stand-in for the shared raymarching material. The exporter only needs the field list and the
+ * texture parameters, so the texture is represented by a canvas whose toBlob returns a tiny PNG.
+ */
+function createMockRaymarchingMaterial(): Material {
+  const pngBytes = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
+  const fakeCanvas = {
+    toBlob(callback: (blob: Blob | null) => void) {
+      callback(new Blob([pngBytes], { type: 'image/png' }));
+    },
+  };
+  const fakeSampler = {
+    magFilter: { index: 9729 },
+    minFilter: { index: 9987 },
+    wrapS: { index: 10497 },
+    wrapT: { index: 10497 },
+  };
+  const fakeTexture = {
+    textureUID: 42,
+    name: 'TestTexture',
+    isTextureReady: true,
+    isDummyTexture: false,
+    width: 1,
+    height: 1,
+    htmlCanvasElement: fakeCanvas,
+  };
+  return {
+    shaderNodeJson: {
+      nodes: [{ name: 'Texture2D', controls: { name: { value: 'u_testTexture' } } }],
+      connections: [],
+    },
+    fieldsInfoArray: [
+      { semantic: 'u_testTexture', compositionType: CompositionType.Texture2D },
+      { semantic: 'diffuseEnvTexture', compositionType: CompositionType.Texture2D },
+      { semantic: 'sheenLutTexture', compositionType: CompositionType.Texture2D },
+      { semantic: 'depthTexture', compositionType: CompositionType.Texture2DArray },
+    ],
+    getTextureParameter: () => [0, fakeTexture, fakeSampler],
+  } as unknown as Material;
+}
+
 test('exports a RaymarchingComponent graph as a glTF node extension', async () => {
   const exportEngine = await createExportEngine();
   const entity = createRaymarchingEntity(exportEngine);
@@ -116,6 +159,7 @@ test('exports a RaymarchingComponent graph as a glTF node extension', async () =
   expect(extension.graph.nodes).toHaveLength(4);
   expect(extension.isPickable).toBe(false);
   expect(json.nodes[0].translation).toEqual([1, 2, 3]);
+  expect(json.extensions?.RHODONITE_raymarching_materials).toBeUndefined();
 });
 
 test('imports a RHODONITE_raymarching node and rebuilds the material from its graph', async () => {
@@ -157,4 +201,29 @@ test('imports the sdfShapeType when the node extension has no graph', async () =
   const { rnEntities } = await importGltfJson(gltfModel);
   const imported = rnEntities.find(rnEntity => rnEntity.tryToGetRaymarching() != null);
   expect(imported!.tryToGetRaymarching()!.sdfShapeType.index).toBe(SdfShapeType.Box.index);
+});
+
+test('exports the shared raymarching material textures as a root extension', async () => {
+  const exportEngine = await createExportEngine();
+  const entity = createRaymarchingEntity(exportEngine);
+  entity.getRaymarching().rrnJson = createSphereGraph();
+
+  const buffer = await Gltf2Exporter.export(exportEngine, 'RaymarchingMaterialExport', {
+    entities: [entity],
+    type: GLTF2_EXPORT_NO_DOWNLOAD,
+    raymarchingMaterial: createMockRaymarchingMaterial(),
+  });
+  const json = parseGlbJson(buffer);
+
+  expect(json.extensionsUsed).toContain('RHODONITE_raymarching_materials');
+  // Engine-managed semantics (the sheen LUT and shadow maps) must not be exported.
+  expect(json.extensions.RHODONITE_raymarching_materials).toEqual({
+    textures: { u_testTexture: { index: 0 } },
+  });
+  expect(json.textures).toHaveLength(1);
+  expect(json.textures[0].source).toBe(0);
+  expect(json.samplers).toHaveLength(1);
+  expect(json.images).toHaveLength(1);
+  expect(json.images[0].mimeType).toBe('image/png');
+  expect(json.images[0].bufferView).toBeDefined();
 });
