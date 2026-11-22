@@ -2804,6 +2804,27 @@ function collectRrnJson(engine: Engine): NodeJSON {
       return newNode;
     });
 
+    // Uniform nodes are per component: postfix their name with the component SID so
+    // components that share the same graph can carry different values. The merged
+    // material then has one uniform per component (for example "roughness_0").
+    const uniformNodeNames = new Set([
+      'UniformScalarFloat',
+      'UniformVector2Float',
+      'UniformVector3Float',
+      'UniformVector4Float',
+    ]);
+    for (const node of prefixedNodes) {
+      if (uniformNodeNames.has(node.name)) {
+        const name = node.controls?.name?.value;
+        if (typeof name === 'string' && name.length > 0) {
+          node.controls = {
+            ...(node.controls ?? {}),
+            name: { value: `${name}_${raymarchingComponent.componentSID}` },
+          };
+        }
+      }
+    }
+
     // Clone and update connection ids with prefix
     const prefixedConnections = rrnJson.connections.map(conn => ({
       ...conn,
