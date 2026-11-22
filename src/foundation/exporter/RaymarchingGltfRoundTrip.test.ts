@@ -227,3 +227,28 @@ test('exports the shared raymarching material textures as a root extension', asy
   expect(json.images[0].mimeType).toBe('image/png');
   expect(json.images[0].bufferView).toBeDefined();
 });
+
+test('parses the raymarching material texture assignments from the root extension', () => {
+  const gltfModel = {
+    asset: { version: '2.0', extras: {} },
+    extensions: {
+      RHODONITE_raymarching_materials: {
+        textures: {
+          u_texture: { index: 0 },
+          u_outOfRange: { index: 5 },
+          u_withoutIndex: {},
+        },
+      },
+    },
+    images: [{ bufferView: 0, mimeType: 'image/png' }],
+    textures: [{ sampler: 1, source: 0 }],
+    samplers: [{}, {}],
+  } as unknown as RnM2;
+
+  expect(ModelConverter.getRaymarchingMaterialTextureAssignments(gltfModel)).toEqual([
+    { semantic: 'u_texture', textureIndex: 0, samplerIndex: 1 },
+  ]);
+  expect(
+    ModelConverter.getRaymarchingMaterialTextureAssignments({ asset: { version: '2.0' } } as unknown as RnM2)
+  ).toEqual([]);
+});
