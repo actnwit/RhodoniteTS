@@ -49,6 +49,8 @@ export type RaymarchingSpherePrimitive = {
 
 const ZERO = Vector3.fromCopy3(0, 0, 0);
 const ONE = Vector3.fromCopy3(1, 1, 1);
+const DEFAULT_CAPSULE_POINT_A = Vector3.fromCopy3(0, -0.5, 0);
+const DEFAULT_CAPSULE_POINT_B = Vector3.fromCopy3(0, 0.5, 0);
 const IDENTITY_MATRIX = Matrix44.fromCopyMatrix44(Matrix44.identity());
 
 const REPEAT_AXES: Record<string, { x: boolean; y: boolean; z: boolean }> = {
@@ -709,6 +711,48 @@ export class RaymarchingSdfEvaluator {
           Math.hypot(Math.max(qx, 0), Math.max(qy, 0), Math.max(qz, 0)) + Math.min(Math.max(qx, Math.max(qy, qz)), 0)
         );
       }
+      case 'SdTorus': {
+        const position = this.__evalPositionForDistance(node, pointInWorld);
+        const radius = this.__readScalarInput(node, 'radius', 1);
+        const tubeRadius = this.__readScalarInput(node, 'tubeRadius', 0.25);
+        if (position == null || radius == null || tubeRadius == null) {
+          return null;
+        }
+        return Math.hypot(Math.hypot(position.x, position.z) - radius, position.y) - tubeRadius;
+      }
+      case 'SdCapsule': {
+        const position = this.__evalPositionForDistance(node, pointInWorld);
+        const pointA = this.__readVec3Input(node, 'pointA', DEFAULT_CAPSULE_POINT_A);
+        const pointB = this.__readVec3Input(node, 'pointB', DEFAULT_CAPSULE_POINT_B);
+        const radius = this.__readScalarInput(node, 'radius', 0.5);
+        if (position == null || pointA == null || pointB == null || radius == null) {
+          return null;
+        }
+        const paX = position.x - pointA.x;
+        const paY = position.y - pointA.y;
+        const paZ = position.z - pointA.z;
+        const baX = pointB.x - pointA.x;
+        const baY = pointB.y - pointA.y;
+        const baZ = pointB.z - pointA.z;
+        const denominator = baX * baX + baY * baY + baZ * baZ;
+        let h = 0;
+        if (denominator > 0) {
+          h = Math.min(Math.max((paX * baX + paY * baY + paZ * baZ) / denominator, 0), 1);
+        }
+        return Math.hypot(paX - baX * h, paY - baY * h, paZ - baZ * h) - radius;
+      }
+      case 'SdRoundBox': {
+        const position = this.__evalPositionForDistance(node, pointInWorld);
+        const size = this.__readVec3Input(node, 'size', ONE);
+        const radius = this.__readScalarInput(node, 'radius', 0.25);
+        if (position == null || size == null || radius == null) {
+          return null;
+        }
+        const qx = Math.abs(position.x) - size.x;
+        const qy = Math.abs(position.y) - size.y;
+        const qz = Math.abs(position.z) - size.z;
+        return Math.hypot(Math.max(qx, 0), Math.max(qy, 0), Math.max(qz, 0)) - radius;
+      }
       case 'SdBarX': {
         const position = this.__evalPositionForDistance(node, pointInWorld);
         const width = this.__readScalarInput(node, 'width', 1);
@@ -855,6 +899,46 @@ export class RaymarchingSdfEvaluator {
           bounds = this.__evalPrimitiveBounds(
             node,
             Vector3.fromCopy3(Math.abs(size.x), Math.abs(size.y), Math.abs(size.z))
+          );
+        }
+        break;
+      }
+      case 'SdTorus': {
+        const radius = this.__readScalarInput(node, 'radius', 1);
+        const tubeRadius = this.__readScalarInput(node, 'tubeRadius', 0.25);
+        if (radius != null && tubeRadius != null) {
+          const outer = Math.abs(radius) + Math.abs(tubeRadius);
+          const inner = Math.abs(tubeRadius);
+          bounds = this.__evalPrimitiveBounds(node, Vector3.fromCopy3(outer, inner, outer));
+        }
+        break;
+      }
+      case 'SdCapsule': {
+        const pointA = this.__readVec3Input(node, 'pointA', DEFAULT_CAPSULE_POINT_A);
+        const pointB = this.__readVec3Input(node, 'pointB', DEFAULT_CAPSULE_POINT_B);
+        const radius = this.__readScalarInput(node, 'radius', 0.5);
+        if (pointA != null && pointB != null && radius != null) {
+          // Conservative bound around the origin: the segment endpoints expanded by the radius.
+          const r = Math.abs(radius);
+          bounds = this.__evalPrimitiveBounds(
+            node,
+            Vector3.fromCopy3(
+              Math.max(Math.abs(pointA.x), Math.abs(pointB.x)) + r,
+              Math.max(Math.abs(pointA.y), Math.abs(pointB.y)) + r,
+              Math.max(Math.abs(pointA.z), Math.abs(pointB.z)) + r
+            )
+          );
+        }
+        break;
+      }
+      case 'SdRoundBox': {
+        const size = this.__readVec3Input(node, 'size', ONE);
+        const radius = this.__readScalarInput(node, 'radius', 0.25);
+        if (size != null && radius != null) {
+          const r = Math.abs(radius);
+          bounds = this.__evalPrimitiveBounds(
+            node,
+            Vector3.fromCopy3(Math.abs(size.x) + r, Math.abs(size.y) + r, Math.abs(size.z) + r)
           );
         }
         break;

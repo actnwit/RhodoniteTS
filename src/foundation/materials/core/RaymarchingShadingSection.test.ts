@@ -426,3 +426,76 @@ test('keeps the fixed shading when the graph has no shading output', async () =>
   expect(pixelShader).not.toContain('void shade_0() {');
   expect(pixelShader).toContain('raymarchingPbr(p, normal)');
 });
+
+test('emits the torus, capsule and round box primitives', async () => {
+  const engine = await Engine.init({
+    approach: ProcessApproach.None,
+    canvas: document.createElement('canvas'),
+  });
+
+  const node = (id: string, name: string, inputs: Record<string, unknown>, outputs: Record<string, unknown>) => ({
+    id,
+    name,
+    inputs,
+    outputs,
+    controls: {},
+    position: { x: 0, y: 0 },
+  });
+  const input = (id: string, name: string) => ({ id, label: name, socket: { name } });
+  const output = (id: string, name: string) => ({ id, label: name, socket: { name } });
+
+  const graph = {
+    nodes: [
+      node('init', 'InitialPosition', {}, { outPosition: output('init_out', 'Vector3<float>') }),
+      node(
+        'torus',
+        'SdTorus',
+        { position: input('torus_pos', 'Vector3<float>') },
+        { outDistance: output('torus_dist', 'Scalar<float>') }
+      ),
+      node(
+        'capsule',
+        'SdCapsule',
+        { position: input('capsule_pos', 'Vector3<float>') },
+        { outDistance: output('capsule_dist', 'Scalar<float>') }
+      ),
+      node(
+        'roundBox',
+        'SdRoundBox',
+        { position: input('roundBox_pos', 'Vector3<float>') },
+        { outDistance: output('roundBox_dist', 'Scalar<float>') }
+      ),
+      node(
+        'union1',
+        'OpUnion',
+        { lhs: input('union1_lhs', 'Scalar<float>'), rhs: input('union1_rhs', 'Scalar<float>') },
+        { outValue: output('union1_out', 'Scalar<float>') }
+      ),
+      node(
+        'union2',
+        'OpUnion',
+        { lhs: input('union2_lhs', 'Scalar<float>'), rhs: input('union2_rhs', 'Scalar<float>') },
+        { outValue: output('union2_out', 'Scalar<float>') }
+      ),
+      node('out', 'OutUnion', { in1: input('out_in', 'Scalar<float>') }, {}),
+    ],
+    connections: [
+      { id: 'c1', from: { id: 'init', portName: 'outPosition' }, to: { id: 'torus', portName: 'position' } },
+      { id: 'c2', from: { id: 'init', portName: 'outPosition' }, to: { id: 'capsule', portName: 'position' } },
+      { id: 'c3', from: { id: 'init', portName: 'outPosition' }, to: { id: 'roundBox', portName: 'position' } },
+      { id: 'c4', from: { id: 'torus', portName: 'outDistance' }, to: { id: 'union1', portName: 'lhs' } },
+      { id: 'c5', from: { id: 'capsule', portName: 'outDistance' }, to: { id: 'union1', portName: 'rhs' } },
+      { id: 'c6', from: { id: 'union1', portName: 'outValue' }, to: { id: 'union2', portName: 'lhs' } },
+      { id: 'c7', from: { id: 'roundBox', portName: 'outDistance' }, to: { id: 'union2', portName: 'rhs' } },
+      { id: 'c8', from: { id: 'union2', portName: 'outValue' }, to: { id: 'out', portName: 'in1' } },
+    ],
+  };
+
+  const code = ShaderGraphResolver.generateShaderCodeFromJson(engine, graph as any, new RaymarchingShaderPart());
+  expect(code).toBeDefined();
+  const pixelShader = code!.pixelShader;
+
+  expect(pixelShader).toContain('sdTorus');
+  expect(pixelShader).toContain('sdCapsule');
+  expect(pixelShader).toContain('sdRoundBox');
+});
