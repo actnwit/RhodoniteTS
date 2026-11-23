@@ -10,7 +10,7 @@ import { TextureFormat } from '../../definitions/TextureFormat';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import type { Material } from '../../materials/core/Material';
 import { AABB } from '../../math/AABB';
-import { Vector3 } from '../../math/Vector3';
+import { Matrix44 } from '../../math/Matrix44';
 import { VectorN } from '../../math/VectorN';
 import { Logger } from '../../misc/Logger';
 import { Expression } from '../../renderer/Expression';
@@ -82,10 +82,12 @@ export class ShadowSystem {
   private __depthBiasPVVersionOfMaterials: number[] = [];
   private __lastTransformUpdateCountForAutoFit = -1;
   private __lastEntityCountForAutoFit = -1;
-  private __lastAutoFitCenter = Vector3.fromCopy3(0, 0, 0);
-  private __lastAutoFitRadius = 1;
+  private __lastRaymarchingComponentCountForAutoFit = -1;
+  private __lastRaymarchingAABBVersionForAutoFit = -1;
+  private __lastAutoFitBounds = new AABB();
   private __needsRefresh = false;
   private __raymarchingShadowPassProvider?: RaymarchingShadowPassProvider;
+  private static __tmpLightSpaceBounds = new AABB();
   /** Last shadow state, so a material assigned later (e.g. the raymarching material) can receive it. */
   private __depthTextureIndexList: number[] = [];
   /** Far plane of the paraboloid shadow map of each shadow slot (indexed by slot). */
@@ -711,6 +713,50 @@ export class ShadowSystem {
         }
       }
 
+      // SDF entities are not part of the mesh caster entities, so their bounds are added
+      // for the same nearest-distance estimate. Receivers are included as well because
+      // they need to lie beyond the shadow camera's near plane.
+      const raymarchingComponents = this.__engine.componentRepository.getComponentsWithType(
+        RaymarchingComponent
+      ) as RaymarchingComponent[];
+      for (const raymarchingComponent of raymarchingComponents) {
+        const sceneGraph = raymarchingComponent.entity.tryToGetSceneGraph();
+        if (sceneGraph == null || !sceneGraph.isVisible) {
+          continue;
+        }
+        if (raymarchingComponent.entity.getTagValue('type') === 'background-assets') {
+          continue;
+        }
+        const aabb = sceneGraph.worldMergedAABB;
+        // Unbounded SDFs (SdBar / SdTube / SdRepeat) have a vanilla AABB; they keep the
+        // conservative default zNear instead of a potentially wrong bound.
+        if (aabb.isVanilla()) {
+          continue;
+        }
+        const min = aabb.minPoint;
+        const max = aabb.maxPoint;
+        if (
+          min.x <= lightPosition.x &&
+          lightPosition.x <= max.x &&
+          min.y <= lightPosition.y &&
+          lightPosition.y <= max.y &&
+          min.z <= lightPosition.z &&
+          lightPosition.z <= max.z
+        ) {
+          continue;
+        }
+        const dx =
+          lightPosition.x < min.x ? min.x - lightPosition.x : lightPosition.x > max.x ? lightPosition.x - max.x : 0;
+        const dy =
+          lightPosition.y < min.y ? min.y - lightPosition.y : lightPosition.y > max.y ? lightPosition.y - max.y : 0;
+        const dz =
+          lightPosition.z < min.z ? min.z - lightPosition.z : lightPosition.z > max.z ? lightPosition.z - max.z : 0;
+        const distanceSquared = dx * dx + dy * dy + dz * dz;
+        if (distanceSquared < nearestDistanceSquared) {
+          nearestDistanceSquared = distanceSquared;
+        }
+      }
+
       let zNear = 0.1;
       if (lightComponent.range > 0 && Number.isFinite(nearestDistanceSquared)) {
         const rangeCap = Math.min(lightComponent.range * 0.05, 1.0);
@@ -892,12 +938,16 @@ export class ShadowSystem {
 
   private __autoFitDirectionalLightShadowVolume(entities: ISceneGraphEntity[]) {
     const transformUpdateCount = TransformComponent.getUpdateCount(this.__engine);
+    const raymarchingComponentCount = this.__getRaymarchingComponentCount();
+    const raymarchingAABBVersion = RaymarchingComponent.getAABBVersion(this.__engine);
     if (
       transformUpdateCount === this.__lastTransformUpdateCountForAutoFit &&
-      entities.length === this.__lastEntityCountForAutoFit
+      entities.length === this.__lastEntityCountForAutoFit &&
+      raymarchingComponentCount === this.__lastRaymarchingComponentCountForAutoFit &&
+      raymarchingAABBVersion === this.__lastRaymarchingAABBVersionForAutoFit
     ) {
-      // Reuse cached center/radius; still apply to lights because light transforms may have changed.
-      this.__applyAutoFitToDirectionalLights(this.__lastAutoFitCenter, this.__lastAutoFitRadius);
+      // Reuse the cached bounds; the per-light fit still follows light transforms.
+      this.__applyAutoFitToDirectionalLights(this.__lastAutoFitBounds);
       return;
     }
 
@@ -928,30 +978,73 @@ export class ShadowSystem {
       merged.mergeAABB(aabb);
     }
 
+    // SDF entities are not mesh entities, so their bounds are added separately (the
+    // scene graph AABB already contains the SDF bounds). Receivers are included as well:
+    // they need to lie inside the light frustum for the shadow map lookup.
+    this.__mergeRaymarchingShadowBounds(merged);
+
     if (merged.isVanilla()) {
       return;
     }
 
-    const center = merged.centerPoint;
-    const radius = Math.max(merged.lengthCenterToCorner, 1.0);
-
     this.__lastTransformUpdateCountForAutoFit = transformUpdateCount;
     this.__lastEntityCountForAutoFit = entities.length;
-    this.__lastAutoFitCenter = Vector3.fromCopy3(center.x, center.y, center.z);
-    this.__lastAutoFitRadius = radius;
+    this.__lastRaymarchingComponentCountForAutoFit = raymarchingComponentCount;
+    this.__lastRaymarchingAABBVersionForAutoFit = raymarchingAABBVersion;
+    this.__lastAutoFitBounds.copyComponents(merged);
 
-    this.__applyAutoFitToDirectionalLights(this.__lastAutoFitCenter, this.__lastAutoFitRadius);
+    this.__applyAutoFitToDirectionalLights(this.__lastAutoFitBounds);
   }
 
   /**
    * Resets the directional/spot shadow volume fitting cache, so the next frame recomputes
-   * the volume.
+   * the volume (including the SDF bounds).
    */
   public invalidateShadowVolumeFitting() {
     this.__lastTransformUpdateCountForAutoFit = -1;
+    this.__lastRaymarchingAABBVersionForAutoFit = -1;
   }
 
-  private __applyAutoFitToDirectionalLights(center: Vector3, radius: number) {
+  private __getRaymarchingComponentCount() {
+    const components = this.__engine.componentRepository.getComponentsWithType(
+      RaymarchingComponent
+    ) as RaymarchingComponent[];
+    return components.length;
+  }
+
+  /**
+   * Merges the world AABBs of the visible raymarching components into `merged`.
+   * The scene graph AABB of an SDF entity already contains the SDF bounds, so the cached
+   * merged AABB is used instead of evaluating the graph again.
+   */
+  private __mergeRaymarchingShadowBounds(merged: AABB) {
+    const components = this.__engine.componentRepository.getComponentsWithType(
+      RaymarchingComponent
+    ) as RaymarchingComponent[];
+    for (const component of components) {
+      const sceneGraph = component.entity.tryToGetSceneGraph();
+      if (sceneGraph == null || !sceneGraph.isVisible) {
+        continue;
+      }
+      if (component.entity.getTagValue('type') === 'background-assets') {
+        continue;
+      }
+      const aabb = sceneGraph.worldMergedAABBWithSkeletal;
+      if (!aabb.isVanilla()) {
+        merged.mergeAABB(aabb);
+      }
+    }
+  }
+
+  /**
+   * Fits every directional light's orthographic shadow camera to `bounds`.
+   *
+   * The bounds are projected into the light's local space, and the ortho extents and the
+   * depth range are taken from that AABB (not from the light-to-center distance). This
+   * keeps the shadow map's world-per-texel small enough for the VSM blur not to wash out
+   * the cast shadows, while still covering every caster and receiver.
+   */
+  private __applyAutoFitToDirectionalLights(bounds: AABB) {
     const areaMargin = 1.15;
     const nearFarMargin = 1.25;
 
@@ -968,24 +1061,28 @@ export class ShadowSystem {
       if (!(lightComponent.enable && lightComponent.castShadow)) continue;
       if (lightComponent.type !== LightType.Directional) continue;
 
-      // Use the bounding sphere radius as the shadow area size.
-      // This is a conservative estimate that guarantees coverage from any light direction,
-      // avoiding expensive per-frame AABB-to-view-space projection calculations.
       const lightEntity = lightComponent.entity as unknown as ISceneGraphEntity;
-      const lightPos = lightEntity.getSceneGraph().worldPosition;
-      const dist = Vector3.lengthBtw(lightPos, center);
+      const lightWorldMatrix = lightEntity.getSceneGraph().matrixInner;
+      const inverseLightMatrix = Matrix44.invert(lightWorldMatrix);
+      AABB.multiplyMatrixTo(inverseLightMatrix, bounds, ShadowSystem.__tmpLightSpaceBounds);
+      const lightSpaceBounds = ShadowSystem.__tmpLightSpaceBounds;
+      const min = lightSpaceBounds.minPoint;
+      const max = lightSpaceBounds.maxPoint;
 
-      // Shadow area size: radius covers the scene, plus offset from light position to scene center
-      lightComponent.shadowAreaSizeForDirectionalLight = (radius + dist) * areaMargin;
+      // The light camera looks along its local -Z, so the distance from the camera is -z.
+      const depthNear = Math.max(-max.z, 0);
+      const depthFar = Math.max(-min.z, depthNear + 1e-3);
+      const zNear = Math.max(depthNear / nearFarMargin, 0.01);
+      const zFar = Math.max(depthFar * nearFarMargin, zNear + 0.01);
 
-      // zNear: distance from light to nearest point of scene bounding sphere
-      // Ensure zNear is positive and has a minimum value
-      const desiredZNear = Math.max((dist - radius) / nearFarMargin, 0.01);
-      lightComponent.shadowZNearForDirectionalLight = desiredZNear;
+      // The orthographic projection is square and symmetric around the light's view axis.
+      const halfExtent = Math.max(Math.abs(min.x), Math.abs(max.x), Math.abs(min.y), Math.abs(max.y), 1.0);
+      const areaSize = halfExtent * areaMargin;
 
-      // zFar: distance from light to farthest point of scene bounding sphere
-      const desiredZFar = (dist + radius) * nearFarMargin;
-      lightComponent.range = desiredZFar;
+      lightComponent.shadowAreaSizeForDirectionalLight = areaSize;
+      lightComponent.shadowZNearForDirectionalLight = zNear;
+      // The camera sync uses range for zFar.
+      lightComponent.range = zFar;
     }
   }
 
