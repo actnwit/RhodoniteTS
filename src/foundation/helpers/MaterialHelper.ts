@@ -2346,6 +2346,66 @@ function addRaymarchingComponentSemanticsInfo(shaderNodeJson: ShaderNodeJson) {
         max: Number.MAX_VALUE,
       });
     }
+    // Uniform nodes become one material parameter each. A per-component material
+    // keeps the authored name, so the graph's uniforms are independent; the merged
+    // graph postfixes them with the component SID in collectRrnJson.
+    const uniformName = node.controls?.name?.value;
+    if (typeof uniformName === 'string' && uniformName.length > 0) {
+      if (node.name === 'UniformScalarFloat' && !addedSemantics.has(uniformName)) {
+        addedSemantics.add(uniformName);
+        additionalShaderSemanticInfo.push({
+          semantic: uniformName,
+          componentType: ComponentType.Float,
+          compositionType: CompositionType.Scalar,
+          stage: ShaderType.PixelShader,
+          initialValue: Scalar.fromCopyNumber(node.controls?.initialValue?.value ?? 0),
+          min: 0,
+          max: Number.MAX_VALUE,
+        });
+      } else if (node.name === 'UniformVector2Float' && !addedSemantics.has(uniformName)) {
+        addedSemantics.add(uniformName);
+        additionalShaderSemanticInfo.push({
+          semantic: uniformName,
+          componentType: ComponentType.Float,
+          compositionType: CompositionType.Vec2,
+          stage: ShaderType.PixelShader,
+          initialValue: Vector2.fromCopy2(node.controls?.initialX?.value ?? 0, node.controls?.initialY?.value ?? 0),
+          min: 0,
+          max: Number.MAX_VALUE,
+        });
+      } else if (node.name === 'UniformVector3Float' && !addedSemantics.has(uniformName)) {
+        addedSemantics.add(uniformName);
+        additionalShaderSemanticInfo.push({
+          semantic: uniformName,
+          componentType: ComponentType.Float,
+          compositionType: CompositionType.Vec3,
+          stage: ShaderType.PixelShader,
+          initialValue: Vector3.fromCopy3(
+            node.controls?.initialX?.value ?? 0,
+            node.controls?.initialY?.value ?? 0,
+            node.controls?.initialZ?.value ?? 0
+          ),
+          min: 0,
+          max: Number.MAX_VALUE,
+        });
+      } else if (node.name === 'UniformVector4Float' && !addedSemantics.has(uniformName)) {
+        addedSemantics.add(uniformName);
+        additionalShaderSemanticInfo.push({
+          semantic: uniformName,
+          componentType: ComponentType.Float,
+          compositionType: CompositionType.Vec4,
+          stage: ShaderType.PixelShader,
+          initialValue: Vector4.fromCopy4(
+            node.controls?.initialX?.value ?? 0,
+            node.controls?.initialY?.value ?? 0,
+            node.controls?.initialZ?.value ?? 0,
+            node.controls?.initialW?.value ?? 1
+          ),
+          min: 0,
+          max: Number.MAX_VALUE,
+        });
+      }
+    }
   }
   return additionalShaderSemanticInfo;
 }
@@ -2614,6 +2674,7 @@ export function createNodeBasedRaymarchingShadowMaterial(
   }
 
   const additionalShaderSemanticInfo = addRaymarchingComponentSemanticsInfo(shaderNodeJson);
+  addRaymarchingAabbSemanticInfo(additionalShaderSemanticInfo);
   // Texture2D nodes in the distance function sample these material textures.
   additionalShaderSemanticInfo.push(...buildTextureSemanticInfo(engine, shaderCode.textureInfos));
   if (kind !== 'regular') {

@@ -2087,12 +2087,49 @@ export class ForwardRenderPipeline extends RnObject {
       RaymarchingComponent
     ) as RaymarchingComponent[];
 
+    // The merged caster graph contains every castShadow component, so its march is
+    // clipped to the union of their world AABBs.
+    let unionMinX = Number.POSITIVE_INFINITY;
+    let unionMinY = Number.POSITIVE_INFINITY;
+    let unionMinZ = Number.POSITIVE_INFINITY;
+    let unionMaxX = Number.NEGATIVE_INFINITY;
+    let unionMaxY = Number.NEGATIVE_INFINITY;
+    let unionMaxZ = Number.NEGATIVE_INFINITY;
+    let unionable = false;
+    for (const raymarchingComponent of raymarchingComponents) {
+      if (!raymarchingComponent.castShadow) {
+        continue;
+      }
+      unionable = true;
+      const aabb = this.__getCachedRaymarchingAabb(raymarchingComponent);
+      if (aabb == null) {
+        unionable = false;
+        break;
+      }
+      unionMinX = Math.min(unionMinX, aabb.min.x);
+      unionMinY = Math.min(unionMinY, aabb.min.y);
+      unionMinZ = Math.min(unionMinZ, aabb.min.z);
+      unionMaxX = Math.max(unionMaxX, aabb.max.x);
+      unionMaxY = Math.max(unionMaxY, aabb.max.y);
+      unionMaxZ = Math.max(unionMaxZ, aabb.max.z);
+    }
+    const shadowAabbMin = unionable
+      ? Vector3.fromCopy3(unionMinX, unionMinY, unionMinZ)
+      : RAYMARCHING_UNBOUNDED_AABB_MIN;
+    const shadowAabbMax = unionable
+      ? Vector3.fromCopy3(unionMaxX, unionMaxY, unionMaxZ)
+      : RAYMARCHING_UNBOUNDED_AABB_MAX;
+
     for (const material of materials) {
+      material.setParameter('raymarchAabbMin', shadowAabbMin);
+      material.setParameter('raymarchAabbMax', shadowAabbMax);
       for (const info of material.fieldsInfoArray) {
         const semantic = info.semantic;
         if (
           semantic.startsWith('worldMatrix_') ||
           semantic.startsWith('raymarchObjectId_') ||
+          semantic === 'raymarchAabbMin' ||
+          semantic === 'raymarchAabbMax' ||
           semantic === 'lightIndex' ||
           semantic === 'shadowFarPlane'
         ) {
@@ -2140,7 +2177,8 @@ export class ForwardRenderPipeline extends RnObject {
   /**
    * Per-component variant of the shadow caster parameter sync: copies each component's
    * visible uniforms/textures to its own caster materials (their names match) and sets
-   * the component's world matrix, which the shadow shader uses for the distance scale.
+   * the component's world matrix and world AABB, which the shadow shader uses for the
+   * distance scale and the ray interval.
    */
   private __syncRaymarchingComponentShadowMaterialParameters() {
     for (const component of this.__getSortedRaymarchingComponents()) {
@@ -2169,14 +2207,21 @@ export class ForwardRenderPipeline extends RnObject {
 
       const sceneGraph = component.entity.tryToGetSceneGraph();
       const worldMatrix = sceneGraph?.matrixInner;
+      const aabb = this.__getCachedRaymarchingAabb(component);
+      const aabbMin = aabb?.min ?? RAYMARCHING_UNBOUNDED_AABB_MIN;
+      const aabbMax = aabb?.max ?? RAYMARCHING_UNBOUNDED_AABB_MAX;
       for (const shadowMaterial of shadowMaterials) {
         if (worldMatrix != null) {
           shadowMaterial.setParameter(MaterialHelper.RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC, worldMatrix);
         }
+        shadowMaterial.setParameter('raymarchAabbMin', aabbMin);
+        shadowMaterial.setParameter('raymarchAabbMax', aabbMax);
         for (const info of shadowMaterial.fieldsInfoArray) {
           const semantic = info.semantic;
           if (
             semantic === MaterialHelper.RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC ||
+            semantic === 'raymarchAabbMin' ||
+            semantic === 'raymarchAabbMax' ||
             semantic === 'lightIndex' ||
             semantic === 'shadowFarPlane'
           ) {

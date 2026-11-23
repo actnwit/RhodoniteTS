@@ -104,6 +104,12 @@ test('creates the shadow caster materials with the distance-only shader', async 
     expect(material.getShaderDefines().has('RN_USE_SHADOW_MAPPING')).toBe(false);
   }
 
+  // Every caster is clipped to the SDF's world AABB.
+  for (const material of [regular!, paraboloidFront!, paraboloidBack!]) {
+    expect(material._allFieldsInfo.has('raymarchAabbMin')).toBe(true);
+    expect(material._allFieldsInfo.has('raymarchAabbMax')).toBe(true);
+  }
+
   // Only the paraboloid materials expose the point light parameters.
   expect(regular!._allFieldsInfo.has('lightIndex')).toBe(false);
   expect(regular!._allFieldsInfo.has('shadowFarPlane')).toBe(false);
@@ -120,12 +126,16 @@ test('creates the shadow caster materials with the distance-only shader', async 
   const regularCode: string = (regular! as any)._materialContent.pixelShaderityObject.code;
   expect(regularCode).toContain('gl_FragDepth');
   expect(regularCode).toContain('map(ro + rd * t)');
+  expect(regularCode).toContain('rnRayAabbInterval(');
+  expect(regularCode).toContain('get_raymarchAabbMin(');
 
   const frontCode: string = (paraboloidFront! as any)._materialContent.pixelShaderityObject.code;
   expect(frontCode).toContain('get_lightIndex');
   expect(frontCode).toContain('get_lightPosition');
   expect(frontCode).toContain('get_shadowFarPlane');
   expect(frontCode).toContain('gl_FragDepth');
+  expect(frontCode).toContain('rnRayAabbInterval(');
+  expect(frontCode).toContain('get_raymarchAabbMax(');
 
   // The shadow shader only emits the distance subgraph: the OutShadingColor section and
   // its per-object shade function are not generated, while the visible material has them.

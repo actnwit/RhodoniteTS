@@ -63,6 +63,7 @@ export class RaymarchingShadowShaderPart extends RaymarchingShaderPart {
 }
 void main() {
   uint cameraSID = uint(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */]);
+  ${this.getMaterialSIDForWebGL()}
   mat4 viewMatrix = get_viewMatrix(cameraSID);
   mat4 projectionMatrix = get_projectionMatrix(cameraSID);
   mat4 invViewMatrix = inverse(viewMatrix);
@@ -79,16 +80,34 @@ void main() {
   vec3 rd = normalize((invViewMatrix * vec4(farPoint.xyz - nearPoint.xyz, 0.0)).xyz);
   float maxDist = length(farWorld - ro);
 
+  // March only inside the conservative world AABB of the SDF (supplied per
+  // component or per merged graph by the pipeline).
+  float aabbTEnter;
+  float aabbTExit;
+  bool aabbHits = rnRayAabbInterval(
+    ro,
+    rd,
+    get_raymarchAabbMin(materialSID, 0u),
+    get_raymarchAabbMax(materialSID, 0u),
+    aabbTEnter,
+    aabbTExit
+  );
+  float tStart = max(aabbTEnter, 0.0);
+  float tEnd = min(aabbTExit, maxDist);
+  if (!aabbHits || tEnd < tStart) {
+    discard;
+  }
+
   float h = 1.0;
-  float t = 0.0;
+  float t = tStart;
   for (int i = 0; i < 256; i++) {
     h = map(ro + rd * t);
     t += h;
-    if (h < 0.01 || t > maxDist) {
+    if (h < 0.01 || t > tEnd) {
       break;
     }
   }
-  if (h >= 0.01 || t > maxDist) {
+  if (h >= 0.01 || t > tEnd) {
     discard;
   }
 
@@ -130,16 +149,30 @@ fn main(input: VertexOutput) -> FragmentOutput {
   let rd = normalize((invViewMatrix * vec4f(farPoint.xyz - nearPoint.xyz, 0.0)).xyz);
   let maxDist = length(farWorld - ro);
 
+  // March only inside the conservative world AABB of the SDF (supplied per
+  // component or per merged graph by the pipeline).
+  let aabbInterval = rnRayAabbInterval(
+    ro,
+    rd,
+    get_raymarchAabbMin(uniformDrawParameters.materialSid, 0u),
+    get_raymarchAabbMax(uniformDrawParameters.materialSid, 0u)
+  );
+  let tStart = max(aabbInterval.tEnter, 0.0);
+  let tEnd = min(aabbInterval.tExit, maxDist);
+  if (!aabbInterval.hits || tEnd < tStart) {
+    discard;
+  }
+
   var h = 1.0;
-  var t = 0.0;
+  var t = tStart;
   for (var i = 0; i < 256; i++) {
     h = map(ro + rd * t);
     t += h;
-    if (h < 0.01 || t > maxDist) {
+    if (h < 0.01 || t > tEnd) {
       break;
     }
   }
-  if (h >= 0.01 || t > maxDist) {
+  if (h >= 0.01 || t > tEnd) {
     discard;
   }
 
@@ -181,16 +214,33 @@ void main() {
   vec3 ro = get_lightPosition(uint(lightIndex));
   float farPlane = get_shadowFarPlane(materialSID, 0u);
 
+  // March only inside the conservative world AABB of the SDF.
+  float aabbTEnter;
+  float aabbTExit;
+  bool aabbHits = rnRayAabbInterval(
+    ro,
+    rd,
+    get_raymarchAabbMin(materialSID, 0u),
+    get_raymarchAabbMax(materialSID, 0u),
+    aabbTEnter,
+    aabbTExit
+  );
+  float tStart = max(aabbTEnter, 0.0);
+  float tEnd = min(aabbTExit, farPlane);
+  if (!aabbHits || tEnd < tStart) {
+    discard;
+  }
+
   float h = 1.0;
-  float t = 0.0;
+  float t = tStart;
   for (int i = 0; i < 256; i++) {
     h = map(ro + rd * t);
     t += h;
-    if (h < 0.01 || t > farPlane) {
+    if (h < 0.01 || t > tEnd) {
       break;
     }
   }
-  if (h >= 0.01 || t > farPlane) {
+  if (h >= 0.01 || t > tEnd) {
     discard;
   }
 
@@ -235,16 +285,29 @@ fn main(input: VertexOutput) -> FragmentOutput {
   let ro = get_lightPosition(u32(lightIndex));
   let farPlane = get_shadowFarPlane(materialSID, 0u);
 
+  // March only inside the conservative world AABB of the SDF.
+  let aabbInterval = rnRayAabbInterval(
+    ro,
+    rd,
+    get_raymarchAabbMin(uniformDrawParameters.materialSid, 0u),
+    get_raymarchAabbMax(uniformDrawParameters.materialSid, 0u)
+  );
+  let tStart = max(aabbInterval.tEnter, 0.0);
+  let tEnd = min(aabbInterval.tExit, farPlane);
+  if (!aabbInterval.hits || tEnd < tStart) {
+    discard;
+  }
+
   var h = 1.0;
-  var t = 0.0;
+  var t = tStart;
   for (var i = 0; i < 256; i++) {
     h = map(ro + rd * t);
     t += h;
-    if (h < 0.01 || t > farPlane) {
+    if (h < 0.01 || t > tEnd) {
       break;
     }
   }
-  if (h >= 0.01 || t > farPlane) {
+  if (h >= 0.01 || t > tEnd) {
     discard;
   }
 
