@@ -376,18 +376,7 @@ export class RaymarchingComponent extends Component {
    */
   invalidateAABB(): void {
     this.entity.tryToGetSceneGraph()?.setWorldAABBDirtyParentRecursively();
-    RaymarchingComponent.__aabbVersions.set(this.__engine, RaymarchingComponent.getAABBVersion(this.__engine) + 1);
   }
-
-  /**
-   * A version that changes whenever any raymarching component's AABB may have changed.
-   * The shadow volume auto-fit uses it as part of its cache key.
-   */
-  static getAABBVersion(engine: Engine): number {
-    return RaymarchingComponent.__aabbVersions.get(engine) ?? 0;
-  }
-
-  private static __aabbVersions = new WeakMap<Engine, number>();
 
   /**
    * Calculates a conservative world-space AABB of the SDF graph.

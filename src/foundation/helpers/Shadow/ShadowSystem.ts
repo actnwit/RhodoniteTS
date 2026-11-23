@@ -82,8 +82,6 @@ export class ShadowSystem {
   private __depthBiasPVVersionOfMaterials: number[] = [];
   private __lastTransformUpdateCountForAutoFit = -1;
   private __lastEntityCountForAutoFit = -1;
-  private __lastRaymarchingCasterCountForAutoFit = -1;
-  private __lastRaymarchingAABBVersionForAutoFit = -1;
   private __lastAutoFitCenter = Vector3.fromCopy3(0, 0, 0);
   private __lastAutoFitRadius = 1;
   private __needsRefresh = false;
@@ -713,47 +711,6 @@ export class ShadowSystem {
         }
       }
 
-      // SDF entities are not part of the mesh caster entities, so their bounds are added
-      // for the same nearest-distance estimate. Non-casting SDFs are included as well
-      // because they still receive shadows.
-      const raymarchingComponents = this.__engine.componentRepository.getComponentsWithType(
-        RaymarchingComponent
-      ) as RaymarchingComponent[];
-      for (const raymarchingComponent of raymarchingComponents) {
-        const sceneGraph = raymarchingComponent.entity.tryToGetSceneGraph();
-        if (sceneGraph == null || !sceneGraph.isVisible) {
-          continue;
-        }
-        const aabb = sceneGraph.worldMergedAABB;
-        // Unbounded SDFs (SdBar / SdTube / SdRepeat) have a vanilla AABB; they keep the
-        // conservative default zNear instead of a potentially wrong bound.
-        if (aabb == null || aabb.isVanilla()) {
-          continue;
-        }
-        const min = aabb.minPoint;
-        const max = aabb.maxPoint;
-        if (
-          min.x <= lightPosition.x &&
-          lightPosition.x <= max.x &&
-          min.y <= lightPosition.y &&
-          lightPosition.y <= max.y &&
-          min.z <= lightPosition.z &&
-          lightPosition.z <= max.z
-        ) {
-          continue;
-        }
-        const dx =
-          lightPosition.x < min.x ? min.x - lightPosition.x : lightPosition.x > max.x ? lightPosition.x - max.x : 0;
-        const dy =
-          lightPosition.y < min.y ? min.y - lightPosition.y : lightPosition.y > max.y ? lightPosition.y - max.y : 0;
-        const dz =
-          lightPosition.z < min.z ? min.z - lightPosition.z : lightPosition.z > max.z ? lightPosition.z - max.z : 0;
-        const distanceSquared = dx * dx + dy * dy + dz * dz;
-        if (distanceSquared < nearestDistanceSquared) {
-          nearestDistanceSquared = distanceSquared;
-        }
-      }
-
       let zNear = 0.1;
       if (lightComponent.range > 0 && Number.isFinite(nearestDistanceSquared)) {
         const rangeCap = Math.min(lightComponent.range * 0.05, 1.0);
@@ -935,13 +892,9 @@ export class ShadowSystem {
 
   private __autoFitDirectionalLightShadowVolume(entities: ISceneGraphEntity[]) {
     const transformUpdateCount = TransformComponent.getUpdateCount(this.__engine);
-    const raymarchingComponentCount = this.__getRaymarchingComponentCount();
-    const raymarchingAABBVersion = RaymarchingComponent.getAABBVersion(this.__engine);
     if (
       transformUpdateCount === this.__lastTransformUpdateCountForAutoFit &&
-      entities.length === this.__lastEntityCountForAutoFit &&
-      raymarchingComponentCount === this.__lastRaymarchingCasterCountForAutoFit &&
-      raymarchingAABBVersion === this.__lastRaymarchingAABBVersionForAutoFit
+      entities.length === this.__lastEntityCountForAutoFit
     ) {
       // Reuse cached center/radius; still apply to lights because light transforms may have changed.
       this.__applyAutoFitToDirectionalLights(this.__lastAutoFitCenter, this.__lastAutoFitRadius);
@@ -975,12 +928,6 @@ export class ShadowSystem {
       merged.mergeAABB(aabb);
     }
 
-    // SDF entities are not mesh entities, so their bounds are added separately (the
-    // merged scene graph AABB already includes the SDF bounds). Non-casting SDFs are
-    // included as well: they still receive shadows, so they must lie inside the light
-    // frustum for the shadow map lookup.
-    this.__mergeRaymarchingShadowBounds(merged, 'withSkeletal');
-
     if (merged.isVanilla()) {
       return;
     }
@@ -990,8 +937,6 @@ export class ShadowSystem {
 
     this.__lastTransformUpdateCountForAutoFit = transformUpdateCount;
     this.__lastEntityCountForAutoFit = entities.length;
-    this.__lastRaymarchingCasterCountForAutoFit = raymarchingComponentCount;
-    this.__lastRaymarchingAABBVersionForAutoFit = raymarchingAABBVersion;
     this.__lastAutoFitCenter = Vector3.fromCopy3(center.x, center.y, center.z);
     this.__lastAutoFitRadius = radius;
 
@@ -1000,40 +945,10 @@ export class ShadowSystem {
 
   /**
    * Resets the directional/spot shadow volume fitting cache, so the next frame recomputes
-   * the volume (including SDF bounds). Call this when the raymarching caster set or its
-   * graph changes.
+   * the volume.
    */
   public invalidateShadowVolumeFitting() {
     this.__lastTransformUpdateCountForAutoFit = -1;
-    this.__lastRaymarchingAABBVersionForAutoFit = -1;
-  }
-
-  private __getRaymarchingComponentCount() {
-    const components = this.__engine.componentRepository.getComponentsWithType(
-      RaymarchingComponent
-    ) as RaymarchingComponent[];
-    return components.length;
-  }
-
-  /**
-   * Merges the world AABBs of the visible raymarching components into `merged`.
-   * The scene graph AABB of an SDF entity already contains the SDF bounds, so the cached
-   * merged AABB is used instead of evaluating the graph again.
-   */
-  private __mergeRaymarchingShadowBounds(merged: AABB, variant: 'default' | 'withSkeletal') {
-    const components = this.__engine.componentRepository.getComponentsWithType(
-      RaymarchingComponent
-    ) as RaymarchingComponent[];
-    for (const component of components) {
-      const sceneGraph = component.entity.tryToGetSceneGraph();
-      if (sceneGraph == null || !sceneGraph.isVisible) {
-        continue;
-      }
-      const aabb = variant === 'withSkeletal' ? sceneGraph.worldMergedAABBWithSkeletal : sceneGraph.worldMergedAABB;
-      if (aabb != null && !aabb.isVanilla()) {
-        merged.mergeAABB(aabb);
-      }
-    }
   }
 
   private __applyAutoFitToDirectionalLights(center: Vector3, radius: number) {
