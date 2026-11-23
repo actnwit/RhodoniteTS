@@ -1351,6 +1351,9 @@ export class ModelConverter {
                 sdfShapeType?: number;
                 isPickable?: boolean;
                 castShadow?: boolean;
+                // Per-component Texture2D assignments, consumed by the application when it
+                // rebuilds the component's material (see getRaymarchingComponentTextureAssignments).
+                textures?: { [semantic: string]: { index?: number } };
               };
             }
           | undefined
@@ -2450,11 +2453,58 @@ export class ModelConverter {
           }
         | undefined
     )?.RHODONITE_raymarching_materials;
-    const textures = extension?.textures;
+    return this.__getValidRaymarchingTextureAssignments(gltfModel, extension?.textures);
+  }
+
+  /**
+   * Parses the per-component texture assignments stored in the `RHODONITE_raymarching` node
+   * extensions.
+   *
+   * Each assignment keeps the glTF node index, which the importer also stores on the entity
+   * (`TagGltf2NodeIndex`), so an application can apply the textures to the material it rebuilds
+   * for that component.
+   *
+   * @param gltfModel - The imported glTF model
+   * @returns One entry per valid assignment, in node and extension order
+   */
+  static getRaymarchingComponentTextureAssignments(gltfModel: RnM2): {
+    nodeIndex: number;
+    semantic: string;
+    textureIndex: number;
+    samplerIndex?: number;
+  }[] {
+    const result: { nodeIndex: number; semantic: string; textureIndex: number; samplerIndex?: number }[] = [];
+    const nodes = gltfModel.nodes ?? [];
+    for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {
+      const extension = (
+        nodes[nodeIndex].extensions as
+          | {
+              RHODONITE_raymarching?: {
+                textures?: { [semantic: string]: { index?: number } };
+              };
+            }
+          | undefined
+      )?.RHODONITE_raymarching;
+      for (const assignment of this.__getValidRaymarchingTextureAssignments(gltfModel, extension?.textures)) {
+        result.push({ nodeIndex, ...assignment });
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Filters a semantic to texture-index map down to assignments whose texture and image exist.
+   *
+   * @param gltfModel - The imported glTF model
+   * @param textures - The extension's texture map
+   */
+  private static __getValidRaymarchingTextureAssignments(
+    gltfModel: RnM2,
+    textures: { [semantic: string]: { index?: number } } | undefined
+  ): { semantic: string; textureIndex: number; samplerIndex?: number }[] {
     if (textures == null || typeof textures !== 'object') {
       return [];
     }
-
     const assignments: { semantic: string; textureIndex: number; samplerIndex?: number }[] = [];
     for (const semantic of Object.keys(textures)) {
       const textureIndex = textures[semantic]?.index;
@@ -2493,20 +2543,77 @@ export class ModelConverter {
     const result = new Map<string, { texture: Texture; sampler?: Sampler }>();
     const assignments = this.getRaymarchingMaterialTextureAssignments(gltfModel);
     for (const { semantic, textureIndex, samplerIndex } of assignments) {
-      try {
-        const gltfTexture = gltfModel.textures![textureIndex];
-        const image = gltfModel.images![gltfTexture.source!];
-        const texture = await this._createTexture(engine, image, gltfModel);
-        let sampler: Sampler | undefined;
-        if (samplerIndex != null && gltfModel.samplers?.[samplerIndex] != null) {
-          sampler = this._createSampler(engine, gltfModel.samplers[samplerIndex]);
-        }
-        result.set(semantic, { texture, sampler });
-      } catch (error) {
-        Logger.default.warn(`Failed to create the raymarching material texture for "${semantic}": ${String(error)}`);
+      const created = await this.__createRaymarchingTexture(engine, gltfModel, textureIndex, samplerIndex);
+      if (created != null) {
+        result.set(semantic, created);
       }
     }
     return result;
+  }
+
+  /**
+   * Creates Rhodonite textures and samplers for the per-component assignments saved in each
+   * `RHODONITE_raymarching` node extension.
+   *
+   * The returned map is keyed by glTF node index (the entity's `TagGltf2NodeIndex`), then by
+   * shader semantic. Apply them to the material rebuilt for that component with
+   * Material.setTextureParameter(semantic, texture, sampler).
+   *
+   * @param engine - The engine instance
+   * @param gltfModel - The imported glTF model
+   * @returns The created textures and samplers keyed by node index and shader semantic
+   */
+  static async createRaymarchingComponentTextures(
+    engine: Engine,
+    gltfModel: RnM2
+  ): Promise<Map<number, Map<string, { texture: Texture; sampler?: Sampler }>>> {
+    const result = new Map<number, Map<string, { texture: Texture; sampler?: Sampler }>>();
+    const assignments = this.getRaymarchingComponentTextureAssignments(gltfModel);
+    for (const { nodeIndex, semantic, textureIndex, samplerIndex } of assignments) {
+      const created = await this.__createRaymarchingTexture(engine, gltfModel, textureIndex, samplerIndex);
+      if (created == null) {
+        continue;
+      }
+      let nodeTextures = result.get(nodeIndex);
+      if (nodeTextures == null) {
+        nodeTextures = new Map();
+        result.set(nodeIndex, nodeTextures);
+      }
+      nodeTextures.set(semantic, created);
+    }
+    return result;
+  }
+
+  /**
+   * Creates one Rhodonite texture (and sampler) from a glTF texture index.
+   *
+   * @param engine - The engine instance
+   * @param gltfModel - The imported glTF model
+   * @param textureIndex - The glTF texture index
+   * @param samplerIndex - The glTF sampler index of the texture
+   * @returns The created texture and sampler, or null when creation fails
+   */
+  private static async __createRaymarchingTexture(
+    engine: Engine,
+    gltfModel: RnM2,
+    textureIndex: number,
+    samplerIndex?: number
+  ): Promise<{ texture: Texture; sampler?: Sampler } | null> {
+    try {
+      const gltfTexture = gltfModel.textures![textureIndex];
+      const image = gltfModel.images![gltfTexture.source!];
+      const texture = await this._createTexture(engine, image, gltfModel);
+      let sampler: Sampler | undefined;
+      if (samplerIndex != null && gltfModel.samplers?.[samplerIndex] != null) {
+        sampler = this._createSampler(engine, gltfModel.samplers[samplerIndex]);
+      }
+      return { texture, sampler };
+    } catch (error) {
+      Logger.default.warn(
+        `Failed to create the raymarching material texture for texture ${textureIndex}: ${String(error)}`
+      );
+      return null;
+    }
   }
 
   private static __needResizeToPowerOfTwoOnWebGl1(textureOption: any) {
