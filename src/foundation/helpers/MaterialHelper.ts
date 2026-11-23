@@ -3049,6 +3049,34 @@ function collectRrnJson(engine: Engine, { castShadowOnly = false }: { castShadow
       }
     }
 
+    // Convert each component's local-space distance into a conservative world-space
+    // distance. The SDF graph is evaluated in the space produced by SdApplyWorldMatrix
+    // (the component's local space), so scaling an entity below 1 makes the graph's
+    // distance larger than the real world distance and sphere tracing overshoots the
+    // surface (parts of the shape disappear, camera-dependent). The terminal nodes
+    // read the already declared per-component world matrix uniform and multiply the
+    // distance by the smallest axis scale, which is a valid world-space step bound.
+    const worldMatrixUniformNames: string[] = [];
+    for (const node of prefixedNodes) {
+      if (node.name === 'SdApplyWorldMatrix') {
+        const name = node.controls?.name?.value;
+        if (typeof name === 'string' && name.length > 0) {
+          worldMatrixUniformNames.push(name);
+        }
+      }
+    }
+    if (worldMatrixUniformNames.length > 0) {
+      for (const node of prefixedNodes) {
+        if (node.name !== 'OutUnion' && node.name !== 'OutDistance') {
+          continue;
+        }
+        node.controls = {
+          ...(node.controls ?? {}),
+          distanceCorrectionMatrices: { value: [...worldMatrixUniformNames] },
+        };
+      }
+    }
+
     collectedRrnJson.nodes.push(...prefixedNodes);
     collectedRrnJson.connections.push(...prefixedConnections);
   }

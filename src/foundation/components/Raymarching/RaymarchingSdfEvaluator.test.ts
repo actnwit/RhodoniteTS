@@ -341,6 +341,67 @@ describe('RaymarchingSdfEvaluator', () => {
     expectBounds(evaluator.calcBounds(), [-1, 1, -1], [1, 3, 1]);
   });
 
+  test('converts a local distance to a conservative world distance for a scaled world matrix', () => {
+    const initial = createNode('InitialPosition');
+    const worldMatrix = createNode('SdApplyWorldMatrix');
+    const box = createNode('SdBox');
+    const out = createNode('OutUnion');
+
+    const graph: NodeJSON = {
+      nodes: [initial, worldMatrix, box, out],
+      connections: [
+        connect(initial, 'outPosition', worldMatrix, 'position'),
+        connect(worldMatrix, 'outTransformedPosition', box, 'position'),
+        connect(box, 'outDistance', out, 'in1'),
+      ],
+    };
+
+    // A unit box (half-size 1) scaled to (1, 0.4, 1) in world space.
+    const world = Matrix44.scale(Vector3.fromCopy3(1, 0.4, 1));
+    const evaluator = new RaymarchingSdfEvaluator(graph, world);
+
+    // The local distance of the point 1.6 above the slab's top face is 4. It must be
+    // scaled down to the real world distance, otherwise ray marching steps past the
+    // surface and the shape loses parts.
+    expect(evaluator.evalDistanceAt(Vector3.fromCopy3(0, 2, 0))).toBeCloseTo(1.6);
+
+    // The scale is conservative on the unscaled axes: the real distance is 1 here.
+    expect(evaluator.evalDistanceAt(Vector3.fromCopy3(2, 0, 0))).toBeCloseTo(0.4);
+
+    const hit = evaluator.marchRay(Vector3.fromCopy3(0, 5, 0), Vector3.fromCopy3(0, -1, 0));
+    expect(hit).not.toBeNull();
+    expect(hit?.position.y).toBeCloseTo(0.4, 2);
+  });
+
+  test('converts a local distance to a conservative world distance for a scaled SdApplyTransform', () => {
+    const initial = createNode('InitialPosition');
+    const scale = createNode('ConstantVector3Float', vec3(1, 0.4, 1));
+    const transform = createNode('SdApplyTransform');
+    const box = createNode('SdBox');
+    const out = createNode('OutUnion');
+
+    const graph: NodeJSON = {
+      nodes: [initial, scale, transform, box, out],
+      connections: [
+        connect(initial, 'outPosition', transform, 'position'),
+        connect(scale, 'out1', transform, 'scale'),
+        connect(transform, 'outTransformedPosition', box, 'position'),
+        connect(box, 'outDistance', out, 'in1'),
+      ],
+    };
+
+    // The entity itself is not scaled; the graph's SdApplyTransform squashes the
+    // unit box to (1, 0.4, 1), just like the node editor default graph.
+    const evaluator = new RaymarchingSdfEvaluator(graph, Matrix44.identity());
+
+    expect(evaluator.evalDistanceAt(Vector3.fromCopy3(0, 2, 0))).toBeCloseTo(1.6);
+    expect(evaluator.evalDistanceAt(Vector3.fromCopy3(2, 0, 0))).toBeCloseTo(0.4);
+
+    const hit = evaluator.marchRay(Vector3.fromCopy3(0, 5, 0), Vector3.fromCopy3(0, -1, 0));
+    expect(hit).not.toBeNull();
+    expect(hit?.position.y).toBeCloseTo(0.4, 2);
+  });
+
   test('merges the bounds of a union', () => {
     const initial = createNode('InitialPosition');
     const translation = createNode('ConstantVector3Float', vec3(2, 0, 0));

@@ -499,3 +499,65 @@ test('emits the torus, capsule and round box primitives', async () => {
   expect(pixelShader).toContain('sdCapsule');
   expect(pixelShader).toContain('sdRoundBox');
 });
+
+test('links an SdApplyTransform scale global to the raymarching terminal that uses it', async () => {
+  const engine = await Engine.init({
+    approach: ProcessApproach.None,
+    canvas: document.createElement('canvas'),
+  });
+
+  const node = (id: string, name: string, inputs: Record<string, unknown>, outputs: Record<string, unknown>) => ({
+    id,
+    name,
+    inputs,
+    outputs,
+    controls: {},
+    position: { x: 0, y: 0 },
+  });
+  const input = (id: string, name: string) => ({ id, label: name, socket: { name } });
+  const output = (id: string, name: string) => ({ id, label: name, socket: { name } });
+
+  const graph = {
+    nodes: [
+      node('init', 'InitialPosition', {}, { outPosition: output('init_out', 'Vector3<float>') }),
+      node(
+        'transform',
+        'SdApplyTransform',
+        {
+          position: input('transform_pos', 'Vector3<float>'),
+          translation: input('transform_translation', 'Vector3<float>'),
+          xyzEulerAngles: input('transform_euler', 'Vector3<float>'),
+          scale: input('transform_scale', 'Vector3<float>'),
+        },
+        { outTransformedPosition: output('transform_out', 'Vector3<float>') }
+      ),
+      node(
+        'box',
+        'SdBox',
+        { position: input('box_pos', 'Vector3<float>') },
+        { outDistance: output('box_dist', 'Scalar<float>') }
+      ),
+      node('out', 'OutUnion', { in1: input('out_in', 'Scalar<float>') }, {}),
+    ],
+    connections: [
+      { id: 'c1', from: { id: 'init', portName: 'outPosition' }, to: { id: 'transform', portName: 'position' } },
+      {
+        id: 'c2',
+        from: { id: 'transform', portName: 'outTransformedPosition' },
+        to: { id: 'box', portName: 'position' },
+      },
+      { id: 'c3', from: { id: 'box', portName: 'outDistance' }, to: { id: 'out', portName: 'in1' } },
+    ],
+  };
+
+  const code = ShaderGraphResolver.generateShaderCodeFromJson(engine, graph as any, new RaymarchingShaderPart());
+  expect(code).toBeDefined();
+  const pixelShader = code!.pixelShader;
+
+  // The transform function records the node's smallest axis scale.
+  expect(pixelShader).toMatch(/g_sdApplyTransformScale_\d+ = clamp\(min\(abs\(scale\.x\)/);
+  // The terminal that consumes the transformed distance multiplies it by that global.
+  expect(pixelShader).toMatch(/distanceScale = min\(distanceScale, g_sdApplyTransformScale_\d+\)/);
+  // The global is declared (and initialized) at shader scope before its function.
+  expect(pixelShader).toMatch(/float g_sdApplyTransformScale_\d+ = 1\.0;/);
+});

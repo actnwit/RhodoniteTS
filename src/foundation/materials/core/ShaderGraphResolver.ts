@@ -1250,6 +1250,33 @@ function filterNodesForVarying(nodes: AbstractShaderNode[], endNodeName: string)
 }
 
 /**
+ * Passes the per-component world matrix uniform names of a raymarching terminal node
+ * to the generated function.
+ *
+ * `MaterialHelper.collectRrnJson` stamps them on the terminal nodes of each component
+ * that uses `SdApplyWorldMatrix`, so the terminal function can convert the component's
+ * local-space distance into a conservative world-space distance.
+ *
+ * @param nodeInstance - The terminal node instance (`OutUnion` or `OutDistance`)
+ * @param node - The JSON node the instance was created from
+ * @private
+ */
+function applyDistanceCorrectionUniformNames(
+  nodeInstance: {
+    setDistanceCorrectionUniformNames: (uniformNames: readonly string[]) => void;
+  },
+  node: { controls?: Record<string, { value?: unknown }> }
+) {
+  const uniformNames = node.controls?.distanceCorrectionMatrices?.value;
+  if (Array.isArray(uniformNames)) {
+    const names = uniformNames.filter((name): name is string => typeof name === 'string' && name.length > 0);
+    if (names.length > 0) {
+      nodeInstance.setDistanceCorrectionUniformNames(names);
+    }
+  }
+}
+
+/**
  * Constructs concrete shader node instances from a JSON shader graph definition.
  * This function deserializes the JSON representation into actual shader node objects,
  * setting up their properties, connections, and default values based on the JSON data.
@@ -2169,11 +2196,13 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'OutDistance': {
         const nodeInstance = new OutDistanceShaderNode();
+        applyDistanceCorrectionUniformNames(nodeInstance, node);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
       case 'OutUnion': {
         const nodeInstance = new OutUnionShaderNode();
+        applyDistanceCorrectionUniformNames(nodeInstance, node);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
@@ -2447,5 +2476,87 @@ function constructNodes(json: ShaderNodeJson): {
 
     outputNodeInstance.addInputConnection(inputNodeInstance, outputOfInputNode, inputOfOutputNode);
   }
+
+  applyTransformDistanceScales(json, nodeInstances);
+
   return { nodeInstances, textureInfos };
+}
+
+/**
+ * Input ports that carry the SDF's spatial data (position or distance).
+ * Everything else (translation, scale, smoothness, object id, ...) cannot connect
+ * a transform node to the terminal's distance subtree, so it is not followed.
+ */
+const RAYMARCH_SPATIAL_INPUT_PORTS = new Set(['position', 'lhs', 'rhs', 'base', 'subtractor', 'value', 'in1']);
+
+/**
+ * Connects each raymarching terminal to the `SdApplyTransform` scale globals of its
+ * distance subtree.
+ *
+ * A transform node scaled below 1 makes the local-space distances larger than the
+ * world-space distances, so the terminal has to multiply them by the transform's
+ * smallest axis scale (see {@link SdApplyTransformShader}). The traversal only follows
+ * spatial ports, which guarantees that every collected transform is an ancestor of
+ * the terminal in the SDF graph: its generated function call runs before the terminal
+ * reads the global in every `map()` evaluation.
+ *
+ * @param json - JSON shader graph the node instances were created from
+ * @param nodeInstances - Node instances of the graph
+ * @private
+ */
+function applyTransformDistanceScales(json: ShaderNodeJson, nodeInstances: Record<string, AbstractShaderNode>) {
+  const incoming = new Map<string, { fromId: string; portName: string }[]>();
+  for (const connection of json.connections) {
+    let list = incoming.get(connection.to.id);
+    if (list == null) {
+      list = [];
+      incoming.set(connection.to.id, list);
+    }
+    list.push({ fromId: connection.from.id, portName: connection.to.portName });
+  }
+
+  const pushSpatialInputs = (nodeId: string, stack: string[]) => {
+    const connections = incoming.get(nodeId);
+    if (connections == null) {
+      return;
+    }
+    for (const connection of connections) {
+      if (RAYMARCH_SPATIAL_INPUT_PORTS.has(connection.portName)) {
+        stack.push(connection.fromId);
+      }
+    }
+  };
+
+  for (const node of json.nodes) {
+    if (node.name !== 'OutUnion' && node.name !== 'OutDistance') {
+      continue;
+    }
+    const terminal = nodeInstances[node.id] as
+      | { setDistanceScaleGlobalNames?: (globalNames: readonly string[]) => void }
+      | undefined;
+    if (terminal?.setDistanceScaleGlobalNames == null) {
+      continue;
+    }
+
+    const globalNames: string[] = [];
+    const visited = new Set<string>();
+    const stack: string[] = [];
+    pushSpatialInputs(node.id, stack);
+    while (stack.length > 0) {
+      const nodeId = stack.pop()!;
+      if (visited.has(nodeId)) {
+        continue;
+      }
+      visited.add(nodeId);
+      const instance = nodeInstances[nodeId];
+      if (instance instanceof SdApplyTransformShaderNode) {
+        globalNames.push(instance.distanceScaleGlobalName);
+      }
+      pushSpatialInputs(nodeId, stack);
+    }
+
+    if (globalNames.length > 0) {
+      terminal.setDistanceScaleGlobalNames(globalNames);
+    }
+  }
 }

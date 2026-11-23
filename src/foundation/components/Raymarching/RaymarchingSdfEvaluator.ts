@@ -107,6 +107,9 @@ export class RaymarchingSdfEvaluator {
   private __inverseTransformCache = new Map<string, Matrix44 | null>();
   private __boundsCache = new Map<string, AABB | null>();
   private __positionChainCache = new Map<string, Matrix44 | null>();
+  private __terminalTransformScaleCache = new Map<string, number | null>();
+  private __distanceScaleFactor = 1;
+  private __usesWorldMatrix = false;
 
   /**
    * Creates an evaluator for one raymarching component.
@@ -131,6 +134,74 @@ export class RaymarchingSdfEvaluator {
       links.set(connection.to.portName, connection.from.id);
     }
     this.__outputNodes = nodeJson.nodes.filter(node => node.name === 'OutUnion' || node.name === 'OutDistance');
+
+    // The graph's distance is evaluated in the space produced by SdApplyWorldMatrix,
+    // so it has to be converted to a conservative world-space distance. The factor is
+    // a lower bound of the smallest singular value of the world matrix M, mirroring
+    // rnRaymarchDistanceScale in the shared shader:
+    // - For a rotation and a (non-uniform) scale, the column lengths are the singular
+    //   values, so their minimum is exact.
+    // - A sheared matrix (a non-uniformly scaled parent with a rotated child) uses
+    //   1/||M^-1||_F, a lower bound of the smallest singular value.
+    const world = this.__worldMatrix;
+    const axisX = [world.m00, world.m10, world.m20];
+    const axisY = [world.m01, world.m11, world.m21];
+    const axisZ = [world.m02, world.m12, world.m22];
+    const lenX = Math.hypot(axisX[0], axisX[1], axisX[2]);
+    const lenY = Math.hypot(axisY[0], axisY[1], axisY[2]);
+    const lenZ = Math.hypot(axisZ[0], axisZ[1], axisZ[2]);
+    const orthoError =
+      Math.abs(axisX[0] * axisY[0] + axisX[1] * axisY[1] + axisX[2] * axisY[2]) +
+      Math.abs(axisX[0] * axisZ[0] + axisX[1] * axisZ[1] + axisX[2] * axisZ[2]) +
+      Math.abs(axisY[0] * axisZ[0] + axisY[1] * axisZ[1] + axisY[2] * axisZ[2]);
+    const orthoTolerance = 0.0001 * (lenX * lenY + lenX * lenZ + lenY * lenZ);
+    let localToWorldScale: number;
+    if (orthoError <= orthoTolerance) {
+      localToWorldScale = Math.min(lenX, lenY, lenZ);
+    } else {
+      const inverse = this.__inverseWorldMatrix;
+      const frobeniusSq =
+        inverse.m00 ** 2 +
+        inverse.m10 ** 2 +
+        inverse.m20 ** 2 +
+        inverse.m01 ** 2 +
+        inverse.m11 ** 2 +
+        inverse.m21 ** 2 +
+        inverse.m02 ** 2 +
+        inverse.m12 ** 2 +
+        inverse.m22 ** 2;
+      localToWorldScale = 1 / Math.sqrt(Math.max(frobeniusSq, 0.00000001));
+    }
+    this.__distanceScaleFactor = Math.max(Math.min(1, localToWorldScale), 0.0001);
+    this.__usesWorldMatrix = this.__outputNodes.some(node => this.__distanceNodeUsesWorldMatrix(node, new Set()));
+  }
+
+  /**
+   * Returns true when the distance subtree of a node contains SdApplyWorldMatrix.
+   * The rendering shader applies the world-space distance correction to a component
+   * whose graph uses it, so the CPU evaluator does the same.
+   * @param node - Root of the distance subtree
+   * @param visited - Node ids already visited
+   */
+  private __distanceNodeUsesWorldMatrix(node: NodeJSONNode, visited: Set<string>): boolean {
+    if (node.name === 'SdApplyWorldMatrix') {
+      return true;
+    }
+    if (visited.has(node.id)) {
+      return false;
+    }
+    visited.add(node.id);
+    const links = this.__inputLinks.get(node.id);
+    if (links == null) {
+      return false;
+    }
+    for (const fromId of links.values()) {
+      const inputNode = this.__nodes.get(fromId);
+      if (inputNode != null && this.__distanceNodeUsesWorldMatrix(inputNode, visited)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -218,6 +289,14 @@ export class RaymarchingSdfEvaluator {
 
   /**
    * Evaluates the signed distance at a world-space point.
+   *
+   * When the graph is evaluated through `SdApplyWorldMatrix`, the returned value is
+   * converted into a conservative world-space distance (the local distance times a
+   * lower bound of the smallest singular value of the component's world matrix),
+   * matching the distance the raymarching shader marches with. `SdApplyTransform`
+   * nodes in a terminal's subtree scale its distance by their smallest axis scale,
+   * again matching the shader.
+   *
    * @param pointInWorld - The point to evaluate
    * @returns The signed distance, or null when the graph is unsupported
    */
@@ -232,10 +311,90 @@ export class RaymarchingSdfEvaluator {
       if (value == null) {
         return null;
       }
-      distance = Math.min(distance, value);
+      const transformScale = this.__terminalTransformScale(output);
+      if (transformScale == null) {
+        return null;
+      }
+      distance = Math.min(distance, value * transformScale);
     }
 
-    return Number.isFinite(distance) ? distance : null;
+    if (!Number.isFinite(distance)) {
+      return null;
+    }
+    return this.__usesWorldMatrix ? distance * this.__distanceScaleFactor : distance;
+  }
+
+  /**
+   * Input ports that carry the SDF's spatial data (position or distance). The same
+   * set is followed by the shared shader when it links `SdApplyTransform` scale
+   * globals to a terminal.
+   */
+  private static readonly __SPATIAL_INPUT_PORTS = new Set([
+    'position',
+    'lhs',
+    'rhs',
+    'base',
+    'subtractor',
+    'value',
+    'in1',
+  ]);
+
+  /**
+   * Returns the conservative local-to-world scale of the `SdApplyTransform` nodes
+   * that feed a terminal node's distance subtree.
+   *
+   * A transform node scaled below 1 makes the distances of its subtree larger than
+   * the matching world distances. The factor is the product of the reachable nodes'
+   * smallest axis scales (a valid lower bound for nested chains), clamped to [1e-4, 1].
+   *
+   * @param terminal - The OutUnion / OutDistance node
+   * @returns The scale, or null when a transform scale cannot be evaluated
+   */
+  private __terminalTransformScale(terminal: NodeJSONNode): number | null {
+    if (this.__terminalTransformScaleCache.has(terminal.id)) {
+      return this.__terminalTransformScaleCache.get(terminal.id)!;
+    }
+
+    let scale = 1;
+    const visited = new Set<string>();
+    const stack: string[] = [];
+    const pushSpatialInputs = (nodeId: string) => {
+      const links = this.__inputLinks.get(nodeId);
+      if (links == null) {
+        return;
+      }
+      for (const [portName, fromId] of links) {
+        if (RaymarchingSdfEvaluator.__SPATIAL_INPUT_PORTS.has(portName)) {
+          stack.push(fromId);
+        }
+      }
+    };
+
+    pushSpatialInputs(terminal.id);
+    while (stack.length > 0) {
+      const nodeId = stack.pop()!;
+      if (visited.has(nodeId)) {
+        continue;
+      }
+      visited.add(nodeId);
+      const node = this.__nodes.get(nodeId);
+      if (node == null) {
+        continue;
+      }
+      if (node.name === 'SdApplyTransform') {
+        const transformScale = this.__readVec3Input(node, 'scale', ONE);
+        if (transformScale == null) {
+          this.__terminalTransformScaleCache.set(terminal.id, null);
+          return null;
+        }
+        const axisScale = Math.min(Math.abs(transformScale.x), Math.abs(transformScale.y), Math.abs(transformScale.z));
+        scale *= Math.max(Math.min(1, axisScale), 0.0001);
+      }
+      pushSpatialInputs(nodeId);
+    }
+
+    this.__terminalTransformScaleCache.set(terminal.id, scale);
+    return scale;
   }
 
   /**
