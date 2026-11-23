@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest';
 import { createRaymarchingEntity } from '../components/Raymarching/createRaymarchingEntity';
 import { ProcessApproach } from '../definitions/ProcessApproach';
+import { SdfShapeType } from '../definitions/SdfShapeType';
 import { Engine } from '../system/Engine';
 import { MaterialHelper } from './MaterialHelper';
 
@@ -63,4 +64,25 @@ test('collectRrnJson assigns a stable component SID based object id', async () =
   expect(remainingNodes).toHaveLength(1);
   expect(remainingNodes[0].controls.name.value).toBe(survivor.controls.name.value);
   expect(remainingNodes[0].id).toBe(survivor.id);
+});
+
+test('collectRrnJson passes the component world matrix to the SDF terminals for distance scaling', async () => {
+  const engine = await Engine.init({
+    approach: ProcessApproach.None,
+    canvas: document.createElement('canvas'),
+  });
+  const entity = createRaymarchingEntity(engine);
+  const raymarchingComponent = entity.getRaymarching();
+  raymarchingComponent.sdfShapeType = SdfShapeType.Box;
+
+  const collected = MaterialHelper.collectRrnJson(engine) as any;
+  const union = collected.nodes.find((node: any) => node.name === 'OutUnion');
+  expect(union).toBeDefined();
+  // The terminal scales its local-space distance by the smallest axis scale of this
+  // matrix, so a scaled entity no longer loses parts when it is ray marched.
+  expect(union.controls.distanceCorrectionMatrices.value).toEqual([`worldMatrix_${raymarchingComponent.componentSID}`]);
+
+  // The component's authored graph is not modified by the merged copy.
+  const authoredUnion = raymarchingComponent.rrnJson.nodes.find(node => node.name === 'OutUnion');
+  expect(authoredUnion?.controls?.distanceCorrectionMatrices).toBeUndefined();
 });

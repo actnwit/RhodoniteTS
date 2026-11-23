@@ -192,9 +192,12 @@ fn main(
   // Transform from view space to world space
   let rd = normalize((invViewMatrix * rayView).xyz);
 
-  // March the distance field until a surface is hit.
+  // March the distance field until a surface is hit. The march starts at the camera
+  // position: starting one unit away skips (or lands inside) objects that are closer
+  // than that, which used to clip small / near SDF shapes depending on the camera
+  // distance. The shadow camera passes already start at 0.
   var h: f32;
-  var t: f32 = 1.0;
+  var t: f32 = 0.0;
   for(var i=0;i<256;i++){
     h=map(ro+rd*t);
     t+=h;
@@ -302,8 +305,11 @@ void main() {
   // Transform from view space to world space
   vec3 rd = normalize((invViewMatrix * rayView).xyz);
 
-  // March the distance field until a surface is hit.
-  float h,t=1.;
+  // March the distance field until a surface is hit. The march starts at the camera
+  // position: starting one unit away skips (or lands inside) objects that are closer
+  // than that, which used to clip small / near SDF shapes depending on the camera
+  // distance. The shadow camera passes already start at 0.
+  float h,t=0.;
   for(int i=0;i<256;i++){
     h=map(ro+rd*t);
     t+=h;
@@ -550,6 +556,34 @@ fn inverseMat4(m: mat4x4<f32>) -> mat4x4<f32> {
     )
   );
 }
+
+// Conservative local-to-world scale of an SDF component world matrix. The SDF graph is
+// evaluated in the space produced by SdApplyWorldMatrix (the component's local space),
+// so its distance has to be multiplied by a lower bound of the smallest singular value
+// of the world matrix to become a valid world-space ray marching step. Without it,
+// scaling an entity below 1 makes sphere tracing overshoot the surface.
+fn rnRaymarchDistanceScale(worldMatrix: mat4x4<f32>) -> f32 {
+  let axisX = worldMatrix[0].xyz;
+  let axisY = worldMatrix[1].xyz;
+  let axisZ = worldMatrix[2].xyz;
+  let lenX = length(axisX);
+  let lenY = length(axisY);
+  let lenZ = length(axisZ);
+  let orthoError = abs(dot(axisX, axisY)) + abs(dot(axisX, axisZ)) + abs(dot(axisY, axisZ));
+  let orthoTolerance = 0.0001 * (lenX * lenY + lenX * lenZ + lenY * lenZ);
+  if (orthoError <= orthoTolerance) {
+    // A rotation and a (non-uniform) scale: the column lengths are the singular values.
+    return min(lenX, min(lenY, lenZ));
+  }
+  // A sheared world matrix (a non-uniformly scaled parent with a rotated child):
+  // 1 / ||M^-1||_F is a lower bound of the smallest singular value of M.
+  let inverseMatrix = inverseMat4(worldMatrix);
+  let column0 = inverseMatrix[0].xyz;
+  let column1 = inverseMatrix[1].xyz;
+  let column2 = inverseMatrix[2].xyz;
+  let frobeniusSq = dot(column0, column0) + dot(column1, column1) + dot(column2, column2);
+  return 1.0 / sqrt(max(frobeniusSq, 0.00000001));
+}
 `;
       pixelShaderPrerequisites += RaymarchingShaderPart.__getPbrFunctionsWGSL();
       return pixelShaderPrerequisites;
@@ -651,6 +685,34 @@ mat4 inverseTransform(mat4 m){
     inv[3].xyz=inv_translation;
 
     return inv;
+}
+
+// Conservative local-to-world scale of an SDF component world matrix. The SDF graph is
+// evaluated in the space produced by SdApplyWorldMatrix (the component's local space),
+// so its distance has to be multiplied by a lower bound of the smallest singular value
+// of the world matrix to become a valid world-space ray marching step. Without it,
+// scaling an entity below 1 makes sphere tracing overshoot the surface.
+float rnRaymarchDistanceScale(mat4 worldMatrix) {
+  vec3 axisX = worldMatrix[0].xyz;
+  vec3 axisY = worldMatrix[1].xyz;
+  vec3 axisZ = worldMatrix[2].xyz;
+  float lenX = length(axisX);
+  float lenY = length(axisY);
+  float lenZ = length(axisZ);
+  float orthoError = abs(dot(axisX, axisY)) + abs(dot(axisX, axisZ)) + abs(dot(axisY, axisZ));
+  float orthoTolerance = 0.0001 * (lenX * lenY + lenX * lenZ + lenY * lenZ);
+  if (orthoError <= orthoTolerance) {
+    // A rotation and a (non-uniform) scale: the column lengths are the singular values.
+    return min(lenX, min(lenY, lenZ));
+  }
+  // A sheared world matrix (a non-uniformly scaled parent with a rotated child):
+  // 1 / ||M^-1||_F is a lower bound of the smallest singular value of M.
+  mat4 inverseMatrix = inverse(worldMatrix);
+  vec3 column0 = inverseMatrix[0].xyz;
+  vec3 column1 = inverseMatrix[1].xyz;
+  vec3 column2 = inverseMatrix[2].xyz;
+  float frobeniusSq = dot(column0, column0) + dot(column1, column1) + dot(column2, column2);
+  return inversesqrt(max(frobeniusSq, 0.00000001));
 }
 `;
     pixelShaderPrerequisites += RaymarchingShaderPart.__getPbrFunctionsGLSL();
