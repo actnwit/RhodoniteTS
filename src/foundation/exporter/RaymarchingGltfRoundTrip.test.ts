@@ -151,6 +151,7 @@ test('exports a RaymarchingComponent graph as a glTF node extension', async () =
   entity.tryToSetUniqueName('Test Raymarching', true);
   entity.getRaymarching().rrnJson = createSphereGraph();
   entity.getRaymarching().isPickable = false;
+  entity.getRaymarching().castShadow = false;
 
   const buffer = await exportEntity(exportEngine, entity, 'RaymarchingExport');
   const json = parseGlbJson(buffer);
@@ -158,6 +159,7 @@ test('exports a RaymarchingComponent graph as a glTF node extension', async () =
   expect(json.extensionsUsed).toContain('RHODONITE_raymarching');
   expect(extension.graph.nodes).toHaveLength(4);
   expect(extension.isPickable).toBe(false);
+  expect(extension.castShadow).toBe(false);
   expect(json.nodes[0].translation).toEqual([1, 2, 3]);
   expect(json.extensions?.RHODONITE_raymarching_materials).toBeUndefined();
 });
@@ -168,6 +170,7 @@ test('imports a RHODONITE_raymarching node and rebuilds the material from its gr
   entity.getTransform().localPosition = Vector3.fromCopy3(0.5, 0, 0);
   entity.getRaymarching().rrnJson = createSphereGraph();
   entity.getRaymarching().isPickable = false;
+  entity.getRaymarching().castShadow = false;
 
   const buffer = await exportEntity(exportEngine, entity, 'RaymarchingImport');
   const gltfModel = parseGlbJson(buffer) as RnM2;
@@ -178,6 +181,7 @@ test('imports a RHODONITE_raymarching node and rebuilds the material from its gr
   expect(raymarching.rrnJson.nodes).toHaveLength(4);
   expect(raymarching.rrnJson.connections).toHaveLength(3);
   expect(raymarching.isPickable).toBe(false);
+  expect(raymarching.castShadow).toBe(false);
   expect(imported!.getTransform().localPosition._v[0]).toBeCloseTo(0.5, 5);
 
   // The application (the editor's node editor) rebuilds the shared material from the graph.

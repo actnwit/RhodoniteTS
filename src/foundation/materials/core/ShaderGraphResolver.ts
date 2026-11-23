@@ -1044,7 +1044,8 @@ export class ShaderGraphResolver {
   public static generateShaderCodeFromJson(
     engine: Engine,
     json: ShaderNodeJson,
-    commonShaderPart: CommonShaderPart
+    commonShaderPart: CommonShaderPart,
+    pixelEndNodeNames: string[] = ['outColor', 'conditionalDiscard', 'outDistance', 'outUnion', 'outShadingColor']
   ):
     | {
         vertexShader: string;
@@ -1061,13 +1062,9 @@ export class ShaderGraphResolver {
     const allVaryingNodes = [...new Set([...varyingNodes, ...varyingNodesForDiscard])];
 
     const vertexNodes = filterNodes(nodes, ['outPosition']);
-    const pixelNodes = filterNodes(nodes, [
-      'outColor',
-      'conditionalDiscard',
-      'outDistance',
-      'outUnion',
-      'outShadingColor',
-    ]);
+    // The endpoints select the pixel subgraph. Shadow caster materials pass only the
+    // distance endpoints so the PBR / shading nodes are not emitted at all.
+    const pixelNodes = filterNodes(nodes, pixelEndNodeNames);
 
     // if (vertexNodes.length === 0 || pixelNodes.length === 0) {
     //   return;

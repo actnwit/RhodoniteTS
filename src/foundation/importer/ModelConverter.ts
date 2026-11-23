@@ -1350,6 +1350,7 @@ export class ModelConverter {
                 graph?: NodeJSON | null;
                 sdfShapeType?: number;
                 isPickable?: boolean;
+                castShadow?: boolean;
               };
             }
           | undefined
@@ -1367,6 +1368,9 @@ export class ModelConverter {
         }
         if (raymarchingExtension.isPickable != null) {
           raymarchingComponent.isPickable = raymarchingExtension.isPickable;
+        }
+        if (raymarchingExtension.castShadow != null) {
+          raymarchingComponent.castShadow = raymarchingExtension.castShadow;
         }
         entity = raymarchingEntity as unknown as ISceneGraphEntity;
       }

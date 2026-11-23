@@ -1,8 +1,16 @@
 import type { Size } from '../../../types';
+import type { ShaderNodeJson } from '../../../types/ShaderNodeJson';
 import type { WebXRSystem } from '../../../xr/WebXRSystem';
+import type { CameraComponent } from '../../components/Camera/CameraComponent';
 import { RaymarchingComponent } from '../../components/Raymarching/RaymarchingComponent';
 import { RnObject } from '../../core/RnObject';
-import { ComponentType, PixelFormat, ToneMappingType, type ToneMappingTypeEnum } from '../../definitions';
+import {
+  ComponentType,
+  CompositionType,
+  PixelFormat,
+  ToneMappingType,
+  type ToneMappingTypeEnum,
+} from '../../definitions';
 import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { TextureFormat } from '../../definitions/TextureFormat';
 import { TextureParameter } from '../../definitions/TextureParameter';
@@ -11,7 +19,11 @@ import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
 import { MaterialHelper } from '../../helpers/MaterialHelper';
 import { RenderableHelper } from '../../helpers/RenderableHelper';
 import { RenderPassHelper } from '../../helpers/RenderPassHelper';
-import { ShadowSystem } from '../../helpers/Shadow/ShadowSystem';
+import {
+  type RaymarchingShadowPassParams,
+  type RaymarchingShadowPassProvider,
+  ShadowSystem,
+} from '../../helpers/Shadow/ShadowSystem';
 import type { Material } from '../../materials/core/Material';
 import { Scalar } from '../../math/Scalar';
 import { Vector2 } from '../../math/Vector2';
@@ -119,6 +131,11 @@ export class ForwardRenderPipeline extends RnObject {
   private __entitiesForShadow: ISceneGraphEntity[] = [];
   private __raymarchingExpression?: Expression;
   private __raymarchingRenderPass?: RenderPass;
+  /** The merged SDF graph of the shadow-casting components. */
+  private __raymarchingShadowJson?: ShaderNodeJson;
+  private __raymarchingShadowRegularMaterial?: Material;
+  /** Point light paraboloid shadow materials, one front/back pair per shadow slot. */
+  private __raymarchingShadowPointSlots = new Map<number, { front: Material; back: Material }>();
   private __engine: Engine;
 
   constructor(engine: Engine) {
@@ -164,6 +181,9 @@ export class ForwardRenderPipeline extends RnObject {
     this.__bloomExpression = undefined;
     this.__toneMappingExpression = undefined;
     this.__raymarchingExpression = undefined;
+    this.__raymarchingShadowJson = undefined;
+    this.__raymarchingShadowRegularMaterial = undefined;
+    this.__raymarchingShadowPointSlots.clear();
   }
 
   /**
@@ -374,7 +394,11 @@ export class ForwardRenderPipeline extends RnObject {
       const entities = this.__expressions.flatMap(expression =>
         expression.renderPasses.flatMap(renderPass => renderPass.entities)
       ) as ISceneGraphEntity[];
-      this.__shadowExpressions = this.__shadowSystem.getExpressions(entities, this.__getAdditionalShadowMaterials());
+      this.__shadowExpressions = this.__shadowSystem.getExpressions(
+        entities,
+        this.__getAdditionalShadowMaterials(),
+        this.__getRaymarchingShadowPassProvider()
+      );
     }
 
     this.__setUpExpressionsForRendering();
@@ -433,11 +457,18 @@ export class ForwardRenderPipeline extends RnObject {
         const entities = this.__entitiesForShadow;
         const additionalMaterials = this.__getAdditionalShadowMaterials();
         if (shadowSystem.isLightChanged()) {
-          this.__shadowExpressions = shadowSystem.getExpressions(entities, additionalMaterials);
+          this.__shadowExpressions = shadowSystem.getExpressions(
+            entities,
+            additionalMaterials,
+            this.__getRaymarchingShadowPassProvider()
+          );
           this.__setUpExpressionsForRendering();
         }
         shadowSystem.setDepthBiasPV(entities, additionalMaterials);
       }
+      // WebGPU uploads material values in the prerender stage, so the SDF shadow caster
+      // parameters must be current before Engine.process runs.
+      this.__syncRaymarchingShadowMaterialParameters();
       func(this.__frame!);
     });
 
@@ -1349,10 +1380,217 @@ export class ForwardRenderPipeline extends RnObject {
     // The raymarching material is not part of any mesh primitive, so the shadow
     // parameters of the last shadow pass setup have to be applied explicitly.
     this.__shadowSystem?.applyShadowParametersToMaterials([material]);
+    // The SDF graph may have changed, so the shadow caster materials are rebuilt from it.
+    this.refreshRaymarchingShadowMaterial();
     // A transmission material samples the scene color behind the SDF, so the pass has
     // to run after the opaque expressions. Rebuild the frame expression order.
     if (this.__frame != null) {
       this.__setUpExpressionsForRendering();
+    }
+  }
+
+  /**
+   * Rebuilds the shadow caster materials from the current raymarching components
+   * (only the ones with `castShadow`) and requests a shadow map refresh, so the SDF
+   * objects appear in / disappear from the shadow maps.
+   *
+   * Call this when the raymarching graph or a component's `castShadow` flag changes.
+   */
+  public refreshRaymarchingShadowMaterial() {
+    const previousRegular = this.__raymarchingShadowRegularMaterial;
+    this.__raymarchingShadowJson = undefined;
+    this.__raymarchingShadowRegularMaterial = undefined;
+    this.__raymarchingShadowPointSlots.clear();
+
+    if (this.__shadowSystem == null || this.__engine.config.maxLightNumber <= 0) {
+      return;
+    }
+
+    const castShadowJson = MaterialHelper.collectRrnJson(this.__engine, { castShadowOnly: true });
+    if (castShadowJson.nodes.length > 0) {
+      const json = castShadowJson as unknown as ShaderNodeJson;
+      this.__raymarchingShadowJson = json;
+      this.__raymarchingShadowRegularMaterial = MaterialHelper.createNodeBasedRaymarchingShadowMaterial(
+        this.__engine,
+        json,
+        'regular',
+        previousRegular
+      );
+    }
+
+    this.__shadowSystem.invalidateShadowVolumeFitting();
+    this.__shadowSystem.setNeedsRefresh();
+  }
+
+  /** The regular (spot / directional) SDF shadow caster material (for tests/debugging). */
+  public getRaymarchingShadowMaterial(): Material | undefined {
+    return this.__raymarchingShadowRegularMaterial;
+  }
+
+  /**
+   * Provider of the SDF shadow caster passes handed to the ShadowSystem.
+   */
+  private __getRaymarchingShadowPassProvider(): RaymarchingShadowPassProvider {
+    return {
+      hasCaster: () => this.__raymarchingShadowJson != null && this.__raymarchingShadowRegularMaterial != null,
+      createPasses: params => this.__createRaymarchingShadowPasses(params),
+      updatePointLightFarPlane: (shadowSlot, farPlane) =>
+        this.__updateRaymarchingShadowPointFarPlane(shadowSlot, farPlane),
+    };
+  }
+
+  /**
+   * Returns the paraboloid shadow caster material pair for a shadow slot, creating it on
+   * first use. A pair per slot is needed because the light index and the far plane are
+   * material parameters, which WebGPU uploads once per frame.
+   */
+  private __getRaymarchingShadowPointMaterials(
+    shadowSlot: number,
+    lightComponentSID: number,
+    farPlane: number
+  ): { front: Material; back: Material } | undefined {
+    let pair = this.__raymarchingShadowPointSlots.get(shadowSlot);
+    if (pair == null) {
+      const json = this.__raymarchingShadowJson;
+      if (json == null) {
+        return undefined;
+      }
+      const front = MaterialHelper.createNodeBasedRaymarchingShadowMaterial(this.__engine, json, 'paraboloidFront');
+      const back = MaterialHelper.createNodeBasedRaymarchingShadowMaterial(this.__engine, json, 'paraboloidBack');
+      if (front == null || back == null) {
+        return undefined;
+      }
+      pair = { front, back };
+      this.__raymarchingShadowPointSlots.set(shadowSlot, pair);
+    }
+
+    // A slot can be reassigned to another light, so keep the light index current.
+    const lightIndex = Scalar.fromCopyNumber(lightComponentSID);
+    pair.front.setParameter('lightIndex', lightIndex);
+    pair.back.setParameter('lightIndex', lightIndex);
+    this.__setRaymarchingShadowPointFarPlane(pair, farPlane);
+    return pair;
+  }
+
+  private __setRaymarchingShadowPointFarPlane(pair: { front: Material; back: Material }, farPlane: number) {
+    const value = Scalar.fromCopyNumber(farPlane);
+    pair.front.setParameter('shadowFarPlane', value);
+    pair.back.setParameter('shadowFarPlane', value);
+  }
+
+  private __updateRaymarchingShadowPointFarPlane(shadowSlot: number, farPlane: number) {
+    const pair = this.__raymarchingShadowPointSlots.get(shadowSlot);
+    if (pair != null) {
+      this.__setRaymarchingShadowPointFarPlane(pair, farPlane);
+    }
+  }
+
+  private __createRaymarchingShadowPasses({
+    lightComponent,
+    lightEntity,
+    framebuffer,
+    kind,
+    farPlane,
+    shadowSlot,
+  }: RaymarchingShadowPassParams): RenderPass[] {
+    let material: Material | undefined;
+    if (kind === 'regular') {
+      material = this.__raymarchingShadowRegularMaterial;
+    } else {
+      const pair = this.__getRaymarchingShadowPointMaterials(shadowSlot, lightComponent.componentSID, farPlane ?? 1000);
+      material = kind === 'paraboloidFront' ? pair?.front : pair?.back;
+    }
+    if (material == null) {
+      return [];
+    }
+
+    const renderPass = new RenderPass(this.__engine);
+    // Shadow passes are not XR main passes: they use the light camera and run once.
+    renderPass.isVrRendering = false;
+    renderPass.setBufferLessFullScreenRendering(material);
+    renderPass.setFramebuffer(framebuffer);
+    // The mesh caster pass of the same light has already cleared the moment map and
+    // written its depth, so this pass keeps both and only writes where the SDF is nearer.
+    renderPass.toClearColorBuffer = false;
+    renderPass.toClearDepthBuffer = false;
+    renderPass.isDepthTest = true;
+    renderPass.depthWriteMask = true;
+    if (kind === 'regular') {
+      // The shadow camera must drive get_viewMatrix / get_projectionMatrix in the shader.
+      renderPass.cameraComponent = (lightEntity as unknown as { getCamera(): CameraComponent }).getCamera();
+    }
+    renderPass.tryToSetUniqueName(`RaymarchingShadow_${kind}`, true);
+
+    return [renderPass];
+  }
+
+  /**
+   * Copies the graph parameters (uniform values, textures) and the current per-component
+   * transforms from the visible raymarching material to every SDF shadow caster material.
+   *
+   * This runs once per frame BEFORE Engine.process: WebGPU uploads material values in the
+   * prerender stage, so updating them only in a render pass hook would leave the shadow
+   * passes one frame behind. setParameter / setTextureParameter return early for identical
+   * values, so the copy is cheap.
+   */
+  private __syncRaymarchingShadowMaterialParameters() {
+    if (this.__raymarchingShadowJson == null) {
+      return;
+    }
+
+    const materials: Material[] = [];
+    if (this.__raymarchingShadowRegularMaterial != null) {
+      materials.push(this.__raymarchingShadowRegularMaterial);
+    }
+    for (const pair of this.__raymarchingShadowPointSlots.values()) {
+      materials.push(pair.front, pair.back);
+    }
+
+    const mainMaterial = this.getRaymarchingMaterial();
+    const raymarchingComponents = this.__engine.componentRepository.getComponentsWithType(
+      RaymarchingComponent
+    ) as RaymarchingComponent[];
+
+    for (const material of materials) {
+      if (mainMaterial != null) {
+        for (const info of material.fieldsInfoArray) {
+          const semantic = info.semantic;
+          if (
+            semantic.startsWith('worldMatrix_') ||
+            semantic.startsWith('raymarchObjectId_') ||
+            semantic === 'lightIndex' ||
+            semantic === 'shadowFarPlane'
+          ) {
+            continue;
+          }
+          if (CompositionType.isTexture(info.compositionType)) {
+            const textureParameter = mainMaterial.getTextureParameter(semantic);
+            if (textureParameter != null) {
+              material.setTextureParameter(semantic, textureParameter[1], textureParameter[2]);
+            }
+          } else {
+            const value = mainMaterial.getParameter(semantic);
+            if (value != null) {
+              material.setParameter(semantic, value);
+            }
+          }
+        }
+      }
+
+      // Current transforms/object ids (the visible material is updated later in the frame).
+      for (const raymarchingComponent of raymarchingComponents) {
+        if (!raymarchingComponent.castShadow) {
+          continue;
+        }
+        const sceneGraph = raymarchingComponent.entity.tryToGetSceneGraph();
+        if (sceneGraph != null) {
+          material.setParameter(`worldMatrix_${raymarchingComponent.componentSID}`, sceneGraph.matrixInner);
+        }
+        material.setParameter(
+          `raymarchObjectId_${raymarchingComponent.componentSID}`,
+          Scalar.fromCopyNumber(raymarchingComponent.componentSID)
+        );
+      }
     }
   }
 

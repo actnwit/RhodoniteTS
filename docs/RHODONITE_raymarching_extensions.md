@@ -34,6 +34,7 @@ application (the editor's node editor) from the restored graphs and material ext
 | `graph` | `NodeJSON \| null` | The Rete-style node graph for the component. When present it is authoritative. |
 | `sdfShapeType` | `number` | Built-in SDF shape index (`SdfShapeType`). Used only when `graph` is absent. |
 | `isPickable` | `boolean` | Whether the object participates in picking. |
+| `castShadow` | `boolean` | Whether the SDF is rendered into the shadow maps. Defaults to `true`. |
 
 The node transform (translation/rotation/scale) is stored by the standard glTF node properties.
 The importer sets `RaymarchingComponent.rrnJson` from `graph`, or `sdfShapeType` when the graph is

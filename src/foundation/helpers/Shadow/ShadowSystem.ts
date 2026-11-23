@@ -15,6 +15,7 @@ import { VectorN } from '../../math/VectorN';
 import { Logger } from '../../misc/Logger';
 import { Expression } from '../../renderer/Expression';
 import type { FrameBuffer } from '../../renderer/FrameBuffer';
+import type { RenderPass } from '../../renderer/RenderPass';
 import type { Engine } from '../../system/Engine';
 import type { RenderTargetTexture } from '../../textures/RenderTargetTexture';
 import { Sampler } from '../../textures/Sampler';
@@ -23,6 +24,36 @@ import { GaussianBlur } from '../GaussianBlurHelper';
 import { RenderableHelper } from '../RenderableHelper';
 import { PointShadowMap } from './PointShadowMap';
 import { ShadowMap } from './ShadowMap';
+
+/**
+ * Provider of the raymarching (SDF) shadow caster passes.
+ *
+ * The pipeline owns the shadow caster materials (they are built from the merged SDF
+ * graph) and supplies a buffer-less full-screen pass for each shadow map variant. The
+ * ShadowSystem inserts these passes after the mesh caster passes of the same light, so
+ * the moment map ends up with the nearest surface of the two.
+ */
+/**
+ * Parameters of one SDF shadow caster pass request.
+ */
+export type RaymarchingShadowPassParams = {
+  lightComponent: LightComponent;
+  lightEntity: ISceneGraphEntity & ILightEntityMethods;
+  framebuffer: FrameBuffer;
+  kind: 'regular' | 'paraboloidFront' | 'paraboloidBack';
+  /** The shadow slot of the light (index into the per-material parameter arrays). */
+  shadowSlot: number;
+  farPlane?: number;
+};
+
+export interface RaymarchingShadowPassProvider {
+  /** Whether any raymarching component casts shadows. */
+  hasCaster(): boolean;
+  /** Creates the SDF caster pass(es) for one shadow map variant. */
+  createPasses(params: RaymarchingShadowPassParams): RenderPass[];
+  /** Updates the point light far plane of an existing per-slot caster material pair. */
+  updatePointLightFarPlane?(shadowSlot: number, farPlane: number): void;
+}
 
 /**
  * A system for managing shadow mapping operations in the rendering pipeline.
@@ -51,9 +82,12 @@ export class ShadowSystem {
   private __depthBiasPVVersionOfMaterials: number[] = [];
   private __lastTransformUpdateCountForAutoFit = -1;
   private __lastEntityCountForAutoFit = -1;
+  private __lastRaymarchingCasterCountForAutoFit = -1;
+  private __lastRaymarchingAABBVersionForAutoFit = -1;
   private __lastAutoFitCenter = Vector3.fromCopy3(0, 0, 0);
   private __lastAutoFitRadius = 1;
   private __needsRefresh = false;
+  private __raymarchingShadowPassProvider?: RaymarchingShadowPassProvider;
   /** Last shadow state, so a material assigned later (e.g. the raymarching material) can receive it. */
   private __depthTextureIndexList: number[] = [];
   /** Far plane of the paraboloid shadow map of each shadow slot (indexed by slot). */
@@ -103,7 +137,12 @@ export class ShadowSystem {
    * @param entities - Array of scene graph entities to be rendered for shadow mapping
    * @returns Array of Expression objects containing the shadow mapping render passes
    */
-  public getExpressions(entities: ISceneGraphEntity[], additionalMaterials: readonly Material[] = []) {
+  public getExpressions(
+    entities: ISceneGraphEntity[],
+    additionalMaterials: readonly Material[] = [],
+    raymarchingShadowPassProvider?: RaymarchingShadowPassProvider
+  ) {
+    this.__raymarchingShadowPassProvider = raymarchingShadowPassProvider;
     // With no shadow slots there is nothing to render into the shadow maps, and the materials have no
     // shadow parameters (Config.maxLightNumber = 0 compiles the shadow code out).
     if (this.__engine.config.maxLightNumber <= 0) {
@@ -131,7 +170,10 @@ export class ShadowSystem {
     this.__lightEnables.length = lightComponents.length;
     this.__lightCastShadows.length = lightComponents.length;
     this.__lightSids.length = lightComponents.length;
-    this.__assignShadowSlots(lightComponents, shadowCasters.length > 0);
+    this.__assignShadowSlots(
+      lightComponents,
+      shadowCasters.length > 0 || (raymarchingShadowPassProvider?.hasCaster() ?? false)
+    );
     // A spot or directional light renders its shadow map from a camera synchronized to it. Imported lights only
     // get one when they cast shadows (ModelConverter), so attach it here for the lights that started casting
     // shadows later (e.g. enabled in the editor).
@@ -155,14 +197,39 @@ export class ShadowSystem {
       if (lightComponent.type === LightType.Point) {
         const farPlane = this.__getPointLightFarPlane(lightComponent, entities);
         const shadowMapExpression = new Expression();
-        shadowMapExpression.addRenderPasses(
-          this.__pointShadowMap.getRenderPasses(
-            shadowCasters,
-            lightComponent.entity as ISceneGraphEntity & ILightEntityMethods,
-            shadowSlot,
-            farPlane
-          )
+        const pointShadowMapRenderPasses = this.__pointShadowMap.getRenderPasses(
+          shadowCasters,
+          lightComponent.entity as ISceneGraphEntity & ILightEntityMethods,
+          shadowSlot,
+          farPlane
         );
+        // The SDF caster passes must be inserted between the front and back mesh passes,
+        // because the back mesh pass clears the depth buffer again. The SDF pass writes
+        // depth-testing moments so the nearest of the mesh and SDF surfaces is kept.
+        const frontCasterPasses =
+          raymarchingShadowPassProvider?.createPasses({
+            lightComponent,
+            lightEntity: lightComponent.entity as ISceneGraphEntity & ILightEntityMethods,
+            framebuffer: this.__pointShadowMap.getShadowMomentFramebuffer(),
+            kind: 'paraboloidFront',
+            shadowSlot,
+            farPlane,
+          }) ?? [];
+        const backCasterPasses =
+          raymarchingShadowPassProvider?.createPasses({
+            lightComponent,
+            lightEntity: lightComponent.entity as ISceneGraphEntity & ILightEntityMethods,
+            framebuffer: this.__pointShadowMap.getShadowMomentFramebuffer(),
+            kind: 'paraboloidBack',
+            shadowSlot,
+            farPlane,
+          }) ?? [];
+        shadowMapExpression.addRenderPasses([
+          pointShadowMapRenderPasses[0],
+          ...frontCasterPasses,
+          pointShadowMapRenderPasses[1],
+          ...backCasterPasses,
+        ]);
         expressions.push(shadowMapExpression);
         const {
           blurExpression: blurExpressionPointLight,
@@ -188,12 +255,21 @@ export class ShadowSystem {
         pointDepthTextureCount++;
       } else if (lightComponent.type === LightType.Spot || lightComponent.type === LightType.Directional) {
         const shadowMapExpression = new Expression();
-        shadowMapExpression.addRenderPasses(
-          this.__shadowMap.getRenderPasses(
-            shadowCasters,
-            lightComponent.entity as ISceneGraphEntity & ILightEntityMethods & ICameraEntityMethods
-          )
+        const shadowMapRenderPasses = this.__shadowMap.getRenderPasses(
+          shadowCasters,
+          lightComponent.entity as ISceneGraphEntity & ILightEntityMethods & ICameraEntityMethods
         );
+        // The SDF caster pass runs after the mesh caster pass and depth-tests against the
+        // mesh depth, so the moment map keeps the nearest of the two surfaces.
+        const casterPasses =
+          raymarchingShadowPassProvider?.createPasses({
+            lightComponent,
+            lightEntity: lightComponent.entity as ISceneGraphEntity & ILightEntityMethods,
+            framebuffer: this.__shadowMap.getShadowMomentFramebuffer(),
+            kind: 'regular',
+            shadowSlot,
+          }) ?? [];
+        shadowMapExpression.addRenderPasses([...shadowMapRenderPasses, ...casterPasses]);
         expressions.push(shadowMapExpression);
         const {
           blurExpression: blurExpressionSpotLight,
@@ -531,6 +607,8 @@ export class ShadowSystem {
     for (const lightComponent of pointLights) {
       const shadowSlot = lightComponent._shadowSlot;
       this.__pointShadowMap.setFarPlane(shadowSlot, newList[shadowSlot]);
+      // The SDF caster materials hold the far plane per slot as a material parameter.
+      this.__raymarchingShadowPassProvider?.updatePointLightFarPlane?.(shadowSlot, newList[shadowSlot]);
     }
     this.__pointLightFarPlaneList = newList;
     this.__setPointLightFarPlaneList(entities, newList, additionalMaterials);
@@ -630,6 +708,47 @@ export class ShadowSystem {
           const dz = position.z - lightPosition.z;
           distanceSquared = dx * dx + dy * dy + dz * dz;
         }
+        if (distanceSquared < nearestDistanceSquared) {
+          nearestDistanceSquared = distanceSquared;
+        }
+      }
+
+      // SDF entities are not part of the mesh caster entities, so their bounds are added
+      // for the same nearest-distance estimate. Non-casting SDFs are included as well
+      // because they still receive shadows.
+      const raymarchingComponents = this.__engine.componentRepository.getComponentsWithType(
+        RaymarchingComponent
+      ) as RaymarchingComponent[];
+      for (const raymarchingComponent of raymarchingComponents) {
+        const sceneGraph = raymarchingComponent.entity.tryToGetSceneGraph();
+        if (sceneGraph == null || !sceneGraph.isVisible) {
+          continue;
+        }
+        const aabb = sceneGraph.worldMergedAABB;
+        // Unbounded SDFs (SdBar / SdTube / SdRepeat) have a vanilla AABB; they keep the
+        // conservative default zNear instead of a potentially wrong bound.
+        if (aabb == null || aabb.isVanilla()) {
+          continue;
+        }
+        const min = aabb.minPoint;
+        const max = aabb.maxPoint;
+        if (
+          min.x <= lightPosition.x &&
+          lightPosition.x <= max.x &&
+          min.y <= lightPosition.y &&
+          lightPosition.y <= max.y &&
+          min.z <= lightPosition.z &&
+          lightPosition.z <= max.z
+        ) {
+          continue;
+        }
+        const dx =
+          lightPosition.x < min.x ? min.x - lightPosition.x : lightPosition.x > max.x ? lightPosition.x - max.x : 0;
+        const dy =
+          lightPosition.y < min.y ? min.y - lightPosition.y : lightPosition.y > max.y ? lightPosition.y - max.y : 0;
+        const dz =
+          lightPosition.z < min.z ? min.z - lightPosition.z : lightPosition.z > max.z ? lightPosition.z - max.z : 0;
+        const distanceSquared = dx * dx + dy * dy + dz * dz;
         if (distanceSquared < nearestDistanceSquared) {
           nearestDistanceSquared = distanceSquared;
         }
@@ -816,9 +935,13 @@ export class ShadowSystem {
 
   private __autoFitDirectionalLightShadowVolume(entities: ISceneGraphEntity[]) {
     const transformUpdateCount = TransformComponent.getUpdateCount(this.__engine);
+    const raymarchingComponentCount = this.__getRaymarchingComponentCount();
+    const raymarchingAABBVersion = RaymarchingComponent.getAABBVersion(this.__engine);
     if (
       transformUpdateCount === this.__lastTransformUpdateCountForAutoFit &&
-      entities.length === this.__lastEntityCountForAutoFit
+      entities.length === this.__lastEntityCountForAutoFit &&
+      raymarchingComponentCount === this.__lastRaymarchingCasterCountForAutoFit &&
+      raymarchingAABBVersion === this.__lastRaymarchingAABBVersionForAutoFit
     ) {
       // Reuse cached center/radius; still apply to lights because light transforms may have changed.
       this.__applyAutoFitToDirectionalLights(this.__lastAutoFitCenter, this.__lastAutoFitRadius);
@@ -852,6 +975,12 @@ export class ShadowSystem {
       merged.mergeAABB(aabb);
     }
 
+    // SDF entities are not mesh entities, so their bounds are added separately (the
+    // merged scene graph AABB already includes the SDF bounds). Non-casting SDFs are
+    // included as well: they still receive shadows, so they must lie inside the light
+    // frustum for the shadow map lookup.
+    this.__mergeRaymarchingShadowBounds(merged, 'withSkeletal');
+
     if (merged.isVanilla()) {
       return;
     }
@@ -861,10 +990,50 @@ export class ShadowSystem {
 
     this.__lastTransformUpdateCountForAutoFit = transformUpdateCount;
     this.__lastEntityCountForAutoFit = entities.length;
+    this.__lastRaymarchingCasterCountForAutoFit = raymarchingComponentCount;
+    this.__lastRaymarchingAABBVersionForAutoFit = raymarchingAABBVersion;
     this.__lastAutoFitCenter = Vector3.fromCopy3(center.x, center.y, center.z);
     this.__lastAutoFitRadius = radius;
 
     this.__applyAutoFitToDirectionalLights(this.__lastAutoFitCenter, this.__lastAutoFitRadius);
+  }
+
+  /**
+   * Resets the directional/spot shadow volume fitting cache, so the next frame recomputes
+   * the volume (including SDF bounds). Call this when the raymarching caster set or its
+   * graph changes.
+   */
+  public invalidateShadowVolumeFitting() {
+    this.__lastTransformUpdateCountForAutoFit = -1;
+    this.__lastRaymarchingAABBVersionForAutoFit = -1;
+  }
+
+  private __getRaymarchingComponentCount() {
+    const components = this.__engine.componentRepository.getComponentsWithType(
+      RaymarchingComponent
+    ) as RaymarchingComponent[];
+    return components.length;
+  }
+
+  /**
+   * Merges the world AABBs of the visible raymarching components into `merged`.
+   * The scene graph AABB of an SDF entity already contains the SDF bounds, so the cached
+   * merged AABB is used instead of evaluating the graph again.
+   */
+  private __mergeRaymarchingShadowBounds(merged: AABB, variant: 'default' | 'withSkeletal') {
+    const components = this.__engine.componentRepository.getComponentsWithType(
+      RaymarchingComponent
+    ) as RaymarchingComponent[];
+    for (const component of components) {
+      const sceneGraph = component.entity.tryToGetSceneGraph();
+      if (sceneGraph == null || !sceneGraph.isVisible) {
+        continue;
+      }
+      const aabb = variant === 'withSkeletal' ? sceneGraph.worldMergedAABBWithSkeletal : sceneGraph.worldMergedAABB;
+      if (aabb != null && !aabb.isVanilla()) {
+        merged.mergeAABB(aabb);
+      }
+    }
   }
 
   private __applyAutoFitToDirectionalLights(center: Vector3, radius: number) {
