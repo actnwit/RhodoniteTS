@@ -155,6 +155,12 @@ export class ForwardRenderPipeline extends RnObject {
   private __raymarchingShadowRegularMaterial?: Material;
   /** Point light paraboloid shadow materials, one front/back pair per shadow slot. */
   private __raymarchingShadowPointSlots = new Map<number, { front: Material; back: Material }>();
+  /** Whether the SDF shadow casters are split per component (mirrors the visible materials). */
+  private __isRaymarchingComponentShadowMode = false;
+  /** Per-component regular (spot / directional) SDF shadow caster materials. */
+  private __raymarchingComponentShadowRegularMaterials = new Map<number, Material>();
+  /** Per shadow slot, per component paraboloid front/back SDF shadow caster materials. */
+  private __raymarchingComponentShadowPointSlots = new Map<number, Map<number, { front: Material; back: Material }>>();
   private __engine: Engine;
 
   constructor(engine: Engine) {
@@ -203,6 +209,9 @@ export class ForwardRenderPipeline extends RnObject {
     this.__raymarchingShadowJson = undefined;
     this.__raymarchingShadowRegularMaterial = undefined;
     this.__raymarchingShadowPointSlots.clear();
+    this.__isRaymarchingComponentShadowMode = false;
+    this.__raymarchingComponentShadowRegularMaterials.clear();
+    this.__raymarchingComponentShadowPointSlots.clear();
     // The passes reference the destroyed frame buffers; they are recreated on setup.
     this.__raymarchingComponentPasses.clear();
     this.__raymarchingAabbCache.clear();
@@ -1531,11 +1540,7 @@ export class ForwardRenderPipeline extends RnObject {
     const existingComponentSids = new Set<number>();
     this.__raymarchingFirstComponentPassSID = -1;
     if (this.__raymarchingComponentMaterials.size > 0) {
-      const components = (
-        this.__engine.componentRepository.getComponentsWithType(RaymarchingComponent) as RaymarchingComponent[]
-      ).slice();
-      components.sort((a, b) => a.componentSID - b.componentSID);
-      for (const component of components) {
+      for (const component of this.__getSortedRaymarchingComponents()) {
         const componentSID = component.componentSID;
         const material = this.__raymarchingComponentMaterials.get(componentSID);
         if (material == null) {
@@ -1762,32 +1767,71 @@ export class ForwardRenderPipeline extends RnObject {
    * (only the ones with `castShadow`) and requests a shadow map refresh, so the SDF
    * objects appear in / disappear from the shadow maps.
    *
-   * Call this when the raymarching graph or a component's `castShadow` flag changes.
+   * With per-component visible materials, the shadow casters are split per component
+   * as well (their textures and uniforms are then independent in the shadow maps).
+   * Otherwise the legacy merged caster materials are rebuilt from `collectRrnJson`.
+   *
+   * Call this when a raymarching graph or a component's `castShadow` flag changes.
    */
   public refreshRaymarchingShadowMaterial() {
     const previousRegular = this.__raymarchingShadowRegularMaterial;
+    const previousComponentRegular = new Map(this.__raymarchingComponentShadowRegularMaterials);
     this.__raymarchingShadowJson = undefined;
     this.__raymarchingShadowRegularMaterial = undefined;
     this.__raymarchingShadowPointSlots.clear();
+    this.__raymarchingComponentShadowRegularMaterials.clear();
+    this.__raymarchingComponentShadowPointSlots.clear();
+    this.__isRaymarchingComponentShadowMode = this.__raymarchingComponentMaterials.size > 0;
 
     if (this.__shadowSystem == null || this.__engine.config.maxLightNumber <= 0) {
       return;
     }
 
-    const castShadowJson = MaterialHelper.collectRrnJson(this.__engine, { castShadowOnly: true });
-    if (castShadowJson.nodes.length > 0) {
-      const json = castShadowJson as unknown as ShaderNodeJson;
-      this.__raymarchingShadowJson = json;
-      this.__raymarchingShadowRegularMaterial = MaterialHelper.createNodeBasedRaymarchingShadowMaterial(
-        this.__engine,
-        json,
-        'regular',
-        previousRegular
-      );
+    if (this.__isRaymarchingComponentShadowMode) {
+      // One regular caster material per castShadow component that has a visible
+      // material. Paraboloid pairs are created lazily per shadow slot.
+      for (const component of this.__getSortedRaymarchingComponents()) {
+        const componentSID = component.componentSID;
+        if (!component.castShadow || !this.__raymarchingComponentMaterials.has(componentSID)) {
+          continue;
+        }
+        const material = MaterialHelper.createNodeBasedRaymarchingComponentShadowMaterial(
+          this.__engine,
+          component,
+          'regular',
+          previousComponentRegular.get(componentSID)
+        );
+        if (material != null) {
+          this.__raymarchingComponentShadowRegularMaterials.set(componentSID, material);
+        }
+      }
+    } else {
+      const castShadowJson = MaterialHelper.collectRrnJson(this.__engine, { castShadowOnly: true });
+      if (castShadowJson.nodes.length > 0) {
+        const json = castShadowJson as unknown as ShaderNodeJson;
+        this.__raymarchingShadowJson = json;
+        this.__raymarchingShadowRegularMaterial = MaterialHelper.createNodeBasedRaymarchingShadowMaterial(
+          this.__engine,
+          json,
+          'regular',
+          previousRegular
+        );
+      }
     }
 
     this.__shadowSystem.invalidateShadowVolumeFitting();
     this.__shadowSystem.setNeedsRefresh();
+  }
+
+  /**
+   * The raymarching components in a deterministic (component SID) order.
+   */
+  private __getSortedRaymarchingComponents(): RaymarchingComponent[] {
+    const components = (
+      this.__engine.componentRepository.getComponentsWithType(RaymarchingComponent) as RaymarchingComponent[]
+    ).slice();
+    components.sort((a, b) => a.componentSID - b.componentSID);
+    return components;
   }
 
   /** The regular (spot / directional) SDF shadow caster material (for tests/debugging). */
@@ -1795,12 +1839,20 @@ export class ForwardRenderPipeline extends RnObject {
     return this.__raymarchingShadowRegularMaterial;
   }
 
+  /** The regular SDF shadow caster material of one component (for tests/debugging). */
+  public getRaymarchingComponentShadowMaterial(component: RaymarchingComponent): Material | undefined {
+    return this.__raymarchingComponentShadowRegularMaterials.get(component.componentSID);
+  }
+
   /**
    * Provider of the SDF shadow caster passes handed to the ShadowSystem.
    */
   private __getRaymarchingShadowPassProvider(): RaymarchingShadowPassProvider {
     return {
-      hasCaster: () => this.__raymarchingShadowJson != null && this.__raymarchingShadowRegularMaterial != null,
+      hasCaster: () =>
+        this.__isRaymarchingComponentShadowMode
+          ? this.__raymarchingComponentShadowRegularMaterials.size > 0
+          : this.__raymarchingShadowJson != null && this.__raymarchingShadowRegularMaterial != null,
       createPasses: params => this.__createRaymarchingShadowPasses(params),
       updatePointLightFarPlane: (shadowSlot, farPlane) =>
         this.__updateRaymarchingShadowPointFarPlane(shadowSlot, farPlane),
@@ -1846,21 +1898,98 @@ export class ForwardRenderPipeline extends RnObject {
     pair.back.setParameter('shadowFarPlane', value);
   }
 
+  /**
+   * Returns the paraboloid caster material pair of one component for a shadow slot,
+   * creating it on first use.
+   *
+   * @param shadowSlot - The shadow slot of the point light
+   * @param lightComponentSID - The light component SID stored as `lightIndex`
+   * @param farPlane - The far plane of the point light shadow
+   * @param component - The SDF component rendered into the shadow map
+   */
+  private __getRaymarchingComponentShadowPointMaterials(
+    shadowSlot: number,
+    lightComponentSID: number,
+    farPlane: number,
+    component: RaymarchingComponent
+  ): { front: Material; back: Material } | undefined {
+    let slotPairs = this.__raymarchingComponentShadowPointSlots.get(shadowSlot);
+    if (slotPairs == null) {
+      slotPairs = new Map();
+      this.__raymarchingComponentShadowPointSlots.set(shadowSlot, slotPairs);
+    }
+    let pair = slotPairs.get(component.componentSID);
+    if (pair == null) {
+      const front = MaterialHelper.createNodeBasedRaymarchingComponentShadowMaterial(
+        this.__engine,
+        component,
+        'paraboloidFront'
+      );
+      const back = MaterialHelper.createNodeBasedRaymarchingComponentShadowMaterial(
+        this.__engine,
+        component,
+        'paraboloidBack'
+      );
+      if (front == null || back == null) {
+        return undefined;
+      }
+      pair = { front, back };
+      slotPairs.set(component.componentSID, pair);
+    }
+
+    // A slot can be reassigned to another light, so keep the light index current.
+    const lightIndex = Scalar.fromCopyNumber(lightComponentSID);
+    pair.front.setParameter('lightIndex', lightIndex);
+    pair.back.setParameter('lightIndex', lightIndex);
+    this.__setRaymarchingShadowPointFarPlane(pair, farPlane);
+    return pair;
+  }
+
   private __updateRaymarchingShadowPointFarPlane(shadowSlot: number, farPlane: number) {
     const pair = this.__raymarchingShadowPointSlots.get(shadowSlot);
     if (pair != null) {
       this.__setRaymarchingShadowPointFarPlane(pair, farPlane);
     }
+    const componentPairs = this.__raymarchingComponentShadowPointSlots.get(shadowSlot);
+    if (componentPairs != null) {
+      for (const componentPair of componentPairs.values()) {
+        this.__setRaymarchingShadowPointFarPlane(componentPair, farPlane);
+      }
+    }
   }
 
-  private __createRaymarchingShadowPasses({
-    lightComponent,
-    lightEntity,
-    framebuffer,
-    kind,
-    farPlane,
-    shadowSlot,
-  }: RaymarchingShadowPassParams): RenderPass[] {
+  private __createRaymarchingShadowPasses(params: RaymarchingShadowPassParams): RenderPass[] {
+    const { lightComponent, kind, shadowSlot, farPlane } = params;
+
+    if (this.__isRaymarchingComponentShadowMode) {
+      // One depth-tested caster pass per castShadow component: each keeps its own
+      // textures and uniforms in the shadow map.
+      const passes: RenderPass[] = [];
+      for (const component of this.__getSortedRaymarchingComponents()) {
+        const componentSID = component.componentSID;
+        if (!component.castShadow || !this.__raymarchingComponentMaterials.has(componentSID)) {
+          continue;
+        }
+        let material: Material | undefined;
+        if (kind === 'regular') {
+          material = this.__raymarchingComponentShadowRegularMaterials.get(componentSID);
+        } else {
+          const pair = this.__getRaymarchingComponentShadowPointMaterials(
+            shadowSlot,
+            lightComponent.componentSID,
+            farPlane ?? 1000,
+            component
+          );
+          material = kind === 'paraboloidFront' ? pair?.front : pair?.back;
+        }
+        if (material == null) {
+          continue;
+        }
+        passes.push(this.__createRaymarchingShadowPass(material, params));
+      }
+      return passes;
+    }
+
     let material: Material | undefined;
     if (kind === 'regular') {
       material = this.__raymarchingShadowRegularMaterial;
@@ -1871,7 +2000,19 @@ export class ForwardRenderPipeline extends RnObject {
     if (material == null) {
       return [];
     }
+    return [this.__createRaymarchingShadowPass(material, params)];
+  }
 
+  /**
+   * Creates one buffer-less SDF shadow caster pass with the given material.
+   *
+   * @param material - The component's (or merged) shadow caster material
+   * @param params - The shadow map variant request
+   */
+  private __createRaymarchingShadowPass(
+    material: Material,
+    { lightEntity, framebuffer, kind }: RaymarchingShadowPassParams
+  ): RenderPass {
     const renderPass = new RenderPass(this.__engine);
     // Shadow passes are not XR main passes: they use the light camera and run once.
     renderPass.isVrRendering = false;
@@ -1888,19 +2029,17 @@ export class ForwardRenderPipeline extends RnObject {
       renderPass.cameraComponent = (lightEntity as unknown as { getCamera(): CameraComponent }).getCamera();
     }
     renderPass.tryToSetUniqueName(`RaymarchingShadow_${kind}`, true);
-
-    return [renderPass];
+    return renderPass;
   }
 
   /**
-   * Copies the graph parameters (uniform values, textures) and the current per-component
-   * transforms from the visible raymarching materials to every SDF shadow caster material.
+   * Copies the graph parameters (uniform values, textures) and the current transforms
+   * from the visible raymarching materials to the SDF shadow caster materials.
    *
-   * The SDF shadow casters are still one merged material per kind (their textures are
-   * shared across components), while the visible materials may be per component. A
-   * per-component uniform is exposed on the shadow material as `name_<componentSID>`,
-   * and its value comes from that component's material; shared semantics are copied
-   * from the first material as a best effort.
+   * With per-component visible materials, each component's caster materials are its
+   * own (same semantic names, no postfixing): their uniforms/textures are copied from
+   * that component's visible material and the component's world matrix is set on them.
+   * Otherwise the legacy merged casters are fed from the merged visible material.
    *
    * This runs once per frame BEFORE Engine.process: WebGPU uploads material values in the
    * prerender stage, so updating them only in a render pass hook would leave the shadow
@@ -1908,6 +2047,10 @@ export class ForwardRenderPipeline extends RnObject {
    * values, so the copy is cheap.
    */
   private __syncRaymarchingShadowMaterialParameters() {
+    if (this.__isRaymarchingComponentShadowMode) {
+      this.__syncRaymarchingComponentShadowMaterialParameters();
+      return;
+    }
     if (this.__raymarchingShadowJson == null) {
       return;
     }
@@ -1990,6 +2133,67 @@ export class ForwardRenderPipeline extends RnObject {
           `raymarchObjectId_${raymarchingComponent.componentSID}`,
           Scalar.fromCopyNumber(raymarchingComponent.componentSID)
         );
+      }
+    }
+  }
+
+  /**
+   * Per-component variant of the shadow caster parameter sync: copies each component's
+   * visible uniforms/textures to its own caster materials (their names match) and sets
+   * the component's world matrix, which the shadow shader uses for the distance scale.
+   */
+  private __syncRaymarchingComponentShadowMaterialParameters() {
+    for (const component of this.__getSortedRaymarchingComponents()) {
+      const componentSID = component.componentSID;
+      if (!component.castShadow) {
+        continue;
+      }
+      const visibleMaterial = this.__raymarchingComponentMaterials.get(componentSID);
+      if (visibleMaterial == null) {
+        continue;
+      }
+      const shadowMaterials: Material[] = [];
+      const regular = this.__raymarchingComponentShadowRegularMaterials.get(componentSID);
+      if (regular != null) {
+        shadowMaterials.push(regular);
+      }
+      for (const slotPairs of this.__raymarchingComponentShadowPointSlots.values()) {
+        const pair = slotPairs.get(componentSID);
+        if (pair != null) {
+          shadowMaterials.push(pair.front, pair.back);
+        }
+      }
+      if (shadowMaterials.length === 0) {
+        continue;
+      }
+
+      const sceneGraph = component.entity.tryToGetSceneGraph();
+      const worldMatrix = sceneGraph?.matrixInner;
+      for (const shadowMaterial of shadowMaterials) {
+        if (worldMatrix != null) {
+          shadowMaterial.setParameter(MaterialHelper.RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC, worldMatrix);
+        }
+        for (const info of shadowMaterial.fieldsInfoArray) {
+          const semantic = info.semantic;
+          if (
+            semantic === MaterialHelper.RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC ||
+            semantic === 'lightIndex' ||
+            semantic === 'shadowFarPlane'
+          ) {
+            continue;
+          }
+          if (CompositionType.isTexture(info.compositionType)) {
+            const textureParameter = visibleMaterial.getTextureParameter(semantic);
+            if (textureParameter != null) {
+              shadowMaterial.setTextureParameter(semantic, textureParameter[1], textureParameter[2]);
+            }
+          } else {
+            const value = visibleMaterial.getParameter(semantic);
+            if (value != null) {
+              shadowMaterial.setParameter(semantic, value);
+            }
+          }
+        }
       }
     }
   }

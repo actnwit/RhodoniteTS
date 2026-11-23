@@ -117,3 +117,36 @@ test('creates a per-component raymarching material with its own world matrix sem
   const authoredWorldMatrixNode = raymarchingComponent.rrnJson.nodes.find(node => node.name === 'SdApplyWorldMatrix');
   expect(authoredWorldMatrixNode?.controls?.name?.value).toBe(`worldMatrix_${raymarchingComponent.componentSID}`);
 });
+
+test('creates per-component SDF shadow caster materials with the normalized world matrix', async () => {
+  const engine = await Engine.init({
+    approach: ProcessApproach.None,
+    canvas: document.createElement('canvas'),
+  });
+  const entity = createRaymarchingEntity(engine);
+  const raymarchingComponent = entity.getRaymarching();
+  raymarchingComponent.sdfShapeType = SdfShapeType.Box;
+
+  const regular = MaterialHelper.createNodeBasedRaymarchingComponentShadowMaterial(
+    engine,
+    raymarchingComponent,
+    'regular'
+  );
+  expect(regular).toBeDefined();
+  const regularSemantics = regular!.fieldsInfoArray.map(info => info.semantic);
+  expect(regularSemantics).toContain('raymarchingWorldMatrix');
+  const graph = regular!.shaderNodeJson as any;
+  const terminal = graph.nodes.find((node: any) => node.name === 'OutUnion');
+  expect(terminal.controls.distanceCorrectionMatrices.value).toEqual(['raymarchingWorldMatrix']);
+
+  // Point light casters need the per-slot light index and far plane parameters.
+  const paraboloid = MaterialHelper.createNodeBasedRaymarchingComponentShadowMaterial(
+    engine,
+    raymarchingComponent,
+    'paraboloidFront'
+  );
+  expect(paraboloid).toBeDefined();
+  const paraboloidSemantics = paraboloid!.fieldsInfoArray.map(info => info.semantic);
+  expect(paraboloidSemantics).toContain('lightIndex');
+  expect(paraboloidSemantics).toContain('shadowFarPlane');
+});

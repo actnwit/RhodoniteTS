@@ -3195,6 +3195,30 @@ function createNodeBasedRaymarchingComponentMaterial(
 }
 
 /**
+ * Creates the SDF shadow caster material of a single RaymarchingComponent.
+ *
+ * Like the visible per-component material, the component's graph is used as authored
+ * (with its world matrix normalized to one semantic), so shadow casters are no longer
+ * one merged material: each component keeps its own textures and uniforms in the
+ * shadow maps too, and the texture-slot limit applies per component.
+ *
+ * @param engine - The engine instance
+ * @param component - The castShadow component the material renders
+ * @param kind - Which shadow map variant the material writes
+ * @param currentMaterial - An existing material of the same component that can be reused
+ * @returns The shadow caster material, or undefined when generation fails
+ */
+function createNodeBasedRaymarchingComponentShadowMaterial(
+  engine: Engine,
+  component: RaymarchingComponent,
+  kind: RaymarchingShadowShaderPartKind,
+  currentMaterial?: Material
+): Material | undefined {
+  const json = createRaymarchingComponentShaderJson(component);
+  return createNodeBasedRaymarchingShadowMaterial(engine, json as unknown as ShaderNodeJson, kind, currentMaterial);
+}
+
+/**
  * Changes the material assigned to a specific primitive on an entity.
  * This function updates the primitive's material and triggers necessary render state updates.
  * Translucency properties (isTranslucent, alphaMode) and backBufferTexture are preserved
@@ -3227,6 +3251,7 @@ export const MaterialHelper = Object.freeze({
   createNodeBasedCustomMaterial,
   createNodeBasedRaymarchingCustomMaterial,
   createNodeBasedRaymarchingComponentMaterial,
+  createNodeBasedRaymarchingComponentShadowMaterial,
   RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC,
   createNodeBasedRaymarchingShadowMaterial,
   createNodeBasedRaymarchingShadowMaterials,
