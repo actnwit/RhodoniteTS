@@ -1,0 +1,6 @@
+void twistY(in vec3 position, in float strength, out vec3 outPosition) {
+  float angle = strength * position.y;
+  float c = cos(angle);
+  float s = sin(angle);
+  outPosition = vec3(c * position.x - s * position.z, position.y, s * position.x + c * position.z);
+}

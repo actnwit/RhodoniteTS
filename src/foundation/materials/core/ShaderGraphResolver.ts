@@ -75,7 +75,16 @@ import { ProjectionMatrixShaderNode } from '../nodes/ProjectionMatrixShaderNode'
 import { Random_HashPRNGShaderNode } from '../nodes/Random_HashPRNGShaderNode';
 import { Random_SinHashShaderNode } from '../nodes/Random_SinHashShaderNode';
 import { RemapShaderNode } from '../nodes/RemapShaderNode';
+import { BendXYShaderNode } from '../nodes/raymarching/BendXYShaderNode';
+import { BendXZShaderNode } from '../nodes/raymarching/BendXZShaderNode';
+import { BendYXShaderNode } from '../nodes/raymarching/BendYXShaderNode';
+import { BendYZShaderNode } from '../nodes/raymarching/BendYZShaderNode';
+import { BendZXShaderNode } from '../nodes/raymarching/BendZXShaderNode';
+import { BendZYShaderNode } from '../nodes/raymarching/BendZYShaderNode';
 import { InitialPositionShaderNode } from '../nodes/raymarching/InitialPositionShaderNode';
+import { OpSmoothIntersectionShaderNode } from '../nodes/raymarching/OpSmoothIntersectionShaderNode';
+import { OpSmoothSubtractionShaderNode } from '../nodes/raymarching/OpSmoothSubtractionShaderNode';
+import { OpSmoothUnionShaderNode } from '../nodes/raymarching/OpSmoothUnionShaderNode';
 import { OpSubtractionShaderNode } from '../nodes/raymarching/OpSubtractionShaderNode';
 import { OpUnionShaderNode } from '../nodes/raymarching/OpUnionShaderNode';
 import { OutDistanceShaderNode } from '../nodes/raymarching/OutDistanceShaderNode';
@@ -107,6 +116,9 @@ import { SdSphereShaderNode } from '../nodes/raymarching/SdSphereShaderNode';
 import { SdTubeXShaderNode } from '../nodes/raymarching/SdTubeXShaderNode';
 import { SdTubeYShaderNode } from '../nodes/raymarching/SdTubeYShaderNode';
 import { SdTubeZShaderNode } from '../nodes/raymarching/SdTubeZShaderNode';
+import { TwistXShaderNode } from '../nodes/raymarching/TwistXShaderNode';
+import { TwistYShaderNode } from '../nodes/raymarching/TwistYShaderNode';
+import { TwistZShaderNode } from '../nodes/raymarching/TwistZShaderNode';
 import { SinShaderNode } from '../nodes/SinShaderNode';
 import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
 import { SplitVectorShaderNode } from '../nodes/SplitVectorShaderNode';
@@ -2298,6 +2310,66 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'OpSubtraction': {
         const nodeInstance = new OpSubtractionShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'OpSmoothUnion': {
+        const nodeInstance = new OpSmoothUnionShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'OpSmoothSubtraction': {
+        const nodeInstance = new OpSmoothSubtractionShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'OpSmoothIntersection': {
+        const nodeInstance = new OpSmoothIntersectionShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'TwistX': {
+        const nodeInstance = new TwistXShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'TwistY': {
+        const nodeInstance = new TwistYShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'TwistZ': {
+        const nodeInstance = new TwistZShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'BendXY': {
+        const nodeInstance = new BendXYShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'BendXZ': {
+        const nodeInstance = new BendXZShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'BendYZ': {
+        const nodeInstance = new BendYZShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'BendYX': {
+        const nodeInstance = new BendYXShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'BendZX': {
+        const nodeInstance = new BendZXShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'BendZY': {
+        const nodeInstance = new BendZYShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }

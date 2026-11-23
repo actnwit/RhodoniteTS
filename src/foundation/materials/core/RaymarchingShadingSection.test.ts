@@ -118,6 +118,245 @@ test('emits the raymarching shading graph as a separate function called once per
   expect(pixelShader).toContain('g_shadingColor.rgb');
 });
 
+test('emits the smooth combination and domain transform nodes', async () => {
+  const engine = await Engine.init({
+    approach: ProcessApproach.None,
+    canvas: document.createElement('canvas'),
+  });
+
+  const node = (id: string, name: string, inputs: Record<string, unknown>, outputs: Record<string, unknown>) => ({
+    id,
+    name,
+    inputs,
+    outputs,
+    controls: {},
+    position: { x: 0, y: 0 },
+  });
+  const input = (id: string, name: string) => ({ id, label: name, socket: { name } });
+  const output = (id: string, name: string) => ({ id, label: name, socket: { name } });
+
+  const graph = {
+    nodes: [
+      node('init', 'InitialPosition', {}, { outPosition: output('init_out', 'Vector3<float>') }),
+      node(
+        'twistX',
+        'TwistX',
+        { position: input('twistX_pos', 'Vector3<float>') },
+        {
+          outPosition: output('twistX_out', 'Vector3<float>'),
+        }
+      ),
+      node(
+        'twistY',
+        'TwistY',
+        { position: input('twistY_pos', 'Vector3<float>') },
+        {
+          outPosition: output('twistY_out', 'Vector3<float>'),
+        }
+      ),
+      node(
+        'twistZ',
+        'TwistZ',
+        { position: input('twistZ_pos', 'Vector3<float>') },
+        {
+          outPosition: output('twistZ_out', 'Vector3<float>'),
+        }
+      ),
+      node(
+        'bendXY',
+        'BendXY',
+        { position: input('bendXY_pos', 'Vector3<float>') },
+        {
+          outPosition: output('bendXY_out', 'Vector3<float>'),
+        }
+      ),
+      node(
+        'bendXZ',
+        'BendXZ',
+        { position: input('bendXZ_pos', 'Vector3<float>') },
+        {
+          outPosition: output('bendXZ_out', 'Vector3<float>'),
+        }
+      ),
+      node(
+        'bendYZ',
+        'BendYZ',
+        { position: input('bendYZ_pos', 'Vector3<float>') },
+        {
+          outPosition: output('bendYZ_out', 'Vector3<float>'),
+        }
+      ),
+      node(
+        'bendYX',
+        'BendYX',
+        { position: input('bendYX_pos', 'Vector3<float>') },
+        {
+          outPosition: output('bendYX_out', 'Vector3<float>'),
+        }
+      ),
+      node(
+        'bendZX',
+        'BendZX',
+        { position: input('bendZX_pos', 'Vector3<float>') },
+        {
+          outPosition: output('bendZX_out', 'Vector3<float>'),
+        }
+      ),
+      node(
+        'bendZY',
+        'BendZY',
+        { position: input('bendZY_pos', 'Vector3<float>') },
+        {
+          outPosition: output('bendZY_out', 'Vector3<float>'),
+        }
+      ),
+      {
+        id: 'radius',
+        name: 'ConstantScalarFloat',
+        outputs: { out1: output('radius_out', 'Scalar<float>') },
+        inputs: {},
+        controls: {
+          shaderStage: null,
+          in1: { __type: 'NumberInputControl', id: 'radius_ctrl', value: 1, step: 0.1 },
+        },
+        position: { x: 0, y: 0 },
+      },
+      node(
+        'sphereA',
+        'SdSphere',
+        {
+          position: input('a_pos', 'Vector3<float>'),
+          radius: input('a_radius', 'Scalar<float>'),
+        },
+        { outDistance: output('a_dist', 'Scalar<float>') }
+      ),
+      node(
+        'sphereB',
+        'SdSphere',
+        {
+          position: input('b_pos', 'Vector3<float>'),
+          radius: input('b_radius', 'Scalar<float>'),
+        },
+        { outDistance: output('b_dist', 'Scalar<float>') }
+      ),
+      node(
+        'sphereC',
+        'SdSphere',
+        {
+          position: input('c_pos', 'Vector3<float>'),
+          radius: input('c_radius', 'Scalar<float>'),
+        },
+        { outDistance: output('c_dist', 'Scalar<float>') }
+      ),
+      node(
+        'sphereD',
+        'SdSphere',
+        {
+          position: input('d_pos', 'Vector3<float>'),
+          radius: input('d_radius', 'Scalar<float>'),
+        },
+        { outDistance: output('d_dist', 'Scalar<float>') }
+      ),
+      node(
+        'smoothUnion',
+        'OpSmoothUnion',
+        {
+          lhs: input('union_lhs', 'Scalar<float>'),
+          rhs: input('union_rhs', 'Scalar<float>'),
+        },
+        { outValue: output('union_out', 'Scalar<float>') }
+      ),
+      node(
+        'smoothSub',
+        'OpSmoothSubtraction',
+        {
+          base: input('sub_base', 'Scalar<float>'),
+          subtractor: input('sub_subtractor', 'Scalar<float>'),
+        },
+        { outValue: output('sub_out', 'Scalar<float>') }
+      ),
+      node(
+        'smoothInter',
+        'OpSmoothIntersection',
+        {
+          lhs: input('inter_lhs', 'Scalar<float>'),
+          rhs: input('inter_rhs', 'Scalar<float>'),
+        },
+        { outValue: output('inter_out', 'Scalar<float>') }
+      ),
+      node('out', 'OutUnion', { in1: input('out_in', 'Scalar<float>') }, {}),
+    ],
+    connections: [
+      { id: 'c1', from: { id: 'init', portName: 'outPosition' }, to: { id: 'twistX', portName: 'position' } },
+      { id: 'c2', from: { id: 'twistX', portName: 'outPosition' }, to: { id: 'twistY', portName: 'position' } },
+      { id: 'c3', from: { id: 'twistY', portName: 'outPosition' }, to: { id: 'twistZ', portName: 'position' } },
+      { id: 'c3b', from: { id: 'twistZ', portName: 'outPosition' }, to: { id: 'bendXY', portName: 'position' } },
+      { id: 'c3c', from: { id: 'bendXY', portName: 'outPosition' }, to: { id: 'bendXZ', portName: 'position' } },
+      { id: 'c3d', from: { id: 'bendXZ', portName: 'outPosition' }, to: { id: 'bendYZ', portName: 'position' } },
+      { id: 'c3e', from: { id: 'bendYZ', portName: 'outPosition' }, to: { id: 'bendYX', portName: 'position' } },
+      { id: 'c3f', from: { id: 'bendYX', portName: 'outPosition' }, to: { id: 'bendZX', portName: 'position' } },
+      { id: 'c3g', from: { id: 'bendZX', portName: 'outPosition' }, to: { id: 'bendZY', portName: 'position' } },
+      { id: 'c3h', from: { id: 'bendZY', portName: 'outPosition' }, to: { id: 'sphereA', portName: 'position' } },
+      { id: 'c4', from: { id: 'init', portName: 'outPosition' }, to: { id: 'sphereB', portName: 'position' } },
+      { id: 'c5', from: { id: 'init', portName: 'outPosition' }, to: { id: 'sphereC', portName: 'position' } },
+      { id: 'c6', from: { id: 'init', portName: 'outPosition' }, to: { id: 'sphereD', portName: 'position' } },
+      { id: 'c7', from: { id: 'radius', portName: 'out1' }, to: { id: 'sphereA', portName: 'radius' } },
+      { id: 'c8', from: { id: 'radius', portName: 'out1' }, to: { id: 'sphereB', portName: 'radius' } },
+      { id: 'c9', from: { id: 'radius', portName: 'out1' }, to: { id: 'sphereC', portName: 'radius' } },
+      { id: 'c10', from: { id: 'radius', portName: 'out1' }, to: { id: 'sphereD', portName: 'radius' } },
+      {
+        id: 'c11',
+        from: { id: 'sphereA', portName: 'outDistance' },
+        to: { id: 'smoothUnion', portName: 'lhs' },
+      },
+      {
+        id: 'c12',
+        from: { id: 'sphereB', portName: 'outDistance' },
+        to: { id: 'smoothUnion', portName: 'rhs' },
+      },
+      {
+        id: 'c13',
+        from: { id: 'smoothUnion', portName: 'outValue' },
+        to: { id: 'smoothSub', portName: 'base' },
+      },
+      {
+        id: 'c14',
+        from: { id: 'sphereC', portName: 'outDistance' },
+        to: { id: 'smoothSub', portName: 'subtractor' },
+      },
+      {
+        id: 'c15',
+        from: { id: 'smoothSub', portName: 'outValue' },
+        to: { id: 'smoothInter', portName: 'lhs' },
+      },
+      {
+        id: 'c16',
+        from: { id: 'sphereD', portName: 'outDistance' },
+        to: { id: 'smoothInter', portName: 'rhs' },
+      },
+      { id: 'c17', from: { id: 'smoothInter', portName: 'outValue' }, to: { id: 'out', portName: 'in1' } },
+    ],
+  };
+
+  const code = ShaderGraphResolver.generateShaderCodeFromJson(engine, graph as any, new RaymarchingShaderPart());
+  expect(code).toBeDefined();
+  const pixelShader = code!.pixelShader;
+
+  expect(pixelShader).toContain('opSmoothUnion');
+  expect(pixelShader).toContain('opSmoothSubtraction');
+  expect(pixelShader).toContain('opSmoothIntersection');
+  expect(pixelShader).toContain('twistX');
+  expect(pixelShader).toContain('twistY');
+  expect(pixelShader).toContain('twistZ');
+  expect(pixelShader).toContain('bendXY');
+  expect(pixelShader).toContain('bendXZ');
+  expect(pixelShader).toContain('bendYZ');
+  expect(pixelShader).toContain('bendYX');
+  expect(pixelShader).toContain('bendZX');
+  expect(pixelShader).toContain('bendZY');
+  expect(pixelShader).toContain('return g_distance;');
+});
+
 test('generates one shading function per raymarching component and dispatches by object id', async () => {
   const engine = await Engine.init({
     approach: ProcessApproach.None,

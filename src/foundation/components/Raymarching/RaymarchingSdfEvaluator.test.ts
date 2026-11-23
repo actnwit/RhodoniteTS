@@ -425,4 +425,82 @@ describe('RaymarchingSdfEvaluator', () => {
 
     expect(evaluator.marchRay(Vector3.fromCopy3(0, 0, 5), Vector3.fromCopy3(0, 0, -1))).toBeUndefined();
   });
+
+  test('supports the TwistX/Y/Z, BendXY/XZ/YZ/YX/ZX/ZY and smooth combination nodes', () => {
+    const initial = createNode('InitialPosition');
+    const zero = createNode('ConstantScalarFloat', scalar(0));
+    const twistX = createNode('TwistX');
+    const twistY = createNode('TwistY');
+    const twistZ = createNode('TwistZ');
+    const bendXY = createNode('BendXY');
+    const bendXZ = createNode('BendXZ');
+    const bendYZ = createNode('BendYZ');
+    const bendYX = createNode('BendYX');
+    const bendZX = createNode('BendZX');
+    const bendZY = createNode('BendZY');
+    const translation = createNode('ConstantVector3Float', vec3(2, 0, 0));
+    const transform = createNode('SdApplyTransform');
+    const sphereA = createNode('SdSphere');
+    const sphereB = createNode('SdSphere');
+    const smoothUnion = createNode('OpSmoothUnion');
+    const out = createNode('OutUnion');
+
+    const graph: NodeJSON = {
+      nodes: [
+        initial,
+        zero,
+        twistX,
+        twistY,
+        twistZ,
+        bendXY,
+        bendXZ,
+        bendYZ,
+        bendYX,
+        bendZX,
+        bendZY,
+        translation,
+        transform,
+        sphereA,
+        sphereB,
+        smoothUnion,
+        out,
+      ],
+      connections: [
+        connect(initial, 'outPosition', twistX, 'position'),
+        connect(zero, 'out1', twistX, 'strength'),
+        connect(twistX, 'outPosition', twistY, 'position'),
+        connect(zero, 'out1', twistY, 'strength'),
+        connect(twistY, 'outPosition', twistZ, 'position'),
+        connect(zero, 'out1', twistZ, 'strength'),
+        connect(twistZ, 'outPosition', bendXY, 'position'),
+        connect(zero, 'out1', bendXY, 'strength'),
+        connect(bendXY, 'outPosition', bendXZ, 'position'),
+        connect(zero, 'out1', bendXZ, 'strength'),
+        connect(bendXZ, 'outPosition', bendYZ, 'position'),
+        connect(zero, 'out1', bendYZ, 'strength'),
+        connect(bendYZ, 'outPosition', bendYX, 'position'),
+        connect(zero, 'out1', bendYX, 'strength'),
+        connect(bendYX, 'outPosition', bendZX, 'position'),
+        connect(zero, 'out1', bendZX, 'strength'),
+        connect(bendZX, 'outPosition', bendZY, 'position'),
+        connect(zero, 'out1', bendZY, 'strength'),
+        connect(bendZY, 'outPosition', sphereA, 'position'),
+        connect(initial, 'outPosition', transform, 'position'),
+        connect(translation, 'out1', transform, 'translation'),
+        connect(transform, 'outTransformedPosition', sphereB, 'position'),
+        connect(sphereA, 'outDistance', smoothUnion, 'lhs'),
+        connect(sphereB, 'outDistance', smoothUnion, 'rhs'),
+        connect(smoothUnion, 'outValue', out, 'in1'),
+      ],
+    };
+
+    const bounds = new RaymarchingSdfEvaluator(graph, Matrix44.identity()).calcBounds();
+    expect(bounds).not.toBeNull();
+    // The smooth union covers both spheres (the blend extends slightly outside them).
+    expect(bounds!.minPoint.x).toBeLessThan(-0.5);
+    expect(bounds!.maxPoint.x).toBeGreaterThan(2.5);
+
+    const evaluator = new RaymarchingSdfEvaluator(graph, Matrix44.identity());
+    expect(evaluator.marchRay(Vector3.fromCopy3(0, 0, 5), Vector3.fromCopy3(0, 0, -1))).not.toBeNull();
+  });
 });

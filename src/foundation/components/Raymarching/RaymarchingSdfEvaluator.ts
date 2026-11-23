@@ -62,6 +62,22 @@ const REPEAT_AXES: Record<string, { x: boolean; y: boolean; z: boolean }> = {
 };
 
 /**
+ * Non-linear domain nodes cannot be represented by a matrix.
+ * Maps each node to the pair of axes its rotation mixes.
+ */
+const NON_LINEAR_ROTATED_AXES: Record<string, 'yz' | 'xz' | 'xy'> = {
+  TwistX: 'yz',
+  TwistY: 'xz',
+  TwistZ: 'xy',
+  BendXY: 'xy',
+  BendXZ: 'xz',
+  BendYZ: 'yz',
+  BendYX: 'xy',
+  BendZX: 'xz',
+  BendZY: 'yz',
+};
+
+/**
  * Evaluates the SDF graph stored in `RaymarchingComponent.rrnJson`.
  *
  * The graph is evaluated in the same space as the raymarching shader:
@@ -166,6 +182,10 @@ export class RaymarchingSdfEvaluator {
 
     const positionNode = this.__inputNode(inputNode.id, 'position');
     if (positionNode == null) {
+      return null;
+    }
+    if (this.__positionChainHasNonLinearNode(positionNode)) {
+      // A twisted or bent sphere is not a sphere anymore.
       return null;
     }
     const chain = this.__positionChainToWorld(positionNode);
@@ -526,6 +546,141 @@ export class RaymarchingSdfEvaluator {
         };
         return Vector3.fromCopy3(wrap(input.x, axes.x), wrap(input.y, axes.y), wrap(input.z, axes.z));
       }
+      case 'TwistX': {
+        const parent = this.__inputNode(node.id, 'position');
+        const input = parent == null ? ZERO : this.__evalPositionOutput(parent, pointInWorld);
+        if (input == null) {
+          return null;
+        }
+        const strength = this.__readScalarInput(node, 'strength', 0.5);
+        if (strength == null) {
+          return null;
+        }
+        const angle = strength * input.x;
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        return Vector3.fromCopy3(input.x, c * input.y - s * input.z, s * input.y + c * input.z);
+      }
+      case 'TwistY': {
+        const parent = this.__inputNode(node.id, 'position');
+        const input = parent == null ? ZERO : this.__evalPositionOutput(parent, pointInWorld);
+        if (input == null) {
+          return null;
+        }
+        const strength = this.__readScalarInput(node, 'strength', 0.5);
+        if (strength == null) {
+          return null;
+        }
+        const angle = strength * input.y;
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        return Vector3.fromCopy3(c * input.x - s * input.z, input.y, s * input.x + c * input.z);
+      }
+      case 'TwistZ': {
+        const parent = this.__inputNode(node.id, 'position');
+        const input = parent == null ? ZERO : this.__evalPositionOutput(parent, pointInWorld);
+        if (input == null) {
+          return null;
+        }
+        const strength = this.__readScalarInput(node, 'strength', 0.5);
+        if (strength == null) {
+          return null;
+        }
+        const angle = strength * input.z;
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        return Vector3.fromCopy3(c * input.x - s * input.y, s * input.x + c * input.y, input.z);
+      }
+      case 'BendXY': {
+        const parent = this.__inputNode(node.id, 'position');
+        const input = parent == null ? ZERO : this.__evalPositionOutput(parent, pointInWorld);
+        if (input == null) {
+          return null;
+        }
+        const strength = this.__readScalarInput(node, 'strength', 0.5);
+        if (strength == null) {
+          return null;
+        }
+        const angle = strength * input.x;
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        return Vector3.fromCopy3(c * input.x - s * input.y, s * input.x + c * input.y, input.z);
+      }
+      case 'BendXZ': {
+        const parent = this.__inputNode(node.id, 'position');
+        const input = parent == null ? ZERO : this.__evalPositionOutput(parent, pointInWorld);
+        if (input == null) {
+          return null;
+        }
+        const strength = this.__readScalarInput(node, 'strength', 0.5);
+        if (strength == null) {
+          return null;
+        }
+        const angle = strength * input.x;
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        return Vector3.fromCopy3(c * input.x - s * input.z, input.y, s * input.x + c * input.z);
+      }
+      case 'BendYZ': {
+        const parent = this.__inputNode(node.id, 'position');
+        const input = parent == null ? ZERO : this.__evalPositionOutput(parent, pointInWorld);
+        if (input == null) {
+          return null;
+        }
+        const strength = this.__readScalarInput(node, 'strength', 0.5);
+        if (strength == null) {
+          return null;
+        }
+        const angle = strength * input.y;
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        return Vector3.fromCopy3(input.x, c * input.y - s * input.z, s * input.y + c * input.z);
+      }
+      case 'BendYX': {
+        const parent = this.__inputNode(node.id, 'position');
+        const input = parent == null ? ZERO : this.__evalPositionOutput(parent, pointInWorld);
+        if (input == null) {
+          return null;
+        }
+        const strength = this.__readScalarInput(node, 'strength', 0.5);
+        if (strength == null) {
+          return null;
+        }
+        const angle = strength * input.y;
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        return Vector3.fromCopy3(s * input.y + c * input.x, c * input.y - s * input.x, input.z);
+      }
+      case 'BendZX': {
+        const parent = this.__inputNode(node.id, 'position');
+        const input = parent == null ? ZERO : this.__evalPositionOutput(parent, pointInWorld);
+        if (input == null) {
+          return null;
+        }
+        const strength = this.__readScalarInput(node, 'strength', 0.5);
+        if (strength == null) {
+          return null;
+        }
+        const angle = strength * input.z;
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        return Vector3.fromCopy3(s * input.z + c * input.x, input.y, c * input.z - s * input.x);
+      }
+      case 'BendZY': {
+        const parent = this.__inputNode(node.id, 'position');
+        const input = parent == null ? ZERO : this.__evalPositionOutput(parent, pointInWorld);
+        if (input == null) {
+          return null;
+        }
+        const strength = this.__readScalarInput(node, 'strength', 0.5);
+        if (strength == null) {
+          return null;
+        }
+        const angle = strength * input.z;
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        return Vector3.fromCopy3(input.x, s * input.z + c * input.y, c * input.z - s * input.y);
+      }
       default:
         return null;
     }
@@ -628,6 +783,49 @@ export class RaymarchingSdfEvaluator {
         }
         return Math.max(base, -subtractor);
       }
+      case 'OpSmoothUnion':
+      case 'OpSmoothIntersection': {
+        const lhsNode = this.__inputNode(node.id, 'lhs');
+        const rhsNode = this.__inputNode(node.id, 'rhs');
+        if (lhsNode == null || rhsNode == null) {
+          return null;
+        }
+        const lhs = this.__evalDistanceNode(lhsNode, pointInWorld);
+        const rhs = this.__evalDistanceNode(rhsNode, pointInWorld);
+        if (lhs == null || rhs == null) {
+          return null;
+        }
+        const smoothness = this.__readScalarInput(node, 'smoothness', 0.1);
+        if (smoothness == null) {
+          return null;
+        }
+        const k = Math.max(smoothness, 0.0001);
+        if (node.name === 'OpSmoothUnion') {
+          const h = Math.min(Math.max(0.5 + (0.5 * (rhs - lhs)) / k, 0), 1);
+          return rhs + (lhs - rhs) * h - k * h * (1 - h);
+        }
+        const h = Math.min(Math.max(0.5 - (0.5 * (rhs - lhs)) / k, 0), 1);
+        return rhs + (lhs - rhs) * h + k * h * (1 - h);
+      }
+      case 'OpSmoothSubtraction': {
+        const baseNode = this.__inputNode(node.id, 'base');
+        const subtractorNode = this.__inputNode(node.id, 'subtractor');
+        if (baseNode == null || subtractorNode == null) {
+          return null;
+        }
+        const base = this.__evalDistanceNode(baseNode, pointInWorld);
+        const subtractor = this.__evalDistanceNode(subtractorNode, pointInWorld);
+        if (base == null || subtractor == null) {
+          return null;
+        }
+        const smoothness = this.__readScalarInput(node, 'smoothness', 0.1);
+        if (smoothness == null) {
+          return null;
+        }
+        const k = Math.max(smoothness, 0.0001);
+        const h = Math.min(Math.max(0.5 - (0.5 * (subtractor + base)) / k, 0), 1);
+        return base + (-subtractor - base) * h + k * h * (1 - h);
+      }
       case 'OutUnion':
       case 'OutDistance': {
         const inputNode = this.__inputNode(node.id, 'in1') ?? this.__inputNode(node.id, 'value');
@@ -689,6 +887,59 @@ export class RaymarchingSdfEvaluator {
         bounds = baseNode == null ? null : this.__evalBoundsNode(baseNode);
         break;
       }
+      case 'OpSmoothUnion': {
+        const lhsNode = this.__inputNode(node.id, 'lhs');
+        const rhsNode = this.__inputNode(node.id, 'rhs');
+        const smoothness = this.__readScalarInput(node, 'smoothness', 0.1);
+        if (lhsNode != null && rhsNode != null && smoothness != null) {
+          const lhs = this.__evalBoundsNode(lhsNode);
+          const rhs = this.__evalBoundsNode(rhsNode);
+          if (lhs != null && rhs != null) {
+            const merged = lhs.clone();
+            merged.mergeAABB(rhs);
+            // The smooth blend can extend slightly outside the union of the inputs.
+            const k = Math.abs(smoothness);
+            const expanded = new AABB();
+            expanded.addPosition(
+              Vector3.fromCopy3(merged.minPoint.x - k, merged.minPoint.y - k, merged.minPoint.z - k)
+            );
+            expanded.addPosition(
+              Vector3.fromCopy3(merged.maxPoint.x + k, merged.maxPoint.y + k, merged.maxPoint.z + k)
+            );
+            bounds = expanded;
+          }
+        }
+        break;
+      }
+      case 'OpSmoothSubtraction': {
+        // base - subtractor is a subset of base.
+        const baseNode = this.__inputNode(node.id, 'base');
+        bounds = baseNode == null ? null : this.__evalBoundsNode(baseNode);
+        break;
+      }
+      case 'OpSmoothIntersection': {
+        const lhsNode = this.__inputNode(node.id, 'lhs');
+        const rhsNode = this.__inputNode(node.id, 'rhs');
+        if (lhsNode != null && rhsNode != null) {
+          const lhs = this.__evalBoundsNode(lhsNode);
+          const rhs = this.__evalBoundsNode(rhsNode);
+          if (lhs != null && rhs != null) {
+            const minX = Math.max(lhs.minPoint.x, rhs.minPoint.x);
+            const minY = Math.max(lhs.minPoint.y, rhs.minPoint.y);
+            const minZ = Math.max(lhs.minPoint.z, rhs.minPoint.z);
+            const maxX = Math.min(lhs.maxPoint.x, rhs.maxPoint.x);
+            const maxY = Math.min(lhs.maxPoint.y, rhs.maxPoint.y);
+            const maxZ = Math.min(lhs.maxPoint.z, rhs.maxPoint.z);
+            if (minX <= maxX && minY <= maxY && minZ <= maxZ) {
+              const box = new AABB();
+              box.addPosition(Vector3.fromCopy3(minX, minY, minZ));
+              box.addPosition(Vector3.fromCopy3(maxX, maxY, maxZ));
+              bounds = box;
+            }
+          }
+        }
+        break;
+      }
       case 'OutUnion':
       case 'OutDistance': {
         const inputNode = this.__inputNode(node.id, 'in1') ?? this.__inputNode(node.id, 'value');
@@ -731,7 +982,7 @@ export class RaymarchingSdfEvaluator {
     const bounds = new AABB();
     bounds.addPosition(Vector3.fromCopy3(center.x - extentX, center.y - extentY, center.z - extentZ));
     bounds.addPosition(Vector3.fromCopy3(center.x + extentX, center.y + extentY, center.z + extentZ));
-    return bounds;
+    return this.__expandBoundsForNonLinearChain(node, bounds);
   }
 
   private __evalPrimitiveBounds(node: NodeJSONNode, halfExtents: Vector3): AABB | null {
@@ -752,7 +1003,101 @@ export class RaymarchingSdfEvaluator {
 
     const worldBounds = new AABB();
     AABB.multiplyMatrixTo(chain, localBounds, worldBounds);
-    return worldBounds.isVanilla() ? null : worldBounds;
+    if (worldBounds.isVanilla()) {
+      return null;
+    }
+    return this.__expandBoundsForNonLinearChain(node, worldBounds);
+  }
+
+  /**
+   * Returns true when a position chain contains a non-linear domain node
+   * (TwistX/Y/Z or BendXY/XZ/YZ/YX/ZX/ZY), which cannot be represented by a matrix.
+   */
+  private __positionChainHasNonLinearNode(node: NodeJSONNode): boolean {
+    const visited = new Set<string>();
+    const stack: NodeJSONNode[] = [node];
+    while (stack.length > 0) {
+      const current = stack.pop()!;
+      if (visited.has(current.id)) {
+        continue;
+      }
+      visited.add(current.id);
+      if (current.name in NON_LINEAR_ROTATED_AXES) {
+        return true;
+      }
+      const parent = this.__inputNode(current.id, 'position');
+      if (parent != null) {
+        stack.push(parent);
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Expands primitive bounds for non-linear domain nodes in the position chain.
+   * The chain folds them in as identity, so the extents of the rotated axis pair
+   * are widened to the radius around the rotation axis (a conservative bound for
+   * any angle).
+   */
+  private __expandBoundsForNonLinearChain(node: NodeJSONNode, bounds: AABB): AABB {
+    const positionNode = this.__inputNode(node.id, 'position');
+    if (positionNode == null || !this.__positionChainHasNonLinearNode(positionNode)) {
+      return bounds;
+    }
+
+    const rotatedAxes = new Set<'yz' | 'xz' | 'xy'>();
+    const visited = new Set<string>();
+    const stack: NodeJSONNode[] = [positionNode];
+    while (stack.length > 0) {
+      const current = stack.pop()!;
+      if (visited.has(current.id)) {
+        continue;
+      }
+      visited.add(current.id);
+      const axes = NON_LINEAR_ROTATED_AXES[current.name];
+      if (axes != null) {
+        rotatedAxes.add(axes);
+      }
+      const parent = this.__inputNode(current.id, 'position');
+      if (parent != null) {
+        stack.push(parent);
+      }
+    }
+
+    const min = bounds.minPoint;
+    const max = bounds.maxPoint;
+    let minX = min.x;
+    let maxX = max.x;
+    let minY = min.y;
+    let maxY = max.y;
+    let minZ = min.z;
+    let maxZ = max.z;
+    if (rotatedAxes.has('yz')) {
+      const rho = Math.hypot(Math.max(Math.abs(minY), Math.abs(maxY)), Math.max(Math.abs(minZ), Math.abs(maxZ)));
+      minY = -rho;
+      maxY = rho;
+      minZ = -rho;
+      maxZ = rho;
+    }
+    if (rotatedAxes.has('xz')) {
+      const rho = Math.hypot(Math.max(Math.abs(minX), Math.abs(maxX)), Math.max(Math.abs(minZ), Math.abs(maxZ)));
+      minX = -rho;
+      maxX = rho;
+      minZ = -rho;
+      maxZ = rho;
+    }
+    if (rotatedAxes.has('xy')) {
+      const rho = Math.hypot(Math.max(Math.abs(minX), Math.abs(maxX)), Math.max(Math.abs(minY), Math.abs(maxY)));
+      minX = -rho;
+      maxX = rho;
+      minY = -rho;
+      maxY = rho;
+    }
+
+    const expanded = new AABB();
+    expanded.addPosition(Vector3.fromCopy3(minX, minY, minZ));
+    expanded.addPosition(Vector3.fromCopy3(maxX, maxY, maxZ));
+    return expanded;
   }
 
   /**
@@ -803,6 +1148,22 @@ export class RaymarchingSdfEvaluator {
         if (parentChain != null) {
           chain = Matrix44.multiply(parentChain, this.__worldMatrix);
         }
+        break;
+      }
+      case 'TwistX':
+      case 'TwistY':
+      case 'TwistZ':
+      case 'BendXY':
+      case 'BendXZ':
+      case 'BendYZ':
+      case 'BendYX':
+      case 'BendZX':
+      case 'BendZY': {
+        // Non-linear domain nodes cannot be represented by a matrix. For bounds they are
+        // folded in as identity and expanded conservatively by __expandBoundsForNonLinearChain.
+        // calcSphere() rejects graphs that contain them, so exact picking is not affected.
+        const parent = this.__inputNode(node.id, 'position');
+        chain = parent == null ? Matrix44.fromCopyMatrix44(IDENTITY_MATRIX) : this.__positionChainToWorld(parent);
         break;
       }
       default:
