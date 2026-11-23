@@ -45,7 +45,7 @@ vec3 get_sample_from_backbuffer(vec2 sampleCoord, float perceptualRoughness, flo
   vec2 backBufferTextureSize = vec2(textureSize(u_backBufferTexture, 0));
   float backBufferTextureLength = max(backBufferTextureSize.x, backBufferTextureSize.y);
 
-#ifdef WEBGL2_MULTI_VIEW
+#if defined(WEBGL2_MULTI_VIEW) && !defined(RN_RAYMARCHING_SHADING)
   // For VR
   backBufferTextureLength = max(backBufferTextureSize.x / 2.0, backBufferTextureSize.y);
   sampleCoord.x = sampleCoord.x * 0.5;

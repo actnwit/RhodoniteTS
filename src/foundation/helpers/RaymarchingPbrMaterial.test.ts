@@ -333,3 +333,116 @@ test('enables the PBR extension features connected to the PbrShader node', async
   expect(material._allFieldsInfo.has('sheenLutTexture')).toBe(true);
   expect(material._allFieldsInfo.has('sheenEnvTexture')).toBe(true);
 });
+
+test('enables transmission and volume with the back buffer texture used by refraction', async () => {
+  const engine = await Engine.init({
+    approach: ProcessApproach.None,
+    canvas: document.createElement('canvas'),
+  });
+
+  const vector3 = { name: 'Vector3<float>' };
+  const vector4 = { name: 'Vector4<float>' };
+  const scalar = { name: 'Scalar<float>' };
+  const graph = createSphereGraph();
+
+  graph.nodes.push(
+    {
+      id: 'hitPosition',
+      name: 'RaymarchHitPosition',
+      outputs: { outPosition: { id: 'hitPosition_out', label: 'Out Position', socket: vector4 } },
+      inputs: {},
+      controls: {},
+      position: { x: 0, y: 0 },
+    },
+    {
+      id: 'hitNormal',
+      name: 'RaymarchHitNormal',
+      outputs: { outNormal: { id: 'hitNormal_out', label: 'Out Normal', socket: vector3 } },
+      inputs: {},
+      controls: {},
+      position: { x: 0, y: 0 },
+    },
+    {
+      id: 'transmissionProps',
+      name: 'PbrTransmissionProps',
+      outputs: { outTransmission: { id: 'transmission_out', label: 'Out Transmission', socket: scalar } },
+      inputs: {},
+      controls: { shaderStage: { value: 'Neutral' } },
+      position: { x: 0, y: 0 },
+    },
+    {
+      id: 'volumeProps',
+      name: 'PbrVolumeProps',
+      outputs: { outVolumeProps: { id: 'volume_out', label: 'Out Volume Props', socket: { name: 'Struct' } } },
+      inputs: {},
+      controls: { shaderStage: { value: 'Neutral' } },
+      position: { x: 0, y: 0 },
+    },
+    {
+      id: 'specularProps',
+      name: 'PbrSpecularProps',
+      outputs: { outSpecularProps: { id: 'specular_out', label: 'Out Specular Props', socket: { name: 'Struct' } } },
+      inputs: {},
+      controls: { shaderStage: { value: 'Neutral' } },
+      position: { x: 0, y: 0 },
+    },
+    {
+      id: 'dispersion',
+      name: 'ConstantScalarFloat',
+      outputs: { out1: { id: 'dispersion_out', label: 'Scalar<float>Out', socket: scalar } },
+      inputs: {},
+      controls: { shaderStage: { value: 'Neutral' }, in1: { value: 0 } },
+      position: { x: 0, y: 0 },
+    },
+    {
+      id: 'pbr',
+      name: 'PbrShader',
+      outputs: { outColor: { id: 'pbr_out', label: 'Out Color', socket: vector4 } },
+      inputs: {
+        positionInWorld: { id: 'pbr_position', label: 'In Position', socket: vector4 },
+        normalInWorld: { id: 'pbr_normal', label: 'In Normal', socket: vector3 },
+        transmission: { id: 'pbr_transmission', label: 'In Transmission', socket: scalar },
+        volumeProps: { id: 'pbr_volume', label: 'In Volume Props', socket: { name: 'Struct' } },
+        specularProps: { id: 'pbr_specular', label: 'In Specular Props', socket: { name: 'Struct' } },
+        dispersion: { id: 'pbr_dispersion', label: 'In Dispersion', socket: scalar },
+      },
+      controls: { shaderStage: { value: 'Neutral' } },
+      position: { x: 0, y: 0 },
+    },
+    {
+      id: 'outShading',
+      name: 'OutShadingColor',
+      outputs: {},
+      inputs: { value: { id: 'outShading_in', label: 'In Color', socket: vector4 } },
+      controls: {},
+      position: { x: 0, y: 0 },
+    }
+  );
+  graph.connections.push(
+    { id: 't1', from: { id: 'hitPosition', portName: 'outPosition' }, to: { id: 'pbr', portName: 'positionInWorld' } },
+    { id: 't2', from: { id: 'hitNormal', portName: 'outNormal' }, to: { id: 'pbr', portName: 'normalInWorld' } },
+    {
+      id: 't3',
+      from: { id: 'transmissionProps', portName: 'outTransmission' },
+      to: { id: 'pbr', portName: 'transmission' },
+    },
+    { id: 't4', from: { id: 'volumeProps', portName: 'outVolumeProps' }, to: { id: 'pbr', portName: 'volumeProps' } },
+    {
+      id: 't5',
+      from: { id: 'specularProps', portName: 'outSpecularProps' },
+      to: { id: 'pbr', portName: 'specularProps' },
+    },
+    { id: 't6', from: { id: 'dispersion', portName: 'out1' }, to: { id: 'pbr', portName: 'dispersion' } },
+    { id: 't7', from: { id: 'pbr', portName: 'outColor' }, to: { id: 'outShading', portName: 'value' } }
+  );
+
+  const result = MaterialHelper.createNodeBasedRaymarchingCustomMaterial(engine, graph);
+  expect(result).toBeDefined();
+  const material = result!.material;
+
+  for (const define of ['RN_USE_TRANSMISSION', 'RN_USE_VOLUME', 'RN_USE_SPECULAR', 'RN_USE_DISPERSION']) {
+    expect(material.getShaderDefines()).toContain(define);
+  }
+  // The transmission shading samples the resolved scene color the pipeline assigns.
+  expect(material._allFieldsInfo.has('backBufferTexture')).toBe(true);
+});

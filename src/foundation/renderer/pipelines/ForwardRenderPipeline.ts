@@ -1307,10 +1307,17 @@ export class ForwardRenderPipeline extends RnObject {
       renderPass.setFramebuffer(mainFrameBuffer);
       if (this.__frameBufferMsaa != null) {
         renderPass.setResolveFramebuffer(this.__frameBufferResolve!);
+        // The reference resolve target is the back buffer the transmission pass samples.
+        // Resolving the raymarching result into it keeps the SDF in the scene color that
+        // transparent materials refract, and in the mipmaps generated after this pass.
+        if (this.__frameBufferResolveForReference != null) {
+          renderPass.setResolveFramebuffer2(this.__frameBufferResolveForReference);
+        }
       }
     }
     renderPass.setPreRenderFunction(() => {
       this.__applyIblToRaymarchingMaterial();
+      this.__applyBackBufferTextureToRaymarchingMaterial();
       const raymarchingComponents = this.__engine.componentRepository.getComponentsWithType(
         RaymarchingComponent
       ) as RaymarchingComponent[];
@@ -1338,9 +1345,15 @@ export class ForwardRenderPipeline extends RnObject {
   public setRaymarchingMaterial(material: Material) {
     this.__raymarchingRenderPass?.setBufferLessFullScreenRendering(material);
     this.__applyIblToRaymarchingMaterial();
+    this.__applyBackBufferTextureToRaymarchingMaterial();
     // The raymarching material is not part of any mesh primitive, so the shadow
     // parameters of the last shadow pass setup have to be applied explicitly.
     this.__shadowSystem?.applyShadowParametersToMaterials([material]);
+    // A transmission material samples the scene color behind the SDF, so the pass has
+    // to run after the opaque expressions. Rebuild the frame expression order.
+    if (this.__frame != null) {
+      this.__setUpExpressionsForRendering();
+    }
   }
 
   /** Materials outside mesh primitives that still receive shadows (the raymarching material). */
@@ -1416,6 +1429,44 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   /**
+   * Whether the shared raymarching material shades with transmission, which means it
+   * samples the scene color behind the SDF.
+   *
+   * Only then does the raymarching pass have to run after the opaque expressions.
+   * Without transmission it keeps its legacy position before them, so blended meshes
+   * that are drawn in the opaque expression (the pipeline may be configured with
+   * isTransmission: false) keep blending over the SDF.
+   */
+  private __isRaymarchingTransmissionEnabled() {
+    return this.getRaymarchingMaterial()?.isShaderDefine('RN_USE_TRANSMISSION') ?? false;
+  }
+
+  /**
+   * Binds the resolved scene color to the raymarching material for transmission.
+   *
+   * This is the same reference texture the transmission materials of the transparent
+   * pass sample. The raymarching pass is rendered after the opaque expressions, so the
+   * texture holds the current frame. Materials without the semantic ignore the call,
+   * and an identical binding is a no-op, so this is safe to run every frame.
+   */
+  private __applyBackBufferTextureToRaymarchingMaterial() {
+    if (this.__isSimple) {
+      // Simple mode has no offscreen render targets, so no back buffer exists.
+      return;
+    }
+    const material = this.getRaymarchingMaterial();
+    if (material == null) {
+      return;
+    }
+    const backBufferTexture = this.__getMainFrameBufferBackBuffer()?.getColorAttachedRenderTargetTexture(0);
+    const sampler = this.__samplerForBackBuffer;
+    if (backBufferTexture == null || sampler == null) {
+      return;
+    }
+    material.setTextureParameter(ShaderSemantics.BackBufferTexture.str, backBufferTexture, sampler);
+  }
+
+  /**
    * Internal method to set up the frame with all configured expressions.
    *
    * @remarks
@@ -1426,9 +1477,11 @@ export class ForwardRenderPipeline extends RnObject {
    * 3. Main expressions (opaque rendering)
    * 4. Mipmap generation
    * 5. Multi-view blitting
-   * 6. Transparent expressions
-   * 7. Bloom effect
-   * 8. Tone mapping
+   * 6. Raymarching expression for transmission materials (samples the scene color;
+   *    without transmission the raymarching expression is drawn before step 3)
+   * 7. Transparent expressions
+   * 8. Bloom effect
+   * 9. Tone mapping
    *
    * @internal
    */
@@ -1450,7 +1503,11 @@ export class ForwardRenderPipeline extends RnObject {
       }
     }
 
-    if (this.__raymarchingExpression != null) {
+    const raymarchingUsesTransmission = this.__isRaymarchingTransmissionEnabled();
+    if (!raymarchingUsesTransmission && this.__raymarchingExpression != null) {
+      // Legacy order: the SDF is drawn before the opaque expressions (its depth writes
+      // cull opaque meshes behind it), and blended primitives rendered by those
+      // expressions draw over the SDF.
       frame.addExpression(this.__raymarchingExpression);
     }
 
@@ -1477,6 +1534,14 @@ export class ForwardRenderPipeline extends RnObject {
     // multi-view blitting for VR rendering
     if (!this.__isSimple && this.__multiViewBlitBackBufferExpression != null) {
       frame.addExpression(this.__multiViewBlitBackBufferExpression);
+    }
+
+    // Raymarching with transmission samples the scene color behind the SDF, so it runs
+    // after the opaque expressions (and after the back buffer and its mipmaps are
+    // ready). It still runs before the transparent expressions, whose materials refract
+    // the SDF, and its depth writes cull opaque meshes behind the SDF as before.
+    if (raymarchingUsesTransmission && this.__raymarchingExpression != null) {
+      frame.addExpression(this.__raymarchingExpression);
     }
 
     // transparent expressions for transparent rendering

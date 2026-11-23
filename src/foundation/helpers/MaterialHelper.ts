@@ -62,7 +62,7 @@ import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
 import { ProcessStage } from '../definitions/ProcessStage';
 import type { ShaderSemanticsInfo } from '../definitions/ShaderSemanticsInfo';
-import { ShaderType } from '../definitions/ShaderType';
+import { ShaderType, type ShaderTypeEnum } from '../definitions/ShaderType';
 import type { Primitive } from '../geometry/Primitive';
 import { ColorGradingUsingLUTsMaterialContent } from '../materials/contents/ColorGradingUsingLUTsMaterialContent';
 import { CustomMaterialContent } from '../materials/contents/CustomMaterialContent';
@@ -2063,11 +2063,38 @@ function addPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: Sha
     max: Number.MAX_VALUE,
     isInternalSetting: true,
   });
+  addBackBufferTextureSemanticInfo(engine, additionalShaderSemanticInfo, shaderStage);
+}
+
+/**
+ * Adds the transmission back buffer texture semantic.
+ *
+ * The texture is the resolved scene color supplied by ForwardRenderPipeline on each
+ * frame (see ForwardRenderPipeline.__setupRaymarchingExpression and
+ * __setTransparentExpressionsForTransmission), so this is not an internal setting:
+ * the pipeline assigns it through setTextureParameter and the material auto-binds it
+ * on every draw.
+ *
+ * @param engine - The engine instance
+ * @param additionalShaderSemanticInfo - Array to add semantic info to
+ * @param stage - Shader stage that declares the texture
+ */
+function addBackBufferTextureSemanticInfo(
+  engine: Engine,
+  additionalShaderSemanticInfo: ShaderSemanticsInfo[],
+  stage: ShaderTypeEnum
+) {
+  const sampler = getSharedSampler(engine, {
+    minFilter: TextureParameter.LinearMipmapLinear,
+    magFilter: TextureParameter.Linear,
+    wrapS: TextureParameter.ClampToEdge,
+    wrapT: TextureParameter.ClampToEdge,
+  });
   additionalShaderSemanticInfo.push({
     semantic: 'backBufferTexture',
     componentType: ComponentType.Int,
     compositionType: CompositionType.Texture2D,
-    stage: shaderStage,
+    stage,
     initialValue: [-1, engine.dummyTextures.dummyBlackTexture, sampler],
     min: 0,
     max: Number.MAX_VALUE,
@@ -2330,6 +2357,10 @@ function detectRaymarchingPbrFeatures(shaderNodeJson: ShaderNodeJson) {
       isIridescence: false,
       isAnisotropy: false,
       isDiffuseTransmission: false,
+      isSpecular: false,
+      isTransmission: false,
+      isVolume: false,
+      isDispersion: false,
     };
   }
 
@@ -2364,6 +2395,12 @@ function detectRaymarchingPbrFeatures(shaderNodeJson: ShaderNodeJson) {
   const isIridescence = isPropsConnected('PbrIridescenceProps', 'iridescenceProps');
   const isAnisotropy = isPropsConnected('PbrAnisotropyProps', 'anisotropyProps');
   const isDiffuseTransmission = isPropsConnected('PbrDiffuseTransmissionProps', 'diffuseTransmissionProps');
+  const isSpecular = isPropsConnected('PbrSpecularProps', 'specularProps');
+  const isVolume = isPropsConnected('PbrVolumeProps', 'volumeProps');
+  // Transmission and dispersion accept any scalar source (a props node or a constant),
+  // matching the mesh node material path (createNodeBasedCustomMaterial).
+  const isTransmission = pbrShaderNode != null && isConnectedTo(pbrShaderNode.id, 'transmission') != null;
+  const isDispersion = pbrShaderNode != null && isConnectedTo(pbrShaderNode.id, 'dispersion') != null;
 
   return {
     useNormalTexture,
@@ -2373,6 +2410,10 @@ function detectRaymarchingPbrFeatures(shaderNodeJson: ShaderNodeJson) {
     isIridescence,
     isAnisotropy,
     isDiffuseTransmission,
+    isSpecular,
+    isTransmission,
+    isVolume,
+    isDispersion,
   };
 }
 
@@ -2410,6 +2451,14 @@ function createNodeBasedRaymarchingCustomMaterial(
     // buffer-less raymarching draw, so it is not an internal setting here.
     addPbrSheenSemanticInfo(engine, additionalShaderSemanticInfo, { sheenEnvIsInternalSetting: false });
   }
+  if (pbrFeatures.isTransmission) {
+    // The transmission shading samples the resolved scene color, which the pipeline
+    // assigns to the material before the raymarching draw. A Texture2D node with the
+    // same name already declares the semantic, so do not add a duplicate.
+    if (!additionalShaderSemanticInfo.some(info => info.semantic === 'backBufferTexture')) {
+      addBackBufferTextureSemanticInfo(engine, additionalShaderSemanticInfo, ShaderType.PixelShader);
+    }
+  }
   const material = reuseOrRecreateCustomMaterial(
     engine,
     shaderCode.vertexShader,
@@ -2427,6 +2476,10 @@ function createNodeBasedRaymarchingCustomMaterial(
       isIridescence: pbrFeatures.isIridescence,
       isAnisotropy: pbrFeatures.isAnisotropy,
       isDiffuseTransmission: pbrFeatures.isDiffuseTransmission,
+      isSpecular: pbrFeatures.isSpecular,
+      isTransmission: pbrFeatures.isTransmission,
+      isVolume: pbrFeatures.isVolume,
+      isDispersion: pbrFeatures.isDispersion,
       additionalShaderSemanticInfo,
     },
     currentMaterial
