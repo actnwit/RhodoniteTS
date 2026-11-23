@@ -17,6 +17,7 @@ import type { IShapeEntityMethods } from '../components/Shape/IShapeEntity';
 import type { ISkeletalEntityMethods } from '../components/Skeletal/ISkeletalEntity';
 import type { ITransformEntityMethods } from '../components/Transform/ITransformEntity';
 import type { IEntity } from '../core/Entity';
+import { LightType } from '../definitions/LightType';
 import type { Engine } from '../system/Engine';
 
 /**
@@ -133,4 +134,33 @@ export function createLightWithCameraEntity(engine: Engine): ILightEntity & ICam
   entityAddedComponent2.getCamera().isSyncToLight = true;
 
   return entityAddedComponent2;
+}
+
+/**
+ * Attaches a camera synchronized to the light to an existing light entity.
+ *
+ * A spot or directional light renders its shadow map from such a camera, so a light has to own one before it casts
+ * shadows. Lights created by the engine ({@link createLightWithCameraEntity}) already have one; this helper attaches
+ * it lazily to lights that were imported without (e.g. glTF lights that do not cast shadows).
+ *
+ * Every camera component adds an entry to the per-buffer-view offset tables of the generated shaders, so attaching
+ * the camera to lights that never cast shadows would make every shader of the scene larger and slower.
+ * Does nothing for point lights, or when the entity already has a camera.
+ *
+ * @param engine - The engine instance
+ * @param lightEntity - The light entity to extend
+ */
+export function attachLightShadowCamera(engine: Engine, lightEntity: ILightEntity): void {
+  const lightComponent = lightEntity.getLight();
+  if (lightComponent.type !== LightType.Spot && lightComponent.type !== LightType.Directional) {
+    return;
+  }
+  if (lightEntity.tryToGetCamera() != null) {
+    return;
+  }
+  const lightCameraEntity = engine.entityRepository.tryToAddComponentToEntityByTID(
+    WellKnownComponentTIDs.CameraComponentTID,
+    lightEntity
+  ) as unknown as ILightEntity & ICameraEntityMethods;
+  lightCameraEntity.getCamera().isSyncToLight = true;
 }

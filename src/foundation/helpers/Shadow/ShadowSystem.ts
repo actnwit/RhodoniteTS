@@ -18,7 +18,7 @@ import type { FrameBuffer } from '../../renderer/FrameBuffer';
 import type { Engine } from '../../system/Engine';
 import type { RenderTargetTexture } from '../../textures/RenderTargetTexture';
 import { Sampler } from '../../textures/Sampler';
-import type { ISceneGraphEntity } from '../EntityHelper';
+import { attachLightShadowCamera, type ILightEntity, type ISceneGraphEntity } from '../EntityHelper';
 import { GaussianBlur } from '../GaussianBlurHelper';
 import { RenderableHelper } from '../RenderableHelper';
 import { PointShadowMap } from './PointShadowMap';
@@ -132,6 +132,14 @@ export class ShadowSystem {
     this.__lightCastShadows.length = lightComponents.length;
     this.__lightSids.length = lightComponents.length;
     this.__assignShadowSlots(lightComponents, shadowCasters.length > 0);
+    // A spot or directional light renders its shadow map from a camera synchronized to it. Imported lights only
+    // get one when they cast shadows (ModelConverter), so attach it here for the lights that started casting
+    // shadows later (e.g. enabled in the editor).
+    for (const lightComponent of lightComponents) {
+      if (lightComponent._shadowSlot >= 0) {
+        attachLightShadowCamera(this.__engine, lightComponent.entity as ILightEntity);
+      }
+    }
     for (let i = 0; i < lightComponents.length; i++) {
       const lightComponent = lightComponents[i];
       this.__lightTypes[i] = lightComponent.type;

@@ -172,16 +172,20 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
       );
       const arrayLength = Component.getArrayLengthOfMember(engine).get(componentClass)?.get(memberName) ?? 0;
       const arrayLengthStr = `let arrayLength: u32 = ${arrayLength}u;`;
-      const indexStr = `indices[instanceIdOfBufferViews] + instanceIdInBufferView * ${vec4SizeOfProperty}u * arrayLength + ${vec4SizeOfProperty}u * idxOfArray;`; // vec4_idx
+      // The offsets of the buffer views are a compile-time constant. They must be declared at module scope: a
+      // var<function> array is initialized on every call, which is expensive when a scene has many components of
+      // the class (the table has one entry per buffer view, i.e. per camera for cameraComponentCountPerBufferView 1).
+      const indicesName = `rnIndices_${memberName}`;
+      const indexStr = `${indicesName}[instanceIdOfBufferViews] + instanceIdInBufferView * ${vec4SizeOfProperty}u * arrayLength + ${vec4SizeOfProperty}u * idxOfArray;`; // vec4_idx
       let conversionStr = '';
       if (memberInfo.convertToBool) {
         conversionStr = 'if (value > 0.5) { return true; } else { return false; }';
       }
       str += `
+  const ${indicesName}: array<u32, ${locationOffsets_vec4_idx.length}> = array<u32, ${locationOffsets_vec4_idx.length}>(${locationOffsets_vec4_idx.map(offset => `${offset}u`).join(', ')});
   fn get_${memberName}(instanceId: u32, idxOfArray: u32) -> ${memberInfo.convertToBool ? 'bool' : typeStr} {
     let instanceIdOfBufferViews = instanceId / ${componentCountPerBufferView};
     let instanceIdInBufferView = instanceId % ${componentCountPerBufferView};
-    var<function> indices: array<u32, ${locationOffsets_vec4_idx.length}> = array<u32, ${locationOffsets_vec4_idx.length}>(${locationOffsets_vec4_idx.map(offset => `${offset}u`).join(', ')});
     ${arrayLengthStr}
     let index: u32 = ${indexStr};
     let value = ${fetchTypeStr}(index);
@@ -224,22 +228,23 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
       }
 
       const locationOffsets = Component.getLocationOffsetOfMemberOfComponent(engine, componentClass, memberName);
+      const indicesName = `rnIndices_${memberName}`;
       let indexStr = '';
       switch (memberInfo.compositionType) {
         case CompositionType.Mat4:
-          indexStr = 'indices[instanceIdOfBufferViews] + 4u * instanceIdInBufferView;';
+          indexStr = `${indicesName}[instanceIdOfBufferViews] + 4u * instanceIdInBufferView;`;
           break;
         case CompositionType.Mat3:
-          indexStr = 'indices[instanceIdOfBufferViews] * 4u + 9u * instanceIdInBufferView;';
+          indexStr = `${indicesName}[instanceIdOfBufferViews] * 4u + 9u * instanceIdInBufferView;`;
           break;
         case CompositionType.Vec4:
-          indexStr = 'indices[instanceIdOfBufferViews] + 1u * instanceIdInBufferView;';
+          indexStr = `${indicesName}[instanceIdOfBufferViews] + 1u * instanceIdInBufferView;`;
           break;
         case CompositionType.Vec3:
-          indexStr = 'indices[instanceIdOfBufferViews] * 4u + 3u * instanceIdInBufferView;';
+          indexStr = `${indicesName}[instanceIdOfBufferViews] * 4u + 3u * instanceIdInBufferView;`;
           break;
         case CompositionType.Scalar:
-          indexStr = 'indices[instanceIdOfBufferViews] * 4u + 1u * instanceIdInBufferView;';
+          indexStr = `${indicesName}[instanceIdOfBufferViews] * 4u + 1u * instanceIdInBufferView;`;
           break;
         default:
           throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
@@ -248,11 +253,12 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
       if (memberInfo.convertToBool) {
         conversionStr = 'if (value > 0.5) { return true; } else { return false; }';
       }
+      // Module-scope const, for the same reason as in processForArrayType.
       str += `
+  const ${indicesName}: array<u32, ${locationOffsets.length}> = array<u32, ${locationOffsets.length}>(${locationOffsets.map(offset => `${offset}u`).join(', ')});
   fn get_${memberName}(instanceId: u32) -> ${memberInfo.convertToBool ? 'bool' : typeStr} {
     let instanceIdOfBufferViews = instanceId / ${componentCountPerBufferView};
     let instanceIdInBufferView = instanceId % ${componentCountPerBufferView};
-    var<function> indices: array<u32, ${locationOffsets.length}> = array<u32, ${locationOffsets.length}>(${locationOffsets.map(offset => `${offset}u`).join(', ')});
     let index: u32 = ${indexStr};
     let value = ${fetchTypeStr}(index);
     ${memberInfo.convertToBool ? conversionStr : 'return value;'}
@@ -264,31 +270,31 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private static __getMorphedPositionGetter(engine: Engine): string {
     const morphUniformDataTargetNumbers = Primitive.getMorphUniformDataTargetNumbers();
     const morphUniformDataTargetNumbersStr = `
-    var<function> morphUniformDataTargetNumbers: array<u32, ${morphUniformDataTargetNumbers.length}> = array<u32, ${morphUniformDataTargetNumbers.length}>(${morphUniformDataTargetNumbers.map(num => `${num}u`).join(', ')});
+    const rnMorphUniformDataTargetNumbers: array<u32, ${morphUniformDataTargetNumbers.length}> = array<u32, ${morphUniformDataTargetNumbers.length}>(${morphUniformDataTargetNumbers.map(num => `${num}u`).join(', ')});
     `;
     const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
     const morphUniformDataOffsetsStr = `
-    var<function> morphUniformDataOffsets: array<u32, ${morphUniformDataOffsets.length}> = array<u32, ${morphUniformDataOffsets.length}>(${morphUniformDataOffsets.map(offset => `${offset}u`).join(', ')});
+    const rnMorphUniformDataOffsets: array<u32, ${morphUniformDataOffsets.length}> = array<u32, ${morphUniformDataOffsets.length}>(${morphUniformDataOffsets.map(offset => `${offset}u`).join(', ')});
     `;
     const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(engine);
     const blendShapeUniformDataOffsetsStr = `
-    var<function> blendShapeUniformDataOffsets: array<u32, ${blendShapeUniformDataOffsets.length}> = array<u32, ${blendShapeUniformDataOffsets.length}>(${blendShapeUniformDataOffsets.map(offset => `${offset}u`).join(', ')});
+    const rnBlendShapeUniformDataOffsets: array<u32, ${blendShapeUniformDataOffsets.length}> = array<u32, ${blendShapeUniformDataOffsets.length}>(${blendShapeUniformDataOffsets.map(offset => `${offset}u`).join(', ')});
     `;
 
     const morphingStr = `
 
     #ifdef RN_IS_VERTEX_SHADER
     #ifdef RN_IS_MORPHING
+    ${morphUniformDataTargetNumbersStr}
+    ${morphUniformDataOffsetsStr}
+    ${blendShapeUniformDataOffsetsStr}
     fn get_position(vertexId: u32, basePosition: vec3<f32>, blendShapeComponentSID: u32) -> vec3<f32> {
-      ${morphUniformDataTargetNumbersStr}
-      ${morphUniformDataOffsetsStr}
-      ${blendShapeUniformDataOffsetsStr}
       let currentPrimitiveIdx = uniformDrawParameters.currentPrimitiveIdx;
-      let offsetInUniform = morphUniformDataOffsets[currentPrimitiveIdx];
-      let offsetInUniform2 = blendShapeUniformDataOffsets[blendShapeComponentSID];
+      let offsetInUniform = rnMorphUniformDataOffsets[currentPrimitiveIdx];
+      let offsetInUniform2 = rnBlendShapeUniformDataOffsets[blendShapeComponentSID];
       var position = basePosition;
       let scalar_idx = 3u * vertexId;
-      for (var i=0u; i<morphUniformDataTargetNumbers[currentPrimitiveIdx]; i++) {
+      for (var i=0u; i<rnMorphUniformDataTargetNumbers[currentPrimitiveIdx]; i++) {
         let idx = offsetInUniform + i;
         let offsets = uniformMorphOffsets.data[ idx / 4u];
         let offsetPosition = offsets[idx % 4u];
@@ -487,24 +493,27 @@ ${indexStr}
     );
     const materialCountPerBufferView = engine.materialRepository._getMaterialCountPerBufferView(materialTypeName)!;
 
-    const offsetsStr = `var<function> offsets: array<u32, ${offsetOfProperty.length}> = array<u32, ${offsetOfProperty.length}>(${offsetOfProperty.map(offset => `${offset}u`).join(', ')});`;
+    // Module-scope const: a var<function> array is initialized on every call, which is expensive when the material
+    // type spans many buffer views.
+    const offsetsName = `rnOffsets_${methodName}`;
+    const offsetsStr = `const ${offsetsName}: array<u32, ${offsetOfProperty.length}> = array<u32, ${offsetOfProperty.length}>(${offsetOfProperty.map(offset => `${offset}u`).join(', ')});`;
 
     let indexStr: string;
     let instanceSize = vec4SizeOfProperty;
-    indexStr = `  let vec4_idx: u32 = offsets[instanceIdOfBufferViews] + ${instanceSize}u * instanceIdInBufferView;\n`;
+    indexStr = `  let vec4_idx: u32 = ${offsetsName}[instanceIdOfBufferViews] + ${instanceSize}u * instanceIdInBufferView;\n`;
     if (CompositionType.isArray(info.compositionType)) {
       instanceSize = vec4SizeOfProperty * (info.arrayLength ?? 1);
       const paddedAsVec4 = Math.ceil(scalarSizeOfProperty / 4) * 4;
       const instanceSizeInScalar = paddedAsVec4 * (info.arrayLength ?? 1);
-      indexStr = `  let vec4_idx: u32 = offsets[instanceIdOfBufferViews] + ${instanceSize} * instanceIdInBufferView + ${vec4SizeOfProperty}u * idxOfArray;\n`;
-      indexStr += `  let scalar_idx: u32 = offsets[instanceIdOfBufferViews] * 4 + ${instanceSizeInScalar} * instanceIdInBufferView + ${scalarSizeOfProperty}u * idxOfArray;\n`;
+      indexStr = `  let vec4_idx: u32 = ${offsetsName}[instanceIdOfBufferViews] + ${instanceSize} * instanceIdInBufferView + ${vec4SizeOfProperty}u * idxOfArray;\n`;
+      indexStr += `  let scalar_idx: u32 = ${offsetsName}[instanceIdOfBufferViews] * 4 + ${instanceSizeInScalar} * instanceIdInBufferView + ${scalarSizeOfProperty}u * idxOfArray;\n`;
     }
 
     const firstPartOfInnerFunc = `
+${offsetsStr}
 fn get_${methodName}(instanceId: u32, idxOfArray: u32) -> ${returnType} {
   let instanceIdOfBufferViews = instanceId / ${materialCountPerBufferView};
   let instanceIdInBufferView = instanceId % ${materialCountPerBufferView};
-${offsetsStr}
 ${indexStr}
 `;
 
