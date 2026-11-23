@@ -93,15 +93,13 @@ renderPass.addEntities([floorEntity]);
 expression.addRenderPasses([renderPass]);
 forwardRenderPipeline.setExpressions([expression]);
 
-// The shared material also builds the SDF shadow caster materials.
-const result = Rn.MaterialHelper.createNodeBasedRaymarchingCustomMaterial(
-  engine,
-  Rn.MaterialHelper.collectRrnJson(engine) as unknown as Rn.ShaderNodeJson
-);
+// One raymarching material per component; the pipeline also builds the SDF shadow
+// caster materials from the component graphs.
+const result = Rn.MaterialHelper.createNodeBasedRaymarchingComponentMaterial(engine, raymarchingComponent);
 if (!result) {
-  throw new Error('Failed to create node-based raymarching custom material');
+  throw new Error('Failed to create node-based raymarching component material');
 }
-forwardRenderPipeline.setRaymarchingMaterial(result.material);
+forwardRenderPipeline.setRaymarchingComponentMaterial(raymarchingComponent, result.material);
 
 window._debug = { Rn, engine, sdfEntity, floorEntity, lightEntity, cameraEntity, forwardRenderPipeline };
 

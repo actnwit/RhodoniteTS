@@ -31,24 +31,28 @@ const gltfModel = await Rn.Gltf2Importer.importFromUrl(
 );
 await Rn.ModelConverter.convertToRhodoniteObject(engine, gltfModel);
 
-// The application rebuilds the shared raymarching material from the component graphs.
-const collectedRrnJson = Rn.MaterialHelper.collectRrnJson(engine);
-const result = Rn.MaterialHelper.createNodeBasedRaymarchingCustomMaterial(engine, collectedRrnJson as any);
-if (result == null) {
-  throw new Error('Failed to create the raymarching material');
-}
-const raymarchingMaterial = result.material;
-
-// Apply the textures restored from the extension. Missing semantics are skipped so a mismatch
-// between the saved graph and the current node types does not break the whole scene.
+// The application rebuilds a raymarching material per component from its graph.
+// Apply the textures restored from the extension to every material that declares the
+// semantic; missing semantics are skipped so a mismatch between the saved graph and
+// the current node types does not break the whole scene.
 const textureAssignments = await Rn.ModelConverter.createRaymarchingMaterialTextures(engine, gltfModel);
-for (const [semantic, { texture, sampler }] of textureAssignments) {
-  if (raymarchingMaterial.fieldsInfoArray.some(fieldInfo => fieldInfo.semantic === semantic)) {
-    raymarchingMaterial.setTextureParameter(semantic as Rn.ShaderSemanticsName, texture, sampler);
+const raymarchingComponents = engine.componentRepository.getComponentsWithType(
+  Rn.RaymarchingComponent
+) as Rn.RaymarchingComponent[];
+for (const raymarchingComponent of raymarchingComponents) {
+  const result = Rn.MaterialHelper.createNodeBasedRaymarchingComponentMaterial(engine, raymarchingComponent);
+  if (result == null) {
+    throw new Error('Failed to create the raymarching material');
   }
+  const material = result.material;
+  for (const [semantic, { texture, sampler }] of textureAssignments) {
+    if (material.fieldsInfoArray.some(fieldInfo => fieldInfo.semantic === semantic)) {
+      material.setTextureParameter(semantic as Rn.ShaderSemanticsName, texture, sampler);
+    }
+  }
+  forwardRenderPipeline.setRaymarchingComponentMaterial(raymarchingComponent, material);
 }
 window.__textureSemantics = Array.from(textureAssignments.keys());
-forwardRenderPipeline.setRaymarchingMaterial(raymarchingMaterial);
 
 // Camera
 const cameraEntity = Rn.createCameraEntity(engine, true);

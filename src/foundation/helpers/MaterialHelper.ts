@@ -2310,8 +2310,15 @@ function addPbrSheenSemanticInfo(
 
 function addRaymarchingComponentSemanticsInfo(shaderNodeJson: ShaderNodeJson) {
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
+  const addedSemantics = new Set<string>();
   for (const node of shaderNodeJson.nodes) {
     if (node.name === 'SdApplyWorldMatrix' && node.controls.name.value) {
+      // A per-component material normalizes every world matrix node to one semantic
+      // name, so the same name can appear on several nodes of the graph.
+      if (addedSemantics.has(node.controls.name.value)) {
+        continue;
+      }
+      addedSemantics.add(node.controls.name.value);
       additionalShaderSemanticInfo.push({
         semantic: node.controls.name.value,
         componentType: ComponentType.Float,
@@ -2325,6 +2332,10 @@ function addRaymarchingComponentSemanticsInfo(shaderNodeJson: ShaderNodeJson) {
     // Only the injected per-component id node has a name control; the shading node
     // (used in the shading section) has none.
     if (node.name === 'RaymarchObjectIdUniform' && node.controls?.name?.value) {
+      if (addedSemantics.has(node.controls.name.value)) {
+        continue;
+      }
+      addedSemantics.add(node.controls.name.value);
       additionalShaderSemanticInfo.push({
         semantic: node.controls.name.value,
         componentType: ComponentType.Float,
@@ -2337,6 +2348,37 @@ function addRaymarchingComponentSemanticsInfo(shaderNodeJson: ShaderNodeJson) {
     }
   }
   return additionalShaderSemanticInfo;
+}
+
+/**
+ * Adds the world-space AABB of the SDF used by the raymarch loop as a ray interval.
+ *
+ * The bounds are the conservative world AABB of the distance graph. The pipeline
+ * replaces the defaults (an effectively unbounded box) per component; the shader
+ * only marches inside the interval, so rays that miss the SDF exit immediately.
+ *
+ * @param additionalShaderSemanticInfo - Array to add semantic info to
+ */
+function addRaymarchingAabbSemanticInfo(additionalShaderSemanticInfo: ShaderSemanticsInfo[]) {
+  const unbounded = 1e20;
+  additionalShaderSemanticInfo.push({
+    semantic: 'raymarchAabbMin',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Vec3,
+    stage: ShaderType.PixelShader,
+    initialValue: Vector3.fromCopy3(-unbounded, -unbounded, -unbounded),
+    min: -Number.MAX_VALUE,
+    max: Number.MAX_VALUE,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'raymarchAabbMax',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Vec3,
+    stage: ShaderType.PixelShader,
+    initialValue: Vector3.fromCopy3(unbounded, unbounded, unbounded),
+    min: -Number.MAX_VALUE,
+    max: Number.MAX_VALUE,
+  });
 }
 
 /**
@@ -2441,6 +2483,7 @@ function createNodeBasedRaymarchingCustomMaterial(
   }
 
   const additionalShaderSemanticInfo = addRaymarchingComponentSemanticsInfo(shaderNodeJson);
+  addRaymarchingAabbSemanticInfo(additionalShaderSemanticInfo);
 
   // The raymarching shader shades hit points with the shared PBR shader function,
   // so the material needs the lighting/PBR defines and the IBL/PBR parameters.
@@ -3085,6 +3128,73 @@ function collectRrnJson(engine: Engine, { castShadowOnly = false }: { castShadow
 }
 
 /**
+ * Semantic name of the component world matrix inside a per-component raymarching
+ * material. Every `SdApplyWorldMatrix` node of the component is normalized to this
+ * name when its material is built, so the pipeline sets one uniform per material.
+ */
+export const RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC = 'raymarchingWorldMatrix';
+
+/**
+ * Builds the shader graph JSON of one raymarching component for its own material.
+ *
+ * Unlike {@link collectRrnJson}, the graph is not merged with other components:
+ * node ids and uniform names stay as authored. `SdApplyWorldMatrix` uniforms are
+ * normalized to {@link RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC}, and the
+ * distance terminals are stamped with that semantic so a scaled entity converts its
+ * local distances to world-space ray marching steps.
+ *
+ * @param component - The component whose graph is prepared
+ * @returns A cloned graph JSON for {@link createNodeBasedRaymarchingCustomMaterial}
+ */
+function createRaymarchingComponentShaderJson(component: RaymarchingComponent): NodeJSON {
+  const json = JSON.parse(JSON.stringify(component.rrnJson)) as NodeJSON;
+  let usesWorldMatrix = false;
+  for (const node of json.nodes) {
+    if (node.name === 'SdApplyWorldMatrix') {
+      node.controls = {
+        ...(node.controls ?? {}),
+        name: { value: RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC },
+      };
+      usesWorldMatrix = true;
+    }
+  }
+  if (usesWorldMatrix) {
+    for (const node of json.nodes) {
+      if (node.name === 'OutUnion' || node.name === 'OutDistance') {
+        node.controls = {
+          ...(node.controls ?? {}),
+          distanceCorrectionMatrices: { value: [RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC] },
+        };
+      }
+    }
+  }
+  return json;
+}
+
+/**
+ * Creates the raymarching material of a single RaymarchingComponent.
+ *
+ * Each component owns a material and a buffer-less full-screen pass (see
+ * `ForwardRenderPipeline.setRaymarchingComponentMaterial`), so its uniforms and
+ * textures are independent: names are not postfixed, and the texture-slot limit
+ * applies to the component's own graph instead of the merged graph of every
+ * component.
+ *
+ * @param engine - The engine instance
+ * @param component - The component that owns the material
+ * @param currentMaterial - An existing material of the same component that can be reused
+ * @returns The material and feature flags, or undefined when generation fails
+ */
+function createNodeBasedRaymarchingComponentMaterial(
+  engine: Engine,
+  component: RaymarchingComponent,
+  currentMaterial?: Material
+): NodeBasedMaterialResult | undefined {
+  const json = createRaymarchingComponentShaderJson(component);
+  return createNodeBasedRaymarchingCustomMaterial(engine, json as unknown as ShaderNodeJson, currentMaterial);
+}
+
+/**
  * Changes the material assigned to a specific primitive on an entity.
  * This function updates the primitive's material and triggers necessary render state updates.
  * Translucency properties (isTranslucent, alphaMode) and backBufferTexture are preserved
@@ -3116,6 +3226,8 @@ export const MaterialHelper = Object.freeze({
   reuseOrRecreateCustomMaterial,
   createNodeBasedCustomMaterial,
   createNodeBasedRaymarchingCustomMaterial,
+  createNodeBasedRaymarchingComponentMaterial,
+  RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC,
   createNodeBasedRaymarchingShadowMaterial,
   createNodeBasedRaymarchingShadowMaterials,
   createClassicUberMaterial,

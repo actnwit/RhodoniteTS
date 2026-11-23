@@ -1,7 +1,7 @@
 import type { Size } from '../../../types';
 import type { ShaderNodeJson } from '../../../types/ShaderNodeJson';
 import type { WebXRSystem } from '../../../xr/WebXRSystem';
-import type { CameraComponent } from '../../components/Camera/CameraComponent';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { RaymarchingComponent } from '../../components/Raymarching/RaymarchingComponent';
 import { RnObject } from '../../core/RnObject';
 import {
@@ -12,6 +12,7 @@ import {
   type ToneMappingTypeEnum,
 } from '../../definitions';
 import { ShaderSemantics } from '../../definitions/ShaderSemantics';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { TextureFormat } from '../../definitions/TextureFormat';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { Bloom } from '../../helpers/BloomHelper';
@@ -27,6 +28,7 @@ import {
 import type { Material } from '../../materials/core/Material';
 import { Scalar } from '../../math/Scalar';
 import { Vector2 } from '../../math/Vector2';
+import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { MiscUtil } from '../../misc';
 import { Is } from '../../misc/Is';
@@ -43,6 +45,16 @@ import type { FrameBuffer } from '../FrameBuffer';
 import { RenderPass } from '../RenderPass';
 
 type DrawFunc = (frame: Frame) => void;
+
+/** Bounds that do not clip a ray: used when an SDF has no finite world AABB. */
+const RAYMARCHING_UNBOUNDED_AABB_MIN = Object.freeze(Vector3.fromCopy3(-1e20, -1e20, -1e20));
+const RAYMARCHING_UNBOUNDED_AABB_MAX = Object.freeze(Vector3.fromCopy3(1e20, 1e20, 1e20));
+
+/** Cached world AABB of one SDF component (invalidated by version or world matrix). */
+type RaymarchingAabb = {
+  min: Vector3;
+  max: Vector3;
+};
 
 /**
  * A forward rendering pipeline that provides advanced rendering features including shadows, bloom, tone mapping, and IBL.
@@ -122,8 +134,15 @@ export class ForwardRenderPipeline extends RnObject {
   private __iblRotation = 0;
   private __diffuseIblContribution = 1.0;
   private __specularIblContribution = 1.0;
-  private __raymarchingIblState = '';
+  private __raymarchingIblStates = new Map<number, string>();
   private __samplerForBackBuffer?: Sampler;
+  /** Per-component raymarching materials and their buffer-less full-screen passes. */
+  private __raymarchingComponentMaterials = new Map<number, Material>();
+  private __raymarchingComponentPasses = new Map<number, RenderPass>();
+  /** SID of the first per-component pass (it applies the per-frame shared material setup). */
+  private __raymarchingFirstComponentPassSID = -1;
+  /** Cached world AABBs of the SDFs, used for ray interval clipping and scissors. */
+  private __raymarchingAabbCache = new Map<number, { aabbVersion: number; matrix: number[]; aabb: RaymarchingAabb }>();
   private __toneMappingType = ToneMappingType.GT_ToneMap;
   private __bloomHelper: Bloom;
   private __shadowSystem?: ShadowSystem;
@@ -184,6 +203,10 @@ export class ForwardRenderPipeline extends RnObject {
     this.__raymarchingShadowJson = undefined;
     this.__raymarchingShadowRegularMaterial = undefined;
     this.__raymarchingShadowPointSlots.clear();
+    // The passes reference the destroyed frame buffers; they are recreated on setup.
+    this.__raymarchingComponentPasses.clear();
+    this.__raymarchingAabbCache.clear();
+    this.__raymarchingIblStates.clear();
   }
 
   /**
@@ -1333,39 +1356,8 @@ export class ForwardRenderPipeline extends RnObject {
     const renderPass = new RenderPass(this.__engine);
     renderPass.toClearDepthBuffer = false;
     renderPass.isDepthTest = true;
-    const mainFrameBuffer = this.__getMainFrameBuffer();
-    if (mainFrameBuffer != null) {
-      renderPass.setFramebuffer(mainFrameBuffer);
-      if (this.__frameBufferMsaa != null) {
-        renderPass.setResolveFramebuffer(this.__frameBufferResolve!);
-        // The reference resolve target is the back buffer the transmission pass samples.
-        // Resolving the raymarching result into it keeps the SDF in the scene color that
-        // transparent materials refract, and in the mipmaps generated after this pass.
-        if (this.__frameBufferResolveForReference != null) {
-          renderPass.setResolveFramebuffer2(this.__frameBufferResolveForReference);
-        }
-      }
-    }
-    renderPass.setPreRenderFunction(() => {
-      this.__applyIblToRaymarchingMaterial();
-      this.__applyBackBufferTextureToRaymarchingMaterial();
-      const raymarchingComponents = this.__engine.componentRepository.getComponentsWithType(
-        RaymarchingComponent
-      ) as RaymarchingComponent[];
-      for (const raymarchingComponent of raymarchingComponents) {
-        const material = renderPass.material;
-        const sceneGraph = raymarchingComponent.entity.tryToGetSceneGraph();
-        if (material != null && sceneGraph != null) {
-          material.setParameter(`worldMatrix_${raymarchingComponent.componentSID}`, sceneGraph.matrixInner);
-          // The object id is the stable component SID, matching the node id prefix
-          // used when the graphs are merged (collectRrnJson).
-          material.setParameter(
-            `raymarchObjectId_${raymarchingComponent.componentSID}`,
-            Scalar.fromCopyNumber(raymarchingComponent.componentSID)
-          );
-        }
-      }
-    });
+    this.__configureRaymarchingPassTargets(renderPass);
+    renderPass.setPreRenderFunction(() => this.__prepareLegacyRaymarchingPass(renderPass));
 
     expression.addRenderPasses([renderPass]);
     renderPass.tryToSetUniqueName('Raymarching', true);
@@ -1373,6 +1365,146 @@ export class ForwardRenderPipeline extends RnObject {
     return [expression, renderPass];
   }
 
+  /**
+   * Points a buffer-less raymarching pass at the pipeline's render targets, including
+   * the MSAA resolve targets the transmission pass and mipmap generation read.
+   */
+  private __configureRaymarchingPassTargets(renderPass: RenderPass) {
+    const mainFrameBuffer = this.__getMainFrameBuffer();
+    renderPass.setFramebuffer(mainFrameBuffer);
+    if (mainFrameBuffer != null && this.__frameBufferMsaa != null) {
+      renderPass.setResolveFramebuffer(this.__frameBufferResolve!);
+      // The reference resolve target is the back buffer the transmission pass samples.
+      // Resolving the raymarching result into it keeps the SDF in the scene color that
+      // transparent materials refract, and in the mipmaps generated after this pass.
+      renderPass.setResolveFramebuffer2(this.__frameBufferResolveForReference ?? undefined);
+    } else {
+      renderPass.setResolveFramebuffer(undefined);
+      renderPass.setResolveFramebuffer2(undefined);
+    }
+  }
+
+  /**
+   * Per-frame setup of the legacy merged raymarching pass.
+   *
+   * The merged material evaluates every component's graph in one distance function,
+   * so the object id and world matrix uniforms are postfixed with the component SID,
+   * and the march is clipped to the union of all component AABBs.
+   *
+   * @param renderPass - The legacy raymarching pass
+   */
+  private __prepareLegacyRaymarchingPass(renderPass: RenderPass) {
+    this.__applyIblToRaymarchingMaterial();
+    this.__applyBackBufferTextureToRaymarchingMaterial();
+    const material = renderPass.material;
+    if (material == null) {
+      return;
+    }
+    const raymarchingComponents = this.__engine.componentRepository.getComponentsWithType(
+      RaymarchingComponent
+    ) as RaymarchingComponent[];
+    let unionMinX = Number.POSITIVE_INFINITY;
+    let unionMinY = Number.POSITIVE_INFINITY;
+    let unionMinZ = Number.POSITIVE_INFINITY;
+    let unionMaxX = Number.NEGATIVE_INFINITY;
+    let unionMaxY = Number.NEGATIVE_INFINITY;
+    let unionMaxZ = Number.NEGATIVE_INFINITY;
+    let unionable = raymarchingComponents.length > 0;
+    for (const raymarchingComponent of raymarchingComponents) {
+      const sceneGraph = raymarchingComponent.entity.tryToGetSceneGraph();
+      if (sceneGraph != null) {
+        material.setParameter(`worldMatrix_${raymarchingComponent.componentSID}`, sceneGraph.matrixInner);
+        // The object id is the stable component SID, matching the node id prefix
+        // used when the graphs are merged (collectRrnJson).
+        material.setParameter(
+          `raymarchObjectId_${raymarchingComponent.componentSID}`,
+          Scalar.fromCopyNumber(raymarchingComponent.componentSID)
+        );
+      }
+      const aabb = this.__getCachedRaymarchingAabb(raymarchingComponent);
+      if (aabb == null) {
+        unionable = false;
+        continue;
+      }
+      unionMinX = Math.min(unionMinX, aabb.min.x);
+      unionMinY = Math.min(unionMinY, aabb.min.y);
+      unionMinZ = Math.min(unionMinZ, aabb.min.z);
+      unionMaxX = Math.max(unionMaxX, aabb.max.x);
+      unionMaxY = Math.max(unionMaxY, aabb.max.y);
+      unionMaxZ = Math.max(unionMaxZ, aabb.max.z);
+    }
+    if (unionable) {
+      material.setParameter('raymarchAabbMin', Vector3.fromCopy3(unionMinX, unionMinY, unionMinZ));
+      material.setParameter('raymarchAabbMax', Vector3.fromCopy3(unionMaxX, unionMaxY, unionMaxZ));
+    } else {
+      material.setParameter('raymarchAabbMin', RAYMARCHING_UNBOUNDED_AABB_MIN);
+      material.setParameter('raymarchAabbMax', RAYMARCHING_UNBOUNDED_AABB_MAX);
+    }
+  }
+
+  /**
+   * Assigns the raymarching material of a single component.
+   *
+   * The pipeline renders one buffer-less full-screen pass per materialized component
+   * (in component SID order) with depth test and depth write enabled, so the nearest
+   * SDF wins per pixel. Each material only contains that component's graph: uniforms
+   * and textures are not shared or postfixed, and the texture-slot limit applies per
+   * component instead of to the merged graph of every component.
+   *
+   * When at least one component material is assigned, the legacy merged raymarching
+   * material ({@link setRaymarchingMaterial}) is ignored.
+   *
+   * The pass clips its march to the component's world AABB. Call
+   * `component.invalidateAABB()` when the SDF's size changes through material uniform
+   * values (the editor does this for its uniform controls) so the cached bounds, the
+   * ray interval and the scissor rectangle stay current.
+   *
+   * @param component - The component the material belongs to
+   * @param material - The material, typically from
+   * `MaterialHelper.createNodeBasedRaymarchingComponentMaterial`
+   */
+  public setRaymarchingComponentMaterial(component: RaymarchingComponent, material: Material) {
+    this.__raymarchingComponentMaterials.set(component.componentSID, material);
+    this.__applyIblToRaymarchingMaterial();
+    this.__applyBackBufferTextureToRaymarchingMaterial();
+    // The raymarching material is not part of any mesh primitive, so the shadow
+    // parameters of the last shadow pass setup have to be applied explicitly.
+    this.__shadowSystem?.applyShadowParametersToMaterials([material]);
+    // The SDF graph may have changed, so the shadow caster materials are rebuilt from it.
+    this.refreshRaymarchingShadowMaterial();
+    if (this.__frame != null) {
+      this.__setUpExpressionsForRendering();
+    }
+  }
+
+  /**
+   * Gets the raymarching material assigned to a component.
+   * @param component - The component whose material is requested
+   */
+  public getRaymarchingComponentMaterial(component: RaymarchingComponent): Material | undefined {
+    return this.__raymarchingComponentMaterials.get(component.componentSID);
+  }
+
+  /**
+   * Removes the raymarching material of a component so it stops rendering.
+   * @param component - The component whose material is removed
+   */
+  public removeRaymarchingComponentMaterial(component: RaymarchingComponent) {
+    if (this.__raymarchingComponentMaterials.delete(component.componentSID)) {
+      this.refreshRaymarchingShadowMaterial();
+      if (this.__frame != null) {
+        this.__setUpExpressionsForRendering();
+      }
+    }
+  }
+
+  /**
+   * Legacy single-material API: renders all components with one merged material.
+   *
+   * Ignored while per-component materials are assigned ({@link setRaymarchingComponentMaterial}).
+   *
+   * @param material - The material built from `MaterialHelper.collectRrnJson`
+   */
   public setRaymarchingMaterial(material: Material) {
     this.__raymarchingRenderPass?.setBufferLessFullScreenRendering(material);
     this.__applyIblToRaymarchingMaterial();
@@ -1387,6 +1519,242 @@ export class ForwardRenderPipeline extends RnObject {
     if (this.__frame != null) {
       this.__setUpExpressionsForRendering();
     }
+  }
+
+  /**
+   * Creates or updates the buffer-less render pass of each component that owns a
+   * raymarching material, in component SID order. Components without a material are
+   * skipped, and stale passes are dropped.
+   */
+  private __getRaymarchingComponentPasses(): RenderPass[] {
+    const passes: RenderPass[] = [];
+    const existingComponentSids = new Set<number>();
+    this.__raymarchingFirstComponentPassSID = -1;
+    if (this.__raymarchingComponentMaterials.size > 0) {
+      const components = (
+        this.__engine.componentRepository.getComponentsWithType(RaymarchingComponent) as RaymarchingComponent[]
+      ).slice();
+      components.sort((a, b) => a.componentSID - b.componentSID);
+      for (const component of components) {
+        const componentSID = component.componentSID;
+        const material = this.__raymarchingComponentMaterials.get(componentSID);
+        if (material == null) {
+          continue;
+        }
+        existingComponentSids.add(componentSID);
+        let renderPass = this.__raymarchingComponentPasses.get(componentSID);
+        if (renderPass == null) {
+          renderPass = new RenderPass(this.__engine);
+          renderPass.toClearDepthBuffer = false;
+          renderPass.isDepthTest = true;
+          renderPass.setPreRenderFunction(() => this.__prepareRaymarchingComponentPass(componentSID));
+          renderPass.tryToSetUniqueName(`Raymarching_${componentSID}`, true);
+          this.__raymarchingComponentPasses.set(componentSID, renderPass);
+        }
+        renderPass.setBufferLessFullScreenRendering(material);
+        this.__configureRaymarchingPassTargets(renderPass);
+        if (passes.length === 0) {
+          this.__raymarchingFirstComponentPassSID = componentSID;
+        }
+        passes.push(renderPass);
+      }
+    }
+    for (const componentSID of [...this.__raymarchingComponentPasses.keys()]) {
+      if (!existingComponentSids.has(componentSID)) {
+        this.__raymarchingComponentPasses.delete(componentSID);
+      }
+    }
+    // Drop materials whose components were removed so they neither render nor receive
+    // per-frame updates through the shared material helpers.
+    for (const componentSID of [...this.__raymarchingComponentMaterials.keys()]) {
+      if (
+        !existingComponentSids.has(componentSID) &&
+        this.__engine.componentRepository.getComponent(RaymarchingComponent, componentSID) == null
+      ) {
+        this.__raymarchingComponentMaterials.delete(componentSID);
+      }
+    }
+    return passes;
+  }
+
+  /**
+   * Per-frame setup of one component's raymarching pass: its world matrix, the world
+   * AABB used for ray interval clipping, and the scissor rectangle on the screen.
+   *
+   * The world matrix and the AABB are sampled together so the clip interval matches
+   * the transform the shader uses, including on backends that upload material values
+   * one frame later.
+   *
+   * @param componentSID - The SID of the component rendered by the pass
+   */
+  private __prepareRaymarchingComponentPass(componentSID: number) {
+    if (componentSID === this.__raymarchingFirstComponentPassSID) {
+      // The shared material setup (IBL/back buffer bindings) only has to run once per
+      // frame, before the first raymarching pass.
+      this.__applyIblToRaymarchingMaterial();
+      this.__applyBackBufferTextureToRaymarchingMaterial();
+    }
+    const material = this.__raymarchingComponentMaterials.get(componentSID);
+    const component = this.__engine.componentRepository.getComponent(RaymarchingComponent, componentSID) as
+      | RaymarchingComponent
+      | undefined;
+    const sceneGraph = component?.entity.tryToGetSceneGraph();
+    if (material == null || component == null || sceneGraph == null) {
+      return;
+    }
+    material.setParameter(MaterialHelper.RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC, sceneGraph.matrixInner);
+    const aabb = this.__getCachedRaymarchingAabb(component);
+    material.setParameter('raymarchAabbMin', aabb?.min ?? RAYMARCHING_UNBOUNDED_AABB_MIN);
+    material.setParameter('raymarchAabbMax', aabb?.max ?? RAYMARCHING_UNBOUNDED_AABB_MAX);
+    this.__raymarchingComponentPasses.get(componentSID)?.setScissorRect(this.__calcRaymarchingScissorRect(aabb));
+  }
+
+  /**
+   * Returns the conservative world AABB of a component's SDF, caching it until the
+   * component's AABB version or world matrix changes.
+   *
+   * @param component - The SDF component
+   */
+  private __getCachedRaymarchingAabb(component: RaymarchingComponent): RaymarchingAabb | null {
+    const sceneGraph = component.entity.tryToGetSceneGraph();
+    if (sceneGraph == null) {
+      return null;
+    }
+    const matrix = sceneGraph.matrixInner;
+    const elements = [
+      matrix.m00,
+      matrix.m01,
+      matrix.m02,
+      matrix.m03,
+      matrix.m10,
+      matrix.m11,
+      matrix.m12,
+      matrix.m13,
+      matrix.m20,
+      matrix.m21,
+      matrix.m22,
+      matrix.m23,
+      matrix.m30,
+      matrix.m31,
+      matrix.m32,
+      matrix.m33,
+    ];
+    const aabbVersion = RaymarchingComponent.getAABBVersion(this.__engine);
+    const cacheKey = component.componentSID;
+    const cached = this.__raymarchingAabbCache.get(cacheKey);
+    if (
+      cached != null &&
+      cached.aabbVersion === aabbVersion &&
+      cached.matrix.length === elements.length &&
+      cached.matrix.every((value, index) => value === elements[index])
+    ) {
+      return cached.aabb;
+    }
+
+    const aabb = component.calcWorldAABB();
+    if (aabb == null) {
+      this.__raymarchingAabbCache.delete(cacheKey);
+      return null;
+    }
+    const result = {
+      min: Vector3.fromCopy3(aabb.minPoint.x, aabb.minPoint.y, aabb.minPoint.z),
+      max: Vector3.fromCopy3(aabb.maxPoint.x, aabb.maxPoint.y, aabb.maxPoint.z),
+    };
+    this.__raymarchingAabbCache.set(cacheKey, { aabbVersion, matrix: elements, aabb: result });
+    return result;
+  }
+
+  /**
+   * Projects a world AABB to a screen-space scissor rectangle.
+   *
+   * Returns undefined (render the whole target) when the bounds are unbounded or
+   * when any corner is behind the camera, where a naive projection is invalid.
+   *
+   * @param aabb - The world AABB of the SDF
+   */
+  private __calcRaymarchingScissorRect(aabb: RaymarchingAabb | null) {
+    if (aabb == null || this.__width <= 0 || this.__height <= 0) {
+      return undefined;
+    }
+    const camera = this.__engine.componentRepository.getComponent(
+      CameraComponent,
+      CameraComponent.getCurrent(this.__engine)
+    ) as CameraComponent | undefined;
+    if (camera == null) {
+      return undefined;
+    }
+    const viewProjection = camera.viewProjectionMatrix;
+    let minX = Number.POSITIVE_INFINITY;
+    let minY = Number.POSITIVE_INFINITY;
+    let maxX = Number.NEGATIVE_INFINITY;
+    let maxY = Number.NEGATIVE_INFINITY;
+    for (let corner = 0; corner < 8; corner++) {
+      const x = (corner & 1) === 0 ? aabb.min.x : aabb.max.x;
+      const y = (corner & 2) === 0 ? aabb.min.y : aabb.max.y;
+      const z = (corner & 4) === 0 ? aabb.min.z : aabb.max.z;
+      const clip = viewProjection.multiplyVector(Vector4.fromCopy4(x, y, z, 1));
+      if (clip.w <= 0) {
+        // Any corner behind the camera makes the screen projection unreliable.
+        return undefined;
+      }
+      const ndcX = clip.x / clip.w;
+      const ndcY = clip.y / clip.w;
+      const pixelX = (ndcX * 0.5 + 0.5) * this.__width;
+      const pixelY = (-ndcY * 0.5 + 0.5) * this.__height;
+      minX = Math.min(minX, pixelX);
+      minY = Math.min(minY, pixelY);
+      maxX = Math.max(maxX, pixelX);
+      maxY = Math.max(maxY, pixelY);
+    }
+    // A small margin covers floating point error at the SDF's silhouette.
+    const margin = 2;
+    const x = Math.max(0, Math.floor(minX) - margin);
+    const y = Math.max(0, Math.floor(minY) - margin);
+    const right = Math.min(this.__width, Math.ceil(maxX) + margin);
+    const bottom = Math.min(this.__height, Math.ceil(maxY) + margin);
+    const width = right - x;
+    const height = bottom - y;
+    if (width <= 0 || height <= 0) {
+      // The SDF is off-screen: keep a 1x1 scissor so the pass shades one pixel.
+      return { x: 0, y: 0, width: 1, height: 1 };
+    }
+    if (x === 0 && y === 0 && width === this.__width && height === this.__height) {
+      return undefined;
+    }
+    return { x, y, width, height };
+  }
+
+  /** All raymarching materials the pipeline manages (legacy or per component). */
+  private __getAllRaymarchingMaterials(): Material[] {
+    const materials: Material[] = [];
+    for (const material of this.__raymarchingComponentMaterials.values()) {
+      materials.push(material);
+    }
+    const legacyMaterial = this.getRaymarchingMaterial();
+    if (legacyMaterial != null) {
+      materials.push(legacyMaterial);
+    }
+    return materials;
+  }
+
+  /**
+   * Builds the raymarching expression from the current materials.
+   *
+   * With per-component materials, the expression contains one buffer-less pass per
+   * component (component SID order), composited by the depth test. Otherwise the
+   * legacy merged pass is used. The expression is empty while no raymarching material
+   * is assigned.
+   */
+  private __buildRaymarchingExpression(): Expression {
+    const expression = new Expression();
+    expression.tryToSetUniqueName('Raymarching', true);
+    const componentPasses = this.__getRaymarchingComponentPasses();
+    if (componentPasses.length > 0) {
+      expression.addRenderPasses(componentPasses);
+    } else if (this.__raymarchingRenderPass != null && this.__raymarchingRenderPass.material != null) {
+      expression.addRenderPasses([this.__raymarchingRenderPass]);
+    }
+    return expression;
   }
 
   /**
@@ -1526,7 +1894,13 @@ export class ForwardRenderPipeline extends RnObject {
 
   /**
    * Copies the graph parameters (uniform values, textures) and the current per-component
-   * transforms from the visible raymarching material to every SDF shadow caster material.
+   * transforms from the visible raymarching materials to every SDF shadow caster material.
+   *
+   * The SDF shadow casters are still one merged material per kind (their textures are
+   * shared across components), while the visible materials may be per component. A
+   * per-component uniform is exposed on the shadow material as `name_<componentSID>`,
+   * and its value comes from that component's material; shared semantics are copied
+   * from the first material as a best effort.
    *
    * This runs once per frame BEFORE Engine.process: WebGPU uploads material values in the
    * prerender stage, so updating them only in a render pass hook would leave the shadow
@@ -1546,34 +1920,60 @@ export class ForwardRenderPipeline extends RnObject {
       materials.push(pair.front, pair.back);
     }
 
-    const mainMaterial = this.getRaymarchingMaterial();
+    const componentMaterials = this.__raymarchingComponentMaterials;
+    const legacyMaterial = this.getRaymarchingMaterial();
+    const firstMaterial =
+      componentMaterials.size > 0 ? (componentMaterials.values().next().value as Material) : legacyMaterial;
+    const copySharedParameter = (material: Material, semantic: string, info: ShaderSemanticsInfo) => {
+      if (firstMaterial == null) {
+        return;
+      }
+      if (CompositionType.isTexture(info.compositionType)) {
+        const textureParameter = firstMaterial.getTextureParameter(semantic as never);
+        if (textureParameter != null) {
+          material.setTextureParameter(semantic as never, textureParameter[1], textureParameter[2]);
+        }
+      } else {
+        const value = firstMaterial.getParameter(semantic as never);
+        if (value != null) {
+          material.setParameter(semantic as never, value);
+        }
+      }
+    };
     const raymarchingComponents = this.__engine.componentRepository.getComponentsWithType(
       RaymarchingComponent
     ) as RaymarchingComponent[];
 
     for (const material of materials) {
-      if (mainMaterial != null) {
-        for (const info of material.fieldsInfoArray) {
-          const semantic = info.semantic;
-          if (
-            semantic.startsWith('worldMatrix_') ||
-            semantic.startsWith('raymarchObjectId_') ||
-            semantic === 'lightIndex' ||
-            semantic === 'shadowFarPlane'
-          ) {
-            continue;
-          }
+      for (const info of material.fieldsInfoArray) {
+        const semantic = info.semantic;
+        if (
+          semantic.startsWith('worldMatrix_') ||
+          semantic.startsWith('raymarchObjectId_') ||
+          semantic === 'lightIndex' ||
+          semantic === 'shadowFarPlane'
+        ) {
+          continue;
+        }
+        // Per-component uniform names are `name_<componentSID>` in the merged shadow
+        // graph. Read the value from that component's own material.
+        const suffixed = /^(.*)_(\d+)$/.exec(semantic);
+        const componentMaterial = suffixed != null ? componentMaterials.get(Number(suffixed[2])) : undefined;
+        if (componentMaterial != null) {
+          const baseSemantic = suffixed![1];
           if (CompositionType.isTexture(info.compositionType)) {
-            const textureParameter = mainMaterial.getTextureParameter(semantic);
+            const textureParameter = componentMaterial.getTextureParameter(baseSemantic as never);
             if (textureParameter != null) {
               material.setTextureParameter(semantic, textureParameter[1], textureParameter[2]);
             }
           } else {
-            const value = mainMaterial.getParameter(semantic);
+            const value = componentMaterial.getParameter(baseSemantic as never);
             if (value != null) {
               material.setParameter(semantic, value);
             }
           }
+        } else {
+          copySharedParameter(material, semantic, info);
         }
       }
 
@@ -1594,10 +1994,9 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  /** Materials outside mesh primitives that still receive shadows (the raymarching material). */
+  /** Materials outside mesh primitives that still receive shadows (the raymarching materials). */
   private __getAdditionalShadowMaterials(): Material[] {
-    const material = this.getRaymarchingMaterial();
-    return material != null ? [material] : [];
+    return this.__getAllRaymarchingMaterials();
   }
 
   public getRaymarchingMaterial(): Material | undefined {
@@ -1605,17 +2004,23 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   /**
-   * Applies the pipeline's IBL environment to the raymarching PBR material.
+   * Applies the pipeline's IBL environment to every raymarching PBR material.
    *
    * The raymarching draw is buffer-less and has no mesh renderer component, so
    * the IBL parameters that material contents normally read from the mesh
    * renderer are set on the material here instead.
    */
   private __applyIblToRaymarchingMaterial() {
-    const material = this.getRaymarchingMaterial();
-    if (material == null) {
-      return;
+    for (const material of this.__getAllRaymarchingMaterials()) {
+      this.__applyIblToMaterial(material);
     }
+  }
+
+  /**
+   * Applies the pipeline's IBL environment to one raymarching material.
+   * @param material - The raymarching material
+   */
+  private __applyIblToMaterial(material: Material) {
     const diffuseEnvValue = material.getTextureParameter(ShaderSemantics.DiffuseEnvTexture.str);
     const specularEnvValue = material.getTextureParameter(ShaderSemantics.SpecularEnvTexture.str);
     if (diffuseEnvValue == null || specularEnvValue == null) {
@@ -1631,15 +2036,15 @@ export class ForwardRenderPipeline extends RnObject {
     }
 
     // The textures may become ready after this is called, so re-apply when anything changed.
-    const state = `${material.objectUID}:${diffuse.objectUID}:${diffuse.isTextureReady}:${specular.objectUID}:${
+    const state = `${diffuse.objectUID}:${diffuse.isTextureReady}:${specular.objectUID}:${
       specular.isTextureReady
     }:${this.__sheenCubeTexture?.objectUID ?? -1}:${this.__sheenCubeTexture?.isTextureReady ?? false}:${
       this.__iblRotation
     }:${this.__diffuseIblContribution}:${this.__specularIblContribution}`;
-    if (state === this.__raymarchingIblState) {
+    if (state === this.__raymarchingIblStates.get(material.objectUID)) {
       return;
     }
-    this.__raymarchingIblState = state;
+    this.__raymarchingIblStates.set(material.objectUID, state);
 
     // Reuse the shared cube sampler created for the material's env texture semantics.
     const sampler = diffuseEnvValue[2] as Sampler;
@@ -1667,33 +2072,29 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   /**
-   * Whether the shared raymarching material shades with transmission, which means it
+   * Whether a raymarching material shades with transmission, which means it
    * samples the scene color behind the SDF.
    *
-   * Only then does the raymarching pass have to run after the opaque expressions.
-   * Without transmission it keeps its legacy position before them, so blended meshes
-   * that are drawn in the opaque expression (the pipeline may be configured with
-   * isTransmission: false) keep blending over the SDF.
+   * Only then does the raymarching expression have to run after the opaque
+   * expressions. Without transmission it keeps its legacy position before them,
+   * so blended meshes that are drawn in the opaque expression (the pipeline may be
+   * configured with isTransmission: false) keep blending over the SDF.
    */
   private __isRaymarchingTransmissionEnabled() {
-    return this.getRaymarchingMaterial()?.isShaderDefine('RN_USE_TRANSMISSION') ?? false;
+    return this.__getAllRaymarchingMaterials().some(material => material.isShaderDefine('RN_USE_TRANSMISSION'));
   }
 
   /**
-   * Binds the resolved scene color to the raymarching material for transmission.
+   * Binds the resolved scene color to every raymarching material for transmission.
    *
    * This is the same reference texture the transmission materials of the transparent
-   * pass sample. The raymarching pass is rendered after the opaque expressions, so the
-   * texture holds the current frame. Materials without the semantic ignore the call,
-   * and an identical binding is a no-op, so this is safe to run every frame.
+   * pass sample. The raymarching expression is rendered after the opaque expressions,
+   * so the texture holds the current frame. Materials without the semantic ignore the
+   * call, and an identical binding is a no-op, so this is safe to run every frame.
    */
   private __applyBackBufferTextureToRaymarchingMaterial() {
     if (this.__isSimple) {
       // Simple mode has no offscreen render targets, so no back buffer exists.
-      return;
-    }
-    const material = this.getRaymarchingMaterial();
-    if (material == null) {
       return;
     }
     const backBufferTexture = this.__getMainFrameBufferBackBuffer()?.getColorAttachedRenderTargetTexture(0);
@@ -1701,7 +2102,9 @@ export class ForwardRenderPipeline extends RnObject {
     if (backBufferTexture == null || sampler == null) {
       return;
     }
-    material.setTextureParameter(ShaderSemantics.BackBufferTexture.str, backBufferTexture, sampler);
+    for (const material of this.__getAllRaymarchingMaterials()) {
+      material.setTextureParameter(ShaderSemantics.BackBufferTexture.str, backBufferTexture, sampler);
+    }
   }
 
   /**
@@ -1732,6 +2135,10 @@ export class ForwardRenderPipeline extends RnObject {
     frame.clearExpressions();
     // initial expression for clearing the frame buffer
     frame.addExpression(this.__initialExpression!);
+
+    // Per-component materials render one pass per component (SID order); otherwise the
+    // legacy merged material renders everything in a single pass.
+    this.__raymarchingExpression = this.__buildRaymarchingExpression();
 
     if (!this.__isSimple) {
       // depth map generation for shadow mapping. This runs before the raymarching

@@ -86,3 +86,34 @@ test('collectRrnJson passes the component world matrix to the SDF terminals for 
   const authoredUnion = raymarchingComponent.rrnJson.nodes.find(node => node.name === 'OutUnion');
   expect(authoredUnion?.controls?.distanceCorrectionMatrices).toBeUndefined();
 });
+
+test('creates a per-component raymarching material with its own world matrix semantic', async () => {
+  const engine = await Engine.init({
+    approach: ProcessApproach.None,
+    canvas: document.createElement('canvas'),
+  });
+  const entity = createRaymarchingEntity(engine);
+  const raymarchingComponent = entity.getRaymarching();
+  raymarchingComponent.sdfShapeType = SdfShapeType.Box;
+
+  const result = MaterialHelper.createNodeBasedRaymarchingComponentMaterial(engine, raymarchingComponent);
+  expect(result).toBeDefined();
+  const material = result!.material;
+
+  // The component's graph is cloned and normalized for its own material: the world
+  // matrix is one fixed semantic, and the distance terminals read it for correction.
+  const graph = material.shaderNodeJson as any;
+  const worldMatrixNode = graph.nodes.find((node: any) => node.name === 'SdApplyWorldMatrix');
+  expect(worldMatrixNode.controls.name.value).toBe('raymarchingWorldMatrix');
+  const terminal = graph.nodes.find((node: any) => node.name === 'OutUnion');
+  expect(terminal.controls.distanceCorrectionMatrices.value).toEqual(['raymarchingWorldMatrix']);
+
+  const semantics = material.fieldsInfoArray.map(info => info.semantic);
+  expect(semantics).toContain('raymarchingWorldMatrix');
+  expect(semantics).toContain('raymarchAabbMin');
+  expect(semantics).toContain('raymarchAabbMax');
+
+  // The authored graph is not mutated by the material preparation.
+  const authoredWorldMatrixNode = raymarchingComponent.rrnJson.nodes.find(node => node.name === 'SdApplyWorldMatrix');
+  expect(authoredWorldMatrixNode?.controls?.name?.value).toBe(`worldMatrix_${raymarchingComponent.componentSID}`);
+});

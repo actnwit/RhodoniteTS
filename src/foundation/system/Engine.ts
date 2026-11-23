@@ -921,6 +921,8 @@ export class Engine extends RnObject {
 
               // set Viewport for Normal (Not WebXR)
               this.setViewportForNormalRendering(renderPass);
+              // scissor hints (e.g. the screen bounds of an SDF pass) for normal rendering
+              this.setScissorForNormalRendering(renderPass);
 
               if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
                 // clear Framebuffer
@@ -1036,6 +1038,23 @@ export class Engine extends RnObject {
     const webARSystem = this.__webARSystem;
     if ((!webXRSystem.isWebXRMode || !renderPass.isVrRendering) && !webARSystem.isWebARMode) {
       (this.__cgApiResourceRepository as WebGLResourceRepository).setViewport(this, renderPass.getViewport());
+    }
+  }
+
+  /**
+   * Applies the pass's scissor rectangle for normal (non-XR) rendering.
+   *
+   * The scissor is a culling hint; XR/AR passes use their own viewports, so they
+   * run without one.
+   */
+  private setScissorForNormalRendering(renderPass: RenderPass) {
+    const webXRSystem = this.__webXRSystem;
+    const webARSystem = this.__webARSystem;
+    const repository = this.__cgApiResourceRepository as WebGLResourceRepository;
+    if ((!webXRSystem.isWebXRMode || !renderPass.isVrRendering) && !webARSystem.isWebARMode) {
+      repository.setScissorRect(renderPass);
+    } else {
+      repository.setScissorRect(undefined);
     }
   }
 
