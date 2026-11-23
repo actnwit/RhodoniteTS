@@ -173,12 +173,18 @@ fn volumeAttenuation(attenuationColor: vec3f, attenuationDistance: f32, intensit
 fn getVolumeTransmissionRay(n: vec3f, v: vec3f, thickness: f32, ior: f32) -> vec3f
 {
   let refractionVector = refract(-v, normalize(n), 1.0 / ior);
+#ifdef RN_RAYMARCHING_SHADING
+  // The raymarching draw has no per-instance mesh transform, and SDF thickness is
+  // authored in world units.
+  let modelScale = vec3f(1.0);
+#else
   let worldMatrix = get_worldMatrix(g_instanceIds.x);
 
   var modelScale: vec3f;
   modelScale.x = length(vec3f(worldMatrix[0].xyz));
   modelScale.y = length(vec3f(worldMatrix[1].xyz));
   modelScale.z = length(vec3f(worldMatrix[2].xyz));
+#endif
 
   return normalize(refractionVector) * thickness * modelScale;
 }

@@ -278,12 +278,18 @@ vec3 volumeAttenuation(vec3 attenuationColor, float attenuationDistance, vec3 in
 vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
 {
   vec3 refractionVector = refract(-v, normalize(n), 1.0 / ior);
+#ifdef RN_RAYMARCHING_SHADING
+  // The raymarching draw has no per-instance mesh transform (v_instanceIds is not
+  // declared there), and SDF thickness is authored in world units.
+  vec3 modelScale = vec3(1.0);
+#else
   mat4 worldMatrix = get_worldMatrix(v_instanceIds.x);
 
   vec3 modelScale;
   modelScale.x = length(vec3(worldMatrix[0].xyz));
   modelScale.y = length(vec3(worldMatrix[1].xyz));
   modelScale.z = length(vec3(worldMatrix[2].xyz));
+#endif
 
   return normalize(refractionVector) * thickness * modelScale;
 }

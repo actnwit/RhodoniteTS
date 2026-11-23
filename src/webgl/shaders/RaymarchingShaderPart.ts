@@ -561,6 +561,9 @@ precision highp float;
 precision highp int;
 /* shaderity: @{definitions} */
 #define RN_IS_NODE_SHADER
+// Shading runs only for hit points (non-uniform control flow); keep both backends consistent.
+#define RN_DISABLE_SPECULAR_AA
+#define RN_RAYMARCHING_SHADING
 /* shaderity: @{prerequisites} */
 in vec2 v_texcoord_0;
 /* shaderity: @{getters} */
