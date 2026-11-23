@@ -671,6 +671,7 @@ export class Gltf2Exporter {
       graph: raymarchingComponent.rrnJson ?? null,
       sdfShapeType: raymarchingComponent.sdfShapeType.index,
       isPickable: raymarchingComponent.isPickable,
+      castShadow: raymarchingComponent.castShadow,
     };
     this.__ensureExtensionUsed(json, 'RHODONITE_raymarching');
   }

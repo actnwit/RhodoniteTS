@@ -273,6 +273,13 @@ export class RaymarchingComponent extends Component {
    */
   public isPickable = true;
 
+  /**
+   * Whether the SDF of this raymarching component is rendered into the shadow maps.
+   * Casting components are merged into the shadow caster material; non-casting ones are
+   * left out so they do not occlude casting SDFs behind them.
+   */
+  public castShadow = true;
+
   constructor(
     engine: Engine,
     entityUid: EntityUID,
@@ -369,7 +376,18 @@ export class RaymarchingComponent extends Component {
    */
   invalidateAABB(): void {
     this.entity.tryToGetSceneGraph()?.setWorldAABBDirtyParentRecursively();
+    RaymarchingComponent.__aabbVersions.set(this.__engine, RaymarchingComponent.getAABBVersion(this.__engine) + 1);
   }
+
+  /**
+   * A version that changes whenever any raymarching component's AABB may have changed.
+   * The shadow volume auto-fit uses it as part of its cache key.
+   */
+  static getAABBVersion(engine: Engine): number {
+    return RaymarchingComponent.__aabbVersions.get(engine) ?? 0;
+  }
+
+  private static __aabbVersions = new WeakMap<Engine, number>();
 
   /**
    * Calculates a conservative world-space AABB of the SDF graph.
@@ -713,6 +731,7 @@ export class RaymarchingComponent extends Component {
     this.__uniformValueProvider = raymarchingComponent.__uniformValueProvider;
     this.__generatedColliderShapeIndices = [...raymarchingComponent.__generatedColliderShapeIndices];
     this.isPickable = raymarchingComponent.isPickable;
+    this.castShadow = raymarchingComponent.castShadow;
     this.invalidateAABB();
   }
 

@@ -31,6 +31,10 @@ import SummedAreaTableShaderVertex from '../../webgl/shaderity_shaders/SummedAre
 import ToneMappingShaderFragmentGLSL from '../../webgl/shaderity_shaders/ToneMappingShader/ToneMappingShader.frag';
 import ToneMappingShaderVertexGLSL from '../../webgl/shaderity_shaders/ToneMappingShader/ToneMappingShader.vert';
 import { RaymarchingShaderPart } from '../../webgl/shaders/RaymarchingShaderPart';
+import {
+  RaymarchingShadowShaderPart,
+  type RaymarchingShadowShaderPartKind,
+} from '../../webgl/shaders/RaymarchingShadowShaderPart';
 import { StandardShaderPart } from '../../webgl/shaders/StandardShaderPart';
 import ClassicSingleShaderFragmentWebgpu from '../../webgpu/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
 import ClassicSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
@@ -2496,6 +2500,130 @@ function createNodeBasedRaymarchingCustomMaterial(
 }
 
 /**
+ * Shadow caster materials built from a merged raymarching graph.
+ *
+ * `regular` writes the linear depth moments of spot / directional shadow maps, while
+ * the paraboloid variants write the front (r,g) and back (b,a) hemispheres of the
+ * point light shadow maps.
+ */
+export type RaymarchingShadowMaterials = {
+  regular?: Material;
+  paraboloidFront?: Material;
+  paraboloidBack?: Material;
+};
+
+/**
+ * Creates the shadow caster materials that render the merged SDF graph into the
+ * shadow maps.
+ *
+ * The shader part is a RaymarchingShadowShaderPart, so the distance function `map()`
+ * is the same as in the visible raymarching material while the fragment main writes
+ * the variance shadow map moments and the fragment depth. The receiver material is not
+ * passed as `currentMaterial`: only the previous shadow materials are reused.
+ *
+ * @param engine - The engine instance
+ * @param shaderNodeJson - The merged raymarching graph (castShadowOnly)
+ * @param currentMaterials - Shadow materials of the previous build, reused when possible
+ * @returns The three shadow materials, or undefined when code generation fails
+ */
+function createNodeBasedRaymarchingShadowMaterials(
+  engine: Engine,
+  shaderNodeJson: ShaderNodeJson,
+  currentMaterials?: RaymarchingShadowMaterials
+): RaymarchingShadowMaterials | undefined {
+  const regular = createNodeBasedRaymarchingShadowMaterial(
+    engine,
+    shaderNodeJson,
+    'regular',
+    currentMaterials?.regular
+  );
+  const paraboloidFront = createNodeBasedRaymarchingShadowMaterial(
+    engine,
+    shaderNodeJson,
+    'paraboloidFront',
+    currentMaterials?.paraboloidFront
+  );
+  const paraboloidBack = createNodeBasedRaymarchingShadowMaterial(
+    engine,
+    shaderNodeJson,
+    'paraboloidBack',
+    currentMaterials?.paraboloidBack
+  );
+  if (regular == null || paraboloidFront == null || paraboloidBack == null) {
+    return undefined;
+  }
+  return { regular, paraboloidFront, paraboloidBack };
+}
+
+export function createNodeBasedRaymarchingShadowMaterial(
+  engine: Engine,
+  shaderNodeJson: ShaderNodeJson,
+  kind: RaymarchingShadowShaderPartKind,
+  currentMaterial?: Material
+): Material | undefined {
+  const shaderPart = new RaymarchingShadowShaderPart(kind);
+  const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(engine, shaderNodeJson, shaderPart, [
+    'outDistance',
+    'outUnion',
+  ]);
+  if (!shaderCode) {
+    return undefined;
+  }
+
+  const additionalShaderSemanticInfo = addRaymarchingComponentSemanticsInfo(shaderNodeJson);
+  // Texture2D nodes in the distance function sample these material textures.
+  additionalShaderSemanticInfo.push(...buildTextureSemanticInfo(engine, shaderCode.textureInfos));
+  if (kind !== 'regular') {
+    // Point light paraboloid passes: the light index and the per-slot far plane are
+    // set by the pipeline when the per-slot material is created / updated.
+    additionalShaderSemanticInfo.push({
+      semantic: 'lightIndex',
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Scalar,
+      stage: ShaderType.PixelShader,
+      initialValue: Scalar.fromCopyNumber(0),
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+    additionalShaderSemanticInfo.push({
+      semantic: 'shadowFarPlane',
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.Scalar,
+      stage: ShaderType.PixelShader,
+      initialValue: Scalar.fromCopyNumber(1000),
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+  }
+
+  const material = reuseOrRecreateCustomMaterial(
+    engine,
+    shaderCode.vertexShader,
+    shaderCode.pixelShader,
+    {
+      isLighting: false,
+      isPbr: false,
+      isShadow: false,
+      additionalShaderSemanticInfo,
+    },
+    currentMaterial
+  );
+
+  if (kind === 'paraboloidFront') {
+    material.colorWriteMask = [true, true, false, false];
+  } else if (kind === 'paraboloidBack') {
+    material.colorWriteMask = [false, false, true, true];
+  } else {
+    // The regular shadow target is RG16F (moments M1 and M2).
+    material.colorWriteMask = [true, true, false, false];
+  }
+
+  material.shaderNodeJson = shaderNodeJson;
+
+  return material;
+}
+
+/**
  * Creates or reuses a custom material from a shader node JSON graph.
  * This function handles shader code generation, texture semantics setup,
  * PBR/Classic shader detection, and IBL semantics for PBR materials.
@@ -2818,7 +2946,7 @@ function createNodeBasedCustomMaterial(
   };
 }
 
-function collectRrnJson(engine: Engine): NodeJSON {
+function collectRrnJson(engine: Engine, { castShadowOnly = false }: { castShadowOnly?: boolean } = {}): NodeJSON {
   const collectedRrnJson: NodeJSON = {
     nodes: [],
     connections: [],
@@ -2827,6 +2955,11 @@ function collectRrnJson(engine: Engine): NodeJSON {
   const raymarchingComponents = engine.componentRepository.getComponentsWithType(RaymarchingComponent);
   for (const component of raymarchingComponents) {
     const raymarchingComponent = component as RaymarchingComponent;
+    if (castShadowOnly && !raymarchingComponent.castShadow) {
+      // A non-casting SDF must be absent from the shadow graph: including it in the
+      // union would let it occlude casting SDFs behind it.
+      continue;
+    }
     const rrnJson = raymarchingComponent.rrnJson;
 
     // Prefix node ids with the component SID to avoid collisions and to keep the
@@ -2955,6 +3088,8 @@ export const MaterialHelper = Object.freeze({
   reuseOrRecreateCustomMaterial,
   createNodeBasedCustomMaterial,
   createNodeBasedRaymarchingCustomMaterial,
+  createNodeBasedRaymarchingShadowMaterial,
+  createNodeBasedRaymarchingShadowMaterials,
   createClassicUberMaterial,
   createDepthMomentEncodeMaterial,
   createParaboloidDepthMomentEncodeMaterial,
