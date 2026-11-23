@@ -69,6 +69,70 @@ describe('RaymarchingSdfEvaluator', () => {
     expectBounds(evaluator.calcBounds(), [-1, -1, -1], [1, 1, 1]);
   });
 
+  test('evaluates the torus, capsule and round box primitives', () => {
+    const singlePrimitiveGraph = (primitive: NodeJSONNode, inputs: Array<[NodeJSONNode, string]>): NodeJSON => {
+      const initial = createNode('InitialPosition');
+      const out = createNode('OutUnion');
+      return {
+        nodes: [initial, ...inputs.map(([inputNode]) => inputNode), primitive, out],
+        connections: [
+          connect(initial, 'outPosition', primitive, 'position'),
+          ...inputs.map(([inputNode, port]) => connect(inputNode, 'out1', primitive, port)),
+          connect(primitive, 'outDistance', out, 'in1'),
+        ],
+      };
+    };
+
+    const torusRadius = createNode('ConstantScalarFloat', scalar(1));
+    const torusTubeRadius = createNode('ConstantScalarFloat', scalar(0.25));
+    const torus = createNode('SdTorus');
+    const torusEvaluator = new RaymarchingSdfEvaluator(
+      singlePrimitiveGraph(torus, [
+        [torusRadius, 'radius'],
+        [torusTubeRadius, 'tubeRadius'],
+      ]),
+      Matrix44.identity()
+    );
+    expectBounds(torusEvaluator.calcBounds(), [-1.25, -0.25, -1.25], [1.25, 0.25, 1.25]);
+    expect(torusEvaluator.evalDistanceAt(Vector3.fromCopy3(1, 0, 0))).toBeCloseTo(-0.25);
+    expect(torusEvaluator.evalDistanceAt(Vector3.fromCopy3(1.25, 0, 0))).toBeCloseTo(0);
+    expect(torusEvaluator.evalDistanceAt(Vector3.fromCopy3(1, 0.25, 0))).toBeCloseTo(0);
+    expect(torusEvaluator.evalDistanceAt(Vector3.fromCopy3(0, 0, 0))).toBeCloseTo(0.75);
+
+    const capsulePointA = createNode('ConstantVector3Float', vec3(0, -1, 0));
+    const capsulePointB = createNode('ConstantVector3Float', vec3(0, 1, 0));
+    const capsuleRadius = createNode('ConstantScalarFloat', scalar(0.5));
+    const capsule = createNode('SdCapsule');
+    const capsuleEvaluator = new RaymarchingSdfEvaluator(
+      singlePrimitiveGraph(capsule, [
+        [capsulePointA, 'pointA'],
+        [capsulePointB, 'pointB'],
+        [capsuleRadius, 'radius'],
+      ]),
+      Matrix44.identity()
+    );
+    expectBounds(capsuleEvaluator.calcBounds(), [-0.5, -1.5, -0.5], [0.5, 1.5, 0.5]);
+    expect(capsuleEvaluator.evalDistanceAt(Vector3.fromCopy3(0, 0, 0.5))).toBeCloseTo(0);
+    expect(capsuleEvaluator.evalDistanceAt(Vector3.fromCopy3(0, 2, 0))).toBeCloseTo(0.5);
+    expect(capsuleEvaluator.evalDistanceAt(Vector3.fromCopy3(0, -2, 0))).toBeCloseTo(0.5);
+    expect(capsuleEvaluator.evalDistanceAt(Vector3.fromCopy3(0, 0, 0))).toBeCloseTo(-0.5);
+
+    const roundBoxSize = createNode('ConstantVector3Float', vec3(0.2, 0.2, 0.2));
+    const roundBoxRadius = createNode('ConstantScalarFloat', scalar(0.1));
+    const roundBox = createNode('SdRoundBox');
+    const roundBoxEvaluator = new RaymarchingSdfEvaluator(
+      singlePrimitiveGraph(roundBox, [
+        [roundBoxSize, 'size'],
+        [roundBoxRadius, 'radius'],
+      ]),
+      Matrix44.identity()
+    );
+    expectBounds(roundBoxEvaluator.calcBounds(), [-0.3, -0.3, -0.3], [0.3, 0.3, 0.3]);
+    expect(roundBoxEvaluator.evalDistanceAt(Vector3.fromCopy3(0, 0, 0))).toBeCloseTo(-0.1);
+    expect(roundBoxEvaluator.evalDistanceAt(Vector3.fromCopy3(0.3, 0, 0))).toBeCloseTo(0);
+    expect(roundBoxEvaluator.evalDistanceAt(Vector3.fromCopy3(0.4, 0, 0))).toBeCloseTo(0.1);
+  });
+
   test('applies SdApplyTransform translation', () => {
     const initial = createNode('InitialPosition');
     const translation = createNode('ConstantVector3Float', vec3(1, 0, 0));

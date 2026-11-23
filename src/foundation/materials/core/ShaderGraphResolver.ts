@@ -105,6 +105,7 @@ import { SdBarXShaderNode } from '../nodes/raymarching/SdBarXShaderNode';
 import { SdBarYShaderNode } from '../nodes/raymarching/SdBarYShaderNode';
 import { SdBarZShaderNode } from '../nodes/raymarching/SdBarZShaderNode';
 import { SdBoxShaderNode } from '../nodes/raymarching/SdBoxShaderNode';
+import { SdCapsuleShaderNode } from '../nodes/raymarching/SdCapsuleShaderNode';
 import { SdRepeatShaderNode } from '../nodes/raymarching/SdRepeatShaderNode';
 import { SdRepeatXShaderNode } from '../nodes/raymarching/SdRepeatXShaderNode';
 import { SdRepeatXYShaderNode } from '../nodes/raymarching/SdRepeatXYShaderNode';
@@ -112,7 +113,9 @@ import { SdRepeatYShaderNode } from '../nodes/raymarching/SdRepeatYShaderNode';
 import { SdRepeatYZShaderNode } from '../nodes/raymarching/SdRepeatYZShaderNode';
 import { SdRepeatZShaderNode } from '../nodes/raymarching/SdRepeatZShaderNode';
 import { SdRepeatZXShaderNode } from '../nodes/raymarching/SdRepeatZXShaderNode';
+import { SdRoundBoxShaderNode } from '../nodes/raymarching/SdRoundBoxShaderNode';
 import { SdSphereShaderNode } from '../nodes/raymarching/SdSphereShaderNode';
+import { SdTorusShaderNode } from '../nodes/raymarching/SdTorusShaderNode';
 import { SdTubeXShaderNode } from '../nodes/raymarching/SdTubeXShaderNode';
 import { SdTubeYShaderNode } from '../nodes/raymarching/SdTubeYShaderNode';
 import { SdTubeZShaderNode } from '../nodes/raymarching/SdTubeZShaderNode';
@@ -2265,6 +2268,21 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'SdBox': {
         const nodeInstance = new SdBoxShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'SdTorus': {
+        const nodeInstance = new SdTorusShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'SdCapsule': {
+        const nodeInstance = new SdCapsuleShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'SdRoundBox': {
+        const nodeInstance = new SdRoundBoxShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }
