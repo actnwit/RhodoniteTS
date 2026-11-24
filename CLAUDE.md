@@ -156,6 +156,10 @@ src/xr/                 # WebXR support
   (in the container shell: `bash config/e2e/run-in-docker.sh shell`). `--update` takes an
   optional value, so `--update ./samples/<Sample>` swallows the path and updates the whole suite.
 - **Snapshots**: Image comparison with automatic snapshot updating
+- **TreeShaking sample**: `samples/test_e2e/TreeShaking` is the only sample that is bundled. `pnpm build-samples`
+  runs `scripts/build-tree-shaking-sample.mjs` (esbuild, named imports, `__RN_WEBGPU__: false`) after `tsc`, and the
+  test checks the bundle's metafile (no gizmos, XR, WGSL, MaterialHelper, KTX2, Rapier) as well as the rendering.
+  If it fails after a change, something in the core path started importing an optional feature again.
 
 ## Development Patterns
 
