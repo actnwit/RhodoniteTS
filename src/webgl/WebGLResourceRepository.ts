@@ -3659,8 +3659,8 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     // created without a depth/stencil buffer, clearing it is a no-op, so the bits are left out.
     const isCanvasTarget =
       renderPass.getFramebuffer() == null &&
-      !(engine.webXRSystem.isWebXRMode && renderPass.isOutputForVr) &&
-      !engine.webARSystem.isWebARMode;
+      !(engine._webXRSystemIfEnabled?.isWebXRMode && renderPass.isOutputForVr) &&
+      !engine._webARSystemIfEnabled?.isWebARMode;
     let bufferBit = 0;
     if (renderPass.toClearColorBuffer) {
       gl.clearColor(renderPass.clearColor.x, renderPass.clearColor.y, renderPass.clearColor.z, renderPass.clearColor.w);

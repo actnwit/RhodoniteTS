@@ -116,8 +116,10 @@ src/xr/                 # WebXR support
   (`__RN_WEBGL__` for GLSL, see `src/backendFlags.d.ts`) so applications can drop a backend with a bundler `define`.
   Never read a gated shader at module top level.
 - **Optional features stay out of the core path**: create gizmos only through `_getGizmoClass(kind)`
-  (`gizmos/GizmoRegistry.ts`; classes are registered by `registerGizmos()`). The default `Rn` export enables them
-  via `enableRnNamespaceDefaults` (bound to the default export value so webpack cannot skip it); the build rewrites
+  (`gizmos/GizmoRegistry.ts`; classes are registered by `registerGizmos()`). Internal code reads XR state through
+  `engine._webXRSystemIfEnabled` / `_webARSystemIfEnabled` (undefined unless XR is enabled), never the public
+  `webXRSystem` getter, which throws when XR is off. The default `Rn` export enables both via
+  `enableRnNamespaceDefaults` (bound to the default export value so webpack cannot skip it); the build rewrites
   `dist/*/index.d.ts` so that `Rn` stays usable as a type namespace.
 - **IIFE Dev** (`dist/iifedev/rhodonite.js`): Browser-ready development bundle
 - **IIFE Prod** (`dist/iife/rhodonite.min.js`): Minified production bundle

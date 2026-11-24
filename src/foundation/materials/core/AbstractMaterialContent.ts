@@ -408,8 +408,8 @@ export abstract class AbstractMaterialContent extends RnObject {
     let viewMatrix: Matrix44;
     let cameraPosition: IVector3;
     if (isVr) {
-      const webxrSystem = cameraComponent.entity.engine.webXRSystem;
-      if (webxrSystem.isWebXRMode) {
+      const webxrSystem = cameraComponent.entity.engine._webXRSystemIfEnabled;
+      if (webxrSystem?.isWebXRMode) {
         viewMatrix = webxrSystem._getViewMatrixAt(displayIdx);
         cameraPosition = webxrSystem._getCameraWorldPositionAt(displayIdx);
       }
@@ -440,8 +440,8 @@ export abstract class AbstractMaterialContent extends RnObject {
   ) {
     let projectionMatrix: Matrix44;
     if (isVr) {
-      const webxrSystem = cameraComponent.entity.engine.webXRSystem;
-      if (webxrSystem.isWebXRMode) {
+      const webxrSystem = cameraComponent.entity.engine._webXRSystemIfEnabled;
+      if (webxrSystem?.isWebXRMode) {
         projectionMatrix = webxrSystem._getProjectMatrixAt(displayIdx);
       }
     } else if (cameraComponent) {

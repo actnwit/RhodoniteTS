@@ -462,7 +462,7 @@ export class LightClusterSystem {
    */
   private __collectCameras(expressions: readonly Expression[]) {
     const engine = this.__engine;
-    const webXRSystem = engine.webXRSystem;
+    const webXRSystem = engine._webXRSystemIfEnabled;
     const cameraSids: number[] = [];
     const add = (sid: number) => {
       if (sid >= 0 && !cameraSids.includes(sid)) {
@@ -476,7 +476,7 @@ export class LightClusterSystem {
         if (renderPass.isBufferLessRenderingMode() || renderPass.material != null) {
           continue;
         }
-        if (webXRSystem.isWebXRMode && renderPass.isVrRendering) {
+        if (webXRSystem?.isWebXRMode && renderPass.isVrRendering) {
           // With separate per-eye passes, each eye has its own camera component and pass, so each eye gets its
           // own view region (two views in the worst case).
           // In multiview rendering one pass draws both eyes and the fragment shaders can not tell which eye they

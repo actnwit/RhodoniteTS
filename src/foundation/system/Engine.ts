@@ -14,6 +14,7 @@ import { LightComponent } from '../components/Light/LightComponent';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
 import { TransformComponent } from '../components/Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { Component } from '../core/Component';
@@ -74,6 +75,12 @@ interface EngineInitDescription {
   webglOption?: WebGLContextAttributes;
   notToDisplayRnInfoAtInit?: boolean;
   config?: Config;
+  /**
+   * Loads the WebXR/WebAR support (`engine.webXRSystem`, `engine.webARSystem`) during initialization.
+   * Defaults to false for named imports, and to true when the default `Rn` namespace export is used.
+   * It can also be enabled later with `await engine.enableXR()`.
+   */
+  xr?: boolean;
 }
 
 /**
@@ -108,8 +115,14 @@ export class Engine extends RnObject {
 
   private __renderLoopFunc?: (time: number, ...args: any[]) => void;
   private __args: unknown[] = [];
-  private __webXRSystem: WebXRSystem;
-  private __webARSystem: WebARSystem;
+  private __webXRSystem?: WebXRSystem;
+  private __webARSystem?: WebARSystem;
+  /**
+   * Whether `Engine.init` loads the XR support when `EngineInitDescription.xr` is omitted.
+   * The default `Rn` namespace export sets it to true for compatibility.
+   * @internal
+   */
+  static _loadXRByDefault = false;
   private __entityRepository: EntityRepository;
   private __componentRepository: ComponentRepository;
   private __componentMemoryRegistry: ComponentMemoryRegistry;
@@ -137,7 +150,8 @@ export class Engine extends RnObject {
     processApproach: ProcessApproachEnum,
     cgApiResourceRepository: ICGAPIResourceRepository,
     maxGPUDataStorageSize: Byte,
-    config?: Config
+    config?: Config,
+    rnXRModule?: RnXR
   ) {
     super();
     this.__config = config ?? new Config();
@@ -146,14 +160,16 @@ export class Engine extends RnObject {
     this.__engineUid = Engine.__engineCount;
     this.__processApproach = processApproach;
     this.__cgApiResourceRepository = cgApiResourceRepository;
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
     this.__componentMemoryRegistry = new ComponentMemoryRegistry();
     this.__componentRepository = new ComponentRepository(this);
     this.__entityRepository = new EntityRepository(this);
     this.__materialRepository = new MaterialRepository();
     this.__memoryManager = MemoryManager.createInstanceIfNotCreated(this, maxGPUDataStorageSize);
-    this.__webXRSystem = rnXRModule.WebXRSystem.init(this);
-    this.__webARSystem = rnXRModule.WebARSystem.init(this);
+    // The XR systems create their viewer and camera entities, so they are initialized at the same point as
+    // before the XR support became optional; entity and component IDs stay unchanged when it is enabled.
+    if (rnXRModule != null) {
+      this.__initXRSystems(rnXRModule);
+    }
     this.__globalDataRepository = GlobalDataRepository.init(this);
     this.__lightClusterSystem = new LightClusterSystem(this);
     Engine.__engineCount++;
@@ -350,11 +366,11 @@ export class Engine extends RnObject {
         };
 
     const __renderLoopFunc = ((_time: number, xrFrame: XRFrame) => {
-      if (webXRSystem.isReadyForWebXR) {
+      if (webXRSystem?.isReadyForWebXR) {
         webXRSystem._preRender(_time, xrFrame);
         invokeRenderLoopFunc(_time);
         webXRSystem._postRender();
-      } else if (webARSystem.isReadyForWebAR) {
+      } else if (webARSystem?.isReadyForWebAR) {
         webARSystem._preRender(_time, xrFrame);
         invokeRenderLoopFunc(_time);
         webARSystem._postRender();
@@ -371,9 +387,9 @@ export class Engine extends RnObject {
     let animationFrameObject: Window | XRSession | undefined = window;
     const webXRSystem = this.__webXRSystem;
     const webARSystem = this.__webARSystem;
-    if (webXRSystem.requestedToEnterWebXR) {
+    if (webXRSystem?.requestedToEnterWebXR) {
       animationFrameObject = webXRSystem.xrSession;
-    } else if (webARSystem.requestedToEnterWebAR) {
+    } else if (webARSystem?.requestedToEnterWebAR) {
       animationFrameObject = webARSystem.arSession;
     }
     if (Is.not.exist(animationFrameObject)) {
@@ -766,8 +782,8 @@ export class Engine extends RnObject {
         // The light lists must be written before the strategy uploads the GPU instance data in prerender.
         this.__lightClusterSystem.update(expressions);
         MeshRendererComponent.common_$prerender(this);
-        const isWebXRMode = webxrSystem.isWebXRMode;
-        const isMultiView = webxrSystem.isMultiView();
+        const isWebXRMode = webxrSystem?.isWebXRMode ?? false;
+        const isMultiView = webxrSystem?.isMultiView() ?? false;
         const xrPose = this.__engineState.xrPoseWebGPU;
         const displayCount = isWebXRMode && !isMultiView && xrPose != null ? xrPose.views.length : 1;
         // Effekseer is rarely used. Detect it once per frame so the per-pass
@@ -1029,7 +1045,7 @@ export class Engine extends RnObject {
   private setViewportForNormalRendering(renderPass: RenderPass) {
     const webXRSystem = this.__webXRSystem;
     const webARSystem = this.__webARSystem;
-    if ((!webXRSystem.isWebXRMode || !renderPass.isVrRendering) && !webARSystem.isWebARMode) {
+    if ((!webXRSystem?.isWebXRMode || !renderPass.isVrRendering) && !webARSystem?.isWebARMode) {
       (this.__cgApiResourceRepository as WebGLResourceRepository).setViewport(this, renderPass.getViewport());
     }
   }
@@ -1044,7 +1060,7 @@ export class Engine extends RnObject {
     const webXRSystem = this.__webXRSystem;
     const webARSystem = this.__webARSystem;
     const repository = this.__cgApiResourceRepository as WebGLResourceRepository;
-    if ((!webXRSystem.isWebXRMode || !renderPass.isVrRendering) && !webARSystem.isWebARMode) {
+    if ((!webXRSystem?.isWebXRMode || !renderPass.isVrRendering) && !webARSystem?.isWebARMode) {
       repository.setScissorRect(renderPass);
     } else {
       repository.setScissorRect(undefined);
@@ -1108,7 +1124,8 @@ export class Engine extends RnObject {
    * @remarks
    * Other component classes are registered on first use by `EntityRepository.addComponentToEntity`.
    * The core classes are registered here because the render loop looks up the MeshRendererComponent class
-   * by its ComponentTID, and because entity helpers such as `createGroupEntity` and `createMeshEntity` add
+   * by its ComponentTID, because SkeletalComponent's bone data members must be registered before any shader is
+   * generated, and because entity helpers such as `createGroupEntity` and `createMeshEntity` add
    * them by ComponentTID: importing the classes there would create circular imports between the
    * components, the gizmos and the mesh helpers.
    */
@@ -1121,6 +1138,10 @@ export class Engine extends RnObject {
     ComponentRepository._ensureComponentClassRegistered(CameraControllerComponent);
     ComponentRepository._ensureComponentClassRegistered(LightComponent);
     ComponentRepository._ensureComponentClassRegistered(AnimationComponent);
+    // SkeletalComponent registers its bone data members when its module is evaluated, and every generated
+    // shader declares the bone data getters (get_boneData etc.), so the class must be part of the core
+    // even in applications without skinned meshes.
+    ComponentRepository._ensureComponentClassRegistered(SkeletalComponent);
   }
 
   public static async init(desc: EngineInitDescription): Promise<Engine> {
@@ -1145,7 +1166,9 @@ export class Engine extends RnObject {
     Engine.__registerCoreComponentClasses();
 
     await ModuleManager.getInstance().loadModule('pbr');
-    await ModuleManager.getInstance().loadModule('xr');
+    // The XR support pulls in the glTF importer (controller models), so it is loaded only when requested.
+    const rnXRModule =
+      (desc.xr ?? Engine._loadXRByDefault) ? ((await ModuleManager.getInstance().loadModule('xr')) as RnXR) : undefined;
 
     let maxGPUDataStorageSize: Byte = 0;
     let cgApiResourceRepository: ICGAPIResourceRepository | undefined;
@@ -1206,7 +1229,7 @@ export class Engine extends RnObject {
       maxGPUDataStorageSize = 1024 ** 2 * 4 /* rgba */ * 4 /* byte */;
     }
 
-    const engine = new Engine(desc.approach, cgApiResourceRepository!, maxGPUDataStorageSize, desc.config);
+    const engine = new Engine(desc.approach, cgApiResourceRepository!, maxGPUDataStorageSize, desc.config, rnXRModule);
     engine.__engineState.currentProcessApproach = desc.approach;
     engine.__config.eventTargetDom = engine.__config.eventTargetDom ?? desc.canvas;
     if (desc.approach === ProcessApproach.WebGPU) {
@@ -1284,13 +1307,80 @@ export class Engine extends RnObject {
     return this.__componentMemoryRegistry;
   }
 
-  public get webXRSystem() {
+  /**
+   * The WebXR (VR) system.
+   * @throws If the XR support is not enabled (see {@link enableXR} and `EngineInitDescription.xr`)
+   */
+  public get webXRSystem(): WebXRSystem {
+    if (this.__webXRSystem == null) {
+      throw new Error(Engine.__xrNotEnabledMessage);
+    }
     return this.__webXRSystem;
   }
 
-  public get webARSystem() {
+  /**
+   * The WebAR system.
+   * @throws If the XR support is not enabled (see {@link enableXR} and `EngineInitDescription.xr`)
+   */
+  public get webARSystem(): WebARSystem {
+    if (this.__webARSystem == null) {
+      throw new Error(Engine.__xrNotEnabledMessage);
+    }
     return this.__webARSystem;
   }
+
+  /** Whether the XR support (WebXR and WebAR systems) is enabled. */
+  public get isXREnabled(): boolean {
+    return this.__webXRSystem != null;
+  }
+
+  /**
+   * The WebXR system, or undefined when the XR support is not enabled.
+   * Internal code uses it so that rendering without XR never needs the XR module.
+   * @internal
+   */
+  public get _webXRSystemIfEnabled(): WebXRSystem | undefined {
+    return this.__webXRSystem;
+  }
+
+  /**
+   * The WebAR system, or undefined when the XR support is not enabled.
+   * @internal
+   */
+  public get _webARSystemIfEnabled(): WebARSystem | undefined {
+    return this.__webARSystem;
+  }
+
+  /**
+   * Enables the WebXR/WebAR support after initialization by loading the XR module.
+   * Does nothing when it is already enabled (e.g. by `Engine.init({ xr: true })`).
+   *
+   * @returns The WebXR system
+   *
+   * @example
+   * ```typescript
+   * const webXRSystem = await engine.enableXR();
+   * await webXRSystem.readyForWebXR(buttonElement, basePath);
+   * ```
+   */
+  public async enableXR(): Promise<WebXRSystem> {
+    if (this.__webXRSystem == null) {
+      const rnXRModule = (await ModuleManager.getInstance().loadModule('xr')) as RnXR;
+      if (this.__webXRSystem == null) {
+        this.__initXRSystems(rnXRModule);
+      }
+    }
+    return this.__webXRSystem!;
+  }
+
+  private __initXRSystems(rnXRModule: RnXR) {
+    this.__webXRSystem = rnXRModule.WebXRSystem.init(this);
+    this.__webARSystem = rnXRModule.WebARSystem.init(this);
+  }
+
+  private static readonly __xrNotEnabledMessage =
+    'The XR support is not enabled. Initialize the engine with Engine.init({ xr: true }) or call ' +
+    'await engine.enableXR() first. The default Rn namespace export enables it automatically.';
 
   public get memoryManager() {
     return this.__memoryManager!;

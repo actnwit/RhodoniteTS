@@ -238,9 +238,9 @@ export function _createProgramAsSingleOperationWebGL(
 
   // Determine if Multi-View rendering is enabled for WebXR
   const webglResourceRepository = engine.webglResourceRepository;
-  const webXRSystem = engine.webXRSystem;
+  const webXRSystem = engine._webXRSystemIfEnabled;
   const isMultiViewVRRendering =
-    Is.exist(webXRSystem) && webXRSystem.isWebXRMode && webglResourceRepository.isSupportMultiViewVRRendering(engine);
+    Is.exist(webXRSystem) && webXRSystem?.isWebXRMode && webglResourceRepository.isSupportMultiViewVRRendering(engine);
 
   const cacheQuery =
     Component.getStateVersion(engine) +
@@ -398,10 +398,10 @@ export function _setupGlobalShaderDefinitionWebGL(engine: Engine, materialTypeNa
     }
   }
 
-  const webXRSystem = engine.webXRSystem;
+  const webXRSystem = engine._webXRSystemIfEnabled;
   if (
     Is.exist(webXRSystem) &&
-    webXRSystem.isWebXRMode &&
+    webXRSystem?.isWebXRMode &&
     webglResourceRepository.isSupportMultiViewVRRendering(engine)
   ) {
     definitions += '#define WEBGL2_MULTI_VIEW\n';

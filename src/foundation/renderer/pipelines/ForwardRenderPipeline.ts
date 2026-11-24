@@ -132,7 +132,6 @@ export class ForwardRenderPipeline extends RnObject {
   private __toneMappingExpression?: Expression;
   private __toneMappingMaterial?: Material;
   private __transparentOnlyExpressions: Expression[] = [];
-  private __webXRSystem?: WebXRSystem;
   private __drawFunc?: DrawFunc;
   private __diffuseCubeTexture?: CubeTexture;
   private __specularCubeTexture?: CubeTexture;
@@ -332,8 +331,6 @@ export class ForwardRenderPipeline extends RnObject {
 
     // Initial Expression
     this.__initialExpression = this.__setupInitialExpression();
-
-    this.__webXRSystem = this.__engine.webXRSystem;
 
     if (this.__expressions.length > 0) {
       this.setExpressions(this.__expressions);
@@ -580,8 +577,9 @@ export class ForwardRenderPipeline extends RnObject {
         error: undefined,
       });
     }
-    const webXRSystem = this.__webXRSystem;
-    if (Is.exist(webXRSystem) && webXRSystem.isWebXRMode) {
+    // Read on use: the XR support may be enabled after the pipeline was set up (engine.enableXR()).
+    const webXRSystem = this.__engine._webXRSystemIfEnabled;
+    if (Is.exist(webXRSystem) && webXRSystem?.isWebXRMode) {
       width = webXRSystem.getCanvasWidthForVr();
       height = webXRSystem.getCanvasHeightForVr();
     }
@@ -1016,11 +1014,11 @@ export class ForwardRenderPipeline extends RnObject {
    * @internal
    */
   private __createRenderTargets(canvasWidth: number, canvasHeight: number) {
-    const webXRSystem = this.__engine.webXRSystem;
+    const webXRSystem = this.__engine._webXRSystemIfEnabled;
     const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     if (
       Is.exist(webXRSystem) &&
-      webXRSystem.isWebXRMode &&
+      webXRSystem?.isWebXRMode &&
       cgApiResourceRepository.isSupportMultiViewVRRendering(this.__engine)
     ) {
       const framebufferMultiView = RenderableHelper.createFrameBufferTextureArrayForMultiView(this.__engine, {
