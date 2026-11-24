@@ -9,7 +9,9 @@ import type { RenderPass } from '../renderer/RenderPass';
 import type { Engine } from '../system/Engine';
 import type { AbstractTexture } from '../textures/AbstractTexture';
 import type { RenderTargetTexture } from '../textures/RenderTargetTexture';
-import { MaterialHelper } from './MaterialHelper';
+import { createDetectHighLuminanceMaterial } from './materials/createDetectHighLuminanceMaterial';
+import { createGaussianBlurMaterial } from './materials/createGaussianBlurMaterial';
+import { createSynthesizeHDRMaterial } from './materials/createSynthesizeHDRMaterial';
 import { RenderableHelper } from './RenderableHelper';
 import { RenderPassHelper } from './RenderPassHelper';
 
@@ -130,7 +132,7 @@ export class Bloom {
     const materialKey = `${texture.width}_${texture.height}`;
     let materialDetectHighLuminance = this.__mapDetectHighLuminanceMaterial.get(materialKey);
     if (materialDetectHighLuminance == null) {
-      materialDetectHighLuminance = MaterialHelper.createDetectHighLuminanceMaterial(
+      materialDetectHighLuminance = createDetectHighLuminanceMaterial(
         this.__engine,
         { maxInstancesNumber: 1 },
         texture
@@ -263,7 +265,7 @@ export class Bloom {
     const materialKey = `${resolutionWidthBlur}_${resolutionHeightBlur}_${isHorizontal}`;
     let material = this.__mapGaussianBlurMaterial.get(materialKey);
     if (material == null) {
-      material = MaterialHelper.createGaussianBlurMaterial(this.__engine);
+      material = createGaussianBlurMaterial(this.__engine);
       this.__mapGaussianBlurMaterial.set(materialKey, material);
     }
 
@@ -332,7 +334,7 @@ export class Bloom {
     const materialKey = `${texture.width}_${texture.height}_${texturesSynthesize.length}`;
     let materialSynthesizeTextures = this.__mapSynthesizeMaterial.get(materialKey);
     if (materialSynthesizeTextures == null) {
-      materialSynthesizeTextures = MaterialHelper.createSynthesizeHDRMaterial(
+      materialSynthesizeTextures = createSynthesizeHDRMaterial(
         this.__engine,
         {
           maxInstancesNumber: 1,

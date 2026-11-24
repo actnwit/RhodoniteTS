@@ -1,7 +1,7 @@
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
-import { MaterialHelper } from '../helpers/MaterialHelper';
 import { MeshHelper } from '../helpers/MeshHelper';
+import { createPbrUberMaterial } from '../helpers/materials/createPbrUberMaterial';
 import { MutableQuaternion } from '../math/MutableQuaternion';
 import { MutableVector3 } from '../math/MutableVector3';
 import { Vector3 } from '../math/Vector3';
@@ -60,7 +60,7 @@ export class CapsuleColliderGizmo extends Gizmo {
     const height = Vector3.subtract(tailPos, headPos).length();
 
     // Create a capsule mesh with the same dimensions as the collider
-    const material = MaterialHelper.createPbrUberMaterial(this.__engine, {
+    const material = createPbrUberMaterial(this.__engine, {
       isLighting: false,
       isSkinning: false,
       isMorphing: false,

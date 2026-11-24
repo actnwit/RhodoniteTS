@@ -66,7 +66,10 @@ import type {
   ISceneGraphEntity,
 } from '../helpers/EntityHelper';
 import { attachLightShadowCamera } from '../helpers/EntityHelper';
-import { MaterialHelper } from '../helpers/MaterialHelper';
+import { createClassicUberMaterial } from '../helpers/materials/createClassicUberMaterial';
+import { createMToon0xMaterial } from '../helpers/materials/createMToon0xMaterial';
+import { createMToon1Material } from '../helpers/materials/createMToon1Material';
+import { createPbrUberMaterial } from '../helpers/materials/createPbrUberMaterial';
 import type { Material } from '../materials/core/Material';
 import { AnimatedQuaternion } from '../math/AnimatedQuaternion';
 import { AnimatedScalar } from '../math/AnimatedScalar';
@@ -1814,7 +1817,7 @@ export class ModelConverter {
         // The VRM 1.0 specification defaults outlineWidthMode to "none" when it is omitted.
         const outlineWidthMode = VRMC_materials_mtoon.outlineWidthMode;
         if (outlineWidthMode === 'worldCoordinates' || outlineWidthMode === 'screenCoordinates') {
-          outlineMaterial = MaterialHelper.createMToon1Material(engine, {
+          outlineMaterial = createMToon1Material(engine, {
             additionalName,
             isMorphing,
             isSkinning,
@@ -1835,7 +1838,7 @@ export class ModelConverter {
         }
       }
 
-      const material = MaterialHelper.createMToon1Material(engine, {
+      const material = createMToon1Material(engine, {
         additionalName,
         isMorphing,
         isSkinning,
@@ -2002,7 +2005,7 @@ export class ModelConverter {
       if (renderPassOutline != null) {
         let outlineMaterial: Material | undefined;
         if (materialProperties.floatProperties._OutlineWidthMode !== 0) {
-          outlineMaterial = MaterialHelper.createMToon0xMaterial(engine, {
+          outlineMaterial = createMToon0xMaterial(engine, {
             additionalName,
             isMorphing,
             isSkinning,
@@ -2024,7 +2027,7 @@ export class ModelConverter {
         }
       }
 
-      const material = MaterialHelper.createMToon0xMaterial(engine, {
+      const material = createMToon0xMaterial(engine, {
         additionalName,
         isMorphing,
         isSkinning,
@@ -2087,9 +2090,15 @@ export class ModelConverter {
       }
 
       // For specified default material helper
-      const materialHelperName = rnLoaderOptions.defaultMaterialHelperName;
-      if (materialHelperName != null) {
-        return (MaterialHelper as any)[materialHelperName](...rnLoaderOptions.defaultMaterialHelperArgumentArray!);
+      const materialHelper = rnLoaderOptions.defaultMaterialHelper;
+      if (materialHelper != null) {
+        return materialHelper(engine, ...(rnLoaderOptions.defaultMaterialHelperArgumentArray ?? []));
+      }
+      if (rnLoaderOptions.defaultMaterialHelperName != null) {
+        Logger.default.error(
+          `defaultMaterialHelperName ("${rnLoaderOptions.defaultMaterialHelperName}") is no longer supported. ` +
+            'Pass the function with defaultMaterialHelper instead, e.g. defaultMaterialHelper: createClassicUberMaterial.'
+        );
       }
     }
 
@@ -2155,7 +2164,7 @@ export class ModelConverter {
 
     if (Number.parseFloat(gltfModel.asset?.version) >= 2) {
       // For glTF 2
-      const material = MaterialHelper.createPbrUberMaterial(engine, pbrUberMaterialOptions);
+      const material = createPbrUberMaterial(engine, pbrUberMaterialOptions);
       const makeOutputSrgb = this.__makeOutputSrgb(gltfModel);
       if (Is.exist(makeOutputSrgb)) {
         material.setParameter('makeOutputSrgb', makeOutputSrgb);
@@ -2164,7 +2173,7 @@ export class ModelConverter {
       return material;
     }
     // For glTF 1
-    const material = MaterialHelper.createClassicUberMaterial(engine, {
+    const material = createClassicUberMaterial(engine, {
       isSkinning,
       isLighting,
       additionalName: additionalName,

@@ -4,7 +4,7 @@ import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import { Mesh } from '../geometry/Mesh';
 import { Sphere } from '../geometry/shapes/Sphere';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
-import { MaterialHelper } from '../helpers/MaterialHelper';
+import { createPbrUberMaterial } from '../helpers/materials/createPbrUberMaterial';
 import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
@@ -111,7 +111,7 @@ export class SphereColliderGizmo extends Gizmo {
     let sharedMesh = SphereColliderGizmo.__sharedMeshMap.get(engineUID);
     if (!sharedMesh) {
       // Create material for wireframe visualization
-      const material = MaterialHelper.createPbrUberMaterial(engine, {
+      const material = createPbrUberMaterial(engine, {
         isLighting: false,
         isSkinning: false,
         isMorphing: false,

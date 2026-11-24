@@ -6,7 +6,7 @@ import type { FrameBuffer } from '../../renderer/FrameBuffer';
 import { RenderPass } from '../../renderer/RenderPass';
 import type { Engine } from '../../system/Engine';
 import type { ISceneGraphEntity } from '../EntityHelper';
-import { MaterialHelper } from '../MaterialHelper';
+import { createParaboloidDepthMomentEncodeMaterial } from '../materials/createParaboloidDepthMomentEncodeMaterial';
 import { RenderableHelper } from '../RenderableHelper';
 
 /**
@@ -36,10 +36,10 @@ export class PointShadowMap {
       depthTextureFormat: TextureFormat.Depth32F,
     });
     for (let i = 0; i < engine.config.maxLightNumber; i++) {
-      const shadowMomentFrontMaterial = MaterialHelper.createParaboloidDepthMomentEncodeMaterial(engine);
+      const shadowMomentFrontMaterial = createParaboloidDepthMomentEncodeMaterial(engine);
       shadowMomentFrontMaterial.colorWriteMask = [true, true, false, false];
       this.__shadowMomentFrontMaterials.push(shadowMomentFrontMaterial);
-      const shadowMomentBackMaterial = MaterialHelper.createParaboloidDepthMomentEncodeMaterial(engine);
+      const shadowMomentBackMaterial = createParaboloidDepthMomentEncodeMaterial(engine);
       shadowMomentBackMaterial.colorWriteMask = [false, false, true, true];
       shadowMomentBackMaterial.setParameter('frontHemisphere', false);
       this.__shadowMomentBackMaterials.push(shadowMomentBackMaterial);

@@ -2,8 +2,8 @@ import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import type { ShapeComponent } from '../components/Shape/ShapeComponent';
 import type { ShapeInstance } from '../geometry/Shape';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
-import { MaterialHelper } from '../helpers/MaterialHelper';
 import { MeshHelper } from '../helpers/MeshHelper';
+import { createPbrUberMaterial } from '../helpers/materials/createPbrUberMaterial';
 import type { Material } from '../materials/core/Material';
 import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
@@ -41,7 +41,7 @@ export class ShapeGizmo extends Gizmo {
     this.__topEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
     this.__target.getSceneGraph()._addGizmoChild(this.__topEntity.getSceneGraph());
 
-    this.__material = MaterialHelper.createPbrUberMaterial(this.__engine, {
+    this.__material = createPbrUberMaterial(this.__engine, {
       isLighting: false,
       isSkinning: false,
       isMorphing: false,
@@ -94,11 +94,7 @@ export class ShapeGizmo extends Gizmo {
     }
   }
 
-  private __addShape(
-    instance: ShapeInstance,
-    index: number,
-    material: ReturnType<typeof MaterialHelper.createPbrUberMaterial>
-  ) {
+  private __addShape(instance: ShapeInstance, index: number, material: ReturnType<typeof createPbrUberMaterial>) {
     const group = createGroupEntity(this.__engine);
     group.tryToSetUniqueName(`ShapeGizmo_${index}_of_${this.__target.uniqueName}`, true);
     group.localPosition = instance.localPosition;
