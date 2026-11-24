@@ -35,7 +35,7 @@ import { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
 import { Time } from '../misc/Time';
-import { RapierPhysicsStrategy } from '../physics/Rapier/RapierPhysicsStrategy';
+import { _getPhysicsBackend } from '../physics/PhysicsBackend';
 import { CGAPIResourceRepository, type ICGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { Expression } from '../renderer/Expression';
 import { Frame } from '../renderer/Frame';
@@ -268,7 +268,7 @@ export class Engine extends RnObject {
     CameraComponent._cleanupForEngine(this);
     LightComponent._cleanupForEngine(this);
     MeshRendererComponent._cleanupForEngine(this);
-    RapierPhysicsStrategy._cleanupForEngine(this);
+    _getPhysicsBackend()?.cleanupForEngine(this);
 
     // Clean up gizmo resources that are managed per-Engine
     TranslationGizmo._cleanupForEngine(this);

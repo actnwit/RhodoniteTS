@@ -1,7 +1,6 @@
 import type { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import type { BASIS_TYPE, BasisFile, BasisTranscoder } from '../../types/BasisTexture';
 import type { CGAPIResourceHandle, Count, Index, Offset, Size, TypedArray } from '../../types/CommonTypes';
-import { KTX2TextureLoader } from '../../webgl/textureLoader/KTX2TextureLoader';
 import type { TextureData } from '../../webgl/WebGLResourceRepository';
 import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { ComponentType } from '../definitions/ComponentType';
@@ -228,6 +227,9 @@ export class Texture extends AbstractTexture implements Disposable {
   async generateTextureFromKTX2(uint8Array: Uint8Array) {
     this.__startedToLoad = true;
 
+    // Loaded on demand: the KTX2 loader bundles the Zstandard decoder and ktx-parse, which applications
+    // that do not use KTX2 textures should not pay for.
+    const { KTX2TextureLoader } = await import('../../webgl/textureLoader/KTX2TextureLoader');
     const transcodedData = await KTX2TextureLoader.getInstance().transcode(this.__engine, uint8Array);
     this.__width = transcodedData.width;
     this.__height = transcodedData.height;

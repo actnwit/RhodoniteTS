@@ -1,5 +1,5 @@
 import Rn from '../../../../dist/esm';
-import { RapierPhysicsStrategy } from '../../physics/Rapier/RapierPhysicsStrategy';
+import { _getPhysicsBackend, _setPhysicsBackend } from '../../physics/PhysicsBackend';
 import type { Engine } from '../../system/Engine';
 import { AnimationStateRepository } from '../Animation/AnimationStateRepository';
 import { CharacterControllerComponent } from '../CharacterController/CharacterControllerComponent';
@@ -46,7 +46,9 @@ describe('PhysicsComponent shape bindings', async () => {
 
   test('uses a unique process-frame token for Rapier step deduplication', () => {
     const frameEngine = {} as Engine;
-    const updateSpy = vi.spyOn(RapierPhysicsStrategy, 'update').mockImplementation(() => {});
+    const updateSpy = vi.fn();
+    const previousBackend = _getPhysicsBackend();
+    _setPhysicsBackend({ update: updateSpy, cleanupForEngine: () => {}, bindShapePhysics: entity => entity });
     try {
       const firstToken = AnimationStateRepository.beginProcessFrame(frameEngine);
       PhysicsComponent.common_$logic({ engine: frameEngine });
@@ -59,7 +61,7 @@ describe('PhysicsComponent shape bindings', async () => {
       expect(updateSpy.mock.calls.map(call => call[0])).toEqual([firstToken, firstToken, secondToken, secondToken]);
       expect(updateSpy.mock.calls.map(call => call[1])).toEqual([1 / 60, 1 / 60, 1 / 60, 1 / 60]);
     } finally {
-      updateSpy.mockRestore();
+      _setPhysicsBackend(previousBackend);
       AnimationStateRepository._cleanupForEngine(frameEngine);
     }
   });
