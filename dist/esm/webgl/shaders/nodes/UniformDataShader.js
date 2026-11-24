@@ -1,25 +1,25 @@
-import{ProcessApproach as e}from"../../../foundation/definitions/ProcessApproach.js";import{StandardShaderPart as o}from"../StandardShaderPart.js";var i=class extends o{constructor(t,r,p){super();this.__functionName=t;this.__compositionType=r;this.__componentType=p;this.__variableName="";this.__valueStr=""}setVariableName(t){this.__variableName=t}setDefaultValue(t){this.__valueStr=t.toString()}getVertexShaderDefinitions(t){return t.engineState.currentProcessApproach===e.WebGPU?`
-// #param ${this.__variableName}: ${this.__compositionType.toWGSLType(this.__componentType)}; // initialValue=${this.__valueStr}
-fn ${this.__functionName}(outValue: ptr<function, ${this.__compositionType.toWGSLType(this.__componentType)}>) {
-  *outValue = get_${this.__variableName}(uniformDrawParameters.materialSid, 0u);
+import{ProcessApproach as e}from"../../../foundation/definitions/ProcessApproach.js";import{StandardShaderPart as r}from"../StandardShaderPart.js";var i=class extends r{constructor(t,s,a){super();this.$A=t;this.o_=s;this.s_=a;this.qA="";this.t$=""}setVariableName(t){this.qA=t}setDefaultValue(t){this.t$=t.toString()}getVertexShaderDefinitions(t){return t.engineState.currentProcessApproach===e.WebGPU?`
+// #param ${this.qA}: ${this.o_.toWGSLType(this.s_)}; // initialValue=${this.t$}
+fn ${this.$A}(outValue: ptr<function, ${this.o_.toWGSLType(this.s_)}>) {
+  *outValue = get_${this.qA}(uniformDrawParameters.materialSid, 0u);
 }
 `:`
-uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${this.__variableName}; // initialValue=${this.__valueStr}
-void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
+uniform ${this.o_.getGlslStr(this.s_)} u_${this.qA}; // initialValue=${this.t$}
+void ${this.$A}(out ${this.o_.getGlslStr(this.s_)} outValue) {
   ${this.getMaterialSIDForWebGL()}
 
-  outValue = get_${this.__variableName}(materialSID, 0u);
+  outValue = get_${this.qA}(materialSID, 0u);
 }
 `}getPixelShaderDefinitions(t){return t.engineState.currentProcessApproach===e.WebGPU?`
-// #param ${this.__variableName}: ${this.__compositionType.toWGSLType(this.__componentType)}; // initialValue=${this.__valueStr}
-fn ${this.__functionName}(outValue: ptr<function, ${this.__compositionType.toWGSLType(this.__componentType)}>) {
-  *outValue = get_${this.__variableName}(uniformDrawParameters.materialSid, 0u);
+// #param ${this.qA}: ${this.o_.toWGSLType(this.s_)}; // initialValue=${this.t$}
+fn ${this.$A}(outValue: ptr<function, ${this.o_.toWGSLType(this.s_)}>) {
+  *outValue = get_${this.qA}(uniformDrawParameters.materialSid, 0u);
 }
 `:`
-uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${this.__variableName}; // initialValue=${this.__valueStr}
-void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
+uniform ${this.o_.getGlslStr(this.s_)} u_${this.qA}; // initialValue=${this.t$}
+void ${this.$A}(out ${this.o_.getGlslStr(this.s_)} outValue) {
   ${this.getMaterialSIDForWebGL()}
 
-outValue = get_${this.__variableName}(materialSID, 0u);
+outValue = get_${this.qA}(materialSID, 0u);
     }
     `}get attributeNames(){return[]}get attributeSemantics(){return[]}get attributeCompositions(){return[]}};export{i as UniformDataShader};

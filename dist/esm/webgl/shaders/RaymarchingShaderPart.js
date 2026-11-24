@@ -500,7 +500,7 @@ fn rnRayAabbInterval(rayOrigin: vec3f, rayDirection: vec3f, boundsMin: vec3f, bo
   }
   return interval;
 }
-`,t+=m.__getPbrFunctionsWGSL(),t}let e="";return e+=`
+`,t+=m.e3(),t}let e="";return e+=`
 #version 300 es
 precision highp float;
 precision highp int;
@@ -657,7 +657,7 @@ bool rnRayAabbInterval(vec3 rayOrigin, vec3 rayDirection, vec3 boundsMin, vec3 b
   }
   return tExit >= 0.0;
 }
-`,e+=m.__getPbrFunctionsGLSL(),e}static __getPbrFunctionsWGSL(){return`
+`,e+=m.t3(),e}static e3(){return`
 #ifdef RN_USE_PBR
 ${g.code}
 fn raymarchingPbr(positionInWorld: vec3f, normalInWorld: vec3f) -> vec4f {
@@ -704,7 +704,7 @@ fn raymarchingPbr(positionInWorld: vec3f, normalInWorld: vec3f) -> vec4f {
   return outColor;
 }
 #endif // RN_USE_PBR
-`}static __getPbrFunctionsGLSL(){return`
+`}static t3(){return`
 #ifdef RN_USE_PBR
 ${u.code}
 vec4 raymarchingPbr(vec3 positionInWorld, vec3 normalInWorld) {

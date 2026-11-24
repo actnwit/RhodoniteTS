@@ -1,4 +1,4 @@
-import{ProcessApproach as n}from"../../foundation/definitions/ProcessApproach.js";import{RaymarchingShaderPart as o}from"./RaymarchingShaderPart.js";var i=class r extends o{constructor(t){super(),this.__kind=t}get hasShadingSection(){return!1}getEmbeddedShaderFunctionNames(){return[]}getMainEnd(t,e,a){return e?"":t.engineState.currentProcessApproach===n.WebGPU?this.__kind==="regular"?this.__getRegularMainWGSL():this.__getParaboloidMainWGSL():this.__kind==="regular"?this.__getRegularMainGLSL():this.__getParaboloidMainGLSL()}__getRegularMainGLSL(){return`
+import{ProcessApproach as n}from"../../foundation/definitions/ProcessApproach.js";import{RaymarchingShaderPart as o}from"./RaymarchingShaderPart.js";var i=class r extends o{constructor(t){super(),this.aP=t}get hasShadingSection(){return!1}getEmbeddedShaderFunctionNames(){return[]}getMainEnd(t,e,a){return e?"":t.engineState.currentProcessApproach===n.WebGPU?this.aP==="regular"?this.hP():this.lP():this.aP==="regular"?this.cP():this.mP()}cP(){return`
   return g_distance;
 }
 void main() {
@@ -59,9 +59,9 @@ void main() {
   vec4 clipPos = projectionMatrix * viewMatrix * vec4(p, 1.0);
   float depth = clamp(clipPos.z / clipPos.w * 0.5 + 0.5, 0.0, 1.0);
   gl_FragDepth = depth;
-  rt0 = vec4(depth, depth * depth + 0.25 * ${r.__momentFilterEpsilon()}, 0.0, 1.0);
+  rt0 = vec4(depth, depth * depth + 0.25 * ${r.iP()}, 0.0, 1.0);
 }
-`}__getRegularMainWGSL(){return`
+`}hP(){return`
   return g_distance;
 }
 struct FragmentOutput {
@@ -124,10 +124,10 @@ fn main(input: VertexOutput) -> FragmentOutput {
   let clipPos = projectionMatrix * viewMatrix * vec4f(p, 1.0);
   let depth = clamp(clipPos.z / clipPos.w, 0.0, 1.0);
   output.depth = depth;
-  output.color = vec4f(depth, depth * depth + 0.25 * ${r.__momentFilterEpsilon()}, 0.0, 1.0);
+  output.color = vec4f(depth, depth * depth + 0.25 * ${r.iP()}, 0.0, 1.0);
   return output;
 }
-`}__getParaboloidMainGLSL(){let t=this.__kind==="paraboloidFront",e=t?"1.0":"-1.0",a=t?"rt0 = vec4(depth, moment, 1.0, 1.0);":"rt0 = vec4(1.0, 1.0, depth, moment);";return`
+`}mP(){let t=this.aP==="paraboloidFront",e=t?"1.0":"-1.0",a=t?"rt0 = vec4(depth, moment, 1.0, 1.0);":"rt0 = vec4(1.0, 1.0, depth, moment);";return`
   return g_distance;
 }
 void main() {
@@ -183,10 +183,10 @@ void main() {
   vec3 p = ro + rd * t;
   float depth = clamp(length(p - ro) / farPlane, 0.0, 1.0);
   gl_FragDepth = depth;
-  float moment = depth * depth + 0.25 * ${r.__momentFilterEpsilon()};
+  float moment = depth * depth + 0.25 * ${r.iP()};
   ${a}
 }
-`}__getParaboloidMainWGSL(){let t=this.__kind==="paraboloidFront",e=t?"1.0":"-1.0",a=t?"output.color = vec4f(depth, moment, 1.0, 1.0);":"output.color = vec4f(1.0, 1.0, depth, moment);";return`
+`}lP(){let t=this.aP==="paraboloidFront",e=t?"1.0":"-1.0",a=t?"output.color = vec4f(depth, moment, 1.0, 1.0);":"output.color = vec4f(1.0, 1.0, depth, moment);";return`
   return g_distance;
 }
 struct FragmentOutput {
@@ -245,8 +245,8 @@ fn main(input: VertexOutput) -> FragmentOutput {
   let p = ro + rd * t;
   let depth = clamp(length(p - ro) / farPlane, 0.0, 1.0);
   output.depth = depth;
-  let moment = depth * depth + 0.25 * ${r.__momentFilterEpsilon()};
+  let moment = depth * depth + 0.25 * ${r.iP()};
   ${a}
   return output;
 }
-`}static __momentFilterEpsilon(){return"1e-6"}};export{i as RaymarchingShadowShaderPart};
+`}static iP(){return"1e-6"}};export{i as RaymarchingShadowShaderPart};

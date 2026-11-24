@@ -62,6 +62,13 @@ export declare class ModelConverter {
      */
     private static __preloadMToonMaterialSupport;
     /**
+     * Loads the raymarching component only when a node uses the RHODONITE_raymarching extension.
+     *
+     * @param gltfModel - The glTF model data to inspect
+     * @internal
+     */
+    static preloadRaymarchingSupport(gltfModel: RnM2): Promise<void>;
+    /**
      * Sets up textures from the glTF model asynchronously
      * @param gltfModel - The glTF model data
      * @returns Promise resolving to array of Rhodonite textures

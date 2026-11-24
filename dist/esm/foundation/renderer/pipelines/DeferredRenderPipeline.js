@@ -1,1 +1,1 @@
-import{RnObject as e}from"../../core/RnObject.js";var i=class extends e{constructor(){super(...arguments);this.__width=0;this.__height=0;this.__expressions=[]}async setup(s,t){this.__width=s,this.__height=t}setExpressions(s){this.__expressions=s}};export{i as DeferredRenderPipeline};
+import{RnObject as i}from"../../core/RnObject.js";var t=class extends i{constructor(){super(...arguments);this.sm=0;this.Xx=0;this.pp=[]}async setup(s,p){this.sm=s,this.Xx=p}setExpressions(s){this.pp=s}};export{t as DeferredRenderPipeline};

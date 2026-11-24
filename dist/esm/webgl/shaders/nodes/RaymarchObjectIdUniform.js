@@ -1,10 +1,10 @@
-import{ProcessApproach as r}from"../../../foundation/definitions/ProcessApproach.js";import{RaymarchingShaderPart as i}from"../RaymarchingShaderPart.js";var t=class extends i{constructor(e){super();this.__variableName="";this.__shaderFunctionName="";this.__shaderFunctionName=e}setVariableName(e){this.__variableName=e}getVertexShaderDefinitions(e){return""}get vertexShaderBody(){return""}getPixelShaderDefinitions(e){return e.engineState.currentProcessApproach===r.WebGPU?`
-fn ${this.__shaderFunctionName}(outValue: ptr<function, f32>) {
-  *outValue = get_${this.__variableName}(uniformDrawParameters.materialSid, 0u);
+import{ProcessApproach as r}from"../../../foundation/definitions/ProcessApproach.js";import{RaymarchingShaderPart as i}from"../RaymarchingShaderPart.js";var e=class extends i{constructor(t){super();this.qA="";this.gS="";this.gS=t}setVariableName(t){this.qA=t}getVertexShaderDefinitions(t){return""}get vertexShaderBody(){return""}getPixelShaderDefinitions(t){return t.engineState.currentProcessApproach===r.WebGPU?`
+fn ${this.gS}(outValue: ptr<function, f32>) {
+  *outValue = get_${this.qA}(uniformDrawParameters.materialSid, 0u);
 }
       `:`
-void ${this.__shaderFunctionName}(out float outValue) {
+void ${this.gS}(out float outValue) {
   ${this.getMaterialSIDForWebGL()}
-  outValue = get_${this.__variableName}(materialSID, 0u);
+  outValue = get_${this.qA}(materialSID, 0u);
 }
-      `}getPixelShaderBody(){return""}get attributeNames(){return[]}get attributeSemantics(){return[]}get attributeCompositions(){return[]}};export{t as RaymarchObjectIdUniformShader};
+      `}getPixelShaderBody(){return""}get attributeNames(){return[]}get attributeSemantics(){return[]}get attributeCompositions(){return[]}};export{e as RaymarchObjectIdUniformShader};

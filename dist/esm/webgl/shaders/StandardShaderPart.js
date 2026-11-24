@@ -1,8 +1,8 @@
-import{ComponentType as y}from"../../foundation/definitions/ComponentType.js";import{ProcessApproach as p}from"../../foundation/definitions/ProcessApproach.js";import{AbstractShaderNode as g}from"../../foundation/materials/core/AbstractShaderNode.js";import h from"../../webgpu/shaderity_shaders/common/vertexInput.wgsl.js";import _ from"../shaderity_shaders/common/morphVariables.glsl.js";import{CommonShaderPart as S}from"./CommonShaderPart.js";var b=typeof __RN_WEBGPU__=="undefined"||__RN_WEBGPU__?h:void 0,l=class extends S{getMainBegin(r,t){return r.engineState.currentProcessApproach===p.WebGPU?t?`
+import{ComponentType as h}from"../../foundation/definitions/ComponentType.js";import{ProcessApproach as p}from"../../foundation/definitions/ProcessApproach.js";import{AbstractShaderNode as y}from"../../foundation/materials/core/AbstractShaderNode.js";import g from"../../webgpu/shaderity_shaders/common/vertexInput.wgsl.js";import _ from"../shaderity_shaders/common/morphVariables.glsl.js";import{CommonShaderPart as S}from"./CommonShaderPart.js";var v=typeof __RN_WEBGPU__=="undefined"||__RN_WEBGPU__?g:void 0,l=class extends S{getMainBegin(r,t){return r.engineState.currentProcessApproach===p.WebGPU?t?`
 var<private> output : VertexOutput;
 @vertex
 fn main(
-${b.code}
+${v.code}
 ) -> VertexOutput {
   output.instanceIds = instanceIds;
   /* shaderity: @{mainPrerequisites} */
@@ -30,7 +30,7 @@ void main() {
 }
 `}getMaterialSIDForWebGL(){return`
   uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
-`}getVertexPrerequisites(r,t){if(r.engineState.currentProcessApproach===p.WebGPU){let n=this.__makeVaryingVariablesWGSL(t),i="";return i+=`
+`}getVertexPrerequisites(r,t){if(r.engineState.currentProcessApproach===p.WebGPU){let n=this.d_(t),i="";return i+=`
 /* shaderity: @{definitions} */
 #define RN_IS_NODE_SHADER
 
@@ -82,8 +82,8 @@ in vec4 a_weight;
 in vec4 a_baryCentricCoord;
 in vec4 a_tangent;
 flat out uvec4 v_instanceIds;
-`,e+="/* shaderity: @{getters} */",e+="/* shaderity: @{matricesGetters} */",e+="/* shaderity: @{opticalDefinition} */",e+="/* shaderity: @{shadowDefinition} */",e+="/* shaderity: @{pbrDefinition} */",e+="/* shaderity: @{iblDefinition} */",e}__makeVaryingVariablesWGSL(r){let t=[],e=new Set;for(let i=0;i<r.length;i++){let o=r[i];for(let a=0;a<o.inputConnections.length;a++){let d=o.inputConnections[a];if(d==null)continue;let s=o.getInputs()[a],c=g.getShaderNodeByUid(d.shaderNodeUid);if(c.getShaderStage()==="Vertex"&&o.getShaderStage()==="Fragment"){let m=s.compositionType.toWGSLType(s.componentType),u=`${c.shaderFunctionName}_${c.shaderNodeUid}_${d.outputNameOfPrev}`;if(e.has(u))continue;e.add(u);let f=s.componentType.isInteger()||s.componentType.isUnsignedInteger()||s.componentType===y.Bool;t.push({type:m,name:u,needsFlat:f})}}}t.sort((i,o)=>i.name<o.name?-1:1);let n="";for(let i=0;i<t.length;i++){let o=t[i].needsFlat?" @interpolate(flat)":"";n+=`@location(${i})${o} ${t[i].name}: ${t[i].type},
-`}return n+=`@location(${t.length}) @interpolate(flat) instanceIds: vec4<u32>,`,n}getPixelPrerequisites(r,t){if(r.engineState.currentProcessApproach===p.WebGPU){let n=this.__makeVaryingVariablesWGSL(t),i="";return i+=`
+`,e+="/* shaderity: @{getters} */",e+="/* shaderity: @{matricesGetters} */",e+="/* shaderity: @{opticalDefinition} */",e+="/* shaderity: @{shadowDefinition} */",e+="/* shaderity: @{pbrDefinition} */",e+="/* shaderity: @{iblDefinition} */",e}d_(r){let t=[],e=new Set;for(let i=0;i<r.length;i++){let o=r[i];for(let a=0;a<o.inputConnections.length;a++){let d=o.inputConnections[a];if(d==null)continue;let s=o.getInputs()[a],c=y.getShaderNodeByUid(d.shaderNodeUid);if(c.getShaderStage()==="Vertex"&&o.getShaderStage()==="Fragment"){let m=s.compositionType.toWGSLType(s.componentType),u=`${c.shaderFunctionName}_${c.shaderNodeUid}_${d.outputNameOfPrev}`;if(e.has(u))continue;e.add(u);let f=s.componentType.isInteger()||s.componentType.isUnsignedInteger()||s.componentType===h.Bool;t.push({type:m,name:u,needsFlat:f})}}}t.sort((i,o)=>i.name<o.name?-1:1);let n="";for(let i=0;i<t.length;i++){let o=t[i].needsFlat?" @interpolate(flat)":"";n+=`@location(${i})${o} ${t[i].name}: ${t[i].type},
+`}return n+=`@location(${t.length}) @interpolate(flat) instanceIds: vec4<u32>,`,n}getPixelPrerequisites(r,t){if(r.engineState.currentProcessApproach===p.WebGPU){let n=this.d_(t),i="";return i+=`
 /* shaderity: @{definitions} */
 #define RN_IS_NODE_SHADER
 
