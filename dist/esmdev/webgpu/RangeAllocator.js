@@ -5,13 +5,13 @@ var RangeAllocator = class {
    */
   constructor(capacity) {
     /** Sorted, non-overlapping, non-adjacent free ranges. */
-    this.JF = [];
-    this.KF = [];
-    this.LF = 0;
+    this.LF = [];
+    this.MF = [];
+    this.NF = 0;
     this.Mx = capacity;
     if (capacity > 0) {
-      this.JF.push(0);
-      this.KF.push(capacity);
+      this.LF.push(0);
+      this.MF.push(capacity);
     }
   }
   /** The size of the region in bytes. */
@@ -20,11 +20,11 @@ var RangeAllocator = class {
   }
   /** The total size of the allocated ranges in bytes. */
   get usedSize() {
-    return this.LF;
+    return this.NF;
   }
   /** Whether no range is allocated. */
   get isEmpty() {
-    return this.LF === 0;
+    return this.NF === 0;
   }
   /**
    * Allocates a range.
@@ -33,8 +33,8 @@ var RangeAllocator = class {
    * @returns The offset of the range, or -1 if no free range is large enough
    */
   allocate(size, alignment) {
-    const offsets = this.JF;
-    const sizes = this.KF;
+    const offsets = this.LF;
+    const sizes = this.MF;
     for (let i = 0; i < offsets.length; i++) {
       const freeOffset = offsets[i];
       const freeSize = sizes[i];
@@ -57,7 +57,7 @@ var RangeAllocator = class {
       }
       offsets.splice(i, 1, ...replacementOffsets);
       sizes.splice(i, 1, ...replacementSizes);
-      this.LF += size;
+      this.NF += size;
       return alignedOffset;
     }
     return -1;
@@ -68,8 +68,8 @@ var RangeAllocator = class {
    * @param size - The size of the range in bytes
    */
   release(offset, size) {
-    const offsets = this.JF;
-    const sizes = this.KF;
+    const offsets = this.LF;
+    const sizes = this.MF;
     let low = 0;
     let high = offsets.length;
     while (low < high) {
@@ -97,11 +97,11 @@ var RangeAllocator = class {
       offsets.splice(next, 0, offset);
       sizes.splice(next, 0, size);
     }
-    this.LF -= size;
+    this.NF -= size;
   }
   /** The free ranges as [offset, size] pairs, for tests and debugging. */
   getFreeRanges() {
-    return this.JF.map((offset, i) => [offset, this.KF[i]]);
+    return this.LF.map((offset, i) => [offset, this.MF[i]]);
   }
 };
 export {

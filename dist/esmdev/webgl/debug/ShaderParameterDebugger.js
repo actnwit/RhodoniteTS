@@ -194,7 +194,7 @@ var ShaderParameterDebugger = class _ShaderParameterDebugger {
     const isWebGPU = backend === "WebGPU";
     const materialCountPerBufferView = (_a = engine.materialRepository.getMaterialCountPerBufferView(material.materialTypeName)) != null ? _a : 1;
     const bufferViewIndex = Math.floor(material.materialSID / materialCountPerBufferView);
-    const shaderProgramUid = _ShaderParameterDebugger.PE(material, primitive);
+    const shaderProgramUid = _ShaderParameterDebugger.RE(material, primitive);
     const realUniforms = !isWebGPU && shaderProgramUid >= 0 ? _ShaderParameterDebugger.readRealUniforms(engine, shaderProgramUid) : null;
     const entries = [];
     for (const info of material.fieldsInfoArray) {
@@ -251,7 +251,7 @@ var ShaderParameterDebugger = class _ShaderParameterDebugger {
       bufferViewIndex,
       shaderProgramUid,
       bufferWidth,
-      sharedProgramMaterialMismatch: !isWebGPU && shaderProgramUid >= 0 ? _ShaderParameterDebugger.QE(engine, shaderProgramUid, material) : false,
+      sharedProgramMaterialMismatch: !isWebGPU && shaderProgramUid >= 0 ? _ShaderParameterDebugger.SE(engine, shaderProgramUid, material) : false,
       entries
     };
   }
@@ -597,7 +597,7 @@ var ShaderParameterDebugger = class _ShaderParameterDebugger {
       dumpPrimitive: (primitive) => _ShaderParameterDebugger.dumpPrimitive(engine, primitive)
     };
   }
-  static PE(material, primitive) {
+  static RE(material, primitive) {
     if (primitive != null) {
       return material.getShaderProgramUid(primitive);
     }
@@ -606,7 +606,7 @@ var ShaderParameterDebugger = class _ShaderParameterDebugger {
     }
     return -1;
   }
-  static QE(engine, shaderProgramUid, material) {
+  static SE(engine, shaderProgramUid, material) {
     const program = engine.webglResourceRepository.getWebGLResource(shaderProgramUid);
     if (program == null || program._material == null) {
       return false;

@@ -20,44 +20,44 @@ var WebXRSystem = class _WebXRSystem {
    * Sets up the scene graph hierarchy with cameras as children of the viewer entity.
    */
   constructor(engine) {
-    this.zK = false;
-    this.fK = "local";
-    this.tK = false;
+    this.BK = false;
+    this.hK = "local";
     this.vK = false;
-    this.ZJ = defaultUserPositionInVR;
-    this.mK = 0;
-    this.nK = 0;
-    this.wK = [];
-    this.xK = [];
-    this.gK = MutableVector3.zero();
-    this.hK = MutableScalar.zero();
-    this.aK = MutableQuaternion.identity();
-    this.iK = MutableVector3.one();
-    this.HK = -1;
-    this.IK = -1;
+    this.xK = false;
+    this.$J = defaultUserPositionInVR;
+    this.oK = 0;
+    this.pK = 0;
+    this.yK = [];
+    this.zK = [];
+    this.iK = MutableVector3.zero();
+    this.jK = MutableScalar.zero();
+    this.cK = MutableQuaternion.identity();
+    this.kK = MutableVector3.one();
+    this.JK = -1;
+    this.KK = -1;
     this.c = engine;
-    this.rK = createGroupEntity(engine);
-    this.rK.tryToSetUniqueName("WebXR Viewer", true);
+    this.tK = createGroupEntity(engine);
+    this.tK.tryToSetUniqueName("WebXR Viewer", true);
+    this.tK.tryToSetTag({
+      tag: "type",
+      value: "background-assets"
+    });
+    this.qK = createCameraEntity(engine, false);
+    this.qK.tryToSetUniqueName("WebXR Left Camera", true);
+    this.qK.tryToSetTag({
+      tag: "type",
+      value: "background-assets"
+    });
+    this.qK.getCamera()._xrLeft = true;
+    this.rK = createCameraEntity(engine, false);
+    this.rK.tryToSetUniqueName("WebXR Right Camera", true);
     this.rK.tryToSetTag({
       tag: "type",
       value: "background-assets"
     });
-    this.oK = createCameraEntity(engine, false);
-    this.oK.tryToSetUniqueName("WebXR Left Camera", true);
-    this.oK.tryToSetTag({
-      tag: "type",
-      value: "background-assets"
-    });
-    this.oK.getCamera()._xrLeft = true;
-    this.pK = createCameraEntity(engine, false);
-    this.pK.tryToSetUniqueName("WebXR Right Camera", true);
-    this.pK.tryToSetTag({
-      tag: "type",
-      value: "background-assets"
-    });
-    this.pK.getCamera()._xrRight = true;
-    this.rK.getSceneGraph().addChild(this.oK.getSceneGraph());
-    this.rK.getSceneGraph().addChild(this.pK.getSceneGraph());
+    this.rK.getCamera()._xrRight = true;
+    this.tK.getSceneGraph().addChild(this.qK.getSceneGraph());
+    this.tK.getSceneGraph().addChild(this.rK.getSceneGraph());
   }
   /// Public Methods
   /**
@@ -79,7 +79,7 @@ var WebXRSystem = class _WebXRSystem {
     if (typeof window === "undefined") {
       throw new Error("This method works in Browser environment");
     }
-    this.DK = basePath;
+    this.FK = basePath;
     await ModuleManager.getInstance().loadModule("xr");
     const isWebGPU = this.c.engineState.currentProcessApproach === ProcessApproach.WebGPU;
     if (isWebGPU) {
@@ -94,7 +94,7 @@ var WebXRSystem = class _WebXRSystem {
         Logger.default.error("WebGL Context is not ready yet.");
         return [];
       }
-      this.WC = glw;
+      this.YC = glw;
     }
     const supported = await navigator.xr.isSessionSupported("immersive-vr");
     if (supported) {
@@ -112,12 +112,12 @@ var WebXRSystem = class _WebXRSystem {
           canvas.parentNode.insertBefore(paragraph, canvas);
           window.addEventListener("click", this.enterWebXR.bind(this));
         } else {
-          const canvas = this.WC.canvas;
+          const canvas = this.YC.canvas;
           canvas.parentNode.insertBefore(paragraph, canvas);
           window.addEventListener("click", this.enterWebXR.bind(this));
         }
       }
-      this.vK = true;
+      this.xK = true;
     } else {
       throw new Error("WebXR is not supported in this environment.");
     }
@@ -159,7 +159,7 @@ var WebXRSystem = class _WebXRSystem {
     profilePriorities = []
   }) {
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
-    if (cgApiResourceRepository != null && this.vK) {
+    if (cgApiResourceRepository != null && this.xK) {
       let referenceSpace;
       const isWebGPU = this.c.engineState.currentProcessApproach === ProcessApproach.WebGPU;
       const requiredFeatures = isWebGPU ? ["webgpu"] : [];
@@ -167,19 +167,19 @@ var WebXRSystem = class _WebXRSystem {
       xrSession.addEventListener("end", () => {
         if (!isWebGPU) {
           const glw = cgApiResourceRepository.currentWebGLContextWrapper;
-          glw.jC.bindFramebuffer(glw.jC.FRAMEBUFFER, null);
+          glw.lC.bindFramebuffer(glw.lC.FRAMEBUFFER, null);
         }
-        this.sK = void 0;
-        this.yK = void 0;
-        this.qK = void 0;
         this.uK = void 0;
-        this.fK = "local";
+        this.AK = void 0;
+        this.sK = void 0;
+        this.wK = void 0;
+        this.hK = "local";
+        this.xK = false;
         this.vK = false;
-        this.tK = false;
-        this.xK.length = 0;
-        this.CK(false);
+        this.zK.length = 0;
+        this.EK(false);
         this.c.materialRepository._makeShaderInvalidateToAllMaterials();
-        this.ZJ = defaultUserPositionInVR;
+        this.$J = defaultUserPositionInVR;
         Logger.default.info("XRSession ends.");
         this.c.stopRenderLoop();
         this.c.restartRenderLoop();
@@ -187,32 +187,32 @@ var WebXRSystem = class _WebXRSystem {
       });
       const promiseFn = (resolve) => {
         xrSession.addEventListener("inputsourceschange", (e) => {
-          this.EK(e, resolve, profilePriorities);
+          this.GK(e, resolve, profilePriorities);
         });
       };
       const promise = new Promise(promiseFn);
       referenceSpace = await xrSession.requestReferenceSpace("local");
-      this.fK = "local";
-      this.ZJ = initialUserPosition != null ? initialUserPosition : defaultUserPositionInVR;
-      this.uK = referenceSpace;
-      this.sK = xrSession;
+      this.hK = "local";
+      this.$J = initialUserPosition != null ? initialUserPosition : defaultUserPositionInVR;
+      this.wK = referenceSpace;
+      this.uK = xrSession;
       this.c.stopRenderLoop();
       if (isWebGPU) {
         const webgpuResourceRepository = this.c.webGpuResourceRepository;
         const webgpuDeviceWrapper = webgpuResourceRepository.getWebGpuDeviceWrapper();
         const webgpuDevice = webgpuDeviceWrapper.gpuDevice;
         const xrGpuBinding = new window.XRGPUBinding(xrSession, webgpuDevice);
-        this.AK = xrGpuBinding;
+        this.CK = xrGpuBinding;
         const projectionLayer = xrGpuBinding.createProjectionLayer({
           colorFormat: xrGpuBinding.getPreferredColorFormat(),
           depthStencilFormat: "depth32float"
         });
-        this.BK = projectionLayer;
-        await this.FK(xrSession, projectionLayer, callbackOnXrSessionStart);
+        this.DK = projectionLayer;
+        await this.HK(xrSession, projectionLayer, callbackOnXrSessionStart);
       } else {
-        await this.jK(xrSession, callbackOnXrSessionStart);
+        await this.lK(xrSession, callbackOnXrSessionStart);
       }
-      this.tK = true;
+      this.vK = true;
       this.c.restartRenderLoop();
       Logger.default.warn("End of enterWebXR.");
       return promise;
@@ -233,8 +233,8 @@ var WebXRSystem = class _WebXRSystem {
    * ```
    */
   async exitWebXR() {
-    if (this.sK != null) {
-      await this.sK.end();
+    if (this.uK != null) {
+      await this.uK.end();
     }
   }
   /// Getter Methods
@@ -244,7 +244,7 @@ var WebXRSystem = class _WebXRSystem {
    * @returns The width of the VR canvas in pixels.
    */
   getCanvasWidthForVr() {
-    return this.mK;
+    return this.oK;
   }
   /**
    * Gets the canvas height configured for VR rendering.
@@ -252,7 +252,7 @@ var WebXRSystem = class _WebXRSystem {
    * @returns The height of the VR canvas in pixels.
    */
   getCanvasHeightForVr() {
-    return this.nK;
+    return this.pK;
   }
   /**
    * Gets all currently tracked controller entities.
@@ -260,7 +260,7 @@ var WebXRSystem = class _WebXRSystem {
    * @returns Array of scene graph entities representing VR controllers.
    */
   getControllerEntities() {
-    return this.wK;
+    return this.yK;
   }
   /// Accessors
   /**
@@ -269,7 +269,7 @@ var WebXRSystem = class _WebXRSystem {
    * @returns The view matrix for left eye rendering.
    */
   get leftViewMatrix() {
-    return this.oK.getCamera().viewMatrix;
+    return this.qK.getCamera().viewMatrix;
   }
   /**
    * Gets the view matrix for the right eye camera.
@@ -277,7 +277,7 @@ var WebXRSystem = class _WebXRSystem {
    * @returns The view matrix for right eye rendering.
    */
   get rightViewMatrix() {
-    return this.pK.getCamera().viewMatrix;
+    return this.rK.getCamera().viewMatrix;
   }
   /**
    * Gets the projection matrix for the left eye.
@@ -287,7 +287,7 @@ var WebXRSystem = class _WebXRSystem {
    */
   get leftProjectionMatrix() {
     var _a;
-    const xrViewLeft = (_a = this.qK) == null ? void 0 : _a.views[0];
+    const xrViewLeft = (_a = this.sK) == null ? void 0 : _a.views[0];
     return MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
       Is.exist(xrViewLeft) ? xrViewLeft.projectionMatrix : MutableMatrix44.identity()._v
     );
@@ -300,7 +300,7 @@ var WebXRSystem = class _WebXRSystem {
    */
   get rightProjectionMatrix() {
     var _a;
-    const xrViewRight = (_a = this.qK) == null ? void 0 : _a.views[1];
+    const xrViewRight = (_a = this.sK) == null ? void 0 : _a.views[1];
     return MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
       Is.exist(xrViewRight) ? xrViewRight.projectionMatrix : MutableMatrix44.identity()._v
     );
@@ -312,7 +312,7 @@ var WebXRSystem = class _WebXRSystem {
    */
   get framebuffer() {
     var _a, _b;
-    return (_b = (_a = this.sK) == null ? void 0 : _a.renderState.baseLayer) == null ? void 0 : _b.framebuffer;
+    return (_b = (_a = this.uK) == null ? void 0 : _a.renderState.baseLayer) == null ? void 0 : _b.framebuffer;
   }
   /**
    * Checks if multiview rendering is supported and enabled.
@@ -329,7 +329,7 @@ var WebXRSystem = class _WebXRSystem {
    * @returns True if WebXR session entry has been requested.
    */
   get requestedToEnterWebXR() {
-    return this.tK;
+    return this.vK;
   }
   /**
    * Gets the current XR session object.
@@ -337,7 +337,7 @@ var WebXRSystem = class _WebXRSystem {
    * @returns The active XRSession, or undefined if no session is active.
    */
   get xrSession() {
-    return this.sK;
+    return this.uK;
   }
   /**
    * Legacy property for backward compatibility.
@@ -346,7 +346,7 @@ var WebXRSystem = class _WebXRSystem {
    * @returns True if WebXR session entry has been requested.
    */
   get requestedToEnterWebVR() {
-    return this.tK;
+    return this.vK;
   }
   /**
    * Checks if currently in WebXR rendering mode.
@@ -354,17 +354,17 @@ var WebXRSystem = class _WebXRSystem {
    * @returns True if WebXR mode is active.
    */
   get isWebXRMode() {
-    return this.zK;
+    return this.BK;
   }
   /**
    * Sets the WebXR mode state for this system and the WebGL context.
    *
    * @param mode - Whether WebXR mode should be enabled.
    */
-  CK(mode) {
-    this.zK = mode;
-    if (this.WC != null) {
-      this.WC._isWebXRMode = mode;
+  EK(mode) {
+    this.BK = mode;
+    if (this.YC != null) {
+      this.YC._isWebXRMode = mode;
     }
   }
   /**
@@ -373,7 +373,7 @@ var WebXRSystem = class _WebXRSystem {
    * @returns True if WebXR initialization is complete and ready for session start.
    */
   get isReadyForWebXR() {
-    return this.vK;
+    return this.xK;
   }
   /// Public Static Methods
   /**
@@ -432,7 +432,7 @@ var WebXRSystem = class _WebXRSystem {
    * @returns The viewport vector (x, y, width, height) for the left eye.
    */
   _getLeftViewport() {
-    return Vector4.fromCopyArray([0, 0, this.mK / 2, this.nK]);
+    return Vector4.fromCopyArray([0, 0, this.oK / 2, this.pK]);
   }
   /**
    * Gets the viewport configuration for the right eye.
@@ -443,13 +443,13 @@ var WebXRSystem = class _WebXRSystem {
    */
   _getRightViewport() {
     if (this.isMultiView()) {
-      return Vector4.fromCopyArray([0, 0, this.mK / 2, this.nK]);
+      return Vector4.fromCopyArray([0, 0, this.oK / 2, this.pK]);
     }
     return Vector4.fromCopyArray([
-      this.mK / 2,
+      this.oK / 2,
       0,
-      this.mK / 2,
-      this.nK
+      this.oK / 2,
+      this.pK
     ]);
   }
   /**
@@ -462,19 +462,19 @@ var WebXRSystem = class _WebXRSystem {
    */
   _getCameraWorldPositionAt(displayIdx) {
     var _a;
-    const xrView = (_a = this.qK) == null ? void 0 : _a.views[displayIdx];
+    const xrView = (_a = this.sK) == null ? void 0 : _a.views[displayIdx];
     if (Is.exist(xrView)) {
       const pos = xrView.transform.position;
-      const def = this.ZJ;
-      const translate = this.gK;
+      const def = this.$J;
+      const translate = this.iK;
       const viewerHeadPos = Vector3.add(Vector3.fromCopyArray([pos.x, pos.y, pos.z]), def);
       return Vector3.fromCopyArray([
-        (viewerHeadPos.x + translate.x) * this.iK.x,
-        (viewerHeadPos.y + translate.y) * this.iK.y,
-        (viewerHeadPos.z + translate.z) * this.iK.z
+        (viewerHeadPos.x + translate.x) * this.kK.x,
+        (viewerHeadPos.y + translate.y) * this.kK.y,
+        (viewerHeadPos.z + translate.z) * this.kK.z
       ]);
     }
-    return this.ZJ;
+    return this.$J;
   }
   /**
    * Gets the component SID (System ID) for the specified camera.
@@ -485,9 +485,9 @@ var WebXRSystem = class _WebXRSystem {
    */
   _getCameraComponentSIDAt(index) {
     if (index === 0) {
-      return this.oK.getCamera().componentSID;
+      return this.qK.getCamera().componentSID;
     }
-    return this.pK.getCamera().componentSID;
+    return this.rK.getCamera().componentSID;
   }
   /**
    * Gets the camera component for the specified eye.
@@ -498,9 +498,9 @@ var WebXRSystem = class _WebXRSystem {
    */
   _getCameraComponentAt(index) {
     if (index === 0) {
-      return this.oK.getCamera();
+      return this.qK.getCamera();
     }
-    return this.pK.getCamera();
+    return this.rK.getCamera();
   }
   /**
    * Performs pre-rendering updates for WebXR.
@@ -512,14 +512,14 @@ var WebXRSystem = class _WebXRSystem {
    * @param xrFrame - The XRFrame object for this rendering frame.
    */
   _preRender(time, xrFrame) {
-    if (this.isWebXRMode && this.tK && xrFrame != null) {
-      this.kK(xrFrame);
-      this.GK(xrFrame);
+    if (this.isWebXRMode && this.vK && xrFrame != null) {
+      this.mK(xrFrame);
+      this.IK(xrFrame);
       updateGamePad(time, xrFrame, {
-        viewerTranslate: this.gK,
-        viewerScale: this.iK,
-        viewerOrientation: this.aK,
-        viewerAzimuthAngle: this.hK
+        viewerTranslate: this.iK,
+        viewerScale: this.kK,
+        viewerOrientation: this.cK,
+        viewerAzimuthAngle: this.jK
       });
     }
   }
@@ -528,10 +528,10 @@ var WebXRSystem = class _WebXRSystem {
    * Useful for resetting user position and orientation to origin.
    */
   resetViewerTransform() {
-    this.gK = MutableVector3.zero();
-    this.hK = MutableScalar.zero();
-    this.aK = MutableQuaternion.identity();
-    this.iK = MutableVector3.one();
+    this.iK = MutableVector3.zero();
+    this.jK = MutableScalar.zero();
+    this.cK = MutableQuaternion.identity();
+    this.kK = MutableVector3.one();
   }
   /**
    * Performs post-rendering cleanup for WebXR.
@@ -541,7 +541,7 @@ var WebXRSystem = class _WebXRSystem {
    * @internal
    */
   _postRender() {
-    if (this.zK) {
+    if (this.BK) {
     }
   }
   /// Private Methods
@@ -554,22 +554,22 @@ var WebXRSystem = class _WebXRSystem {
    * @param resolve - Promise resolve function to return controller entities.
    * @param profilePriorities - Array of controller profile names in priority order.
    */
-  async EK(event, resolve, profilePriorities) {
-    this.xK.length = 0;
+  async GK(event, resolve, profilePriorities) {
+    this.zK.length = 0;
     for (const xrInputSource of event.added) {
-      this.xK.push(xrInputSource);
+      this.zK.push(xrInputSource);
       const controller = await createMotionController(
         this.c,
         xrInputSource,
-        this.DK,
+        this.FK,
         profilePriorities
       );
       if (Is.exist(controller)) {
-        this.wK.push(controller);
-        this.rK.getSceneGraph().addChild(controller.getSceneGraph());
+        this.yK.push(controller);
+        this.tK.getSceneGraph().addChild(controller.getSceneGraph());
       }
     }
-    resolve(this.wK);
+    resolve(this.yK);
   }
   /**
    * Updates camera information from XR viewer pose data.
@@ -578,7 +578,7 @@ var WebXRSystem = class _WebXRSystem {
    * @private
    * @param xrViewerPose - The XRViewerPose containing view and transform data.
    */
-  lK(xrViewerPose) {
+  nK(xrViewerPose) {
     if (Is.not.exist(xrViewerPose)) {
       Logger.default.warn("xrViewerPose not exist");
       return;
@@ -589,35 +589,35 @@ var WebXRSystem = class _WebXRSystem {
       return;
     }
     const orientation = xrViewerPose.transform.orientation;
-    this.aK.x = orientation.x;
-    this.aK.y = orientation.y;
-    this.aK.z = orientation.z;
-    this.aK.w = orientation.w;
+    this.cK.x = orientation.x;
+    this.cK.y = orientation.y;
+    this.cK.z = orientation.z;
+    this.cK.w = orientation.w;
     const lm = MutableMatrix44.fromCopyFloat32ArrayColumnMajor(xrViewLeft == null ? void 0 : xrViewLeft.transform.matrix);
     const rm = MutableMatrix44.fromCopyFloat32ArrayColumnMajor(xrViewRight == null ? void 0 : xrViewRight.transform.matrix);
     const rotateMatLeft = lm;
     const rotateMatRight = rm;
-    const scale = this.iK.x;
+    const scale = this.kK.x;
     const posLeft = xrViewLeft.transform.position;
     const posRight = xrViewRight.transform.position;
-    const translateLeftScaled = MutableVector3.add(this.ZJ, this.gK);
-    const translateRightScaled = MutableVector3.add(this.ZJ, this.gK);
+    const translateLeftScaled = MutableVector3.add(this.$J, this.iK);
+    const translateRightScaled = MutableVector3.add(this.$J, this.iK);
     const xrViewerPosLeft = Vector3.fromCopyArray([posLeft.x, posLeft.y, posLeft.z]);
     const xrViewerPosRight = Vector3.fromCopyArray([posRight.x, posRight.y, posRight.z]);
-    const translateLeft = MutableVector3.add(this.ZJ, this.gK).add(
+    const translateLeft = MutableVector3.add(this.$J, this.iK).add(
       xrViewerPosLeft
     );
-    const translateRight = MutableVector3.add(this.ZJ, this.gK).add(
+    const translateRight = MutableVector3.add(this.$J, this.iK).add(
       xrViewerPosRight
     );
     const viewerTranslateScaledX = (translateLeftScaled.x + translateRightScaled.x) / 2;
     const viewerTranslateScaledZ = (translateLeftScaled.z + translateRightScaled.z) / 2;
     const viewerTranslateX = (translateLeft.x + translateRight.x) / 2;
     const viewerTranslateZ = (translateLeft.z + translateRight.z) / 2;
-    const viewerTransform = this.rK.getTransform();
+    const viewerTransform = this.tK.getTransform();
     viewerTransform.localPosition = Vector3.fromCopyArray([viewerTranslateScaledX, 0, viewerTranslateScaledZ]);
     viewerTransform.localScale = Vector3.fromCopyArray([scale, scale, scale]);
-    viewerTransform.localEulerAngles = Vector3.fromCopyArray([0, this.hK.x, 0]);
+    viewerTransform.localEulerAngles = Vector3.fromCopyArray([0, this.jK.x, 0]);
     rotateMatLeft.translateY = translateLeft.y;
     rotateMatLeft.translateX = translateLeft.x - viewerTranslateX;
     rotateMatLeft.translateZ = translateLeft.z - viewerTranslateZ;
@@ -630,8 +630,8 @@ var WebXRSystem = class _WebXRSystem {
     rotateMatRight.translateY += xrViewerPosRight.y;
     rotateMatRight.translateX += xrViewerPosRight.x;
     rotateMatRight.translateZ += xrViewerPosRight.z;
-    this.oK.getTransform().localMatrix = rotateMatLeft;
-    this.pK.getTransform().localMatrix = rotateMatRight;
+    this.qK.getTransform().localMatrix = rotateMatLeft;
+    this.rK.getTransform().localMatrix = rotateMatRight;
   }
   /**
    * Sets up the WebGL layer for XR rendering.
@@ -641,35 +641,35 @@ var WebXRSystem = class _WebXRSystem {
    * @param xrSession - The XRSession to configure.
    * @param callbackOnXrSessionStart - Callback to execute when setup is complete.
    */
-  async jK(xrSession, callbackOnXrSessionStart) {
+  async lK(xrSession, callbackOnXrSessionStart) {
     var _a;
-    const gl = (_a = this.WC) == null ? void 0 : _a.getRawContextAsWebGL2();
+    const gl = (_a = this.YC) == null ? void 0 : _a.getRawContextAsWebGL2();
     if (gl != null) {
       await gl.makeXRCompatible();
       if (typeof window === "undefined") {
         throw new Error("This method works in Browser environment");
       }
-      this.yK = new window.XRWebGLLayer(xrSession, gl);
-      const webglLayer = this.yK;
+      this.AK = new window.XRWebGLLayer(xrSession, gl);
+      const webglLayer = this.AK;
       xrSession.updateRenderState({
         baseLayer: webglLayer,
         depthNear: 0.01,
         depthFar: 1e3
       });
       const webglResourceRepository = this.c.webglResourceRepository;
-      this.mK = webglLayer.framebufferWidth;
-      this.nK = webglLayer.framebufferHeight;
-      Logger.default.info(this.mK.toString());
-      Logger.default.info(this.nK.toString());
+      this.oK = webglLayer.framebufferWidth;
+      this.pK = webglLayer.framebufferHeight;
+      Logger.default.info(this.oK.toString());
+      Logger.default.info(this.pK.toString());
       this.c.materialRepository._makeShaderInvalidateToAllMaterials();
-      webglResourceRepository.resizeCanvas(this.mK, this.nK);
-      this.CK(true);
+      webglResourceRepository.resizeCanvas(this.oK, this.pK);
+      this.EK(true);
       callbackOnXrSessionStart();
     } else {
       Logger.default.error("WebGL context is not ready for WebXR.");
     }
   }
-  async FK(xrSession, projectionLayer, callbackOnXrSessionStart) {
+  async HK(xrSession, projectionLayer, callbackOnXrSessionStart) {
     var _a, _b;
     xrSession.updateRenderState({ layers: [projectionLayer] });
     const webgpuResourceRepository = this.c.webGpuResourceRepository;
@@ -688,8 +688,8 @@ var WebXRSystem = class _WebXRSystem {
       resolvedHeight = canvas.height;
     }
     if (resolvedWidth > 0 && resolvedHeight > 0) {
-      this.mK = resolvedWidth;
-      this.nK = resolvedHeight;
+      this.oK = resolvedWidth;
+      this.pK = resolvedHeight;
       webgpuResourceRepository.resizeCanvas(resolvedWidth, resolvedHeight);
     } else {
       Logger.default.warn(
@@ -697,7 +697,7 @@ var WebXRSystem = class _WebXRSystem {
       );
     }
     this.c.materialRepository._makeShaderInvalidateToAllMaterials();
-    this.CK(true);
+    this.EK(true);
     callbackOnXrSessionStart();
   }
   /**
@@ -707,28 +707,28 @@ var WebXRSystem = class _WebXRSystem {
    * @private
    * @param xrFrame - The current XRFrame containing pose data.
    */
-  kK(xrFrame) {
+  mK(xrFrame) {
     var _a, _b, _c, _d;
-    this.qK = xrFrame.getViewerPose(this.uK);
-    this.lK(this.qK);
+    this.sK = xrFrame.getViewerPose(this.wK);
+    this.nK(this.sK);
     const isWebGPU = this.c.engineState.currentProcessApproach === ProcessApproach.WebGPU;
     if (isWebGPU) {
-      const view = this.qK.views[0];
-      const subImage = this.AK.getViewSubImage(this.BK, view);
+      const view = this.sK.views[0];
+      const subImage = this.CK.getViewSubImage(this.DK, view);
       const vp = subImage.viewport;
       const resolvedWidth = (_b = (_a = subImage.textureWidth) != null ? _a : vp == null ? void 0 : vp.width) != null ? _b : 0;
       const resolvedHeight = (_d = (_c = subImage.textureHeight) != null ? _c : vp == null ? void 0 : vp.height) != null ? _d : 0;
       if (resolvedWidth > 0 && resolvedHeight > 0) {
-        this.mK = resolvedWidth;
-        this.nK = resolvedHeight;
+        this.oK = resolvedWidth;
+        this.pK = resolvedHeight;
         const webgpuResourceRepository = this.c.webGpuResourceRepository;
-        webgpuResourceRepository.resizeCanvas(this.mK, this.nK);
+        webgpuResourceRepository.resizeCanvas(this.oK, this.pK);
       } else {
         Logger.default.warn("XRWebGPU subImage returned zero-sized extent. Skipping canvas resize for this frame.");
       }
-      this.c.engineState.xrPoseWebGPU = this.qK;
-      this.c.engineState.xrGpuBinding = this.AK;
-      this.c.engineState.xrProjectionLayerWebGPU = this.BK;
+      this.c.engineState.xrPoseWebGPU = this.sK;
+      this.c.engineState.xrGpuBinding = this.CK;
+      this.c.engineState.xrProjectionLayerWebGPU = this.DK;
     }
   }
   /**
@@ -738,17 +738,17 @@ var WebXRSystem = class _WebXRSystem {
    * @private
    * @param xrFrame - The current XRFrame containing input source pose data.
    */
-  GK(xrFrame) {
-    this.xK.forEach((input, i) => {
+  IK(xrFrame) {
+    this.zK.forEach((input, i) => {
       if (Is.exist(input.gripSpace)) {
-        const xrPose = xrFrame.getPose(input.gripSpace, this.uK);
+        const xrPose = xrFrame.getPose(input.gripSpace, this.wK);
         if (Is.exist(xrPose)) {
-          const hand = this.wK[i];
+          const hand = this.yK[i];
           if (Is.exist(hand)) {
             const handWorldMatrix = MutableMatrix44.fromCopyFloat32ArrayColumnMajor(xrPose.transform.matrix);
             const rotateMat = MutableMatrix44.fromCopyMatrix44(handWorldMatrix);
-            rotateMat.translateY += this.ZJ.y;
-            rotateMat.translateY += this.gK.y;
+            rotateMat.translateY += this.$J.y;
+            rotateMat.translateY += this.iK.y;
             hand.getTransform().localMatrix = rotateMat;
             const motionController = getMotionController(input);
             if (Is.exist(motionController)) {

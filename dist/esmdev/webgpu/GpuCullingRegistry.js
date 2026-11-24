@@ -6,44 +6,44 @@ var GpuCullingRegistry = class {
    * @param capacities - The initial capacities of the tables
    */
   constructor(capacities) {
-    this.zF = 0;
-    this.AF = 0;
-    this.qF = [];
-    this.xF = 0;
-    this.rF = [];
-    this.yF = 0;
-    this.sF = /* @__PURE__ */ new Map();
-    /** The groups of the bundle being recorded, by key object (the mesh) and view. */
-    this.tF = /* @__PURE__ */ new Map();
-    this.pF = [];
-    this.CF = false;
-    /** The demand of the failed allocations since the last reset. */
-    this.DF = { instances: 0, groups: 0, draws: 0, chunks: 0 };
     this.BF = 0;
+    this.CF = 0;
+    this.sF = [];
+    this.zF = 0;
+    this.tF = [];
+    this.AF = 0;
+    this.uF = /* @__PURE__ */ new Map();
+    /** The groups of the bundle being recorded, by key object (the mesh) and view. */
+    this.vF = /* @__PURE__ */ new Map();
+    this.rF = [];
+    this.EF = false;
+    /** The demand of the failed allocations since the last reset. */
+    this.FF = { instances: 0, groups: 0, draws: 0, chunks: 0 };
+    this.DF = 0;
     this.du = 0;
-    this.uF = { ...capacities };
-    this.vF = new RangeAllocator(capacities.instances);
-    this.wF = new RangeAllocator(capacities.chunks);
+    this.wF = { ...capacities };
+    this.xF = new RangeAllocator(capacities.instances);
+    this.yF = new RangeAllocator(capacities.chunks);
   }
   /** The capacities of the tables. */
   get capacities() {
-    return this.uF;
+    return this.wF;
   }
   /** One past the highest group slot that was ever allocated since the last reset (the dispatch size). */
   get groupHighWater() {
-    return this.xF;
+    return this.zF;
   }
   /** One past the highest chunk slot that was ever allocated since the last reset (the dispatch size). */
   get chunkHighWater() {
-    return this.zF;
+    return this.BF;
   }
   /** One past the highest draw slot that was ever allocated since the last reset (the dispatch size). */
   get drawHighWater() {
-    return this.yF;
+    return this.AF;
   }
   /** The number of the live (not released) groups. */
   get liveGroupCount() {
-    return this.xF - this.qF.length;
+    return this.zF - this.sF.length;
   }
   /** Incremented whenever an allocation is made or released, so that the GPU tables are known to be stale. */
   get version() {
@@ -51,23 +51,23 @@ var GpuCullingRegistry = class {
   }
   /** Whether an allocation failed because a table was full since the last reset. */
   get isOverflowed() {
-    return this.CF;
+    return this.EF;
   }
   /** Whether a bundle is being recorded. */
   get isRecording() {
-    return this.oF !== void 0;
+    return this.qF !== void 0;
   }
   /**
    * The capacities needed by the allocations that are not released yet plus the failed allocations.
    * Call it after `releaseRetired` to size the tables for a re-recording of the live bundles.
    */
   get requiredCapacities() {
-    const failed = this.DF;
+    const failed = this.FF;
     return {
-      instances: this.BF + failed.instances,
+      instances: this.DF + failed.instances,
       groups: this.liveGroupCount + failed.groups,
-      draws: this.yF - this.rF.length + failed.draws,
-      chunks: this.AF + failed.chunks
+      draws: this.AF - this.tF.length + failed.draws,
+      chunks: this.CF + failed.chunks
     };
   }
   /**
@@ -75,11 +75,11 @@ var GpuCullingRegistry = class {
    * A recording that was not finished is retired first.
    */
   beginRecording() {
-    if (this.oF !== void 0) {
-      this.pF.push(this.oF);
+    if (this.qF !== void 0) {
+      this.rF.push(this.qF);
     }
-    this.oF = { groups: [], draws: [] };
-    this.tF.clear();
+    this.qF = { groups: [], draws: [] };
+    this.vF.clear();
   }
   /**
    * Gets the group of `key` (the mesh) and `viewIndex` in the bundle being recorded, or allocates it.
@@ -89,38 +89,38 @@ var GpuCullingRegistry = class {
    * @returns The group, or undefined when no bundle is being recorded or a table is full
    */
   getOrAllocateGroup(key, viewIndex, instanceCount) {
-    const recording = this.oF;
+    const recording = this.qF;
     if (recording === void 0 || instanceCount <= 0) {
       return void 0;
     }
-    let groupsOfKey = this.tF.get(key);
+    let groupsOfKey = this.vF.get(key);
     const existing = groupsOfKey == null ? void 0 : groupsOfKey.get(viewIndex);
     if (existing !== void 0 && existing.instanceCount === instanceCount) {
       return existing;
     }
     const chunkCount = Math.ceil(instanceCount / GpuCullingChunkSize);
-    const rangeBase = this.vF.allocate(instanceCount, 1);
-    const chunkBase = this.wF.allocate(chunkCount, 1);
-    const hasGroupSlot = this.qF.length > 0 || this.xF < this.uF.groups;
+    const rangeBase = this.xF.allocate(instanceCount, 1);
+    const chunkBase = this.yF.allocate(chunkCount, 1);
+    const hasGroupSlot = this.sF.length > 0 || this.zF < this.wF.groups;
     if (rangeBase < 0 || chunkBase < 0 || !hasGroupSlot) {
       if (rangeBase >= 0) {
-        this.vF.release(rangeBase, instanceCount);
+        this.xF.release(rangeBase, instanceCount);
       }
       if (chunkBase >= 0) {
-        this.wF.release(chunkBase, chunkCount);
+        this.yF.release(chunkBase, chunkCount);
       }
-      this.EF(instanceCount, 1, 0, chunkCount);
+      this.GF(instanceCount, 1, 0, chunkCount);
       return void 0;
     }
-    const index = this.qF.length > 0 ? this.qF.pop() : this.xF++;
+    const index = this.sF.length > 0 ? this.sF.pop() : this.zF++;
     const group = { index, rangeBase, instanceCount, viewIndex, chunkBase, chunkCount };
-    this.BF += instanceCount;
-    this.AF += chunkCount;
-    this.zF = Math.max(this.zF, chunkBase + chunkCount);
+    this.DF += instanceCount;
+    this.CF += chunkCount;
+    this.BF = Math.max(this.BF, chunkBase + chunkCount);
     recording.groups.push(group);
     if (groupsOfKey === void 0) {
       groupsOfKey = /* @__PURE__ */ new Map();
-      this.tF.set(key, groupsOfKey);
+      this.vF.set(key, groupsOfKey);
     }
     groupsOfKey.set(viewIndex, group);
     this.du++;
@@ -131,15 +131,15 @@ var GpuCullingRegistry = class {
    * @returns The draw slot, or -1 when no bundle is being recorded or the draw table is full
    */
   allocateDraw() {
-    const recording = this.oF;
+    const recording = this.qF;
     if (recording === void 0) {
       return -1;
     }
-    if (this.rF.length === 0 && this.yF >= this.uF.draws) {
-      this.EF(0, 0, 1, 0);
+    if (this.tF.length === 0 && this.AF >= this.wF.draws) {
+      this.GF(0, 0, 1, 0);
       return -1;
     }
-    const slot = this.rF.length > 0 ? this.rF.pop() : this.yF++;
+    const slot = this.tF.length > 0 ? this.tF.pop() : this.AF++;
     recording.draws.push(slot);
     this.du++;
     return slot;
@@ -151,29 +151,29 @@ var GpuCullingRegistry = class {
    *   is executed in the current frame only.
    */
   finishRecording(bundleKey) {
-    const recording = this.oF;
+    const recording = this.qF;
     if (recording === void 0) {
       return;
     }
-    this.oF = void 0;
-    this.tF.clear();
+    this.qF = void 0;
+    this.vF.clear();
     if (bundleKey === void 0) {
-      this.pF.push(recording);
+      this.rF.push(recording);
       return;
     }
     this.retireBundle(bundleKey);
     if (recording.groups.length > 0 || recording.draws.length > 0) {
-      this.sF.set(bundleKey, recording);
+      this.uF.set(bundleKey, recording);
     }
   }
   /**
    * Retires the recording in progress (the bundle encoder was dropped without being finished).
    */
   abortRecording() {
-    if (this.oF !== void 0) {
-      this.pF.push(this.oF);
-      this.oF = void 0;
-      this.tF.clear();
+    if (this.qF !== void 0) {
+      this.rF.push(this.qF);
+      this.qF = void 0;
+      this.vF.clear();
     }
   }
   /**
@@ -181,20 +181,20 @@ var GpuCullingRegistry = class {
    * @param bundleKey - The key of the bundle
    */
   retireBundle(bundleKey) {
-    const allocations = this.sF.get(bundleKey);
+    const allocations = this.uF.get(bundleKey);
     if (allocations !== void 0) {
-      this.sF.delete(bundleKey);
-      this.pF.push(allocations);
+      this.uF.delete(bundleKey);
+      this.rF.push(allocations);
     }
   }
   /**
    * Retires the allocations of all the cached bundles (the bundle cache was cleared).
    */
   retireAllBundles() {
-    for (const allocations of this.sF.values()) {
-      this.pF.push(allocations);
+    for (const allocations of this.uF.values()) {
+      this.rF.push(allocations);
     }
-    this.sF.clear();
+    this.uF.clear();
   }
   /**
    * Releases the retired allocations. Call it after the commands of the frame were submitted: the retired bundles
@@ -202,22 +202,22 @@ var GpuCullingRegistry = class {
    * @returns The released groups and draws (to clear their GPU table entries), or undefined when nothing was released
    */
   releaseRetired() {
-    const retired = this.pF;
+    const retired = this.rF;
     if (retired.length === 0) {
       return void 0;
     }
     const released = { groups: [], draws: [] };
     for (const allocations of retired) {
       for (const group of allocations.groups) {
-        this.vF.release(group.rangeBase, group.instanceCount);
-        this.BF -= group.instanceCount;
-        this.wF.release(group.chunkBase, group.chunkCount);
-        this.AF -= group.chunkCount;
-        this.qF.push(group.index);
+        this.xF.release(group.rangeBase, group.instanceCount);
+        this.DF -= group.instanceCount;
+        this.yF.release(group.chunkBase, group.chunkCount);
+        this.CF -= group.chunkCount;
+        this.sF.push(group.index);
         released.groups.push(group);
       }
       for (const draw of allocations.draws) {
-        this.rF.push(draw);
+        this.tF.push(draw);
         released.draws.push(draw);
       }
     }
@@ -231,27 +231,27 @@ var GpuCullingRegistry = class {
    * @param capacities - The new capacities
    */
   reset(capacities) {
-    this.uF = { ...capacities };
-    this.vF = new RangeAllocator(capacities.instances);
-    this.wF = new RangeAllocator(capacities.chunks);
-    this.zF = 0;
-    this.AF = 0;
-    this.qF.length = 0;
-    this.xF = 0;
-    this.rF.length = 0;
-    this.yF = 0;
-    this.sF.clear();
-    this.oF = void 0;
-    this.tF.clear();
-    this.pF.length = 0;
-    this.CF = false;
-    this.DF = { instances: 0, groups: 0, draws: 0, chunks: 0 };
+    this.wF = { ...capacities };
+    this.xF = new RangeAllocator(capacities.instances);
+    this.yF = new RangeAllocator(capacities.chunks);
     this.BF = 0;
+    this.CF = 0;
+    this.sF.length = 0;
+    this.zF = 0;
+    this.tF.length = 0;
+    this.AF = 0;
+    this.uF.clear();
+    this.qF = void 0;
+    this.vF.clear();
+    this.rF.length = 0;
+    this.EF = false;
+    this.FF = { instances: 0, groups: 0, draws: 0, chunks: 0 };
+    this.DF = 0;
     this.du++;
   }
-  EF(instances, groups, draws, chunks) {
-    this.CF = true;
-    const failed = this.DF;
+  GF(instances, groups, draws, chunks) {
+    this.EF = true;
+    const failed = this.FF;
     failed.instances += instances;
     failed.groups += groups;
     failed.draws += draws;

@@ -4,12 +4,12 @@ import { RaymarchingShaderPart } from "../RaymarchingShaderPart.js";
 var RaymarchObjectIdUniformShader = class extends RaymarchingShaderPart {
   constructor(shaderFunctionName) {
     super();
-    this.bF = "";
+    this.dF = "";
     this.Ar = "";
     this.Ar = shaderFunctionName;
   }
   setVariableName(name) {
-    this.bF = name;
+    this.dF = name;
   }
   getVertexShaderDefinitions(_engine) {
     return "";
@@ -21,14 +21,14 @@ var RaymarchObjectIdUniformShader = class extends RaymarchingShaderPart {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
 fn ${this.Ar}(outValue: ptr<function, f32>) {
-  *outValue = get_${this.bF}(uniformDrawParameters.materialSid, 0u);
+  *outValue = get_${this.dF}(uniformDrawParameters.materialSid, 0u);
 }
       `;
     }
     return `
 void ${this.Ar}(out float outValue) {
   ${this.getMaterialSIDForWebGL()}
-  outValue = get_${this.bF}(materialSID, 0u);
+  outValue = get_${this.dF}(materialSID, 0u);
 }
       `;
   }

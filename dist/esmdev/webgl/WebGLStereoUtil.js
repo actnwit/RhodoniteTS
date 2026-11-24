@@ -54,15 +54,15 @@ var WebGLStereoUtil = class _WebGLStereoUtil {
    * @param gl - The WebGL2 rendering context to use for operations
    */
   constructor(gl) {
-    this.jC = gl;
-    this.tD = gl.createProgram();
-    this.yD(VSMultiview, gl.VERTEX_SHADER);
-    this.yD(FSMultiview, gl.FRAGMENT_SHADER);
-    this.jC.linkProgram(this.tD);
-    this.zD({
+    this.lC = gl;
+    this.vD = gl.createProgram();
+    this.AD(VSMultiview, gl.VERTEX_SHADER);
+    this.AD(FSMultiview, gl.FRAGMENT_SHADER);
+    this.lC.linkProgram(this.vD);
+    this.BD({
       v_texcoord: 0
     });
-    this.AD();
+    this.CD();
   }
   /**
    * Gets the singleton instance of WebGLStereoUtil.
@@ -84,23 +84,23 @@ var WebGLStereoUtil = class _WebGLStereoUtil {
    * @param type - The shader type (gl.VERTEX_SHADER or gl.FRAGMENT_SHADER)
    * @private
    */
-  yD(source, type) {
-    const gl = this.jC;
+  AD(source, type) {
+    const gl = this.lC;
     let shader;
     switch (type) {
       case gl.VERTEX_SHADER:
-        this.vD = gl.createShader(type);
-        shader = this.vD;
+        this.xD = gl.createShader(type);
+        shader = this.xD;
         break;
       case gl.FRAGMENT_SHADER:
-        this.wD = gl.createShader(type);
-        shader = this.wD;
+        this.yD = gl.createShader(type);
+        shader = this.yD;
         break;
       default:
         Logger.default.error(`Invalid Shader Type: ${type}`);
         return;
     }
-    gl.attachShader(this.tD, shader);
+    gl.attachShader(this.vD, shader);
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
   }
@@ -110,13 +110,13 @@ var WebGLStereoUtil = class _WebGLStereoUtil {
    * @param attribLocationMap - A map of attribute names to their location indices
    * @private
    */
-  zD(attribLocationMap) {
-    const gl = this.jC;
+  BD(attribLocationMap) {
+    const gl = this.lC;
     if (attribLocationMap) {
-      this.xD = {};
+      this.zD = {};
       for (const attribName in attribLocationMap) {
-        gl.bindAttribLocation(this.tD, attribLocationMap[attribName], attribName);
-        this.xD[attribName] = attribLocationMap[attribName];
+        gl.bindAttribLocation(this.vD, attribLocationMap[attribName], attribName);
+        this.zD[attribName] = attribLocationMap[attribName];
       }
     }
   }
@@ -127,16 +127,16 @@ var WebGLStereoUtil = class _WebGLStereoUtil {
    *
    * @private
    */
-  AD() {
-    const gl = this.jC;
-    if (this.uD == null) {
-      this.uD = {};
-      const uniformCount = gl.getProgramParameter(this.tD, gl.ACTIVE_UNIFORMS);
+  CD() {
+    const gl = this.lC;
+    if (this.wD == null) {
+      this.wD = {};
+      const uniformCount = gl.getProgramParameter(this.vD, gl.ACTIVE_UNIFORMS);
       let uniformName = "";
       for (let i = 0; i < uniformCount; i++) {
-        const uniformInfo = gl.getActiveUniform(this.tD, i);
+        const uniformInfo = gl.getActiveUniform(this.vD, i);
         uniformName = uniformInfo.name.replace("[0]", "");
-        this.uD[uniformName] = gl.getUniformLocation(this.tD, uniformName);
+        this.wD[uniformName] = gl.getUniformLocation(this.vD, uniformName);
       }
     }
   }
@@ -154,8 +154,8 @@ var WebGLStereoUtil = class _WebGLStereoUtil {
    * @param dest_surface_height - The height of the destination surface in pixels
    */
   blit(source_texture, source_rect_uv_x, source_rect_uv_y, source_rect_uv_width, source_rect_uv_height, dest_surface_width, dest_surface_height) {
-    const gl = this.jC;
-    const program = this.tD;
+    const gl = this.lC;
+    const program = this.vD;
     gl.activeTexture(gl.TEXTURE15);
     gl.bindTexture(gl.TEXTURE_2D_ARRAY, source_texture);
     gl.useProgram(program);
@@ -172,11 +172,11 @@ var WebGLStereoUtil = class _WebGLStereoUtil {
     }
     const viewport = gl.getParameter(gl.VIEWPORT);
     gl.viewport(0, 0, dest_surface_width, dest_surface_height);
-    gl.uniform2f(this.uD.u_scale, source_rect_uv_width, source_rect_uv_height);
-    gl.uniform2f(this.uD.u_offset, source_rect_uv_x, source_rect_uv_y);
-    gl.uniform1i(this.uD.u_source_texture, 15);
+    gl.uniform2f(this.wD.u_scale, source_rect_uv_width, source_rect_uv_height);
+    gl.uniform2f(this.wD.u_offset, source_rect_uv_x, source_rect_uv_y);
+    gl.uniform1i(this.wD.u_source_texture, 15);
     gl.drawArrays(gl.TRIANGLES, 0, 12);
-    gl.sD = true;
+    gl.uD = true;
     gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
     if (depthTestEnabled) {
       gl.enable(gl.DEPTH_TEST);
@@ -199,18 +199,18 @@ var WebGLStereoUtil = class _WebGLStereoUtil {
    * @param dest_surface_height - The height of the destination surface in pixels
    */
   blitFake(source_texture, source_rect_uv_x, source_rect_uv_y, source_rect_uv_width, source_rect_uv_height, dest_surface_width, dest_surface_height) {
-    const gl = this.jC;
-    const program = this.tD;
+    const gl = this.lC;
+    const program = this.vD;
     gl.activeTexture(gl.TEXTURE15);
     gl.bindTexture(gl.TEXTURE_2D_ARRAY, source_texture);
     gl.useProgram(program);
     const viewport = gl.getParameter(gl.VIEWPORT);
     gl.viewport(0, 0, dest_surface_width, dest_surface_height);
-    gl.uniform2f(this.uD.u_scale, source_rect_uv_width, source_rect_uv_height);
-    gl.uniform2f(this.uD.u_offset, source_rect_uv_x, source_rect_uv_y);
-    gl.uniform1i(this.uD.u_source_texture, 15);
+    gl.uniform2f(this.wD.u_scale, source_rect_uv_width, source_rect_uv_height);
+    gl.uniform2f(this.wD.u_offset, source_rect_uv_x, source_rect_uv_y);
+    gl.uniform1i(this.wD.u_source_texture, 15);
     gl.drawArrays(gl.TRIANGLES, 0, 12);
-    gl.sD = true;
+    gl.uD = true;
     gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
   }
   /**
@@ -226,7 +226,7 @@ var WebGLStereoUtil = class _WebGLStereoUtil {
    * @param height - The height of each eye view in pixels
    */
   blit2(srcTexture, dstTexture, width, height) {
-    const gl = this.jC;
+    const gl = this.lC;
     const readFramebuffer = gl.createFramebuffer();
     const drawFramebuffer = gl.createFramebuffer();
     function blitTextureArrayLayer(layer, xOffset) {

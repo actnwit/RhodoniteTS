@@ -22,12 +22,12 @@ var RenderTargetTexture = class extends AbstractTexture {
   }) {
     this.dm = width;
     this.Cy = height;
-    this.rB = mipLevelCount != null ? mipLevelCount : Math.floor(Math.log2(Math.max(width, height))) + 1;
+    this.tB = mipLevelCount != null ? mipLevelCount : Math.floor(Math.log2(Math.max(width, height))) + 1;
     const { format, type } = TextureFormat.getPixelFormatAndComponentTypeFromTextureFormat(internalFormat);
-    this.sB = internalFormat;
-    this.tB = format;
+    this.uB = internalFormat;
+    this.vB = format;
     this.Cc = type;
-    this.AB();
+    this.CB();
   }
   /**
    * Sets the framebuffer object associated with this render target texture.
@@ -35,7 +35,7 @@ var RenderTargetTexture = class extends AbstractTexture {
    * @param fbo - The FrameBuffer object to associate with this texture
    */
   set _fbo(fbo) {
-    this.yB = fbo;
+    this.AB = fbo;
   }
   /**
    * Gets the framebuffer object associated with this render target texture.
@@ -43,7 +43,7 @@ var RenderTargetTexture = class extends AbstractTexture {
    * @returns The associated FrameBuffer object, or undefined if not set
    */
   get fbo() {
-    return this.yB;
+    return this.AB;
   }
   /**
    * Creates the underlying 3D API resources for the render target texture.
@@ -51,13 +51,13 @@ var RenderTargetTexture = class extends AbstractTexture {
    *
    * @private
    */
-  AB() {
+  CB() {
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
     const texture = cgApiResourceRepository.createRenderTargetTexture({
       width: this.dm,
       height: this.Cy,
-      mipLevelCount: this.rB,
-      format: this.sB
+      mipLevelCount: this.tB,
+      format: this.uB
     });
     this._textureResourceUid = texture;
     if (this.c.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
@@ -78,7 +78,7 @@ var RenderTargetTexture = class extends AbstractTexture {
     this.destroy3DAPIResources();
     this.dm = width;
     this.Cy = height;
-    this.AB();
+    this.CB();
   }
   /**
    * Destroys all 3D API resources associated with this render target texture.
@@ -104,8 +104,8 @@ var RenderTargetTexture = class extends AbstractTexture {
       this._textureResourceUid,
       this.dm,
       this.Cy,
-      this.yB.framebufferUID,
-      this.yB.whichColorAttachment(this)
+      this.AB.framebufferUID,
+      this.AB.whichColorAttachment(this)
     );
     return data;
   }

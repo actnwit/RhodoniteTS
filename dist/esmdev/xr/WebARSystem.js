@@ -18,22 +18,22 @@ var WebARSystem = class _WebARSystem {
    * @private Use getInstance() to get the singleton instance instead.
    */
   constructor(engine) {
-    this.eK = new None();
-    this.WJ = false;
-    this.VJ = new None();
-    this.bK = new None();
-    this.fK = "local";
-    this.cK = false;
-    this.XJ = false;
-    this.YJ = new None();
+    this.gK = new None();
+    this.YJ = false;
+    this.XJ = new None();
     this.dK = new None();
-    this.ZJ = defaultUserPositionInVR;
-    this._J = 0;
-    this.$J = 0;
-    this.gK = MutableVector3.zero();
-    this.hK = MutableScalar.zero();
-    this.aK = MutableQuaternion.identity();
-    this.iK = MutableVector3.one();
+    this.hK = "local";
+    this.eK = false;
+    this.ZJ = false;
+    this._J = new None();
+    this.fK = new None();
+    this.$J = defaultUserPositionInVR;
+    this.aK = 0;
+    this.bK = 0;
+    this.iK = MutableVector3.zero();
+    this.jK = MutableScalar.zero();
+    this.cK = MutableQuaternion.identity();
+    this.kK = MutableVector3.one();
     this.c = engine;
     this._cameraEntity = createCameraEntity(engine, false);
     this._cameraEntity.tryToSetUniqueName("WebAR Viewer", true);
@@ -75,7 +75,7 @@ var WebARSystem = class _WebARSystem {
     if (glw == null) {
       throw new Error("WebGL Context is not ready yet.");
     }
-    this.eK = new Some(glw);
+    this.gK = new Some(glw);
     const supported = await navigator.xr.isSessionSupported("immersive-ar");
     if (supported) {
       Logger.default.info("WebAR is supported.");
@@ -92,7 +92,7 @@ var WebARSystem = class _WebARSystem {
         canvas.parentNode.insertBefore(paragraph, canvas);
         window.addEventListener("click", this.enterWebAR.bind(this));
       }
-      this.WJ = true;
+      this.YJ = true;
     } else {
       throw new Error("WebAR is not supported in this environment.");
     }
@@ -127,32 +127,32 @@ var WebARSystem = class _WebARSystem {
   }) {
     const webglResourceRepository = this.c.webglResourceRepository;
     const glw = webglResourceRepository.currentWebGLContextWrapper;
-    if (glw != null && this.WJ) {
+    if (glw != null && this.YJ) {
       const session = await navigator.xr.requestSession("immersive-vr");
-      this.VJ = new Some(session);
+      this.XJ = new Some(session);
       session.addEventListener("end", () => {
-        glw.jC.bindFramebuffer(glw.jC.FRAMEBUFFER, null);
-        this.VJ = new None();
-        this.bK = new None();
-        this.YJ = new None();
+        glw.lC.bindFramebuffer(glw.lC.FRAMEBUFFER, null);
+        this.XJ = new None();
         this.dK = new None();
-        this.fK = "local";
-        this.WJ = false;
-        this.XJ = false;
-        this.cK = false;
-        this.ZJ = defaultUserPositionInVR;
+        this._J = new None();
+        this.fK = new None();
+        this.hK = "local";
+        this.YJ = false;
+        this.ZJ = false;
+        this.eK = false;
+        this.$J = defaultUserPositionInVR;
         Logger.default.info("XRSession ends.");
         this._cameraEntity.engine.stopRenderLoop();
         this._cameraEntity.engine.restartRenderLoop();
         callbackOnXrSessionEnd();
       });
       const referenceSpace = await session.requestReferenceSpace("local");
-      this.fK = "local";
-      this.ZJ = initialUserPosition != null ? initialUserPosition : defaultUserPositionInVR;
-      this.dK = new Some(referenceSpace);
+      this.hK = "local";
+      this.$J = initialUserPosition != null ? initialUserPosition : defaultUserPositionInVR;
+      this.fK = new Some(referenceSpace);
       this._cameraEntity.engine.stopRenderLoop();
-      await this.jK(session, callbackOnXrSessionStart);
-      this.XJ = true;
+      await this.lK(session, callbackOnXrSessionStart);
+      this.ZJ = true;
       this._cameraEntity.engine.restartRenderLoop();
       Logger.default.warn("End of enterWebXR.");
       return;
@@ -169,27 +169,27 @@ var WebARSystem = class _WebARSystem {
    * @param callbackOnXrSessionStart - Callback to execute when setup is complete
    * @throws Error if not in browser environment or WebGL context is not ready
    */
-  async jK(xrSession, callbackOnXrSessionStart) {
-    const gl = this.eK.unwrapForce().getRawContext();
+  async lK(xrSession, callbackOnXrSessionStart) {
+    const gl = this.gK.unwrapForce().getRawContext();
     if (gl != null) {
       await gl.makeXRCompatible();
       if (typeof window === "undefined") {
         throw new Error("This method works in Browser Environment");
       }
-      this.bK = new Some(window.XRWebGLLayer(xrSession, gl));
-      const webglLayer = this.bK.unwrapForce();
+      this.dK = new Some(window.XRWebGLLayer(xrSession, gl));
+      const webglLayer = this.dK.unwrapForce();
       xrSession.updateRenderState({
         baseLayer: webglLayer,
         depthNear: 0.1,
         depthFar: 1e4
       });
       const webglResourceRepository = this.c.webglResourceRepository;
-      this._J = webglLayer.framebufferWidth;
-      this.$J = webglLayer.framebufferHeight;
-      Logger.default.info(this._J.toString());
-      Logger.default.info(this.$J.toString());
-      webglResourceRepository.resizeCanvas(this._J, this.$J);
-      this.cK = true;
+      this.aK = webglLayer.framebufferWidth;
+      this.bK = webglLayer.framebufferHeight;
+      Logger.default.info(this.aK.toString());
+      Logger.default.info(this.bK.toString());
+      webglResourceRepository.resizeCanvas(this.aK, this.bK);
+      this.eK = true;
       callbackOnXrSessionStart();
     } else {
       Logger.default.error("WebGL context is not ready for WebXR.");
@@ -207,8 +207,8 @@ var WebARSystem = class _WebARSystem {
    * ```
    */
   async exitWebAR() {
-    if (this.VJ.has()) {
-      await this.VJ.get().end();
+    if (this.XJ.has()) {
+      await this.XJ.get().end();
     }
   }
   /// Getter Methods
@@ -218,7 +218,7 @@ var WebARSystem = class _WebARSystem {
    * @returns The width of the AR canvas in pixels
    */
   getCanvasWidthForVr() {
-    return this._J;
+    return this.aK;
   }
   /**
    * Gets the canvas height configured for AR rendering.
@@ -226,7 +226,7 @@ var WebARSystem = class _WebARSystem {
    * @returns The height of the AR canvas in pixels
    */
   getCanvasHeightForVr() {
-    return this.$J;
+    return this.bK;
   }
   /**
    * Gets the current view matrix from the camera entity.
@@ -242,9 +242,9 @@ var WebARSystem = class _WebARSystem {
    * @private
    * @param xrFrame - The current XR frame containing pose information
    */
-  kK(xrFrame) {
-    this.YJ = new Some(xrFrame.getViewerPose(this.dK.unwrapForce()));
-    this.lK(this.YJ.unwrapForce());
+  mK(xrFrame) {
+    this._J = new Some(xrFrame.getViewerPose(this.fK.unwrapForce()));
+    this.nK(this._J.unwrapForce());
   }
   /**
    * Updates camera transform information based on XR viewer pose data.
@@ -253,7 +253,7 @@ var WebARSystem = class _WebARSystem {
    * @private
    * @param xrViewerPose - The XR viewer pose containing transform data
    */
-  lK(xrViewerPose) {
+  nK(xrViewerPose) {
     if (Is.not.exist(xrViewerPose)) {
       Logger.default.warn("xrViewerPose not exist");
       return;
@@ -263,17 +263,17 @@ var WebARSystem = class _WebARSystem {
       return;
     }
     const orientation = xrViewerPose.transform.orientation;
-    this.aK.x = orientation.x;
-    this.aK.y = orientation.y;
-    this.aK.z = orientation.z;
-    this.aK.w = orientation.w;
+    this.cK.x = orientation.x;
+    this.cK.y = orientation.y;
+    this.cK.z = orientation.z;
+    this.cK.w = orientation.w;
     const m = MutableMatrix44.fromCopyFloat32ArrayColumnMajor(xrView == null ? void 0 : xrView.transform.matrix);
     const rotateMat = m;
-    const scale = this.iK.x;
+    const scale = this.kK.x;
     const pos = xrView.transform.position;
-    const translateScaled = MutableVector3.add(this.ZJ, this.gK);
+    const translateScaled = MutableVector3.add(this.$J, this.iK);
     const xrViewerPos = Vector3.fromCopyArray([pos.x, pos.y, pos.z]);
-    const translate = MutableVector3.add(this.ZJ, this.gK).add(
+    const translate = MutableVector3.add(this.$J, this.iK).add(
       xrViewerPos
     );
     const viewerTranslateScaledX = translateScaled.x;
@@ -283,7 +283,7 @@ var WebARSystem = class _WebARSystem {
     const viewerTransform = this._cameraEntity.getTransform();
     viewerTransform.localPosition = Vector3.fromCopyArray([viewerTranslateScaledX, 0, viewerTranslateScaledZ]);
     viewerTransform.localScale = Vector3.fromCopyArray([scale, scale, scale]);
-    viewerTransform.localEulerAngles = Vector3.fromCopyArray([0, this.hK.x, 0]);
+    viewerTransform.localEulerAngles = Vector3.fromCopyArray([0, this.jK.x, 0]);
     rotateMat.translateY = translate.y;
     rotateMat.translateX = translate.x - viewerTranslateX;
     rotateMat.translateZ = translate.z - viewerTranslateZ;
@@ -298,7 +298,7 @@ var WebARSystem = class _WebARSystem {
    * @returns The projection matrix for the current AR view, or identity matrix if no view exists
    */
   get projectionMatrix() {
-    const xrView = this.YJ.unwrapForce().views[0];
+    const xrView = this._J.unwrapForce().views[0];
     return MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
       Is.exist(xrView) ? xrView.projectionMatrix : MutableMatrix44.identity()._v
     );
@@ -312,8 +312,8 @@ var WebARSystem = class _WebARSystem {
    * @param xrFrame - The XR frame object containing pose and view data
    */
   _preRender(_time, xrFrame) {
-    if (this.isWebARMode && this.XJ && xrFrame != null) {
-      this.kK(xrFrame);
+    if (this.isWebARMode && this.ZJ && xrFrame != null) {
+      this.mK(xrFrame);
     }
   }
   /**
@@ -334,7 +334,7 @@ var WebARSystem = class _WebARSystem {
    * @returns True if currently in AR mode, false otherwise
    */
   get isWebARMode() {
-    return this.cK;
+    return this.eK;
   }
   /**
    * Indicates whether the system is ready for WebAR operations.
@@ -342,7 +342,7 @@ var WebARSystem = class _WebARSystem {
    * @returns True if ready for AR, false otherwise
    */
   get isReadyForWebAR() {
-    return this.WJ;
+    return this.YJ;
   }
   /**
    * Indicates whether a request to enter WebAR has been made.
@@ -350,7 +350,7 @@ var WebARSystem = class _WebARSystem {
    * @returns True if AR entry was requested, false otherwise
    */
   get requestedToEnterWebAR() {
-    return this.XJ;
+    return this.ZJ;
   }
   /**
    * Gets the current AR session instance.
@@ -358,7 +358,7 @@ var WebARSystem = class _WebARSystem {
    * @returns The active XR session or undefined if no session exists
    */
   get arSession() {
-    return this.VJ.unwrapOrUndefined();
+    return this.XJ.unwrapOrUndefined();
   }
   /**
    * Gets the current framebuffer for AR rendering.
@@ -367,7 +367,7 @@ var WebARSystem = class _WebARSystem {
    */
   get framebuffer() {
     var _a, _b;
-    return (_b = (_a = this.VJ.unwrapOrUndefined()) == null ? void 0 : _a.renderState.baseLayer) == null ? void 0 : _b.framebuffer;
+    return (_b = (_a = this.XJ.unwrapOrUndefined()) == null ? void 0 : _a.renderState.baseLayer) == null ? void 0 : _b.framebuffer;
   }
 };
 export {

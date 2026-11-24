@@ -37,48 +37,48 @@ var _WebGLStrategyWebGL2 = class _WebGLStrategyWebGL2 {
    */
   constructor(engine) {
     this.__dataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-    this.FD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-    this.CD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-    this.DD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.HD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-    this.ZD = -1;
-    this.zE = -1;
+    this.ED = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    this.FD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    this.JD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    this.$D = -1;
+    this.BE = -1;
     /**
      * 1 when every mesh drawn in the current pass shows all of its instances, which lets the
      * vertex shader skip the remap texture fetch and read the SID texel directly.
      */
-    this.GD = 1;
+    this.ID = 1;
     /** Reused numeric run plan of the current bucket (no per-frame allocation). */
-    this.AE = {
+    this.CE = {
       starts: new Int32Array(0),
       counts: new Int32Array(0),
       keys: new Int32Array(0),
       count: 0
     };
     /** Layout of the instance SID / remap regions inside the data texture. */
-    this.ID = 0;
-    this.PD = 0;
-    this.QD = 0;
-    this.JD = 0;
     this.KD = 0;
     this.RD = 0;
+    this.SD = 0;
+    this.LD = 0;
+    this.MD = 0;
+    this.TD = 0;
     this._totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
-    this.bE = -1;
-    this.cE = -1;
     this.dE = -1;
     this.eE = -1;
-    this.Ic = -1;
     this.fE = -1;
-    this.Hc = -1;
     this.gE = -1;
-    this.tA = -1;
-    this.Jc = -1;
+    this.Ic = -1;
     this.hE = -1;
-    this.VD = -1;
+    this.Hc = -1;
     this.iE = -1;
+    this.uA = -1;
+    this.Jc = -1;
     this.jE = -1;
+    this.XD = -1;
+    this.kE = -1;
+    this.lE = -1;
     this.c = engine;
-    this.ED = this.c.globalDataRepository.getValue("currentComponentSIDs", 0);
+    this.GD = this.c.globalDataRepository.getValue("currentComponentSIDs", 0);
   }
   /**
    * Initiates the dumping of the data texture buffer for debugging purposes.
@@ -90,7 +90,7 @@ var _WebGLStrategyWebGL2 = class _WebGLStrategyWebGL2 {
    * This is useful for debugging shader data layout and content issues.
    */
   static dumpDataTextureBuffer() {
-    this.SD = false;
+    this.UD = false;
   }
   /**
    * method definitions for component data access for data texture-based rendering.
@@ -98,7 +98,7 @@ var _WebGLStrategyWebGL2 = class _WebGLStrategyWebGL2 {
    * @param shaderType - The shader type (VertexShader or PixelShader)
    * @returns GLSL shader code string for the component data access method definitions
    */
-  static kE(engine, shaderType) {
+  static mE(engine, shaderType) {
     let str = "";
     const memberInfo = Component.getMemberInfo(engine);
     memberInfo.forEach((mapMemberNameMemberInfo, componentClass) => {
@@ -244,7 +244,7 @@ var _WebGLStrategyWebGL2 = class _WebGLStrategyWebGL2 {
 `;
     }
   }
-  static BE(engine) {
+  static DE(engine) {
     const morphUniformDataTargetNumbers = Primitive.getMorphUniformDataTargetNumbers();
     const morphUniformDataTargetNumbersStr = `
     const int rnMorphUniformDataTargetNumbers[${morphUniformDataTargetNumbers.length}] = int[${morphUniformDataTargetNumbers.length}](${morphUniformDataTargetNumbers.join(", ")});
@@ -313,11 +313,11 @@ var _WebGLStrategyWebGL2 = class _WebGLStrategyWebGL2 {
     const _glw = webglResourceRepository.currentWebGLContextWrapper;
     const [programUid, newOne] = material._createProgramWebGL(
       this.c,
-      _WebGLStrategyWebGL2.kE(this.c, ShaderType.VertexShader),
-      _WebGLStrategyWebGL2.kE(this.c, ShaderType.PixelShader),
-      _WebGLStrategyWebGL2.CE,
-      _WebGLStrategyWebGL2.DE,
-      _WebGLStrategyWebGL2.BE(this.c),
+      _WebGLStrategyWebGL2.mE(this.c, ShaderType.VertexShader),
+      _WebGLStrategyWebGL2.mE(this.c, ShaderType.PixelShader),
+      _WebGLStrategyWebGL2.EE,
+      _WebGLStrategyWebGL2.FE,
+      _WebGLStrategyWebGL2.DE(this.c),
       primitive
     );
     if (newOne) {
@@ -330,8 +330,8 @@ var _WebGLStrategyWebGL2 = class _WebGLStrategyWebGL2 {
       this.c.globalDataRepository._setUniformLocationsForWebGL2ModeOnly(material.getShaderProgramUid(primitive));
       webglResourceRepository.setUniformBlockBindingForMorphOffsetsAndWeights(
         programUid,
-        this.CD,
-        this.DD
+        this.ED,
+        this.FD
       );
     }
     return programUid;
@@ -384,7 +384,7 @@ var _WebGLStrategyWebGL2 = class _WebGLStrategyWebGL2 {
    * - Properties that require explicit uniform variables
    * The generated code optimizes data access based on the property layout in data textures.
    */
-  static CE(engine, info) {
+  static EE(engine, info) {
     var _a, _b;
     const returnType = info.compositionType.getGlslStr(info.componentType);
     let indexStr;
@@ -534,7 +534,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * - Properties that require explicit uniform variables
    * The generated code optimizes data access based on the property layout in data textures.
    */
-  static DE(engine, materialTypeName, info) {
+  static FE(engine, materialTypeName, info) {
     var _a, _b;
     const returnType = info.compositionType.getGlslStr(info.componentType);
     let indexStr;
@@ -730,14 +730,14 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return false;
     }
-    this.ED = this.c.globalDataRepository.getValue("currentComponentSIDs", 0);
+    this.GD = this.c.globalDataRepository.getValue("currentComponentSIDs", 0);
     if (!mesh.isSetUpDone()) {
       this.deleteDataTexture();
       mesh._updateVBOAndVAO();
     }
     return true;
   }
-  lE() {
+  nE() {
     const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
     for (let i = 0; i < Primitive.getPrimitiveCountHasMorph(); i++) {
       const primitive = Primitive.getPrimitiveHasMorph(i);
@@ -749,7 +749,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
             BufferUse.GPUVertexData,
             accessor.bufferView.buffer.indexOfTheBufferUsage
           );
-          this.TD[morphUniformDataOffsets[i] + j] = (this.c.engineState.totalSizeOfGPUShaderDataStorageExceptMorphData + byteOffsetOfExistingBuffer + accessor.byteOffsetInBuffer) / 4 / 4;
+          this.VD[morphUniformDataOffsets[i] + j] = (this.c.engineState.totalSizeOfGPUShaderDataStorageExceptMorphData + byteOffsetOfExistingBuffer + accessor.byteOffsetInBuffer) / 4 / 4;
         }
       } else {
         break;
@@ -757,35 +757,35 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     }
     const elementNumToCopy = morphUniformDataOffsets[morphUniformDataOffsets.length - 1];
     this.c.webglResourceRepository.updateUniformBuffer(
-      this.CD,
-      this.TD,
+      this.ED,
+      this.VD,
       0,
       elementNumToCopy
     );
   }
   common_$load() {
-    this.EE();
+    this.GE();
   }
-  EE() {
+  GE() {
     let needsRebindMorphUniformBuffers = false;
     const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
     const morphOffsetsUniformDataSize = Math.max(
       Math.ceil(morphUniformDataOffsets[morphUniformDataOffsets.length - 1] / 4) * 4 * 4,
       4
     );
-    if (morphOffsetsUniformDataSize !== this.VD) {
-      if (this.CD !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-        this.c.webglResourceRepository.deleteUniformBuffer(this.CD);
-        this.CD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    if (morphOffsetsUniformDataSize !== this.XD) {
+      if (this.ED !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        this.c.webglResourceRepository.deleteUniformBuffer(this.ED);
+        this.ED = CGAPIResourceRepository.InvalidCGAPIResourceUid;
       }
-      this.VD = morphOffsetsUniformDataSize;
-      if (this.CD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      this.XD = morphOffsetsUniformDataSize;
+      if (this.ED === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         const inputArrayOffsets = new Uint32Array(morphOffsetsUniformDataSize);
-        this.TD = inputArrayOffsets;
-        this.CD = this.c.webglResourceRepository.createUniformBufferWithBufferView(inputArrayOffsets);
-        this.lE();
+        this.VD = inputArrayOffsets;
+        this.ED = this.c.webglResourceRepository.createUniformBufferWithBufferView(inputArrayOffsets);
+        this.nE();
       }
-      this.VD = morphOffsetsUniformDataSize;
+      this.XD = morphOffsetsUniformDataSize;
       needsRebindMorphUniformBuffers = true;
     }
     const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(this.c);
@@ -793,38 +793,38 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4) * 4 * 4,
       4
     );
-    if (blendShapeWeightsUniformDataSize !== this.iE) {
-      if (this.DD !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-        this.c.webglResourceRepository.deleteUniformBuffer(this.DD);
-        this.DD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    if (blendShapeWeightsUniformDataSize !== this.kE) {
+      if (this.FD !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        this.c.webglResourceRepository.deleteUniformBuffer(this.FD);
+        this.FD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
       }
-      if (this.DD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      if (this.FD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         const inputArrayWeights = new Float32Array(blendShapeWeightsUniformDataSize);
-        this.UD = inputArrayWeights;
-        this.DD = this.c.webglResourceRepository.createUniformBufferWithBufferView(inputArrayWeights);
-        this.mE();
+        this.WD = inputArrayWeights;
+        this.FD = this.c.webglResourceRepository.createUniformBufferWithBufferView(inputArrayWeights);
+        this.oE();
       }
-      this.iE = blendShapeWeightsUniformDataSize;
+      this.kE = blendShapeWeightsUniformDataSize;
       needsRebindMorphUniformBuffers = true;
     }
     if (needsRebindMorphUniformBuffers) {
-      this.FE();
+      this.HE();
     }
   }
-  FE() {
-    if (this.CD !== CGAPIResourceRepository.InvalidCGAPIResourceUid && this.DD !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+  HE() {
+    if (this.ED !== CGAPIResourceRepository.InvalidCGAPIResourceUid && this.FD !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       this.c.webglResourceRepository.setUniformBlockBindingForMorphOffsetsAndWeightsWithoutShaderProgram(
-        this.CD,
-        this.DD
+        this.ED,
+        this.FD
       );
     }
   }
-  GE() {
+  IE() {
     const morphMaxIndex = Primitive.getPrimitiveCountHasMorph();
-    if (morphMaxIndex !== this.cE || this.c.engineState.totalSizeOfGPUShaderDataStorageExceptMorphData !== this.fE) {
-      this.lE();
-      this.fE = this.c.engineState.totalSizeOfGPUShaderDataStorageExceptMorphData;
-      this.cE = morphMaxIndex;
+    if (morphMaxIndex !== this.eE || this.c.engineState.totalSizeOfGPUShaderDataStorageExceptMorphData !== this.hE) {
+      this.nE();
+      this.hE = this.c.engineState.totalSizeOfGPUShaderDataStorageExceptMorphData;
+      this.eE = morphMaxIndex;
     }
   }
   /**
@@ -836,7 +836,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * This method delegates to __createAndUpdateDataTextureInner with no size limit,
    * ensuring the entire GPU instance data buffer is copied to the data texture.
    */
-  HE() {
+  JE() {
     this.__createAndUpdateDataTextureInner();
   }
   /**
@@ -860,8 +860,8 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     const totalSizeOfTheBuffers = sizesOfTheBuffers.reduce((acc, size) => acc + size, 0);
     const gpuInstanceDataBuffers = memoryManager.getBuffers(BufferUse.GPUInstanceData);
     const gpuInstanceDataBufferCount = gpuInstanceDataBuffers.length;
-    if (gpuInstanceDataBufferCount !== this.hE) {
-      this.hE = gpuInstanceDataBufferCount;
+    if (gpuInstanceDataBufferCount !== this.jE) {
+      this.jE = gpuInstanceDataBufferCount;
       this.deleteDataTexture();
     }
     const glw = this.c.webglResourceRepository.currentWebGLContextWrapper;
@@ -888,11 +888,11 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
           layerByteOffset + Math.min(bufferSizeForDataTextureInByte, dataTextureByteSize),
           excludedByteRanges
         )) {
-          this.nE(layerArray, layerByteOffset, start, end, dataTextureWidth);
+          this.pE(layerArray, layerByteOffset, start, end, dataTextureWidth);
         }
-        if (!_WebGLStrategyWebGL2.SD) {
+        if (!_WebGLStrategyWebGL2.UD) {
           MiscUtil.downloadTypedArray("Rhodonite_dataTextureBuffer.bin", layerArray);
-          _WebGLStrategyWebGL2.SD = true;
+          _WebGLStrategyWebGL2.UD = true;
         }
         layerByteOffset += gpuInstanceDataBuffer.byteLength;
       }
@@ -902,7 +902,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
           const layerEnd = layerStart + buffer.byteLength;
           if (start >= layerStart && end <= layerEnd) {
             const layerArray = new Float32Array(buffer.getArrayBuffer());
-            this.nE(layerArray, layerStart, start, end, dataTextureWidth);
+            this.pE(layerArray, layerStart, start, end, dataTextureWidth);
             break;
           }
           layerStart = layerEnd;
@@ -927,12 +927,12 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       const sidRows = isInstanceSidEnabled ? Math.max(Math.ceil(sidSlotCapacity / dataTextureWidth), 1) : 0;
       const remapRows = isInstanceSidEnabled ? Math.max(Math.ceil(Math.ceil(sidSlotCapacity / 4) / dataTextureWidth), 1) : 0;
       const dataTextureHeight = dataRows + sidRows + remapRows;
-      this.ID = dataTextureWidth;
-      this.PD = dataRows;
-      this.QD = dataRows + sidRows;
-      this.JD = this.PD * dataTextureWidth;
-      this.KD = this.QD * dataTextureWidth;
-      this.RD = sidSlotCapacity;
+      this.KD = dataTextureWidth;
+      this.RD = dataRows;
+      this.SD = dataRows + sidRows;
+      this.LD = this.RD * dataTextureWidth;
+      this.MD = this.SD * dataTextureWidth;
+      this.TD = sidSlotCapacity;
       if (isInstanceSidEnabled) {
         sidTable.markAllDirty();
       }
@@ -971,7 +971,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * @param layerArray - The whole memory of the layer that contains the range
    * @param layerByteOffset - The byte offset of the layer in the concatenated layers
    */
-  nE(layerArray, layerByteOffset, start, end, width) {
+  pE(layerArray, layerByteOffset, start, end, width) {
     const repository = this.c.webglResourceRepository;
     let texel = Math.floor(start / 16);
     const endTexel = Math.ceil(end / 16);
@@ -1016,9 +1016,9 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       this.c.webglResourceRepository.deleteTexture(this.__dataTextureUid);
       this.__dataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
-    this.RD = 0;
-    this.ID = 0;
-    this.HD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    this.TD = 0;
+    this.KD = 0;
+    this.JD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   }
   /**
    * Prepares the rendering pipeline before actual rendering begins.
@@ -1038,35 +1038,35 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     const instanceSidEnabled = this.c.config.isMultiDrawEnabled && this.c.webglResourceRepository.isInstanceSidTextureCapable;
     if (instanceSidEnabled) {
       const sidTable = this.c.webglResourceRepository.instanceSidTable;
-      if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid && sidTable.usedEnd > this.RD) {
+      if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid && sidTable.usedEnd > this.TD) {
         this.deleteDataTexture();
       }
     }
-    if (AnimationComponent.getIsAnimating(this.c) || TransformComponent.getUpdateCount(this.c) !== this.Hc || SceneGraphComponent.getUpdateCount(this.c) !== this.gE || CameraComponent.getCurrentCameraUpdateCount(this.c) !== this.tA || _getCameraControllerUpdateCount(this.c) !== this.Jc || this.c.materialRepository.stateVersion !== this.dE || this.c.lightClusterSystem.dataVersion !== this.eE || LightComponent.getUpdateCount(this.c) !== this.Ic || this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      this.HE();
-      this.IE();
+    if (AnimationComponent.getIsAnimating(this.c) || TransformComponent.getUpdateCount(this.c) !== this.Hc || SceneGraphComponent.getUpdateCount(this.c) !== this.iE || CameraComponent.getCurrentCameraUpdateCount(this.c) !== this.uA || _getCameraControllerUpdateCount(this.c) !== this.Jc || this.c.materialRepository.stateVersion !== this.fE || this.c.lightClusterSystem.dataVersion !== this.gE || LightComponent.getUpdateCount(this.c) !== this.Ic || this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      this.JE();
+      this.KE();
       this.Hc = TransformComponent.getUpdateCount(this.c);
-      this.gE = SceneGraphComponent.getUpdateCount(this.c);
-      this.tA = CameraComponent.getCurrentCameraUpdateCount(this.c);
+      this.iE = SceneGraphComponent.getUpdateCount(this.c);
+      this.uA = CameraComponent.getCurrentCameraUpdateCount(this.c);
       this.Jc = _getCameraControllerUpdateCount(this.c);
-      this.dE = this.c.materialRepository.stateVersion;
-      this.eE = this.c.lightClusterSystem.dataVersion;
+      this.fE = this.c.materialRepository.stateVersion;
+      this.gE = this.c.lightClusterSystem.dataVersion;
       this.Ic = LightComponent.getUpdateCount(this.c);
     }
-    if (BlendShapeComponent.updateCount !== this.bE || BlendShapeComponent.getCountOfBlendShapeComponents(this.c) !== this.jE) {
-      this.mE();
-      this.bE = BlendShapeComponent.updateCount;
-      this.jE = BlendShapeComponent.getCountOfBlendShapeComponents(this.c);
+    if (BlendShapeComponent.updateCount !== this.dE || BlendShapeComponent.getCountOfBlendShapeComponents(this.c) !== this.lE) {
+      this.oE();
+      this.dE = BlendShapeComponent.updateCount;
+      this.lE = BlendShapeComponent.getCountOfBlendShapeComponents(this.c);
       this.c.materialRepository._makeShaderInvalidateToMorphMaterials();
     }
-    this.GE();
-    this._D = this.c.componentRepository.getComponentsWithType(LightComponent);
+    this.IE();
+    this.aE = this.c.componentRepository.getComponentsWithType(LightComponent);
   }
   /**
    * Updates uniform buffers containing morph target weights for blend shape animation.
    * Copies weight values from blend shape components to GPU-accessible uniform buffers.
    */
-  mE() {
+  oE() {
     const memoryManager = this.c.memoryManager;
     const blendShapeDataBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
     if (blendShapeDataBuffer == null) {
@@ -1083,14 +1083,14 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       const blendShapeComponent = blendShapeComponents[i];
       const weights = blendShapeComponent != null ? blendShapeComponent.weights : [];
       for (let j = 0; j < weights.length; j++) {
-        this.UD[blendShapeUniformDataOffsets[i] + j] = weights[j];
+        this.WD[blendShapeUniformDataOffsets[i] + j] = weights[j];
       }
     }
     if (blendShapeComponents.length > 0) {
       const elementNumToCopy = blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1];
       this.c.webglResourceRepository.updateUniformBuffer(
-        this.DD,
-        this.UD,
+        this.FD,
+        this.WD,
         0,
         elementNumToCopy
       );
@@ -1106,7 +1106,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * UBOs provide more efficient uniform data transfer for WebGL 2.0 contexts
    * and can store larger amounts of uniform data compared to individual uniforms.
    */
-  JE() {
+  LE() {
     return this.c.webglResourceRepository.currentWebGLContextWrapper.isWebGL2 && this.c.config.isUboEnabled;
   }
   /**
@@ -1120,21 +1120,21 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * - Updating existing UBO with new data from GPU instance buffer
    * - Respecting alignment requirements for uniform buffer layouts
    */
-  IE() {
-    if (this.JE()) {
+  KE() {
+    if (this.LE()) {
       const glw = this.c.webglResourceRepository.currentWebGLContextWrapper;
       const alignedMaxUniformBlockSize = glw.getAlignedMaxUniformBlockSize();
       const maxConventionBlocks = glw.getMaxConventionUniformBlocks();
       const memoryManager = this.c.memoryManager;
       const buffer = memoryManager.getBuffer(BufferUse.GPUInstanceData);
-      if (this.FD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-        this.FD = this.c.webglResourceRepository.setupUniformBufferDataArea(
+      if (this.HD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        this.HD = this.c.webglResourceRepository.setupUniformBufferDataArea(
           new Float32Array(buffer.getArrayBuffer())
         );
       } else {
         const array = new Float32Array(buffer.getArrayBuffer());
         this.c.webglResourceRepository.updateUniformBuffer(
-          this.FD,
+          this.HD,
           array,
           0,
           alignedMaxUniformBlockSize * maxConventionBlocks / 4
@@ -1244,7 +1244,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * - Uses the render pass camera or falls back to current camera
    * - Sets camera component SID to -1 if no camera is available
    */
-  oE(renderPass, displayIdx, isVRMainPass) {
+  qE(renderPass, displayIdx, isVRMainPass) {
     if (isVRMainPass) {
       let cameraComponentSid = -1;
       const webxrSystem = this.c._webXRSystemIfEnabled;
@@ -1255,7 +1255,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
           cameraComponentSid = webxrSystem._getCameraComponentSIDAt(displayIdx);
         }
       }
-      this.ED._v[WellKnownComponentTIDs.CameraComponentTID] = cameraComponentSid;
+      this.GD._v[WellKnownComponentTIDs.CameraComponentTID] = cameraComponentSid;
     } else {
       let cameraComponent = renderPass.cameraComponent;
       if (cameraComponent == null) {
@@ -1265,9 +1265,9 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
         );
       }
       if (cameraComponent) {
-        this.ED._v[WellKnownComponentTIDs.CameraComponentTID] = cameraComponent.componentSID;
+        this.GD._v[WellKnownComponentTIDs.CameraComponentTID] = cameraComponent.componentSID;
       } else {
-        this.ED._v[WellKnownComponentTIDs.CameraComponentTID] = -1;
+        this.GD._v[WellKnownComponentTIDs.CameraComponentTID] = -1;
       }
     }
   }
@@ -1284,11 +1284,11 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * and initializes the component SID array if it hasn't been set up yet.
    * The material SID is stored at index 0 of the component SID array.
    */
-  pE(_gl, material, _shaderProgram) {
-    if (this.ED == null) {
-      this.ED = this.c.globalDataRepository.getValue("currentComponentSIDs", 0);
+  rE(_gl, material, _shaderProgram) {
+    if (this.GD == null) {
+      this.GD = this.c.globalDataRepository.getValue("currentComponentSIDs", 0);
     }
-    this.ED._v[0] = material.materialSID;
+    this.GD._v[0] = material.materialSID;
   }
   /**
    * Packs the visible instances of every mesh drawn in this pass into the engine-wide
@@ -1296,7 +1296,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * This must happen before any draw so that a multi-draw batch spanning several meshes
    * sees the remap entries of all its meshes.
    */
-  KE(primitiveUids, renderPass, primitives) {
+  ME(primitiveUids, renderPass, primitives) {
     if (!this.c.config.isMultiDrawEnabled) {
       return;
     }
@@ -1311,9 +1311,9 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     }
     const cullingState = MeshRendererComponent._getInstanceCullingState(renderPass);
     const anyCulled = cullingState != null && cullingState.culledEntityCount > 0;
-    this.GD = anyCulled ? 0 : 1;
+    this.ID = anyCulled ? 0 : 1;
     if (!anyCulled) {
-      this.qE(table);
+      this.sE(table);
       return;
     }
     const culledEntityStamp = cullingState.culledEntityStamp;
@@ -1335,15 +1335,15 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       mesh._remapPrepassId = cullingId;
       mesh._packVisibleInstancesToVariationVBO(culledEntityStamp, cullTick);
     }
-    this.qE(table);
+    this.sE(table);
   }
   /**
    * Uploads the dirty instance SID / remap rows into the engine data texture.
    * The two tables are stored in reserved rows after the component data, so the
    * shader can read them from texture unit 0 and no extra texture unit is consumed.
    */
-  qE(table) {
-    if (this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid || this.ID <= 0) {
+  sE(table) {
+    if (this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid || this.KD <= 0) {
       return;
     }
     const usedEnd = table.usedEnd;
@@ -1353,16 +1353,16 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       return;
     }
     if (table.sidDirty) {
-      this.rE(
-        this.PD,
+      this.tE(
+        this.RD,
         usedEnd,
         (dst, texelOffset, count) => table.writeSidTexels(dst, texelOffset, count)
       );
       table.clearSidDirty();
     }
-    if (table.remapDirty && this.GD === 0) {
-      this.rE(
-        this.QD,
+    if (table.remapDirty && this.ID === 0) {
+      this.tE(
+        this.SD,
         Math.ceil(usedEnd / 4),
         (dst, texelOffset, count) => table.writeRemapTexels(dst, texelOffset, count)
       );
@@ -1373,8 +1373,8 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * Uploads `texelCount` texels starting at `baseRow` to the data texture. Rows are
    * `this.__dataTextureWidth` texels wide, so the last row is uploaded partially.
    */
-  rE(baseRow, texelCount, fill) {
-    const width = this.ID;
+  tE(baseRow, texelCount, fill) {
+    const width = this.KD;
     let remaining = texelCount;
     let texelOffset = 0;
     let row = baseRow;
@@ -1427,17 +1427,17 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     const displayCount = WebGLStrategyCommonMethod.getDisplayCount(isVRMainPass, this.c._webXRSystemIfEnabled);
     const primitives = renderPass._lastPrimitiveUids === primitiveUids ? renderPass._lastPrimitives : null;
     if (renderPass.isBufferLessRenderingMode()) {
-      this.LE(gl, renderPass, isVRMainPass);
+      this.NE(gl, renderPass, isVRMainPass);
       gl.depthMask(true);
       return true;
     }
-    this.KE(primitiveUids, renderPass, primitives);
+    this.ME(primitiveUids, renderPass, primitives);
     let renderedSomething = false;
     if (renderPass._toRenderOpaquePrimitives) {
       if (!renderPass.depthWriteMask) {
         gl.depthMask(false);
       }
-      renderedSomething = this.LD(
+      renderedSomething = this.ND(
         primitiveUids,
         primitives,
         renderPass._lastOpaqueIndex,
@@ -1450,7 +1450,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       ) || renderedSomething;
     }
     if (renderPass._toRenderTranslucentPrimitives) {
-      renderedSomething = this.LD(
+      renderedSomething = this.ND(
         primitiveUids,
         primitives,
         renderPass._lastOpaqueIndex + 1,
@@ -1463,7 +1463,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       ) || renderedSomething;
     }
     if (renderPass._toRenderBlendWithZWritePrimitives) {
-      renderedSomething = this.LD(
+      renderedSomething = this.ND(
         primitiveUids,
         primitives,
         renderPass._lastTranslucentIndex + 1,
@@ -1477,7 +1477,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     }
     if (renderPass._toRenderBlendWithoutZWritePrimitives) {
       gl.depthMask(false);
-      renderedSomething = this.LD(
+      renderedSomething = this.ND(
         primitiveUids,
         primitives,
         renderPass._lastBlendWithZWriteIndex + 1,
@@ -1491,7 +1491,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     }
     gl.depthMask(true);
     this.dettachVertexData(glw);
-    this.zE = renderPassTickCount;
+    this.BE = renderPassTickCount;
     return renderedSomething;
   }
   /**
@@ -1510,19 +1510,19 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * - Setting material parameters directly
    * - Using drawArrays with the specified primitive mode and vertex count
    */
-  LE(gl, renderPass, isVRMainPass) {
+  NE(gl, renderPass, isVRMainPass) {
     const material = renderPass.material;
     const primitive = renderPass._dummyPrimitiveForBufferLessRendering;
     setupShaderProgram(material, primitive, this);
     const shaderProgramUid = material.getShaderProgramUid(primitive);
     const shaderProgram = this.c.webglResourceRepository.getWebGLResource(shaderProgramUid);
     gl.useProgram(shaderProgram);
-    this.HD = shaderProgramUid;
+    this.JD = shaderProgramUid;
     this.bindDataTexture(gl, shaderProgram);
-    this.pE(gl, material, shaderProgram);
-    this.oE(renderPass, 0, isVRMainPass);
-    this.sE(gl, shaderProgram);
-    this.tE(gl, shaderProgram);
+    this.rE(gl, material, shaderProgram);
+    this.qE(renderPass, 0, isVRMainPass);
+    this.uE(gl, shaderProgram);
+    this.vE(gl, shaderProgram);
     if (shaderProgram.vrState != null && isVRMainPass) {
       const vrState = this.c.globalDataRepository.getValue("vrState", 0);
       vrState._v[0] = isVRMainPass ? 1 : 0;
@@ -1541,12 +1541,12 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     }
     this.c.webglResourceRepository.setViewport(this.c, renderPass.getViewport());
     const glw = this.c.webglResourceRepository.currentWebGLContextWrapper;
-    if (glw != null && this.WD(glw)) {
+    if (glw != null && this.YD(glw)) {
       gl.bindVertexArray(null);
       gl.vertexAttribI4ui(VertexAttribute.MaterialSid.getAttributeSlot(), material.materialSID, 0, 0, 0);
       gl.vertexAttribI4ui(VertexAttribute.Instance.getAttributeSlot(), 0, 0, 0, 0);
-      this.uE(gl, shaderProgram);
-      this.vE(gl, shaderProgram);
+      this.wE(gl, shaderProgram);
+      this.xE(gl, shaderProgram);
     }
     gl.drawArrays(
       renderPass._primitiveModeForBufferLessRendering.index,
@@ -1555,7 +1555,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     );
   }
   /** Whether the per-vertex materialSID / instanceBase attribute path is active. */
-  WD(glw) {
+  YD(glw) {
     return this.c.config.isMultiDrawEnabled && glw.webgl2ExtMD != null && this.c.webglResourceRepository.instanceSidTable.isSupported;
   }
   /**
@@ -1563,7 +1563,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * materialSID when the per-vertex materialSID buffer must not be used
    * (non-grouped primitives and render-pass material overrides).
    */
-  ME(primitive, material, glw) {
+  OE(primitive, material, glw) {
     const slot = VertexAttribute.MaterialSid.getAttributeSlot();
     const group = primitive._multiDrawGroup;
     const gl = glw.getRawContextAsWebGL2();
@@ -1587,12 +1587,12 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * Renders a bucket range, batching consecutive primitives that share a multi-draw
    * group, material and shader program into one WEBGL_multi_draw call.
    */
-  LD(primitiveUids, primitives, start, end, step, glw, renderPass, isVRMainPass, displayCount) {
+  ND(primitiveUids, primitives, start, end, step, glw, renderPass, isVRMainPass, displayCount) {
     const useMultiDraw = !isVRMainPass && displayCount === 1 && this.c.config.isMultiDrawEnabled && glw.webgl2ExtMD != null && this.c.webglResourceRepository.isInstanceSidTextureCapable;
     let renderedSomething = false;
     if (!useMultiDraw) {
       for (let i = start; step > 0 ? i <= end : i >= end; i += step) {
-        renderedSomething = this.MD(
+        renderedSomething = this.OD(
           primitiveUids[i],
           glw,
           renderPass,
@@ -1619,14 +1619,14 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       }
       return getMultiDrawStateKeyId(primitive, material, getPrimitiveMeshRendererFingerPrintId(primitive));
     };
-    const plan = planMultiDrawRunsInto(start, end, step, getRunKey, this.AE);
+    const plan = planMultiDrawRunsInto(start, end, step, getRunKey, this.CE);
     for (let r = 0; r < plan.count; r++) {
       const runStart = plan.starts[r];
       const runCount = plan.counts[r];
       if (plan.keys[r] === -1 || runCount < 2) {
         for (let k = 0; k < runCount; k++) {
           const index = runStart + k * step;
-          renderedSomething = this.MD(
+          renderedSomething = this.OD(
             primitiveUids[index],
             glw,
             renderPass,
@@ -1637,7 +1637,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
           ) || renderedSomething;
         }
       } else {
-        renderedSomething = this.NE(
+        renderedSomething = this.PE(
           primitiveUids,
           primitives,
           runStart,
@@ -1656,7 +1656,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * (shader program, material, VAO, textures) is prepared by rendering the first
    * primitive with a deferred draw.
    */
-  NE(primitiveUids, primitives, firstIndex, runCount, step, glw, renderPass, displayCount) {
+  PE(primitiveUids, primitives, firstIndex, runCount, step, glw, renderPass, displayCount) {
     var _a;
     const firstPrimitive = primitives != null ? primitives[firstIndex] : Primitive.getPrimitive(primitiveUids[firstIndex]);
     if (firstPrimitive == null || firstPrimitive._multiDrawGroup == null) {
@@ -1673,7 +1673,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       offset: 0,
       instanceCount: 0
     };
-    const renderedFirst = this.MD(
+    const renderedFirst = this.OD(
       primitiveUids[firstIndex],
       glw,
       renderPass,
@@ -1686,7 +1686,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       let rendered = false;
       for (let k = 1; k < runCount; k++) {
         const index = firstIndex + k * step;
-        rendered = this.MD(
+        rendered = this.OD(
           primitiveUids[index],
           glw,
           renderPass,
@@ -1794,7 +1794,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * The method optimizes performance by caching shader programs and materials
    * between draw calls and only updating GPU state when necessary.
    */
-  MD(primitiveUid, glw, renderPass, isVRMainPass, displayCount, deferredDraw, primitiveArg) {
+  OD(primitiveUid, glw, renderPass, isVRMainPass, displayCount, deferredDraw, primitiveArg) {
     var _a, _b, _c, _d;
     const gl = glw.getRawContextAsWebGL2();
     const primitive = primitiveArg != null ? primitiveArg : Primitive.getPrimitive(primitiveUid);
@@ -1816,36 +1816,36 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     }
     const primitiveIndex = mesh.getPrimitiveIndexInMesh(primitive);
     this.attachVertexDataInner(mesh, primitive, primitiveIndex, glw, mesh._variationVBOUid);
-    if (this.WD(glw)) {
-      this.ME(primitive, material, glw);
+    if (this.YD(glw)) {
+      this.OE(primitive, material, glw);
     }
     let firstTimeForShaderProgram = false;
     let firstTimeForMaterial = false;
     const shaderProgramUid = material.getShaderProgramUid(primitive);
-    if (shaderProgramUid !== this.HD || gl.sD) {
+    if (shaderProgramUid !== this.JD || gl.uD) {
       if (isSkipDrawing(material, primitive)) {
         this.dettachVertexData(glw);
         return false;
       }
       const shaderProgram = this.c.webglResourceRepository.getWebGLResource(shaderProgramUid);
       gl.useProgram(shaderProgram);
-      gl.sD = false;
+      gl.uD = false;
       this.bindDataTexture(gl, shaderProgram);
-      this.BD = shaderProgram;
+      this.DD = shaderProgram;
       firstTimeForShaderProgram = true;
       firstTimeForMaterial = true;
     }
-    if (((_b = this.YD) == null ? void 0 : _b.deref()) !== material) {
+    if (((_b = this._D) == null ? void 0 : _b.deref()) !== material) {
       firstTimeForMaterial = true;
-      this.YD = new WeakRef(material);
+      this._D = new WeakRef(material);
     }
-    if (this.ZD !== material.stateVersion) {
+    if (this.$D !== material.stateVersion) {
       firstTimeForMaterial = true;
-      this.ZD = material.stateVersion;
+      this.$D = material.stateVersion;
     }
-    if (this.WD(glw) && this.BD != null) {
-      this.uE(gl, this.BD);
-      this.vE(gl, this.BD);
+    if (this.YD(glw) && this.DD != null) {
+      this.wE(gl, this.DD);
+      this.xE(gl, this.DD);
     }
     const renderingArg = {
       glw,
@@ -1854,7 +1854,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       normalMatrix: entity.getSceneGraph().normalMatrixInner,
       isBillboard: entity.getSceneGraph().isBillboard,
       isVisible: entity.getSceneGraph().isVisible,
-      lightComponents: this._D,
+      lightComponents: this.aE,
       renderPass,
       primitive,
       diffuseCube: meshRendererComponent.diffuseCubeMap,
@@ -1867,25 +1867,25 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       material._setParametersToGpuWebGLPerShaderProgram({
         engine: this.c,
         material,
-        shaderProgram: this.BD,
+        shaderProgram: this.DD,
         firstTime: firstTimeForShaderProgram,
         args: renderingArg
       });
     }
     if (firstTimeForMaterial) {
-      this.pE(gl, material, this.BD);
+      this.rE(gl, material, this.DD);
       WebGLStrategyCommonMethod.setWebGLParameters(this.c, material, gl);
       material._setParametersToGpuWebGL({
         engine: this.c,
         material,
-        shaderProgram: this.BD,
+        shaderProgram: this.DD,
         firstTime: firstTimeForMaterial,
         args: renderingArg
       });
     }
     material._setParametersToGpuWebGLPerPrimitive({
       material,
-      shaderProgram: this.BD,
+      shaderProgram: this.DD,
       firstTime: firstTimeForMaterial,
       args: renderingArg
     });
@@ -1893,14 +1893,14 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       if (isVRMainPass) {
         WebGLStrategyCommonMethod.setVRViewport(this.c, renderPass, displayIdx);
       }
-      this.oE(renderPass, displayIdx, isVRMainPass);
-      this.sE(gl, this.BD);
-      this.tE(gl, this.BD);
-      if (this.BD.vrState != null && isVRMainPass && displayCount > 1) {
+      this.qE(renderPass, displayIdx, isVRMainPass);
+      this.uE(gl, this.DD);
+      this.vE(gl, this.DD);
+      if (this.DD.vrState != null && isVRMainPass && displayCount > 1) {
         const vrState = this.c.globalDataRepository.getValue("vrState", 0);
         vrState._v[0] = isVRMainPass ? 1 : 0;
         vrState._v[1] = displayIdx;
-        this.BD._gl.uniform2iv(this.BD.vrState, vrState._v);
+        this.DD._gl.uniform2iv(this.DD.vrState, vrState._v);
       }
       const useInstanceSidTexture = this.c.config.isMultiDrawEnabled && glw.webgl2ExtMD != null && this.c.webglResourceRepository.instanceSidTable.isSupported;
       if (useInstanceSidTexture && primitive._multiDrawGroup == null) {
@@ -1939,7 +1939,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
         );
       }
     }
-    this.HD = shaderProgramUid;
+    this.JD = shaderProgramUid;
     return true;
   }
   /**
@@ -1950,13 +1950,13 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * clusters. Uniform values persist in the program object, so consecutive draws of the same camera skip the
    * upload; the check keeps the per-draw cost to a comparison in the common case.
    */
-  tE(gl, shaderProgram) {
+  vE(gl, shaderProgram) {
     const program = shaderProgram;
     const location = program.lightClusterView;
     if (location == null) {
       return;
     }
-    const cameraSid = this.ED._v[WellKnownComponentTIDs.CameraComponentTID];
+    const cameraSid = this.GD._v[WellKnownComponentTIDs.CameraComponentTID];
     const lightClusterSystem = this.c.lightClusterSystem;
     const version = lightClusterSystem.dataVersion;
     if (program._lightClusterViewCameraSid === cameraSid && program._lightClusterViewVersion === version) {
@@ -1971,10 +1971,10 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * same program by the previous upload. Uniform values persist in the program object, so
    * consecutive draws of the same material (e.g. a shadow pass) do not need to upload again.
    */
-  sE(gl, shaderProgram) {
-    const values = this.ED._v;
-    let lastValues = this.aE;
-    if (this.$D === shaderProgram && lastValues != null && lastValues.length === values.length) {
+  uE(gl, shaderProgram) {
+    const values = this.GD._v;
+    let lastValues = this.cE;
+    if (this.bE === shaderProgram && lastValues != null && lastValues.length === values.length) {
       let isSame = true;
       for (let i = 0; i < values.length; i++) {
         if (lastValues[i] !== values[i]) {
@@ -1989,10 +1989,10 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     gl.uniform1fv(shaderProgram.currentComponentSIDs, values);
     if (lastValues == null || lastValues.length !== values.length) {
       lastValues = new Float32Array(values.length);
-      this.aE = lastValues;
+      this.cE = lastValues;
     }
     lastValues.set(values);
-    this.$D = shaderProgram;
+    this.bE = shaderProgram;
   }
   /**
    * Binds the data texture to the WebGL context for shader access.
@@ -2034,29 +2034,29 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       return;
     }
     const program = shaderProgram;
-    if (program.OE === void 0) {
-      program.ND = gl.getUniformLocation(
+    if (program.QE === void 0) {
+      program.PD = gl.getUniformLocation(
         shaderProgram,
         "u_instanceSidDataTextureIndex"
       );
-      program.XD = gl.getUniformLocation(
+      program.ZD = gl.getUniformLocation(
         shaderProgram,
         "u_instanceRemapDataTextureIndex"
       );
-      program.OD = gl.getUniformLocation(shaderProgram, "u_instanceRemapIdentity");
-      program.OE = null;
+      program.QD = gl.getUniformLocation(shaderProgram, "u_instanceRemapIdentity");
+      program.QE = null;
     }
-    if (program.ND != null) {
-      gl.uniform1i(program.ND, this.JD);
-      program.wE = this.JD;
+    if (program.PD != null) {
+      gl.uniform1i(program.PD, this.LD);
+      program.yE = this.LD;
     }
-    if (program.XD != null) {
-      gl.uniform1i(program.XD, this.KD);
-      program.xE = this.KD;
+    if (program.ZD != null) {
+      gl.uniform1i(program.ZD, this.MD);
+      program.zE = this.MD;
     }
-    if (program.OD != null) {
-      gl.uniform1i(program.OD, this.GD);
-      program.yE = this.GD;
+    if (program.QD != null) {
+      gl.uniform1i(program.QD, this.ID);
+      program.AE = this.ID;
     }
   }
   /**
@@ -2064,20 +2064,20 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * current texture layout. The indices change when the data texture is recreated
    * (e.g. the instance slot capacity grew) while the same program stays bound.
    */
-  vE(gl, shaderProgram) {
+  xE(gl, shaderProgram) {
     const program = shaderProgram;
-    if (program.ND == null) {
+    if (program.PD == null) {
       return;
     }
-    const sidBase = this.JD;
-    if (program.wE !== sidBase) {
-      gl.uniform1i(program.ND, sidBase);
-      program.wE = sidBase;
+    const sidBase = this.LD;
+    if (program.yE !== sidBase) {
+      gl.uniform1i(program.PD, sidBase);
+      program.yE = sidBase;
     }
-    const remapBase = this.KD;
-    if (program.xE !== remapBase) {
-      gl.uniform1i(program.XD, remapBase);
-      program.xE = remapBase;
+    const remapBase = this.MD;
+    if (program.zE !== remapBase) {
+      gl.uniform1i(program.ZD, remapBase);
+      program.zE = remapBase;
     }
   }
   /**
@@ -2085,17 +2085,17 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * state can change between passes while the same shader program stays bound, so this
    * is checked before every draw (a cheap property comparison when unchanged).
    */
-  uE(gl, shaderProgram) {
+  wE(gl, shaderProgram) {
     const program = shaderProgram;
-    if (program.OD == null) {
+    if (program.QD == null) {
       return;
     }
-    const identity = this.GD;
-    if (program.yE === identity) {
+    const identity = this.ID;
+    if (program.AE === identity) {
       return;
     }
-    gl.uniform1i(program.OD, identity);
-    program.yE = identity;
+    gl.uniform1i(program.QD, identity);
+    program.AE = identity;
   }
   /**
    * Destroys all GPU resources held by this strategy.
@@ -2107,22 +2107,22 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       webglResourceRepository.deleteTexture(this.__dataTextureUid);
       this.__dataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
+    if (this.HD !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      webglResourceRepository.deleteUniformBuffer(this.HD);
+      this.HD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
+    if (this.ED !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      webglResourceRepository.deleteUniformBuffer(this.ED);
+      this.ED = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
     if (this.FD !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       webglResourceRepository.deleteUniformBuffer(this.FD);
       this.FD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
-    if (this.CD !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      webglResourceRepository.deleteUniformBuffer(this.CD);
-      this.CD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-    }
-    if (this.DD !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      webglResourceRepository.deleteUniformBuffer(this.DD);
-      this.DD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-    }
   }
   // $render(): void {}
 };
-_WebGLStrategyWebGL2.SD = true;
+_WebGLStrategyWebGL2.UD = true;
 var WebGLStrategyWebGL2 = _WebGLStrategyWebGL2;
 export {
   WebGLStrategyWebGL2

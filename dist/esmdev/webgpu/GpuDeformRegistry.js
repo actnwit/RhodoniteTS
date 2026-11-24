@@ -7,20 +7,20 @@ var GpuDeformRegistry = class {
    */
   constructor(capacities) {
     this.Yx = /* @__PURE__ */ new Map();
-    this.IF = 0;
-    this.zF = 0;
-    this.CF = false;
-    this.DF = { sourceVertices: 0, deformedVertices: 0, bounds: 0, chunks: 0 };
+    this.KF = 0;
+    this.BF = 0;
+    this.EF = false;
+    this.FF = { sourceVertices: 0, deformedVertices: 0, bounds: 0, chunks: 0 };
     this.du = 0;
-    this.uF = { ...capacities };
-    this.FF = new RangeAllocator(capacities.sourceVertices);
-    this.GF = new RangeAllocator(capacities.deformedVertices);
-    this.HF = new RangeAllocator(capacities.bounds);
-    this.wF = new RangeAllocator(capacities.chunks);
+    this.wF = { ...capacities };
+    this.HF = new RangeAllocator(capacities.sourceVertices);
+    this.IF = new RangeAllocator(capacities.deformedVertices);
+    this.JF = new RangeAllocator(capacities.bounds);
+    this.yF = new RangeAllocator(capacities.chunks);
   }
   /** The capacities of the tables. */
   get capacities() {
-    return this.uF;
+    return this.wF;
   }
   /** The live entries. */
   get entries() {
@@ -32,11 +32,11 @@ var GpuDeformRegistry = class {
   }
   /** One past the highest bounds slot allocated since the last reset (the range to clear before deforming). */
   get boundsHighWater() {
-    return this.IF;
+    return this.KF;
   }
   /** One past the highest chunk slot allocated since the last reset (the dispatch size). */
   get chunkHighWater() {
-    return this.zF;
+    return this.BF;
   }
   /** Incremented whenever an entry is allocated or freed. */
   get version() {
@@ -44,11 +44,11 @@ var GpuDeformRegistry = class {
   }
   /** Whether an allocation failed because a table was full since the last reset. */
   get isOverflowed() {
-    return this.CF;
+    return this.EF;
   }
   /** The capacities needed by the live entries plus the allocations that failed since the last reset. */
   get requiredCapacities() {
-    const used = { ...this.DF };
+    const used = { ...this.FF };
     for (const entry of this.Yx.values()) {
       used.sourceVertices += entry.vertexCount;
       used.deformedVertices += entry.vertexCount * entry.instanceCount;
@@ -90,25 +90,25 @@ var GpuDeformRegistry = class {
     }
     const deformedCount = vertexCount * instanceCount;
     const chunkCount = chunkCountPerInstance * instanceCount;
-    const sourceBase = this.FF.allocate(vertexCount, 1);
-    const deformedBase = this.GF.allocate(deformedCount, 1);
-    const boundsBase = this.HF.allocate(instanceCount, 1);
-    const chunkBase = this.wF.allocate(chunkCount, 1);
+    const sourceBase = this.HF.allocate(vertexCount, 1);
+    const deformedBase = this.IF.allocate(deformedCount, 1);
+    const boundsBase = this.JF.allocate(instanceCount, 1);
+    const chunkBase = this.yF.allocate(chunkCount, 1);
     if (sourceBase < 0 || deformedBase < 0 || boundsBase < 0 || chunkBase < 0) {
       if (sourceBase >= 0) {
-        this.FF.release(sourceBase, vertexCount);
+        this.HF.release(sourceBase, vertexCount);
       }
       if (deformedBase >= 0) {
-        this.GF.release(deformedBase, deformedCount);
+        this.IF.release(deformedBase, deformedCount);
       }
       if (boundsBase >= 0) {
-        this.HF.release(boundsBase, instanceCount);
+        this.JF.release(boundsBase, instanceCount);
       }
       if (chunkBase >= 0) {
-        this.wF.release(chunkBase, chunkCount);
+        this.yF.release(chunkBase, chunkCount);
       }
-      this.CF = true;
-      const failed = this.DF;
+      this.EF = true;
+      const failed = this.FF;
       failed.sourceVertices += vertexCount;
       failed.deformedVertices += deformedCount;
       failed.bounds += instanceCount;
@@ -131,8 +131,8 @@ var GpuDeformRegistry = class {
       refCount: 1
     };
     this.Yx.set(key, entry);
-    this.IF = Math.max(this.IF, boundsBase + instanceCount);
-    this.zF = Math.max(this.zF, chunkBase + chunkCount);
+    this.KF = Math.max(this.KF, boundsBase + instanceCount);
+    this.BF = Math.max(this.BF, chunkBase + chunkCount);
     this.du++;
     return { entry, isNew: true };
   }
@@ -150,10 +150,10 @@ var GpuDeformRegistry = class {
       return false;
     }
     this.Yx.delete(entry.key);
-    this.FF.release(entry.sourceBase, entry.vertexCount);
-    this.GF.release(entry.deformedBase, entry.vertexCount * entry.instanceCount);
-    this.HF.release(entry.boundsBase, entry.instanceCount);
-    this.wF.release(entry.chunkBase, entry.chunkCount);
+    this.HF.release(entry.sourceBase, entry.vertexCount);
+    this.IF.release(entry.deformedBase, entry.vertexCount * entry.instanceCount);
+    this.JF.release(entry.boundsBase, entry.instanceCount);
+    this.yF.release(entry.chunkBase, entry.chunkCount);
     this.du++;
     return true;
   }
@@ -161,16 +161,16 @@ var GpuDeformRegistry = class {
    * Drops every entry and replaces the tables (e.g. with larger capacities).
    */
   reset(capacities) {
-    this.uF = { ...capacities };
-    this.FF = new RangeAllocator(capacities.sourceVertices);
-    this.GF = new RangeAllocator(capacities.deformedVertices);
-    this.HF = new RangeAllocator(capacities.bounds);
-    this.wF = new RangeAllocator(capacities.chunks);
+    this.wF = { ...capacities };
+    this.HF = new RangeAllocator(capacities.sourceVertices);
+    this.IF = new RangeAllocator(capacities.deformedVertices);
+    this.JF = new RangeAllocator(capacities.bounds);
+    this.yF = new RangeAllocator(capacities.chunks);
     this.Yx.clear();
-    this.IF = 0;
-    this.zF = 0;
-    this.CF = false;
-    this.DF = { sourceVertices: 0, deformedVertices: 0, bounds: 0, chunks: 0 };
+    this.KF = 0;
+    this.BF = 0;
+    this.EF = false;
+    this.FF = { sourceVertices: 0, deformedVertices: 0, bounds: 0, chunks: 0 };
     this.du++;
   }
 };

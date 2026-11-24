@@ -33,26 +33,26 @@ var RenderTargetTexture2DArray = class extends AbstractTexture {
   }) {
     this.dm = width;
     this.Cy = height;
-    this.qB = level;
-    this.sB = internalFormat;
-    this.tB = format;
+    this.sB = level;
+    this.uB = internalFormat;
+    this.vB = format;
     this.Cc = type;
     this.$t = arrayLength;
-    this.BB();
+    this.DB();
   }
   /**
    * Sets the framebuffer object associated with this render target.
    * @param fbo - The framebuffer object to associate with this texture
    */
   set _fbo(fbo) {
-    this.yB = fbo;
+    this.AB = fbo;
   }
   /**
    * Gets the framebuffer object associated with this render target.
    * @returns The associated framebuffer object, or undefined if not set
    */
   get fbo() {
-    return this.yB;
+    return this.AB;
   }
   /**
    * Gets the number of layers in the texture array.
@@ -66,14 +66,14 @@ var RenderTargetTexture2DArray = class extends AbstractTexture {
    * This method handles both WebGL and WebGPU resource creation.
    * @private
    */
-  BB() {
+  DB() {
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
     const texture = cgApiResourceRepository.createRenderTargetTextureArray({
       width: this.dm,
       height: this.Cy,
-      level: this.qB,
-      internalFormat: this.sB,
-      format: this.tB,
+      level: this.sB,
+      internalFormat: this.uB,
+      format: this.vB,
       type: this.Cc,
       arrayLength: this.$t
     });
@@ -107,7 +107,7 @@ var RenderTargetTexture2DArray = class extends AbstractTexture {
     this.destroy3DAPIResources();
     this.dm = width;
     this.Cy = height;
-    this.BB();
+    this.DB();
   }
   /**
    * Destroys all graphics API resources associated with this texture.
@@ -131,8 +131,8 @@ var RenderTargetTexture2DArray = class extends AbstractTexture {
       this._textureResourceUid,
       this.dm,
       this.Cy,
-      this.yB.framebufferUID,
-      this.yB.whichColorAttachment(this)
+      this.AB.framebufferUID,
+      this.AB.whichColorAttachment(this)
     );
     return data;
   }
@@ -207,7 +207,7 @@ var RenderTargetTexture2DArray = class extends AbstractTexture {
     const webglResourceRepository = this.c.webglResourceRepository;
     webglResourceRepository.blitToTexture2dFromTexture2dArray(
       this._textureResourceUid,
-      targetTexture2D.yB.cgApiResourceUid,
+      targetTexture2D.AB.cgApiResourceUid,
       targetTexture2D.width,
       targetTexture2D.height
     );
@@ -224,7 +224,7 @@ var RenderTargetTexture2DArray = class extends AbstractTexture {
     const webglResourceRepository = this.c.webglResourceRepository;
     webglResourceRepository.blitToTexture2dFromTexture2dArrayFake(
       this._textureResourceUid,
-      targetTexture2D.yB.cgApiResourceUid,
+      targetTexture2D.AB.cgApiResourceUid,
       targetTexture2D.width,
       targetTexture2D.height
     );

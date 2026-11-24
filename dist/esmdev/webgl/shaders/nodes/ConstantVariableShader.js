@@ -12,10 +12,10 @@ var ConstantVariableShader = class extends StandardShaderPart {
    */
   constructor(__functionName, __compositionType, __componentType) {
     super();
-    this._E = __functionName;
+    this.aF = __functionName;
     this.Xs = __compositionType;
     this.Zs = __componentType;
-    this.$E = "";
+    this.bF = "";
   }
   /**
    * Sets the constant value that will be output by the generated shader function.
@@ -47,7 +47,7 @@ var ConstantVariableShader = class extends StandardShaderPart {
     } else if (this.Zs === ComponentType.Bool) {
       constant = value.x ? "true" : "false";
     }
-    this.$E = constant;
+    this.bF = constant;
   }
   /**
    * Generates the vertex shader function definition that outputs the constant value.
@@ -74,16 +74,16 @@ var ConstantVariableShader = class extends StandardShaderPart {
   getVertexShaderDefinitions(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-      fn ${this._E}(
+      fn ${this.aF}(
         outValue: ptr<function, ${this.Xs.toWGSLType(this.Zs)}>) {
-        *outValue = ${this.$E};
+        *outValue = ${this.bF};
       }
       `;
     }
     return `
-      void ${this._E}(
+      void ${this.aF}(
         out ${this.Xs.getGlslStr(this.Zs)} outValue) {
-        outValue = ${this.$E};
+        outValue = ${this.bF};
       }
       `;
   }
@@ -113,16 +113,16 @@ var ConstantVariableShader = class extends StandardShaderPart {
   getPixelShaderDefinitions(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-      fn ${this._E}(
+      fn ${this.aF}(
         outValue: ptr<function, ${this.Xs.toWGSLType(this.Zs)}>) {
-        *outValue = ${this.$E};
+        *outValue = ${this.bF};
       }
       `;
     }
     return `
-      void ${this._E}(
+      void ${this.aF}(
         out ${this.Xs.getGlslStr(this.Zs)} outValue) {
-        outValue = ${this.$E};
+        outValue = ${this.bF};
       }
       `;
   }

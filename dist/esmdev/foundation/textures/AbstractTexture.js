@@ -15,21 +15,21 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
     super();
     this.dm = 0;
     this.Cy = 0;
-    this.qB = 0;
-    this.rB = 1;
-    this.sB = TextureFormat.RGBA8;
-    this.tB = PixelFormat.RGBA;
+    this.sB = 0;
+    this.tB = 1;
+    this.uB = TextureFormat.RGBA8;
+    this.vB = PixelFormat.RGBA;
     this.Cc = ComponentType.UnsignedByte;
-    this.mB = false;
-    this.jB = false;
-    this.lB = false;
     this.oB = false;
+    this.lB = false;
+    this.nB = false;
+    this.qB = false;
     this.lu = "untitled";
     this._textureResourceUid = -1;
     this._samplerResourceUid = -1;
     this._textureViewResourceUid = -1;
     this._textureViewAsRenderTargetResourceUid = -1;
-    this.kB = ++_AbstractTexture.nB;
+    this.mB = ++_AbstractTexture.pB;
     this.c = engine;
   }
   /**
@@ -38,7 +38,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns The unique texture UID
    */
   get textureUID() {
-    return this.kB;
+    return this.mB;
   }
   /**
    * Gets the width of the texture in pixels.
@@ -96,7 +96,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns True if the texture is ready, false otherwise
    */
   get isTextureReady() {
-    return this.lB;
+    return this.nB;
   }
   /**
    * Checks if the texture has started loading.
@@ -104,7 +104,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns True if loading has started, false otherwise
    */
   get startedToLoad() {
-    return this.oB;
+    return this.qB;
   }
   /**
    * Checks whether this texture is marked as a dummy (placeholder) texture.
@@ -112,7 +112,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns True if the texture is marked as dummy, false otherwise
    */
   get isDummyTexture() {
-    return this.jB;
+    return this.lB;
   }
   /**
    * Marks this texture as a dummy (placeholder) texture.
@@ -120,7 +120,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @param isDummy - Whether to mark the texture as dummy (default: true)
    */
   markAsDummyTexture(isDummy = true) {
-    this.jB = isDummy;
+    this.lB = isDummy;
   }
   /**
    * Gets the HTML image element associated with this texture.
@@ -128,7 +128,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns The HTML image element or undefined if not available
    */
   get htmlImageElement() {
-    return this.gB;
+    return this.iB;
   }
   /**
    * Gets or creates an HTML canvas element with the texture content.
@@ -139,13 +139,13 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
   get htmlCanvasElement() {
     const canvas = document.createElement("canvas");
     const ctx = canvas == null ? void 0 : canvas.getContext("2d");
-    this.hB = canvas;
-    if (Is.exist(ctx) && Is.exist(this.gB)) {
-      canvas.width = this.gB.width;
-      canvas.height = this.gB.height;
-      ctx.drawImage(this.gB, 0, 0, this.gB.width, this.gB.height);
+    this.jB = canvas;
+    if (Is.exist(ctx) && Is.exist(this.iB)) {
+      canvas.width = this.iB.width;
+      canvas.height = this.iB.height;
+      ctx.drawImage(this.iB, 0, 0, this.iB.width, this.iB.height);
     }
-    return this.hB;
+    return this.jB;
   }
   /**
    * Gets the URI/URL of the texture source.
@@ -153,7 +153,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns The texture URI or undefined if not set
    */
   get uri() {
-    return this.pB;
+    return this.rB;
   }
   /**
    * Sets the name of the texture.
@@ -182,10 +182,10 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns ImageData object containing the pixel data
    */
   getImageData(x, y, width, height) {
-    if (this.iB === void 0) {
+    if (this.kB === void 0) {
       this.createInternalCanvasContext();
     }
-    return this.iB.getImageData(x, y, width, height);
+    return this.kB.getImageData(x, y, width, height);
   }
   /**
    * Gets a single pixel value at the specified coordinates as a specific type.
@@ -232,7 +232,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
     for (let i = 0; i < numberOfComponents; i++) {
       data[i] = value.at(i);
     }
-    this.iB.putImageData(pixel, x, y);
+    this.kB.putImageData(pixel, x, y);
   }
   /**
    * Sets a specific channel value for a pixel at the given coordinates.
@@ -247,7 +247,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
     const pixel = this.getImageData(x, y, 1, 1);
     const data = pixel.data;
     data[channelIdx] = value;
-    this.iB.putImageData(pixel, x, y);
+    this.kB.putImageData(pixel, x, y);
   }
   /**
    * Checks if the texture contains transparent pixels.
@@ -255,7 +255,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns True if the texture has transparency, false otherwise
    */
   get isTransparent() {
-    return this.mB;
+    return this.oB;
   }
   /**
    * Creates an internal canvas context for pixel manipulation operations.
@@ -263,15 +263,15 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    */
   createInternalCanvasContext() {
     let canvas;
-    if (this.hB != null) {
-      canvas = this.hB;
+    if (this.jB != null) {
+      canvas = this.jB;
     } else {
       canvas = document.createElement("canvas");
       canvas.width = this.width;
       canvas.height = this.height;
     }
-    this.hB = canvas;
-    this.iB = canvas.getContext("2d");
+    this.jB = canvas;
+    this.kB = canvas.getContext("2d");
   }
   /**
    * Converts the texture data to a TextureDataFloat object with the specified number of channels.
@@ -302,7 +302,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    *          or undefined if the texture is not ready or reading fails
    */
   async getTexturePixelDataFromGPU() {
-    if (!this.lB || this._textureResourceUid < 0 || this.dm <= 0 || this.Cy <= 0) {
+    if (!this.nB || this._textureResourceUid < 0 || this.dm <= 0 || this.Cy <= 0) {
       return void 0;
     }
     try {
@@ -346,7 +346,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
   }
 };
 _AbstractTexture.InvalidTextureUid = -1;
-_AbstractTexture.nB = _AbstractTexture.InvalidTextureUid;
+_AbstractTexture.pB = _AbstractTexture.InvalidTextureUid;
 var AbstractTexture = _AbstractTexture;
 export {
   AbstractTexture

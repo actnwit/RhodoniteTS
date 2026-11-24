@@ -7,10 +7,10 @@ var TextureDataFloat = class _TextureDataFloat {
    * @param channels - The number of channels per pixel (e.g., 3 for RGB, 4 for RGBA)
    */
   constructor(width, height, channels) {
-    this.RB = channels;
+    this.TB = channels;
     this.dm = width;
     this.Cy = height;
-    this.SB = new Float32Array(width * height * channels);
+    this.UB = new Float32Array(width * height * channels);
   }
   /**
    * Resizes the texture data to new dimensions and channel count.
@@ -22,8 +22,8 @@ var TextureDataFloat = class _TextureDataFloat {
   resize(width, height, channels) {
     this.dm = width;
     this.Cy = height;
-    this.RB = channels;
-    this.SB = new Float32Array(_TextureDataFloat.transfer(this.SB.buffer, width * height * channels * 4));
+    this.TB = channels;
+    this.UB = new Float32Array(_TextureDataFloat.transfer(this.UB.buffer, width * height * channels * 4));
   }
   /**
    * Sets the value of a specific channel at the given pixel coordinates.
@@ -33,7 +33,7 @@ var TextureDataFloat = class _TextureDataFloat {
    * @param value - The floating-point value to set for the channel
    */
   setPixelAtChannel(x, y, channelIdx, value) {
-    this.SB[y * this.dm * this.RB + x * this.RB + channelIdx] = value;
+    this.UB[y * this.dm * this.TB + x * this.TB + channelIdx] = value;
   }
   /**
    * Gets the width of the texture in pixels.
@@ -54,7 +54,7 @@ var TextureDataFloat = class _TextureDataFloat {
    * @returns The raw texture data as Float32Array
    */
   get data() {
-    return this.SB;
+    return this.UB;
   }
   /**
    * Gets the value of a specific channel at the given pixel coordinates.
@@ -64,7 +64,7 @@ var TextureDataFloat = class _TextureDataFloat {
    * @returns The floating-point value of the specified channel
    */
   getPixel(x, y, channelIdx) {
-    return this.SB[y * this.dm * this.RB + x * this.RB + channelIdx];
+    return this.UB[y * this.dm * this.TB + x * this.TB + channelIdx];
   }
   /**
    * Gets pixel data as a color object (ColorRgb or ColorRgba) at the specified coordinates.
@@ -78,19 +78,19 @@ var TextureDataFloat = class _TextureDataFloat {
     if (channels === 3) {
       return new typeClass(
         new Float32Array([
-          this.SB[y * this.dm * this.RB + x * this.RB + 0],
-          this.SB[y * this.dm * this.RB + x * this.RB + 1],
-          this.SB[y * this.dm * this.RB + x * this.RB + 2]
+          this.UB[y * this.dm * this.TB + x * this.TB + 0],
+          this.UB[y * this.dm * this.TB + x * this.TB + 1],
+          this.UB[y * this.dm * this.TB + x * this.TB + 2]
         ])
       );
     }
     if (channels === 4) {
       return new typeClass(
         new Float32Array([
-          this.SB[y * this.dm * this.RB + x * this.RB + 0],
-          this.SB[y * this.dm * this.RB + x * this.RB + 1],
-          this.SB[y * this.dm * this.RB + x * this.RB + 2],
-          this.SB[y * this.dm * this.RB + x * this.RB + 3]
+          this.UB[y * this.dm * this.TB + x * this.TB + 0],
+          this.UB[y * this.dm * this.TB + x * this.TB + 1],
+          this.UB[y * this.dm * this.TB + x * this.TB + 2],
+          this.UB[y * this.dm * this.TB + x * this.TB + 3]
         ])
       );
     }
@@ -103,8 +103,8 @@ var TextureDataFloat = class _TextureDataFloat {
    */
   getPixelAsArray(x, y) {
     const array = [];
-    for (let i = 0; i < this.RB; i++) {
-      array.push(this.SB[y * this.dm * this.RB + x * this.RB + i]);
+    for (let i = 0; i < this.TB; i++) {
+      array.push(this.UB[y * this.dm * this.TB + x * this.TB + i]);
     }
     return array;
   }
@@ -118,8 +118,8 @@ var TextureDataFloat = class _TextureDataFloat {
   initialize(width, height, channels) {
     this.dm = width;
     this.Cy = height;
-    this.RB = channels;
-    this.SB = new Float32Array(width * height * channels);
+    this.TB = channels;
+    this.UB = new Float32Array(width * height * channels);
   }
   /**
    * Transfers data from a source ArrayBuffer to a new ArrayBuffer with the specified length.

@@ -10,7 +10,7 @@ var BlockBeginShader = class extends StandardShaderPart {
    */
   constructor(__functionName, __valueInputs, __valueOutputs) {
     super();
-    this._E = __functionName;
+    this.aF = __functionName;
     this.Vs = __valueInputs;
     this.Ws = __valueOutputs;
   }
@@ -22,7 +22,7 @@ var BlockBeginShader = class extends StandardShaderPart {
    * @returns The GLSL function definition string for vertex shader
    */
   getVertexShaderDefinitions(_engine) {
-    let funcStr = `void ${this._E}(
+    let funcStr = `void ${this.aF}(
 in bool context,
       `;
     for (let i = 0; i < this.Vs.length; i++) {

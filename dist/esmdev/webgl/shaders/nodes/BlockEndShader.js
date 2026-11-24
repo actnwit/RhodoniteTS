@@ -10,7 +10,7 @@ var BlockEndShader = class extends StandardShaderPart {
    */
   constructor(__functionName, __valueInputs, __valueOutputs) {
     super();
-    this._E = __functionName;
+    this.aF = __functionName;
     this.Vs = __valueInputs;
     this.Ws = __valueOutputs;
   }
@@ -21,7 +21,7 @@ var BlockEndShader = class extends StandardShaderPart {
    * @returns The GLSL function definition string for vertex shaders
    */
   getVertexShaderDefinitions(_engine) {
-    let funcStr = `void ${this._E}(`;
+    let funcStr = `void ${this.aF}(`;
     for (let i = 0; i < this.Vs.length; i++) {
       const input = this.Vs[i];
       const type = input.compositionType.getGlslStr(input.componentType);

@@ -9,10 +9,10 @@ var _OutDistanceShader = class _OutDistanceShader extends RaymarchingShaderPart 
    * instance so each terminal can carry its component's correction.
    */
   static getInstance() {
-    if (!this.aF) {
-      this.aF = new _OutDistanceShader();
+    if (!this.cF) {
+      this.cF = new _OutDistanceShader();
     }
-    return this.aF;
+    return this.cF;
   }
   /**
    * @param shaderFunctionName - Unique function name of the terminal node

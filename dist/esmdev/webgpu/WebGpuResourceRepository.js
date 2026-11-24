@@ -38,36 +38,36 @@ var RENDER_PASS_TARGET_KIND_CANVAS = 3;
 var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIResourceRepository {
   constructor() {
     super();
-    this.hH = /* @__PURE__ */ new Map();
-    this.oD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-    this.uI = "";
+    this.jH = /* @__PURE__ */ new Map();
+    this.qD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    this.wI = "";
     /** The buffers bound by `__bindGroupStorageBuffer`, used to detect when it must be recreated. */
-    this.TH = [];
-    this.UH = /* @__PURE__ */ new Map();
-    this.VH = /* @__PURE__ */ new Map();
-    this.JH = /* @__PURE__ */ new Map();
-    this.xI = /* @__PURE__ */ new Map();
-    /** Group 1 (textures), keyed by layout and bound texture views. */
+    this.VH = [];
     this.WH = /* @__PURE__ */ new Map();
-    /** Group 2 (samplers), keyed by layout and bound samplers. */
     this.XH = /* @__PURE__ */ new Map();
+    this.LH = /* @__PURE__ */ new Map();
+    this.zI = /* @__PURE__ */ new Map();
+    /** Group 1 (textures), keyed by layout and bound texture views. */
+    this.YH = /* @__PURE__ */ new Map();
+    /** Group 2 (samplers), keyed by layout and bound samplers. */
+    this.ZH = /* @__PURE__ */ new Map();
     /** Group 3 (draw parameters), keyed by the parameter values. The uniform buffers are immutable. */
-    this.yI = /* @__PURE__ */ new Map();
+    this.AI = /* @__PURE__ */ new Map();
     /**
      * Uniform buffers holding the draw parameters. Each buffer holds many entries at the uniform offset
      * alignment: the browser's GPU process and the driver track every distinct buffer referenced by a
      * frame, so one small buffer per entry costs much more than offsets into a few large buffers.
      */
-    this.YH = [];
-    this.ZH = 0;
+    this._H = [];
+    this.$H = 0;
     /** The arguments of the last setDrawParameters() call (without the deformed vertex offset). */
-    this.zI = [0, 0, 0, 0];
+    this.BI = [0, 0, 0, 0];
     /** Views created for dummy textures when a texture has no view yet, by texture and dimension. */
-    this.BI = /* @__PURE__ */ new WeakMap();
+    this.DI = /* @__PURE__ */ new WeakMap();
     /** Identifiers of GPU objects used to build cache keys. */
-    this.CI = /* @__PURE__ */ new WeakMap();
-    this.cJ = 0;
-    this.BH = {
+    this.EI = /* @__PURE__ */ new WeakMap();
+    this.eJ = 0;
+    this.DH = {
       count: 0,
       slots: [],
       dimensions: [],
@@ -75,24 +75,24 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       views: [],
       samplers: []
     };
-    this.EI = [];
-    this.FI = [];
-    this.sH = /* @__PURE__ */ new Map();
-    this.KH = /* @__PURE__ */ new Map();
+    this.GI = [];
+    this.HI = [];
+    this.uH = /* @__PURE__ */ new Map();
+    this.MH = /* @__PURE__ */ new Map();
     /** Set when the GPU culling recreated its buffers: the render bundles binding them were dropped. */
-    this.dI = false;
-    this.EH = -1;
-    this.gI = RENDER_PASS_TARGET_KIND_NONE;
-    this.hI = [];
+    this.fI = false;
+    this.GH = -1;
+    this.iI = RENDER_PASS_TARGET_KIND_NONE;
+    this.jI = [];
     /** Scratch array swapped with `__renderPassEncoderTargetViews` to avoid per-pass allocations. */
-    this.LH = [];
+    this.NH = [];
     /** Render bundles waiting to be executed in the open render pass. See __executeRenderBundle(). */
-    this.KI = [];
+    this.MI = [];
     /**
      * The clear of a render pass that draws nothing, not encoded yet. See clearFrameBuffer().
      * The object is reused to keep the per-frame path free of allocations.
      */
-    this.tH = {
+    this.vH = {
       active: false,
       engine: void 0,
       renderPass: void 0,
@@ -104,17 +104,17 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       isDepthClear: false,
       clearDepth: 1
     };
-    this.jI = -1;
-    this.MI = -1;
-    this.NI = -1;
+    this.lI = -1;
     this.OI = -1;
     this.PI = -1;
     this.QI = -1;
-    this.GH = /* @__PURE__ */ new Map();
-    this.uH = /* @__PURE__ */ new Map();
-    this.vH = /* @__PURE__ */ new Map();
+    this.RI = -1;
+    this.SI = -1;
+    this.IH = /* @__PURE__ */ new Map();
+    this.wH = /* @__PURE__ */ new Map();
+    this.xH = /* @__PURE__ */ new Map();
   }
-  static pH(array) {
+  static rH(array) {
     if (!(array.buffer instanceof ArrayBuffer)) {
       throw new Error("SharedArrayBuffer is not supported in this code path.");
     }
@@ -124,13 +124,13 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * This method should be called when resources need to be recreated or when the rendering context changes.
    */
   clearCache() {
-    this.UH.clear();
-    this.VH.clear();
     this.WH.clear();
     this.XH.clear();
-    this.dH = void 0;
-    this.TH.length = 0;
-    this.lH();
+    this.YH.clear();
+    this.ZH.clear();
+    this.fH = void 0;
+    this.VH.length = 0;
+    this.nH();
   }
   /**
    * Adds a WebGPU device wrapper to the repository and initializes the command encoder.
@@ -139,9 +139,9 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @param webGpuDeviceWrapper - The WebGPU device wrapper containing the device and context
    */
   addWebGpuDeviceWrapper(webGpuDeviceWrapper) {
-    this.gH = webGpuDeviceWrapper;
-    this.GI = webGpuDeviceWrapper.gpuDevice.queue;
-    this.mH = this.gH.gpuDevice.createCommandEncoder();
+    this.iH = webGpuDeviceWrapper;
+    this.II = webGpuDeviceWrapper.gpuDevice.queue;
+    this.oH = this.iH.gpuDevice.createCommandEncoder();
   }
   /**
    * Returns the WebGPU device wrapper instance.
@@ -150,7 +150,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @throws Error if the device wrapper has not been initialized
    */
   getWebGpuDeviceWrapper() {
-    return this.gH;
+    return this.iH;
   }
   /**
    * Returns the singleton instance of WebGpuResourceRepository.
@@ -167,7 +167,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @returns A unique resource handle number
    */
   getResourceNumber() {
-    return ++this.oD;
+    return ++this.qD;
   }
   /**
    * Registers a WebGPU resource and assigns it a unique handle.
@@ -175,10 +175,10 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @param obj - The WebGPU resource to register
    * @returns The unique handle for the registered resource
    */
-  XC(obj) {
+  ZC(obj) {
     const handle = this.getResourceNumber();
     obj._resourceUid = handle;
-    this.hH.set(handle, obj);
+    this.jH.set(handle, obj);
     return handle;
   }
   /**
@@ -187,7 +187,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @returns A tuple containing [width, height] of the canvas
    */
   getCanvasSize() {
-    const canvas = this.gH.canvas;
+    const canvas = this.iH.canvas;
     return [canvas.width, canvas.height];
   }
   /**
@@ -212,7 +212,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     height,
     generateMipmap
   }) {
-    const textureHandle = await this.RI(width, height, internalFormat, generateMipmap, imageData);
+    const textureHandle = await this.TI(width, height, internalFormat, generateMipmap, imageData);
     return textureHandle;
   }
   /**
@@ -257,7 +257,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @param height - Height of the base texture level
    */
   generateMipmaps2d(textureHandle, width, height) {
-    const gpuTexture = this.hH.get(textureHandle);
+    const gpuTexture = this.jH.get(textureHandle);
     const textureDescriptor = {
       size: [width, height, 1],
       format: gpuTexture.format,
@@ -275,7 +275,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @param height - Height of the base texture level
    */
   generateMipmapsCube(textureHandle, width, height) {
-    const gpuTexture = this.hH.get(textureHandle);
+    const gpuTexture = this.jH.get(textureHandle);
     const textureDescriptor = {
       size: [width, height, 6],
       format: gpuTexture.format,
@@ -296,9 +296,9 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @returns Promise that resolves to the pixel data as Uint8Array
    */
   async getTexturePixelData(textureHandle, width, height, _frameBufferUid, _colorAttachmentIndex) {
-    const gpuTexture = this.hH.get(textureHandle);
+    const gpuTexture = this.jH.get(textureHandle);
     const textureData = new Uint8Array(width * height * 4);
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuDevice = this.iH.gpuDevice;
     const commandEncoder = gpuDevice.createCommandEncoder();
     const buffer = gpuDevice.createBuffer({
       size: width * height * 4,
@@ -337,11 +337,11 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @returns Promise resolving to the pixel data as a Uint8Array in RGBA format
    */
   async getPixelDataFromTextureAsync(textureHandle, _x, _y, width, height) {
-    const gpuTexture = this.hH.get(textureHandle);
+    const gpuTexture = this.jH.get(textureHandle);
     if (!gpuTexture) {
       return new Uint8Array(0);
     }
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuDevice = this.iH.gpuDevice;
     const shaderModule = gpuDevice.createShaderModule({
       code: (
         /* wgsl */
@@ -457,8 +457,8 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @returns Promise resolving to the pixel data as a Uint8Array (RGBA format)
    */
   async getCubeTexturePixelData(textureHandle, width, height, faceIndex) {
-    const gpuTexture = this.hH.get(textureHandle);
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuTexture = this.jH.get(textureHandle);
+    const gpuDevice = this.iH.gpuDevice;
     const textureFormat = gpuTexture.format;
     const isHdrFormat = textureFormat.includes("float") || textureFormat === "rgb10a2unorm";
     const shaderModule = gpuDevice.createShaderModule({
@@ -615,9 +615,9 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @param textureDescriptor - Descriptor containing texture format and dimensions
    */
   generateMipmaps(texture, textureDescriptor) {
-    const gpuDevice = this.gH.gpuDevice;
-    if (this.NH == null) {
-      this.NH = gpuDevice.createShaderModule({
+    const gpuDevice = this.iH.gpuDevice;
+    if (this.PH == null) {
+      this.PH = gpuDevice.createShaderModule({
         code: (
           /* wgsl */
           `
@@ -649,11 +649,11 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         )
       });
     }
-    if (this.FH != null && textureDescriptor.format !== this.LI) {
-      this.FH = void 0;
+    if (this.HH != null && textureDescriptor.format !== this.NI) {
+      this.HH = void 0;
     }
-    if (this.FH == null) {
-      this.lI = gpuDevice.createBindGroupLayout({
+    if (this.HH == null) {
+      this.nI = gpuDevice.createBindGroupLayout({
         entries: [
           {
             binding: 0,
@@ -672,16 +672,16 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         ]
       });
       const pipelineLayout = gpuDevice.createPipelineLayout({
-        bindGroupLayouts: [this.lI]
+        bindGroupLayouts: [this.nI]
       });
-      this.FH = gpuDevice.createRenderPipeline({
+      this.HH = gpuDevice.createRenderPipeline({
         layout: pipelineLayout,
         vertex: {
-          module: this.NH,
+          module: this.PH,
           entryPoint: "vertexMain"
         },
         fragment: {
-          module: this.NH,
+          module: this.PH,
           entryPoint: "fragmentMain",
           targets: [
             {
@@ -694,16 +694,16 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
           stripIndexFormat: "uint32"
         }
       });
-      this.LI = textureDescriptor.format;
+      this.NI = textureDescriptor.format;
     }
-    if (this.kI == null) {
-      this.kI = gpuDevice.createSampler({ minFilter: "linear" });
+    if (this.mI == null) {
+      this.mI = gpuDevice.createSampler({ minFilter: "linear" });
     }
-    this.zH();
+    this.BH();
     const isCubemap = texture.dimension === "2d" && texture.depthOrArrayLayers === 6;
     const layerCount = isCubemap ? 6 : 1;
     for (let layer = 0; layer < layerCount; ++layer) {
-      const srcTextureViewsMap = this.GH.get(texture);
+      const srcTextureViewsMap = this.IH.get(texture);
       if (srcTextureViewsMap == null || srcTextureViewsMap[layer] == null) {
         const srcView2 = texture.createView({
           dimension: "2d",
@@ -713,13 +713,13 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
           arrayLayerCount: 1
         });
         if (srcTextureViewsMap == null) {
-          this.GH.set(texture, []);
+          this.IH.set(texture, []);
         }
-        this.GH.get(texture)[layer] = srcView2;
+        this.IH.get(texture)[layer] = srcView2;
       }
-      let srcView = this.GH.get(texture)[layer];
+      let srcView = this.IH.get(texture)[layer];
       for (let i = 1; i < textureDescriptor.mipLevelCount; ++i) {
-        const dstTextureViewsMap = this.uH.get(texture);
+        const dstTextureViewsMap = this.wH.get(texture);
         if (dstTextureViewsMap == null || dstTextureViewsMap[layer] == null || dstTextureViewsMap[layer][i] == null) {
           const dstView2 = texture.createView({
             dimension: "2d",
@@ -729,15 +729,15 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
             arrayLayerCount: 1
           });
           if (dstTextureViewsMap == null) {
-            this.uH.set(texture, []);
+            this.wH.set(texture, []);
           }
-          if (this.uH.get(texture)[layer] == null) {
-            this.uH.get(texture)[layer] = [];
+          if (this.wH.get(texture)[layer] == null) {
+            this.wH.get(texture)[layer] = [];
           }
-          this.uH.get(texture)[layer][i] = dstView2;
+          this.wH.get(texture)[layer][i] = dstView2;
         }
-        const dstView = this.uH.get(texture)[layer][i];
-        const passEncoder = this.mH.beginRenderPass({
+        const dstView = this.wH.get(texture)[layer][i];
+        const passEncoder = this.oH.beginRenderPass({
           colorAttachments: [
             {
               view: dstView,
@@ -746,14 +746,14 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
             }
           ]
         });
-        const bindGroupsMap = this.vH.get(texture);
+        const bindGroupsMap = this.xH.get(texture);
         if (bindGroupsMap == null || bindGroupsMap[layer] == null || bindGroupsMap[layer][i] == null) {
           const bindGroup2 = gpuDevice.createBindGroup({
-            layout: this.lI,
+            layout: this.nI,
             entries: [
               {
                 binding: 0,
-                resource: this.kI
+                resource: this.mI
               },
               {
                 binding: 1,
@@ -762,15 +762,15 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
             ]
           });
           if (bindGroupsMap == null) {
-            this.vH.set(texture, []);
+            this.xH.set(texture, []);
           }
-          if (this.vH.get(texture)[layer] == null) {
-            this.vH.get(texture)[layer] = [];
+          if (this.xH.get(texture)[layer] == null) {
+            this.xH.get(texture)[layer] = [];
           }
-          this.vH.get(texture)[layer][i] = bindGroup2;
+          this.xH.get(texture)[layer][i] = bindGroup2;
         }
-        const bindGroup = this.vH.get(texture)[layer][i];
-        passEncoder.setPipeline(this.FH);
+        const bindGroup = this.xH.get(texture)[layer][i];
+        passEncoder.setPipeline(this.HH);
         passEncoder.setBindGroup(0, bindGroup);
         passEncoder.draw(4);
         passEncoder.end();
@@ -799,7 +799,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     wrapR,
     anisotropy
   }) {
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuDevice = this.iH.gpuDevice;
     const maxAnisotropy = anisotropy ? 4 : 1;
     const desc = {
       magFilter: magFilter.webgpu,
@@ -816,7 +816,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       desc.maxAnisotropy = 1;
     }
     const sampler = gpuDevice.createSampler(desc);
-    const samplerHandle = this.XC(sampler);
+    const samplerHandle = this.ZC(sampler);
     return samplerHandle;
   }
   /**
@@ -827,7 +827,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @returns Handle to the created vertex buffer
    */
   createVertexBuffer(accessor) {
-    return this.mI(accessor.getUint8Array());
+    return this.oI(accessor.getUint8Array());
   }
   /**
    * Creates a WebGPU vertex buffer from a typed array.
@@ -837,7 +837,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @returns Handle to the created vertex buffer resource
    */
   createVertexBufferFromTypedArray(typedArray) {
-    return this.mI(
+    return this.oI(
       new Uint8Array(typedArray.buffer, typedArray.byteOffset, typedArray.byteLength)
     );
   }
@@ -849,7 +849,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @param accessor - Accessor of the vertex attribute
    * @returns The vertex format to declare in the pipeline layout
    */
-  static SI(accessor) {
+  static UI(accessor) {
     const componentType = accessor.componentType;
     const compositionType = accessor.compositionType;
     if (accessor.normalized) {
@@ -864,7 +864,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         prefix = "snorm16";
       }
       const normalizedFormat = prefix + compositionType.webgpu;
-      if (prefix !== "" && _WebGpuResourceRepository.dJ.has(normalizedFormat)) {
+      if (prefix !== "" && _WebGpuResourceRepository.fJ.has(normalizedFormat)) {
         return normalizedFormat;
       }
     }
@@ -879,13 +879,13 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @returns Handle to the created index buffer resource
    */
   createIndexBuffer(accessor) {
-    return this.mI(_WebGpuResourceRepository.TI(accessor));
+    return this.oI(_WebGpuResourceRepository.VI(accessor));
   }
   /**
    * Returns the index data of an accessor in a format WebGPU accepts.
    * WebGPU does not support 8-bit indices, so they are widened to 16 bits.
    */
-  static TI(accessor) {
+  static VI(accessor) {
     if (accessor.componentType !== ComponentType.UnsignedByte) {
       return accessor.getUint8Array();
     }
@@ -896,22 +896,22 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     }
     return new Uint8Array(uint16Array.buffer);
   }
-  eJ() {
-    if (this.xH == null) {
-      this.xH = new WebGpuBufferArena(
-        this.gH.gpuDevice,
+  gJ() {
+    if (this.zH == null) {
+      this.zH = new WebGpuBufferArena(
+        this.iH.gpuDevice,
         GPUBufferUsage.VERTEX | GPUBufferUsage.INDEX
       );
     }
-    return this.xH;
+    return this.zH;
   }
   /**
    * Uploads vertex or index data into the shared vertex buffer arena and returns a handle to the range.
    */
-  mI(data) {
-    const range = this.eJ().allocate(data);
+  oI(data) {
+    const range = this.gJ().allocate(data);
     const handle = this.getResourceNumber();
-    this.sH.set(handle, range);
+    this.uH.set(handle, range);
     return handle;
   }
   /**
@@ -919,16 +919,16 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @internal
    */
   _getVertexBufferRange(resourceHandle) {
-    return this.sH.get(resourceHandle);
+    return this.uH.get(resourceHandle);
   }
-  nI(resourceHandle) {
-    const range = this.sH.get(resourceHandle);
+  pI(resourceHandle) {
+    const range = this.uH.get(resourceHandle);
     if (range == null) {
       return false;
     }
-    this.xH.release(range);
-    this.sH.delete(resourceHandle);
-    this.lH();
+    this.zH.release(range);
+    this.uH.delete(resourceHandle);
+    this.nH();
     return true;
   }
   /**
@@ -940,11 +940,11 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @throws Error if the vertex buffer is not found
    */
   updateVertexBuffer(accessor, resourceHandle) {
-    const range = this.sH.get(resourceHandle);
+    const range = this.uH.get(resourceHandle);
     if (Is.not.exist(range)) {
       throw new Error("Not found VBO.");
     }
-    this.xH.write(range, accessor.getUint8Array());
+    this.zH.write(range, accessor.getUint8Array());
   }
   /**
    * Updates the data in an existing index buffer with new data from an accessor.
@@ -955,11 +955,11 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @throws Error if the index buffer is not found
    */
   updateIndexBuffer(accessor, resourceHandle) {
-    const range = this.sH.get(resourceHandle);
+    const range = this.uH.get(resourceHandle);
     if (Is.not.exist(range)) {
       throw new Error("Not found IBO.");
     }
-    this.xH.write(range, _WebGpuResourceRepository.TI(accessor));
+    this.zH.write(range, _WebGpuResourceRepository.VI(accessor));
   }
   /**
    * Deletes a vertex buffer and releases its range of the vertex buffer arena.
@@ -968,7 +968,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @throws Error if the vertex buffer is not found
    */
   deleteVertexBuffer(resourceHandle) {
-    if (!this.nI(resourceHandle)) {
+    if (!this.pI(resourceHandle)) {
       throw new Error("Not found VBO.");
     }
   }
@@ -1028,10 +1028,10 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    */
   deleteVertexDataResources(vertexHandles) {
     if (Is.exist(vertexHandles.iboHandle)) {
-      this.nI(vertexHandles.iboHandle);
+      this.pI(vertexHandles.iboHandle);
     }
     for (const vboHandle of vertexHandles.vboHandles) {
-      this.nI(vboHandle);
+      this.pI(vboHandle);
     }
   }
   /**
@@ -1049,7 +1049,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     const attributes = [];
     for (let i = 0; i < vboHandles.length; i++) {
       const shaderLocation = VertexAttribute.toAttributeSlotFromJoinedString(primitive.attributeSemantics[i]);
-      const gpuVertexFormat = _WebGpuResourceRepository.SI(primitive.attributeAccessors[i]);
+      const gpuVertexFormat = _WebGpuResourceRepository.UI(primitive.attributeAccessors[i]);
       attributes.push({
         shaderLocation,
         offset: primitive.attributeAccessors[i].byteOffsetInBufferView,
@@ -1083,7 +1083,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @param info - WebGPU compilation info containing messages and errors
    * @returns True if compilation was successful, false otherwise
    */
-  lD(engine, materialTypeName, shaderText, info) {
+  nD(engine, materialTypeName, shaderText, info) {
     engine.logger.info(`MaterialTypeName: ${materialTypeName}`);
     const lineNumberedShaderText = MiscUtil.addLineNumberToCode(shaderText);
     engine.logger.info(lineNumberedShaderText);
@@ -1112,7 +1112,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     vertexShaderStr,
     fragmentShaderStr
   }) {
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuDevice = this.iH.gpuDevice;
     const vsModule = gpuDevice.createShaderModule({
       code: vertexShaderStr,
       label: `${material.materialTypeName} vertex shader`
@@ -1120,7 +1120,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     if (config.cgApiDebugConsoleOutput) {
       vsModule.getCompilationInfo().then((info) => {
         if (info.messages.length > 0) {
-          this.lD(engine, material.materialTypeName, vertexShaderStr, info);
+          this.nD(engine, material.materialTypeName, vertexShaderStr, info);
         }
       });
     }
@@ -1131,7 +1131,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     if (config.cgApiDebugConsoleOutput) {
       fsModule.getCompilationInfo().then((info) => {
         if (info.messages.length > 0) {
-          this.lD(engine, material.materialTypeName, fragmentShaderStr, info);
+          this.nD(engine, material.materialTypeName, fragmentShaderStr, info);
         }
       });
     }
@@ -1139,7 +1139,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       vsModule,
       fsModule
     };
-    const modulesHandle = this.XC(modules);
+    const modulesHandle = this.ZC(modules);
     return modulesHandle;
   }
   /**
@@ -1159,12 +1159,12 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     const webXRSystem = engine._webXRSystemIfEnabled;
     const isXrTarget = renderPass.getFramebuffer() == null && (webXRSystem == null ? void 0 : webXRSystem.isWebXRMode) && renderPass.isOutputForVr;
     if (renderPass.getResolveFramebuffer() == null && !isXrTarget) {
-      const targetViews = this.LH;
-      const targetKind = this.UI(engine, renderPass, targetViews);
-      const pendingClear = this.tH;
+      const targetViews = this.NH;
+      const targetKind = this.WI(engine, renderPass, targetViews);
+      const pendingClear = this.vH;
       if (pendingClear.active) {
-        if (targetKind !== pendingClear.targetKind || !_WebGpuResourceRepository.oI(targetViews, pendingClear.targetViews)) {
-          this.pI();
+        if (targetKind !== pendingClear.targetKind || !_WebGpuResourceRepository.qI(targetViews, pendingClear.targetViews)) {
+          this.rI();
         }
       }
       if (!pendingClear.active) {
@@ -1173,7 +1173,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         pendingClear.renderPass = renderPass;
         pendingClear.displayIdx = displayIdx;
         pendingClear.targetKind = targetKind;
-        this.LH = pendingClear.targetViews;
+        this.NH = pendingClear.targetViews;
         pendingClear.targetViews = targetViews;
       }
       if (renderPass.toClearColorBuffer) {
@@ -1190,7 +1190,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       }
       return;
     }
-    this.zH();
+    this.BH();
     const colorAttachments = [];
     let depthStencilAttachment;
     const webxrSystem = engine._webXRSystemIfEnabled;
@@ -1198,7 +1198,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       const framebuffer = renderPass.getFramebuffer();
       if (framebuffer != null) {
         for (let colorAttachment of framebuffer.colorAttachments) {
-          const textureView = this.hH.get(
+          const textureView = this.jH.get(
             colorAttachment._textureViewAsRenderTargetResourceUid
           );
           colorAttachments.push({
@@ -1232,7 +1232,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         });
       } else {
         colorAttachments.push({
-          view: this.PH(),
+          view: this.RH(),
           clearValue: {
             r: renderPass.clearColor.x,
             g: renderPass.clearColor.y,
@@ -1247,7 +1247,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     if (renderPass.toClearDepthBuffer) {
       const framebuffer = renderPass.getFramebuffer();
       if (framebuffer != null && framebuffer.depthAttachment != null) {
-        const depthTextureView = this.hH.get(
+        const depthTextureView = this.jH.get(
           framebuffer.depthAttachment._textureViewAsRenderTargetResourceUid
         );
         depthStencilAttachment = {
@@ -1270,7 +1270,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         };
       } else {
         depthStencilAttachment = {
-          view: this.rH,
+          view: this.tH,
           depthClearValue: renderPass.clearDepth,
           depthLoadOp: "clear",
           depthStoreOp: "store"
@@ -1282,7 +1282,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       depthStencilAttachment,
       label: renderPass.uniqueName
     };
-    const passEncoder = this.HH(renderPassDescriptor);
+    const passEncoder = this.JH(renderPassDescriptor);
     passEncoder.end();
   }
   /**
@@ -1341,7 +1341,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       }
     }
     const renderPipelineId = `${primitive._getFingerPrint()} ${material._getFingerPrint()} ${material.Ir} ${renderPass.renderPassUID} ${meshRendererComponentFingerPrint} ${zWrite} `;
-    const bindGroups = this.fJ(engine, material, diffuseCubeMap, specularCubeMap, sheenCubeMap);
+    const bindGroups = this.hJ(engine, material, diffuseCubeMap, specularCubeMap, sheenCubeMap);
     const [pipeline, _recreated] = this.getOrCreateRenderPipeline(
       renderPipelineId,
       bindGroups.pipelineLayoutKey,
@@ -1352,15 +1352,15 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       zWrite,
       options
     );
-    const renderBundleEncoder = this.kH;
-    const boundBindGroups = this.EI;
+    const renderBundleEncoder = this.mH;
+    const boundBindGroups = this.GI;
     if (boundBindGroups[0] !== bindGroups.storage) {
       renderBundleEncoder.setBindGroup(0, bindGroups.storage);
       boundBindGroups[0] = bindGroups.storage;
     }
-    if (this.aI !== pipeline) {
+    if (this.cI !== pipeline) {
       renderBundleEncoder.setPipeline(pipeline);
-      this.aI = pipeline;
+      this.cI = pipeline;
     }
     if (boundBindGroups[1] !== bindGroups.texture) {
       renderBundleEncoder.setBindGroup(1, bindGroups.texture);
@@ -1370,11 +1370,11 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       renderBundleEncoder.setBindGroup(2, bindGroups.sampler);
       boundBindGroups[2] = bindGroups.sampler;
     }
-    const culledDraw = isBufferLessRendering ? void 0 : this.gJ(engine, primitive, primitive.mesh, renderPass, cameraId);
+    const culledDraw = isBufferLessRendering ? void 0 : this.iJ(engine, primitive, primitive.mesh, renderPass, cameraId);
     if ((culledDraw == null ? void 0 : culledDraw.deformedVertexOffset) !== void 0) {
-      this.hJ(culledDraw.deformedVertexOffset);
+      this.jJ(culledDraw.deformedVertexOffset);
     }
-    const drawParametersBindGroup = this.AI;
+    const drawParametersBindGroup = this.CI;
     if (boundBindGroups[3] !== drawParametersBindGroup) {
       renderBundleEncoder.setBindGroup(3, drawParametersBindGroup);
       boundBindGroups[3] = drawParametersBindGroup;
@@ -1383,8 +1383,8 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       renderBundleEncoder.draw(renderPass._drawVertexNumberForBufferLessRendering);
     } else {
       const mesh = primitive.mesh;
-      const vertexBufferRanges = this.sH;
-      const boundVertexBuffers = this.FI;
+      const vertexBufferRanges = this.uH;
+      const boundVertexBuffers = this.HI;
       const instanceBuffer = (_a = culledDraw == null ? void 0 : culledDraw.instanceVertexBuffer) != null ? _a : vertexBufferRanges.get(mesh._variationVBOUid);
       if (boundVertexBuffers[0] !== instanceBuffer) {
         renderBundleEncoder.setVertexBuffer(0, instanceBuffer.buffer, instanceBuffer.offset, instanceBuffer.size);
@@ -1401,15 +1401,15 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       if (primitive.hasIndices()) {
         const indicesBuffer = vertexBufferRanges.get(VertexHandles.iboHandle);
         const indexBitSize = primitive.getIndexBitSize();
-        if (this.bI !== indicesBuffer || this.cI !== indexBitSize) {
+        if (this.dI !== indicesBuffer || this.eI !== indexBitSize) {
           renderBundleEncoder.setIndexBuffer(
             indicesBuffer.buffer,
             indexBitSize,
             indicesBuffer.offset,
             indicesBuffer.size
           );
-          this.bI = indicesBuffer;
-          this.cI = indexBitSize;
+          this.dI = indicesBuffer;
+          this.eI = indexBitSize;
         }
         if (culledDraw != null) {
           renderBundleEncoder.drawIndexedIndirect(culledDraw.indirectBuffer, culledDraw.indirectOffset);
@@ -1433,8 +1433,8 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @returns The indirect draw, or undefined to draw every instance directly (GPU culling disabled, not applicable,
    *   or its tables are full for this frame)
    */
-  gJ(engine, primitive, mesh, renderPass, cameraId) {
-    const gpuCulling = this.jH;
+  iJ(engine, primitive, mesh, renderPass, cameraId) {
+    const gpuCulling = this.lH;
     if (gpuCulling == null || !gpuCulling.isRecording || !mesh._isGpuCullable || !MeshRendererComponent._isGpuCullingActive(engine, renderPass)) {
       return void 0;
     }
@@ -1448,26 +1448,26 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    */
   _markGpuCullingInputsDirty() {
     var _a;
-    (_a = this.jH) == null ? void 0 : _a.markInputsDirty();
+    (_a = this.lH) == null ? void 0 : _a.markInputsDirty();
   }
   /**
    * The GPU culling of the instances, if it was created (for tests and statistics).
    * @internal
    */
   _getGpuCulling() {
-    return this.jH;
+    return this.lH;
   }
   /**
    * Releases the GPU culling resources. The render bundles recording culled draws are dropped with them.
    * @internal
    */
   _destroyGpuCulling() {
-    if (this.jH == null) {
+    if (this.lH == null) {
       return;
     }
-    this.lH();
-    this.jH.destroy();
-    this.jH = void 0;
+    this.nH();
+    this.lH.destroy();
+    this.lH = void 0;
   }
   /**
    * Creates a render bundle encoder for efficient rendering.
@@ -1475,7 +1475,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    *
    * @param renderPass - The render pass that will use this render bundle encoder
    */
-  iJ(engine, renderPass, displayIdx) {
+  kJ(engine, renderPass, displayIdx) {
     const framebuffer = renderPass.getFramebuffer();
     const resolveFramebuffer = renderPass.getResolveFramebuffer();
     let colorFormats = [];
@@ -1491,7 +1491,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         if (textureResourceUid == null || textureResourceUid < 0) {
           continue;
         }
-        const texture = this.hH.get(textureResourceUid);
+        const texture = this.jH.get(textureResourceUid);
         if (texture != null) {
           colorFormats.push(texture.format);
         }
@@ -1506,7 +1506,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       if (framebuffer.depthAttachment != null) {
         const depthTextureUid = framebuffer.depthAttachment._textureResourceUid;
         if (depthTextureUid != null && depthTextureUid >= 0) {
-          const depthTexture = this.hH.get(depthTextureUid);
+          const depthTexture = this.jH.get(depthTextureUid);
           depthStencilFormat = depthTexture == null ? void 0 : depthTexture.format;
         } else {
           depthStencilFormat = void 0;
@@ -1524,7 +1524,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       depthStencilFormat = subImage.depthStencilTexture.format;
     } else {
       colorFormats = [navigator.gpu.getPreferredCanvasFormat()];
-      depthStencilFormat = this.yH != null ? this.yH.format : DEFAULT_DEPTH_FORMAT;
+      depthStencilFormat = this.AH != null ? this.AH.format : DEFAULT_DEPTH_FORMAT;
     }
     if (colorFormats.length === 0) {
       colorFormats = [navigator.gpu.getPreferredCanvasFormat()];
@@ -1550,11 +1550,11 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     let colorFormat;
     if (resolveFramebuffer != null && resolveFramebuffer.colorAttachments.length > 0) {
       const textureResourceUid = resolveFramebuffer.colorAttachments[0]._textureResourceUid;
-      const texture = textureResourceUid != null ? this.hH.get(textureResourceUid) : void 0;
+      const texture = textureResourceUid != null ? this.jH.get(textureResourceUid) : void 0;
       colorFormat = texture == null ? void 0 : texture.format;
     } else if (framebuffer != null && framebuffer.colorAttachments.length > 0) {
       const textureResourceUid = framebuffer.colorAttachments[0]._textureResourceUid;
-      const texture = textureResourceUid != null ? this.hH.get(textureResourceUid) : void 0;
+      const texture = textureResourceUid != null ? this.jH.get(textureResourceUid) : void 0;
       colorFormat = texture == null ? void 0 : texture.format;
     } else if (((_a = engine._webXRSystemIfEnabled) == null ? void 0 : _a.isWebXRMode) && renderPass.isOutputForVr) {
       const view = engine.engineState.xrPoseWebGPU.views[displayIdx];
@@ -1573,9 +1573,9 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     return options;
   }
   getOrCreateRenderPassEncoderForEffekseerExternalRendering(engine, renderPass, displayIdx) {
-    this.zH();
-    if (this.kH != null) {
-      this.AH();
+    this.BH();
+    if (this.mH != null) {
+      this.CH();
     }
     const framebuffer = renderPass.getFramebuffer();
     const resolveFramebuffer = renderPass.getResolveFramebuffer();
@@ -1583,7 +1583,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     const colorAttachments = [];
     if (resolveFramebuffer != null) {
       for (const colorAttachment of resolveFramebuffer.colorAttachments) {
-        const textureView = this.hH.get(
+        const textureView = this.jH.get(
           colorAttachment._textureViewAsRenderTargetResourceUid
         );
         colorAttachments.push({
@@ -1594,7 +1594,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       }
     } else if (framebuffer != null) {
       for (const colorAttachment of framebuffer.colorAttachments) {
-        const textureView = this.hH.get(
+        const textureView = this.jH.get(
           colorAttachment._textureViewAsRenderTargetResourceUid
         );
         colorAttachments.push({
@@ -1616,7 +1616,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       });
     } else {
       colorAttachments.push({
-        view: this.PH(),
+        view: this.RH(),
         loadOp: "load",
         storeOp: "store"
       });
@@ -1628,42 +1628,42 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       colorAttachments,
       label: `${renderPass.uniqueName}_EffekseerExternal`
     };
-    this.VI(renderPassDescriptor);
-    this.iH = this.mH.beginRenderPass(renderPassDescriptor);
-    return this.iH;
+    this.XI(renderPassDescriptor);
+    this.kH = this.oH.beginRenderPass(renderPassDescriptor);
+    return this.kH;
   }
   createRenderBundleEncoder(engine, renderPass, displayIdx) {
     var _a, _b, _c, _d;
-    const gpuDevice = this.gH.gpuDevice;
-    const renderBundleDescriptor = this.iJ(engine, renderPass, displayIdx);
+    const gpuDevice = this.iH.gpuDevice;
+    const renderBundleDescriptor = this.kJ(engine, renderPass, displayIdx);
     const descriptorKey = JSON.stringify({
       colorFormats: renderBundleDescriptor.colorFormats,
       depthStencilFormat: (_a = renderBundleDescriptor.depthStencilFormat) != null ? _a : null,
       sampleCount: renderBundleDescriptor.sampleCount
     });
-    this.iI = renderPass;
-    this.jI = displayIdx;
-    if (this.kH != null && this.fI === descriptorKey) {
+    this.kI = renderPass;
+    this.lI = displayIdx;
+    if (this.mH != null && this.hI === descriptorKey) {
       return;
     }
-    this.kH = gpuDevice.createRenderBundleEncoder(renderBundleDescriptor);
-    this.fI = descriptorKey;
-    this.WI();
+    this.mH = gpuDevice.createRenderBundleEncoder(renderBundleDescriptor);
+    this.hI = descriptorKey;
+    this.YI();
     if (engine.config.isGpuCullingEnabled) {
-      (_c = this[_b = "jH"]) != null ? _c : this[_b] = new WebGpuGpuCulling(gpuDevice);
+      (_c = this[_b = "lH"]) != null ? _c : this[_b] = new WebGpuGpuCulling(gpuDevice);
     }
-    (_d = this.jH) == null ? void 0 : _d.beginRecording();
+    (_d = this.lH) == null ? void 0 : _d.beginRecording();
   }
   /**
    * Forgets the state recorded into the render bundle encoder. A new encoder starts without any
    * pipeline, bind group or buffer set.
    */
-  WI() {
-    this.aI = void 0;
-    this.EI.length = 0;
-    this.FI.length = 0;
-    this.bI = void 0;
+  YI() {
     this.cI = void 0;
+    this.GI.length = 0;
+    this.HI.length = 0;
+    this.dI = void 0;
+    this.eI = void 0;
   }
   /**
    * Creates a render pass encoder for immediate rendering commands.
@@ -1674,38 +1674,38 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @param displayIdx - The display index for stereo rendering (0 for left eye, 1 for right eye)
    */
   createRenderPassEncoder(engine, renderPass, displayIdx) {
-    if (this.iH != null && this.DH === renderPass && this.EH === displayIdx && !this.tH.active) {
+    if (this.kH != null && this.FH === renderPass && this.GH === displayIdx && !this.vH.active) {
       return;
     }
-    const targetViews = this.LH;
-    const targetKind = this.UI(engine, renderPass, targetViews);
+    const targetViews = this.NH;
+    const targetKind = this.WI(engine, renderPass, targetViews);
     let mergePendingClear = false;
-    const pendingClear = this.tH;
+    const pendingClear = this.vH;
     if (pendingClear.active) {
-      if (targetKind !== RENDER_PASS_TARGET_KIND_NONE && targetKind === pendingClear.targetKind && _WebGpuResourceRepository.oI(targetViews, pendingClear.targetViews)) {
+      if (targetKind !== RENDER_PASS_TARGET_KIND_NONE && targetKind === pendingClear.targetKind && _WebGpuResourceRepository.qI(targetViews, pendingClear.targetViews)) {
         mergePendingClear = true;
       } else {
-        this.pI();
+        this.rI();
       }
     }
-    if (this.iH != null) {
-      if (!mergePendingClear && targetKind !== RENDER_PASS_TARGET_KIND_NONE && targetKind === this.gI && !renderPass.toClearColorBuffer && !renderPass.toClearDepthBuffer && _WebGpuResourceRepository.oI(targetViews, this.hI)) {
-        this.DH = renderPass;
-        this.EH = displayIdx;
+    if (this.kH != null) {
+      if (!mergePendingClear && targetKind !== RENDER_PASS_TARGET_KIND_NONE && targetKind === this.iI && !renderPass.toClearColorBuffer && !renderPass.toClearDepthBuffer && _WebGpuResourceRepository.qI(targetViews, this.jI)) {
+        this.FH = renderPass;
+        this.GH = displayIdx;
         return;
       }
-      this.QH();
+      this.SH();
     }
-    this.XI(engine, renderPass, displayIdx, mergePendingClear);
+    this.ZI(engine, renderPass, displayIdx, mergePendingClear);
     if (mergePendingClear) {
-      this.qI();
+      this.sI();
     }
-    if (this.iH != null) {
-      this.DH = renderPass;
-      this.EH = displayIdx;
-      this.gI = targetKind;
-      this.LH = this.hI;
-      this.hI = targetViews;
+    if (this.kH != null) {
+      this.FH = renderPass;
+      this.GH = displayIdx;
+      this.iI = targetKind;
+      this.NH = this.jI;
+      this.jI = targetViews;
     }
   }
   /**
@@ -1714,12 +1714,12 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    *
    * @returns The kind of the target, or `RENDER_PASS_TARGET_KIND_NONE` if the render pass must not be merged.
    */
-  UI(engine, renderPass, out) {
+  WI(engine, renderPass, out) {
     var _a;
     out.length = 0;
     const framebuffer = renderPass.getFramebuffer();
     const resolveFramebuffer = renderPass.getResolveFramebuffer();
-    const webGpuResources = this.hH;
+    const webGpuResources = this.jH;
     if (resolveFramebuffer != null && framebuffer != null) {
       for (let i = 0; i < resolveFramebuffer.colorAttachments.length; i++) {
         const colorAttachment = framebuffer.colorAttachments[i];
@@ -1727,7 +1727,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         out.push(webGpuResources.get(colorAttachment._textureViewAsRenderTargetResourceUid));
         out.push(webGpuResources.get(resolveColorAttachment._textureViewAsRenderTargetResourceUid));
       }
-      let depthTextureView = this.rH;
+      let depthTextureView = this.tH;
       const depthAttachment = framebuffer.depthAttachment;
       if (depthAttachment != null && webGpuResources.get(depthAttachment._textureResourceUid) != null) {
         depthTextureView = webGpuResources.get(depthAttachment._textureViewResourceUid);
@@ -1750,8 +1750,8 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     if (((_a = engine._webXRSystemIfEnabled) == null ? void 0 : _a.isWebXRMode) && renderPass.isOutputForVr) {
       return RENDER_PASS_TARGET_KIND_NONE;
     }
-    out.push(this.PH());
-    out.push(this.rH);
+    out.push(this.RH());
+    out.push(this.tH);
     return RENDER_PASS_TARGET_KIND_CANVAS;
   }
   /**
@@ -1760,12 +1760,12 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * When the browser accepts a GPUTexture where a GPUTextureView is expected (the texture's default
    * view is used), the texture itself is returned. This saves a `createView()` call per frame.
    */
-  PH() {
-    let view = this.OH;
+  RH() {
+    let view = this.QH;
     if (view == null) {
-      const texture = this.gH.context.getCurrentTexture();
-      view = _WebGpuResourceRepository.jJ(this.gH.gpuDevice) ? texture : texture.createView();
-      this.OH = view;
+      const texture = this.iH.context.getCurrentTexture();
+      view = _WebGpuResourceRepository.lJ(this.iH.gpuDevice) ? texture : texture.createView();
+      this.QH = view;
     }
     return view;
   }
@@ -1773,8 +1773,8 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * Detects once whether a GPUTexture can be passed as a render pass attachment view.
    * Browsers that do not support it throw a TypeError while converting the descriptor.
    */
-  static jJ(gpuDevice) {
-    let supported = _WebGpuResourceRepository.YI;
+  static lJ(gpuDevice) {
+    let supported = _WebGpuResourceRepository._I;
     if (supported !== void 0) {
       return supported;
     }
@@ -1795,32 +1795,32 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     } finally {
       texture == null ? void 0 : texture.destroy();
     }
-    _WebGpuResourceRepository.YI = supported;
+    _WebGpuResourceRepository._I = supported;
     return supported;
   }
   /**
    * Begins a render pass on the frame's command encoder. A deferred clear of the system depth
    * texture (see flush()) is applied here to the first render pass that attaches it.
    */
-  HH(renderPassDescriptor) {
-    const deferredDepthClearValue = this.MH;
+  JH(renderPassDescriptor) {
+    const deferredDepthClearValue = this.OH;
     if (deferredDepthClearValue !== void 0) {
       const depthStencilAttachment = renderPassDescriptor.depthStencilAttachment;
-      if (depthStencilAttachment != null && depthStencilAttachment.view === this.rH) {
+      if (depthStencilAttachment != null && depthStencilAttachment.view === this.tH) {
         if (depthStencilAttachment.depthLoadOp === "load") {
           depthStencilAttachment.depthLoadOp = "clear";
           depthStencilAttachment.depthClearValue = deferredDepthClearValue;
         }
-        this.MH = void 0;
+        this.OH = void 0;
       }
     }
-    this.VI(renderPassDescriptor);
-    return this.mH.beginRenderPass(renderPassDescriptor);
+    this.XI(renderPassDescriptor);
+    return this.oH.beginRenderPass(renderPassDescriptor);
   }
   /** Lets the GPU timer measure the render pass while a frame is being measured. */
-  VI(renderPassDescriptor) {
+  XI(renderPassDescriptor) {
     var _a;
-    const gpuTimer = this.CH;
+    const gpuTimer = this.EH;
     if (gpuTimer == null || renderPassDescriptor.timestampWrites != null) {
       return;
     }
@@ -1834,29 +1834,29 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @internal Use Engine.gpuTimerEnabled and Engine.gpuTimeMilliseconds instead.
    */
   _getGpuTimer() {
-    if (this.CH == null) {
-      this.CH = new WebGpuGpuTimer(this.gH.gpuDevice);
+    if (this.EH == null) {
+      this.EH = new WebGpuGpuTimer(this.iH.gpuDevice);
     }
-    return this.CH;
+    return this.EH;
   }
   /**
    * Encodes the pending clear (see clearFrameBuffer) as a render pass of its own.
    * Anything recorded in the open render pass happened before the clear, so it is ended first.
    */
-  pI() {
+  rI() {
     var _a;
-    const pendingClear = this.tH;
+    const pendingClear = this.vH;
     if (!pendingClear.active) {
       return;
     }
-    this.QH();
-    this.XI(pendingClear.engine, pendingClear.renderPass, pendingClear.displayIdx, true, false);
-    this.qI();
-    (_a = this.iH) == null ? void 0 : _a.end();
-    this.iH = void 0;
+    this.SH();
+    this.ZI(pendingClear.engine, pendingClear.renderPass, pendingClear.displayIdx, true, false);
+    this.sI();
+    (_a = this.kH) == null ? void 0 : _a.end();
+    this.kH = void 0;
   }
-  qI() {
-    const pendingClear = this.tH;
+  sI() {
+    const pendingClear = this.vH;
     pendingClear.active = false;
     pendingClear.engine = void 0;
     pendingClear.renderPass = void 0;
@@ -1868,26 +1868,26 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * Ends the open render pass (if any) and encodes a pending clear, so that commands can be recorded
    * directly on the command encoder (copies, mipmap generation, external rendering, submission).
    */
-  zH() {
-    this.pI();
-    this.QH();
+  BH() {
+    this.rI();
+    this.SH();
   }
   /**
    * Executes a render bundle in the open render pass. Bundles are batched and executed with a
    * single executeBundles() call when the pass is ended or handed out for direct drawing.
    */
-  RH(renderBundle) {
-    this.KI.push(renderBundle);
+  TH(renderBundle) {
+    this.MI.push(renderBundle);
   }
-  IH() {
-    const pendingRenderBundles = this.KI;
-    if (pendingRenderBundles.length === 0 || this.iH == null) {
+  KH() {
+    const pendingRenderBundles = this.MI;
+    if (pendingRenderBundles.length === 0 || this.kH == null) {
       return;
     }
-    this.iH.executeBundles(pendingRenderBundles);
+    this.kH.executeBundles(pendingRenderBundles);
     pendingRenderBundles.length = 0;
   }
-  static oI(a, b) {
+  static qI(a, b) {
     if (a.length !== b.length) {
       return false;
     }
@@ -1905,38 +1905,38 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * same render pass. Otherwise it belongs to a render pass that is still being recorded (the open
    * encoder is just being kept for merging) and must stay pending.
    */
-  QH() {
-    const renderPassEncoder = this.iH;
+  SH() {
+    const renderPassEncoder = this.kH;
     if (renderPassEncoder == null) {
       return;
     }
-    this.IH();
-    if (this.kH != null && this.iI === this.DH && this.jI === this.EH) {
-      renderPassEncoder.executeBundles([this.kH.finish()]);
-      this.AH();
+    this.KH();
+    if (this.mH != null && this.kI === this.FH && this.lI === this.GH) {
+      renderPassEncoder.executeBundles([this.mH.finish()]);
+      this.CH();
     }
     renderPassEncoder.end();
-    this.iH = void 0;
-    this.DH = void 0;
-    this.EH = -1;
-    this.gI = RENDER_PASS_TARGET_KIND_NONE;
-  }
-  AH() {
-    var _a;
-    (_a = this.jH) == null ? void 0 : _a.abortRecording();
     this.kH = void 0;
-    this.WI();
-    this.fI = void 0;
-    this.iI = void 0;
-    this.jI = -1;
+    this.FH = void 0;
+    this.GH = -1;
+    this.iI = RENDER_PASS_TARGET_KIND_NONE;
+  }
+  CH() {
+    var _a;
+    (_a = this.lH) == null ? void 0 : _a.abortRecording();
+    this.mH = void 0;
+    this.YI();
+    this.hI = void 0;
+    this.kI = void 0;
+    this.lI = -1;
   }
   /**
    * Begins a new render pass encoder for the render pass. The caller must have ended any open encoder.
    */
-  XI(engine, renderPass, displayIdx, mergePendingClear, useOwnClears = true) {
+  ZI(engine, renderPass, displayIdx, mergePendingClear, useOwnClears = true) {
     const framebuffer = renderPass.getFramebuffer();
     const resolveFramebuffer = renderPass.getResolveFramebuffer();
-    const pendingClear = mergePendingClear ? this.tH : void 0;
+    const pendingClear = mergePendingClear ? this.vH : void 0;
     let clearValue;
     if (useOwnClears && renderPass.toClearColorBuffer) {
       clearValue = {
@@ -1959,11 +1959,11 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     const depthLoadOp = depthClearValue != null ? "clear" : "load";
     const webxrSystem = engine._webXRSystemIfEnabled;
     if (resolveFramebuffer != null && framebuffer != null) {
-      let depthTextureView = this.rH;
+      let depthTextureView = this.tH;
       if (framebuffer.depthAttachment != null) {
-        const depthTexture = this.hH.get(framebuffer.depthAttachment._textureResourceUid);
+        const depthTexture = this.jH.get(framebuffer.depthAttachment._textureResourceUid);
         if (depthTexture != null) {
-          depthTextureView = this.hH.get(
+          depthTextureView = this.jH.get(
             framebuffer.depthAttachment._textureViewResourceUid
           );
         }
@@ -1982,10 +1982,10 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       for (let i = 0; i < resolveFramebuffer.colorAttachments.length; i++) {
         const colorAttachment = framebuffer.colorAttachments[i];
         const resolveColorAttachment = resolveFramebuffer.colorAttachments[i];
-        const textureView = this.hH.get(
+        const textureView = this.jH.get(
           colorAttachment._textureViewAsRenderTargetResourceUid
         );
-        let resolveTextureView = this.hH.get(
+        let resolveTextureView = this.jH.get(
           resolveColorAttachment._textureViewAsRenderTargetResourceUid
         );
         colorAttachments.push({
@@ -1997,13 +1997,13 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         });
       }
       renderPassDescriptor.colorAttachments = colorAttachments;
-      this.iH = this.HH(renderPassDescriptor);
+      this.kH = this.JH(renderPassDescriptor);
     } else if (framebuffer != null) {
       let depthTextureView;
       if (framebuffer.depthAttachment != null) {
-        const depthTexture = this.hH.get(framebuffer.depthAttachment._textureResourceUid);
+        const depthTexture = this.jH.get(framebuffer.depthAttachment._textureResourceUid);
         if (depthTexture != null) {
-          depthTextureView = this.hH.get(
+          depthTextureView = this.jH.get(
             framebuffer.depthAttachment._textureViewAsRenderTargetResourceUid
           );
         }
@@ -2024,7 +2024,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       };
       const colorAttachments = [];
       for (let colorAttachment of framebuffer.colorAttachments) {
-        const textureView = this.hH.get(
+        const textureView = this.jH.get(
           colorAttachment._textureViewAsRenderTargetResourceUid
         );
         colorAttachments.push({
@@ -2035,7 +2035,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         });
       }
       renderPassDescriptor.colorAttachments = colorAttachments;
-      this.iH = this.HH(renderPassDescriptor);
+      this.kH = this.JH(renderPassDescriptor);
     } else if ((webxrSystem == null ? void 0 : webxrSystem.isWebXRMode) && renderPass.isOutputForVr) {
       const colorAttachments = [];
       const view = engine.engineState.xrPoseWebGPU.views[displayIdx];
@@ -2059,167 +2059,167 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         colorAttachments,
         depthStencilAttachment
       };
-      this.iH = this.HH(renderPassDescriptor);
+      this.kH = this.JH(renderPassDescriptor);
     } else {
       const renderPassDescriptor = {
         colorAttachments: [
           {
-            view: this.PH(),
+            view: this.RH(),
             clearValue,
             loadOp: colorLoadOp,
             storeOp: "store"
           }
         ],
         depthStencilAttachment: {
-          view: this.rH,
+          view: this.tH,
           depthClearValue,
           depthLoadOp,
           depthStoreOp: "store"
         },
         label: renderPass.uniqueName
       };
-      this.iH = this.HH(renderPassDescriptor);
+      this.kH = this.JH(renderPassDescriptor);
     }
   }
   /**
    * Drops every cached render bundle. The GPU culling allocations of the dropped bundles are released after the
    * frame (a dropped bundle may already have been executed in it).
    */
-  lH() {
+  nH() {
     var _a;
-    this.KH.clear();
-    (_a = this.jH) == null ? void 0 : _a.retireAllBundles();
+    this.MH.clear();
+    (_a = this.lH) == null ? void 0 : _a.retireAllBundles();
   }
   /**
    * Caches a recorded render bundle, or drops the cache when caching is disabled.
    */
-  ZI(engine, renderBundleKey, renderBundle) {
+  $I(engine, renderBundleKey, renderBundle) {
     var _a, _b;
     if (engine.config.cacheWebGpuRenderBundles) {
-      (_a = this.jH) == null ? void 0 : _a.finishRecording(renderBundleKey);
-      this.KH.set(renderBundleKey, renderBundle);
+      (_a = this.lH) == null ? void 0 : _a.finishRecording(renderBundleKey);
+      this.MH.set(renderBundleKey, renderBundle);
     } else {
-      (_b = this.jH) == null ? void 0 : _b.finishRecording(void 0);
-      this.lH();
+      (_b = this.lH) == null ? void 0 : _b.finishRecording(void 0);
+      this.nH();
     }
   }
-  _I(engine) {
-    if (this.dI || engine.config.isGpuCullingEnabled !== this.HI || engine.config.isComputeSkinningEnabled !== this.II || MeshRendererComponent._isFrustumCullingEnabled !== this.JI) {
-      this.lH();
+  aJ(engine) {
+    if (this.fI || engine.config.isGpuCullingEnabled !== this.JI || engine.config.isComputeSkinningEnabled !== this.KI || MeshRendererComponent._isFrustumCullingEnabled !== this.LI) {
+      this.nH();
       engine.engineState.webgpuRenderBundleMode = false;
-      this.dI = false;
-      this.HI = engine.config.isGpuCullingEnabled;
-      this.II = engine.config.isComputeSkinningEnabled;
-      this.JI = MeshRendererComponent._isFrustumCullingEnabled;
+      this.fI = false;
+      this.JI = engine.config.isGpuCullingEnabled;
+      this.KI = engine.config.isComputeSkinningEnabled;
+      this.LI = MeshRendererComponent._isFrustumCullingEnabled;
     }
-    const storageBindGroupBuffers = this.TH;
-    if (this.dH != null && (storageBindGroupBuffers[0] !== this.qH || storageBindGroupBuffers[1] !== this.wH || storageBindGroupBuffers[2] !== this.nH || storageBindGroupBuffers[3] !== this.oH || storageBindGroupBuffers[4] !== this.rI())) {
-      this.lH();
+    const storageBindGroupBuffers = this.VH;
+    if (this.fH != null && (storageBindGroupBuffers[0] !== this.sH || storageBindGroupBuffers[1] !== this.yH || storageBindGroupBuffers[2] !== this.pH || storageBindGroupBuffers[3] !== this.qH || storageBindGroupBuffers[4] !== this.tI())) {
+      this.nH();
       engine.engineState.webgpuRenderBundleMode = false;
     }
-    if (engine.materialRepository.bindingStateVersion !== this.MI || CameraComponent.getCurrent(engine) !== this.NI || EntityRepository.updateCount !== this.OI || Primitive.variantUpdateCount !== this.PI || MeshRendererComponent.updateCount !== this.QI) {
-      this.lH();
+    if (engine.materialRepository.bindingStateVersion !== this.OI || CameraComponent.getCurrent(engine) !== this.PI || EntityRepository.updateCount !== this.QI || Primitive.variantUpdateCount !== this.RI || MeshRendererComponent.updateCount !== this.SI) {
+      this.nH();
       engine.engineState.webgpuRenderBundleMode = false;
-      this.NI = CameraComponent.getCurrent(engine);
-      this.MI = engine.materialRepository.bindingStateVersion;
-      this.OI = EntityRepository.updateCount;
-      this.PI = Primitive.variantUpdateCount;
-      this.QI = MeshRendererComponent.updateCount;
+      this.PI = CameraComponent.getCurrent(engine);
+      this.OI = engine.materialRepository.bindingStateVersion;
+      this.QI = EntityRepository.updateCount;
+      this.RI = Primitive.variantUpdateCount;
+      this.SI = MeshRendererComponent.updateCount;
     }
   }
   renderWithRenderBundle(engine, renderPass, displayIdx) {
-    this._I(engine);
+    this.aJ(engine);
     if (renderPass._isChangedSortRenderResult || !engine.config.cacheWebGpuRenderBundles) {
-      this.lH();
+      this.nH();
     }
     const renderBundleKey = `${renderPass.renderPassUID}-${displayIdx}`;
-    let renderBundle = this.KH.get(renderBundleKey);
+    let renderBundle = this.MH.get(renderBundleKey);
     if (renderBundle != null) {
       this.createRenderPassEncoder(engine, renderPass, displayIdx);
-      if (this.iH != null) {
-        this.RH(renderBundle);
+      if (this.kH != null) {
+        this.TH(renderBundle);
         return true;
       }
     }
     return false;
   }
   renderWithRenderBundleAndKeepRenderPass(engine, renderPass, displayIdx) {
-    this._I(engine);
+    this.aJ(engine);
     if (renderPass._isChangedSortRenderResult || !engine.config.cacheWebGpuRenderBundles) {
-      this.lH();
+      this.nH();
     }
     const renderBundleKey = `${renderPass.renderPassUID}-${displayIdx}`;
-    const renderBundle = this.KH.get(renderBundleKey);
+    const renderBundle = this.MH.get(renderBundleKey);
     if (renderBundle != null) {
       this.createRenderPassEncoder(engine, renderPass, displayIdx);
-      if (this.iH != null) {
-        this.RH(renderBundle);
-        this.IH();
-        this.AH();
-        return this.iH;
+      if (this.kH != null) {
+        this.TH(renderBundle);
+        this.KH();
+        this.CH();
+        return this.kH;
       }
     }
     return void 0;
   }
   finishRenderBundleEncoder(engine, renderPass, displayIdx) {
     this.createRenderPassEncoder(engine, renderPass, displayIdx);
-    if (this.iH != null && this.kH != null) {
-      const renderBundle = this.kH.finish();
-      this.ZI(engine, `${renderPass.renderPassUID}-${displayIdx}`, renderBundle);
-      this.RH(renderBundle);
-      this.AH();
+    if (this.kH != null && this.mH != null) {
+      const renderBundle = this.mH.finish();
+      this.$I(engine, `${renderPass.renderPassUID}-${displayIdx}`, renderBundle);
+      this.TH(renderBundle);
+      this.CH();
     } else {
       console.log("renderPassEncoder is null");
     }
   }
   finishRenderBundleEncoderAndKeepRenderPass(engine, renderPass, displayIdx) {
     this.createRenderPassEncoder(engine, renderPass, displayIdx);
-    if (this.iH != null && this.kH != null) {
-      const renderBundle = this.kH.finish();
-      this.ZI(engine, `${renderPass.renderPassUID}-${displayIdx}`, renderBundle);
-      this.RH(renderBundle);
-      this.AH();
+    if (this.kH != null && this.mH != null) {
+      const renderBundle = this.mH.finish();
+      this.$I(engine, `${renderPass.renderPassUID}-${displayIdx}`, renderBundle);
+      this.TH(renderBundle);
+      this.CH();
     }
-    this.IH();
-    return this.iH;
+    this.KH();
+    return this.kH;
   }
   getOrCreateRenderPassEncoderForExternalRendering(engine, renderPass, displayIdx) {
     this.createRenderPassEncoder(engine, renderPass, displayIdx);
-    this.IH();
-    return this.iH;
+    this.KH();
+    return this.kH;
   }
   endRenderPassEncoderForExternalRendering() {
-    if (this.iH == null) {
+    if (this.kH == null) {
       return;
     }
-    this.IH();
-    if (this.kH != null) {
-      this.iH.executeBundles([this.kH.finish()]);
-      this.AH();
+    this.KH();
+    if (this.mH != null) {
+      this.kH.executeBundles([this.mH.finish()]);
+      this.CH();
     }
-    this.QH();
+    this.SH();
   }
-  kJ() {
-    if (this.eI == null) {
-      this.eI = this.gH.gpuDevice.createShaderModule({
+  mJ() {
+    if (this.gI == null) {
+      this.gI = this.iH.gpuDevice.createShaderModule({
         label: "DepthPrepass",
         code: "@fragment\nfn main() {}\n"
       });
     }
-    return this.eI;
+    return this.gI;
   }
   getOrCreateRenderPipeline(renderPipelineId, pipelineLayoutKey, pipelineLayout, primitive, material, renderPass, zWrite, options = {}) {
     var _a, _b;
     const depthOnly = (_a = options.depthOnly) != null ? _a : false;
     const allowEqualDepth = (_b = options.allowEqualDepth) != null ? _b : false;
     const pipelineKey = `${renderPipelineId}|${pipelineLayoutKey}|${depthOnly ? "depthOnly" : "color"}|${allowEqualDepth ? "equal" : "less"}`;
-    const cachedPipeline = this.UH.get(pipelineKey);
-    if (cachedPipeline != null && this.VH.get(pipelineKey) === material.pipelineStateVersion) {
+    const cachedPipeline = this.WH.get(pipelineKey);
+    if (cachedPipeline != null && this.XH.get(pipelineKey) === material.pipelineStateVersion) {
       return [cachedPipeline, false];
     }
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuDevice = this.iH.gpuDevice;
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
-    const modules = this.hH.get(material.getShaderProgramUid(primitive));
+    const modules = this.jH.get(material.getShaderProgramUid(primitive));
     if (modules != null) {
       new Error("Shader Modules is not found");
     }
@@ -2242,7 +2242,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       const attribute = {
         shaderLocation: slotIdx,
         offset: 0,
-        format: _WebGpuResourceRepository.SI(accessor)
+        format: _WebGpuResourceRepository.UI(accessor)
       };
       gpuVertexBufferLayouts.push({
         stepMode: "vertex",
@@ -2285,7 +2285,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     if (framebuffer != null) {
       targets = [];
       for (let colorAttachment of framebuffer.colorAttachments) {
-        const texture = this.hH.get(colorAttachment._textureResourceUid);
+        const texture = this.jH.get(colorAttachment._textureResourceUid);
         targets.push({
           format: texture.format,
           blend,
@@ -2293,7 +2293,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         });
       }
       if (framebuffer.depthAttachment != null) {
-        const depthTexture = this.hH.get(framebuffer.depthAttachment._textureResourceUid);
+        const depthTexture = this.jH.get(framebuffer.depthAttachment._textureResourceUid);
         depthStencilFormat = depthTexture.format;
       } else {
         depthStencilFormat = void 0;
@@ -2307,7 +2307,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         buffers: gpuVertexBufferLayouts
       },
       fragment: {
-        module: depthOnly ? this.kJ() : modules.fsModule,
+        module: depthOnly ? this.mJ() : modules.fsModule,
         entryPoint: "main",
         targets: depthOnly ? targets.map((target) => ({ format: target.format, writeMask: 0 })) : targets
       },
@@ -2326,8 +2326,8 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         count: renderPass.getResolveFramebuffer() != null ? renderPass.getFramebuffer().colorAttachments[0].sampleCount : 1
       }
     });
-    this.UH.set(pipelineKey, pipeline);
-    this.VH.set(pipelineKey, material.pipelineStateVersion);
+    this.WH.set(pipelineKey, pipeline);
+    this.XH.set(pipelineKey, material.pipelineStateVersion);
     return [pipeline, true];
   }
   /**
@@ -2335,31 +2335,31 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * This method must be called to execute any recorded rendering commands.
    */
   flush() {
-    const gpuDevice = this.gH.gpuDevice;
-    const pendingClear = this.tH;
-    if (pendingClear.active && !pendingClear.isColorClear && pendingClear.targetKind === RENDER_PASS_TARGET_KIND_CANVAS && pendingClear.targetViews[pendingClear.targetViews.length - 1] === this.rH) {
-      this.MH = pendingClear.clearDepth;
-      this.qI();
+    const gpuDevice = this.iH.gpuDevice;
+    const pendingClear = this.vH;
+    if (pendingClear.active && !pendingClear.isColorClear && pendingClear.targetKind === RENDER_PASS_TARGET_KIND_CANVAS && pendingClear.targetViews[pendingClear.targetViews.length - 1] === this.tH) {
+      this.OH = pendingClear.clearDepth;
+      this.sI();
     }
-    this.zH();
-    const gpuTimer = this.CH;
-    const gpuCulling = this.jH;
-    const cullingCommands = gpuCulling == null ? void 0 : gpuCulling.encode(this.qH, gpuTimer, {
-      blendShapeData: this.wH,
-      morphOffsets: this.nH,
-      morphWeights: this.oH
+    this.BH();
+    const gpuTimer = this.EH;
+    const gpuCulling = this.lH;
+    const cullingCommands = gpuCulling == null ? void 0 : gpuCulling.encode(this.sH, gpuTimer, {
+      blendShapeData: this.yH,
+      morphOffsets: this.pH,
+      morphWeights: this.qH
     });
-    gpuTimer == null ? void 0 : gpuTimer.encodeResolve(this.mH);
-    const commands = this.mH.finish();
-    this.GI.submit(cullingCommands != null ? [cullingCommands, commands] : [commands]);
+    gpuTimer == null ? void 0 : gpuTimer.encodeResolve(this.oH);
+    const commands = this.oH.finish();
+    this.II.submit(cullingCommands != null ? [cullingCommands, commands] : [commands]);
     gpuTimer == null ? void 0 : gpuTimer.afterSubmit();
-    this.mH = gpuDevice.createCommandEncoder();
+    this.oH = gpuDevice.createCommandEncoder();
     if (gpuCulling == null ? void 0 : gpuCulling.afterSubmit()) {
-      this.lH();
-      this.dI = true;
+      this.nH();
+      this.fI = true;
     }
-    if (this.OH != null) {
-      this.OH = void 0;
+    if (this.QH != null) {
+      this.QH = void 0;
     }
   }
   setColorWriteMask(material) {
@@ -2526,7 +2526,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       }
       mipmaps.push(imageBitmaps);
     }
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuDevice = this.iH.gpuDevice;
     const isHdrLinear = ((_a = mipmaps[0][0]) == null ? void 0 : _a.hdriFormat) === HdriFormat.HDR_LINEAR;
     const cubemapFormat = isHdrLinear ? gpuDevice.features.has("float32-filterable") ? "rgba32float" : "rgba16float" : "rgba8unorm";
     const cubemapTexture = gpuDevice.createTexture({
@@ -2583,7 +2583,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         }
       }
     }
-    const handle = this.XC(cubemapTexture);
+    const handle = this.ZC(cubemapTexture);
     const wrapS = TextureParameter.Repeat;
     const wrapT = TextureParameter.Repeat;
     const minFilter = mipLevelCount === 1 ? TextureParameter.Linear : TextureParameter.LinearMipmapLinear;
@@ -2604,7 +2604,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @returns texture handle
    */
   createTextureArray(width, height, arrayLength, mipLevelCount, internalFormat, _format, _type, imageData) {
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuDevice = this.iH.gpuDevice;
     const textureDescriptor = {
       size: [width, height, arrayLength],
       format: internalFormat.webgpu,
@@ -2639,7 +2639,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         [width, height, 1]
       );
     }
-    const textureHandle = this.XC(gpuTexture);
+    const textureHandle = this.ZC(gpuTexture);
     return textureHandle;
   }
   /**
@@ -2650,7 +2650,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @returns Handle to the created storage buffer resource
    */
   createStorageBuffer(gpuInstanceDataBuffers) {
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuDevice = this.iH.gpuDevice;
     const storageBuffer = gpuDevice.createBuffer({
       size: gpuInstanceDataBuffers.reduce((acc, buffer) => acc + buffer.byteLength, 0),
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC
@@ -2659,13 +2659,13 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     for (let i = 0; i < gpuInstanceDataBuffers.length; i++) {
       const buffer = gpuInstanceDataBuffers[i];
       const inputArray = new Float32Array(buffer.getArrayBuffer());
-      _WebGpuResourceRepository.pH(inputArray);
+      _WebGpuResourceRepository.rH(inputArray);
       const copySize = i === gpuInstanceDataBuffers.length - 1 ? buffer.takenSizeInByte : buffer.byteLength;
       gpuDevice.queue.writeBuffer(storageBuffer, offset, inputArray, 0, copySize / 4);
       offset += copySize;
     }
-    this.qH = storageBuffer;
-    const storageBufferHandle = this.XC(storageBuffer);
+    this.sH = storageBuffer;
+    const storageBufferHandle = this.ZC(storageBuffer);
     return storageBufferHandle;
   }
   /**
@@ -2676,13 +2676,13 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @param gpuInstanceDataBuffers - New data to write to the buffer
    */
   updateStorageBuffer(storageBufferHandle, gpuInstanceDataBuffers, excludedByteRanges = []) {
-    const gpuDevice = this.gH.gpuDevice;
-    const storageBuffer = this.hH.get(storageBufferHandle);
+    const gpuDevice = this.iH.gpuDevice;
+    const storageBuffer = this.jH.get(storageBufferHandle);
     let offset = 0;
     for (let i = 0; i < gpuInstanceDataBuffers.length; i++) {
       const buffer = gpuInstanceDataBuffers[i];
       const inputArray = new Float32Array(buffer.getArrayBuffer());
-      _WebGpuResourceRepository.pH(inputArray);
+      _WebGpuResourceRepository.rH(inputArray);
       const copySize = i === gpuInstanceDataBuffers.length - 1 ? buffer.takenSizeInByte : buffer.byteLength;
       for (const [start, end] of subtractByteRanges(offset, offset + copySize, excludedByteRanges)) {
         gpuDevice.queue.writeBuffer(storageBuffer, start, inputArray, (start - offset) / 4, (end - start) / 4);
@@ -2698,8 +2698,8 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @param byteRanges - The ranges `[start, end)` in the concatenated layers. A range must not span layers.
    */
   updateStorageBufferRanges(storageBufferHandle, gpuInstanceDataBuffers, byteRanges) {
-    const gpuDevice = this.gH.gpuDevice;
-    const storageBuffer = this.hH.get(storageBufferHandle);
+    const gpuDevice = this.iH.gpuDevice;
+    const storageBuffer = this.jH.get(storageBufferHandle);
     for (const [start, end] of byteRanges) {
       let layerStart = 0;
       for (const buffer of gpuInstanceDataBuffers) {
@@ -2719,15 +2719,15 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @internal
    */
   _getStorageBuffer() {
-    return this.qH;
+    return this.sH;
   }
   destroyStorageBuffer(storageBufferHandle) {
-    const storageBuffer = this.hH.get(storageBufferHandle);
+    const storageBuffer = this.jH.get(storageBufferHandle);
     if (storageBuffer == null) {
       return;
     }
     storageBuffer.destroy();
-    this.hH.delete(storageBufferHandle);
+    this.jH.delete(storageBufferHandle);
   }
   /**
    * Updates a portion of a storage buffer with new data at a specific offset.
@@ -2740,9 +2740,9 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @param updateComponentSize - Number of components to update
    */
   updateStorageBufferPartially(storageBufferHandle, inputArray, offsetOfStorageBufferInByte, offsetOfInputArrayInElement, updateComponentSize) {
-    const gpuDevice = this.gH.gpuDevice;
-    const storageBuffer = this.hH.get(storageBufferHandle);
-    _WebGpuResourceRepository.pH(inputArray);
+    const gpuDevice = this.iH.gpuDevice;
+    const storageBuffer = this.jH.get(storageBufferHandle);
+    _WebGpuResourceRepository.rH(inputArray);
     gpuDevice.queue.writeBuffer(
       storageBuffer,
       offsetOfStorageBufferInByte,
@@ -2752,33 +2752,33 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     );
   }
   createStorageBlendShapeBuffer(inputArray) {
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuDevice = this.iH.gpuDevice;
     const storageBuffer = gpuDevice.createBuffer({
       size: inputArray.byteLength,
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE
     });
-    _WebGpuResourceRepository.pH(inputArray);
+    _WebGpuResourceRepository.rH(inputArray);
     gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray);
-    this.wH = storageBuffer;
-    const storageBufferHandle = this.XC(storageBuffer);
+    this.yH = storageBuffer;
+    const storageBufferHandle = this.ZC(storageBuffer);
     return storageBufferHandle;
   }
   deleteStorageBlendShapeBuffer(storageBufferHandle) {
-    const storageBuffer = this.hH.get(storageBufferHandle);
+    const storageBuffer = this.jH.get(storageBufferHandle);
     if (storageBuffer == null) {
       return;
     }
     storageBuffer.destroy();
-    this.hH.delete(storageBufferHandle);
+    this.jH.delete(storageBufferHandle);
   }
   updateStorageBlendShapeBuffer(storageBufferHandle, inputArray, updateComponentSize) {
-    const gpuDevice = this.gH.gpuDevice;
-    const storageBuffer = this.hH.get(storageBufferHandle);
-    _WebGpuResourceRepository.pH(inputArray);
+    const gpuDevice = this.iH.gpuDevice;
+    const storageBuffer = this.jH.get(storageBufferHandle);
+    _WebGpuResourceRepository.rH(inputArray);
     gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateComponentSize);
   }
   createBindGroupLayoutForDrawParameters() {
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuDevice = this.iH.gpuDevice;
     {
       const bindGroupLayoutDesc = {
         entries: [
@@ -2792,7 +2792,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         ]
       };
       const bindGroupLayout = gpuDevice.createBindGroupLayout(bindGroupLayoutDesc);
-      this.$H = bindGroupLayout;
+      this.bI = bindGroupLayout;
     }
   }
   /**
@@ -2809,31 +2809,31 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    *   processGeometry), for a draw of the vertices deformed by the GPU culling's compute shader
    */
   setDrawParameters(materialSid, cameraSID, currentPrimitiveIdx, morphTargetNumber, deformedVertexOffset = 0) {
-    const lastDrawParameters = this.zI;
+    const lastDrawParameters = this.BI;
     lastDrawParameters[0] = materialSid;
     lastDrawParameters[1] = cameraSID;
     lastDrawParameters[2] = currentPrimitiveIdx;
     lastDrawParameters[3] = morphTargetNumber;
     const key = `${materialSid},${cameraSID},${currentPrimitiveIdx},${morphTargetNumber},${deformedVertexOffset}`;
-    let bindGroup = this.yI.get(key);
+    let bindGroup = this.AI.get(key);
     if (bindGroup == null) {
-      const gpuDevice = this.gH.gpuDevice;
-      const entriesPerBuffer = _WebGpuResourceRepository.aJ;
+      const gpuDevice = this.iH.gpuDevice;
+      const entriesPerBuffer = _WebGpuResourceRepository.cJ;
       const stride = Math.max(
         gpuDevice.limits.minUniformBufferOffsetAlignment,
-        _WebGpuResourceRepository._H
+        _WebGpuResourceRepository.aI
       );
-      let uniformBuffer = this.YH[this.YH.length - 1];
-      if (uniformBuffer == null || this.ZH >= entriesPerBuffer) {
+      let uniformBuffer = this._H[this._H.length - 1];
+      if (uniformBuffer == null || this.$H >= entriesPerBuffer) {
         uniformBuffer = gpuDevice.createBuffer({
           size: stride * entriesPerBuffer,
           usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM
         });
-        this.YH.push(uniformBuffer);
-        this.ZH = 0;
+        this._H.push(uniformBuffer);
+        this.$H = 0;
       }
-      const offset = stride * this.ZH++;
-      const values = _WebGpuResourceRepository.bJ;
+      const offset = stride * this.$H++;
+      const values = _WebGpuResourceRepository.dJ;
       values[0] = materialSid;
       values[1] = cameraSID;
       values[2] = currentPrimitiveIdx;
@@ -2841,83 +2841,83 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       values[4] = deformedVertexOffset;
       gpuDevice.queue.writeBuffer(uniformBuffer, offset, values);
       bindGroup = gpuDevice.createBindGroup({
-        layout: this.$H,
+        layout: this.bI,
         entries: [
           {
             binding: 0,
             resource: {
               buffer: uniformBuffer,
               offset,
-              size: _WebGpuResourceRepository._H
+              size: _WebGpuResourceRepository.aI
             }
           }
         ]
       });
-      this.yI.set(key, bindGroup);
+      this.AI.set(key, bindGroup);
     }
-    this.AI = bindGroup;
+    this.CI = bindGroup;
   }
   /**
    * Selects the draw parameters of the last setDrawParameters() call with another deformed vertex offset.
    */
-  hJ(deformedVertexOffset) {
-    const p = this.zI;
+  jJ(deformedVertexOffset) {
+    const p = this.BI;
     this.setDrawParameters(p[0], p[1], p[2], p[3], deformedVertexOffset);
   }
   createUniformMorphOffsetsBuffer(sizeInByte) {
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuDevice = this.iH.gpuDevice;
     const uniformBuffer = gpuDevice.createBuffer({
       size: sizeInByte,
       // STORAGE: also read by the vertex deformation compute shader (WebGpuVertexDeformer).
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM | GPUBufferUsage.STORAGE
     });
-    this.nH = uniformBuffer;
-    const uniformBufferHandle = this.XC(uniformBuffer);
+    this.pH = uniformBuffer;
+    const uniformBufferHandle = this.ZC(uniformBuffer);
     return uniformBufferHandle;
   }
   updateUniformMorphOffsetsBuffer(inputArray, elementNum) {
-    const gpuDevice = this.gH.gpuDevice;
-    if (this.nH == null) {
+    const gpuDevice = this.iH.gpuDevice;
+    if (this.pH == null) {
       throw new Error("Not found uniform morph buffer.");
     }
-    _WebGpuResourceRepository.pH(inputArray);
-    gpuDevice.queue.writeBuffer(this.nH, 0, inputArray, 0, elementNum);
+    _WebGpuResourceRepository.rH(inputArray);
+    gpuDevice.queue.writeBuffer(this.pH, 0, inputArray, 0, elementNum);
   }
   createUniformMorphWeightsBuffer(sizeInByte) {
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuDevice = this.iH.gpuDevice;
     const uniformBuffer = gpuDevice.createBuffer({
       size: sizeInByte,
       // STORAGE: also read by the vertex deformation compute shader (WebGpuVertexDeformer).
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM | GPUBufferUsage.STORAGE
     });
-    this.oH = uniformBuffer;
-    const uniformBufferHandle = this.XC(uniformBuffer);
+    this.qH = uniformBuffer;
+    const uniformBufferHandle = this.ZC(uniformBuffer);
     return uniformBufferHandle;
   }
   updateUniformMorphWeightsBuffer(inputArray, elementNum) {
-    const gpuDevice = this.gH.gpuDevice;
-    if (this.oH == null) {
+    const gpuDevice = this.iH.gpuDevice;
+    if (this.qH == null) {
       throw new Error("Not found uniform morph buffer.");
     }
-    _WebGpuResourceRepository.pH(inputArray);
-    gpuDevice.queue.writeBuffer(this.oH, 0, inputArray, 0, elementNum);
+    _WebGpuResourceRepository.rH(inputArray);
+    gpuDevice.queue.writeBuffer(this.qH, 0, inputArray, 0, elementNum);
   }
   deleteUniformBuffer(uniformBufferHandle) {
-    const uniformBuffer = this.hH.get(uniformBufferHandle);
+    const uniformBuffer = this.jH.get(uniformBufferHandle);
     if (uniformBuffer == null) {
       return;
     }
     uniformBuffer.destroy();
-    this.hH.delete(uniformBufferHandle);
+    this.jH.delete(uniformBufferHandle);
   }
   /**
    * Returns a stable identifier of a GPU object for cache keys.
    */
-  $I(obj) {
-    let id = this.CI.get(obj);
+  bJ(obj) {
+    let id = this.EI.get(obj);
     if (id === void 0) {
-      id = ++this.cJ;
-      this.CI.set(obj, id);
+      id = ++this.eJ;
+      this.EI.set(obj, id);
     }
     return id;
   }
@@ -2925,22 +2925,22 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * Returns the bind group layout for the given descriptor, shared by every bind group and pipeline
    * layout with the same descriptor.
    */
-  sI(key, entries) {
-    let layout = this.JH.get(key);
+  uI(key, entries) {
+    let layout = this.LH.get(key);
     if (layout == null) {
-      layout = this.gH.gpuDevice.createBindGroupLayout({ entries });
-      this.JH.set(key, layout);
+      layout = this.iH.gpuDevice.createBindGroupLayout({ entries });
+      this.LH.set(key, layout);
     }
     return layout;
   }
   /**
    * Returns the view of a dummy texture with the given dimension. The view is created once per texture.
    */
-  lJ(gpuTexture, dimension) {
-    let views = this.BI.get(gpuTexture);
+  nJ(gpuTexture, dimension) {
+    let views = this.DI.get(gpuTexture);
     if (views == null) {
       views = /* @__PURE__ */ new Map();
-      this.BI.set(gpuTexture, views);
+      this.DI.set(gpuTexture, views);
     }
     let view = views.get(dimension);
     if (view == null) {
@@ -2952,61 +2952,61 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
   /**
    * The buffer bound at group 0, binding 4: the vertices deformed by the GPU culling, or a dummy buffer without it.
    */
-  rI() {
+  tI() {
     var _a, _b, _c;
-    const deformedVerticesBuffer = (_a = this.jH) == null ? void 0 : _a.deformedVerticesBuffer;
+    const deformedVerticesBuffer = (_a = this.lH) == null ? void 0 : _a.deformedVerticesBuffer;
     if (deformedVerticesBuffer != null) {
       return deformedVerticesBuffer;
     }
-    (_c = this[_b = "wI"]) != null ? _c : this[_b] = this.gH.gpuDevice.createBuffer({
+    (_c = this[_b = "yI"]) != null ? _c : this[_b] = this.iH.gpuDevice.createBuffer({
       size: 32,
       usage: GPUBufferUsage.STORAGE
     });
-    return this.wI;
+    return this.yI;
   }
   /**
    * Returns the group 0 bind group (storage buffer, blend shape buffer, morph uniform buffers, deformed vertices).
    * It is recreated only when one of those buffers is replaced.
    */
-  mJ() {
+  oJ() {
     var _a, _b;
-    const buffers = this.TH;
-    if (this.dH != null && buffers[0] === this.qH && buffers[1] === this.wH && buffers[2] === this.nH && buffers[3] === this.oH && buffers[4] === this.rI()) {
-      return this.dH;
+    const buffers = this.VH;
+    if (this.fH != null && buffers[0] === this.sH && buffers[1] === this.yH && buffers[2] === this.pH && buffers[3] === this.qH && buffers[4] === this.tI()) {
+      return this.fH;
     }
-    buffers[0] = this.qH;
-    buffers[1] = this.wH;
-    buffers[2] = this.nH;
-    buffers[3] = this.oH;
-    buffers[4] = this.rI();
-    const gpuDevice = this.gH.gpuDevice;
+    buffers[0] = this.sH;
+    buffers[1] = this.yH;
+    buffers[2] = this.pH;
+    buffers[3] = this.qH;
+    buffers[4] = this.tI();
+    const gpuDevice = this.iH.gpuDevice;
     const visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT;
     const entries = [];
     const layoutEntries = [];
     let layoutKey = "";
-    if (this.qH != null) {
-      entries.push({ binding: 0, resource: { buffer: this.qH } });
+    if (this.sH != null) {
+      entries.push({ binding: 0, resource: { buffer: this.sH } });
       layoutEntries.push({ binding: 0, buffer: { type: "read-only-storage" }, visibility });
       layoutKey += "s";
     }
-    let blendShapeBuffer = this.wH;
+    let blendShapeBuffer = this.yH;
     if (blendShapeBuffer == null) {
-      (_b = this[_a = "vI"]) != null ? _b : this[_a] = gpuDevice.createBuffer({
+      (_b = this[_a = "xI"]) != null ? _b : this[_a] = gpuDevice.createBuffer({
         size: 16,
         usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE
       });
-      blendShapeBuffer = this.vI;
+      blendShapeBuffer = this.xI;
     }
     entries.push({ binding: 1, resource: { buffer: blendShapeBuffer } });
     layoutEntries.push({ binding: 1, buffer: { type: "read-only-storage" }, visibility });
     layoutKey += "b";
-    if (this.nH != null) {
-      entries.push({ binding: 2, resource: { buffer: this.nH } });
+    if (this.pH != null) {
+      entries.push({ binding: 2, resource: { buffer: this.pH } });
       layoutEntries.push({ binding: 2, buffer: { type: "uniform" }, visibility });
       layoutKey += "o";
     }
-    if (this.oH != null) {
-      entries.push({ binding: 3, resource: { buffer: this.oH } });
+    if (this.qH != null) {
+      entries.push({ binding: 3, resource: { buffer: this.qH } });
       layoutEntries.push({ binding: 3, buffer: { type: "uniform" }, visibility });
       layoutKey += "w";
     }
@@ -3014,18 +3014,18 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     layoutEntries.push({ binding: 4, buffer: { type: "read-only-storage" }, visibility: GPUShaderStage.VERTEX });
     layoutKey += "d";
     layoutKey = `storage:${layoutKey}`;
-    const layout = this.sI(layoutKey, layoutEntries);
-    this.dH = gpuDevice.createBindGroup({ layout, entries });
-    this.tI = layout;
-    this.uI = layoutKey;
-    this.lH();
-    return this.dH;
+    const layout = this.uI(layoutKey, layoutEntries);
+    this.fH = gpuDevice.createBindGroup({ layout, entries });
+    this.vI = layout;
+    this.wI = layoutKey;
+    this.nH();
+    return this.fH;
   }
   /**
    * Appends a texture binding and its sampler to `__textureSamplerBindings`.
    */
-  SH(slot, dimension, visibility, view, sampler) {
-    const bindings = this.BH;
+  UH(slot, dimension, visibility, view, sampler) {
+    const bindings = this.DH;
     const i = bindings.count++;
     bindings.slots[i] = slot;
     bindings.dimensions[i] = dimension;
@@ -3037,9 +3037,9 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * Collects the textures and samplers bound by a material into `__textureSamplerBindings`.
    * The IBL cube maps come from the mesh renderer component, not from the material.
    */
-  nJ(engine, material, diffuseCubeMap, specularCubeMap, sheenCubeMap) {
-    this.BH.count = 0;
-    const resources = this.hH;
+  pJ(engine, material, diffuseCubeMap, specularCubeMap, sheenCubeMap) {
+    this.DH.count = 0;
+    const resources = this.jH;
     const visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT;
     const dummyTextures = engine.dummyTextures;
     for (const value of material._autoTextureFieldVariablesOnly.values()) {
@@ -3063,13 +3063,13 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       if (gpuTextureView == null) {
         const dummyTexture = dimension === "cube" ? dummyTextures.dummyBlackCubeTexture : dummyTextures.dummyWhiteTexture;
         const gpuTexture = resources.get(dummyTexture._textureResourceUid);
-        gpuTextureView = this.lJ(gpuTexture, dimension);
+        gpuTextureView = this.nJ(gpuTexture, dimension);
       }
       if (!sampler.created) {
         sampler.create();
       }
       const gpuSampler = resources.get(sampler._samplerResourceUid);
-      this.SH(slot, dimension, visibility, gpuTextureView, gpuSampler);
+      this.UH(slot, dimension, visibility, gpuTextureView, gpuSampler);
     }
     const dummyCubeTexture = dummyTextures.dummyBlackCubeTexture;
     const dummyCubeTextureView = () => resources.get(dummyCubeTexture._textureViewResourceUid);
@@ -3078,7 +3078,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     if (Is.exist(diffuseEnvValue)) {
       const view = resources.get(Is.exist(diffuseCubeMap) ? diffuseCubeMap._textureViewResourceUid : -1);
       const sampler = resources.get(Is.exist(diffuseCubeMap) ? diffuseCubeMap._samplerResourceUid : -1);
-      this.SH(
+      this.UH(
         diffuseEnvValue[0],
         "cube",
         visibility,
@@ -3090,7 +3090,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     if (Is.exist(specularEnvValue)) {
       const view = resources.get(Is.exist(specularCubeMap) ? specularCubeMap._textureViewResourceUid : -1);
       const sampler = resources.get(Is.exist(specularCubeMap) ? specularCubeMap._samplerResourceUid : -1);
-      this.SH(
+      this.UH(
         specularEnvValue[0],
         "cube",
         visibility,
@@ -3103,7 +3103,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       const sheenSource = Is.exist(sheenCubeMap) ? sheenCubeMap : specularCubeMap;
       const view = Is.exist(sheenSource) ? resources.get(sheenSource._textureViewResourceUid) : void 0;
       const sampler = Is.exist(sheenSource) ? resources.get(sheenSource._samplerResourceUid) : void 0;
-      this.SH(
+      this.UH(
         sheenEnvValue[0],
         "cube",
         GPUShaderStage.FRAGMENT,
@@ -3119,10 +3119,10 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * so materials binding the same textures and samplers share them. They do not depend on the render
    * pipeline, so a pipeline can be recreated without recreating bind groups and vice versa.
    */
-  fJ(engine, material, diffuseCubeMap, specularCubeMap, sheenCubeMap) {
-    const storage = this.mJ();
-    this.nJ(engine, material, diffuseCubeMap, specularCubeMap, sheenCubeMap);
-    const bindings = this.BH;
+  hJ(engine, material, diffuseCubeMap, specularCubeMap, sheenCubeMap) {
+    const storage = this.oJ();
+    this.pJ(engine, material, diffuseCubeMap, specularCubeMap, sheenCubeMap);
+    const bindings = this.DH;
     let textureLayoutKey = "texture:";
     let samplerLayoutKey = "sampler:";
     let textureResourceKey = "";
@@ -3130,48 +3130,48 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     for (let i = 0; i < bindings.count; i++) {
       textureLayoutKey += `${bindings.slots[i]}/${bindings.dimensions[i]}/${bindings.visibilities[i]},`;
       samplerLayoutKey += `${bindings.slots[i]}/${bindings.visibilities[i]},`;
-      textureResourceKey += `${this.$I(bindings.views[i])},`;
-      samplerResourceKey += `${this.$I(bindings.samplers[i])},`;
+      textureResourceKey += `${this.bJ(bindings.views[i])},`;
+      samplerResourceKey += `${this.bJ(bindings.samplers[i])},`;
     }
     const textureBindGroupKey = `${textureLayoutKey}|${textureResourceKey}`;
-    let texture = this.WH.get(textureBindGroupKey);
-    const textureLayout = this.oJ(textureLayoutKey);
+    let texture = this.YH.get(textureBindGroupKey);
+    const textureLayout = this.qJ(textureLayoutKey);
     if (texture == null) {
       const entries = [];
       for (let i = 0; i < bindings.count; i++) {
         entries.push({ binding: bindings.slots[i], resource: bindings.views[i] });
       }
-      texture = this.gH.gpuDevice.createBindGroup({ layout: textureLayout, entries });
-      this.WH.set(textureBindGroupKey, texture);
+      texture = this.iH.gpuDevice.createBindGroup({ layout: textureLayout, entries });
+      this.YH.set(textureBindGroupKey, texture);
     }
     const samplerBindGroupKey = `${samplerLayoutKey}|${samplerResourceKey}`;
-    let sampler = this.XH.get(samplerBindGroupKey);
-    const samplerLayout = this.pJ(samplerLayoutKey);
+    let sampler = this.ZH.get(samplerBindGroupKey);
+    const samplerLayout = this.rJ(samplerLayoutKey);
     if (sampler == null) {
       const entries = [];
       for (let i = 0; i < bindings.count; i++) {
         entries.push({ binding: bindings.slots[i], resource: bindings.samplers[i] });
       }
-      sampler = this.gH.gpuDevice.createBindGroup({ layout: samplerLayout, entries });
-      this.XH.set(samplerBindGroupKey, sampler);
+      sampler = this.iH.gpuDevice.createBindGroup({ layout: samplerLayout, entries });
+      this.ZH.set(samplerBindGroupKey, sampler);
     }
-    const pipelineLayoutKey = `${this.uI}#${textureLayoutKey}#${samplerLayoutKey}`;
-    let pipelineLayout = this.xI.get(pipelineLayoutKey);
+    const pipelineLayoutKey = `${this.wI}#${textureLayoutKey}#${samplerLayoutKey}`;
+    let pipelineLayout = this.zI.get(pipelineLayoutKey);
     if (pipelineLayout == null) {
-      pipelineLayout = this.gH.gpuDevice.createPipelineLayout({
+      pipelineLayout = this.iH.gpuDevice.createPipelineLayout({
         bindGroupLayouts: [
-          this.tI,
+          this.vI,
           textureLayout,
           samplerLayout,
-          this.$H
+          this.bI
         ]
       });
-      this.xI.set(pipelineLayoutKey, pipelineLayout);
+      this.zI.set(pipelineLayoutKey, pipelineLayout);
     }
-    let result = this.DI;
+    let result = this.FI;
     if (result == null) {
       result = { storage, texture, sampler, pipelineLayout, pipelineLayoutKey };
-      this.DI = result;
+      this.FI = result;
     } else {
       result.storage = storage;
       result.texture = texture;
@@ -3181,12 +3181,12 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     }
     return result;
   }
-  oJ(layoutKey) {
-    const cached = this.JH.get(layoutKey);
+  qJ(layoutKey) {
+    const cached = this.LH.get(layoutKey);
     if (cached != null) {
       return cached;
     }
-    const bindings = this.BH;
+    const bindings = this.DH;
     const entries = [];
     for (let i = 0; i < bindings.count; i++) {
       entries.push({
@@ -3195,14 +3195,14 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         visibility: bindings.visibilities[i]
       });
     }
-    return this.sI(layoutKey, entries);
+    return this.uI(layoutKey, entries);
   }
-  pJ(layoutKey) {
-    const cached = this.JH.get(layoutKey);
+  rJ(layoutKey) {
+    const cached = this.LH.get(layoutKey);
     if (cached != null) {
       return cached;
     }
-    const bindings = this.BH;
+    const bindings = this.DH;
     const entries = [];
     for (let i = 0; i < bindings.count; i++) {
       entries.push({
@@ -3211,7 +3211,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         visibility: bindings.visibilities[i]
       });
     }
-    return this.sI(layoutKey, entries);
+    return this.uI(layoutKey, entries);
   }
   /**
    * create a Texture
@@ -3234,7 +3234,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     }
     await imageData.decode();
     const imageBitmap = await createImageBitmap(imageData);
-    const textureHandle = await this.RI(width, height, internalFormat, generateMipmap, imageBitmap);
+    const textureHandle = await this.TI(width, height, internalFormat, generateMipmap, imageBitmap);
     return textureHandle;
   }
   /**
@@ -3248,8 +3248,8 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     const mipmapDepth = basisFile.getNumLevels(0);
     const width = basisFile.getImageWidth(0, 0);
     const height = basisFile.getImageHeight(0, 0);
-    const gpuDevice = this.gH.gpuDevice;
-    const gpuAdapter = this.gH.gpuAdapter;
+    const gpuDevice = this.iH.gpuDevice;
+    const gpuAdapter = this.iH.gpuAdapter;
     const s3tc = gpuAdapter.features.has("texture-compression-bc");
     const etc2 = gpuAdapter.features.has("texture-compression-etc2");
     const astc = gpuAdapter.features.has("texture-compression-astc");
@@ -3311,7 +3311,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       } else {
         compressedTextureData = textureSource;
       }
-      _WebGpuResourceRepository.pH(compressedTextureData);
+      _WebGpuResourceRepository.rH(compressedTextureData);
       gpuDevice.queue.writeTexture(
         {
           texture: gpuTexture,
@@ -3329,7 +3329,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
         }
       );
     }
-    const textureHandle = this.XC(gpuTexture);
+    const textureHandle = this.ZC(gpuTexture);
     return textureHandle;
   }
   /**
@@ -3354,7 +3354,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @param compressionTextureType
    */
   async createCompressedTexture(textureDataArray, compressionTextureType) {
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuDevice = this.iH.gpuDevice;
     const blockInfo = compressionTextureType.blockInfo || { byteSize: 4, width: 1, height: 1 };
     const textureDataLevel0 = textureDataArray[0];
     const textureDescriptor = {
@@ -3396,7 +3396,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       } else {
         compressedTextureData = originalData;
       }
-      _WebGpuResourceRepository.pH(compressedTextureData);
+      _WebGpuResourceRepository.rH(compressedTextureData);
       gpuDevice.queue.writeTexture(
         {
           texture,
@@ -3415,7 +3415,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       );
     }
     await gpuDevice.queue.onSubmittedWorkDone();
-    const textureHandle = this.XC(texture);
+    const textureHandle = this.ZC(texture);
     return textureHandle;
   }
   /**
@@ -3432,7 +3432,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     height,
     mipLevelCount
   }) {
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuDevice = this.iH.gpuDevice;
     const textureDescriptor = {
       size: [width, height, 1],
       mipLevelCount,
@@ -3440,7 +3440,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
     };
     const gpuTexture = gpuDevice.createTexture(textureDescriptor);
-    const textureHandle = this.XC(gpuTexture);
+    const textureHandle = this.ZC(gpuTexture);
     return textureHandle;
   }
   /**
@@ -3467,8 +3467,8 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     rowSizeByPixel,
     data
   }) {
-    const gpuDevice = this.gH.gpuDevice;
-    const texture = this.hH.get(textureUid);
+    const gpuDevice = this.iH.gpuDevice;
+    const texture = this.jH.get(textureUid);
     const pixelFormat = TextureFormat.getPixelFormatFromTextureFormat(format);
     const compositionNum = PixelFormat.getCompositionNumFromPixelFormat(pixelFormat);
     const bytesPerRow = rowSizeByPixel * compositionNum * type.getSizeInBytes();
@@ -3513,8 +3513,8 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       Logger.default.error(e);
     }
   }
-  async RI(width, height, internalFormat, generateMipmap, imageData) {
-    const gpuDevice = this.gH.gpuDevice;
+  async TI(width, height, internalFormat, generateMipmap, imageData) {
+    const gpuDevice = this.iH.gpuDevice;
     const textureDescriptor = {
       size: [width, height, 1],
       format: internalFormat.webgpu,
@@ -3529,7 +3529,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       this.generateMipmaps(gpuTexture, textureDescriptor);
     }
     await gpuDevice.queue.onSubmittedWorkDone();
-    const textureHandle = this.XC(gpuTexture);
+    const textureHandle = this.ZC(gpuTexture);
     return textureHandle;
   }
   /**
@@ -3549,7 +3549,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     mipLevelCount,
     format
   }) {
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuDevice = this.iH.gpuDevice;
     const textureDescriptor = {
       size: [width, height, 1],
       format: format.webgpu,
@@ -3557,7 +3557,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
     };
     const gpuTexture = gpuDevice.createTexture(textureDescriptor);
-    const textureHandle = this.XC(gpuTexture);
+    const textureHandle = this.ZC(gpuTexture);
     return textureHandle;
   }
   /**
@@ -3577,7 +3577,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     internalFormat,
     arrayLength
   }) {
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuDevice = this.iH.gpuDevice;
     const textureDescriptor = {
       dimension: "2d",
       size: [width, height, arrayLength],
@@ -3586,7 +3586,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
     };
     const gpuTexture = gpuDevice.createTexture(textureDescriptor);
-    const textureHandle = this.XC(gpuTexture);
+    const textureHandle = this.ZC(gpuTexture);
     return textureHandle;
   }
   /**
@@ -3606,7 +3606,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     mipLevelCount,
     format
   }) {
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuDevice = this.iH.gpuDevice;
     const textureDescriptor = {
       dimension: "2d",
       size: [width, height, 6],
@@ -3615,7 +3615,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
     };
     const gpuTexture = gpuDevice.createTexture(textureDescriptor);
-    const textureHandle = this.XC(gpuTexture);
+    const textureHandle = this.ZC(gpuTexture);
     return textureHandle;
   }
   /**
@@ -3630,7 +3630,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @returns Handle to the created render buffer resource
    */
   createRenderBuffer(width, height, internalFormat, isMSAA, sampleCountMSAA) {
-    const gpuDevice = this.gH.gpuDevice;
+    const gpuDevice = this.iH.gpuDevice;
     const textureDescriptor = {
       size: [width, height, 1],
       format: internalFormat.webgpu,
@@ -3638,7 +3638,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       usage: GPUTextureUsage.COPY_SRC | GPUTextureUsage.RENDER_ATTACHMENT
     };
     const gpuTexture = gpuDevice.createTexture(textureDescriptor);
-    const textureHandle = this.XC(gpuTexture);
+    const textureHandle = this.ZC(gpuTexture);
     return textureHandle;
   }
   /**
@@ -3648,10 +3648,10 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
   deleteRenderBuffer(renderBufferUid) {
     this.flush();
     this.clearCache();
-    const texture = this.hH.get(renderBufferUid);
+    const texture = this.jH.get(renderBufferUid);
     if (texture != null) {
       texture.destroy();
-      this.hH.delete(renderBufferUid);
+      this.jH.delete(renderBufferUid);
     }
   }
   /**
@@ -3660,10 +3660,10 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @param toTexture
    */
   copyTextureData(fromTexture, toTexture) {
-    const from = this.hH.get(fromTexture);
-    const to = this.hH.get(toTexture);
-    this.zH();
-    this.mH.copyTextureToTexture(
+    const from = this.jH.get(fromTexture);
+    const to = this.jH.get(toTexture);
+    this.BH();
+    this.oH.copyTextureToTexture(
       {
         texture: from
       },
@@ -3674,15 +3674,15 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     );
   }
   isMippmappedTexture(textureHandle) {
-    const texture = this.hH.get(textureHandle);
+    const texture = this.jH.get(textureHandle);
     if (texture.mipLevelCount > 1) {
       return true;
     }
     return false;
   }
   duplicateTextureAsMipmapped(fromTexture) {
-    const gpuDevice = this.gH.gpuDevice;
-    const texture = this.hH.get(fromTexture);
+    const gpuDevice = this.iH.gpuDevice;
+    const texture = this.jH.get(fromTexture);
     const textureDescriptor = {
       size: {
         width: texture.width,
@@ -3694,14 +3694,14 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       usage: texture.usage
     };
     const newTexture = gpuDevice.createTexture(textureDescriptor);
-    this.zH();
-    this.mH.copyTextureToTexture(
+    this.BH();
+    this.oH.copyTextureToTexture(
       { texture },
       { texture: newTexture },
       { width: texture.width, height: texture.height, depthOrArrayLayers: 1 }
     );
-    const textureHandle = this.XC(newTexture);
-    const textureViewHandle = this.XC(newTexture.createView());
+    const textureHandle = this.ZC(newTexture);
+    const textureViewHandle = this.ZC(newTexture.createView());
     return [textureHandle, textureViewHandle];
   }
   /**
@@ -3776,9 +3776,9 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @returns Handle to the created texture view
    */
   createTextureView2d(textureHandle) {
-    const texture = this.hH.get(textureHandle);
+    const texture = this.jH.get(textureHandle);
     const textureView = texture.createView();
-    const textureViewHandle = this.XC(textureView);
+    const textureViewHandle = this.ZC(textureView);
     return textureViewHandle;
   }
   /**
@@ -3789,13 +3789,13 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @returns Handle to the created render target texture view
    */
   createTextureViewAsRenderTarget(textureHandle) {
-    const texture = this.hH.get(textureHandle);
+    const texture = this.jH.get(textureHandle);
     const textureView = texture.createView({
       baseMipLevel: 0,
       mipLevelCount: 1,
       arrayLayerCount: 1
     });
-    const textureViewHandle = this.XC(textureView);
+    const textureViewHandle = this.ZC(textureView);
     return textureViewHandle;
   }
   /**
@@ -3806,23 +3806,23 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
    * @returns Handle to the created cube texture view
    */
   createTextureViewCube(textureHandle) {
-    const texture = this.hH.get(textureHandle);
+    const texture = this.jH.get(textureHandle);
     const textureView = texture.createView({ dimension: "cube" });
-    const textureViewHandle = this.XC(textureView);
+    const textureViewHandle = this.ZC(textureView);
     return textureViewHandle;
   }
   createTextureView2dArray(textureHandle, arrayLayerCount) {
-    const texture = this.hH.get(textureHandle);
+    const texture = this.jH.get(textureHandle);
     const textureView = texture.createView({
       dimension: "2d-array",
       baseArrayLayer: 0,
       arrayLayerCount
     });
-    const textureViewHandle = this.XC(textureView);
+    const textureViewHandle = this.ZC(textureView);
     return textureViewHandle;
   }
   createTextureView2dArrayAsRenderTarget(textureHandle, arrayIdx, mipLevel) {
-    const texture = this.hH.get(textureHandle);
+    const texture = this.jH.get(textureHandle);
     const textureView = texture.createView({
       dimension: "2d",
       arrayLayerCount: 1,
@@ -3831,11 +3831,11 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       mipLevelCount: 1,
       aspect: "all"
     });
-    const textureViewHandle = this.XC(textureView);
+    const textureViewHandle = this.ZC(textureView);
     return textureViewHandle;
   }
   createCubeTextureViewAsRenderTarget(textureHandle, faceIdx, mipLevel) {
-    const texture = this.hH.get(textureHandle);
+    const texture = this.jH.get(textureHandle);
     const textureView = texture.createView({
       dimension: "2d",
       arrayLayerCount: 1,
@@ -3844,43 +3844,43 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       mipLevelCount: 1,
       aspect: "all"
     });
-    const textureViewHandle = this.XC(textureView);
+    const textureViewHandle = this.ZC(textureView);
     return textureViewHandle;
   }
   deleteTexture(textureHandle) {
     this.flush();
     this.clearCache();
-    const texture = this.hH.get(textureHandle);
+    const texture = this.jH.get(textureHandle);
     if (texture == null) {
       return;
     }
-    this.GH.delete(texture);
-    this.uH.delete(texture);
-    this.vH.delete(texture);
+    this.IH.delete(texture);
+    this.wH.delete(texture);
+    this.xH.delete(texture);
     texture.destroy();
-    this.hH.delete(textureHandle);
+    this.jH.delete(textureHandle);
   }
   /**
    * Recreates the system depth texture with the current canvas dimensions.
    * This is called when the canvas is resized or initialized.
    */
   recreateSystemDepthTexture() {
-    const gpuDevice = this.gH.gpuDevice;
-    const canvas = this.gH.canvas;
-    if (this.yH != null) {
-      this.yH.destroy();
+    const gpuDevice = this.iH.gpuDevice;
+    const canvas = this.iH.canvas;
+    if (this.AH != null) {
+      this.AH.destroy();
     }
-    this.MH = void 0;
+    this.OH = void 0;
     if (canvas.width <= 0 || canvas.height <= 0) {
       Logger.default.warn("Skip recreating system depth texture because the canvas size is zero.");
       return;
     }
-    this.yH = gpuDevice.createTexture({
+    this.AH = gpuDevice.createTexture({
       size: [canvas.width, canvas.height],
       format: DEFAULT_DEPTH_FORMAT,
       usage: GPUTextureUsage.RENDER_ATTACHMENT
     });
-    this.rH = this.yH.createView();
+    this.tH = this.AH.createView();
   }
   /**
    * Resizes the canvas and recreates the system depth texture.
@@ -3894,7 +3894,7 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
       Logger.default.warn("Skip resizing WebGPU canvas because width or height is zero.");
       return;
     }
-    const canvas = this.gH.canvas;
+    const canvas = this.iH.canvas;
     canvas.width = width;
     canvas.height = height;
     this.recreateSystemDepthTexture();
@@ -3915,15 +3915,15 @@ var _WebGpuResourceRepository = class _WebGpuResourceRepository extends CGAPIRes
     return false;
   }
 };
-_WebGpuResourceRepository.aJ = 1024;
+_WebGpuResourceRepository.cJ = 1024;
 /** The byte size of UniformDrawParameters (prerequisites.wgsl). */
-_WebGpuResourceRepository._H = 32;
-_WebGpuResourceRepository.bJ = new Uint32Array(_WebGpuResourceRepository._H / 4);
+_WebGpuResourceRepository.aI = 32;
+_WebGpuResourceRepository.dJ = new Uint32Array(_WebGpuResourceRepository.aI / 4);
 /**
  * Vertex formats that normalize integer data to floats inside the GPU.
  * WebGPU only provides these formats for two or four components.
  */
-_WebGpuResourceRepository.dJ = /* @__PURE__ */ new Set([
+_WebGpuResourceRepository.fJ = /* @__PURE__ */ new Set([
   "unorm8x2",
   "unorm8x4",
   "snorm8x2",

@@ -5,21 +5,21 @@ import { StandardShaderPart } from "../StandardShaderPart.js";
 var Texture2DShader = class extends StandardShaderPart {
   constructor(__functionName) {
     super();
-    this._E = __functionName;
-    this.bF = "";
-    this.cF = true;
+    this.aF = __functionName;
+    this.dF = "";
+    this.eF = true;
   }
   setVariableName(name) {
-    this.bF = name;
+    this.dF = name;
   }
   setSrgbFlag(sRGB) {
-    this.cF = sRGB;
+    this.eF = sRGB;
   }
   getVertexShaderDefinitions(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      const { textureName, samplerName } = getTextureAndSamplerNames(this.bF);
+      const { textureName, samplerName } = getTextureAndSamplerNames(this.dF);
       return `
-fn ${this._E}(uv: vec2f, scale: vec2f, offset: vec2f, rotation: f32, lod: f32, rgba: ptr<function, vec4<f32>>, rgb: ptr<function, vec3<f32>>, r: ptr<function, f32>, g: ptr<function, f32>, b: ptr<function, f32>, a: ptr<function, f32>, uvOut: ptr<function, vec2f>) {
+fn ${this.aF}(uv: vec2f, scale: vec2f, offset: vec2f, rotation: f32, lod: f32, rgba: ptr<function, vec4<f32>>, rgb: ptr<function, vec3<f32>>, r: ptr<function, f32>, g: ptr<function, f32>, b: ptr<function, f32>, a: ptr<function, f32>, uvOut: ptr<function, vec2f>) {
   let materialSID = uniformDrawParameters.materialSid;
   let ${textureName}TexUv = uvTransform(scale, offset, rotation, uv);
   var lodFloat = lod;
@@ -27,7 +27,7 @@ fn ${this._E}(uv: vec2f, scale: vec2f, offset: vec2f, rotation: f32, lod: f32, r
     lodFloat = 0.0;
   }
   var rgbaValue = textureSampleLevel(${textureName}, ${samplerName}, ${textureName}TexUv, lodFloat);
-  ${this.cF ? "rgbaValue = vec4f(srgbToLinear(rgbaValue.rgb), rgbaValue.a);" : ""}
+  ${this.eF ? "rgbaValue = vec4f(srgbToLinear(rgbaValue.rgb), rgbaValue.a);" : ""}
   *rgba = rgbaValue;
   *rgb = rgbaValue.rgb;
   *r = rgbaValue.r;
@@ -39,32 +39,32 @@ fn ${this._E}(uv: vec2f, scale: vec2f, offset: vec2f, rotation: f32, lod: f32, r
 `;
     }
     return `
-void ${this._E}(vec2 uv, vec2 scale, vec2 offset, float rotation, float lod, out vec4 rgba, out vec3 rgb, out float r, out float g, out float b, out float a, out vec2 uvOut) {
+void ${this.aF}(vec2 uv, vec2 scale, vec2 offset, float rotation, float lod, out vec4 rgba, out vec3 rgb, out float r, out float g, out float b, out float a, out vec2 uvOut) {
   ${this.getMaterialSIDForWebGL()}
-  vec2 ${this.bF}TexUv = uvTransform(scale, offset, rotation, uv);
+  vec2 ${this.dF}TexUv = uvTransform(scale, offset, rotation, uv);
   float lodFloat = lod;
   vec4 rgbaValue;
   if (lodFloat < 0.0) {
-    rgbaValue = texture(u_${this.bF}, ${this.bF}TexUv);
+    rgbaValue = texture(u_${this.dF}, ${this.dF}TexUv);
   } else {
-    rgbaValue = textureLod(u_${this.bF}, ${this.bF}TexUv, lodFloat);
+    rgbaValue = textureLod(u_${this.dF}, ${this.dF}TexUv, lodFloat);
   }
-  ${this.cF ? "rgbaValue.rgb = srgbToLinear(rgbaValue.rgb);" : ""}
+  ${this.eF ? "rgbaValue.rgb = srgbToLinear(rgbaValue.rgb);" : ""}
   rgba = rgbaValue;
   rgb = rgbaValue.rgb;
   r = rgbaValue.r;
   g = rgbaValue.g;
   b = rgbaValue.b;
   a = rgbaValue.a;
-  uvOut = ${this.bF}TexUv;
+  uvOut = ${this.dF}TexUv;
 }
 `;
   }
   getPixelShaderDefinitions(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      const { textureName, samplerName } = getTextureAndSamplerNames(this.bF);
+      const { textureName, samplerName } = getTextureAndSamplerNames(this.dF);
       return `
-fn ${this._E}(uv: vec2f, scale: vec2f, offset: vec2f, rotation: f32, lod: f32, rgba: ptr<function, vec4<f32>>, rgb: ptr<function, vec3<f32>>, r: ptr<function, f32>, g: ptr<function, f32>, b: ptr<function, f32>, a: ptr<function, f32>, uvOut: ptr<function, vec2f>) {
+fn ${this.aF}(uv: vec2f, scale: vec2f, offset: vec2f, rotation: f32, lod: f32, rgba: ptr<function, vec4<f32>>, rgb: ptr<function, vec3<f32>>, r: ptr<function, f32>, g: ptr<function, f32>, b: ptr<function, f32>, a: ptr<function, f32>, uvOut: ptr<function, vec2f>) {
   let materialSID = uniformDrawParameters.materialSid;
   let ${textureName}TexUv = uvTransform(scale, offset, rotation, uv);
   var lodFloat = lod;
@@ -80,7 +80,7 @@ fn ${this._E}(uv: vec2f, scale: vec2f, offset: vec2f, rotation: f32, lod: f32, r
       rgbaValue = textureSampleLevel(${textureName}, ${samplerName}, ${textureName}TexUv, lodFloat);
     }
   #endif
-  ${this.cF ? "rgbaValue = vec4f(srgbToLinear(rgbaValue.rgb), rgbaValue.a);" : ""}
+  ${this.eF ? "rgbaValue = vec4f(srgbToLinear(rgbaValue.rgb), rgbaValue.a);" : ""}
   *rgba = rgbaValue;
   *rgb = rgbaValue.rgb;
   *r = rgbaValue.r;
@@ -92,24 +92,24 @@ fn ${this._E}(uv: vec2f, scale: vec2f, offset: vec2f, rotation: f32, lod: f32, r
 `;
     }
     return `
-void ${this._E}(vec2 uv, vec2 scale, vec2 offset, float rotation, float lod, out vec4 rgba, out vec3 rgb, out float r, out float g, out float b, out float a, out vec2 uvOut) {
+void ${this.aF}(vec2 uv, vec2 scale, vec2 offset, float rotation, float lod, out vec4 rgba, out vec3 rgb, out float r, out float g, out float b, out float a, out vec2 uvOut) {
   ${this.getMaterialSIDForWebGL()}
-  vec2 ${this.bF}TexUv = uvTransform(scale, offset, rotation, uv);
+  vec2 ${this.dF}TexUv = uvTransform(scale, offset, rotation, uv);
   float lodFloat = lod;
   vec4 rgbaValue;
   if (lodFloat < 0.0) {
-    rgbaValue = texture(u_${this.bF}, ${this.bF}TexUv);
+    rgbaValue = texture(u_${this.dF}, ${this.dF}TexUv);
   } else {
-    rgbaValue = textureLod(u_${this.bF}, ${this.bF}TexUv, lodFloat);
+    rgbaValue = textureLod(u_${this.dF}, ${this.dF}TexUv, lodFloat);
   }
-  ${this.cF ? "rgbaValue.rgb = srgbToLinear(rgbaValue.rgb);" : ""}
+  ${this.eF ? "rgbaValue.rgb = srgbToLinear(rgbaValue.rgb);" : ""}
   rgba = rgbaValue;
   rgb = rgbaValue.rgb;
   r = rgbaValue.r;
   g = rgbaValue.g;
   b = rgbaValue.b;
   a = rgbaValue.a;
-  uvOut = ${this.bF}TexUv;
+  uvOut = ${this.dF}TexUv;
 }
 `;
   }

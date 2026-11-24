@@ -1,7 +1,7 @@
 // src/foundation/system/ModuleManager.ts
 var ModuleManager = class _ModuleManager {
   constructor() {
-    this.fB = /* @__PURE__ */ new Map();
+    this.hB = /* @__PURE__ */ new Map();
   }
   /* eslint-disable prettier/prettier */
   /**
@@ -71,7 +71,7 @@ var ModuleManager = class _ModuleManager {
         "../../xr/main.js"
       )).default;
     }
-    this.fB.set(moduleName, module);
+    this.hB.set(moduleName, module);
     return module;
   }
   /**
@@ -90,7 +90,7 @@ var ModuleManager = class _ModuleManager {
    * ```
    */
   getModule(moduleName) {
-    return this.fB.get(moduleName);
+    return this.hB.get(moduleName);
   }
   /**
    * Gets the singleton instance of ModuleManager.

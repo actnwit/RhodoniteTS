@@ -14,7 +14,7 @@ import { Logger } from '../misc/Logger';
 import { type ICGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { Expression } from '../renderer/Expression';
 import { Frame } from '../renderer/Frame';
-import { LightClusterSystem } from '../renderer/lightCluster/LightClusterSystem';
+import type { ILightClusterSystem } from '../renderer/lightCluster/LightClusterSystemStub';
 import { EngineState } from './EngineState';
 import type { WebARSystem } from '../../xr/WebARSystem';
 import type { WebXRSystem } from '../../xr/WebXRSystem';
@@ -82,6 +82,9 @@ export declare class Engine extends RnObject {
     private __materialRepository;
     private __globalDataRepository;
     private __lightClusterSystem;
+    private __lightClusterSystemPromise?;
+    private __isLightClusterSystemLoaded;
+    private __isDestroyed;
     private __config;
     private __logger;
     private __dummyTextures?;
@@ -323,9 +326,20 @@ export declare class Engine extends RnObject {
     get memoryManager(): MemoryManager;
     get globalDataRepository(): GlobalDataRepository;
     /**
+     * Starts loading the light cluster system. Called when the first light is added; applications without lights
+     * never download it.
+     * @internal
+     */
+    _requestLightClusterSystem(): void;
+    /**
+     * Waits for the real light cluster system. Tests and applications that need it immediately call this.
+     * @internal
+     */
+    _ensureLightClusterSystem(): Promise<ILightClusterSystem>;
+    /**
      * The system that builds the light lists of Clustered Forward rendering.
      */
-    get lightClusterSystem(): LightClusterSystem;
+    get lightClusterSystem(): ILightClusterSystem;
     get materialRepository(): MaterialRepository;
     get webglResourceRepository(): WebGLResourceRepository;
     get cgApiResourceRepository(): ICGAPIResourceRepository;

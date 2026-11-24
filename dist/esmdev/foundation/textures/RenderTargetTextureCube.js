@@ -38,12 +38,12 @@ var RenderTargetTextureCube = class extends AbstractTexture {
   }) {
     this.dm = width;
     this.Cy = height;
-    this.rB = mipLevelCount != null ? mipLevelCount : Math.floor(Math.log2(Math.max(width, height))) + 1;
+    this.tB = mipLevelCount != null ? mipLevelCount : Math.floor(Math.log2(Math.max(width, height))) + 1;
     const { format, type } = TextureFormat.getPixelFormatAndComponentTypeFromTextureFormat(internalFormat);
-    this.sB = internalFormat;
-    this.tB = format;
+    this.uB = internalFormat;
+    this.vB = format;
     this.Cc = type;
-    this.AB();
+    this.CB();
   }
   /**
    * Creates the underlying 3D API texture resources for the cube render target.
@@ -52,13 +52,13 @@ var RenderTargetTextureCube = class extends AbstractTexture {
    *
    * @private
    */
-  AB() {
+  CB() {
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
     const texture = cgApiResourceRepository.createRenderTargetTextureCube({
       width: this.dm,
       height: this.Cy,
-      mipLevelCount: this.rB,
-      format: this.sB
+      mipLevelCount: this.tB,
+      format: this.uB
     });
     this._textureResourceUid = texture;
     if (this.c.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
@@ -97,7 +97,7 @@ var RenderTargetTextureCube = class extends AbstractTexture {
     this.destroy3DAPIResources();
     this.dm = width;
     this.Cy = height;
-    this.AB();
+    this.CB();
   }
   /**
    * Destroys all 3D API resources associated with this texture.
@@ -144,7 +144,7 @@ var RenderTargetTextureCube = class extends AbstractTexture {
    * @internal
    */
   set _fbo(fbo) {
-    this.yB = fbo;
+    this.AB = fbo;
   }
   /**
    * Gets the framebuffer object associated with this render target texture.
@@ -152,7 +152,7 @@ var RenderTargetTextureCube = class extends AbstractTexture {
    * @returns The associated framebuffer object, or undefined if none is set
    */
   get fbo() {
-    return this.yB;
+    return this.AB;
   }
   /**
    * Gets the number of mip levels in this cube texture.
@@ -160,7 +160,7 @@ var RenderTargetTextureCube = class extends AbstractTexture {
    * @returns The total number of mip levels, including the base level
    */
   get mipmapLevelNumber() {
-    return this.rB;
+    return this.tB;
   }
   /**
    * Marks the texture as ready for use.
@@ -172,7 +172,7 @@ var RenderTargetTextureCube = class extends AbstractTexture {
    * and resource allocation.
    */
   setIsTextureReady() {
-    this.lB = true;
+    this.nB = true;
   }
 };
 export {

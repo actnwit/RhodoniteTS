@@ -32,16 +32,16 @@ import { WebGLStereoUtil } from "./WebGLStereoUtil.js";
 var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResourceRepository {
   constructor() {
     super();
-    this.nD = /* @__PURE__ */ new Map();
-    this.oD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-    this.YC = /* @__PURE__ */ new Map();
-    this.aD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-    this.bD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    this.pD = /* @__PURE__ */ new Map();
+    this.qD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    this._C = /* @__PURE__ */ new Map();
     this.cD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.dD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.eD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.fD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.gD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    this.hD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    this.iD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   }
   /**
    * Gets the singleton instance of WebGLResourceRepository.
@@ -62,12 +62,12 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
   addWebGLContext(config, gl, canvas, asCurrent) {
     var _a;
     const glw = new WebGLContextWrapper(config, gl, canvas);
-    this.nD.set("default", glw);
+    this.pD.set("default", glw);
     if (asCurrent) {
-      (_a = this.ZC) == null ? void 0 : _a.invalidateAll();
-      this.ZC = void 0;
-      this._C = void 0;
-      this.WC = glw;
+      (_a = this.$C) == null ? void 0 : _a.invalidateAll();
+      this.$C = void 0;
+      this.aD = void 0;
+      this.YC = glw;
     }
   }
   /**
@@ -90,20 +90,20 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @returns The current WebGLContextWrapper instance or undefined if none is set
    */
   get currentWebGLContextWrapper() {
-    return this.WC;
+    return this.YC;
   }
   /**
    * Gets the engine-wide instance SID table used by multi-draw rendering.
    * The table is created lazily for the current WebGL context.
    */
   get instanceSidTable() {
-    if (this._C == null) {
-      if (this.WC == null) {
+    if (this.aD == null) {
+      if (this.YC == null) {
         throw new Error("No WebGL context is available for the instance SID table.");
       }
-      this._C = new InstanceSidTable(this.WC);
+      this.aD = new InstanceSidTable(this.YC);
     }
-    return this._C;
+    return this.aD;
   }
   /**
    * Whether this context can use the instance SID path used by multi-draw rendering.
@@ -112,17 +112,17 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    */
   get isInstanceSidTextureCapable() {
     var _a;
-    return ((_a = this.WC) == null ? void 0 : _a.isWebGL2) === true && this.WC.webgl2ExtMD != null;
+    return ((_a = this.YC) == null ? void 0 : _a.isWebGL2) === true && this.YC.webgl2ExtMD != null;
   }
   /**
    * Gets the engine-wide multi-draw group repository, creating it lazily.
    * @param engine - The engine that owns the WebGL context
    */
   getMultiDrawRepository(engine) {
-    if (this.ZC == null) {
-      this.ZC = new MultiDrawRepository(engine);
+    if (this.$C == null) {
+      this.$C = new MultiDrawRepository(engine);
     }
-    return this.ZC;
+    return this.$C;
   }
   /**
    * Generates a unique resource handle for WebGL objects.
@@ -130,7 +130,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @returns A unique WebGL resource handle
    */
   getResourceNumber() {
-    return ++this.oD;
+    return ++this.qD;
   }
   /**
    * Registers a WebGL object and assigns it a unique handle.
@@ -138,10 +138,10 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @param obj - The WebGL object to register
    * @returns The assigned resource handle
    */
-  XC(obj) {
+  ZC(obj) {
     const handle = this.getResourceNumber();
     obj._resourceUid = handle;
-    this.YC.set(handle, obj);
+    this._C.set(handle, obj);
     return handle;
   }
   /**
@@ -151,7 +151,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @returns The WebGL resource or null if not found
    */
   getWebGLResource(WebGLResourceHandle) {
-    const result = this.YC.get(WebGLResourceHandle);
+    const result = this._C.get(WebGLResourceHandle);
     return result != null ? result : null;
   }
   /**
@@ -162,13 +162,13 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @throws Error if no WebGL context is available
    */
   createIndexBuffer(accessor) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     if (gl == null) {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
-    this.WC.bindVertexArray(null);
+    this.YC.bindVertexArray(null);
     const ibo = gl.createBuffer();
-    const resourceHandle = this.XC(ibo);
+    const resourceHandle = this.ZC(ibo);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accessor.getTypedArray(), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
@@ -182,12 +182,12 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @throws Error if no WebGL context is available or IBO not found
    */
   updateIndexBuffer(accessor, resourceHandle) {
-    const glw = this.WC;
+    const glw = this.YC;
     const gl = glw == null ? void 0 : glw.getRawContext();
     if (Is.not.exist(gl)) {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
-    const ibo = this.YC.get(resourceHandle);
+    const ibo = this._C.get(resourceHandle);
     if (Is.not.exist(ibo)) {
       throw new Error("Not found IBO.");
     }
@@ -204,13 +204,13 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @throws Error if no WebGL context is available
    */
   createVertexBuffer(accessor) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     if (gl == null) {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
-    this.WC.bindVertexArray(null);
+    this.YC.bindVertexArray(null);
     const vbo = gl.createBuffer();
-    const resourceHandle = this.XC(vbo);
+    const resourceHandle = this.ZC(vbo);
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.bufferData(gl.ARRAY_BUFFER, accessor.getUint8Array(), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -224,13 +224,13 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @throws Error if no WebGL context is available
    */
   createVertexBufferFromTypedArray(typedArray) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     if (gl == null) {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
-    this.WC.bindVertexArray(null);
+    this.YC.bindVertexArray(null);
     const vbo = gl.createBuffer();
-    const resourceHandle = this.XC(vbo);
+    const resourceHandle = this.ZC(vbo);
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.bufferData(gl.ARRAY_BUFFER, typedArray, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -243,13 +243,13 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @returns The handle of the created index buffer
    */
   createIndexBufferFromTypedArray(typedArray) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     if (gl == null) {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
-    this.WC.bindVertexArray(null);
+    this.YC.bindVertexArray(null);
     const ibo = gl.createBuffer();
-    const resourceHandle = this.XC(ibo);
+    const resourceHandle = this.ZC(ibo);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, typedArray, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
@@ -263,12 +263,12 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @throws Error if no WebGL context is available or VBO not found
    */
   updateVertexBuffer(accessor, resourceHandle) {
-    const glw = this.WC;
+    const glw = this.YC;
     const gl = glw == null ? void 0 : glw.getRawContext();
     if (!Is.exist(gl)) {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
-    const vbo = this.YC.get(resourceHandle);
+    const vbo = this._C.get(resourceHandle);
     if (!Is.exist(vbo)) {
       throw new Error("Not found VBO.");
     }
@@ -289,11 +289,11 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    */
   updateVertexBufferWithTypedArray(resourceHandle, typedArray) {
     var _a;
-    const gl = (_a = this.WC) == null ? void 0 : _a.getRawContext();
+    const gl = (_a = this.YC) == null ? void 0 : _a.getRawContext();
     if (!Is.exist(gl)) {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
-    const vbo = this.YC.get(resourceHandle);
+    const vbo = this._C.get(resourceHandle);
     if (!Is.exist(vbo)) {
       throw new Error("Not found VBO.");
     }
@@ -308,15 +308,15 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @throws Error if no WebGL context is available
    */
   createVertexArray() {
-    const gl = this.WC;
+    const gl = this.YC;
     if (gl == null) {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
-    const vao = this.WC.createVertexArray();
+    const vao = this.YC.createVertexArray();
     if (Is.not.exist(vao)) {
       return void 0;
     }
-    const resourceHandle = this.XC(vao);
+    const resourceHandle = this.ZC(vao);
     return resourceHandle;
   }
   /**
@@ -326,8 +326,8 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @param textureUid - The handle of the texture to bind
    */
   bindTexture2D(textureSlotIndex, textureUid) {
-    const texture = this.YC.get(textureUid);
-    this.WC.bindTexture2D(textureSlotIndex, texture);
+    const texture = this._C.get(textureUid);
+    this.YC.bindTexture2D(textureSlotIndex, texture);
   }
   /**
    * Binds a texture sampler to the specified texture slot.
@@ -337,10 +337,10 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    */
   bindTextureSampler(textureSlotIndex, samplerUid) {
     if (samplerUid === -1) {
-      this.WC.bindTextureSampler(textureSlotIndex, null);
+      this.YC.bindTextureSampler(textureSlotIndex, null);
     } else {
       const sampler = this.getWebGLResource(samplerUid);
-      this.WC.bindTextureSampler(textureSlotIndex, sampler);
+      this.YC.bindTextureSampler(textureSlotIndex, sampler);
     }
   }
   /**
@@ -351,7 +351,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    */
   bindTextureCube(textureSlotIndex, textureUid) {
     const texture = this.getWebGLResource(textureUid);
-    this.WC.bindTextureCube(textureSlotIndex, texture);
+    this.YC.bindTextureCube(textureSlotIndex, texture);
   }
   /**
    * Binds a 2D texture array to the specified texture slot.
@@ -361,7 +361,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    */
   bindTexture2DArray(textureSlotIndex, textureUid) {
     const texture = this.getWebGLResource(textureUid);
-    this.WC.bindTexture2DArray(textureSlotIndex, texture);
+    this.YC.bindTexture2DArray(textureSlotIndex, texture);
   }
   /**
    * Creates vertex buffers and index buffers for a primitive and returns handles for them.
@@ -437,7 +437,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     attributeSemantics,
     onError
   }) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     if (gl == null) {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
@@ -446,7 +446,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     gl.shaderSource(vertexShader, vertexShaderStr);
     gl.compileShader(vertexShader);
     if (isDebugMode) {
-      const result = this.lD(
+      const result = this.nD(
         engine,
         material.materialTypeName,
         vertexShader,
@@ -461,7 +461,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     gl.shaderSource(fragmentShader, fragmentShaderStr);
     gl.compileShader(fragmentShader);
     if (isDebugMode) {
-      this.lD(engine, material.materialTypeName, fragmentShader, fragmentShaderStr, onError);
+      this.nD(engine, material.materialTypeName, fragmentShader, fragmentShaderStr, onError);
     }
     const shaderProgram = gl.createProgram();
     shaderProgram._engine = engine;
@@ -490,7 +490,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     bindAttribLocation(VertexAttribute.MaterialSid.getAttributeSlot(), "a_materialSid");
     gl.linkProgram(shaderProgram);
     if (isDebugMode) {
-      const result = this.pD(
+      const result = this.rD(
         engine,
         material.materialTypeName,
         shaderProgram,
@@ -501,8 +501,8 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
         return CGAPIResourceRepository.InvalidCGAPIResourceUid;
       }
     }
-    shaderProgram.rD = this.rebuildProgramBySpector.bind(shaderProgram);
-    const resourceHandle = this.XC(shaderProgram);
+    shaderProgram.tD = this.rebuildProgramBySpector.bind(shaderProgram);
+    const resourceHandle = this.ZC(shaderProgram);
     gl.deleteShader(vertexShader);
     gl.deleteShader(fragmentShader);
     return resourceHandle;
@@ -517,8 +517,8 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @param onError - Optional error callback function
    * @returns True if compilation succeeded, false otherwise
    */
-  lD(engine, materialTypeName, shader, shaderText, onError) {
-    const glw = this.WC;
+  nD(engine, materialTypeName, shader, shaderText, onError) {
+    const glw = this.YC;
     const gl = glw.getRawContext();
     if (Is.false(gl.getShaderParameter(shader, gl.COMPILE_STATUS)) && Is.false(gl.isContextLost())) {
       engine.logger.info(`MaterialTypeName: ${materialTypeName}`);
@@ -544,8 +544,8 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @param fragmentShaderText - The fragment shader source code for error reporting
    * @returns True if linking succeeded, false otherwise
    */
-  pD(engine, materialTypeName, shaderProgram, vertexShaderText, fragmentShaderText) {
-    const glw = this.WC;
+  rD(engine, materialTypeName, shaderProgram, vertexShaderText, fragmentShaderText) {
+    const glw = this.YC;
     const gl = glw.getRawContext();
     if (Is.false(gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) && Is.false(gl.isContextLost())) {
       engine.logger.info(`MaterialTypeName: ${materialTypeName}`);
@@ -570,7 +570,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @returns The WebGL program object with configured uniform locations
    */
   setupUniformLocations(config, shaderProgramUid, infoArray) {
-    const glw = this.WC;
+    const glw = this.YC;
     const gl = glw.getRawContext();
     const shaderProgram = this.getWebGLResource(shaderProgramUid);
     const infoArrayLen = infoArray.length;
@@ -629,7 +629,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     }
     const textureUnit = value[0];
     if (textureUnits.get(semanticStr) !== textureUnit) {
-      const gl = this.WC.getRawContext();
+      const gl = this.YC.getRawContext();
       const loc = shaderProgram[semanticStr];
       gl.uniform1i(loc, textureUnit);
       textureUnits.set(semanticStr, textureUnit);
@@ -778,7 +778,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
       return false;
     }
     const uLocation = loc;
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     if (isMatrix) {
       if (componentNumber === 4) {
         gl.uniformMatrix4fv(uLocation, false, x);
@@ -859,9 +859,9 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     iboHandle,
     vboHandles
   }, primitive, instanceIDBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const vao = this.getWebGLResource(vaoHandle);
-    this.WC.bindVertexArray(vao);
+    this.YC.bindVertexArray(vao);
     if (iboHandle != null) {
       const ibo = this.getWebGLResource(iboHandle);
       if (ibo != null) {
@@ -925,10 +925,10 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
         0,
         0
       );
-      this.WC.vertexAttribDivisor(VertexAttribute.Instance.getAttributeSlot(), 1);
+      this.YC.vertexAttribDivisor(VertexAttribute.Instance.getAttributeSlot(), 1);
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    this.WC.bindVertexArray(null);
+    this.YC.bindVertexArray(null);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   }
   /**
@@ -942,9 +942,9 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     if (handles == null) {
       return;
     }
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const vao = this.getWebGLResource(vaoHandle);
-    this.WC.bindVertexArray(vao);
+    this.YC.bindVertexArray(vao);
     if (handles.iboHandle != null) {
       const ibo = this.getWebGLResource(handles.iboHandle);
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
@@ -992,20 +992,20 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     const instanceSlot = VertexAttribute.Instance.getAttributeSlot();
     gl.enableVertexAttribArray(instanceSlot);
     gl.vertexAttribIPointer(instanceSlot, 1, ComponentType.UnsignedInt.index, 4, 0);
-    this.WC.vertexAttribDivisor(instanceSlot, 0);
+    this.YC.vertexAttribDivisor(instanceSlot, 0);
     const materialSidSlot = VertexAttribute.MaterialSid.getAttributeSlot();
     if (useMaterialSidAttribute) {
       const materialSidVbo = this.getWebGLResource(group.materialSidVboHandle);
       gl.bindBuffer(gl.ARRAY_BUFFER, materialSidVbo);
       gl.enableVertexAttribArray(materialSidSlot);
       gl.vertexAttribIPointer(materialSidSlot, 1, ComponentType.UnsignedInt.index, 4, 0);
-      this.WC.vertexAttribDivisor(materialSidSlot, 0);
+      this.YC.vertexAttribDivisor(materialSidSlot, 0);
     } else {
       gl.disableVertexAttribArray(materialSidSlot);
       gl.vertexAttribI4ui(materialSidSlot, 0, 0, 0, 0);
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    this.WC.bindVertexArray(null);
+    this.YC.bindVertexArray(null);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   }
   /**
@@ -1025,12 +1025,12 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     width,
     height
   }) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const texture = gl.createTexture();
-    this.WC.bindTexture2D(15, texture);
+    this.YC.bindTexture2D(15, texture);
     gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
-    const resourceHandle = this.XC(texture);
-    this.WC.unbindTexture2D(15);
+    const resourceHandle = this.ZC(texture);
+    this.YC.unbindTexture2D(15);
     return resourceHandle;
   }
   /**
@@ -1055,9 +1055,9 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     anisotropy,
     shadowCompareMode
   }) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const sampler = gl.createSampler();
-    const resourceHandle = this.XC(sampler);
+    const resourceHandle = this.ZC(sampler);
     gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, minFilter.index);
     gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, magFilter.index);
     gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, wrapS.index);
@@ -1068,8 +1068,8 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
       gl.samplerParameteri(sampler, gl.TEXTURE_COMPARE_FUNC, gl.LESS);
     }
     if (anisotropy) {
-      if (this.WC.webgl2ExtTFA) {
-        gl.samplerParameteri(sampler, this.WC.webgl2ExtTFA.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+      if (this.YC.webgl2ExtTFA) {
+        gl.samplerParameteri(sampler, this.YC.webgl2ExtTFA.TEXTURE_MAX_ANISOTROPY_EXT, 4);
       }
     }
     return resourceHandle;
@@ -1081,18 +1081,18 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @returns The handle of the clamp-to-edge linear sampler
    */
   createOrGetTextureSamplerClampToEdgeLinear() {
-    if (this.aD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      const gl = this.WC.getRawContextAsWebGL2();
+    if (this.cD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const gl = this.YC.getRawContextAsWebGL2();
       const sampler = gl.createSampler();
-      const resourceHandle = this.XC(sampler);
-      this.aD = resourceHandle;
+      const resourceHandle = this.ZC(sampler);
+      this.cD = resourceHandle;
       gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
       gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
     }
-    return this.aD;
+    return this.cD;
   }
   /**
    * Creates or returns an existing texture sampler with clamp-to-edge wrapping and nearest filtering.
@@ -1101,18 +1101,18 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @returns The handle of the clamp-to-edge nearest sampler
    */
   createOrGetTextureSamplerClampToEdgeNearest() {
-    if (this.bD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      const gl = this.WC.getRawContextAsWebGL2();
+    if (this.dD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const gl = this.YC.getRawContextAsWebGL2();
       const sampler = gl.createSampler();
-      const resourceHandle = this.XC(sampler);
-      this.bD = resourceHandle;
+      const resourceHandle = this.ZC(sampler);
+      this.dD = resourceHandle;
       gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
       gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
       gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
     }
-    return this.bD;
+    return this.dD;
   }
   /**
    * Creates or returns an existing texture sampler with repeat wrapping and nearest filtering.
@@ -1121,18 +1121,18 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @returns The handle of the repeat nearest sampler
    */
   createOrGetTextureSamplerRepeatNearest() {
-    if (this.cD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      const gl = this.WC.getRawContextAsWebGL2();
+    if (this.eD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const gl = this.YC.getRawContextAsWebGL2();
       const sampler = gl.createSampler();
-      const resourceHandle = this.XC(sampler);
-      this.cD = resourceHandle;
+      const resourceHandle = this.ZC(sampler);
+      this.eD = resourceHandle;
       gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
       gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
       gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.REPEAT);
       gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.REPEAT);
       gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, gl.REPEAT);
     }
-    return this.cD;
+    return this.eD;
   }
   /**
    * Creates or returns an existing texture sampler with repeat wrapping and linear filtering.
@@ -1141,32 +1141,12 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @returns The handle of the repeat linear sampler
    */
   createOrGetTextureSamplerRepeatLinear() {
-    if (this.dD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      const gl = this.WC.getRawContextAsWebGL2();
-      const sampler = gl.createSampler();
-      const resourceHandle = this.XC(sampler);
-      this.dD = resourceHandle;
-      gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.REPEAT);
-      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.REPEAT);
-      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, gl.REPEAT);
-    }
-    return this.dD;
-  }
-  /**
-   * Creates or returns an existing texture sampler with repeat wrapping and trilinear filtering.
-   * This method implements a singleton pattern for commonly used sampler configurations.
-   *
-   * @returns The handle of the repeat trilinear sampler
-   */
-  createOrGetTextureSamplerRepeatTriLinear() {
     if (this.fD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      const gl = this.WC.getRawContextAsWebGL2();
+      const gl = this.YC.getRawContextAsWebGL2();
       const sampler = gl.createSampler();
-      const resourceHandle = this.XC(sampler);
+      const resourceHandle = this.ZC(sampler);
       this.fD = resourceHandle;
-      gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+      gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
       gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.REPEAT);
       gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.REPEAT);
@@ -1175,17 +1155,37 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     return this.fD;
   }
   /**
+   * Creates or returns an existing texture sampler with repeat wrapping and trilinear filtering.
+   * This method implements a singleton pattern for commonly used sampler configurations.
+   *
+   * @returns The handle of the repeat trilinear sampler
+   */
+  createOrGetTextureSamplerRepeatTriLinear() {
+    if (this.hD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const gl = this.YC.getRawContextAsWebGL2();
+      const sampler = gl.createSampler();
+      const resourceHandle = this.ZC(sampler);
+      this.hD = resourceHandle;
+      gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+      gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.REPEAT);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, gl.REPEAT);
+    }
+    return this.hD;
+  }
+  /**
    * Creates or returns an existing texture sampler configured for shadow mapping.
    * This sampler uses nearest filtering and enables shadow comparison functionality.
    *
    * @returns The handle of the shadow sampler
    */
   createOrGetTextureSamplerShadow() {
-    if (this.eD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      const gl = this.WC.getRawContextAsWebGL2();
+    if (this.gD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const gl = this.YC.getRawContextAsWebGL2();
       const sampler = gl.createSampler();
-      const resourceHandle = this.XC(sampler);
-      this.eD = resourceHandle;
+      const resourceHandle = this.ZC(sampler);
+      this.gD = resourceHandle;
       gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
       gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
       gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -1193,7 +1193,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
       gl.samplerParameteri(sampler, gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
       gl.samplerParameteri(sampler, gl.TEXTURE_COMPARE_FUNC, gl.LESS);
     }
-    return this.eD;
+    return this.gD;
   }
   /**
    * Creates or returns an existing texture sampler with repeat wrapping, anisotropic filtering, and linear filtering.
@@ -1202,19 +1202,19 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @returns The handle of the repeat anisotropy linear sampler
    */
   createOrGetTextureSamplerRepeatAnisotropyLinear() {
-    if (this.gD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      const gl = this.WC.getRawContextAsWebGL2();
+    if (this.iD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const gl = this.YC.getRawContextAsWebGL2();
       const sampler = gl.createSampler();
-      const resourceHandle = this.XC(sampler);
-      this.gD = resourceHandle;
+      const resourceHandle = this.ZC(sampler);
+      this.iD = resourceHandle;
       gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
       gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.REPEAT);
       gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.REPEAT);
       gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, gl.REPEAT);
-      gl.samplerParameteri(sampler, this.WC.webgl2ExtTFA.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+      gl.samplerParameteri(sampler, this.YC.webgl2ExtTFA.TEXTURE_MAX_ANISOTROPY_EXT, 4);
     }
-    return this.gD;
+    return this.iD;
   }
   /**
    * Creates a 2D texture from ImageBitmap data with specified parameters.
@@ -1238,7 +1238,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     type,
     generateMipmap
   }) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     let finalImageData = imageData;
     let finalWidth = width;
     let finalHeight = height;
@@ -1251,12 +1251,12 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
       finalImageData = await createImageBitmap(canvas);
     }
     const texture = gl.createTexture();
-    const textureHandle = this.XC(texture);
-    this.WC.bindTexture2D(15, texture);
+    const textureHandle = this.ZC(texture);
+    this.YC.bindTexture2D(15, texture);
     const levels = Math.floor(Math.log2(Math.max(finalWidth, finalHeight))) + 1;
     gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, finalWidth, finalHeight);
     gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, format.index, type.index, finalImageData);
-    this.hD(gl, finalWidth, finalHeight, generateMipmap);
+    this.jD(gl, finalWidth, finalHeight, generateMipmap);
     return textureHandle;
   }
   /**
@@ -1268,9 +1268,9 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @param height - Height of the texture
    * @param generateMipmap - Whether to generate mipmaps
    */
-  hD(gl, _width, _height, _generateMipmap) {
+  jD(gl, _width, _height, _generateMipmap) {
     gl.generateMipmap(gl.TEXTURE_2D);
-    this.WC.unbindTexture2D(15);
+    this.YC.unbindTexture2D(15);
   }
   /**
    * Creates a 2D texture from an HTML image element with specified parameters.
@@ -1294,7 +1294,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     type,
     generateMipmap
   }) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     let finalImageData = imageData;
     let finalWidth = width;
     let finalHeight = height;
@@ -1307,12 +1307,12 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
       finalImageData = await createImageBitmap(canvas);
     }
     const texture = gl.createTexture();
-    const resourceHandle = this.XC(texture);
-    this.WC.bindTexture2D(15, texture);
+    const resourceHandle = this.ZC(texture);
+    this.YC.bindTexture2D(15, texture);
     const levels = generateMipmap ? Math.max(Math.log2(finalWidth), Math.log2(finalHeight)) : 1;
     gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, finalWidth, finalHeight);
     gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, format.index, type.index, finalImageData);
-    this.hD(gl, finalWidth, finalHeight, generateMipmap);
+    this.jD(gl, finalWidth, finalHeight, generateMipmap);
     return resourceHandle;
   }
   /**
@@ -1330,10 +1330,10 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @returns The handle of the created texture array
    */
   createTextureArray(width, height, arrayLength, mipLevelCount, internalFormat, format, type, imageData) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const texture = gl.createTexture();
-    const resourceHandle = this.XC(texture);
-    this.WC.bindTexture2DArray(15, texture);
+    const resourceHandle = this.ZC(texture);
+    this.YC.bindTexture2DArray(15, texture);
     gl.texStorage3D(gl.TEXTURE_2D_ARRAY, mipLevelCount, internalFormat.index, width, height, arrayLength);
     for (let layer = 0; layer < arrayLength; layer++) {
       gl.texSubImage3D(
@@ -1355,7 +1355,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
         imageData
       );
     }
-    this.WC.unbindTexture2DArray(15);
+    this.YC.unbindTexture2DArray(15);
     return resourceHandle;
   }
   /**
@@ -1375,12 +1375,12 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     height,
     mipLevelCount
   }) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const texture = gl.createTexture();
-    const resourceHandle = this.XC(texture);
-    this.WC.bindTexture2D(15, texture);
+    const resourceHandle = this.ZC(texture);
+    this.YC.bindTexture2D(15, texture);
     gl.texStorage2D(GL_TEXTURE_2D, mipLevelCount, format.index, width, height);
-    this.WC.unbindTexture2D(15);
+    this.YC.unbindTexture2D(15);
     return resourceHandle;
   }
   /**
@@ -1411,7 +1411,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     rowSizeByPixel,
     data
   }) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const texture = this.getWebGLResource(textureUid);
     const pixelFormat = TextureFormat.getPixelFormatFromTextureFormat(format);
     const compositionNum = PixelFormat.getCompositionNumFromPixelFormat(pixelFormat);
@@ -1426,7 +1426,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
         );
       }
     }
-    this.WC.bindTexture2D(15, texture);
+    this.YC.bindTexture2D(15, texture);
     gl.texSubImage2D(
       gl.TEXTURE_2D,
       mipLevel,
@@ -1438,7 +1438,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
       type.index,
       reducedData
     );
-    this.WC.unbindTexture2D(15);
+    this.YC.unbindTexture2D(15);
   }
   /**
    * Creates a 2D texture from a typed array with specified parameters.
@@ -1462,10 +1462,10 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     type,
     generateMipmap
   }) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const texture = gl.createTexture();
-    const resourceHandle = this.XC(texture);
-    this.WC.bindTexture2D(15, texture);
+    const resourceHandle = this.ZC(texture);
+    this.YC.bindTexture2D(15, texture);
     const levels = generateMipmap ? Math.max(Math.log2(width), Math.log2(height)) : 1;
     gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
     gl.texSubImage2D(
@@ -1479,7 +1479,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
       type.index,
       imageData
     );
-    this.hD(gl, width, height, generateMipmap);
+    this.jD(gl, width, height, generateMipmap);
     return resourceHandle;
   }
   /**
@@ -1491,10 +1491,10 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @returns Promise that resolves to the handle of the created compressed texture
    */
   async createCompressedTexture(textureDataArray, compressionTextureType) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     const texture = gl.createTexture();
-    const resourceHandle = this.XC(texture);
-    this.WC.bindTexture2D(15, texture);
+    const resourceHandle = this.ZC(texture);
+    this.YC.bindTexture2D(15, texture);
     const internalFormat = compressionTextureType.index;
     for (const textureData of textureDataArray) {
       gl.compressedTexImage2D(
@@ -1507,7 +1507,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
         textureData.buffer
       );
     }
-    this.WC.unbindTexture2D(15);
+    this.YC.unbindTexture2D(15);
     return resourceHandle;
   }
   /**
@@ -1525,10 +1525,10 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
   }) {
     let basisCompressionType;
     let compressionType;
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     const texture = gl.createTexture();
-    const resourceHandle = this.XC(texture);
-    this.WC.bindTexture2D(15, texture);
+    const resourceHandle = this.ZC(texture);
+    this.YC.bindTexture2D(15, texture);
     const s3tc = gl.getExtension("WEBGL_compressed_texture_s3tc");
     if (s3tc) {
       basisCompressionType = BasisCompressionType.BC3;
@@ -1566,7 +1566,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
       const textureSource = this.decodeBasisImage(basisFile, basisCompressionType, 0, i);
       gl.compressedTexImage2D(gl.TEXTURE_2D, i, compressionType, width, height, border, textureSource);
     }
-    this.WC.unbindTexture2D(15);
+    this.YC.unbindTexture2D(15);
     return resourceHandle;
   }
   /**
@@ -1594,9 +1594,9 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @returns The handle of the created framebuffer object
    */
   createFrameBufferObject() {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     const fbo = gl.createFramebuffer();
-    const resourceHandle = this.XC(fbo);
+    const resourceHandle = this.ZC(fbo);
     return resourceHandle;
   }
   /**
@@ -1608,15 +1608,15 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @param renderable - The texture or renderbuffer to attach
    */
   attachColorBufferToFrameBufferObject(framebuffer, attachmentIndex, renderable) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const fbo = this.getWebGLResource(framebuffer.framebufferUID);
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
     const renderableWebGLResource = this.getWebGLResource(renderable._textureResourceUid);
-    const attachmentId = this.WC.colorAttachment(attachmentIndex);
+    const attachmentId = this.YC.colorAttachment(attachmentIndex);
     if (renderable instanceof RenderTargetTexture2DArray) {
       renderable._fbo = framebuffer;
-      if (this.WC.webgl2ExtMLTVIEW.is_multisample) {
-        this.WC.webgl2ExtMLTVIEW.framebufferTextureMultisampleMultiviewOVR(
+      if (this.YC.webgl2ExtMLTVIEW.is_multisample) {
+        this.YC.webgl2ExtMLTVIEW.framebufferTextureMultisampleMultiviewOVR(
           gl.DRAW_FRAMEBUFFER,
           attachmentId,
           renderableWebGLResource,
@@ -1627,7 +1627,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
           renderable.arrayLength
         );
       } else {
-        this.WC.webgl2ExtMLTVIEW.framebufferTextureMultiviewOVR(
+        this.YC.webgl2ExtMLTVIEW.framebufferTextureMultiviewOVR(
           gl.DRAW_FRAMEBUFFER,
           attachmentId,
           renderableWebGLResource,
@@ -1661,11 +1661,11 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @param mipLevel - The mip level to attach
    */
   attachColorBufferLayerToFrameBufferObject(framebuffer, attachmentIndex, renderable, layerIndex, mipLevel) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const fbo = this.getWebGLResource(framebuffer.framebufferUID);
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
     const renderableWebGLResource = this.getWebGLResource(renderable._textureResourceUid);
-    const attachmentId = this.WC.colorAttachment(attachmentIndex);
+    const attachmentId = this.YC.colorAttachment(attachmentIndex);
     renderable._fbo = framebuffer;
     gl.framebufferTextureLayer(gl.FRAMEBUFFER, attachmentId, renderableWebGLResource, mipLevel, layerIndex);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -1681,11 +1681,11 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @param renderable - The cube texture to attach
    */
   attachColorBufferCubeToFrameBufferObject(framebuffer, attachmentIndex, faceIndex, mipLevel, renderable) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const fbo = this.getWebGLResource(framebuffer.framebufferUID);
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
     const renderableWebGLResource = this.getWebGLResource(renderable._textureResourceUid);
-    const attachmentId = this.WC.colorAttachment(attachmentIndex);
+    const attachmentId = this.YC.colorAttachment(attachmentIndex);
     renderable._fbo = framebuffer;
     gl.framebufferTexture2D(
       gl.FRAMEBUFFER,
@@ -1703,7 +1703,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @param renderable - The depth texture or renderbuffer to attach
    */
   attachDepthBufferToFrameBufferObject(framebuffer, renderable) {
-    this.iD(framebuffer, renderable, 36096);
+    this.kD(framebuffer, renderable, 36096);
   }
   /**
    * Attaches a stencil buffer to a framebuffer object.
@@ -1712,7 +1712,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @param renderable - The stencil texture or renderbuffer to attach
    */
   attachStencilBufferToFrameBufferObject(framebuffer, renderable) {
-    this.iD(framebuffer, renderable, 36128);
+    this.kD(framebuffer, renderable, 36128);
   }
   /**
    * Attaches a combined depth-stencil buffer to a framebuffer object.
@@ -1721,7 +1721,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @param renderable - The depth-stencil texture or renderbuffer to attach
    */
   attachDepthStencilBufferToFrameBufferObject(framebuffer, renderable) {
-    this.iD(framebuffer, renderable, 33306);
+    this.kD(framebuffer, renderable, 33306);
   }
   /**
    * Internal method for attaching depth or stencil buffers to framebuffers.
@@ -1731,15 +1731,15 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @param renderable - The texture or renderbuffer to attach
    * @param attachmentType - The WebGL attachment type constant
    */
-  iD(framebuffer, renderable, attachmentType) {
-    const gl = this.WC.getRawContextAsWebGL2();
+  kD(framebuffer, renderable, attachmentType) {
+    const gl = this.YC.getRawContextAsWebGL2();
     const fbo = this.getWebGLResource(framebuffer.framebufferUID);
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
     const renderableWebGLResource = this.getWebGLResource(renderable._textureResourceUid);
     if (renderable instanceof RenderTargetTexture2DArray) {
       renderable._fbo = framebuffer;
-      if (this.WC.webgl2ExtMLTVIEW.is_multisample) {
-        this.WC.webgl2ExtMLTVIEW.framebufferTextureMultisampleMultiviewOVR(
+      if (this.YC.webgl2ExtMLTVIEW.is_multisample) {
+        this.YC.webgl2ExtMLTVIEW.framebufferTextureMultisampleMultiviewOVR(
           gl.DRAW_FRAMEBUFFER,
           attachmentType,
           renderableWebGLResource,
@@ -1750,7 +1750,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
           renderable.arrayLength
         );
       } else {
-        this.WC.webgl2ExtMLTVIEW.framebufferTextureMultiviewOVR(
+        this.YC.webgl2ExtMLTVIEW.framebufferTextureMultiviewOVR(
           gl.DRAW_FRAMEBUFFER,
           attachmentType,
           renderableWebGLResource,
@@ -1777,9 +1777,9 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * create Renderbuffer
    */
   createRenderBuffer(width, height, internalFormat, isMSAA, sampleCountMSAA) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     const renderBuffer = gl.createRenderbuffer();
-    const resourceHandle = this.XC(renderBuffer);
+    const resourceHandle = this.ZC(renderBuffer);
     gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
     if (isMSAA) {
       gl.renderbufferStorageMultisample(
@@ -1804,12 +1804,12 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     if (framebuffer) {
       const renderBufferTargetEnums = renderPass.getRenderTargetColorAttachments();
       if (Is.exist(renderBufferTargetEnums)) {
-        this.WC.drawBuffers(renderBufferTargetEnums);
+        this.YC.drawBuffers(renderBufferTargetEnums);
       } else {
-        this.WC.drawBuffers(framebuffer.colorAttachmentsRenderBufferTargets);
+        this.YC.drawBuffers(framebuffer.colorAttachmentsRenderBufferTargets);
       }
     } else {
-      this.WC.drawBuffers([RenderBufferTarget.Back]);
+      this.YC.drawBuffers([RenderBufferTarget.Back]);
     }
   }
   /**
@@ -1817,7 +1817,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @param framebuffer
    */
   bindFramebuffer(framebuffer) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     if (framebuffer) {
       const fboUid = framebuffer.cgApiResourceUid;
       const fbo = this.getWebGLResource(fboUid);
@@ -1830,7 +1830,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * unbind Framebuffer
    */
   unbindFramebuffer() {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
   /**
@@ -1844,12 +1844,12 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     mipLevelCount,
     format
   }) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const texture = gl.createTexture();
-    const resourceHandle = this.XC(texture);
-    this.WC.bindTexture2D(15, texture);
+    const resourceHandle = this.ZC(texture);
+    this.YC.bindTexture2D(15, texture);
     gl.texStorage2D(gl.TEXTURE_2D, mipLevelCount, format.index, width, height);
-    this.WC.unbindTexture2D(15);
+    this.YC.unbindTexture2D(15);
     return resourceHandle;
   }
   /**
@@ -1863,12 +1863,12 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     internalFormat,
     arrayLength
   }) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const texture = gl.createTexture();
-    const resourceHandle = this.XC(texture);
-    this.WC.bindTexture2DArray(15, texture);
+    const resourceHandle = this.ZC(texture);
+    this.YC.bindTexture2DArray(15, texture);
     gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, internalFormat.index, width, height, arrayLength);
-    this.WC.unbindTexture2DArray(15);
+    this.YC.unbindTexture2DArray(15);
     return resourceHandle;
   }
   /**
@@ -1882,12 +1882,12 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     mipLevelCount,
     format
   }) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const texture = gl.createTexture();
-    const resourceHandle = this.XC(texture);
-    this.WC.bindTextureCube(15, texture);
+    const resourceHandle = this.ZC(texture);
+    this.YC.bindTextureCube(15, texture);
     gl.texStorage2D(gl.TEXTURE_CUBE_MAP, mipLevelCount, format.index, width, height);
-    this.WC.unbindTextureCube(15);
+    this.YC.unbindTextureCube(15);
     return resourceHandle;
   }
   /**
@@ -1900,15 +1900,15 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @returns resource handle
    */
   createCubeTexture(engine, mipLevelCount, images, width, height) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     const texture = gl.createTexture();
-    const resourceHandle = this.XC(texture);
-    this.WC.bindTextureCube(15, texture);
+    const resourceHandle = this.ZC(texture);
+    this.YC.bindTextureCube(15, texture);
     const wrapS = TextureParameter.ClampToEdge;
     const wrapT = TextureParameter.ClampToEdge;
     let minFilter = TextureParameter.Linear;
     let magFilter = TextureParameter.Linear;
-    if (images[0].posX.hdriFormat === HdriFormat.HDR_LINEAR && this.WC.isNotSupportWebGL1Extension(engine.config, WebGLExtension.TextureFloatLinear)) {
+    if (images[0].posX.hdriFormat === HdriFormat.HDR_LINEAR && this.YC.isNotSupportWebGL1Extension(engine.config, WebGLExtension.TextureFloatLinear)) {
       if (mipLevelCount >= 2) {
         minFilter = TextureParameter.NearestMipmapNearest;
       } else {
@@ -1927,7 +1927,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     sampler.create();
     const loadImageToGPU = (image, cubeMapSide, i) => {
       if (image.hdriFormat === HdriFormat.HDR_LINEAR) {
-        const gl2 = this.WC.getRawContextAsWebGL2();
+        const gl2 = this.YC.getRawContextAsWebGL2();
         gl2.texImage2D(
           cubeMapSide,
           i,
@@ -1964,7 +1964,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
       loadImageToGPU(image.posZ, gl.TEXTURE_CUBE_MAP_POSITIVE_Z, i);
       loadImageToGPU(image.negZ, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, i);
     }
-    this.WC.unbindTextureCube(15);
+    this.YC.unbindTextureCube(15);
     return [resourceHandle, sampler];
   }
   /**
@@ -1974,7 +1974,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @returns the WebGLResourceHandle for the generated Cube Texture
    */
   async createCubeTextureFromFiles(engine, baseUri, mipLevelCount, isNamePosNeg, hdriFormat) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     const imageArgs = [];
     let width = 0;
     let height = 0;
@@ -2088,12 +2088,12 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     wrapT = TextureParameter.Repeat,
     border = 0
   }) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     let basisCompressionType;
     let compressionType;
     const texture = gl.createTexture();
-    const resourceHandle = this.XC(texture);
-    this.WC.bindTextureCube(15, texture);
+    const resourceHandle = this.ZC(texture);
+    this.YC.bindTextureCube(15, texture);
     const s3tc = gl.getExtension("WEBGL_compressed_texture_s3tc");
     if (s3tc) {
       basisCompressionType = BasisCompressionType.BC3;
@@ -2157,12 +2157,12 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
         );
       }
     }
-    this.WC.unbindTextureCube(15);
+    this.YC.unbindTextureCube(15);
     return { resourceHandle, width: baseLevelWidth, height: baseLevelHeight };
   }
   createDummyBlackCubeTexture(engine) {
     const base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPj/HwADBwIAMCbHYQAAAABJRU5ErkJggg==";
-    const arrayBuffer = this.$C(base64);
+    const arrayBuffer = this.bD(base64);
     const typedArray = new Uint8Array(arrayBuffer);
     return this.createCubeTexture(
       engine,
@@ -2207,7 +2207,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
   }
   setWebGLTextureDirectly(webGLTexture) {
     const texture = webGLTexture;
-    const resourceHandle = this.XC(texture);
+    const resourceHandle = this.ZC(texture);
     return resourceHandle;
   }
   async createTextureFromDataUri(dataUri, {
@@ -2244,8 +2244,8 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     type
   }) {
     const texture = this.getWebGLResource(textureUid);
-    this.WC.bindTexture2D(15, texture);
-    const gl = this.WC.getRawContextAsWebGL2();
+    this.YC.bindTexture2D(15, texture);
+    const gl = this.YC.getRawContextAsWebGL2();
     gl.texSubImage2D(
       gl.TEXTURE_2D,
       0,
@@ -2258,7 +2258,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
       textureData
     );
     gl.generateMipmap(gl.TEXTURE_2D);
-    this.WC.unbindTexture2D(15);
+    this.YC.unbindTexture2D(15);
   }
   updateTexture(textureUid, textureData, {
     level,
@@ -2270,8 +2270,8 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     type
   }) {
     const texture = this.getWebGLResource(textureUid);
-    this.WC.bindTexture2D(15, texture);
-    const gl = this.WC.getRawContextAsWebGL2();
+    this.YC.bindTexture2D(15, texture);
+    const gl = this.YC.getRawContextAsWebGL2();
     gl.texSubImage2D(
       gl.TEXTURE_2D,
       level,
@@ -2283,28 +2283,28 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
       type.index,
       textureData
     );
-    this.WC.unbindTexture2D(15);
+    this.YC.unbindTexture2D(15);
   }
   deleteFrameBufferObject(frameBufferObjectHandle) {
     const fbo = this.getWebGLResource(frameBufferObjectHandle);
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     if (fbo != null) {
       gl.deleteFramebuffer(fbo);
-      this.YC.delete(frameBufferObjectHandle);
+      this._C.delete(frameBufferObjectHandle);
     }
   }
   deleteRenderBuffer(renderBufferUid) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     const renderBuffer = this.getWebGLResource(renderBufferUid);
     gl.deleteRenderbuffer(renderBuffer);
-    this.YC.delete(renderBufferUid);
+    this._C.delete(renderBufferUid);
   }
   deleteTexture(textureHandle) {
     const texture = this.getWebGLResource(textureHandle);
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     if (texture != null) {
       gl.deleteTexture(texture);
-      this.YC.delete(textureHandle);
+      this._C.delete(textureHandle);
       Logger.default.debug(`gl.deleteTexture called: ${textureHandle}`);
     }
   }
@@ -2326,17 +2326,17 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
   }
   createDummyBlackTexture() {
     const base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPj/HwADBwIAMCbHYQAAAABJRU5ErkJggg==";
-    return this.$C(base64);
+    return this.bD(base64);
   }
   createDummyWhiteTexture() {
     const base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5/hPwAIAgL/4d1j8wAAAABJRU5ErkJggg==";
-    return this.$C(base64);
+    return this.bD(base64);
   }
   createDummyNormalTexture() {
     const base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsr///HwAGgAL+v1RumAAAAABJRU5ErkJggg==";
-    return this.$C(base64);
+    return this.bD(base64);
   }
-  $C(base64) {
+  bD(base64) {
     const arrayBuffer = DataUtil.base64ToArrayBuffer(base64);
     return this.createTextureFromTypedArray(new Uint8Array(arrayBuffer), {
       internalFormat: TextureFormat.RGBA8,
@@ -2351,21 +2351,21 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     if (!MathUtil.isPowerOfTwoTexture(width, height) && MiscUtil.isIOS()) {
       return;
     }
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     const texture = this.getWebGLResource(textureHandle);
-    this.WC.bindTexture2D(15, texture);
+    this.YC.bindTexture2D(15, texture);
     gl.generateMipmap(gl.TEXTURE_2D);
-    this.WC.unbindTexture2D(15);
+    this.YC.unbindTexture2D(15);
   }
   generateMipmapsCube(textureHandle, _width, _height) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     const texture = this.getWebGLResource(textureHandle);
-    this.WC.bindTextureCube(15, texture);
+    this.YC.bindTextureCube(15, texture);
     gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
-    this.WC.unbindTextureCube(15);
+    this.YC.unbindTextureCube(15);
   }
   async getTexturePixelData(_textureHandle, width, height, frameBufferUid, colorAttachmentIndex) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     const fbo = this.getWebGLResource(frameBufferUid);
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
     const data = new Uint8Array(width * height * 4);
@@ -2388,7 +2388,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @returns Promise resolving to the pixel data as a Uint8Array (RGBA format)
    */
   async getCubeTexturePixelData(textureHandle, width, height, faceIndex) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     const texture = this.getWebGLResource(textureHandle);
     const fbo = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
@@ -2398,7 +2398,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     if (status !== gl.FRAMEBUFFER_COMPLETE) {
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       gl.deleteFramebuffer(fbo);
-      return this.qD(gl, texture, width, height, faceIndex, true);
+      return this.sD(gl, texture, width, height, faceIndex, true);
     }
     const data = new Uint8Array(width * height * 4);
     gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
@@ -2417,7 +2417,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
    * @param faceIndex - Index of the cube face (0=+X, 1=-X, 2=+Y, 3=-Y, 4=+Z, 5=-Z)
    * @param isHdrFormat - Whether the texture is HDR format (applies tone mapping and gamma correction if true)
    */
-  qD(gl, cubeTexture, width, height, faceIndex, isHdrFormat) {
+  sD(gl, cubeTexture, width, height, faceIndex, isHdrFormat) {
     const prevViewport = gl.getParameter(gl.VIEWPORT);
     const prevProgram = gl.getParameter(gl.CURRENT_PROGRAM);
     const prevVAO = gl.getParameter(gl.VERTEX_ARRAY_BINDING);
@@ -2523,35 +2523,35 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     return data;
   }
   createUniformBuffer() {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     if (gl == null) {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
     const ubo = gl.createBuffer();
-    const resourceHandle = this.XC(ubo);
+    const resourceHandle = this.ZC(ubo);
     return resourceHandle;
   }
   createUniformBufferWithBufferView(bufferView) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     if (gl == null) {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
     const ubo = gl.createBuffer();
-    const resourceHandle = this.XC(ubo);
+    const resourceHandle = this.ZC(ubo);
     gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
     gl.bufferData(gl.UNIFORM_BUFFER, bufferView, gl.DYNAMIC_DRAW);
     gl.bindBuffer(gl.UNIFORM_BUFFER, null);
     return resourceHandle;
   }
   updateUniformBuffer(uboUid, typedArray, offsetByte, arrayLength) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const ubo = this.getWebGLResource(uboUid);
     gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
     gl.bufferSubData(gl.UNIFORM_BUFFER, 0, typedArray, offsetByte, arrayLength);
     gl.bindBuffer(gl.UNIFORM_BUFFER, null);
   }
   bindUniformBlock(shaderProgramUid, blockName, blockIndex) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     if (gl == null) {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
@@ -2560,7 +2560,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     gl.uniformBlockBinding(shaderProgram, block, blockIndex);
   }
   bindUniformBufferBase(blockIndex, uboUid) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     if (gl == null) {
       throw new Error("No WebGLRenderingContext set as Default.");
     }
@@ -2568,23 +2568,23 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     gl.bindBufferBase(gl.UNIFORM_BUFFER, blockIndex, ubo);
   }
   deleteUniformBuffer(uboUid) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     if (gl == null) {
       new Error("No WebGLRenderingContext set as Default.");
     }
     const ubo = this.getWebGLResource(uboUid);
-    this.YC.delete(uboUid);
+    this._C.delete(uboUid);
     gl.deleteBuffer(ubo);
   }
   setupUniformBufferDataArea(typedArray) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     if (gl == null) {
       new Error("No WebGLRenderingContext set as Default.");
     }
     const ubo = gl.createBuffer();
-    const resourceHandle = this.XC(ubo);
-    const maxConventionBlocks = this.WC.getMaxConventionUniformBlocks();
-    const alignedMaxUniformBlockSize = this.WC.getAlignedMaxUniformBlockSize();
+    const resourceHandle = this.ZC(ubo);
+    const maxConventionBlocks = this.YC.getMaxConventionUniformBlocks();
+    const alignedMaxUniformBlockSize = this.YC.getAlignedMaxUniformBlockSize();
     const realSize = alignedMaxUniformBlockSize * maxConventionBlocks;
     const array = new Float32Array(realSize / 4);
     if (Is.exist(typedArray)) {
@@ -2599,7 +2599,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     return resourceHandle;
   }
   setUniformBlockBindingForMorphOffsetsAndWeights(shaderProgramUid, morphOffsetsUBOUid, morphWeightsUBOUid) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const shaderProgram = this.getWebGLResource(shaderProgramUid);
     const morphOffsetsUBO = this.getWebGLResource(morphOffsetsUBOUid);
     const morphWeightsUBO = this.getWebGLResource(morphWeightsUBOUid);
@@ -2611,7 +2611,7 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
     gl.bindBufferBase(gl.UNIFORM_BUFFER, 1, morphWeightsUBO);
   }
   setUniformBlockBindingForMorphOffsetsAndWeightsWithoutShaderProgram(morphOffsetsUBOUid, morphWeightsUBOUid) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const morphOffsetsUBO = this.getWebGLResource(morphOffsetsUBOUid);
     const morphWeightsUBO = this.getWebGLResource(morphWeightsUBOUid);
     gl.bindBufferBase(gl.UNIFORM_BUFFER, 0, morphOffsetsUBO);
@@ -2626,8 +2626,8 @@ var WebGLResourceRepository = class _WebGLResourceRepository extends CGAPIResour
   }
   getGlslDataUBODefinitionString() {
     let text = "";
-    const maxConventionblocks = this.WC.getMaxConventionUniformBlocks();
-    const alignedMaxUniformBlockSize = this.WC.getAlignedMaxUniformBlockSize();
+    const maxConventionblocks = this.YC.getMaxConventionUniformBlocks();
+    const alignedMaxUniformBlockSize = this.YC.getAlignedMaxUniformBlockSize();
     for (let i = 0; i < maxConventionblocks; i++) {
       text += `
 layout (std140) uniform Vec4Block${i} {
@@ -2651,23 +2651,23 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     return text;
   }
   getGlslDataUBOVec4SizeString() {
-    const alignedMaxUniformBlockSize = this.WC.getAlignedMaxUniformBlockSize();
+    const alignedMaxUniformBlockSize = this.YC.getAlignedMaxUniformBlockSize();
     return `const int dataUBOVec4Size = ${alignedMaxUniformBlockSize / 4 / 4};`;
   }
   createMultiviewFramebuffer(width, height, samples) {
-    if (Is.not.exist(this.WC.webgl2ExtMLTVIEW)) {
+    if (Is.not.exist(this.YC.webgl2ExtMLTVIEW)) {
       return [-1, -1];
     }
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const framebuffer = gl.createFramebuffer();
-    const framebufferHandle = this.XC(framebuffer);
+    const framebufferHandle = this.ZC(framebuffer);
     gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, framebuffer);
     const colorTexture = gl.createTexture();
-    const colorTextureHandle = this.XC(colorTexture);
+    const colorTextureHandle = this.ZC(colorTexture);
     gl.bindTexture(gl.TEXTURE_2D_ARRAY, colorTexture);
     gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, gl.RGBA8, width, height, 2);
-    if (!this.WC.webgl2ExtMLTVIEW.is_multisample)
-      this.WC.webgl2ExtMLTVIEW.framebufferTextureMultiviewOVR(
+    if (!this.YC.webgl2ExtMLTVIEW.is_multisample)
+      this.YC.webgl2ExtMLTVIEW.framebufferTextureMultiviewOVR(
         gl.DRAW_FRAMEBUFFER,
         gl.COLOR_ATTACHMENT0,
         colorTexture,
@@ -2676,7 +2676,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
         2
       );
     else
-      this.WC.webgl2ExtMLTVIEW.framebufferTextureMultisampleMultiviewOVR(
+      this.YC.webgl2ExtMLTVIEW.framebufferTextureMultisampleMultiviewOVR(
         gl.DRAW_FRAMEBUFFER,
         gl.COLOR_ATTACHMENT0,
         colorTexture,
@@ -2688,8 +2688,8 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     const depthStencilTex = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D_ARRAY, depthStencilTex);
     gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, gl.DEPTH32F_STENCIL8, width, height, 2);
-    if (!this.WC.webgl2ExtMLTVIEW.is_multisample)
-      this.WC.webgl2ExtMLTVIEW.framebufferTextureMultiviewOVR(
+    if (!this.YC.webgl2ExtMLTVIEW.is_multisample)
+      this.YC.webgl2ExtMLTVIEW.framebufferTextureMultiviewOVR(
         gl.DRAW_FRAMEBUFFER,
         gl.DEPTH_STENCIL_ATTACHMENT,
         depthStencilTex,
@@ -2698,7 +2698,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
         2
       );
     else
-      this.WC.webgl2ExtMLTVIEW.framebufferTextureMultisampleMultiviewOVR(
+      this.YC.webgl2ExtMLTVIEW.framebufferTextureMultisampleMultiviewOVR(
         gl.DRAW_FRAMEBUFFER,
         gl.DEPTH_STENCIL_ATTACHMENT,
         depthStencilTex,
@@ -2710,26 +2710,26 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     return [framebufferHandle, colorTextureHandle];
   }
   createTransformFeedback() {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const transformFeedback = gl.createTransformFeedback();
-    const resourceHandle = this.XC(transformFeedback);
+    const resourceHandle = this.ZC(transformFeedback);
     gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, transformFeedback);
     return resourceHandle;
   }
   deleteTransformFeedback(transformFeedbackUid) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const transformFeedback = this.getWebGLResource(transformFeedbackUid);
     gl.deleteTransformFeedback(transformFeedback);
-    this.YC.delete(transformFeedbackUid);
+    this._C.delete(transformFeedbackUid);
   }
   setViewport(engine, viewport) {
     var _a, _b;
     if (viewport) {
-      (_a = this.WC) == null ? void 0 : _a.setViewportAsVector4(viewport);
+      (_a = this.YC) == null ? void 0 : _a.setViewportAsVector4(viewport);
       engine.engineState.viewportAspectRatio = (viewport.z - viewport.x) / (viewport.w - viewport.y);
     } else {
-      (_b = this.WC) == null ? void 0 : _b.setViewport(0, 0, this.WC.width, this.WC.height);
-      engine.engineState.viewportAspectRatio = this.WC.width / this.WC.height;
+      (_b = this.YC) == null ? void 0 : _b.setViewport(0, 0, this.YC.width, this.YC.height);
+      engine.engineState.viewportAspectRatio = this.YC.width / this.YC.height;
     }
   }
   /**
@@ -2743,31 +2743,31 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
    */
   setScissorRect(renderPass) {
     var _a;
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const rect = renderPass == null ? void 0 : renderPass.getScissorRect();
     if (rect == null) {
       gl.disable(gl.SCISSOR_TEST);
       return;
     }
     const framebuffer = renderPass.getFramebuffer();
-    const targetHeight = (_a = framebuffer == null ? void 0 : framebuffer.height) != null ? _a : this.WC.canvas.height;
+    const targetHeight = (_a = framebuffer == null ? void 0 : framebuffer.height) != null ? _a : this.YC.canvas.height;
     gl.enable(gl.SCISSOR_TEST);
     gl.scissor(rect.x, targetHeight - (rect.y + rect.height), rect.width, rect.height);
   }
   clearFrameBuffer(engine, renderPass, _ = 0) {
     var _a, _b;
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     const isCanvasTarget = renderPass.getFramebuffer() == null && !(((_a = engine._webXRSystemIfEnabled) == null ? void 0 : _a.isWebXRMode) && renderPass.isOutputForVr) && !((_b = engine._webARSystemIfEnabled) == null ? void 0 : _b.isWebARMode);
     let bufferBit = 0;
     if (renderPass.toClearColorBuffer) {
       gl.clearColor(renderPass.clearColor.x, renderPass.clearColor.y, renderPass.clearColor.z, renderPass.clearColor.w);
       bufferBit |= gl.COLOR_BUFFER_BIT;
     }
-    if (renderPass.toClearDepthBuffer && !(isCanvasTarget && !this.mD().depth)) {
+    if (renderPass.toClearDepthBuffer && !(isCanvasTarget && !this.oD().depth)) {
       gl.clearDepth(renderPass.clearDepth);
       bufferBit |= gl.DEPTH_BUFFER_BIT;
     }
-    if (renderPass.toClearStencilBuffer && !(isCanvasTarget && !this.mD().stencil)) {
+    if (renderPass.toClearStencilBuffer && !(isCanvasTarget && !this.oD().stencil)) {
       gl.clearStencil(renderPass.clearStencil);
       bufferBit |= gl.STENCIL_BUFFER_BIT;
     }
@@ -2780,62 +2780,62 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
    * getContextAttributes() allocates a new object on every call. While the context is lost the
    * attributes are unknown, so both are reported as present and nothing is skipped.
    */
-  mD() {
-    const glw = this.WC;
-    let attributes = this.jD;
-    if (attributes == null || this.kD !== glw) {
+  oD() {
+    const glw = this.YC;
+    let attributes = this.lD;
+    if (attributes == null || this.mD !== glw) {
       const contextAttributes = glw.getRawContext().getContextAttributes();
       if (contextAttributes == null) {
         return { depth: true, stencil: true };
       }
       attributes = { depth: contextAttributes.depth !== false, stencil: contextAttributes.stencil === true };
-      this.jD = attributes;
-      this.kD = glw;
+      this.lD = attributes;
+      this.mD = glw;
     }
     return attributes;
   }
   deleteVertexDataResources(vertexHandles) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     const iboHandle = vertexHandles.iboHandle;
     if (iboHandle) {
       const ibo = this.getWebGLResource(iboHandle);
       gl.deleteBuffer(ibo);
-      this.YC.delete(iboHandle);
+      this._C.delete(iboHandle);
     }
     const vboHandles = vertexHandles.vboHandles;
     for (const vboHandle of vboHandles) {
       const vbo = this.getWebGLResource(vboHandle);
       gl.deleteBuffer(vbo);
-      this.YC.delete(vboHandle);
+      this._C.delete(vboHandle);
     }
     const vaoHandle = vertexHandles.vaoHandle;
     const vao = this.getWebGLResource(vaoHandle);
-    this.WC.deleteVertexArray(vao);
-    this.YC.delete(vaoHandle);
+    this.YC.deleteVertexArray(vao);
+    this._C.delete(vaoHandle);
   }
   deleteVertexArray(vaoHandle) {
     const vao = this.getWebGLResource(vaoHandle);
-    this.WC.deleteVertexArray(vao);
-    this.YC.delete(vaoHandle);
+    this.YC.deleteVertexArray(vao);
+    this._C.delete(vaoHandle);
   }
   deleteVertexBuffer(vboUid) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     const vbo = this.getWebGLResource(vboUid);
     gl.deleteBuffer(vbo);
-    this.YC.delete(vboUid);
+    this._C.delete(vboUid);
   }
   resizeCanvas(width, height) {
-    this.WC.width = width;
-    this.WC.height = height;
-    this.WC.canvas.width = width;
-    this.WC.canvas.height = height;
-    this.WC.setViewportAsVector4(Vector4.fromCopyArray([0, 0, width, height]));
+    this.YC.width = width;
+    this.YC.height = height;
+    this.YC.canvas.width = width;
+    this.YC.canvas.height = height;
+    this.YC.setViewportAsVector4(Vector4.fromCopyArray([0, 0, width, height]));
   }
   getCanvasSize() {
-    return [this.WC.canvas.width, this.WC.canvas.height];
+    return [this.YC.canvas.width, this.YC.canvas.height];
   }
   switchDepthTest(flag) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     if (flag) {
       gl.enable(gl.DEPTH_TEST);
     } else {
@@ -2874,7 +2874,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     return true;
   }
   getPixelDataFromTexture(texUid, x, y, width, height) {
-    const gl = this.WC.getRawContext();
+    const gl = this.YC.getRawContext();
     const pixels = new Uint8Array((width - x) * (height - y) * 4);
     const texture = this.getWebGLResource(texUid);
     const fbo = gl.createFramebuffer();
@@ -2900,7 +2900,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     return this.getPixelDataFromTexture(texUid, x, y, width, height);
   }
   getCurrentTexture2DBindingsForEffekseer() {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const maxTextureUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
     const textureBindings = [];
     for (let i = 0; i < maxTextureUnits; i++) {
@@ -2934,7 +2934,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     elementArrayBuffer,
     currentProgram
   }) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     for (let i = 0; i < textureBindings.length; i++) {
       gl.activeTexture(gl.TEXTURE0 + i);
       gl.bindTexture(gl.TEXTURE_2D, textureBindings[i].texture2D);
@@ -2945,12 +2945,12 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementArrayBuffer);
     gl.useProgram(currentProgram);
-    gl.sD = true;
+    gl.uD = true;
   }
   setWebGLStateToDefaultForEffekseer() {
   }
   setWebGLStateToDefault() {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     gl.bindVertexArray(null);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
@@ -2995,7 +2995,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     gl.colorMask(true, true, true, true);
     gl.polygonOffset(0, 0);
     gl.sampleCoverage(1, false);
-    const canvas = this.WC.canvas;
+    const canvas = this.YC.canvas;
     const maxTextureUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
     gl.scissor(0, 0, canvas.width, canvas.height);
     gl.viewport(0, 0, canvas.width, canvas.height);
@@ -3011,7 +3011,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     gl.activeTexture(gl.TEXTURE0);
   }
   restoreWebGLStates(webGLStates) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     if (webGLStates.depthTest) {
       gl.enable(gl.DEPTH_TEST);
     } else {
@@ -3150,7 +3150,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     gl.useProgram(webGLStates.currentProgram);
   }
   getCurrentWebGLStates() {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const depthTest = gl.isEnabled(gl.DEPTH_TEST);
     const stencilTest = gl.isEnabled(gl.STENCIL_TEST);
     const blend = gl.isEnabled(gl.BLEND);
@@ -3335,7 +3335,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     };
   }
   unbindTextureSamplers() {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const maxTextureUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
     for (let i = 0; i < maxTextureUnits; i++) {
       gl.bindSampler(i, null);
@@ -3343,12 +3343,12 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
   }
   isSupportMultiViewVRRendering(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGL2) {
-      return this.WC.isMultiview(engine.config);
+      return this.YC.isMultiview(engine.config);
     }
     return false;
   }
   blitToTexture2dFromTexture2dArray(srcTextureUid, dstFboUid, dstWidth, dstHeight) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const srcTexture = this.getWebGLResource(srcTextureUid);
     const dstFbo = this.getWebGLResource(dstFboUid);
     gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, dstFbo);
@@ -3357,7 +3357,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
   }
   blitToTexture2dFromTexture2dArrayFake(srcTextureUid, dstFboUid, dstWidth, dstHeight) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const srcTexture = this.getWebGLResource(srcTextureUid);
     const dstFbo = this.getWebGLResource(dstFboUid);
     gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, dstFbo);
@@ -3366,7 +3366,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
   }
   blitToTexture2dFromTexture2dArray2(srcTextureUid, dstTextureUid, dstWidth, dstHeight) {
-    const gl = this.WC.getRawContextAsWebGL2();
+    const gl = this.YC.getRawContextAsWebGL2();
     const srcTexture = this.getWebGLResource(srcTextureUid);
     const dstTexture = this.getWebGLResource(dstTextureUid);
     const webStereoUtil = WebGLStereoUtil.getInstance(gl);

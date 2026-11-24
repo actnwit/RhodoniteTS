@@ -4,7 +4,7 @@ import { nullishToEmptyArray } from "../misc/MiscUtil.js";
 var EventPubSub = class {
   constructor() {
     /** Map storing event types and their corresponding subscriber arrays */
-    this._A = /* @__PURE__ */ new Map();
+    this.aB = /* @__PURE__ */ new Map();
   }
   /**
    * Subscribe to an event type with a handler function
@@ -21,10 +21,10 @@ var EventPubSub = class {
    * ```
    */
   subscribe(type, handler) {
-    let subscribers = this._A.get(type);
+    let subscribers = this.aB.get(type);
     if (Is.not.exist(subscribers)) {
-      this._A.set(type, []);
-      subscribers = this._A.get(type);
+      this.aB.set(type, []);
+      subscribers = this.aB.get(type);
     }
     return subscribers.push(handler) - 1;
   }
@@ -41,7 +41,7 @@ var EventPubSub = class {
    * ```
    */
   unsubscribe(type, index) {
-    const subscribers = this._A.get(type);
+    const subscribers = this.aB.get(type);
     if (subscribers == null) {
       return;
     }
@@ -58,7 +58,7 @@ var EventPubSub = class {
    * ```
    */
   unsubscribeAll(type) {
-    this._A.delete(type);
+    this.aB.delete(type);
   }
   /**
    * Publish an event asynchronously to all subscribers
@@ -79,7 +79,7 @@ var EventPubSub = class {
    */
   publishAsync(type, event) {
     let count = 0;
-    const subscribers = nullishToEmptyArray(this._A.get(type));
+    const subscribers = nullishToEmptyArray(this.aB.get(type));
     for (const sub of subscribers) {
       setTimeout(sub.bind(this, event), 0);
       count++;
@@ -104,7 +104,7 @@ var EventPubSub = class {
    */
   publishSync(type, event) {
     let count = 0;
-    const subscribers = nullishToEmptyArray(this._A.get(type));
+    const subscribers = nullishToEmptyArray(this.aB.get(type));
     for (const sub of subscribers) {
       sub(event);
       count++;
