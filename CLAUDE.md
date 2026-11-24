@@ -98,13 +98,20 @@ src/xr/                 # WebXR support
 ## Build System
 
 ### Build Targets
-- **ESM Dev** (`dist/esmdev/`): Development build with source maps and debugging
-- **ESM Prod** (`dist/esm/`): Production build with tree-shaking and optimization
+- **ESM Dev** (`dist/esmdev/`): Development build with inline source maps, one file per source module
+- **ESM Prod** (`dist/esm/`): Minified production build, one file per source module
+- The ESM builds are unbundled (`config/esbuild/unbundled.mjs`) so that applications can tree-shake them;
+  `package.json` declares `"sideEffects": false`. Imports that leave `src/` (npm packages, `vendor/*.js`) are
+  bundled once into `dist/<target>/_deps/`, so the output also runs in browsers without an import map.
+- **Tree-shaking rules**: no module may do work at import time that another module relies on (e.g. registering
+  classes into a shared registry). Component classes are registered lazily by
+  `EntityRepository.addComponentToEntity`; the core ones by `Engine.init`. Avoid value-import cycles: a cycle
+  containing `class X extends Y` fails with a TDZ error depending on which module an application imports first.
 - **IIFE Dev** (`dist/iifedev/rhodonite.js`): Browser-ready development bundle
 - **IIFE Prod** (`dist/iife/rhodonite.min.js`): Minified production bundle
 
 ### Build Tools
-- **tsup**: Primary build tool using esbuild for fast compilation
+- **esbuild**: Primary build tool (`config/esbuild/build.mjs`)
 - **esbuild-plugin-shaderity**: Processes shader files during build
 - **esbuild-plugin-version**: Handles version file generation
 - **TypeScript**: Type checking and .d.ts generation

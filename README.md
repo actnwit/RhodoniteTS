@@ -163,6 +163,30 @@ If you use bundler, you can simply import rhodonite, like
 import Rn from 'rhodonite';
 ```
 
+#### Tree shaking
+
+The ESModule packages (`dist/esm`, `dist/esmdev`) keep one file per source module, and the package is marked
+`"sideEffects": false`. With a bundler (Vite, Rollup, Rolldown, webpack, esbuild, ...), import what you use by name
+and the bundler leaves the rest of Rhodonite out of your bundle:
+
+```typescript
+import { Engine, MeshHelper, ProcessApproach, Vector3 } from 'rhodonite';
+
+const engine = await Engine.init({
+  approach: ProcessApproach.WebGL2,
+  canvas: document.getElementById('world') as HTMLCanvasElement,
+});
+const planeEntity = MeshHelper.createPlane(engine);
+planeEntity.eulerAngles = Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
+```
+
+The default export `Rn` references every export, so `import Rn from 'rhodonite'` always bundles the whole library.
+
+Component classes are registered when they are first added to an entity, not when the library is imported.
+`EntityRepository.tryToAddComponentToEntityByTID()` only finds the core component classes (Transform, SceneGraph,
+Mesh, MeshRenderer, Camera, CameraController, Light, Animation) and the classes added before; pass the class to
+`EntityRepository.addComponentToEntity()` for the others.
+
 #### Using IIFE package
 
 See the last part of https://github.com/actnwit/RhodoniteTS/wiki/Install .

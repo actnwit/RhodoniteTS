@@ -5,23 +5,24 @@ import { fileURLToPath } from 'node:url';
 import { build, context } from 'esbuild';
 import shaderity from 'esbuild-plugin-shaderity';
 import version from 'esbuild-plugin-version';
+import { buildUnbundled } from './unbundled.mjs';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(scriptDir, '../..');
 
 const targets = {
+  // The ESM targets keep one output file per source module (see unbundled.mjs) so that applications
+  // bundling Rhodonite can tree-shake what they do not use. The IIFE targets stay single bundles.
   'esm-dev': {
-    entry: 'src/index.ts',
+    unbundled: true,
     outDir: 'dist/esmdev',
-    outfile: 'index.js',
     format: 'esm',
     sourcemap: 'inline',
     minify: false,
   },
   'esm-prod': {
-    entry: 'src/index.ts',
+    unbundled: true,
     outDir: 'dist/esm',
-    outfile: 'index.js',
     format: 'esm',
     sourcemap: false,
     minify: true,
@@ -105,6 +106,29 @@ function createDeclarationPlugin() {
   };
 }
 
+function createPlugins() {
+  return [shaderity({ filter: /\.(wgsl|glsl|vs|fs|vert|frag)$/ }), version({ filter: /VERSION-FILE$/ })];
+}
+
+function createUnbundledOptions() {
+  return {
+    projectRoot,
+    srcDir: path.resolve(projectRoot, 'src'),
+    outDir,
+    excludedEntries: [path.resolve(projectRoot, 'src/iife.ts')],
+    esbuildOptions: {
+      sourcemap: target.sourcemap,
+      minify: target.minify,
+      platform: 'browser',
+      target: 'es2019',
+      logLevel: 'warning',
+    },
+    plugins: createPlugins(),
+    watch: shouldWatch,
+    extraPlugins: shouldWatch ? [createDeclarationPlugin()] : [],
+  };
+}
+
 function createOptions() {
   return {
     absWorkingDir: projectRoot,
@@ -118,17 +142,20 @@ function createOptions() {
     treeShaking: target.treeShaking,
     platform: 'browser',
     target: 'es2019',
-    plugins: [
-      shaderity({ filter: /\.(wgsl|glsl|vs|fs|vert|frag)$/ }),
-      version({ filter: /VERSION-FILE$/ }),
-      ...(shouldWatch ? [createDeclarationPlugin()] : []),
-    ],
+    plugins: [...createPlugins(), ...(shouldWatch ? [createDeclarationPlugin()] : [])],
   };
 }
 
 await rm(outDir, { recursive: true, force: true });
 
-if (shouldWatch) {
+if (target.unbundled) {
+  await buildUnbundled(createUnbundledOptions());
+  if (shouldWatch) {
+    console.log(`Watching ${targetName}...`);
+  } else {
+    await emitDeclarations();
+  }
+} else if (shouldWatch) {
   const buildContext = await context(createOptions());
   await buildContext.watch();
   console.log(`Watching ${targetName}...`);

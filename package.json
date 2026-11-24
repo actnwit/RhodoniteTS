@@ -12,6 +12,17 @@
   "type": "module",
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
+  "module": "dist/esm/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "default": "./dist/esm/index.js"
+    },
+    "./dist/*": "./dist/*",
+    "./vendor/*": "./vendor/*",
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
   "files": [
     "dist/esm",
     "dist/esmdev",
