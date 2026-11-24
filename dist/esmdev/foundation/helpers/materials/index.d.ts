@@ -13,10 +13,6 @@ export { createGaussianBlurForEncodedDepthMaterial } from './createGaussianBlurF
 export { createGaussianBlurMaterial } from './createGaussianBlurMaterial';
 export { createMatCapMaterial } from './createMatCapMaterial';
 export { changeMaterial, createMaterial, recreateMaterial } from './createMaterial';
-export { createMToon0xMaterial } from './createMToon0xMaterial';
-export { createMToon1Material } from './createMToon1Material';
-export { createNodeBasedCustomMaterial } from './createNodeBasedCustomMaterial';
-export { collectRrnJson, createNodeBasedRaymarchingComponentMaterial, createNodeBasedRaymarchingComponentShadowMaterial, createNodeBasedRaymarchingCustomMaterial, createNodeBasedRaymarchingShadowMaterial, createNodeBasedRaymarchingShadowMaterials, RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC, type RaymarchingShadowMaterials, } from './createNodeBasedRaymarchingMaterials';
 export { createPanoramaToCubeMaterial } from './createPanoramaToCubeMaterial';
 export { createParaboloidDepthMomentEncodeMaterial } from './createParaboloidDepthMomentEncodeMaterial';
 export { createPbrUberMaterial, type PbrUberMaterialOptions } from './createPbrUberMaterial';
