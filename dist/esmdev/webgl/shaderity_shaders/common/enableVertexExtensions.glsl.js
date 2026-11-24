@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/common/enableVertexExtensions.glsl
+var code = "#ifdef WEBGL2_MULTI_VIEW\n#extension GL_OVR_multiview2 : require\n#endif\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var enableVertexExtensions_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  enableVertexExtensions_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvY29tbW9uL2VuYWJsZVZlcnRleEV4dGVuc2lvbnMuZ2xzbCJdLAogICJzb3VyY2VzQ29udGVudCI6IFsie1wiY29kZVwiOlwiI2lmZGVmIFdFQkdMMl9NVUxUSV9WSUVXXFxuI2V4dGVuc2lvbiBHTF9PVlJfbXVsdGl2aWV3MiA6IHJlcXVpcmVcXG4jZW5kaWZcXG5cIixcInNoYWRlclN0YWdlXCI6XCJmcmFnbWVudFwiLFwiaXNGcmFnbWVudFNoYWRlclwiOnRydWV9Il0sCiAgIm1hcHBpbmdzIjogIjtBQUFDLFdBQU87QUFBNkUsa0JBQWM7QUFBVyx1QkFBbUI7QUFBakksdUNBQUMsTUFBb0YsYUFBeUIsaUJBQXVCOyIsCiAgIm5hbWVzIjogW10KfQo=

@@ -12,7 +12,7 @@ import { StandardShaderPart } from '../StandardShaderPart';
  */
 export declare class EndShader extends StandardShaderPart {
     static __instance: EndShader;
-    static readonly materialElement: import("../../../foundation").EnumIO;
+    static readonly materialElement: import("../../..").EnumIO;
     /**
      * Private constructor to enforce singleton pattern.
      */

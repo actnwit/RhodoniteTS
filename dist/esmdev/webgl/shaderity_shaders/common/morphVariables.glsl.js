@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/common/morphVariables.glsl
+var code = "#ifdef RN_IS_MORPHING\nuniform int u_currentPrimitiveIdx; // initialValue=0, isInternalSetting=true, soloDatum=false, needUniformInDataTextureMode=true\n#endif\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var morphVariables_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  morphVariables_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvY29tbW9uL21vcnBoVmFyaWFibGVzLmdsc2wiXSwKICAic291cmNlc0NvbnRlbnQiOiBbIntcImNvZGVcIjpcIiNpZmRlZiBSTl9JU19NT1JQSElOR1xcbnVuaWZvcm0gaW50IHVfY3VycmVudFByaW1pdGl2ZUlkeDsgLy8gaW5pdGlhbFZhbHVlPTAsIGlzSW50ZXJuYWxTZXR0aW5nPXRydWUsIHNvbG9EYXR1bT1mYWxzZSwgbmVlZFVuaWZvcm1JbkRhdGFUZXh0dXJlTW9kZT10cnVlXFxuI2VuZGlmXFxuXCIsXCJzaGFkZXJTdGFnZVwiOlwiZnJhZ21lbnRcIixcImlzRnJhZ21lbnRTaGFkZXJcIjp0cnVlfSJdLAogICJtYXBwaW5ncyI6ICI7QUFBQyxXQUFPO0FBQW9LLGtCQUFjO0FBQVcsdUJBQW1CO0FBQXhOLCtCQUFDLE1BQTJLLGFBQXlCLGlCQUF1QjsiLAogICJuYW1lcyI6IFtdCn0K

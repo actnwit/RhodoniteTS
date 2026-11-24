@@ -1,0 +1,1 @@
+import{createCameraEntity as n}from"../Camera/createCameraEntity.js";import{WellKnownComponentTIDs as r}from"../WellKnownComponentTIDs.js";function a(t,e){let o=n(t,e);return t.entityRepository.tryToAddComponentToEntityByTID(r.CameraControllerComponentTID,o)}export{a as createCameraControllerEntity};

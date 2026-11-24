@@ -1,0 +1,5 @@
+// src/foundation/components/Light/index.ts
+export * from "./createLightEntity.js";
+export * from "./ILightEntity.js";
+export * from "./LightComponent.js";
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vY29tcG9uZW50cy9MaWdodC9pbmRleC50cyJdLAogICJzb3VyY2VzQ29udGVudCI6IFsiZXhwb3J0ICogZnJvbSAnLi9jcmVhdGVMaWdodEVudGl0eSc7XG5leHBvcnQgKiBmcm9tICcuL0lMaWdodEVudGl0eSc7XG5leHBvcnQgKiBmcm9tICcuL0xpZ2h0Q29tcG9uZW50JztcbiJdLAogICJtYXBwaW5ncyI6ICI7QUFBQSxjQUFjO0FBQ2QsY0FBYztBQUNkLGNBQWM7IiwKICAibmFtZXMiOiBbXQp9Cg==

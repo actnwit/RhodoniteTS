@@ -1,0 +1,5 @@
+// src/foundation/components/MeshRenderer/index.ts
+export * from "./createMeshEntity.js";
+export * from "./IMeshRendererEntity.js";
+export * from "./MeshRendererComponent.js";
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vY29tcG9uZW50cy9NZXNoUmVuZGVyZXIvaW5kZXgudHMiXSwKICAic291cmNlc0NvbnRlbnQiOiBbImV4cG9ydCAqIGZyb20gJy4vY3JlYXRlTWVzaEVudGl0eSc7XG5leHBvcnQgKiBmcm9tICcuL0lNZXNoUmVuZGVyZXJFbnRpdHknO1xuZXhwb3J0ICogZnJvbSAnLi9NZXNoUmVuZGVyZXJDb21wb25lbnQnO1xuIl0sCiAgIm1hcHBpbmdzIjogIjtBQUFBLGNBQWM7QUFDZCxjQUFjO0FBQ2QsY0FBYzsiLAogICJuYW1lcyI6IFtdCn0K

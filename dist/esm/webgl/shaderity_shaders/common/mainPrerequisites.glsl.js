@@ -1,0 +1,38 @@
+var i=`  #ifdef RN_USE_MATERIAL_SID_ATTRIBUTE
+    #ifdef RN_IS_VERTEX_SHADER
+      uint materialSID = a_materialSid;
+      v_materialSid = materialSID;
+    #else
+      uint materialSID = v_materialSid;
+    #endif
+  #else
+    uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
+  #endif
+
+  int lightNumber = 0;
+  #ifdef RN_IS_LIGHTING
+    lightNumber = get_lightNumber(0u, 0u);
+  #endif
+
+  uint skeletalComponentSID = INVALID_ID;
+  #ifdef RN_IS_SKINNING
+    #ifdef RN_IS_VERTEX_SHADER
+      skeletalComponentSID = a_instanceIds.y;
+    #else
+      skeletalComponentSID = INVALID_ID;
+    #endif
+  #endif
+
+uint cameraSID = uint(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */]);
+
+#if defined(WEBGL2_MULTI_VIEW) && defined(RN_IS_VERTEX_SHADER)
+  cameraSID += uint(gl_ViewID_OVR);
+#endif
+
+#ifdef RN_IS_VERTEX_SHADER
+  init_rand(uvec3(uint(gl_VertexID),0u,0u), uvec3(0u));
+#else
+  init_rand(uvec3(uint(gl_FragCoord.x), uint(gl_FragCoord.y),0u), uvec3(0u));
+#endif
+
+`,t="fragment",a=!0,I={code:i,shaderStage:t,isFragmentShader:a};export{i as code,I as default,a as isFragmentShader,t as shaderStage};

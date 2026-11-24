@@ -1,0 +1,1 @@
+var c=o=>{let n=new WeakMap;return e=>{if(n.has(e))return n.get(e);let t=o(e);return n.set(e,t),t}},r=o=>{let n=new Map;return e=>{if(n.has(e))return n.get(e);let t=o(e);return n.set(e,t),t}};export{c as objectCachify,r as primitiveCachify1};

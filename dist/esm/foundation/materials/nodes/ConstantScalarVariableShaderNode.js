@@ -1,0 +1,1 @@
+import{CompositionType as e}from"../../definitions/index.js";import{ConstantVariableShaderNode as a}from"./ConstantVariableShaderNode.js";var o=class extends a{constructor(t){super("ConstantScalar",e.Scalar,t)}setDefaultInputValue(t){this.__commonPart.setConstantValue(t)}};export{o as ConstantScalarVariableShaderNode};

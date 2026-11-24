@@ -142,13 +142,13 @@ export declare class WebXRSystem {
      *
      * @returns The view matrix for left eye rendering.
      */
-    get leftViewMatrix(): import("../foundation").Matrix44;
+    get leftViewMatrix(): import("..").Matrix44;
     /**
      * Gets the view matrix for the right eye camera.
      *
      * @returns The view matrix for right eye rendering.
      */
-    get rightViewMatrix(): import("../foundation").Matrix44;
+    get rightViewMatrix(): import("..").Matrix44;
     /**
      * Gets the projection matrix for the left eye.
      * Derived from the XR system's view information.
@@ -226,7 +226,7 @@ export declare class WebXRSystem {
      * @param index - Eye index (0: left, 1: right).
      * @returns The view matrix for the specified eye.
      */
-    _getViewMatrixAt(index: Index): import("../foundation").Matrix44;
+    _getViewMatrixAt(index: Index): import("..").Matrix44;
     /**
      * Gets the projection matrix for the specified eye.
      *
@@ -282,7 +282,7 @@ export declare class WebXRSystem {
      * @param index - Eye index (0: left, 1: right).
      * @returns The CameraComponent for the specified eye.
      */
-    _getCameraComponentAt(index: Index): import("../foundation").CameraComponent;
+    _getCameraComponentAt(index: Index): import("..").CameraComponent;
     /**
      * Performs pre-rendering updates for WebXR.
      * Updates view matrices, input sources, and gamepad states.

@@ -1,0 +1,1 @@
+import{SynthesizeHdrMaterialContent as o}from"../../materials/contents/SynthesizeHdrMaterialContent.js";import{createMaterial as m}from"./createMaterial.js";function y(t,{additionalName:e="",maxInstancesNumber:r=1},a){let n=`SynthesizeHDR_${e}`,i=new o(t,n,a);return m(t,i,r)}export{y as createSynthesizeHDRMaterial};

@@ -1,0 +1,19 @@
+// src/foundation/physics/VRMSpring/VRMColliderGroup.ts
+var VRMColliderGroup = class {
+  constructor() {
+    /**
+     * Array of sphere colliders in this group.
+     * Sphere colliders are used for simple spherical collision detection.
+     */
+    this.sphereColliders = [];
+    /**
+     * Array of capsule colliders in this group.
+     * Capsule colliders are used for cylindrical collision detection with rounded ends.
+     */
+    this.capsuleColliders = [];
+  }
+};
+export {
+  VRMColliderGroup
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vcGh5c2ljcy9WUk1TcHJpbmcvVlJNQ29sbGlkZXJHcm91cC50cyJdLAogICJzb3VyY2VzQ29udGVudCI6IFsiaW1wb3J0IHR5cGUgeyBDYXBzdWxlQ29sbGlkZXIgfSBmcm9tICcuL0NhcHN1bGVDb2xsaWRlcic7XG5pbXBvcnQgdHlwZSB7IFNwaGVyZUNvbGxpZGVyIH0gZnJvbSAnLi9TcGhlcmVDb2xsaWRlcic7XG5cbi8qKlxuICogQSBncm91cCBvZiBjb2xsaWRlcnMgdXNlZCBpbiBWUk0gc3ByaW5nIGJvbmUgcGh5c2ljcyBzaW11bGF0aW9uLlxuICogVGhpcyBjbGFzcyBtYW5hZ2VzIGNvbGxlY3Rpb25zIG9mIHNwaGVyZSBhbmQgY2Fwc3VsZSBjb2xsaWRlcnMgdGhhdCBjYW4gaW50ZXJhY3RcbiAqIHdpdGggc3ByaW5nIGJvbmVzIHRvIHByb3ZpZGUgY29sbGlzaW9uIGRldGVjdGlvbiBhbmQgcmVzcG9uc2UuXG4gKi9cbmV4cG9ydCBjbGFzcyBWUk1Db2xsaWRlckdyb3VwIHtcbiAgLyoqXG4gICAqIEFycmF5IG9mIHNwaGVyZSBjb2xsaWRlcnMgaW4gdGhpcyBncm91cC5cbiAgICogU3BoZXJlIGNvbGxpZGVycyBhcmUgdXNlZCBmb3Igc2ltcGxlIHNwaGVyaWNhbCBjb2xsaXNpb24gZGV0ZWN0aW9uLlxuICAgKi9cbiAgc3BoZXJlQ29sbGlkZXJzOiBTcGhlcmVDb2xsaWRlcltdID0gW107XG5cbiAgLyoqXG4gICAqIEFycmF5IG9mIGNhcHN1bGUgY29sbGlkZXJzIGluIHRoaXMgZ3JvdXAuXG4gICAqIENhcHN1bGUgY29sbGlkZXJzIGFyZSB1c2VkIGZvciBjeWxpbmRyaWNhbCBjb2xsaXNpb24gZGV0ZWN0aW9uIHdpdGggcm91bmRlZCBlbmRzLlxuICAgKi9cbiAgY2Fwc3VsZUNvbGxpZGVyczogQ2Fwc3VsZUNvbGxpZGVyW10gPSBbXTtcbn1cbiJdLAogICJtYXBwaW5ncyI6ICI7QUFRTyxJQUFNLG1CQUFOLE1BQXVCO0FBQUEsRUFBdkI7QUFLTDtBQUFBO0FBQUE7QUFBQTtBQUFBLDJCQUFvQyxDQUFDO0FBTXJDO0FBQUE7QUFBQTtBQUFBO0FBQUEsNEJBQXNDLENBQUM7QUFBQTtBQUN6QzsiLAogICJuYW1lcyI6IFtdCn0K

@@ -1,0 +1,1 @@
+var r=class e{constructor(t){this._v=t}clone(){return new e(this._v.slice())}static dummy(){return new e(new Float32Array([]))}isDummy(){return this._v.length===0}copyComponents(t){this._v.set(t._v)}setAt(t,s){this._v[t]=s}getAt(t){return this._v[t]}};export{r as VectorN};

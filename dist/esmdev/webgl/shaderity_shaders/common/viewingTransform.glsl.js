@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/common/viewingTransform.glsl
+var code = "  uint cameraSID = uint(u_currentComponentSIDs[${WellKnownComponentTIDs.CameraComponentTID}]);\n  mat4 worldMatrix = get_worldMatrix(uint(a_instanceIds.x));\n  mat4 viewMatrix = get_viewMatrix(cameraSID);\n  mat4 projectionMatrix = get_projectionMatrix(cameraSID);\n  gl_Position = projectionMatrix * viewMatrix * worldMatrix * a_position;\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var viewingTransform_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  viewingTransform_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvY29tbW9uL3ZpZXdpbmdUcmFuc2Zvcm0uZ2xzbCJdLAogICJzb3VyY2VzQ29udGVudCI6IFsie1wiY29kZVwiOlwiICB1aW50IGNhbWVyYVNJRCA9IHVpbnQodV9jdXJyZW50Q29tcG9uZW50U0lEc1ske1dlbGxLbm93bkNvbXBvbmVudFRJRHMuQ2FtZXJhQ29tcG9uZW50VElEfV0pO1xcbiAgbWF0NCB3b3JsZE1hdHJpeCA9IGdldF93b3JsZE1hdHJpeCh1aW50KGFfaW5zdGFuY2VJZHMueCkpO1xcbiAgbWF0NCB2aWV3TWF0cml4ID0gZ2V0X3ZpZXdNYXRyaXgoY2FtZXJhU0lEKTtcXG4gIG1hdDQgcHJvamVjdGlvbk1hdHJpeCA9IGdldF9wcm9qZWN0aW9uTWF0cml4KGNhbWVyYVNJRCk7XFxuICBnbF9Qb3NpdGlvbiA9IHByb2plY3Rpb25NYXRyaXggKiB2aWV3TWF0cml4ICogd29ybGRNYXRyaXggKiBhX3Bvc2l0aW9uO1xcblwiLFwic2hhZGVyU3RhZ2VcIjpcImZyYWdtZW50XCIsXCJpc0ZyYWdtZW50U2hhZGVyXCI6dHJ1ZX0iXSwKICAibWFwcGluZ3MiOiAiO0FBQUMsV0FBTztBQUF3VixrQkFBYztBQUFXLHVCQUFtQjtBQUE1WSxpQ0FBQyxNQUErVixhQUF5QixpQkFBdUI7IiwKICAibmFtZXMiOiBbXQp9Cg==

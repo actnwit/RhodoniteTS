@@ -1,0 +1,289 @@
+// src/foundation/memory/BufferView.ts
+import { Err, Ok } from "../misc/index.js";
+import { Accessor } from "./Accessor.js";
+var BufferView = class {
+  /**
+   * Creates a new BufferView instance.
+   *
+   * @param params - Configuration object for the BufferView
+   * @param params.buffer - The parent Buffer that this BufferView references
+   * @param params.byteOffsetInBuffer - Byte offset within the parent buffer
+   * @param params.defaultByteStride - Default stride in bytes between elements
+   * @param params.byteLength - Total byte length of this BufferView
+   * @param params.raw - The underlying ArrayBuffer containing the actual data
+   */
+  constructor({
+    buffer,
+    byteOffsetInBuffer,
+    defaultByteStride,
+    byteLength,
+    raw
+  }) {
+    this.__defaultByteStride = 0;
+    this.__takenByte = 0;
+    this.__takenAccessorCount = 0;
+    this.__accessors = [];
+    this.__buffer = buffer;
+    this.__byteOffsetInBuffer = byteOffsetInBuffer;
+    this.__byteOffsetInRawArrayBufferOfBuffer = buffer.byteOffsetInRawArrayBuffer + byteOffsetInBuffer;
+    this.__byteLength = byteLength;
+    this.__defaultByteStride = defaultByteStride;
+    this.__raw = raw;
+  }
+  /**
+   * Gets the default byte stride for this BufferView.
+   * The stride determines the number of bytes between consecutive elements.
+   *
+   * @returns The default byte stride in bytes
+   */
+  get defaultByteStride() {
+    return this.__defaultByteStride;
+  }
+  /**
+   * Gets the total byte length of this BufferView.
+   *
+   * @returns The byte length of this BufferView
+   */
+  get byteLength() {
+    return this.__byteLength;
+  }
+  /**
+   * Gets the byte offset of this BufferView within its parent Buffer.
+   * This is the relative offset from the start of the Buffer.
+   *
+   * @returns The byte offset within the parent Buffer
+   */
+  get byteOffsetInBuffer() {
+    return this.__byteOffsetInRawArrayBufferOfBuffer - this.__buffer.byteOffsetInRawArrayBuffer;
+  }
+  /**
+   * Gets the absolute byte offset in the raw ArrayBuffer.
+   * This includes the Buffer's own offset within the raw ArrayBuffer.
+   *
+   * @returns The absolute byte offset in the raw ArrayBuffer
+   */
+  get byteOffsetInRawArrayBufferOfBuffer() {
+    return this.__byteOffsetInRawArrayBufferOfBuffer;
+  }
+  /**
+   * Gets the parent Buffer that this BufferView references.
+   *
+   * @returns The parent Buffer instance
+   */
+  get buffer() {
+    return this.__buffer;
+  }
+  /**
+   * Checks if this BufferView uses Structure of Arrays (SoA) layout.
+   * SoA layout stores each component type in separate arrays.
+   *
+   * @returns True if using SoA layout, false otherwise
+   */
+  get isSoA() {
+    return !this.isAoS;
+  }
+  /**
+   * Checks if this BufferView uses Array of Structures (AoS) layout.
+   * AoS layout interleaves different component types within the same array.
+   *
+   * @returns True if any accessor uses AoS layout, false otherwise
+   */
+  get isAoS() {
+    for (const accessor of this.__accessors) {
+      if (accessor.isAoS) {
+        return true;
+      }
+    }
+    return false;
+  }
+  /**
+   * Creates a Uint8Array view of this BufferView's memory area.
+   * This provides direct access to the raw bytes within the BufferView's bounds.
+   *
+   * @returns A Uint8Array representing the BufferView's memory area
+   */
+  getUint8Array() {
+    return new Uint8Array(this.__raw, this.__byteOffsetInRawArrayBufferOfBuffer, this.__byteLength);
+  }
+  /**
+   * Creates and allocates a new Accessor within this BufferView.
+   * The Accessor will be positioned at the current end of allocated space.
+   *
+   * @param params - Configuration object for the Accessor
+   * @param params.compositionType - The composition type (e.g., SCALAR, VEC2, VEC3, VEC4, MAT4)
+   * @param params.componentType - The component data type (e.g., FLOAT, UNSIGNED_SHORT)
+   * @param params.count - Number of elements in the accessor
+   * @param params.byteStride - Optional byte stride between elements (defaults to defaultByteStride)
+   * @param params.max - Optional maximum values for each component
+   * @param params.min - Optional minimum values for each component
+   * @param params.arrayLength - Optional array length for array attributes (defaults to 1)
+   * @param params.normalized - Whether integer values should be normalized to [0,1] or [-1,1] range
+   * @returns A Result containing the created Accessor on success, or an error on failure
+   */
+  takeAccessor({
+    compositionType,
+    componentType,
+    count,
+    byteStride = this.defaultByteStride,
+    max,
+    min,
+    arrayLength = 1,
+    normalized = false
+  }) {
+    const accessor = this.__takeAccessorInner({
+      compositionType,
+      componentType,
+      count,
+      byteStride,
+      max,
+      min,
+      normalized,
+      arrayLength
+    });
+    return accessor;
+  }
+  /**
+   * Creates and allocates a new Accessor at a specific byte offset within this BufferView.
+   * Unlike takeAccessor, this method allows specifying the exact position within the BufferView.
+   *
+   * @param params - Configuration object for the Accessor
+   * @param params.compositionType - The composition type (e.g., SCALAR, VEC2, VEC3, VEC4, MAT4)
+   * @param params.componentType - The component data type (e.g., FLOAT, UNSIGNED_SHORT)
+   * @param params.count - Number of elements in the accessor
+   * @param params.byteOffsetInBufferView - Specific byte offset within this BufferView
+   * @param params.byteStride - Optional byte stride between elements (defaults to defaultByteStride)
+   * @param params.max - Optional maximum values for each component
+   * @param params.min - Optional minimum values for each component
+   * @param params.normalized - Whether integer values should be normalized to [0,1] or [-1,1] range
+   * @returns A Result containing the created Accessor on success, or an error on failure
+   */
+  takeAccessorWithByteOffset({
+    compositionType,
+    componentType,
+    count,
+    byteOffsetInBufferView,
+    byteStride = this.defaultByteStride,
+    max,
+    min,
+    normalized = false
+  }) {
+    const accessor = this.__takeAccessorInnerWithByteOffset({
+      compositionType,
+      componentType,
+      count,
+      byteStride,
+      byteOffsetInBufferView,
+      max,
+      min,
+      normalized
+    });
+    return accessor;
+  }
+  /**
+   * Internal method to create an Accessor at the current allocation position.
+   * Performs bounds checking and updates the internal allocation state.
+   *
+   * @param params - Configuration parameters for the Accessor
+   * @returns A Result containing the created Accessor on success, or an error on failure
+   * @private
+   */
+  __takeAccessorInner({
+    compositionType,
+    componentType,
+    count,
+    byteStride,
+    max,
+    min,
+    arrayLength,
+    normalized
+  }) {
+    const byteOffsetInBufferView = this.__takenByte;
+    let actualByteStride = byteStride;
+    if (actualByteStride === 0) {
+      actualByteStride = compositionType.getNumberOfComponents() * componentType.getSizeInBytes() * arrayLength;
+    }
+    if (this.__takenByte + actualByteStride * (count - 1) + componentType.getSizeInBytes() * compositionType.getNumberOfComponents() > this.byteLength) {
+      const message = `The size of the Accessor you are trying to take exceeds the byte length left in the BufferView.
+BufferView.byteLength: ${this.byteLength}, BufferView.takenSizeInByte: ${this.__takenByte}, Accessor.byteStride: ${byteStride}, Accessor.count: ${count};
+byteSizeToTake: ${actualByteStride * count}, the byte length left in the Buffer: ${this.byteLength - this.__takenByte}`;
+      return new Err({
+        message,
+        error: void 0
+      });
+    }
+    const accessor = new Accessor({
+      bufferView: this,
+      byteOffsetInBufferView,
+      compositionType,
+      componentType,
+      byteStride,
+      count,
+      raw: this.__raw,
+      max,
+      min,
+      arrayLength,
+      normalized
+    });
+    this.__accessors.push(accessor);
+    this.__takenByte += actualByteStride * count;
+    return new Ok(accessor);
+  }
+  /**
+   * Internal method to create an Accessor at a specific byte offset.
+   * Performs bounds checking but does not update the internal allocation state.
+   *
+   * @param params - Configuration parameters for the Accessor
+   * @returns A Result containing the created Accessor on success, or an error on failure
+   * @private
+   */
+  __takeAccessorInnerWithByteOffset({
+    compositionType,
+    componentType,
+    count,
+    byteStride,
+    byteOffsetInBufferView,
+    max,
+    min,
+    normalized
+  }) {
+    if (this.__takenByte + byteStride * (count - 1) + componentType.getSizeInBytes() * compositionType.getNumberOfComponents() > this.byteLength) {
+      const message = `The size of the Accessor you are trying to take exceeds the byte length left in the BufferView.
+BufferView.byteLength: ${this.byteLength}, BufferView.takenSizeInByte: ${this.__takenByte}, Accessor.byteStride: ${byteStride}, Accessor.count: ${count};
+byteSizeToTake: ${byteStride * count}, the byte length left in the Buffer: ${this.byteLength - this.__takenByte}`;
+      return new Err({
+        message,
+        error: void 0
+      });
+    }
+    const accessor = new Accessor({
+      bufferView: this,
+      byteOffsetInBufferView,
+      compositionType,
+      componentType,
+      byteStride,
+      count,
+      raw: this.__raw,
+      max,
+      min,
+      arrayLength: 1,
+      normalized
+    });
+    this.__accessors.push(accessor);
+    return new Ok(accessor);
+  }
+  /**
+   * Compares this BufferView with another BufferView for equality.
+   * Two BufferViews are considered the same if they have identical byte length,
+   * byte offset, default byte stride, and reference the same underlying ArrayBuffer.
+   *
+   * @param rnBufferView - The BufferView to compare with
+   * @returns True if the BufferViews are identical, false otherwise
+   */
+  isSame(rnBufferView) {
+    return this.byteLength === rnBufferView.byteLength && this.byteOffsetInRawArrayBufferOfBuffer === rnBufferView.byteOffsetInRawArrayBufferOfBuffer && this.defaultByteStride === rnBufferView.defaultByteStride && this.buffer.getArrayBuffer() === rnBufferView.buffer.getArrayBuffer();
+  }
+};
+export {
+  BufferView
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vbWVtb3J5L0J1ZmZlclZpZXcudHMiXSwKICAic291cmNlc0NvbnRlbnQiOiBbImltcG9ydCB0eXBlIHsgQnl0ZSwgQ291bnQsIFNpemUgfSBmcm9tICcuLi8uLi90eXBlcy9Db21tb25UeXBlcyc7XG5pbXBvcnQgdHlwZSB7IENvbXBvbmVudFR5cGVFbnVtIH0gZnJvbSAnLi4vZGVmaW5pdGlvbnMvQ29tcG9uZW50VHlwZSc7XG5pbXBvcnQgdHlwZSB7IENvbXBvc2l0aW9uVHlwZUVudW0gfSBmcm9tICcuLi9kZWZpbml0aW9ucy9Db21wb3NpdGlvblR5cGUnO1xuaW1wb3J0IHR5cGUgeyBCdWZmZXIgfSBmcm9tICcuLi9tZW1vcnkvQnVmZmVyJztcbmltcG9ydCB7IEVyciwgT2ssIHR5cGUgUmVzdWx0IH0gZnJvbSAnLi4vbWlzYyc7XG5pbXBvcnQgeyBBY2Nlc3NvciB9IGZyb20gJy4vQWNjZXNzb3InO1xuXG4vKipcbiAqIEJ1ZmZlclZpZXcgcmVwcmVzZW50cyBhIHZpZXcgaW50byBhIEJ1ZmZlciB3aXRoIHNwZWNpZmljIGJ5dGUgb2Zmc2V0IGFuZCBsZW5ndGguXG4gKiBJdCBtYW5hZ2VzIG1lbW9yeSBhbGxvY2F0aW9uIGZvciBBY2Nlc3NvcnMgYW5kIHByb3ZpZGVzIG1ldGhvZHMgdG8gY3JlYXRlIEFjY2Vzc29yc1xuICogdGhhdCByZWFkIGRhdGEgZnJvbSB0aGUgdW5kZXJseWluZyBidWZmZXIgaW4gdmFyaW91cyBmb3JtYXRzLlxuICpcbiAqIEJ1ZmZlclZpZXcgYWN0cyBhcyBhbiBpbnRlcm1lZGlhdGUgbGF5ZXIgYmV0d2VlbiBCdWZmZXIgYW5kIEFjY2Vzc29yLCBhbGxvd2luZ1xuICogbXVsdGlwbGUgQWNjZXNzb3JzIHRvIHNoYXJlIHRoZSBzYW1lIGJ1ZmZlciBtZW1vcnkgd2hpbGUgbWFpbnRhaW5pbmcgcHJvcGVyXG4gKiBieXRlIGFsaWdubWVudCBhbmQgYm91bmRzIGNoZWNraW5nLlxuICovXG5leHBvcnQgY2xhc3MgQnVmZmVyVmlldyB7XG4gIHByaXZhdGUgX19idWZmZXI6IEJ1ZmZlcjtcbiAgcHJpdmF0ZSBfX2J5dGVPZmZzZXRJblJhd0FycmF5QnVmZmVyT2ZCdWZmZXI6IEJ5dGU7XG4gIHByaXZhdGUgX19ieXRlT2Zmc2V0SW5CdWZmZXI6IEJ5dGU7XG4gIHByaXZhdGUgX19ieXRlTGVuZ3RoOiBCeXRlO1xuICBwcml2YXRlIF9fZGVmYXVsdEJ5dGVTdHJpZGU6IEJ5dGUgPSAwO1xuICBwcml2YXRlIF9fdGFrZW5CeXRlOiBCeXRlID0gMDtcbiAgcHJpdmF0ZSBfX3Rha2VuQWNjZXNzb3JDb3VudCA9IDA7XG4gIHByaXZhdGUgX19yYXc6IEFycmF5QnVmZmVyO1xuICBwcml2YXRlIF9fYWNjZXNzb3JzOiBBcnJheTxBY2Nlc3Nvcj4gPSBbXTtcblxuICAvKipcbiAgICogQ3JlYXRlcyBhIG5ldyBCdWZmZXJWaWV3IGluc3RhbmNlLlxuICAgKlxuICAgKiBAcGFyYW0gcGFyYW1zIC0gQ29uZmlndXJhdGlvbiBvYmplY3QgZm9yIHRoZSBCdWZmZXJWaWV3XG4gICAqIEBwYXJhbSBwYXJhbXMuYnVmZmVyIC0gVGhlIHBhcmVudCBCdWZmZXIgdGhhdCB0aGlzIEJ1ZmZlclZpZXcgcmVmZXJlbmNlc1xuICAgKiBAcGFyYW0gcGFyYW1zLmJ5dGVPZmZzZXRJbkJ1ZmZlciAtIEJ5dGUgb2Zmc2V0IHdpdGhpbiB0aGUgcGFyZW50IGJ1ZmZlclxuICAgKiBAcGFyYW0gcGFyYW1zLmRlZmF1bHRCeXRlU3RyaWRlIC0gRGVmYXVsdCBzdHJpZGUgaW4gYnl0ZXMgYmV0d2VlbiBlbGVtZW50c1xuICAgKiBAcGFyYW0gcGFyYW1zLmJ5dGVMZW5ndGggLSBUb3RhbCBieXRlIGxlbmd0aCBvZiB0aGlzIEJ1ZmZlclZpZXdcbiAgICogQHBhcmFtIHBhcmFtcy5yYXcgLSBUaGUgdW5kZXJseWluZyBBcnJheUJ1ZmZlciBjb250YWluaW5nIHRoZSBhY3R1YWwgZGF0YVxuICAgKi9cbiAgY29uc3RydWN0b3Ioe1xuICAgIGJ1ZmZlcixcbiAgICBieXRlT2Zmc2V0SW5CdWZmZXIsXG4gICAgZGVmYXVsdEJ5dGVTdHJpZGUsXG4gICAgYnl0ZUxlbmd0aCxcbiAgICByYXcsXG4gIH06IHtcbiAgICBidWZmZXI6IEJ1ZmZlcjtcbiAgICBieXRlT2Zmc2V0SW5CdWZmZXI6IEJ5dGU7XG4gICAgZGVmYXVsdEJ5dGVTdHJpZGU6IEJ5dGU7XG4gICAgYnl0ZUxlbmd0aDogQnl0ZTtcbiAgICByYXc6IEFycmF5QnVmZmVyO1xuICB9KSB7XG4gICAgdGhpcy5fX2J1ZmZlciA9IGJ1ZmZlcjtcbiAgICB0aGlzLl9fYnl0ZU9mZnNldEluQnVmZmVyID0gYnl0ZU9mZnNldEluQnVmZmVyO1xuICAgIHRoaXMuX19ieXRlT2Zmc2V0SW5SYXdBcnJheUJ1ZmZlck9mQnVmZmVyID0gYnVmZmVyLmJ5dGVPZmZzZXRJblJhd0FycmF5QnVmZmVyICsgYnl0ZU9mZnNldEluQnVmZmVyO1xuICAgIHRoaXMuX19ieXRlTGVuZ3RoID0gYnl0ZUxlbmd0aDtcbiAgICB0aGlzLl9fZGVmYXVsdEJ5dGVTdHJpZGUgPSBkZWZhdWx0Qnl0ZVN0cmlkZTtcbiAgICB0aGlzLl9fcmF3ID0gcmF3O1xuICB9XG5cbiAgLyoqXG4gICAqIEdldHMgdGhlIGRlZmF1bHQgYnl0ZSBzdHJpZGUgZm9yIHRoaXMgQnVmZmVyVmlldy5cbiAgICogVGhlIHN0cmlkZSBkZXRlcm1pbmVzIHRoZSBudW1iZXIgb2YgYnl0ZXMgYmV0d2VlbiBjb25zZWN1dGl2ZSBlbGVtZW50cy5cbiAgICpcbiAgICogQHJldHVybnMgVGhlIGRlZmF1bHQgYnl0ZSBzdHJpZGUgaW4gYnl0ZXNcbiAgICovXG4gIGdldCBkZWZhdWx0Qnl0ZVN0cmlkZSgpIHtcbiAgICByZXR1cm4gdGhpcy5fX2RlZmF1bHRCeXRlU3RyaWRlO1xuICB9XG5cbiAgLyoqXG4gICAqIEdldHMgdGhlIHRvdGFsIGJ5dGUgbGVuZ3RoIG9mIHRoaXMgQnVmZmVyVmlldy5cbiAgICpcbiAgICogQHJldHVybnMgVGhlIGJ5dGUgbGVuZ3RoIG9mIHRoaXMgQnVmZmVyVmlld1xuICAgKi9cbiAgZ2V0IGJ5dGVMZW5ndGgoKSB7XG4gICAgcmV0dXJuIHRoaXMuX19ieXRlTGVuZ3RoO1xuICB9XG5cbiAgLyoqXG4gICAqIEdldHMgdGhlIGJ5dGUgb2Zmc2V0IG9mIHRoaXMgQnVmZmVyVmlldyB3aXRoaW4gaXRzIHBhcmVudCBCdWZmZXIuXG4gICAqIFRoaXMgaXMgdGhlIHJlbGF0aXZlIG9mZnNldCBmcm9tIHRoZSBzdGFydCBvZiB0aGUgQnVmZmVyLlxuICAgKlxuICAgKiBAcmV0dXJucyBUaGUgYnl0ZSBvZmZzZXQgd2l0aGluIHRoZSBwYXJlbnQgQnVmZmVyXG4gICAqL1xuICBnZXQgYnl0ZU9mZnNldEluQnVmZmVyKCk6IEJ5dGUge1xuICAgIHJldHVybiB0aGlzLl9fYnl0ZU9mZnNldEluUmF3QXJyYXlCdWZmZXJPZkJ1ZmZlciAtIHRoaXMuX19idWZmZXIuYnl0ZU9mZnNldEluUmF3QXJyYXlCdWZmZXI7XG4gIH1cblxuICAvKipcbiAgICogR2V0cyB0aGUgYWJzb2x1dGUgYnl0ZSBvZmZzZXQgaW4gdGhlIHJhdyBBcnJheUJ1ZmZlci5cbiAgICogVGhpcyBpbmNsdWRlcyB0aGUgQnVmZmVyJ3Mgb3duIG9mZnNldCB3aXRoaW4gdGhlIHJhdyBBcnJheUJ1ZmZlci5cbiAgICpcbiAgICogQHJldHVybnMgVGhlIGFic29sdXRlIGJ5dGUgb2Zmc2V0IGluIHRoZSByYXcgQXJyYXlCdWZmZXJcbiAgICovXG4gIGdldCBieXRlT2Zmc2V0SW5SYXdBcnJheUJ1ZmZlck9mQnVmZmVyKCkge1xuICAgIHJldHVybiB0aGlzLl9fYnl0ZU9mZnNldEluUmF3QXJyYXlCdWZmZXJPZkJ1ZmZlcjtcbiAgfVxuXG4gIC8qKlxuICAgKiBHZXRzIHRoZSBwYXJlbnQgQnVmZmVyIHRoYXQgdGhpcyBCdWZmZXJWaWV3IHJlZmVyZW5jZXMuXG4gICAqXG4gICAqIEByZXR1cm5zIFRoZSBwYXJlbnQgQnVmZmVyIGluc3RhbmNlXG4gICAqL1xuICBnZXQgYnVmZmVyKCk6IEJ1ZmZlciB7XG4gICAgcmV0dXJuIHRoaXMuX19idWZmZXI7XG4gIH1cblxuICAvKipcbiAgICogQ2hlY2tzIGlmIHRoaXMgQnVmZmVyVmlldyB1c2VzIFN0cnVjdHVyZSBvZiBBcnJheXMgKFNvQSkgbGF5b3V0LlxuICAgKiBTb0EgbGF5b3V0IHN0b3JlcyBlYWNoIGNvbXBvbmVudCB0eXBlIGluIHNlcGFyYXRlIGFycmF5cy5cbiAgICpcbiAgICogQHJldHVybnMgVHJ1ZSBpZiB1c2luZyBTb0EgbGF5b3V0LCBmYWxzZSBvdGhlcndpc2VcbiAgICovXG4gIGdldCBpc1NvQSgpIHtcbiAgICByZXR1cm4gIXRoaXMuaXNBb1M7XG4gIH1cblxuICAvKipcbiAgICogQ2hlY2tzIGlmIHRoaXMgQnVmZmVyVmlldyB1c2VzIEFycmF5IG9mIFN0cnVjdHVyZXMgKEFvUykgbGF5b3V0LlxuICAgKiBBb1MgbGF5b3V0IGludGVybGVhdmVzIGRpZmZlcmVudCBjb21wb25lbnQgdHlwZXMgd2l0aGluIHRoZSBzYW1lIGFycmF5LlxuICAgKlxuICAgKiBAcmV0dXJucyBUcnVlIGlmIGFueSBhY2Nlc3NvciB1c2VzIEFvUyBsYXlvdXQsIGZhbHNlIG90aGVyd2lzZVxuICAgKi9cbiAgZ2V0IGlzQW9TKCkge1xuICAgIGZvciAoY29uc3QgYWNjZXNzb3Igb2YgdGhpcy5fX2FjY2Vzc29ycykge1xuICAgICAgaWYgKGFjY2Vzc29yLmlzQW9TKSB7XG4gICAgICAgIHJldHVybiB0cnVlO1xuICAgICAgfVxuICAgIH1cbiAgICByZXR1cm4gZmFsc2U7XG4gIH1cblxuICAvKipcbiAgICogQ3JlYXRlcyBhIFVpbnQ4QXJyYXkgdmlldyBvZiB0aGlzIEJ1ZmZlclZpZXcncyBtZW1vcnkgYXJlYS5cbiAgICogVGhpcyBwcm92aWRlcyBkaXJlY3QgYWNjZXNzIHRvIHRoZSByYXcgYnl0ZXMgd2l0aGluIHRoZSBCdWZmZXJWaWV3J3MgYm91bmRzLlxuICAgKlxuICAgKiBAcmV0dXJucyBBIFVpbnQ4QXJyYXkgcmVwcmVzZW50aW5nIHRoZSBCdWZmZXJWaWV3J3MgbWVtb3J5IGFyZWFcbiAgICovXG4gIGdldFVpbnQ4QXJyYXkoKTogVWludDhBcnJheSB7XG4gICAgcmV0dXJuIG5ldyBVaW50OEFycmF5KHRoaXMuX19yYXcsIHRoaXMuX19ieXRlT2Zmc2V0SW5SYXdBcnJheUJ1ZmZlck9mQnVmZmVyLCB0aGlzLl9fYnl0ZUxlbmd0aCk7XG4gIH1cblxuICAvKipcbiAgICogQ3JlYXRlcyBhbmQgYWxsb2NhdGVzIGEgbmV3IEFjY2Vzc29yIHdpdGhpbiB0aGlzIEJ1ZmZlclZpZXcuXG4gICAqIFRoZSBBY2Nlc3NvciB3aWxsIGJlIHBvc2l0aW9uZWQgYXQgdGhlIGN1cnJlbnQgZW5kIG9mIGFsbG9jYXRlZCBzcGFjZS5cbiAgICpcbiAgICogQHBhcmFtIHBhcmFtcyAtIENvbmZpZ3VyYXRpb24gb2JqZWN0IGZvciB0aGUgQWNjZXNzb3JcbiAgICogQHBhcmFtIHBhcmFtcy5jb21wb3NpdGlvblR5cGUgLSBUaGUgY29tcG9zaXRpb24gdHlwZSAoZS5nLiwgU0NBTEFSLCBWRUMyLCBWRUMzLCBWRUM0LCBNQVQ0KVxuICAgKiBAcGFyYW0gcGFyYW1zLmNvbXBvbmVudFR5cGUgLSBUaGUgY29tcG9uZW50IGRhdGEgdHlwZSAoZS5nLiwgRkxPQVQsIFVOU0lHTkVEX1NIT1JUKVxuICAgKiBAcGFyYW0gcGFyYW1zLmNvdW50IC0gTnVtYmVyIG9mIGVsZW1lbnRzIGluIHRoZSBhY2Nlc3NvclxuICAgKiBAcGFyYW0gcGFyYW1zLmJ5dGVTdHJpZGUgLSBPcHRpb25hbCBieXRlIHN0cmlkZSBiZXR3ZWVuIGVsZW1lbnRzIChkZWZhdWx0cyB0byBkZWZhdWx0Qnl0ZVN0cmlkZSlcbiAgICogQHBhcmFtIHBhcmFtcy5tYXggLSBPcHRpb25hbCBtYXhpbXVtIHZhbHVlcyBmb3IgZWFjaCBjb21wb25lbnRcbiAgICogQHBhcmFtIHBhcmFtcy5taW4gLSBPcHRpb25hbCBtaW5pbXVtIHZhbHVlcyBmb3IgZWFjaCBjb21wb25lbnRcbiAgICogQHBhcmFtIHBhcmFtcy5hcnJheUxlbmd0aCAtIE9wdGlvbmFsIGFycmF5IGxlbmd0aCBmb3IgYXJyYXkgYXR0cmlidXRlcyAoZGVmYXVsdHMgdG8gMSlcbiAgICogQHBhcmFtIHBhcmFtcy5ub3JtYWxpemVkIC0gV2hldGhlciBpbnRlZ2VyIHZhbHVlcyBzaG91bGQgYmUgbm9ybWFsaXplZCB0byBbMCwxXSBvciBbLTEsMV0gcmFuZ2VcbiAgICogQHJldHVybnMgQSBSZXN1bHQgY29udGFpbmluZyB0aGUgY3JlYXRlZCBBY2Nlc3NvciBvbiBzdWNjZXNzLCBvciBhbiBlcnJvciBvbiBmYWlsdXJlXG4gICAqL1xuICB0YWtlQWNjZXNzb3Ioe1xuICAgIGNvbXBvc2l0aW9uVHlwZSxcbiAgICBjb21wb25lbnRUeXBlLFxuICAgIGNvdW50LFxuICAgIGJ5dGVTdHJpZGUgPSB0aGlzLmRlZmF1bHRCeXRlU3RyaWRlLFxuICAgIG1heCxcbiAgICBtaW4sXG4gICAgYXJyYXlMZW5ndGggPSAxLFxuICAgIG5vcm1hbGl6ZWQgPSBmYWxzZSxcbiAgfToge1xuICAgIGNvbXBvc2l0aW9uVHlwZTogQ29tcG9zaXRpb25UeXBlRW51bTtcbiAgICBjb21wb25lbnRUeXBlOiBDb21wb25lbnRUeXBlRW51bTtcbiAgICBjb3VudDogQ291bnQ7XG4gICAgYnl0ZVN0cmlkZT86IEJ5dGU7XG4gICAgbWF4PzogbnVtYmVyW107XG4gICAgbWluPzogbnVtYmVyW107XG4gICAgYXJyYXlMZW5ndGg/OiBTaXplO1xuICAgIG5vcm1hbGl6ZWQ/OiBib29sZWFuO1xuICB9KTogUmVzdWx0PEFjY2Vzc29yLCB1bmRlZmluZWQ+IHtcbiAgICBjb25zdCBhY2Nlc3NvciA9IHRoaXMuX190YWtlQWNjZXNzb3JJbm5lcih7XG4gICAgICBjb21wb3NpdGlvblR5cGUsXG4gICAgICBjb21wb25lbnRUeXBlLFxuICAgICAgY291bnQsXG4gICAgICBieXRlU3RyaWRlLFxuICAgICAgbWF4LFxuICAgICAgbWluLFxuICAgICAgbm9ybWFsaXplZCxcbiAgICAgIGFycmF5TGVuZ3RoLFxuICAgIH0pO1xuXG4gICAgcmV0dXJuIGFjY2Vzc29yO1xuICB9XG5cbiAgLyoqXG4gICAqIENyZWF0ZXMgYW5kIGFsbG9jYXRlcyBhIG5ldyBBY2Nlc3NvciBhdCBhIHNwZWNpZmljIGJ5dGUgb2Zmc2V0IHdpdGhpbiB0aGlzIEJ1ZmZlclZpZXcuXG4gICAqIFVubGlrZSB0YWtlQWNjZXNzb3IsIHRoaXMgbWV0aG9kIGFsbG93cyBzcGVjaWZ5aW5nIHRoZSBleGFjdCBwb3NpdGlvbiB3aXRoaW4gdGhlIEJ1ZmZlclZpZXcuXG4gICAqXG4gICAqIEBwYXJhbSBwYXJhbXMgLSBDb25maWd1cmF0aW9uIG9iamVjdCBmb3IgdGhlIEFjY2Vzc29yXG4gICAqIEBwYXJhbSBwYXJhbXMuY29tcG9zaXRpb25UeXBlIC0gVGhlIGNvbXBvc2l0aW9uIHR5cGUgKGUuZy4sIFNDQUxBUiwgVkVDMiwgVkVDMywgVkVDNCwgTUFUNClcbiAgICogQHBhcmFtIHBhcmFtcy5jb21wb25lbnRUeXBlIC0gVGhlIGNvbXBvbmVudCBkYXRhIHR5cGUgKGUuZy4sIEZMT0FULCBVTlNJR05FRF9TSE9SVClcbiAgICogQHBhcmFtIHBhcmFtcy5jb3VudCAtIE51bWJlciBvZiBlbGVtZW50cyBpbiB0aGUgYWNjZXNzb3JcbiAgICogQHBhcmFtIHBhcmFtcy5ieXRlT2Zmc2V0SW5CdWZmZXJWaWV3IC0gU3BlY2lmaWMgYnl0ZSBvZmZzZXQgd2l0aGluIHRoaXMgQnVmZmVyVmlld1xuICAgKiBAcGFyYW0gcGFyYW1zLmJ5dGVTdHJpZGUgLSBPcHRpb25hbCBieXRlIHN0cmlkZSBiZXR3ZWVuIGVsZW1lbnRzIChkZWZhdWx0cyB0byBkZWZhdWx0Qnl0ZVN0cmlkZSlcbiAgICogQHBhcmFtIHBhcmFtcy5tYXggLSBPcHRpb25hbCBtYXhpbXVtIHZhbHVlcyBmb3IgZWFjaCBjb21wb25lbnRcbiAgICogQHBhcmFtIHBhcmFtcy5taW4gLSBPcHRpb25hbCBtaW5pbXVtIHZhbHVlcyBmb3IgZWFjaCBjb21wb25lbnRcbiAgICogQHBhcmFtIHBhcmFtcy5ub3JtYWxpemVkIC0gV2hldGhlciBpbnRlZ2VyIHZhbHVlcyBzaG91bGQgYmUgbm9ybWFsaXplZCB0byBbMCwxXSBvciBbLTEsMV0gcmFuZ2VcbiAgICogQHJldHVybnMgQSBSZXN1bHQgY29udGFpbmluZyB0aGUgY3JlYXRlZCBBY2Nlc3NvciBvbiBzdWNjZXNzLCBvciBhbiBlcnJvciBvbiBmYWlsdXJlXG4gICAqL1xuICB0YWtlQWNjZXNzb3JXaXRoQnl0ZU9mZnNldCh7XG4gICAgY29tcG9zaXRpb25UeXBlLFxuICAgIGNvbXBvbmVudFR5cGUsXG4gICAgY291bnQsXG4gICAgYnl0ZU9mZnNldEluQnVmZmVyVmlldyxcbiAgICBieXRlU3RyaWRlID0gdGhpcy5kZWZhdWx0Qnl0ZVN0cmlkZSxcbiAgICBtYXgsXG4gICAgbWluLFxuICAgIG5vcm1hbGl6ZWQgPSBmYWxzZSxcbiAgfToge1xuICAgIGNvbXBvc2l0aW9uVHlwZTogQ29tcG9zaXRpb25UeXBlRW51bTtcbiAgICBjb21wb25lbnRUeXBlOiBDb21wb25lbnRUeXBlRW51bTtcbiAgICBjb3VudDogQ291bnQ7XG4gICAgYnl0ZU9mZnNldEluQnVmZmVyVmlldzogQnl0ZTtcbiAgICBieXRlU3RyaWRlPzogQnl0ZTtcbiAgICBtYXg/OiBudW1iZXJbXTtcbiAgICBtaW4/OiBudW1iZXJbXTtcbiAgICBub3JtYWxpemVkPzogYm9vbGVhbjtcbiAgfSk6IFJlc3VsdDxBY2Nlc3NvciwgdW5kZWZpbmVkPiB7XG4gICAgY29uc3QgYWNjZXNzb3IgPSB0aGlzLl9fdGFrZUFjY2Vzc29ySW5uZXJXaXRoQnl0ZU9mZnNldCh7XG4gICAgICBjb21wb3NpdGlvblR5cGUsXG4gICAgICBjb21wb25lbnRUeXBlLFxuICAgICAgY291bnQsXG4gICAgICBieXRlU3RyaWRlLFxuICAgICAgYnl0ZU9mZnNldEluQnVmZmVyVmlldyxcbiAgICAgIG1heCxcbiAgICAgIG1pbixcbiAgICAgIG5vcm1hbGl6ZWQsXG4gICAgfSk7XG5cbiAgICByZXR1cm4gYWNjZXNzb3I7XG4gIH1cblxuICAvKipcbiAgICogSW50ZXJuYWwgbWV0aG9kIHRvIGNyZWF0ZSBhbiBBY2Nlc3NvciBhdCB0aGUgY3VycmVudCBhbGxvY2F0aW9uIHBvc2l0aW9uLlxuICAgKiBQZXJmb3JtcyBib3VuZHMgY2hlY2tpbmcgYW5kIHVwZGF0ZXMgdGhlIGludGVybmFsIGFsbG9jYXRpb24gc3RhdGUuXG4gICAqXG4gICAqIEBwYXJhbSBwYXJhbXMgLSBDb25maWd1cmF0aW9uIHBhcmFtZXRlcnMgZm9yIHRoZSBBY2Nlc3NvclxuICAgKiBAcmV0dXJucyBBIFJlc3VsdCBjb250YWluaW5nIHRoZSBjcmVhdGVkIEFjY2Vzc29yIG9uIHN1Y2Nlc3MsIG9yIGFuIGVycm9yIG9uIGZhaWx1cmVcbiAgICogQHByaXZhdGVcbiAgICovXG4gIHByaXZhdGUgX190YWtlQWNjZXNzb3JJbm5lcih7XG4gICAgY29tcG9zaXRpb25UeXBlLFxuICAgIGNvbXBvbmVudFR5cGUsXG4gICAgY291bnQsXG4gICAgYnl0ZVN0cmlkZSxcbiAgICBtYXgsXG4gICAgbWluLFxuICAgIGFycmF5TGVuZ3RoLFxuICAgIG5vcm1hbGl6ZWQsXG4gIH06IHtcbiAgICBjb21wb3NpdGlvblR5cGU6IENvbXBvc2l0aW9uVHlwZUVudW07XG4gICAgY29tcG9uZW50VHlwZTogQ29tcG9uZW50VHlwZUVudW07XG4gICAgY291bnQ6IENvdW50O1xuICAgIGJ5dGVTdHJpZGU6IEJ5dGU7XG4gICAgbWF4PzogbnVtYmVyW107XG4gICAgbWluPzogbnVtYmVyW107XG4gICAgYXJyYXlMZW5ndGg6IFNpemU7XG4gICAgbm9ybWFsaXplZDogYm9vbGVhbjtcbiAgfSk6IFJlc3VsdDxBY2Nlc3NvciwgdW5kZWZpbmVkPiB7XG4gICAgY29uc3QgYnl0ZU9mZnNldEluQnVmZmVyVmlldyA9IHRoaXMuX190YWtlbkJ5dGU7XG4gICAgbGV0IGFjdHVhbEJ5dGVTdHJpZGUgPSBieXRlU3RyaWRlO1xuICAgIGlmIChhY3R1YWxCeXRlU3RyaWRlID09PSAwKSB7XG4gICAgICBhY3R1YWxCeXRlU3RyaWRlID0gY29tcG9zaXRpb25UeXBlLmdldE51bWJlck9mQ29tcG9uZW50cygpICogY29tcG9uZW50VHlwZS5nZXRTaXplSW5CeXRlcygpICogYXJyYXlMZW5ndGg7XG4gICAgfVxuXG4gICAgLy8gRWFjaCBhY2Nlc3NvciBNVVNUIGZpdCBpdHMgYnVmZmVyVmlldywgaS5lLixcbiAgICAvLyBhY2Nlc3Nvci5ieXRlT2Zmc2V0ICsgRUZGRUNUSVZFX0JZVEVfU1RSSURFICogKGFjY2Vzc29yLmNvdW50IC0gMSkgKyBTSVpFX09GX0NPTVBPTkVOVCAqIE5VTUJFUl9PRl9DT01QT05FTlRTXG4gICAgLy8gU2VlOiBodHRwczovL3d3dy5raHJvbm9zLm9yZy9yZWdpc3RyeS9nbFRGL3NwZWNzLzIuMC9nbFRGLTIuMC5odG1sI2RhdGEtYWxpZ25tZW50XG4gICAgaWYgKFxuICAgICAgdGhpcy5fX3Rha2VuQnl0ZSArXG4gICAgICAgIGFjdHVhbEJ5dGVTdHJpZGUgKiAoY291bnQgLSAxKSArXG4gICAgICAgIGNvbXBvbmVudFR5cGUuZ2V0U2l6ZUluQnl0ZXMoKSAqIGNvbXBvc2l0aW9uVHlwZS5nZXROdW1iZXJPZkNvbXBvbmVudHMoKSA+XG4gICAgICB0aGlzLmJ5dGVMZW5ndGhcbiAgICApIHtcbiAgICAgIGNvbnN0IG1lc3NhZ2UgPSBgVGhlIHNpemUgb2YgdGhlIEFjY2Vzc29yIHlvdSBhcmUgdHJ5aW5nIHRvIHRha2UgZXhjZWVkcyB0aGUgYnl0ZSBsZW5ndGggbGVmdCBpbiB0aGUgQnVmZmVyVmlldy5cbkJ1ZmZlclZpZXcuYnl0ZUxlbmd0aDogJHt0aGlzLmJ5dGVMZW5ndGh9LCBCdWZmZXJWaWV3LnRha2VuU2l6ZUluQnl0ZTogJHtcbiAgICAgICAgdGhpcy5fX3Rha2VuQnl0ZVxuICAgICAgfSwgQWNjZXNzb3IuYnl0ZVN0cmlkZTogJHtieXRlU3RyaWRlfSwgQWNjZXNzb3IuY291bnQ6ICR7Y291bnR9O1xuYnl0ZVNpemVUb1Rha2U6ICR7YWN0dWFsQnl0ZVN0cmlkZSAqIGNvdW50fSwgdGhlIGJ5dGUgbGVuZ3RoIGxlZnQgaW4gdGhlIEJ1ZmZlcjogJHt0aGlzLmJ5dGVMZW5ndGggLSB0aGlzLl9fdGFrZW5CeXRlfWA7XG4gICAgICAvLyBjb25zb2xlLmVycm9yKG1lc3NhZ2UpO1xuICAgICAgcmV0dXJuIG5ldyBFcnIoe1xuICAgICAgICBtZXNzYWdlLFxuICAgICAgICBlcnJvcjogdW5kZWZpbmVkLFxuICAgICAgfSk7XG4gICAgfVxuXG4gICAgY29uc3QgYWNjZXNzb3IgPSBuZXcgQWNjZXNzb3Ioe1xuICAgICAgYnVmZmVyVmlldzogdGhpcyxcbiAgICAgIGJ5dGVPZmZzZXRJbkJ1ZmZlclZpZXc6IGJ5dGVPZmZzZXRJbkJ1ZmZlclZpZXcsXG4gICAgICBjb21wb3NpdGlvblR5cGUsXG4gICAgICBjb21wb25lbnRUeXBlLFxuICAgICAgYnl0ZVN0cmlkZSxcbiAgICAgIGNvdW50LFxuICAgICAgcmF3OiB0aGlzLl9fcmF3LFxuICAgICAgbWF4LFxuICAgICAgbWluLFxuICAgICAgYXJyYXlMZW5ndGgsXG4gICAgICBub3JtYWxpemVkLFxuICAgIH0pO1xuXG4gICAgdGhpcy5fX2FjY2Vzc29ycy5wdXNoKGFjY2Vzc29yKTtcblxuICAgIHRoaXMuX190YWtlbkJ5dGUgKz0gYWN0dWFsQnl0ZVN0cmlkZSAqIGNvdW50O1xuXG4gICAgcmV0dXJuIG5ldyBPayhhY2Nlc3Nvcik7XG4gIH1cblxuICAvKipcbiAgICogSW50ZXJuYWwgbWV0aG9kIHRvIGNyZWF0ZSBhbiBBY2Nlc3NvciBhdCBhIHNwZWNpZmljIGJ5dGUgb2Zmc2V0LlxuICAgKiBQZXJmb3JtcyBib3VuZHMgY2hlY2tpbmcgYnV0IGRvZXMgbm90IHVwZGF0ZSB0aGUgaW50ZXJuYWwgYWxsb2NhdGlvbiBzdGF0ZS5cbiAgICpcbiAgICogQHBhcmFtIHBhcmFtcyAtIENvbmZpZ3VyYXRpb24gcGFyYW1ldGVycyBmb3IgdGhlIEFjY2Vzc29yXG4gICAqIEByZXR1cm5zIEEgUmVzdWx0IGNvbnRhaW5pbmcgdGhlIGNyZWF0ZWQgQWNjZXNzb3Igb24gc3VjY2Vzcywgb3IgYW4gZXJyb3Igb24gZmFpbHVyZVxuICAgKiBAcHJpdmF0ZVxuICAgKi9cbiAgcHJpdmF0ZSBfX3Rha2VBY2Nlc3NvcklubmVyV2l0aEJ5dGVPZmZzZXQoe1xuICAgIGNvbXBvc2l0aW9uVHlwZSxcbiAgICBjb21wb25lbnRUeXBlLFxuICAgIGNvdW50LFxuICAgIGJ5dGVTdHJpZGUsXG4gICAgYnl0ZU9mZnNldEluQnVmZmVyVmlldyxcbiAgICBtYXgsXG4gICAgbWluLFxuICAgIG5vcm1hbGl6ZWQsXG4gIH06IHtcbiAgICBjb21wb3NpdGlvblR5cGU6IENvbXBvc2l0aW9uVHlwZUVudW07XG4gICAgY29tcG9uZW50VHlwZTogQ29tcG9uZW50VHlwZUVudW07XG4gICAgY291bnQ6IENvdW50O1xuICAgIGJ5dGVTdHJpZGU6IEJ5dGU7XG4gICAgYnl0ZU9mZnNldEluQnVmZmVyVmlldzogQnl0ZTtcbiAgICBtYXg/OiBudW1iZXJbXTtcbiAgICBtaW4/OiBudW1iZXJbXTtcbiAgICBub3JtYWxpemVkOiBib29sZWFuO1xuICB9KTogUmVzdWx0PEFjY2Vzc29yLCB1bmRlZmluZWQ+IHtcbiAgICAvLyBFYWNoIGFjY2Vzc29yIE1VU1QgZml0IGl0cyBidWZmZXJWaWV3LCBpLmUuLFxuICAgIC8vIGFjY2Vzc29yLmJ5dGVPZmZzZXQgKyBFRkZFQ1RJVkVfQllURV9TVFJJREUgKiAoYWNjZXNzb3IuY291bnQgLSAxKSArIFNJWkVfT0ZfQ09NUE9ORU5UICogTlVNQkVSX09GX0NPTVBPTkVOVFNcbiAgICAvLyBTZWU6IGh0dHBzOi8vd3d3Lmtocm9ub3Mub3JnL3JlZ2lzdHJ5L2dsVEYvc3BlY3MvMi4wL2dsVEYtMi4wLmh0bWwjZGF0YS1hbGlnbm1lbnRcbiAgICBpZiAoXG4gICAgICB0aGlzLl9fdGFrZW5CeXRlICtcbiAgICAgICAgYnl0ZVN0cmlkZSAqIChjb3VudCAtIDEpICtcbiAgICAgICAgY29tcG9uZW50VHlwZS5nZXRTaXplSW5CeXRlcygpICogY29tcG9zaXRpb25UeXBlLmdldE51bWJlck9mQ29tcG9uZW50cygpID5cbiAgICAgIHRoaXMuYnl0ZUxlbmd0aFxuICAgICkge1xuICAgICAgY29uc3QgbWVzc2FnZSA9IGBUaGUgc2l6ZSBvZiB0aGUgQWNjZXNzb3IgeW91IGFyZSB0cnlpbmcgdG8gdGFrZSBleGNlZWRzIHRoZSBieXRlIGxlbmd0aCBsZWZ0IGluIHRoZSBCdWZmZXJWaWV3LlxuQnVmZmVyVmlldy5ieXRlTGVuZ3RoOiAke3RoaXMuYnl0ZUxlbmd0aH0sIEJ1ZmZlclZpZXcudGFrZW5TaXplSW5CeXRlOiAke1xuICAgICAgICB0aGlzLl9fdGFrZW5CeXRlXG4gICAgICB9LCBBY2Nlc3Nvci5ieXRlU3RyaWRlOiAke2J5dGVTdHJpZGV9LCBBY2Nlc3Nvci5jb3VudDogJHtjb3VudH07XG5ieXRlU2l6ZVRvVGFrZTogJHtieXRlU3RyaWRlICogY291bnR9LCB0aGUgYnl0ZSBsZW5ndGggbGVmdCBpbiB0aGUgQnVmZmVyOiAke3RoaXMuYnl0ZUxlbmd0aCAtIHRoaXMuX190YWtlbkJ5dGV9YDtcbiAgICAgIHJldHVybiBuZXcgRXJyKHtcbiAgICAgICAgbWVzc2FnZSxcbiAgICAgICAgZXJyb3I6IHVuZGVmaW5lZCxcbiAgICAgIH0pO1xuICAgIH1cblxuICAgIGNvbnN0IGFjY2Vzc29yID0gbmV3IEFjY2Vzc29yKHtcbiAgICAgIGJ1ZmZlclZpZXc6IHRoaXMsXG4gICAgICBieXRlT2Zmc2V0SW5CdWZmZXJWaWV3LFxuICAgICAgY29tcG9zaXRpb25UeXBlLFxuICAgICAgY29tcG9uZW50VHlwZSxcbiAgICAgIGJ5dGVTdHJpZGUsXG4gICAgICBjb3VudCxcbiAgICAgIHJhdzogdGhpcy5fX3JhdyxcbiAgICAgIG1heCxcbiAgICAgIG1pbixcbiAgICAgIGFycmF5TGVuZ3RoOiAxLFxuICAgICAgbm9ybWFsaXplZCxcbiAgICB9KTtcblxuICAgIHRoaXMuX19hY2Nlc3NvcnMucHVzaChhY2Nlc3Nvcik7XG5cbiAgICByZXR1cm4gbmV3IE9rKGFjY2Vzc29yKTtcbiAgfVxuXG4gIC8qKlxuICAgKiBDb21wYXJlcyB0aGlzIEJ1ZmZlclZpZXcgd2l0aCBhbm90aGVyIEJ1ZmZlclZpZXcgZm9yIGVxdWFsaXR5LlxuICAgKiBUd28gQnVmZmVyVmlld3MgYXJlIGNvbnNpZGVyZWQgdGhlIHNhbWUgaWYgdGhleSBoYXZlIGlkZW50aWNhbCBieXRlIGxlbmd0aCxcbiAgICogYnl0ZSBvZmZzZXQsIGRlZmF1bHQgYnl0ZSBzdHJpZGUsIGFuZCByZWZlcmVuY2UgdGhlIHNhbWUgdW5kZXJseWluZyBBcnJheUJ1ZmZlci5cbiAgICpcbiAgICogQHBhcmFtIHJuQnVmZmVyVmlldyAtIFRoZSBCdWZmZXJWaWV3IHRvIGNvbXBhcmUgd2l0aFxuICAgKiBAcmV0dXJucyBUcnVlIGlmIHRoZSBCdWZmZXJWaWV3cyBhcmUgaWRlbnRpY2FsLCBmYWxzZSBvdGhlcndpc2VcbiAgICovXG4gIGlzU2FtZShybkJ1ZmZlclZpZXc6IEJ1ZmZlclZpZXcpIHtcbiAgICByZXR1cm4gKFxuICAgICAgdGhpcy5ieXRlTGVuZ3RoID09PSBybkJ1ZmZlclZpZXcuYnl0ZUxlbmd0aCAmJlxuICAgICAgdGhpcy5ieXRlT2Zmc2V0SW5SYXdBcnJheUJ1ZmZlck9mQnVmZmVyID09PSBybkJ1ZmZlclZpZXcuYnl0ZU9mZnNldEluUmF3QXJyYXlCdWZmZXJPZkJ1ZmZlciAmJlxuICAgICAgdGhpcy5kZWZhdWx0Qnl0ZVN0cmlkZSA9PT0gcm5CdWZmZXJWaWV3LmRlZmF1bHRCeXRlU3RyaWRlICYmXG4gICAgICB0aGlzLmJ1ZmZlci5nZXRBcnJheUJ1ZmZlcigpID09PSBybkJ1ZmZlclZpZXcuYnVmZmVyLmdldEFycmF5QnVmZmVyKClcbiAgICApO1xuICB9XG59XG4iXSwKICAibWFwcGluZ3MiOiAiO0FBSUEsU0FBUyxLQUFLLFVBQXVCO0FBQ3JD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

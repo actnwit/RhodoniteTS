@@ -1,0 +1,6 @@
+// src/foundation/components/Animation/AnimationConstants.ts
+var defaultAnimationTrackName = "Default";
+export {
+  defaultAnimationTrackName
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vY29tcG9uZW50cy9BbmltYXRpb24vQW5pbWF0aW9uQ29uc3RhbnRzLnRzIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJleHBvcnQgY29uc3QgZGVmYXVsdEFuaW1hdGlvblRyYWNrTmFtZSA9ICdEZWZhdWx0JztcbiJdLAogICJtYXBwaW5ncyI6ICI7QUFBTyxJQUFNLDRCQUE0QjsiLAogICJuYW1lcyI6IFtdCn0K

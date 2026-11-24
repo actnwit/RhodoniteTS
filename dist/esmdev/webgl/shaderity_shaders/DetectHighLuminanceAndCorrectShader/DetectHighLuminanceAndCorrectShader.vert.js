@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.vert
+var code = "/* shaderity: @{enableVertexExtensions} */\n/* shaderity: @{glslPrecision} */\n\n/* shaderity: @{vertexInOut} */\n\n#ifdef RN_IS_MORPHING\nuniform int u_currentPrimitiveIdx; // initialValue=0, isInternalSetting=true, soloDatum=false, needUniformInDataTextureMode=true\n#endif\n\n\n/* shaderity: @{prerequisites} */\n\n/* shaderity: @{getters} */\n\n/* shaderity: @{matricesGetters} */\n\nvoid main(){\n/* shaderity: @{mainPrerequisites} */\n/* shaderity: @{fullscreen} */\n}\n";
+var shaderStage = "vertex";
+var isFragmentShader = false;
+var DetectHighLuminanceAndCorrectShader_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  DetectHighLuminanceAndCorrectShader_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvRGV0ZWN0SGlnaEx1bWluYW5jZUFuZENvcnJlY3RTaGFkZXIvRGV0ZWN0SGlnaEx1bWluYW5jZUFuZENvcnJlY3RTaGFkZXIudmVydCJdLAogICJzb3VyY2VzQ29udGVudCI6IFsie1wiY29kZVwiOlwiLyogc2hhZGVyaXR5OiBAe2VuYWJsZVZlcnRleEV4dGVuc2lvbnN9ICovXFxuLyogc2hhZGVyaXR5OiBAe2dsc2xQcmVjaXNpb259ICovXFxuXFxuLyogc2hhZGVyaXR5OiBAe3ZlcnRleEluT3V0fSAqL1xcblxcbiNpZmRlZiBSTl9JU19NT1JQSElOR1xcbnVuaWZvcm0gaW50IHVfY3VycmVudFByaW1pdGl2ZUlkeDsgLy8gaW5pdGlhbFZhbHVlPTAsIGlzSW50ZXJuYWxTZXR0aW5nPXRydWUsIHNvbG9EYXR1bT1mYWxzZSwgbmVlZFVuaWZvcm1JbkRhdGFUZXh0dXJlTW9kZT10cnVlXFxuI2VuZGlmXFxuXFxuXFxuLyogc2hhZGVyaXR5OiBAe3ByZXJlcXVpc2l0ZXN9ICovXFxuXFxuLyogc2hhZGVyaXR5OiBAe2dldHRlcnN9ICovXFxuXFxuLyogc2hhZGVyaXR5OiBAe21hdHJpY2VzR2V0dGVyc30gKi9cXG5cXG52b2lkIG1haW4oKXtcXG4vKiBzaGFkZXJpdHk6IEB7bWFpblByZXJlcXVpc2l0ZXN9ICovXFxuLyogc2hhZGVyaXR5OiBAe2Z1bGxzY3JlZW59ICovXFxufVxcblwiLFwic2hhZGVyU3RhZ2VcIjpcInZlcnRleFwiLFwiaXNGcmFnbWVudFNoYWRlclwiOmZhbHNlfSJdLAogICJtYXBwaW5ncyI6ICI7QUFBQyxXQUFPO0FBQStkLGtCQUFjO0FBQVMsdUJBQW1CO0FBQWpoQixvREFBQyxNQUFzZSxhQUF1QixpQkFBd0I7IiwKICAibmFtZXMiOiBbXQp9Cg==

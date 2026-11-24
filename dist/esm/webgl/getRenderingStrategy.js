@@ -1,0 +1,1 @@
+import{ProcessApproach as o}from"../foundation/definitions/ProcessApproach.js";import{ModuleManager as n}from"../foundation/system/ModuleManager.js";var a=(r,e)=>{let t=n.getInstance().getModule("webgl");if(o.isWebGL2Approach(e))return t.WebGLStrategyWebGL2.init(r);throw new Error(`No WebGL rendering strategy for process approach "${e.str}".`)},i=a;export{i as default};

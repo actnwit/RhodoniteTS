@@ -1,0 +1,1 @@
+import{createGroupEntity as n}from"../SceneGraph/createGroupEntity.js";import{ShapeComponent as o}from"./ShapeComponent.js";function r(t){let e=n(t);return t.entityRepository.addComponentToEntity(o,e)}export{r as createShapeEntity};

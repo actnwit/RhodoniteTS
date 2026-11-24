@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgpu/shaderity_shaders/nodes/PbrEmissiveProps.wgsl
+var code = "fn pbrEmissiveProps(emissiveFactor: vec3<f32>, emissiveTexture: vec4<f32>, emissiveStrength: f32, outEmissiveProps: ptr<function, EmissiveProps>) {\n  (*outEmissiveProps).emissive = emissiveFactor * emissiveTexture.rgb;\n  (*outEmissiveProps).emissiveStrength = emissiveStrength;\n}\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var PbrEmissiveProps_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  PbrEmissiveProps_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ3B1L3NoYWRlcml0eV9zaGFkZXJzL25vZGVzL1BickVtaXNzaXZlUHJvcHMud2dzbCJdLAogICJzb3VyY2VzQ29udGVudCI6IFsie1wiY29kZVwiOlwiZm4gcGJyRW1pc3NpdmVQcm9wcyhlbWlzc2l2ZUZhY3RvcjogdmVjMzxmMzI+LCBlbWlzc2l2ZVRleHR1cmU6IHZlYzQ8ZjMyPiwgZW1pc3NpdmVTdHJlbmd0aDogZjMyLCBvdXRFbWlzc2l2ZVByb3BzOiBwdHI8ZnVuY3Rpb24sIEVtaXNzaXZlUHJvcHM+KSB7XFxuICAoKm91dEVtaXNzaXZlUHJvcHMpLmVtaXNzaXZlID0gZW1pc3NpdmVGYWN0b3IgKiBlbWlzc2l2ZVRleHR1cmUucmdiO1xcbiAgKCpvdXRFbWlzc2l2ZVByb3BzKS5lbWlzc2l2ZVN0cmVuZ3RoID0gZW1pc3NpdmVTdHJlbmd0aDtcXG59XFxuXCIsXCJzaGFkZXJTdGFnZVwiOlwiZnJhZ21lbnRcIixcImlzRnJhZ21lbnRTaGFkZXJcIjp0cnVlfSJdLAogICJtYXBwaW5ncyI6ICI7QUFBQyxXQUFPO0FBQStSLGtCQUFjO0FBQVcsdUJBQW1CO0FBQW5WLGlDQUFDLE1BQXNTLGFBQXlCLGlCQUF1QjsiLAogICJuYW1lcyI6IFtdCn0K

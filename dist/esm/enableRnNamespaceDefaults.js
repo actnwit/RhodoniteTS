@@ -1,0 +1,1 @@
+import{registerGizmos as r}from"./foundation/gizmos/registerGizmos.js";import{Engine as t}from"./foundation/system/Engine.js";function a(e){return r(),t._loadXRByDefault=!0,e}export{a as enableRnNamespaceDefaults};

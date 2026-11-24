@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/nodes/PbrBaseColorProps.glsl
+var code = "void pbrBaseColorProps(in vec4 vertexColor, in vec4 baseColorFactor, in vec4 baseColorTexture, out vec4 outColor) {\n  outColor = vertexColor * baseColorFactor * baseColorTexture;\n}\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var PbrBaseColorProps_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  PbrBaseColorProps_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvbm9kZXMvUGJyQmFzZUNvbG9yUHJvcHMuZ2xzbCJdLAogICJzb3VyY2VzQ29udGVudCI6IFsie1wiY29kZVwiOlwidm9pZCBwYnJCYXNlQ29sb3JQcm9wcyhpbiB2ZWM0IHZlcnRleENvbG9yLCBpbiB2ZWM0IGJhc2VDb2xvckZhY3RvciwgaW4gdmVjNCBiYXNlQ29sb3JUZXh0dXJlLCBvdXQgdmVjNCBvdXRDb2xvcikge1xcbiAgb3V0Q29sb3IgPSB2ZXJ0ZXhDb2xvciAqIGJhc2VDb2xvckZhY3RvciAqIGJhc2VDb2xvclRleHR1cmU7XFxufVxcblwiLFwic2hhZGVyU3RhZ2VcIjpcImZyYWdtZW50XCIsXCJpc0ZyYWdtZW50U2hhZGVyXCI6dHJ1ZX0iXSwKICAibWFwcGluZ3MiOiAiO0FBQUMsV0FBTztBQUEyTCxrQkFBYztBQUFXLHVCQUFtQjtBQUEvTyxrQ0FBQyxNQUFrTSxhQUF5QixpQkFBdUI7IiwKICAibmFtZXMiOiBbXQp9Cg==

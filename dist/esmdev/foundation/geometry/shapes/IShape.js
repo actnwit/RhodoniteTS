@@ -1,0 +1,8 @@
+// src/foundation/geometry/shapes/IShape.ts
+import { Primitive } from "../Primitive.js";
+var IShape = class extends Primitive {
+};
+export {
+  IShape
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vZ2VvbWV0cnkvc2hhcGVzL0lTaGFwZS50cyJdLAogICJzb3VyY2VzQ29udGVudCI6IFsiaW1wb3J0IHsgdHlwZSBJQW55UHJpbWl0aXZlRGVzY3JpcHRvciwgUHJpbWl0aXZlIH0gZnJvbSAnLi4vUHJpbWl0aXZlJztcblxuZXhwb3J0IGFic3RyYWN0IGNsYXNzIElTaGFwZSBleHRlbmRzIFByaW1pdGl2ZSB7XG4gIGFic3RyYWN0IGdlbmVyYXRlKGRlc2M6IElBbnlQcmltaXRpdmVEZXNjcmlwdG9yKTogdm9pZDtcbn1cbiJdLAogICJtYXBwaW5ncyI6ICI7QUFBQSxTQUF1QyxpQkFBaUI7QUFFakQsSUFBZSxTQUFmLGNBQThCLFVBQVU7QUFFL0M7IiwKICAibmFtZXMiOiBbXQp9Cg==

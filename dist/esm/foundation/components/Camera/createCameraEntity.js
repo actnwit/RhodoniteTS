@@ -1,0 +1,1 @@
+import{createGroupEntity as i}from"../SceneGraph/createGroupEntity.js";import{CameraComponent as o}from"./CameraComponent.js";function p(t,r){let e=i(t),n=e.engine.entityRepository.addComponentToEntity(o,e);return r&&o.setCurrent(t,n.getCamera().componentSID),n}export{p as createCameraEntity};

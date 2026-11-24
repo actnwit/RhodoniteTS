@@ -1,0 +1,261 @@
+// src/foundation/textures/RenderTargetTexture2DArray.ts
+import { ComponentType } from "../definitions/ComponentType.js";
+import { PixelFormat } from "../definitions/PixelFormat.js";
+import { ProcessApproach } from "../definitions/ProcessApproach.js";
+import { TextureFormat } from "../definitions/TextureFormat.js";
+import { Vector4 } from "../math/Vector4.js";
+import { CGAPIResourceRepository } from "../renderer/CGAPIResourceRepository.js";
+import { AbstractTexture } from "./AbstractTexture.js";
+var RenderTargetTexture2DArray = class extends AbstractTexture {
+  constructor() {
+    super(...arguments);
+    this.__arrayLength = 0;
+  }
+  /**
+   * Creates and initializes the 2D texture array with the specified parameters.
+   * @param params - Configuration object for texture creation
+   * @param params.width - Width of the texture in pixels
+   * @param params.height - Height of the texture in pixels
+   * @param params.level - Mipmap level (default: 0)
+   * @param params.internalFormat - Internal format of the texture (default: RGB8)
+   * @param params.format - Pixel format of the texture (default: RGBA)
+   * @param params.type - Component type of the texture data (default: UnsignedByte)
+   * @param params.arrayLength - Number of layers in the texture array
+   */
+  create({
+    width,
+    height,
+    level = 0,
+    internalFormat = TextureFormat.RGB8,
+    format = PixelFormat.RGBA,
+    type = ComponentType.UnsignedByte,
+    arrayLength
+  }) {
+    this.__width = width;
+    this.__height = height;
+    this.__level = level;
+    this.__internalFormat = internalFormat;
+    this.__format = format;
+    this.__type = type;
+    this.__arrayLength = arrayLength;
+    this.__createRenderTargetTextureArray();
+  }
+  /**
+   * Sets the framebuffer object associated with this render target.
+   * @param fbo - The framebuffer object to associate with this texture
+   */
+  set _fbo(fbo) {
+    this.__fbo = fbo;
+  }
+  /**
+   * Gets the framebuffer object associated with this render target.
+   * @returns The associated framebuffer object, or undefined if not set
+   */
+  get fbo() {
+    return this.__fbo;
+  }
+  /**
+   * Gets the number of layers in the texture array.
+   * @returns The array length (number of layers)
+   */
+  get arrayLength() {
+    return this.__arrayLength;
+  }
+  /**
+   * Creates the underlying graphics API resources for the render target texture array.
+   * This method handles both WebGL and WebGPU resource creation.
+   * @private
+   */
+  __createRenderTargetTextureArray() {
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
+    const texture = cgApiResourceRepository.createRenderTargetTextureArray({
+      width: this.__width,
+      height: this.__height,
+      level: this.__level,
+      internalFormat: this.__internalFormat,
+      format: this.__format,
+      type: this.__type,
+      arrayLength: this.__arrayLength
+    });
+    this._textureResourceUid = texture;
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
+      this._textureViewResourceUid = cgApiResourceRepository.createTextureView2dArray(
+        this._textureResourceUid,
+        this.__arrayLength
+      );
+      this._textureViewAsRenderTargetResourceUid = cgApiResourceRepository.createTextureView2dArrayAsRenderTarget(this._textureResourceUid, 0, 0);
+    }
+  }
+  /**
+   * Changes the render target layer for WebGPU rendering.
+   * This method creates a new texture view targeting a specific layer of the array.
+   * @param layerIndex - The index of the layer to target for rendering
+   */
+  changeRenderTargetLayerWebGPU(layerIndex) {
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
+      const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
+      this._textureViewAsRenderTargetResourceUid = cgApiResourceRepository.createTextureView2dArrayAsRenderTarget(this._textureResourceUid, layerIndex, 0);
+    }
+  }
+  /**
+   * Resizes the texture array to new dimensions.
+   * This destroys the existing resources and recreates them with the new size.
+   * @param width - New width in pixels
+   * @param height - New height in pixels
+   */
+  resize(width, height) {
+    this.destroy3DAPIResources();
+    this.__width = width;
+    this.__height = height;
+    this.__createRenderTargetTextureArray();
+  }
+  /**
+   * Destroys all graphics API resources associated with this texture.
+   * This should be called when the texture is no longer needed to free GPU memory.
+   * @returns True if resources were successfully destroyed
+   */
+  destroy3DAPIResources() {
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
+    cgApiResourceRepository.deleteTexture(this._textureResourceUid);
+    this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    return true;
+  }
+  /**
+   * Retrieves the pixel data from the texture as a byte array.
+   * This is an asynchronous operation that reads back data from the GPU.
+   * @returns Promise that resolves to a Uint8Array containing the pixel data
+   */
+  async getTexturePixelData() {
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
+    const data = cgApiResourceRepository.getTexturePixelData(
+      this._textureResourceUid,
+      this.__width,
+      this.__height,
+      this.__fbo.framebufferUID,
+      this.__fbo.whichColorAttachment(this)
+    );
+    return data;
+  }
+  /**
+   * Downloads the texture pixel data as a PNG image file.
+   * This method creates a canvas, draws the texture data to it, and triggers
+   * a download of the resulting image.
+   */
+  async downloadTexturePixelData() {
+    const data = await this.getTexturePixelData();
+    const canvas = document.createElement("canvas");
+    canvas.width = this.__width;
+    canvas.height = this.__height;
+    const ctx = canvas.getContext("2d");
+    if (!(data.buffer instanceof ArrayBuffer)) {
+      throw new Error("SharedArrayBuffer is not supported when downloading texture pixel data.");
+    }
+    const pixelData = new Uint8ClampedArray(
+      data.buffer,
+      data.byteOffset,
+      data.byteLength / Uint8ClampedArray.BYTES_PER_ELEMENT
+    );
+    const imageData = new ImageData(pixelData, this.__width, this.__height);
+    ctx.putImageData(imageData, this.__width, this.__height);
+    const dataUri = canvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    const e = document.createEvent("MouseEvent");
+    a.href = dataUri;
+    a.download = "texture.png";
+    e.initEvent("click", true, true);
+    a.dispatchEvent(e);
+  }
+  /**
+   * Gets the pixel value at a specific coordinate in the texture.
+   * The coordinate system has its origin at the bottom-left corner.
+   * @param x - Horizontal pixel position (0 is left)
+   * @param y - Vertical pixel position (0 is bottom)
+   * @param argByteArray - Optional pre-fetched pixel data array. If not provided, data will be fetched from GPU
+   * @returns Promise that resolves to a Vector4 containing the RGBA pixel values
+   */
+  async getPixelValueAt(x, y, argByteArray) {
+    let byteArray = argByteArray;
+    if (!byteArray) {
+      byteArray = await this.getTexturePixelData();
+    }
+    const color = Vector4.fromCopyArray([
+      byteArray[(y * this.width + x) * 4 + 0],
+      byteArray[(y * this.width + x) * 4 + 1],
+      byteArray[(y * this.width + x) * 4 + 2],
+      byteArray[(y * this.width + x) * 4 + 3]
+    ]);
+    return color;
+  }
+  /**
+   * Generates mipmaps for the texture.
+   * This creates lower resolution versions of the texture for improved rendering performance
+   * and quality when the texture is viewed at different distances.
+   */
+  generateMipmaps() {
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
+    cgApiResourceRepository.generateMipmaps2d(this._textureResourceUid, this.width, this.height);
+  }
+  /**
+   * Blits (copies) data from this texture array to a 2D texture.
+   * This operation copies the first layer of the array to the target texture.
+   * @param targetTexture2D - The target 2D texture to copy data to
+   */
+  blitToTexture2dFromTexture2dArray(targetTexture2D) {
+    if (this.__arrayLength === 0) {
+      return;
+    }
+    const webglResourceRepository = this.__engine.webglResourceRepository;
+    webglResourceRepository.blitToTexture2dFromTexture2dArray(
+      this._textureResourceUid,
+      targetTexture2D.__fbo.cgApiResourceUid,
+      targetTexture2D.width,
+      targetTexture2D.height
+    );
+  }
+  /**
+   * Performs a fake blit operation from this texture array to a 2D texture.
+   * This is likely a fallback or alternative implementation for specific use cases.
+   * @param targetTexture2D - The target 2D texture to copy data to
+   */
+  blitToTexture2dFromTexture2dArrayFake(targetTexture2D) {
+    if (this.__arrayLength === 0) {
+      return;
+    }
+    const webglResourceRepository = this.__engine.webglResourceRepository;
+    webglResourceRepository.blitToTexture2dFromTexture2dArrayFake(
+      this._textureResourceUid,
+      targetTexture2D.__fbo.cgApiResourceUid,
+      targetTexture2D.width,
+      targetTexture2D.height
+    );
+  }
+  /**
+   * Alternative blit implementation from texture array to 2D texture.
+   * This version uses a different approach and scales the target to half width.
+   * @param targetTexture2D - The target 2D texture to copy data to
+   */
+  blitToTexture2dFromTexture2dArray2(targetTexture2D) {
+    if (this.__arrayLength === 0) {
+      return;
+    }
+    const webglResourceRepository = this.__engine.webglResourceRepository;
+    webglResourceRepository.blitToTexture2dFromTexture2dArray2(
+      this._textureResourceUid,
+      targetTexture2D._textureResourceUid,
+      targetTexture2D.width / 2,
+      targetTexture2D.height
+    );
+  }
+  /**
+   * Creates a cube texture view as a render target for a specific face and mip level.
+   * Currently this method is not implemented (empty body).
+   * @param faceIdx - The index of the cube face to target
+   * @param mipLevel - The mipmap level to target
+   */
+  createCubeTextureViewAsRenderTarget(_faceIdx, _mipLevel) {
+  }
+};
+export {
+  RenderTargetTexture2DArray
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vdGV4dHVyZXMvUmVuZGVyVGFyZ2V0VGV4dHVyZTJEQXJyYXkudHMiXSwKICAic291cmNlc0NvbnRlbnQiOiBbImltcG9ydCB0eXBlIHsgSW5kZXgsIFNpemUgfSBmcm9tICcuLi8uLi90eXBlcy9Db21tb25UeXBlcyc7XG5pbXBvcnQgdHlwZSB7IFdlYkdwdVJlc291cmNlUmVwb3NpdG9yeSB9IGZyb20gJy4uLy4uL3dlYmdwdS9XZWJHcHVSZXNvdXJjZVJlcG9zaXRvcnknO1xuaW1wb3J0IHsgQ29tcG9uZW50VHlwZSwgdHlwZSBDb21wb25lbnRUeXBlRW51bSB9IGZyb20gJy4uL2RlZmluaXRpb25zL0NvbXBvbmVudFR5cGUnO1xuaW1wb3J0IHsgUGl4ZWxGb3JtYXQsIHR5cGUgUGl4ZWxGb3JtYXRFbnVtIH0gZnJvbSAnLi4vZGVmaW5pdGlvbnMvUGl4ZWxGb3JtYXQnO1xuaW1wb3J0IHsgUHJvY2Vzc0FwcHJvYWNoIH0gZnJvbSAnLi4vZGVmaW5pdGlvbnMvUHJvY2Vzc0FwcHJvYWNoJztcbmltcG9ydCB7IFRleHR1cmVGb3JtYXQsIHR5cGUgVGV4dHVyZUZvcm1hdEVudW0gfSBmcm9tICcuLi9kZWZpbml0aW9ucy9UZXh0dXJlRm9ybWF0JztcbmltcG9ydCB7IFZlY3RvcjQgfSBmcm9tICcuLi9tYXRoL1ZlY3RvcjQnO1xuaW1wb3J0IHsgQ0dBUElSZXNvdXJjZVJlcG9zaXRvcnkgfSBmcm9tICcuLi9yZW5kZXJlci9DR0FQSVJlc291cmNlUmVwb3NpdG9yeSc7XG5pbXBvcnQgdHlwZSB7IEZyYW1lQnVmZmVyIH0gZnJvbSAnLi4vcmVuZGVyZXIvRnJhbWVCdWZmZXInO1xuaW1wb3J0IHsgQWJzdHJhY3RUZXh0dXJlIH0gZnJvbSAnLi9BYnN0cmFjdFRleHR1cmUnO1xuaW1wb3J0IHR5cGUgeyBJUmVuZGVyYWJsZSB9IGZyb20gJy4vSVJlbmRlcmFibGUnO1xuXG4vKipcbiAqIEEgMkQgdGV4dHVyZSBhcnJheSB0aGF0IGNhbiBiZSB1c2VkIGFzIGEgcmVuZGVyIHRhcmdldC5cbiAqIFRoaXMgY2xhc3MgZXh0ZW5kcyBBYnN0cmFjdFRleHR1cmUgYW5kIGltcGxlbWVudHMgSVJlbmRlcmFibGUgdG8gcHJvdmlkZVxuICogZnVuY3Rpb25hbGl0eSBmb3IgY3JlYXRpbmcgYW5kIG1hbmFnaW5nIDJEIHRleHR1cmUgYXJyYXlzIHRoYXQgY2FuIGJlXG4gKiByZW5kZXJlZCB0byBpbiBncmFwaGljcyBwaXBlbGluZXMuXG4gKi9cbmV4cG9ydCBjbGFzcyBSZW5kZXJUYXJnZXRUZXh0dXJlMkRBcnJheSBleHRlbmRzIEFic3RyYWN0VGV4dHVyZSBpbXBsZW1lbnRzIElSZW5kZXJhYmxlIHtcbiAgcHJpdmF0ZSBfX2Zibz86IEZyYW1lQnVmZmVyO1xuICBwcml2YXRlIF9fYXJyYXlMZW5ndGggPSAwO1xuXG4gIC8qKlxuICAgKiBDcmVhdGVzIGFuZCBpbml0aWFsaXplcyB0aGUgMkQgdGV4dHVyZSBhcnJheSB3aXRoIHRoZSBzcGVjaWZpZWQgcGFyYW1ldGVycy5cbiAgICogQHBhcmFtIHBhcmFtcyAtIENvbmZpZ3VyYXRpb24gb2JqZWN0IGZvciB0ZXh0dXJlIGNyZWF0aW9uXG4gICAqIEBwYXJhbSBwYXJhbXMud2lkdGggLSBXaWR0aCBvZiB0aGUgdGV4dHVyZSBpbiBwaXhlbHNcbiAgICogQHBhcmFtIHBhcmFtcy5oZWlnaHQgLSBIZWlnaHQgb2YgdGhlIHRleHR1cmUgaW4gcGl4ZWxzXG4gICAqIEBwYXJhbSBwYXJhbXMubGV2ZWwgLSBNaXBtYXAgbGV2ZWwgKGRlZmF1bHQ6IDApXG4gICAqIEBwYXJhbSBwYXJhbXMuaW50ZXJuYWxGb3JtYXQgLSBJbnRlcm5hbCBmb3JtYXQgb2YgdGhlIHRleHR1cmUgKGRlZmF1bHQ6IFJHQjgpXG4gICAqIEBwYXJhbSBwYXJhbXMuZm9ybWF0IC0gUGl4ZWwgZm9ybWF0IG9mIHRoZSB0ZXh0dXJlIChkZWZhdWx0OiBSR0JBKVxuICAgKiBAcGFyYW0gcGFyYW1zLnR5cGUgLSBDb21wb25lbnQgdHlwZSBvZiB0aGUgdGV4dHVyZSBkYXRhIChkZWZhdWx0OiBVbnNpZ25lZEJ5dGUpXG4gICAqIEBwYXJhbSBwYXJhbXMuYXJyYXlMZW5ndGggLSBOdW1iZXIgb2YgbGF5ZXJzIGluIHRoZSB0ZXh0dXJlIGFycmF5XG4gICAqL1xuICBjcmVhdGUoe1xuICAgIHdpZHRoLFxuICAgIGhlaWdodCxcbiAgICBsZXZlbCA9IDAsXG4gICAgaW50ZXJuYWxGb3JtYXQgPSBUZXh0dXJlRm9ybWF0LlJHQjgsXG4gICAgZm9ybWF0ID0gUGl4ZWxGb3JtYXQuUkdCQSxcbiAgICB0eXBlID0gQ29tcG9uZW50VHlwZS5VbnNpZ25lZEJ5dGUsXG4gICAgYXJyYXlMZW5ndGgsXG4gIH06IHtcbiAgICB3aWR0aDogU2l6ZTtcbiAgICBoZWlnaHQ6IFNpemU7XG4gICAgbGV2ZWw6IG51bWJlcjtcbiAgICBpbnRlcm5hbEZvcm1hdDogVGV4dHVyZUZvcm1hdEVudW07XG4gICAgZm9ybWF0OiBQaXhlbEZvcm1hdEVudW07XG4gICAgdHlwZTogQ29tcG9uZW50VHlwZUVudW07XG4gICAgYXJyYXlMZW5ndGg6IG51bWJlcjtcbiAgfSkge1xuICAgIHRoaXMuX193aWR0aCA9IHdpZHRoO1xuICAgIHRoaXMuX19oZWlnaHQgPSBoZWlnaHQ7XG4gICAgdGhpcy5fX2xldmVsID0gbGV2ZWw7XG4gICAgdGhpcy5fX2ludGVybmFsRm9ybWF0ID0gaW50ZXJuYWxGb3JtYXQ7XG4gICAgdGhpcy5fX2Zvcm1hdCA9IGZvcm1hdDtcbiAgICB0aGlzLl9fdHlwZSA9IHR5cGU7XG4gICAgdGhpcy5fX2FycmF5TGVuZ3RoID0gYXJyYXlMZW5ndGg7XG5cbiAgICB0aGlzLl9fY3JlYXRlUmVuZGVyVGFyZ2V0VGV4dHVyZUFycmF5KCk7XG4gIH1cblxuICAvKipcbiAgICogU2V0cyB0aGUgZnJhbWVidWZmZXIgb2JqZWN0IGFzc29jaWF0ZWQgd2l0aCB0aGlzIHJlbmRlciB0YXJnZXQuXG4gICAqIEBwYXJhbSBmYm8gLSBUaGUgZnJhbWVidWZmZXIgb2JqZWN0IHRvIGFzc29jaWF0ZSB3aXRoIHRoaXMgdGV4dHVyZVxuICAgKi9cbiAgc2V0IF9mYm8oZmJvOiBGcmFtZUJ1ZmZlcikge1xuICAgIHRoaXMuX19mYm8gPSBmYm87XG4gIH1cblxuICAvKipcbiAgICogR2V0cyB0aGUgZnJhbWVidWZmZXIgb2JqZWN0IGFzc29jaWF0ZWQgd2l0aCB0aGlzIHJlbmRlciB0YXJnZXQuXG4gICAqIEByZXR1cm5zIFRoZSBhc3NvY2lhdGVkIGZyYW1lYnVmZmVyIG9iamVjdCwgb3IgdW5kZWZpbmVkIGlmIG5vdCBzZXRcbiAgICovXG4gIGdldCBmYm8oKSB7XG4gICAgcmV0dXJuIHRoaXMuX19mYm87XG4gIH1cblxuICAvKipcbiAgICogR2V0cyB0aGUgbnVtYmVyIG9mIGxheWVycyBpbiB0aGUgdGV4dHVyZSBhcnJheS5cbiAgICogQHJldHVybnMgVGhlIGFycmF5IGxlbmd0aCAobnVtYmVyIG9mIGxheWVycylcbiAgICovXG4gIGdldCBhcnJheUxlbmd0aCgpIHtcbiAgICByZXR1cm4gdGhpcy5fX2FycmF5TGVuZ3RoO1xuICB9XG5cbiAgLyoqXG4gICAqIENyZWF0ZXMgdGhlIHVuZGVybHlpbmcgZ3JhcGhpY3MgQVBJIHJlc291cmNlcyBmb3IgdGhlIHJlbmRlciB0YXJnZXQgdGV4dHVyZSBhcnJheS5cbiAgICogVGhpcyBtZXRob2QgaGFuZGxlcyBib3RoIFdlYkdMIGFuZCBXZWJHUFUgcmVzb3VyY2UgY3JlYXRpb24uXG4gICAqIEBwcml2YXRlXG4gICAqL1xuICBwcml2YXRlIF9fY3JlYXRlUmVuZGVyVGFyZ2V0VGV4dHVyZUFycmF5KCkge1xuICAgIGNvbnN0IGNnQXBpUmVzb3VyY2VSZXBvc2l0b3J5ID0gdGhpcy5fX2VuZ2luZS5jZ0FwaVJlc291cmNlUmVwb3NpdG9yeTtcbiAgICBjb25zdCB0ZXh0dXJlID0gY2dBcGlSZXNvdXJjZVJlcG9zaXRvcnkuY3JlYXRlUmVuZGVyVGFyZ2V0VGV4dHVyZUFycmF5KHtcbiAgICAgIHdpZHRoOiB0aGlzLl9fd2lkdGgsXG4gICAgICBoZWlnaHQ6IHRoaXMuX19oZWlnaHQsXG4gICAgICBsZXZlbDogdGhpcy5fX2xldmVsLFxuICAgICAgaW50ZXJuYWxGb3JtYXQ6IHRoaXMuX19pbnRlcm5hbEZvcm1hdCxcbiAgICAgIGZvcm1hdDogdGhpcy5fX2Zvcm1hdCxcbiAgICAgIHR5cGU6IHRoaXMuX190eXBlLFxuICAgICAgYXJyYXlMZW5ndGg6IHRoaXMuX19hcnJheUxlbmd0aCxcbiAgICB9KTtcbiAgICB0aGlzLl90ZXh0dXJlUmVzb3VyY2VVaWQgPSB0ZXh0dXJlO1xuXG4gICAgaWYgKHRoaXMuX19lbmdpbmUuZW5naW5lU3RhdGUuY3VycmVudFByb2Nlc3NBcHByb2FjaCA9PT0gUHJvY2Vzc0FwcHJvYWNoLldlYkdQVSkge1xuICAgICAgdGhpcy5fdGV4dHVyZVZpZXdSZXNvdXJjZVVpZCA9IChjZ0FwaVJlc291cmNlUmVwb3NpdG9yeSBhcyBXZWJHcHVSZXNvdXJjZVJlcG9zaXRvcnkpLmNyZWF0ZVRleHR1cmVWaWV3MmRBcnJheShcbiAgICAgICAgdGhpcy5fdGV4dHVyZVJlc291cmNlVWlkLFxuICAgICAgICB0aGlzLl9fYXJyYXlMZW5ndGhcbiAgICAgICk7XG4gICAgICB0aGlzLl90ZXh0dXJlVmlld0FzUmVuZGVyVGFyZ2V0UmVzb3VyY2VVaWQgPSAoXG4gICAgICAgIGNnQXBpUmVzb3VyY2VSZXBvc2l0b3J5IGFzIFdlYkdwdVJlc291cmNlUmVwb3NpdG9yeVxuICAgICAgKS5jcmVhdGVUZXh0dXJlVmlldzJkQXJyYXlBc1JlbmRlclRhcmdldCh0aGlzLl90ZXh0dXJlUmVzb3VyY2VVaWQsIDAsIDApO1xuICAgIH1cbiAgfVxuXG4gIC8qKlxuICAgKiBDaGFuZ2VzIHRoZSByZW5kZXIgdGFyZ2V0IGxheWVyIGZvciBXZWJHUFUgcmVuZGVyaW5nLlxuICAgKiBUaGlzIG1ldGhvZCBjcmVhdGVzIGEgbmV3IHRleHR1cmUgdmlldyB0YXJnZXRpbmcgYSBzcGVjaWZpYyBsYXllciBvZiB0aGUgYXJyYXkuXG4gICAqIEBwYXJhbSBsYXllckluZGV4IC0gVGhlIGluZGV4IG9mIHRoZSBsYXllciB0byB0YXJnZXQgZm9yIHJlbmRlcmluZ1xuICAgKi9cbiAgcHVibGljIGNoYW5nZVJlbmRlclRhcmdldExheWVyV2ViR1BVKGxheWVySW5kZXg6IEluZGV4KSB7XG4gICAgaWYgKHRoaXMuX19lbmdpbmUuZW5naW5lU3RhdGUuY3VycmVudFByb2Nlc3NBcHByb2FjaCA9PT0gUHJvY2Vzc0FwcHJvYWNoLldlYkdQVSkge1xuICAgICAgY29uc3QgY2dBcGlSZXNvdXJjZVJlcG9zaXRvcnkgPSB0aGlzLl9fZW5naW5lLmNnQXBpUmVzb3VyY2VSZXBvc2l0b3J5O1xuICAgICAgdGhpcy5fdGV4dHVyZVZpZXdBc1JlbmRlclRhcmdldFJlc291cmNlVWlkID0gKFxuICAgICAgICBjZ0FwaVJlc291cmNlUmVwb3NpdG9yeSBhcyBXZWJHcHVSZXNvdXJjZVJlcG9zaXRvcnlcbiAgICAgICkuY3JlYXRlVGV4dHVyZVZpZXcyZEFycmF5QXNSZW5kZXJUYXJnZXQodGhpcy5fdGV4dHVyZVJlc291cmNlVWlkLCBsYXllckluZGV4LCAwKTtcbiAgICB9XG4gIH1cblxuICAvKipcbiAgICogUmVzaXplcyB0aGUgdGV4dHVyZSBhcnJheSB0byBuZXcgZGltZW5zaW9ucy5cbiAgICogVGhpcyBkZXN0cm95cyB0aGUgZXhpc3RpbmcgcmVzb3VyY2VzIGFuZCByZWNyZWF0ZXMgdGhlbSB3aXRoIHRoZSBuZXcgc2l6ZS5cbiAgICogQHBhcmFtIHdpZHRoIC0gTmV3IHdpZHRoIGluIHBpeGVsc1xuICAgKiBAcGFyYW0gaGVpZ2h0IC0gTmV3IGhlaWdodCBpbiBwaXhlbHNcbiAgICovXG4gIHJlc2l6ZSh3aWR0aDogU2l6ZSwgaGVpZ2h0OiBTaXplKSB7XG4gICAgdGhpcy5kZXN0cm95M0RBUElSZXNvdXJjZXMoKTtcbiAgICB0aGlzLl9fd2lkdGggPSB3aWR0aDtcbiAgICB0aGlzLl9faGVpZ2h0ID0gaGVpZ2h0O1xuICAgIHRoaXMuX19jcmVhdGVSZW5kZXJUYXJnZXRUZXh0dXJlQXJyYXkoKTtcbiAgfVxuXG4gIC8qKlxuICAgKiBEZXN0cm95cyBhbGwgZ3JhcGhpY3MgQVBJIHJlc291cmNlcyBhc3NvY2lhdGVkIHdpdGggdGhpcyB0ZXh0dXJlLlxuICAgKiBUaGlzIHNob3VsZCBiZSBjYWxsZWQgd2hlbiB0aGUgdGV4dHVyZSBpcyBubyBsb25nZXIgbmVlZGVkIHRvIGZyZWUgR1BVIG1lbW9yeS5cbiAgICogQHJldHVybnMgVHJ1ZSBpZiByZXNvdXJjZXMgd2VyZSBzdWNjZXNzZnVsbHkgZGVzdHJveWVkXG4gICAqL1xuICBkZXN0cm95M0RBUElSZXNvdXJjZXMoKSB7XG4gICAgY29uc3QgY2dBcGlSZXNvdXJjZVJlcG9zaXRvcnkgPSB0aGlzLl9fZW5naW5lLmNnQXBpUmVzb3VyY2VSZXBvc2l0b3J5O1xuICAgIGNnQXBpUmVzb3VyY2VSZXBvc2l0b3J5LmRlbGV0ZVRleHR1cmUodGhpcy5fdGV4dHVyZVJlc291cmNlVWlkKTtcbiAgICB0aGlzLl90ZXh0dXJlUmVzb3VyY2VVaWQgPSBDR0FQSVJlc291cmNlUmVwb3NpdG9yeS5JbnZhbGlkQ0dBUElSZXNvdXJjZVVpZDtcblxuICAgIHJldHVybiB0cnVlO1xuICB9XG5cbiAgLyoqXG4gICAqIFJldHJpZXZlcyB0aGUgcGl4ZWwgZGF0YSBmcm9tIHRoZSB0ZXh0dXJlIGFzIGEgYnl0ZSBhcnJheS5cbiAgICogVGhpcyBpcyBhbiBhc3luY2hyb25vdXMgb3BlcmF0aW9uIHRoYXQgcmVhZHMgYmFjayBkYXRhIGZyb20gdGhlIEdQVS5cbiAgICogQHJldHVybnMgUHJvbWlzZSB0aGF0IHJlc29sdmVzIHRvIGEgVWludDhBcnJheSBjb250YWluaW5nIHRoZSBwaXhlbCBkYXRhXG4gICAqL1xuICBhc3luYyBnZXRUZXh0dXJlUGl4ZWxEYXRhKCkge1xuICAgIGNvbnN0IGNnQXBpUmVzb3VyY2VSZXBvc2l0b3J5ID0gdGhpcy5fX2VuZ2luZS5jZ0FwaVJlc291cmNlUmVwb3NpdG9yeTtcbiAgICBjb25zdCBkYXRhID0gY2dBcGlSZXNvdXJjZVJlcG9zaXRvcnkuZ2V0VGV4dHVyZVBpeGVsRGF0YShcbiAgICAgIHRoaXMuX3RleHR1cmVSZXNvdXJjZVVpZCxcbiAgICAgIHRoaXMuX193aWR0aCxcbiAgICAgIHRoaXMuX19oZWlnaHQsXG4gICAgICB0aGlzLl9fZmJvIS5mcmFtZWJ1ZmZlclVJRCxcbiAgICAgIHRoaXMuX19mYm8hLndoaWNoQ29sb3JBdHRhY2htZW50KHRoaXMpXG4gICAgKTtcblxuICAgIHJldHVybiBkYXRhO1xuICB9XG5cbiAgLyoqXG4gICAqIERvd25sb2FkcyB0aGUgdGV4dHVyZSBwaXhlbCBkYXRhIGFzIGEgUE5HIGltYWdlIGZpbGUuXG4gICAqIFRoaXMgbWV0aG9kIGNyZWF0ZXMgYSBjYW52YXMsIGRyYXdzIHRoZSB0ZXh0dXJlIGRhdGEgdG8gaXQsIGFuZCB0cmlnZ2Vyc1xuICAgKiBhIGRvd25sb2FkIG9mIHRoZSByZXN1bHRpbmcgaW1hZ2UuXG4gICAqL1xuICBhc3luYyBkb3dubG9hZFRleHR1cmVQaXhlbERhdGEoKSB7XG4gICAgY29uc3QgZGF0YSA9IGF3YWl0IHRoaXMuZ2V0VGV4dHVyZVBpeGVsRGF0YSgpO1xuICAgIGNvbnN0IGNhbnZhcyA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ2NhbnZhcycpO1xuICAgIGNhbnZhcy53aWR0aCA9IHRoaXMuX193aWR0aDtcbiAgICBjYW52YXMuaGVpZ2h0ID0gdGhpcy5fX2hlaWdodDtcbiAgICBjb25zdCBjdHggPSBjYW52YXMuZ2V0Q29udGV4dCgnMmQnKSE7XG4gICAgaWYgKCEoZGF0YS5idWZmZXIgaW5zdGFuY2VvZiBBcnJheUJ1ZmZlcikpIHtcbiAgICAgIHRocm93IG5ldyBFcnJvcignU2hhcmVkQXJyYXlCdWZmZXIgaXMgbm90IHN1cHBvcnRlZCB3aGVuIGRvd25sb2FkaW5nIHRleHR1cmUgcGl4ZWwgZGF0YS4nKTtcbiAgICB9XG4gICAgY29uc3QgcGl4ZWxEYXRhID0gbmV3IFVpbnQ4Q2xhbXBlZEFycmF5KFxuICAgICAgZGF0YS5idWZmZXIgYXMgQXJyYXlCdWZmZXIsXG4gICAgICBkYXRhLmJ5dGVPZmZzZXQsXG4gICAgICBkYXRhLmJ5dGVMZW5ndGggLyBVaW50OENsYW1wZWRBcnJheS5CWVRFU19QRVJfRUxFTUVOVFxuICAgICk7XG4gICAgY29uc3QgaW1hZ2VEYXRhID0gbmV3IEltYWdlRGF0YShwaXhlbERhdGEgYXMgVWludDhDbGFtcGVkQXJyYXk8QXJyYXlCdWZmZXI+LCB0aGlzLl9fd2lkdGgsIHRoaXMuX19oZWlnaHQpO1xuICAgIGN0eC5wdXRJbWFnZURhdGEoaW1hZ2VEYXRhLCB0aGlzLl9fd2lkdGgsIHRoaXMuX19oZWlnaHQpO1xuICAgIGNvbnN0IGRhdGFVcmkgPSBjYW52YXMudG9EYXRhVVJMKCdpbWFnZS9wbmcnKTtcblxuICAgIGNvbnN0IGEgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCdhJyk7XG4gICAgY29uc3QgZSA9IGRvY3VtZW50LmNyZWF0ZUV2ZW50KCdNb3VzZUV2ZW50Jyk7XG4gICAgYS5ocmVmID0gZGF0YVVyaTtcbiAgICBhLmRvd25sb2FkID0gJ3RleHR1cmUucG5nJztcbiAgICBlLmluaXRFdmVudCgnY2xpY2snLCB0cnVlLCB0cnVlKTsgLy8sIHdpbmRvdywgMSwgMCwgMCwgMCwgMCwgZmFsc2UsIGZhbHNlLCBmYWxzZSwgZmFsc2UsIDAsIG51bGwpXG4gICAgYS5kaXNwYXRjaEV2ZW50KGUpO1xuICB9XG5cbiAgLyoqXG4gICAqIEdldHMgdGhlIHBpeGVsIHZhbHVlIGF0IGEgc3BlY2lmaWMgY29vcmRpbmF0ZSBpbiB0aGUgdGV4dHVyZS5cbiAgICogVGhlIGNvb3JkaW5hdGUgc3lzdGVtIGhhcyBpdHMgb3JpZ2luIGF0IHRoZSBib3R0b20tbGVmdCBjb3JuZXIuXG4gICAqIEBwYXJhbSB4IC0gSG9yaXpvbnRhbCBwaXhlbCBwb3NpdGlvbiAoMCBpcyBsZWZ0KVxuICAgKiBAcGFyYW0geSAtIFZlcnRpY2FsIHBpeGVsIHBvc2l0aW9uICgwIGlzIGJvdHRvbSlcbiAgICogQHBhcmFtIGFyZ0J5dGVBcnJheSAtIE9wdGlvbmFsIHByZS1mZXRjaGVkIHBpeGVsIGRhdGEgYXJyYXkuIElmIG5vdCBwcm92aWRlZCwgZGF0YSB3aWxsIGJlIGZldGNoZWQgZnJvbSBHUFVcbiAgICogQHJldHVybnMgUHJvbWlzZSB0aGF0IHJlc29sdmVzIHRvIGEgVmVjdG9yNCBjb250YWluaW5nIHRoZSBSR0JBIHBpeGVsIHZhbHVlc1xuICAgKi9cbiAgYXN5bmMgZ2V0UGl4ZWxWYWx1ZUF0KHg6IEluZGV4LCB5OiBJbmRleCwgYXJnQnl0ZUFycmF5PzogVWludDhBcnJheSk6IFByb21pc2U8VmVjdG9yND4ge1xuICAgIGxldCBieXRlQXJyYXkgPSBhcmdCeXRlQXJyYXk7XG4gICAgaWYgKCFieXRlQXJyYXkpIHtcbiAgICAgIGJ5dGVBcnJheSA9IGF3YWl0IHRoaXMuZ2V0VGV4dHVyZVBpeGVsRGF0YSgpO1xuICAgIH1cblxuICAgIGNvbnN0IGNvbG9yID0gVmVjdG9yNC5mcm9tQ29weUFycmF5KFtcbiAgICAgIGJ5dGVBcnJheVsoeSAqIHRoaXMud2lkdGggKyB4KSAqIDQgKyAwXSxcbiAgICAgIGJ5dGVBcnJheVsoeSAqIHRoaXMud2lkdGggKyB4KSAqIDQgKyAxXSxcbiAgICAgIGJ5dGVBcnJheVsoeSAqIHRoaXMud2lkdGggKyB4KSAqIDQgKyAyXSxcbiAgICAgIGJ5dGVBcnJheVsoeSAqIHRoaXMud2lkdGggKyB4KSAqIDQgKyAzXSxcbiAgICBdKTtcbiAgICByZXR1cm4gY29sb3I7XG4gIH1cblxuICAvKipcbiAgICogR2VuZXJhdGVzIG1pcG1hcHMgZm9yIHRoZSB0ZXh0dXJlLlxuICAgKiBUaGlzIGNyZWF0ZXMgbG93ZXIgcmVzb2x1dGlvbiB2ZXJzaW9ucyBvZiB0aGUgdGV4dHVyZSBmb3IgaW1wcm92ZWQgcmVuZGVyaW5nIHBlcmZvcm1hbmNlXG4gICAqIGFuZCBxdWFsaXR5IHdoZW4gdGhlIHRleHR1cmUgaXMgdmlld2VkIGF0IGRpZmZlcmVudCBkaXN0YW5jZXMuXG4gICAqL1xuICBnZW5lcmF0ZU1pcG1hcHMoKSB7XG4gICAgY29uc3QgY2dBcGlSZXNvdXJjZVJlcG9zaXRvcnkgPSB0aGlzLl9fZW5naW5lLmNnQXBpUmVzb3VyY2VSZXBvc2l0b3J5O1xuICAgIGNnQXBpUmVzb3VyY2VSZXBvc2l0b3J5LmdlbmVyYXRlTWlwbWFwczJkKHRoaXMuX3RleHR1cmVSZXNvdXJjZVVpZCwgdGhpcy53aWR0aCwgdGhpcy5oZWlnaHQpO1xuICB9XG5cbiAgLyoqXG4gICAqIEJsaXRzIChjb3BpZXMpIGRhdGEgZnJvbSB0aGlzIHRleHR1cmUgYXJyYXkgdG8gYSAyRCB0ZXh0dXJlLlxuICAgKiBUaGlzIG9wZXJhdGlvbiBjb3BpZXMgdGhlIGZpcnN0IGxheWVyIG9mIHRoZSBhcnJheSB0byB0aGUgdGFyZ2V0IHRleHR1cmUuXG4gICAqIEBwYXJhbSB0YXJnZXRUZXh0dXJlMkQgLSBUaGUgdGFyZ2V0IDJEIHRleHR1cmUgdG8gY29weSBkYXRhIHRvXG4gICAqL1xuICBibGl0VG9UZXh0dXJlMmRGcm9tVGV4dHVyZTJkQXJyYXkodGFyZ2V0VGV4dHVyZTJEOiBSZW5kZXJUYXJnZXRUZXh0dXJlMkRBcnJheSkge1xuICAgIGlmICh0aGlzLl9fYXJyYXlMZW5ndGggPT09IDApIHtcbiAgICAgIHJldHVybjtcbiAgICB9XG4gICAgY29uc3Qgd2ViZ2xSZXNvdXJjZVJlcG9zaXRvcnkgPSB0aGlzLl9fZW5naW5lLndlYmdsUmVzb3VyY2VSZXBvc2l0b3J5O1xuICAgIHdlYmdsUmVzb3VyY2VSZXBvc2l0b3J5LmJsaXRUb1RleHR1cmUyZEZyb21UZXh0dXJlMmRBcnJheShcbiAgICAgIHRoaXMuX3RleHR1cmVSZXNvdXJjZVVpZCxcbiAgICAgIHRhcmdldFRleHR1cmUyRC5fX2ZibyEuY2dBcGlSZXNvdXJjZVVpZCxcbiAgICAgIHRhcmdldFRleHR1cmUyRC53aWR0aCxcbiAgICAgIHRhcmdldFRleHR1cmUyRC5oZWlnaHRcbiAgICApO1xuICB9XG5cbiAgLyoqXG4gICAqIFBlcmZvcm1zIGEgZmFrZSBibGl0IG9wZXJhdGlvbiBmcm9tIHRoaXMgdGV4dHVyZSBhcnJheSB0byBhIDJEIHRleHR1cmUuXG4gICAqIFRoaXMgaXMgbGlrZWx5IGEgZmFsbGJhY2sgb3IgYWx0ZXJuYXRpdmUgaW1wbGVtZW50YXRpb24gZm9yIHNwZWNpZmljIHVzZSBjYXNlcy5cbiAgICogQHBhcmFtIHRhcmdldFRleHR1cmUyRCAtIFRoZSB0YXJnZXQgMkQgdGV4dHVyZSB0byBjb3B5IGRhdGEgdG9cbiAgICovXG4gIGJsaXRUb1RleHR1cmUyZEZyb21UZXh0dXJlMmRBcnJheUZha2UodGFyZ2V0VGV4dHVyZTJEOiBSZW5kZXJUYXJnZXRUZXh0dXJlMkRBcnJheSkge1xuICAgIGlmICh0aGlzLl9fYXJyYXlMZW5ndGggPT09IDApIHtcbiAgICAgIHJldHVybjtcbiAgICB9XG4gICAgY29uc3Qgd2ViZ2xSZXNvdXJjZVJlcG9zaXRvcnkgPSB0aGlzLl9fZW5naW5lLndlYmdsUmVzb3VyY2VSZXBvc2l0b3J5O1xuICAgIHdlYmdsUmVzb3VyY2VSZXBvc2l0b3J5LmJsaXRUb1RleHR1cmUyZEZyb21UZXh0dXJlMmRBcnJheUZha2UoXG4gICAgICB0aGlzLl90ZXh0dXJlUmVzb3VyY2VVaWQsXG4gICAgICB0YXJnZXRUZXh0dXJlMkQuX19mYm8hLmNnQXBpUmVzb3VyY2VVaWQsXG4gICAgICB0YXJnZXRUZXh0dXJlMkQud2lkdGgsXG4gICAgICB0YXJnZXRUZXh0dXJlMkQuaGVpZ2h0XG4gICAgKTtcbiAgfVxuXG4gIC8qKlxuICAgKiBBbHRlcm5hdGl2ZSBibGl0IGltcGxlbWVudGF0aW9uIGZyb20gdGV4dHVyZSBhcnJheSB0byAyRCB0ZXh0dXJlLlxuICAgKiBUaGlzIHZlcnNpb24gdXNlcyBhIGRpZmZlcmVudCBhcHByb2FjaCBhbmQgc2NhbGVzIHRoZSB0YXJnZXQgdG8gaGFsZiB3aWR0aC5cbiAgICogQHBhcmFtIHRhcmdldFRleHR1cmUyRCAtIFRoZSB0YXJnZXQgMkQgdGV4dHVyZSB0byBjb3B5IGRhdGEgdG9cbiAgICovXG4gIGJsaXRUb1RleHR1cmUyZEZyb21UZXh0dXJlMmRBcnJheTIodGFyZ2V0VGV4dHVyZTJEOiBSZW5kZXJUYXJnZXRUZXh0dXJlMkRBcnJheSkge1xuICAgIGlmICh0aGlzLl9fYXJyYXlMZW5ndGggPT09IDApIHtcbiAgICAgIHJldHVybjtcbiAgICB9XG4gICAgY29uc3Qgd2ViZ2xSZXNvdXJjZVJlcG9zaXRvcnkgPSB0aGlzLl9fZW5naW5lLndlYmdsUmVzb3VyY2VSZXBvc2l0b3J5O1xuICAgIHdlYmdsUmVzb3VyY2VSZXBvc2l0b3J5LmJsaXRUb1RleHR1cmUyZEZyb21UZXh0dXJlMmRBcnJheTIoXG4gICAgICB0aGlzLl90ZXh0dXJlUmVzb3VyY2VVaWQsXG4gICAgICB0YXJnZXRUZXh0dXJlMkQuX3RleHR1cmVSZXNvdXJjZVVpZCxcbiAgICAgIHRhcmdldFRleHR1cmUyRC53aWR0aCAvIDIsXG4gICAgICB0YXJnZXRUZXh0dXJlMkQuaGVpZ2h0XG4gICAgKTtcbiAgfVxuXG4gIC8qKlxuICAgKiBDcmVhdGVzIGEgY3ViZSB0ZXh0dXJlIHZpZXcgYXMgYSByZW5kZXIgdGFyZ2V0IGZvciBhIHNwZWNpZmljIGZhY2UgYW5kIG1pcCBsZXZlbC5cbiAgICogQ3VycmVudGx5IHRoaXMgbWV0aG9kIGlzIG5vdCBpbXBsZW1lbnRlZCAoZW1wdHkgYm9keSkuXG4gICAqIEBwYXJhbSBmYWNlSWR4IC0gVGhlIGluZGV4IG9mIHRoZSBjdWJlIGZhY2UgdG8gdGFyZ2V0XG4gICAqIEBwYXJhbSBtaXBMZXZlbCAtIFRoZSBtaXBtYXAgbGV2ZWwgdG8gdGFyZ2V0XG4gICAqL1xuICBjcmVhdGVDdWJlVGV4dHVyZVZpZXdBc1JlbmRlclRhcmdldChfZmFjZUlkeDogSW5kZXgsIF9taXBMZXZlbDogSW5kZXgpOiB2b2lkIHt9XG59XG4iXSwKICAibWFwcGluZ3MiOiAiO0FBRUEsU0FBUyxxQkFBNkM7QUFDdEQsU0FBUyxtQkFBeUM7QUFDbEQsU0FB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TUFDdEMsV0FBVyxJQUFJLEtBQUssUUFBUSxLQUFLLElBQUksQ0FBQztBQUFBLE1BQ3RDLFdBQVcsSUFBSSxLQUFLLFFBQVEsS0FBSyxJQUFJLENBQUM7QUFBQSxNQUN0QyxXQUFXLElBQUksS0FBSyxRQUFRLEtBQUssSUFBSSxDQUFDO0FBQUEsSUFDeEMsQ0FBQztBQUNELFdBQU87QUFBQSxFQUNUO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBLEVBT0Esa0JBQWtCO0FBQ2hCLFVBQU0sMEJBQTBCLEtBQUssU0FBUztBQUM5Qyw0QkFBd0Isa0JBQWtCLEtBQUsscUJBQXFCLEtBQUssT0FBTyxLQUFLLE1BQU07QUFBQSxFQUM3RjtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQSxFQU9BLGtDQUFrQyxpQkFBNkM7QUFDN0UsUUFBSSxLQUFLLGtCQUFrQixHQUFHO0FBQzVCO0FBQUEsSUFDRjtBQUNBLFVBQU0sMEJBQTBCLEtBQUssU0FBUztBQUM5Qyw0QkFBd0I7QUFBQSxNQUN0QixLQUFLO0FBQUEsTUFDTCxnQkFBZ0IsTUFBTztBQUFBLE1BQ3ZCLGdCQUFnQjtBQUFBLE1BQ2hCLGdCQUFnQjtBQUFBLElBQ2xCO0FBQUEsRUFDRjtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQSxFQU9BLHNDQUFzQyxpQkFBNkM7QUFDakYsUUFBSSxLQUFLLGtCQUFrQixHQUFHO0FBQzVCO0FBQUEsSUFDRjtBQUNBLFVBQU0sMEJBQTBCLEtBQUssU0FBUztBQUM5Qyw0QkFBd0I7QUFBQSxNQUN0QixLQUFLO0FBQUEsTUFDTCxnQkFBZ0IsTUFBTztBQUFBLE1BQ3ZCLGdCQUFnQjtBQUFBLE1BQ2hCLGdCQUFnQjtBQUFBLElBQ2xCO0FBQUEsRUFDRjtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQSxFQU9BLG1DQUFtQyxpQkFBNkM7QUFDOUUsUUFBSSxLQUFLLGtCQUFrQixHQUFHO0FBQzVCO0FBQUEsSUFDRjtBQUNBLFVBQU0sMEJBQTBCLEtBQUssU0FBUztBQUM5Qyw0QkFBd0I7QUFBQSxNQUN0QixLQUFLO0FBQUEsTUFDTCxnQkFBZ0I7QUFBQSxNQUNoQixnQkFBZ0IsUUFBUTtBQUFBLE1BQ3hCLGdCQUFnQjtBQUFBLElBQ2xCO0FBQUEsRUFDRjtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBLEVBUUEsb0NBQW9DLFVBQWlCLFdBQXdCO0FBQUEsRUFBQztBQUNoRjsiLAogICJuYW1lcyI6IFtdCn0K

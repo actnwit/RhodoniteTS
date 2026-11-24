@@ -129,6 +129,10 @@ export declare class EntityRepository {
      * if the component class exists. If the component class is not found, the entity
      * is returned unchanged.
      *
+     * Component classes are registered when they are first added with {@link addComponentToEntity}
+     * (or explicitly with `ComponentRepository.registerComponentClass`), not when the library is
+     * imported. Prefer {@link addComponentToEntity} with the component class, which always works.
+     *
      * @param componentTID - The component type identifier
      * @param entity - The entity to add the component to
      * @returns The entity (possibly with the new component added)

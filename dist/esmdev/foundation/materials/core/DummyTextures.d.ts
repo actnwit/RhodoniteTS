@@ -48,6 +48,8 @@ export declare class DummyTextures {
      * Provides default depth and moment values for shadow calculations.
      */
     dummyDepthMomentTextureArray: TextureArray;
+    /** Whether the sheen LUT texture has been requested (it is loaded only when a material uses sheen). */
+    private __isSheenLutRequested;
     /**
      * Initializes all default dummy textures with their appropriate data.
      * This function should be called once during application startup to ensure
@@ -57,6 +59,12 @@ export declare class DummyTextures {
      */
     constructor(engine: Engine);
     static init(engine: Engine): Promise<DummyTextures>;
+    /**
+     * Starts loading the sheen LUT texture in the background. The PBR module that contains the image data is
+     * fetched only when this is called, so applications without sheen materials never download it.
+     * The same Texture object is updated in place when the image arrives.
+     */
+    requestSheenLutTexture(): void;
     /**
      * Destroys all dummy textures and releases their GPU resources.
      *

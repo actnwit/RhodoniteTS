@@ -61,6 +61,8 @@ export declare class Texture extends AbstractTexture implements Disposable {
     private static __basisLoadPromise?;
     private static __BasisFile?;
     private __optionsToLoadLazy?;
+    /** Keeps concurrent sheen LUT requests from loading the PBR module and the image more than once. */
+    private __sheenLutLoadPromise?;
     private static managedRegistry;
     /**
      * Sets the texture resource UID and registers it for automatic cleanup.
@@ -217,12 +219,12 @@ export declare class Texture extends AbstractTexture implements Disposable {
     /**
      * Generates a sheen lookup table texture from embedded data URI.
      * This is used for physically-based rendering (PBR) sheen calculations.
-     * Requires the PBR module to be loaded.
+     * The PBR module (which contains the image data) is loaded on demand and only once.
      *
      * @returns Promise that resolves when texture is ready
-     * @throws Error if PBR module is not available
      */
     generateSheenLutTextureFromDataUri(): Promise<void>;
+    private __generateSheenLutTextureFromDataUri;
     /**
      * Allocates an empty texture with specified dimensions and format.
      * The texture can be filled with data later using loadImageToMipLevel.

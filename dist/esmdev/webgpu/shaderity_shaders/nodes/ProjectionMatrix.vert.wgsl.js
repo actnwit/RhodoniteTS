@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgpu/shaderity_shaders/nodes/ProjectionMatrix.vert.wgsl
+var code = "\nfn projectionMatrix(outValue: ptr<function, mat4x4<f32>>) {\n  *outValue = get_projectionMatrix(uniformDrawParameters.cameraSID);\n}\n";
+var shaderStage = "vertex";
+var isFragmentShader = false;
+var ProjectionMatrix_vert_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  ProjectionMatrix_vert_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ3B1L3NoYWRlcml0eV9zaGFkZXJzL25vZGVzL1Byb2plY3Rpb25NYXRyaXgudmVydC53Z3NsIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJ7XCJjb2RlXCI6XCJcXG5mbiBwcm9qZWN0aW9uTWF0cml4KG91dFZhbHVlOiBwdHI8ZnVuY3Rpb24sIG1hdDR4NDxmMzI+Pikge1xcbiAgKm91dFZhbHVlID0gZ2V0X3Byb2plY3Rpb25NYXRyaXgodW5pZm9ybURyYXdQYXJhbWV0ZXJzLmNhbWVyYVNJRCk7XFxufVxcblwiLFwic2hhZGVyU3RhZ2VcIjpcInZlcnRleFwiLFwiaXNGcmFnbWVudFNoYWRlclwiOmZhbHNlfSJdLAogICJtYXBwaW5ncyI6ICI7QUFBQyxXQUFPO0FBQTJJLGtCQUFjO0FBQVMsdUJBQW1CO0FBQTdMLHNDQUFDLE1BQWtKLGFBQXVCLGlCQUF3QjsiLAogICJuYW1lcyI6IFtdCn0K

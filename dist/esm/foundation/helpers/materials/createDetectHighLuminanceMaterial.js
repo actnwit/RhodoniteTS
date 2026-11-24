@@ -1,0 +1,1 @@
+import{DetectHighLuminanceMaterialContent as m}from"../../materials/contents/DetectHighLuminanceMaterialContent.js";import{createMaterial as c}from"./createMaterial.js";function l(t,{additionalName:e="",maxInstancesNumber:r=5},a){let n=`DetectHighLuminance_${e}_`,i=new m(t,n,a);return c(t,i,r)}export{l as createDetectHighLuminanceMaterial};

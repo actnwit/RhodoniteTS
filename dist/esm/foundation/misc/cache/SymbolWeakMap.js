@@ -1,0 +1,1 @@
+import{Is as i}from"../Is.js";var s=class{constructor(){this.__weakMap=new WeakMap}set(e,t){return this.__weakMap.has(e)?!1:(this.__weakMap.set(e,t),!0)}has(e){return!!this.__weakMap.has(e)}get(e){let t=this.__weakMap.get(e);return i.not.exist(t)?void 0:this.__weakMap.get(e)}delete(e){return this.__weakMap.has(e)?(this.__weakMap.delete(e),!0):!1}};export{s as SymbolWeakMap};

@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag
+var code = "\n\n/* shaderity: @{glslPrecision} */\n\n/* shaderity: @{renderTargetBegin} */\n\n/* shaderity: @{prerequisites} */\n\n/* shaderity: @{getters} */\n\n/* shaderity: @{vertexIn} */\n\nvoid main ()\n{\n/* shaderity: @{mainPrerequisites} */\n\n  vec4 baseColor = texture(u_baseColorTexture, v_texcoord_0);\n\n  float luminance = dot(baseColor.rgb, vec3(0.2126, 0.7152, 0.0722));\n\n  float luminanceCriterion = get_luminanceCriterion(materialSID, 0u);\n\n  baseColor.rgb = mix(vec3(0.0), baseColor.rgb, (luminance - luminanceCriterion) / luminanceCriterion);\n  baseColor.a = 1.0;\n\n  rt0 = baseColor;\n\n\n}\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var DetectHighLuminanceAndCorrectShader_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  DetectHighLuminanceAndCorrectShader_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvRGV0ZWN0SGlnaEx1bWluYW5jZUFuZENvcnJlY3RTaGFkZXIvRGV0ZWN0SGlnaEx1bWluYW5jZUFuZENvcnJlY3RTaGFkZXIuZnJhZyJdLAogICJzb3VyY2VzQ29udGVudCI6IFsie1wiY29kZVwiOlwiXFxuXFxuLyogc2hhZGVyaXR5OiBAe2dsc2xQcmVjaXNpb259ICovXFxuXFxuLyogc2hhZGVyaXR5OiBAe3JlbmRlclRhcmdldEJlZ2lufSAqL1xcblxcbi8qIHNoYWRlcml0eTogQHtwcmVyZXF1aXNpdGVzfSAqL1xcblxcbi8qIHNoYWRlcml0eTogQHtnZXR0ZXJzfSAqL1xcblxcbi8qIHNoYWRlcml0eTogQHt2ZXJ0ZXhJbn0gKi9cXG5cXG52b2lkIG1haW4gKClcXG57XFxuLyogc2hhZGVyaXR5OiBAe21haW5QcmVyZXF1aXNpdGVzfSAqL1xcblxcbiAgdmVjNCBiYXNlQ29sb3IgPSB0ZXh0dXJlKHVfYmFzZUNvbG9yVGV4dHVyZSwgdl90ZXhjb29yZF8wKTtcXG5cXG4gIGZsb2F0IGx1bWluYW5jZSA9IGRvdChiYXNlQ29sb3IucmdiLCB2ZWMzKDAuMjEyNiwgMC43MTUyLCAwLjA3MjIpKTtcXG5cXG4gIGZsb2F0IGx1bWluYW5jZUNyaXRlcmlvbiA9IGdldF9sdW1pbmFuY2VDcml0ZXJpb24obWF0ZXJpYWxTSUQsIDB1KTtcXG5cXG4gIGJhc2VDb2xvci5yZ2IgPSBtaXgodmVjMygwLjApLCBiYXNlQ29sb3IucmdiLCAobHVtaW5hbmNlIC0gbHVtaW5hbmNlQ3JpdGVyaW9uKSAvIGx1bWluYW5jZUNyaXRlcmlvbik7XFxuICBiYXNlQ29sb3IuYSA9IDEuMDtcXG5cXG4gIHJ0MCA9IGJhc2VDb2xvcjtcXG5cXG5cXG59XFxuXCIsXCJzaGFkZXJTdGFnZVwiOlwiZnJhZ21lbnRcIixcImlzRnJhZ21lbnRTaGFkZXJcIjp0cnVlfSJdLAogICJtYXBwaW5ncyI6ICI7QUFBQyxXQUFPO0FBQWttQixrQkFBYztBQUFXLHVCQUFtQjtBQUF0cEIsb0RBQUMsTUFBeW1CLGFBQXlCLGlCQUF1QjsiLAogICJuYW1lcyI6IFtdCn0K

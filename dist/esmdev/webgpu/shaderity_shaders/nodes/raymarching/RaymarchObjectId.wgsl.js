@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgpu/shaderity_shaders/nodes/raymarching/RaymarchObjectId.wgsl
+var code = "fn raymarchObjectId(outValue: ptr<function, f32>) {\n  *outValue = g_hitObjectId;\n}\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var RaymarchObjectId_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  RaymarchObjectId_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ3B1L3NoYWRlcml0eV9zaGFkZXJzL25vZGVzL3JheW1hcmNoaW5nL1JheW1hcmNoT2JqZWN0SWQud2dzbCJdLAogICJzb3VyY2VzQ29udGVudCI6IFsie1wiY29kZVwiOlwiZm4gcmF5bWFyY2hPYmplY3RJZChvdXRWYWx1ZTogcHRyPGZ1bmN0aW9uLCBmMzI+KSB7XFxuICAqb3V0VmFsdWUgPSBnX2hpdE9iamVjdElkO1xcbn1cXG5cIixcInNoYWRlclN0YWdlXCI6XCJmcmFnbWVudFwiLFwiaXNGcmFnbWVudFNoYWRlclwiOnRydWV9Il0sCiAgIm1hcHBpbmdzIjogIjtBQUFDLFdBQU87QUFBeUYsa0JBQWM7QUFBVyx1QkFBbUI7QUFBN0ksaUNBQUMsTUFBZ0csYUFBeUIsaUJBQXVCOyIsCiAgIm5hbWVzIjogW10KfQo=

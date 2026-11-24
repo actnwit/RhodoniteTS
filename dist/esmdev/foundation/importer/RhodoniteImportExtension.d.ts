@@ -1,6 +1,6 @@
 import type { RnM2, RnM2Material } from '../../types/RnM2';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
-import { type PbrUberMaterialOptions } from '../helpers/MaterialHelper';
+import type { PbrUberMaterialOptions } from '../helpers/materials/createPbrUberMaterial';
 import type { Material } from '../materials/core/Material';
 import type { Engine } from '../system/Engine';
 import type { Sampler } from '../textures/Sampler';
@@ -18,6 +18,16 @@ export declare class RhodoniteImportExtension {
      * @param groups - Array of scene graph entities corresponding to nodes in the RnM2 data
      */
     static importBillboard(gltfJson: RnM2, groups: ISceneGraphEntity[]): void;
+    /**
+     * Loads the node-based material implementation when the model actually uses the RHODONITE_materials_node
+     * extension. The importer calls this before materials are generated, so the synchronous
+     * {@link createNodeBasedMaterial} can use the loaded function without making the import path asynchronous.
+     *
+     * @param gltfJson - The RnM2 format JSON data to inspect
+     * @internal
+     */
+    static preloadNodeBasedMaterialSupport(gltfJson: RnM2): Promise<void>;
+    private static __loadNodeBasedMaterialSupport;
     /**
      * Creates a node-based custom material from RHODONITE_materials_node extension data.
      * Uses ShaderGraphResolver to generate shader code from the loaded .rmn JSON,

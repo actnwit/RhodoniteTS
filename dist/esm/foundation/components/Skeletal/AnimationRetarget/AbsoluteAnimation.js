@@ -1,0 +1,1 @@
+var n=class{constructor(t){this.__srcEntity=t}getEntity(){return this.__srcEntity}retargetQuaternion(t){return this.__srcEntity.getTransform().localRotationInner}retargetTranslate(t){return this.__srcEntity.getTransform().localPositionInner}retargetScale(t){return this.__srcEntity.getTransform().localScaleInner}};export{n as AbsoluteAnimation};

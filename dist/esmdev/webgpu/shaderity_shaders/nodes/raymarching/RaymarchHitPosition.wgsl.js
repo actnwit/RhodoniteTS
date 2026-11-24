@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgpu/shaderity_shaders/nodes/raymarching/RaymarchHitPosition.wgsl
+var code = "fn raymarchHitPosition(outPosition: ptr<function, vec4f>) {\n  *outPosition = vec4f(g_hitPosition, 1.0);\n}\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var RaymarchHitPosition_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  RaymarchHitPosition_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ3B1L3NoYWRlcml0eV9zaGFkZXJzL25vZGVzL3JheW1hcmNoaW5nL1JheW1hcmNoSGl0UG9zaXRpb24ud2dzbCJdLAogICJzb3VyY2VzQ29udGVudCI6IFsie1wiY29kZVwiOlwiZm4gcmF5bWFyY2hIaXRQb3NpdGlvbihvdXRQb3NpdGlvbjogcHRyPGZ1bmN0aW9uLCB2ZWM0Zj4pIHtcXG4gICpvdXRQb3NpdGlvbiA9IHZlYzRmKGdfaGl0UG9zaXRpb24sIDEuMCk7XFxufVxcblwiLFwic2hhZGVyU3RhZ2VcIjpcImZyYWdtZW50XCIsXCJpc0ZyYWdtZW50U2hhZGVyXCI6dHJ1ZX0iXSwKICAibWFwcGluZ3MiOiAiO0FBQUMsV0FBTztBQUFnSCxrQkFBYztBQUFXLHVCQUFtQjtBQUFwSyxvQ0FBQyxNQUF1SCxhQUF5QixpQkFBdUI7IiwKICAibmFtZXMiOiBbXQp9Cg==

@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/nodes/Branch.glsl
+var code = "\nvoid branch(in bool condition, in float ifTrue, in float ifFalse, out float outValue) {\n  outValue = condition ? ifTrue : ifFalse;\n}\n\nvoid branch(in bool condition, in int ifTrue, in int ifFalse, out int outValue) {\n  outValue = condition ? ifTrue : ifFalse;\n}\n\nvoid branch(in bool condition, in vec2 ifTrue, in vec2 ifFalse, out vec2 outValue) {\n  outValue = condition ? ifTrue : ifFalse;\n}\n\nvoid branch(in bool condition, in vec3 ifTrue, in vec3 ifFalse, out vec3 outValue) {\n  outValue = condition ? ifTrue : ifFalse;\n}\n\nvoid branch(in bool condition, in vec4 ifTrue, in vec4 ifFalse, out vec4 outValue) {\n  outValue = condition ? ifTrue : ifFalse;\n}\n\n\n\n\n\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var Branch_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  Branch_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvbm9kZXMvQnJhbmNoLmdsc2wiXSwKICAic291cmNlc0NvbnRlbnQiOiBbIntcImNvZGVcIjpcIlxcbnZvaWQgYnJhbmNoKGluIGJvb2wgY29uZGl0aW9uLCBpbiBmbG9hdCBpZlRydWUsIGluIGZsb2F0IGlmRmFsc2UsIG91dCBmbG9hdCBvdXRWYWx1ZSkge1xcbiAgb3V0VmFsdWUgPSBjb25kaXRpb24gPyBpZlRydWUgOiBpZkZhbHNlO1xcbn1cXG5cXG52b2lkIGJyYW5jaChpbiBib29sIGNvbmRpdGlvbiwgaW4gaW50IGlmVHJ1ZSwgaW4gaW50IGlmRmFsc2UsIG91dCBpbnQgb3V0VmFsdWUpIHtcXG4gIG91dFZhbHVlID0gY29uZGl0aW9uID8gaWZUcnVlIDogaWZGYWxzZTtcXG59XFxuXFxudm9pZCBicmFuY2goaW4gYm9vbCBjb25kaXRpb24sIGluIHZlYzIgaWZUcnVlLCBpbiB2ZWMyIGlmRmFsc2UsIG91dCB2ZWMyIG91dFZhbHVlKSB7XFxuICBvdXRWYWx1ZSA9IGNvbmRpdGlvbiA/IGlmVHJ1ZSA6IGlmRmFsc2U7XFxufVxcblxcbnZvaWQgYnJhbmNoKGluIGJvb2wgY29uZGl0aW9uLCBpbiB2ZWMzIGlmVHJ1ZSwgaW4gdmVjMyBpZkZhbHNlLCBvdXQgdmVjMyBvdXRWYWx1ZSkge1xcbiAgb3V0VmFsdWUgPSBjb25kaXRpb24gPyBpZlRydWUgOiBpZkZhbHNlO1xcbn1cXG5cXG52b2lkIGJyYW5jaChpbiBib29sIGNvbmRpdGlvbiwgaW4gdmVjNCBpZlRydWUsIGluIHZlYzQgaWZGYWxzZSwgb3V0IHZlYzQgb3V0VmFsdWUpIHtcXG4gIG91dFZhbHVlID0gY29uZGl0aW9uID8gaWZUcnVlIDogaWZGYWxzZTtcXG59XFxuXFxuXFxuXFxuXFxuXFxuXCIsXCJzaGFkZXJTdGFnZVwiOlwiZnJhZ21lbnRcIixcImlzRnJhZ21lbnRTaGFkZXJcIjp0cnVlfSJdLAogICJtYXBwaW5ncyI6ICI7QUFBQyxXQUFPO0FBQWdyQixrQkFBYztBQUFXLHVCQUFtQjtBQUFwdUIsdUJBQUMsTUFBdXJCLGFBQXlCLGlCQUF1QjsiLAogICJuYW1lcyI6IFtdCn0K

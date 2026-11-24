@@ -5,6 +5,23 @@ import { type VertexHandles as vertexHandles, WebGLResourceRepository } from './
 import type { WebGLStrategy as webGLStrategy } from './WebGLStrategy';
 import { WebGLStrategyWebGL2 } from './WebGLStrategyWebGL2';
 declare const WebGL: Readonly<{
+    glslCommonChunks: Readonly<{
+        alphaProcess: string;
+        enableVertexExtensions: string;
+        fullscreen: string;
+        glslPrecision: string;
+        iblDefinition: string;
+        mainPrerequisites: string;
+        opticalDefinition: string;
+        outputSrgb: string;
+        pbrDefinition: string;
+        prerequisites: string;
+        processGeometry: string;
+        shadow: string;
+        vertexIn: string;
+        vertexInOut: string;
+        wireframe: string;
+    }>;
     getRenderingStrategy: typeof getRenderingStrategy;
     StandardShaderPart: typeof StandardShaderPart;
     WebGLContextWrapper: typeof WebGLContextWrapper;

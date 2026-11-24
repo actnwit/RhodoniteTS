@@ -1,0 +1,85 @@
+// src/foundation/materials/nodes/EqualShaderNode.ts
+import EqualShaderityObjectGLSL_ from "../../../webgl/shaderity_shaders/nodes/Equal.glsl.js";
+import EqualShaderityObjectWGSL_ from "../../../webgpu/shaderity_shaders/nodes/Equal.wgsl.js";
+import { ComponentType } from "../../definitions/ComponentType.js";
+import { CompositionType } from "../../definitions/CompositionType.js";
+import { ProcessApproach } from "../../definitions/ProcessApproach.js";
+import { AbstractShaderNode } from "../core/AbstractShaderNode.js";
+import { Socket } from "../core/Socket.js";
+var EqualShaderityObjectGLSL = typeof __RN_WEBGL__ === "undefined" || __RN_WEBGL__ ? EqualShaderityObjectGLSL_ : void 0;
+var EqualShaderityObjectWGSL = typeof __RN_WEBGPU__ === "undefined" || __RN_WEBGPU__ ? EqualShaderityObjectWGSL_ : void 0;
+var EqualShaderNode = class extends AbstractShaderNode {
+  /**
+   * Creates a new EqualShaderNode instance.
+   *
+   * @param componentType - The component type of the inputs (Float, Int, or UnsignedInt)
+   *
+   * @remarks
+   * The node will have two inputs:
+   * - `lhs`: Left-hand side operand with Scalar composition and the specified component type
+   * - `rhs`: Right-hand side operand with Scalar composition and the specified component type
+   *
+   * The output is always a boolean scalar indicating the comparison result.
+   */
+  constructor(componentType) {
+    super("_equal", {
+      codeGLSL: EqualShaderityObjectGLSL.code,
+      codeWGSL: EqualShaderityObjectWGSL.code
+    });
+    this.__inputs.push(new Socket("lhs", CompositionType.Scalar, componentType));
+    this.__inputs.push(new Socket("rhs", CompositionType.Scalar, componentType));
+    this.__outputs.push(new Socket("outValue", CompositionType.Scalar, ComponentType.Bool));
+  }
+  /**
+   * Gets the input socket for the left-hand side value.
+   *
+   * @returns The input socket for the left operand
+   */
+  getSocketInputLhs() {
+    return this.__inputs[0];
+  }
+  /**
+   * Gets the input socket for the right-hand side value.
+   *
+   * @returns The input socket for the right operand
+   */
+  getSocketInputRhs() {
+    return this.__inputs[1];
+  }
+  /**
+   * Gets the output socket that provides the comparison result.
+   *
+   * @returns The output socket containing the boolean comparison result
+   */
+  getSocketOutput() {
+    return this.__outputs[0];
+  }
+  /**
+   * Gets the appropriate shader function name based on the current rendering approach and input type.
+   * For WebGPU, returns a type-specific function name (e.g., '_equalF32', '_equalI32').
+   * For WebGL, returns the base function name '_equal'.
+   *
+   * @param engine - The engine instance
+   * @returns The shader function name to use in the generated shader code
+   * @throws {Error} Throws an error if the component type is not supported for WebGPU
+   */
+  getShaderFunctionNameDerivative(engine) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
+      if (this.__inputs[0].componentType === ComponentType.Float) {
+        return "_equalF32";
+      }
+      if (this.__inputs[0].componentType === ComponentType.Int) {
+        return "_equalI32";
+      }
+      if (this.__inputs[0].componentType === ComponentType.UnsignedInt) {
+        return "_equalU32";
+      }
+      throw new Error("Not supported component type.");
+    }
+    return this.__shaderFunctionName;
+  }
+};
+export {
+  EqualShaderNode
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vbWF0ZXJpYWxzL25vZGVzL0VxdWFsU2hhZGVyTm9kZS50cyJdLAogICJzb3VyY2VzQ29udGVudCI6IFsiaW1wb3J0IEVxdWFsU2hhZGVyaXR5T2JqZWN0R0xTTF8gZnJvbSAnLi4vLi4vLi4vd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvbm9kZXMvRXF1YWwuZ2xzbCc7XG5pbXBvcnQgRXF1YWxTaGFkZXJpdHlPYmplY3RXR1NMXyBmcm9tICcuLi8uLi8uLi93ZWJncHUvc2hhZGVyaXR5X3NoYWRlcnMvbm9kZXMvRXF1YWwud2dzbCc7XG5pbXBvcnQgeyBDb21wb25lbnRUeXBlLCB0eXBlIENvbXBvbmVudFR5cGVFbnVtIH0gZnJvbSAnLi4vLi4vZGVmaW5pdGlvbnMvQ29tcG9uZW50VHlwZSc7XG5pbXBvcnQgeyBDb21wb3NpdGlvblR5cGUgfSBmcm9tICcuLi8uLi9kZWZpbml0aW9ucy9Db21wb3NpdGlvblR5cGUnO1xuaW1wb3J0IHsgUHJvY2Vzc0FwcHJvYWNoIH0gZnJvbSAnLi4vLi4vZGVmaW5pdGlvbnMvUHJvY2Vzc0FwcHJvYWNoJztcbmltcG9ydCB0eXBlIHsgRW5naW5lIH0gZnJvbSAnLi4vLi4vc3lzdGVtL0VuZ2luZSc7XG5pbXBvcnQgeyBBYnN0cmFjdFNoYWRlck5vZGUgfSBmcm9tICcuLi9jb3JlL0Fic3RyYWN0U2hhZGVyTm9kZSc7XG5pbXBvcnQgeyBTb2NrZXQgfSBmcm9tICcuLi9jb3JlL1NvY2tldCc7XG5cbi8vIFNoYWRlcnMgb2YgYSBiYWNrZW5kIGV4Y2x1ZGVkIGF0IGJ1aWxkIHRpbWUgKHNlZSBzcmMvYmFja2VuZEZsYWdzLmQudHMpIGFyZSBkcm9wcGVkIGJ5IHRoZSBidW5kbGVyLlxuY29uc3QgRXF1YWxTaGFkZXJpdHlPYmplY3RHTFNMID1cbiAgdHlwZW9mIF9fUk5fV0VCR0xfXyA9PT0gJ3VuZGVmaW5lZCcgfHwgX19STl9XRUJHTF9fID8gRXF1YWxTaGFkZXJpdHlPYmplY3RHTFNMXyA6IHVuZGVmaW5lZDtcbmNvbnN0IEVxdWFsU2hhZGVyaXR5T2JqZWN0V0dTTCA9XG4gIHR5cGVvZiBfX1JOX1dFQkdQVV9fID09PSAndW5kZWZpbmVkJyB8fCBfX1JOX1dFQkdQVV9fID8gRXF1YWxTaGFkZXJpdHlPYmplY3RXR1NMXyA6IHVuZGVmaW5lZDtcblxuLyoqXG4gKiBBIHNoYWRlciBub2RlIHRoYXQgcGVyZm9ybXMgYW4gZXF1YWxpdHkgY29tcGFyaXNvbiBvcGVyYXRpb24uXG4gKlxuICogVGhpcyBub2RlIGNvbXBhcmVzIHR3byB2YWx1ZXMgYW5kIG91dHB1dHMgYSBib29sZWFuIHJlc3VsdCBpbmRpY2F0aW5nIHdoZXRoZXJcbiAqIHRoZSBsZWZ0LWhhbmQgc2lkZSAobGhzKSBpcyBlcXVhbCB0byB0aGUgcmlnaHQtaGFuZCBzaWRlIChyaHMpLlxuICogQm90aCBvcGVyYW5kcyBtdXN0IGJlIG9mIHRoZSBzYW1lIGNvbXBvbmVudCB0eXBlIChmbG9hdCwgaW50LCBvciB1aW50KS5cbiAqXG4gKiBAZXhhbXBsZVxuICogYGBgdHlwZXNjcmlwdFxuICogLy8gQ3JlYXRlIGFuIGVxdWFsaXR5IGNvbXBhcmlzb24gbm9kZSBmb3IgZmxvYXQgdmFsdWVzXG4gKiBjb25zdCBlcXVhbE5vZGUgPSBuZXcgRXF1YWxTaGFkZXJOb2RlKENvbXBvbmVudFR5cGUuRmxvYXQpO1xuICogYGBgXG4gKi9cbmV4cG9ydCBjbGFzcyBFcXVhbFNoYWRlck5vZGUgZXh0ZW5kcyBBYnN0cmFjdFNoYWRlck5vZGUge1xuICAvKipcbiAgICogQ3JlYXRlcyBhIG5ldyBFcXVhbFNoYWRlck5vZGUgaW5zdGFuY2UuXG4gICAqXG4gICAqIEBwYXJhbSBjb21wb25lbnRUeXBlIC0gVGhlIGNvbXBvbmVudCB0eXBlIG9mIHRoZSBpbnB1dHMgKEZsb2F0LCBJbnQsIG9yIFVuc2lnbmVkSW50KVxuICAgKlxuICAgKiBAcmVtYXJrc1xuICAgKiBUaGUgbm9kZSB3aWxsIGhhdmUgdHdvIGlucHV0czpcbiAgICogLSBgbGhzYDogTGVmdC1oYW5kIHNpZGUgb3BlcmFuZCB3aXRoIFNjYWxhciBjb21wb3NpdGlvbiBhbmQgdGhlIHNwZWNpZmllZCBjb21wb25lbnQgdHlwZVxuICAgKiAtIGByaHNgOiBSaWdodC1oYW5kIHNpZGUgb3BlcmFuZCB3aXRoIFNjYWxhciBjb21wb3NpdGlvbiBhbmQgdGhlIHNwZWNpZmllZCBjb21wb25lbnQgdHlwZVxuICAgKlxuICAgKiBUaGUgb3V0cHV0IGlzIGFsd2F5cyBhIGJvb2xlYW4gc2NhbGFyIGluZGljYXRpbmcgdGhlIGNvbXBhcmlzb24gcmVzdWx0LlxuICAgKi9cbiAgY29uc3RydWN0b3IoY29tcG9uZW50VHlwZTogQ29tcG9uZW50VHlwZUVudW0pIHtcbiAgICBzdXBlcignX2VxdWFsJywge1xuICAgICAgY29kZUdMU0w6IEVxdWFsU2hhZGVyaXR5T2JqZWN0R0xTTC5jb2RlLFxuICAgICAgY29kZVdHU0w6IEVxdWFsU2hhZGVyaXR5T2JqZWN0V0dTTC5jb2RlLFxuICAgIH0pO1xuXG4gICAgdGhpcy5fX2lucHV0cy5wdXNoKG5ldyBTb2NrZXQoJ2xocycsIENvbXBvc2l0aW9uVHlwZS5TY2FsYXIsIGNvbXBvbmVudFR5cGUpKTtcbiAgICB0aGlzLl9faW5wdXRzLnB1c2gobmV3IFNvY2tldCgncmhzJywgQ29tcG9zaXRpb25UeXBlLlNjYWxhciwgY29tcG9uZW50VHlwZSkpO1xuICAgIHRoaXMuX19vdXRwdXRzLnB1c2gobmV3IFNvY2tldCgnb3V0VmFsdWUnLCBDb21wb3NpdGlvblR5cGUuU2NhbGFyLCBDb21wb25lbnRUeXBlLkJvb2wpKTtcbiAgfVxuXG4gIC8qKlxuICAgKiBHZXRzIHRoZSBpbnB1dCBzb2NrZXQgZm9yIHRoZSBsZWZ0LWhhbmQgc2lkZSB2YWx1ZS5cbiAgICpcbiAgICogQHJldHVybnMgVGhlIGlucHV0IHNvY2tldCBmb3IgdGhlIGxlZnQgb3BlcmFuZFxuICAgKi9cbiAgZ2V0U29ja2V0SW5wdXRMaHMoKSB7XG4gICAgcmV0dXJuIHRoaXMuX19pbnB1dHNbMF07XG4gIH1cblxuICAvKipcbiAgICogR2V0cyB0aGUgaW5wdXQgc29ja2V0IGZvciB0aGUgcmlnaHQtaGFuZCBzaWRlIHZhbHVlLlxuICAgKlxuICAgKiBAcmV0dXJucyBUaGUgaW5wdXQgc29ja2V0IGZvciB0aGUgcmlnaHQgb3BlcmFuZFxuICAgKi9cbiAgZ2V0U29ja2V0SW5wdXRSaHMoKSB7XG4gICAgcmV0dXJuIHRoaXMuX19pbnB1dHNbMV07XG4gIH1cblxuICAvKipcbiAgICogR2V0cyB0aGUgb3V0cHV0IHNvY2tldCB0aGF0IHByb3ZpZGVzIHRoZSBjb21wYXJpc29uIHJlc3VsdC5cbiAgICpcbiAgICogQHJldHVybnMgVGhlIG91dHB1dCBzb2NrZXQgY29udGFpbmluZyB0aGUgYm9vbGVhbiBjb21wYXJpc29uIHJlc3VsdFxuICAgKi9cbiAgZ2V0U29ja2V0T3V0cHV0KCkge1xuICAgIHJldHVybiB0aGlzLl9fb3V0cHV0c1swXTtcbiAgfVxuXG4gIC8qKlxuICAgKiBHZXRzIHRoZSBhcHByb3ByaWF0ZSBzaGFkZXIgZnVuY3Rpb24gbmFtZSBiYXNlZCBvbiB0aGUgY3VycmVudCByZW5kZXJpbmcgYXBwcm9hY2ggYW5kIGlucHV0IHR5cGUuXG4gICAqIEZvciBXZWJHUFUsIHJldHVybnMgYSB0eXBlLXNwZWNpZmljIGZ1bmN0aW9uIG5hbWUgKGUuZy4sICdfZXF1YWxGMzInLCAnX2VxdWFsSTMyJykuXG4gICAqIEZvciBXZWJHTCwgcmV0dXJucyB0aGUgYmFzZSBmdW5jdGlvbiBuYW1lICdfZXF1YWwnLlxuICAgKlxuICAgKiBAcGFyYW0gZW5naW5lIC0gVGhlIGVuZ2luZSBpbnN0YW5jZVxuICAgKiBAcmV0dXJucyBUaGUgc2hhZGVyIGZ1bmN0aW9uIG5hbWUgdG8gdXNlIGluIHRoZSBnZW5lcmF0ZWQgc2hhZGVyIGNvZGVcbiAgICogQHRocm93cyB7RXJyb3J9IFRocm93cyBhbiBlcnJvciBpZiB0aGUgY29tcG9uZW50IHR5cGUgaXMgbm90IHN1cHBvcnRlZCBmb3IgV2ViR1BVXG4gICAqL1xuICBnZXRTaGFkZXJGdW5jdGlvbk5hbWVEZXJpdmF0aXZlKGVuZ2luZTogRW5naW5lKTogc3RyaW5nIHtcbiAgICBpZiAoZW5naW5lLmVuZ2luZVN0YXRlLmN1cnJlbnRQcm9jZXNzQXBwcm9hY2ggPT09IFByb2Nlc3NBcHByb2FjaC5XZWJHUFUpIHtcbiAgICAgIGlmICh0aGlzLl9faW5wdXRzWzBdLmNvbXBvbmVudFR5cGUgPT09IENvbXBvbmVudFR5cGUuRmxvYXQpIHtcbiAgICAgICAgcmV0dXJuICdfZXF1YWxGMzInO1xuICAgICAgfVxuICAgICAgaWYgKHRoaXMuX19pbnB1dHNbMF0uY29tcG9uZW50VHlwZSA9PT0gQ29tcG9uZW50VHlwZS5JbnQpIHtcbiAgICAgICAgcmV0dXJuICdfZXF1YWxJMzInO1xuICAgICAgfVxuICAgICAgaWYgKHRoaXMuX19pbnB1dHNbMF0uY29tcG9uZW50VHlwZSA9PT0gQ29tcG9uZW50VHlwZS5VbnNpZ25lZEludCkge1xuICAgICAgICByZXR1cm4gJ19lcXVhbFUzMic7XG4gICAgICB9XG4gICAgICB0aHJvdyBuZXcgRXJyb3IoJ05vdCBzdXBwb3J0ZWQgY29tcG9uZW50IHR5cGUuJyk7XG4gICAgfVxuICAgIHJldHVybiB0aGlzLl9fc2hhZGVyRnVuY3Rpb25OYW1lO1xuICB9XG59XG4iXSwKICAibWFwcGluZ3MiOiAiO0FBQUEsT0FBTywrQkFBK0I7QUFDdEMsT0FBTywrQkFBK0I7QUFDdEMsU0FBUyxxQkFBNkM7QUFDdEQsU0FBUyx1QkFBdUI7QUFDaEMsU0FBUyx1QkFBdUI7QUFFaEMsU0FBUywwQkFBMEI7QUFDbkMsU0FBUyxjQUFjO0FBR3ZCLElBQU0sMkJBQ0osT0FBTyxpQkFBaUIsZUFBZSxlQUFlLDRCQUE0QjtBQUNwRixJQUFNLDJCQUNKLE9BQU8sa0JBQWtCLGVBQWUsZ0JBQWdCLDRCQUE0QjtBQWUvRSxJQUFNLGtCQUFOLGNBQThCLG1CQUFtQjtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBLEVBYXRELFlBQVksZUFBa0M7QUFDNUMsVUFBTSxVQUFVO0FBQUEsTUFDZCxVQUFVLHlCQUF5QjtBQUFBLE1BQ25DLFVBQVUseUJBQXlCO0FBQUEsSUFDckMsQ0FBQztBQUVELFNBQUssU0FBUyxLQUFLLElBQUksT0FBTyxPQUFPLGdCQUFnQixRQUFRLGFBQWEsQ0FBQztBQUMzRSxTQUFLLFNBQVMsS0FBSyxJQUFJLE9BQU8sT0FBTyxnQkFBZ0IsUUFBUSxhQUFhLENBQUM7QUFDM0UsU0FBSyxVQUFVLEtBQUssSUFBSSxPQUFPLFlBQVksZ0JBQWdCLFFBQVEsY0FBYyxJQUFJLENBQUM7QUFBQSxFQUN4RjtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQSxFQU9BLG9CQUFvQjtBQUNsQixXQUFPLEtBQUssU0FBUyxDQUFDO0FBQUEsRUFDeEI7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUEsRUFPQSxvQkFBb0I7QUFDbEIsV0FBTyxLQUFLLFNBQVMsQ0FBQztBQUFBLEVBQ3hCO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBLEVBT0Esa0JBQWtCO0FBQ2hCLFdBQU8sS0FBSyxVQUFVLENBQUM7QUFBQSxFQUN6QjtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBLEVBV0EsZ0NBQWdDLFFBQXdCO0FBQ3RELFFBQUksT0FBTyxZQUFZLDJCQUEyQixnQkFBZ0IsUUFBUTtBQUN4RSxVQUFJLEtBQUssU0FBUyxDQUFDLEVBQUUsa0JBQWtCLGNBQWMsT0FBTztBQUMxRCxlQUFPO0FBQUEsTUFDVDtBQUNBLFVBQUksS0FBSyxTQUFTLENBQUMsRUFBRSxrQkFBa0IsY0FBYyxLQUFLO0FBQ3hELGVBQU87QUFBQSxNQUNUO0FBQ0EsVUFBSSxLQUFLLFNBQVMsQ0FBQyxFQUFFLGtCQUFrQixjQUFjLGFBQWE7QUFDaEUsZUFBTztBQUFBLE1BQ1Q7QUFDQSxZQUFNLElBQUksTUFBTSwrQkFBK0I7QUFBQSxJQUNqRDtBQUNBLFdBQU8sS0FBSztBQUFBLEVBQ2Q7QUFDRjsiLAogICJuYW1lcyI6IFtdCn0K

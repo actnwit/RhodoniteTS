@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgpu/shaderity_shaders/nodes/PbrOcclusionProps.wgsl
+var code = "fn pbrOcclusionProps(occlusionTexture: vec4<f32>, occlusionStrength: f32, outOcclusionProps: ptr<function, OcclusionProps>) {\n  (*outOcclusionProps).occlusionTexture = occlusionTexture;\n  (*outOcclusionProps).occlusionStrength = occlusionStrength;\n}\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var PbrOcclusionProps_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  PbrOcclusionProps_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ3B1L3NoYWRlcml0eV9zaGFkZXJzL25vZGVzL1Bick9jY2x1c2lvblByb3BzLndnc2wiXSwKICAic291cmNlc0NvbnRlbnQiOiBbIntcImNvZGVcIjpcImZuIHBick9jY2x1c2lvblByb3BzKG9jY2x1c2lvblRleHR1cmU6IHZlYzQ8ZjMyPiwgb2NjbHVzaW9uU3RyZW5ndGg6IGYzMiwgb3V0T2NjbHVzaW9uUHJvcHM6IHB0cjxmdW5jdGlvbiwgT2NjbHVzaW9uUHJvcHM+KSB7XFxuICAoKm91dE9jY2x1c2lvblByb3BzKS5vY2NsdXNpb25UZXh0dXJlID0gb2NjbHVzaW9uVGV4dHVyZTtcXG4gICgqb3V0T2NjbHVzaW9uUHJvcHMpLm9jY2x1c2lvblN0cmVuZ3RoID0gb2NjbHVzaW9uU3RyZW5ndGg7XFxufVxcblwiLFwic2hhZGVyU3RhZ2VcIjpcImZyYWdtZW50XCIsXCJpc0ZyYWdtZW50U2hhZGVyXCI6dHJ1ZX0iXSwKICAibWFwcGluZ3MiOiAiO0FBQUMsV0FBTztBQUFpUSxrQkFBYztBQUFXLHVCQUFtQjtBQUFyVCxrQ0FBQyxNQUF3USxhQUF5QixpQkFBdUI7IiwKICAibmFtZXMiOiBbXQp9Cg==

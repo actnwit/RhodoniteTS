@@ -29,6 +29,12 @@ interface EngineInitDescription {
     webglOption?: WebGLContextAttributes;
     notToDisplayRnInfoAtInit?: boolean;
     config?: Config;
+    /**
+     * Loads the WebXR/WebAR support (`engine.webXRSystem`, `engine.webARSystem`) during initialization.
+     * Defaults to false for named imports, and to true when the default `Rn` namespace export is used.
+     * It can also be enabled later with `await engine.enableXR()`.
+     */
+    xr?: boolean;
 }
 /**
  * The system class is the entry point of the Rhodonite library.
@@ -61,8 +67,14 @@ export declare class Engine extends RnObject {
     private __animationFrameObject?;
     private __renderLoopFunc?;
     private __args;
-    private __webXRSystem;
-    private __webARSystem;
+    private __webXRSystem?;
+    private __webARSystem?;
+    /**
+     * Whether `Engine.init` loads the XR support when `EngineInitDescription.xr` is omitted.
+     * The default `Rn` namespace export sets it to true for compatibility.
+     * @internal
+     */
+    static _loadXRByDefault: boolean;
     private __entityRepository;
     private __componentRepository;
     private __componentMemoryRegistry;
@@ -247,16 +259,64 @@ export declare class Engine extends RnObject {
      * @param desc
      * @returns
      */
+    /**
+     * Registers the component classes the engine itself processes every frame.
+     *
+     * @remarks
+     * Other component classes are registered on first use by `EntityRepository.addComponentToEntity`.
+     * The core classes are registered here because the render loop looks up the MeshRendererComponent class
+     * by its ComponentTID, because SkeletalComponent's bone data members must be registered before any shader is
+     * generated, and because entity helpers such as `createGroupEntity` and `createMeshEntity` add
+     * them by ComponentTID: importing the classes there would create circular imports between the
+     * components, the gizmos and the mesh helpers.
+     */
+    private static __registerCoreComponentClasses;
     static init(desc: EngineInitDescription): Promise<Engine>;
     get processApproach(): import("..").ProcessApproachClass;
     resizeCanvas(width: number, height: number): void;
     getCanvasSize(): [number, number];
-    getCurrentWebGLContextWrapper(): import("../../webgl").WebGLContextWrapper | undefined;
+    getCurrentWebGLContextWrapper(): import("../..").WebGLContextWrapper | undefined;
     get entityRepository(): EntityRepository;
     get componentRepository(): ComponentRepository;
     get componentMemoryRegistry(): ComponentMemoryRegistry;
+    /**
+     * The WebXR (VR) system.
+     * @throws If the XR support is not enabled (see {@link enableXR} and `EngineInitDescription.xr`)
+     */
     get webXRSystem(): WebXRSystem;
+    /**
+     * The WebAR system.
+     * @throws If the XR support is not enabled (see {@link enableXR} and `EngineInitDescription.xr`)
+     */
     get webARSystem(): WebARSystem;
+    /** Whether the XR support (WebXR and WebAR systems) is enabled. */
+    get isXREnabled(): boolean;
+    /**
+     * The WebXR system, or undefined when the XR support is not enabled.
+     * Internal code uses it so that rendering without XR never needs the XR module.
+     * @internal
+     */
+    get _webXRSystemIfEnabled(): WebXRSystem | undefined;
+    /**
+     * The WebAR system, or undefined when the XR support is not enabled.
+     * @internal
+     */
+    get _webARSystemIfEnabled(): WebARSystem | undefined;
+    /**
+     * Enables the WebXR/WebAR support after initialization by loading the XR module.
+     * Does nothing when it is already enabled (e.g. by `Engine.init({ xr: true })`).
+     *
+     * @returns The WebXR system
+     *
+     * @example
+     * ```typescript
+     * const webXRSystem = await engine.enableXR();
+     * await webXRSystem.readyForWebXR(buttonElement, basePath);
+     * ```
+     */
+    enableXR(): Promise<WebXRSystem>;
+    private __initXRSystems;
+    private static readonly __xrNotEnabledMessage;
     get memoryManager(): MemoryManager;
     get globalDataRepository(): GlobalDataRepository;
     /**

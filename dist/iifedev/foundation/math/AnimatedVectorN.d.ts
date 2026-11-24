@@ -41,7 +41,7 @@ export declare class AnimatedVectorN extends VectorN implements IAnimatedValue {
     /**
      * Gets the internal value array without allocating a copy. Do not mutate the returned array.
      */
-    getValueArray(): import("../../types").TypedArray;
+    getValueArray(): import("../..").TypedArray;
     /**
      * Sets the time and blending ratio and evaluates the value at most once.
      */

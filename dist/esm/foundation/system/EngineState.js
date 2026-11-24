@@ -1,0 +1,1 @@
+import{ProcessApproach as r}from"../definitions/ProcessApproach.js";var e=class{constructor(){this.currentProcessApproach=r.None;this.viewportAspectRatio=0;this.webgpuRenderBundleMode=!1;this.totalSizeOfGPUShaderDataStorageExceptMorphData=0}};export{e as EngineState};

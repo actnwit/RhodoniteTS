@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/common/outputSrgb.glsl
+var code = "float makeOutputSrgb = float(get_makeOutputSrgb(materialSID, 0u));\nrt0.rgb = mix(rt0.rgb, linearToSrgb(rt0.rgb), makeOutputSrgb);\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var outputSrgb_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  outputSrgb_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvY29tbW9uL291dHB1dFNyZ2IuZ2xzbCJdLAogICJzb3VyY2VzQ29udGVudCI6IFsie1wiY29kZVwiOlwiZmxvYXQgbWFrZU91dHB1dFNyZ2IgPSBmbG9hdChnZXRfbWFrZU91dHB1dFNyZ2IobWF0ZXJpYWxTSUQsIDB1KSk7XFxucnQwLnJnYiA9IG1peChydDAucmdiLCBsaW5lYXJUb1NyZ2IocnQwLnJnYiksIG1ha2VPdXRwdXRTcmdiKTtcXG5cIixcInNoYWRlclN0YWdlXCI6XCJmcmFnbWVudFwiLFwiaXNGcmFnbWVudFNoYWRlclwiOnRydWV9Il0sCiAgIm1hcHBpbmdzIjogIjtBQUFDLFdBQU87QUFBdUksa0JBQWM7QUFBVyx1QkFBbUI7QUFBM0wsMkJBQUMsTUFBOEksYUFBeUIsaUJBQXVCOyIsCiAgIm5hbWVzIjogW10KfQo=

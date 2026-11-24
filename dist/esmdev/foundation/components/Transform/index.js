@@ -1,0 +1,5 @@
+// src/foundation/components/Transform/index.ts
+export * from "./createTransformEntity.js";
+export * from "./ITransformEntity.js";
+export * from "./TransformComponent.js";
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vY29tcG9uZW50cy9UcmFuc2Zvcm0vaW5kZXgudHMiXSwKICAic291cmNlc0NvbnRlbnQiOiBbImV4cG9ydCAqIGZyb20gJy4vY3JlYXRlVHJhbnNmb3JtRW50aXR5JztcbmV4cG9ydCAqIGZyb20gJy4vSVRyYW5zZm9ybUVudGl0eSc7XG5leHBvcnQgKiBmcm9tICcuL1RyYW5zZm9ybUNvbXBvbmVudCc7XG4iXSwKICAibWFwcGluZ3MiOiAiO0FBQUEsY0FBYztBQUNkLGNBQWM7QUFDZCxjQUFjOyIsCiAgIm5hbWVzIjogW10KfQo=

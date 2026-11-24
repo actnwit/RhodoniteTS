@@ -1,0 +1,1 @@
+import{EntityUIDOutputMaterialContent as o}from"../../materials/contents/EntityUIDOutputMaterialContent.js";import{createMaterial as m}from"./createMaterial.js";function u(t,{additionalName:a="",maxInstancesNumber:r=10}={}){let i=`EntityUIDOutput_${a}`,n=new o(t,i),e=m(t,n,r);return e.addShaderDefine("RN_IS_SKINNING"),e}export{u as createEntityUIDOutputMaterial};

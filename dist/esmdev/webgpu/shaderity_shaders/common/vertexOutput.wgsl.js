@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgpu/shaderity_shaders/common/vertexOutput.wgsl
+var code = "struct VertexOutput {\n  @builtin(position) position : vec4<f32>,\n  @location(0) position_inWorld : vec4<f32>,\n  @location(1) normal_inWorld : vec3<f32>,\n  @location(2) texcoord_0 : vec2<f32>,\n  @location(3) color_0 : vec4<f32>,\n  @location(4) texcoord_1 : vec2<f32>,\n  @location(5) texcoord_2 : vec2<f32>,\n  @location(6) tangent_inWorld : vec3<f32>,\n  @location(7) bitangent_inWorld : vec3<f32>,\n  @location(8) baryCentricCoord: vec3<f32>,\n  @location(9) @interpolate(flat) instanceIds: vec4<u32>,\n  @location(10) normal_inView : vec3<f32>,\n#ifdef RN_IS_PIXEL_SHADER\n  @builtin(front_facing) isFront: bool,\n#endif\n}\n";
+var shaderStage = "vertex";
+var isFragmentShader = false;
+var vertexOutput_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  vertexOutput_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ3B1L3NoYWRlcml0eV9zaGFkZXJzL2NvbW1vbi92ZXJ0ZXhPdXRwdXQud2dzbCJdLAogICJzb3VyY2VzQ29udGVudCI6IFsie1wiY29kZVwiOlwic3RydWN0IFZlcnRleE91dHB1dCB7XFxuICBAYnVpbHRpbihwb3NpdGlvbikgcG9zaXRpb24gOiB2ZWM0PGYzMj4sXFxuICBAbG9jYXRpb24oMCkgcG9zaXRpb25faW5Xb3JsZCA6IHZlYzQ8ZjMyPixcXG4gIEBsb2NhdGlvbigxKSBub3JtYWxfaW5Xb3JsZCA6IHZlYzM8ZjMyPixcXG4gIEBsb2NhdGlvbigyKSB0ZXhjb29yZF8wIDogdmVjMjxmMzI+LFxcbiAgQGxvY2F0aW9uKDMpIGNvbG9yXzAgOiB2ZWM0PGYzMj4sXFxuICBAbG9jYXRpb24oNCkgdGV4Y29vcmRfMSA6IHZlYzI8ZjMyPixcXG4gIEBsb2NhdGlvbig1KSB0ZXhjb29yZF8yIDogdmVjMjxmMzI+LFxcbiAgQGxvY2F0aW9uKDYpIHRhbmdlbnRfaW5Xb3JsZCA6IHZlYzM8ZjMyPixcXG4gIEBsb2NhdGlvbig3KSBiaXRhbmdlbnRfaW5Xb3JsZCA6IHZlYzM8ZjMyPixcXG4gIEBsb2NhdGlvbig4KSBiYXJ5Q2VudHJpY0Nvb3JkOiB2ZWMzPGYzMj4sXFxuICBAbG9jYXRpb24oOSkgQGludGVycG9sYXRlKGZsYXQpIGluc3RhbmNlSWRzOiB2ZWM0PHUzMj4sXFxuICBAbG9jYXRpb24oMTApIG5vcm1hbF9pblZpZXcgOiB2ZWMzPGYzMj4sXFxuI2lmZGVmIFJOX0lTX1BJWEVMX1NIQURFUlxcbiAgQGJ1aWx0aW4oZnJvbnRfZmFjaW5nKSBpc0Zyb250OiBib29sLFxcbiNlbmRpZlxcbn1cXG5cIixcInNoYWRlclN0YWdlXCI6XCJ2ZXJ0ZXhcIixcImlzRnJhZ21lbnRTaGFkZXJcIjpmYWxzZX0iXSwKICAibWFwcGluZ3MiOiAiO0FBQUMsV0FBTztBQUE0bkIsa0JBQWM7QUFBUyx1QkFBbUI7QUFBOXFCLDZCQUFDLE1BQW1vQixhQUF1QixpQkFBd0I7IiwKICAibmFtZXMiOiBbXQp9Cg==

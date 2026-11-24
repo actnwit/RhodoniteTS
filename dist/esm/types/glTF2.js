@@ -1,0 +1,1 @@
+var n="gltf_node_index",r="KHR_node_visibility_enabled",a="KHR_node_visibility_visible";function i(e,t){return e.magFilter===t.magFilter&&e.minFilter===t.minFilter&&e.wrapS===t.wrapS&&e.wrapT===t.wrapT}export{n as TagGltf2NodeIndex,r as TagKhrNodeVisibilityEnabled,a as TagKhrNodeVisibilityVisible,i as isSameGlTF2TextureSampler};

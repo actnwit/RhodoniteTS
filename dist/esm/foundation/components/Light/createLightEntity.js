@@ -1,0 +1,1 @@
+import{createGroupEntity as o}from"../SceneGraph/createGroupEntity.js";import{WellKnownComponentTIDs as e}from"../WellKnownComponentTIDs.js";function p(t){let n=o(t);return t.entityRepository.tryToAddComponentToEntityByTID(e.LightComponentTID,n)}export{p as createLightEntity};

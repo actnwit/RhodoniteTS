@@ -1,0 +1,1 @@
+import{WellKnownComponentTIDs as o}from"../WellKnownComponentTIDs.js";function i(t){let n=t.entityRepository.createEntity();return t.entityRepository.tryToAddComponentToEntityByTID(o.TransformComponentTID,n)}export{i as createTransformEntity};

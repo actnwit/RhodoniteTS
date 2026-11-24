@@ -1,0 +1,4 @@
+// src/effekseer/index.ts
+export * from "./EffekseerComponent.js";
+export * from "./main.js";
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vc3JjL2VmZmVrc2Vlci9pbmRleC50cyJdLAogICJzb3VyY2VzQ29udGVudCI6IFsiZXhwb3J0ICogZnJvbSAnLi9FZmZla3NlZXJDb21wb25lbnQnO1xuZXhwb3J0ICogZnJvbSAnLi9tYWluJztcbiJdLAogICJtYXBwaW5ncyI6ICI7QUFBQSxjQUFjO0FBQ2QsY0FBYzsiLAogICJuYW1lcyI6IFtdCn0K

@@ -1,0 +1,4 @@
+// src/foundation/components/Constraint/index.ts
+export * from "./ConstraintComponent.js";
+export * from "./IConstraintEntity.js";
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vY29tcG9uZW50cy9Db25zdHJhaW50L2luZGV4LnRzIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJleHBvcnQgKiBmcm9tICcuL0NvbnN0cmFpbnRDb21wb25lbnQnO1xuZXhwb3J0ICogZnJvbSAnLi9JQ29uc3RyYWludEVudGl0eSc7XG4iXSwKICAibWFwcGluZ3MiOiAiO0FBQUEsY0FBYztBQUNkLGNBQWM7IiwKICAibmFtZXMiOiBbXQp9Cg==

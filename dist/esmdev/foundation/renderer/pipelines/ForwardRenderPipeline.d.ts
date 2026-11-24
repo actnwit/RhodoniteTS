@@ -76,7 +76,6 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __toneMappingExpression?;
     private __toneMappingMaterial?;
     private __transparentOnlyExpressions;
-    private __webXRSystem?;
     private __drawFunc?;
     private __diffuseCubeTexture?;
     private __specularCubeTexture?;
@@ -599,7 +598,7 @@ export declare class ForwardRenderPipeline extends RnObject {
      *
      * @param component - The component the material belongs to
      * @param material - The material, typically from
-     * `MaterialHelper.createNodeBasedRaymarchingComponentMaterial`
+     * `createNodeBasedRaymarchingComponentMaterial`
      */
     setRaymarchingComponentMaterial(component: RaymarchingComponent, material: Material): void;
     /**
@@ -617,7 +616,7 @@ export declare class ForwardRenderPipeline extends RnObject {
      *
      * Ignored while per-component materials are assigned ({@link setRaymarchingComponentMaterial}).
      *
-     * @param material - The material built from `MaterialHelper.collectRrnJson`
+     * @param material - The material built from `collectRrnJson`
      */
     setRaymarchingMaterial(material: Material): void;
     /**

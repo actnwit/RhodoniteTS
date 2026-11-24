@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/nodes/AttributeInstanceIds.vert.glsl
+var code = "void attributeInstanceIds(out uvec4 outValue) {\n  outValue = a_instanceIds;\n}\n";
+var shaderStage = "vertex";
+var isFragmentShader = false;
+var AttributeInstanceIds_vert_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  AttributeInstanceIds_vert_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvbm9kZXMvQXR0cmlidXRlSW5zdGFuY2VJZHMudmVydC5nbHNsIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJ7XCJjb2RlXCI6XCJ2b2lkIGF0dHJpYnV0ZUluc3RhbmNlSWRzKG91dCB1dmVjNCBvdXRWYWx1ZSkge1xcbiAgb3V0VmFsdWUgPSBhX2luc3RhbmNlSWRzO1xcbn1cXG5cIixcInNoYWRlclN0YWdlXCI6XCJ2ZXJ0ZXhcIixcImlzRnJhZ21lbnRTaGFkZXJcIjpmYWxzZX0iXSwKICAibWFwcGluZ3MiOiAiO0FBQUMsV0FBTztBQUFvRixrQkFBYztBQUFTLHVCQUFtQjtBQUF0SSwwQ0FBQyxNQUEyRixhQUF1QixpQkFBd0I7IiwKICAibmFtZXMiOiBbXQp9Cg==

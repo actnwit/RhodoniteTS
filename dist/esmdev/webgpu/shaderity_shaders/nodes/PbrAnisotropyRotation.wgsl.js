@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgpu/shaderity_shaders/nodes/PbrAnisotropyRotation.wgsl
+var code = "fn pbrAnisotropyRotation(\n  anisotropyRotation: f32,\n  outAnisotropyRotation: ptr<function, vec2<f32>>) {\n  (*outAnisotropyRotation) = vec2<f32>(cos(anisotropyRotation), sin(anisotropyRotation));\n}\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var PbrAnisotropyRotation_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  PbrAnisotropyRotation_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ3B1L3NoYWRlcml0eV9zaGFkZXJzL25vZGVzL1BickFuaXNvdHJvcHlSb3RhdGlvbi53Z3NsIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJ7XCJjb2RlXCI6XCJmbiBwYnJBbmlzb3Ryb3B5Um90YXRpb24oXFxuICBhbmlzb3Ryb3B5Um90YXRpb246IGYzMixcXG4gIG91dEFuaXNvdHJvcHlSb3RhdGlvbjogcHRyPGZ1bmN0aW9uLCB2ZWMyPGYzMj4+KSB7XFxuICAoKm91dEFuaXNvdHJvcHlSb3RhdGlvbikgPSB2ZWMyPGYzMj4oY29zKGFuaXNvdHJvcHlSb3RhdGlvbiksIHNpbihhbmlzb3Ryb3B5Um90YXRpb24pKTtcXG59XFxuXCIsXCJzaGFkZXJTdGFnZVwiOlwiZnJhZ21lbnRcIixcImlzRnJhZ21lbnRTaGFkZXJcIjp0cnVlfSJdLAogICJtYXBwaW5ncyI6ICI7QUFBQyxXQUFPO0FBQThNLGtCQUFjO0FBQVcsdUJBQW1CO0FBQWxRLHNDQUFDLE1BQXFOLGFBQXlCLGlCQUF1QjsiLAogICJuYW1lcyI6IFtdCn0K

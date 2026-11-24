@@ -1,0 +1,1 @@
+import{createGroupEntity as r}from"../SceneGraph/createGroupEntity.js";import{ShapeComponent as n}from"../Shape/ShapeComponent.js";import{CharacterControllerComponent as i}from"./CharacterControllerComponent.js";function m(t){let o=r(t),e=t.entityRepository.addComponentToEntity(n,o);return t.entityRepository.addComponentToEntity(i,e)}export{m as createCharacterControllerEntity};

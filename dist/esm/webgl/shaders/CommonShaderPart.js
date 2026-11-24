@@ -1,0 +1,1 @@
+var e=class{get hasShadingSection(){return!1}getShadingFunctionNamePrefix(){return"shade"}getEmbeddedShaderFunctionNames(){return[]}getShadingSectionBegin(n,i){return""}getShadingSectionEnd(n){return""}};export{e as CommonShaderPart};

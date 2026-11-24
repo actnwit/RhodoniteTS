@@ -1,0 +1,1 @@
+var s=class{constructor(){this.min=Number.POSITIVE_INFINITY;this.max=0}add(m,i){m<this.min&&(this.min=m),i>this.max&&(this.max=i)}get isEmpty(){return this.max<=this.min}clear(){this.min=Number.POSITIVE_INFINITY,this.max=0}};export{s as DirtyRange};

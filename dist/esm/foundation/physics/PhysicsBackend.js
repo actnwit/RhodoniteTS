@@ -1,0 +1,1 @@
+var e;function i(n){e=n}function t(){return e}function o(){if(e==null)throw new Error("RapierPhysicsStrategy.initialize(RAPIER) must be called before use.");return e}export{t as _getPhysicsBackend,o as _getRequiredPhysicsBackend,i as _setPhysicsBackend};

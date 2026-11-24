@@ -54,6 +54,14 @@ export declare class ModelConverter {
      */
     private static __setupMaterials;
     /**
+     * Loads the MToon material implementations only when the model actually uses VRM materials.
+     * This keeps the MToon material contents and shaders out of plain glTF applications.
+     *
+     * @param gltfModel - The glTF model data to inspect
+     * @internal
+     */
+    private static __preloadMToonMaterialSupport;
+    /**
      * Sets up textures from the glTF model asynchronously
      * @param gltfModel - The glTF model data
      * @returns Promise resolving to array of Rhodonite textures

@@ -1,0 +1,1 @@
+import{createGroupEntity as e}from"../SceneGraph/createGroupEntity.js";import{PhysicsComponent as o}from"./PhysicsComponent.js";function r(t){let n=e(t);return t.entityRepository.addComponentToEntity(o,n)}export{r as createPhysicsEntity};

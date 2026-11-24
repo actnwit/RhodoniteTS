@@ -1,0 +1,9 @@
+// src/foundation/physics/index.ts
+export * from "./CharacterControllerStrategy.js";
+export * from "./PhysicsProperty.js";
+export * from "./PhysicsStrategy.js";
+export * from "./PhysicsWorldProperty.js";
+export * from "./PhysicsWorldQuery.js";
+export * from "./Rapier/index.js";
+export * from "./VRMSpring/index.js";
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vcGh5c2ljcy9pbmRleC50cyJdLAogICJzb3VyY2VzQ29udGVudCI6IFsiZXhwb3J0ICogZnJvbSAnLi9DaGFyYWN0ZXJDb250cm9sbGVyU3RyYXRlZ3knO1xuZXhwb3J0ICogZnJvbSAnLi9QaHlzaWNzUHJvcGVydHknO1xuZXhwb3J0ICogZnJvbSAnLi9QaHlzaWNzU3RyYXRlZ3knO1xuZXhwb3J0ICogZnJvbSAnLi9QaHlzaWNzV29ybGRQcm9wZXJ0eSc7XG5leHBvcnQgKiBmcm9tICcuL1BoeXNpY3NXb3JsZFF1ZXJ5JztcbmV4cG9ydCAqIGZyb20gJy4vUmFwaWVyJztcbmV4cG9ydCAqIGZyb20gJy4vVlJNU3ByaW5nJztcbiJdLAogICJtYXBwaW5ncyI6ICI7QUFBQSxjQUFjO0FBQ2QsY0FBYztBQUNkLGNBQWM7QUFDZCxjQUFjO0FBQ2QsY0FBYztBQUNkLGNBQWM7QUFDZCxjQUFjOyIsCiAgIm5hbWVzIjogW10KfQo=

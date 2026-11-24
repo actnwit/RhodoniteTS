@@ -1,0 +1,13 @@
+// src/xr/main.ts
+import { WebARSystem } from "./WebARSystem.js";
+import { WebXRSystem } from "./WebXRSystem.js";
+var XR = Object.freeze({
+  WebXRSystem,
+  WebARSystem
+});
+var main_default = XR;
+globalThis.RnXR = XR;
+export {
+  main_default as default
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vc3JjL3hyL21haW4udHMiXSwKICAic291cmNlc0NvbnRlbnQiOiBbImltcG9ydCB7IFdlYkFSU3lzdGVtIH0gZnJvbSAnLi9XZWJBUlN5c3RlbSc7XG5pbXBvcnQgeyBXZWJYUlN5c3RlbSB9IGZyb20gJy4vV2ViWFJTeXN0ZW0nO1xuXG5jb25zdCBYUiA9IE9iamVjdC5mcmVlemUoe1xuICBXZWJYUlN5c3RlbSxcbiAgV2ViQVJTeXN0ZW0sXG59KTtcbmV4cG9ydCBkZWZhdWx0IFhSO1xuXG5leHBvcnQgdHlwZSBSblhSID0gdHlwZW9mIFhSO1xuKGdsb2JhbFRoaXMgYXMgdW5rbm93biBhcyB7IFJuWFI6IFJuWFIgfSkuUm5YUiA9IFhSO1xuIl0sCiAgIm1hcHBpbmdzIjogIjtBQUFBLFNBQVMsbUJBQW1CO0FBQzVCLFNBQVMsbUJBQW1CO0FBRTVCLElBQU0sS0FBSyxPQUFPLE9BQU87QUFBQSxFQUN2QjtBQUFBLEVBQ0E7QUFDRixDQUFDO0FBQ0QsSUFBTyxlQUFRO0FBR2QsV0FBeUMsT0FBTzsiLAogICJuYW1lcyI6IFtdCn0K

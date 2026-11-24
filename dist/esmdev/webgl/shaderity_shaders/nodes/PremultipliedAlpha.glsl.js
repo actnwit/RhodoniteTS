@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/nodes/PremultipliedAlpha.glsl
+var code = "\nvoid _premultipliedAlpha(in vec4 value, out vec4 outValue) {\n  outValue = vec4(value.rgb * value.a, value.a);\n}\n\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var PremultipliedAlpha_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  PremultipliedAlpha_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvbm9kZXMvUHJlbXVsdGlwbGllZEFscGhhLmdsc2wiXSwKICAic291cmNlc0NvbnRlbnQiOiBbIntcImNvZGVcIjpcIlxcbnZvaWQgX3ByZW11bHRpcGxpZWRBbHBoYShpbiB2ZWM0IHZhbHVlLCBvdXQgdmVjNCBvdXRWYWx1ZSkge1xcbiAgb3V0VmFsdWUgPSB2ZWM0KHZhbHVlLnJnYiAqIHZhbHVlLmEsIHZhbHVlLmEpO1xcbn1cXG5cXG5cIixcInNoYWRlclN0YWdlXCI6XCJmcmFnbWVudFwiLFwiaXNGcmFnbWVudFNoYWRlclwiOnRydWV9Il0sCiAgIm1hcHBpbmdzIjogIjtBQUFDLFdBQU87QUFBMEgsa0JBQWM7QUFBVyx1QkFBbUI7QUFBOUssbUNBQUMsTUFBaUksYUFBeUIsaUJBQXVCOyIsCiAgIm5hbWVzIjogW10KfQo=

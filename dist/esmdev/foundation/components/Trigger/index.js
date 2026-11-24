@@ -1,0 +1,4 @@
+// src/foundation/components/Trigger/index.ts
+export * from "./ITriggerEntity.js";
+export * from "./TriggerComponent.js";
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vY29tcG9uZW50cy9UcmlnZ2VyL2luZGV4LnRzIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJleHBvcnQgKiBmcm9tICcuL0lUcmlnZ2VyRW50aXR5JztcbmV4cG9ydCAqIGZyb20gJy4vVHJpZ2dlckNvbXBvbmVudCc7XG4iXSwKICAibWFwcGluZ3MiOiAiO0FBQUEsY0FBYztBQUNkLGNBQWM7IiwKICAibmFtZXMiOiBbXQp9Cg==

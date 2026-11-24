@@ -1,0 +1,78 @@
+// src/foundation/materials/nodes/StepShaderNode.ts
+import StepShaderityObjectGLSL_ from "../../../webgl/shaderity_shaders/nodes/Step.glsl.js";
+import StepShaderityObjectWGSL_ from "../../../webgpu/shaderity_shaders/nodes/Step.wgsl.js";
+import { CompositionType } from "../../definitions/CompositionType.js";
+import { ProcessApproach } from "../../definitions/ProcessApproach.js";
+import { AbstractShaderNode } from "../core/AbstractShaderNode.js";
+import { Socket } from "../core/Socket.js";
+var StepShaderityObjectGLSL = typeof __RN_WEBGL__ === "undefined" || __RN_WEBGL__ ? StepShaderityObjectGLSL_ : void 0;
+var StepShaderityObjectWGSL = typeof __RN_WEBGPU__ === "undefined" || __RN_WEBGPU__ ? StepShaderityObjectWGSL_ : void 0;
+var StepShaderNode = class extends AbstractShaderNode {
+  /**
+   * Creates a new StepShaderNode instance.
+   *
+   * @param compositionType - The composition type (Scalar, Vec2, Vec3, or Vec4) for the inputs and output
+   * @param componentType - The component type (Float, Int, etc.) for the inputs and output
+   */
+  constructor(compositionType, componentType) {
+    super("_step", {
+      codeGLSL: StepShaderityObjectGLSL.code,
+      codeWGSL: StepShaderityObjectWGSL.code
+    });
+    this.__inputs.push(new Socket("value", compositionType, componentType));
+    this.__inputs.push(new Socket("edge", compositionType, componentType));
+    this.__outputs.push(new Socket("outValue", compositionType, componentType));
+  }
+  /**
+   * Gets the input socket for the value parameter.
+   *
+   * The value socket represents the input value to be compared against the edge.
+   *
+   * @returns The value input socket
+   */
+  getSocketInputValue() {
+    return this.__inputs[0];
+  }
+  /**
+   * Gets the output socket that provides the result of the step function.
+   *
+   * The output will be 0.0 if value < edge, and 1.0 if value >= edge.
+   *
+   * @returns The output socket containing the step function result
+   */
+  getSocketOutput() {
+    return this.__outputs[0];
+  }
+  /**
+   * Gets the appropriate shader function name based on the current graphics API and composition type.
+   *
+   * For WebGPU, returns a type-specific function name (e.g., '_stepF32', '_stepVec2f').
+   * For other APIs (WebGL), returns the base function name.
+   *
+   * @param engine - The engine instance
+   * @returns The shader function name to use in the generated shader code
+   * @throws {Error} Throws an error if the composition type is not implemented for WebGPU
+   */
+  getShaderFunctionNameDerivative(engine) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
+      if (this.__inputs[0].compositionType === CompositionType.Scalar) {
+        return `${this.__shaderFunctionName}F32`;
+      }
+      if (this.__inputs[0].compositionType === CompositionType.Vec2) {
+        return `${this.__shaderFunctionName}Vec2f`;
+      }
+      if (this.__inputs[0].compositionType === CompositionType.Vec3) {
+        return `${this.__shaderFunctionName}Vec3f`;
+      }
+      if (this.__inputs[0].compositionType === CompositionType.Vec4) {
+        return `${this.__shaderFunctionName}Vec4f`;
+      }
+      throw new Error("Not implemented");
+    }
+    return this.__shaderFunctionName;
+  }
+};
+export {
+  StepShaderNode
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vbWF0ZXJpYWxzL25vZGVzL1N0ZXBTaGFkZXJOb2RlLnRzIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJpbXBvcnQgU3RlcFNoYWRlcml0eU9iamVjdEdMU0xfIGZyb20gJy4uLy4uLy4uL3dlYmdsL3NoYWRlcml0eV9zaGFkZXJzL25vZGVzL1N0ZXAuZ2xzbCc7XG5pbXBvcnQgU3RlcFNoYWRlcml0eU9iamVjdFdHU0xfIGZyb20gJy4uLy4uLy4uL3dlYmdwdS9zaGFkZXJpdHlfc2hhZGVycy9ub2Rlcy9TdGVwLndnc2wnO1xuaW1wb3J0IHR5cGUgeyBDb21wb25lbnRUeXBlRW51bSB9IGZyb20gJy4uLy4uL2RlZmluaXRpb25zL0NvbXBvbmVudFR5cGUnO1xuaW1wb3J0IHsgQ29tcG9zaXRpb25UeXBlLCB0eXBlIENvbXBvc2l0aW9uVHlwZUVudW0gfSBmcm9tICcuLi8uLi9kZWZpbml0aW9ucy9Db21wb3NpdGlvblR5cGUnO1xuaW1wb3J0IHsgUHJvY2Vzc0FwcHJvYWNoIH0gZnJvbSAnLi4vLi4vZGVmaW5pdGlvbnMvUHJvY2Vzc0FwcHJvYWNoJztcbmltcG9ydCB0eXBlIHsgRW5naW5lIH0gZnJvbSAnLi4vLi4vc3lzdGVtL0VuZ2luZSc7XG5pbXBvcnQgeyBBYnN0cmFjdFNoYWRlck5vZGUgfSBmcm9tICcuLi9jb3JlL0Fic3RyYWN0U2hhZGVyTm9kZSc7XG5pbXBvcnQgeyBTb2NrZXQgfSBmcm9tICcuLi9jb3JlL1NvY2tldCc7XG5cbi8vIFNoYWRlcnMgb2YgYSBiYWNrZW5kIGV4Y2x1ZGVkIGF0IGJ1aWxkIHRpbWUgKHNlZSBzcmMvYmFja2VuZEZsYWdzLmQudHMpIGFyZSBkcm9wcGVkIGJ5IHRoZSBidW5kbGVyLlxuY29uc3QgU3RlcFNoYWRlcml0eU9iamVjdEdMU0wgPVxuICB0eXBlb2YgX19STl9XRUJHTF9fID09PSAndW5kZWZpbmVkJyB8fCBfX1JOX1dFQkdMX18gPyBTdGVwU2hhZGVyaXR5T2JqZWN0R0xTTF8gOiB1bmRlZmluZWQ7XG5jb25zdCBTdGVwU2hhZGVyaXR5T2JqZWN0V0dTTCA9XG4gIHR5cGVvZiBfX1JOX1dFQkdQVV9fID09PSAndW5kZWZpbmVkJyB8fCBfX1JOX1dFQkdQVV9fID8gU3RlcFNoYWRlcml0eU9iamVjdFdHU0xfIDogdW5kZWZpbmVkO1xuXG4vKipcbiAqIEEgc2hhZGVyIG5vZGUgdGhhdCBpbXBsZW1lbnRzIHRoZSBzdGVwIGZ1bmN0aW9uLlxuICpcbiAqIFRoZSBzdGVwIGZ1bmN0aW9uIHJldHVybnMgMC4wIGlmIHRoZSB2YWx1ZSBpcyBsZXNzIHRoYW4gdGhlIGVkZ2UsIGFuZCAxLjAgb3RoZXJ3aXNlLlxuICogVGhpcyBpcyBjb21tb25seSB1c2VkIGZvciBjcmVhdGluZyBzaGFycCB0cmFuc2l0aW9ucyBhbmQgdGhyZXNob2xkaW5nIG9wZXJhdGlvbnMgaW4gc2hhZGVycy5cbiAqXG4gKiBAZXhhbXBsZVxuICogYGBgdHlwZXNjcmlwdFxuICogY29uc3Qgc3RlcE5vZGUgPSBuZXcgU3RlcFNoYWRlck5vZGUoQ29tcG9zaXRpb25UeXBlLlNjYWxhciwgQ29tcG9uZW50VHlwZS5GbG9hdCk7XG4gKiBgYGBcbiAqL1xuZXhwb3J0IGNsYXNzIFN0ZXBTaGFkZXJOb2RlIGV4dGVuZHMgQWJzdHJhY3RTaGFkZXJOb2RlIHtcbiAgLyoqXG4gICAqIENyZWF0ZXMgYSBuZXcgU3RlcFNoYWRlck5vZGUgaW5zdGFuY2UuXG4gICAqXG4gICAqIEBwYXJhbSBjb21wb3NpdGlvblR5cGUgLSBUaGUgY29tcG9zaXRpb24gdHlwZSAoU2NhbGFyLCBWZWMyLCBWZWMzLCBvciBWZWM0KSBmb3IgdGhlIGlucHV0cyBhbmQgb3V0cHV0XG4gICAqIEBwYXJhbSBjb21wb25lbnRUeXBlIC0gVGhlIGNvbXBvbmVudCB0eXBlIChGbG9hdCwgSW50LCBldGMuKSBmb3IgdGhlIGlucHV0cyBhbmQgb3V0cHV0XG4gICAqL1xuICBjb25zdHJ1Y3Rvcihjb21wb3NpdGlvblR5cGU6IENvbXBvc2l0aW9uVHlwZUVudW0sIGNvbXBvbmVudFR5cGU6IENvbXBvbmVudFR5cGVFbnVtKSB7XG4gICAgc3VwZXIoJ19zdGVwJywge1xuICAgICAgY29kZUdMU0w6IFN0ZXBTaGFkZXJpdHlPYmplY3RHTFNMLmNvZGUsXG4gICAgICBjb2RlV0dTTDogU3RlcFNoYWRlcml0eU9iamVjdFdHU0wuY29kZSxcbiAgICB9KTtcblxuICAgIHRoaXMuX19pbnB1dHMucHVzaChuZXcgU29ja2V0KCd2YWx1ZScsIGNvbXBvc2l0aW9uVHlwZSwgY29tcG9uZW50VHlwZSkpO1xuICAgIHRoaXMuX19pbnB1dHMucHVzaChuZXcgU29ja2V0KCdlZGdlJywgY29tcG9zaXRpb25UeXBlLCBjb21wb25lbnRUeXBlKSk7XG4gICAgdGhpcy5fX291dHB1dHMucHVzaChuZXcgU29ja2V0KCdvdXRWYWx1ZScsIGNvbXBvc2l0aW9uVHlwZSwgY29tcG9uZW50VHlwZSkpO1xuICB9XG5cbiAgLyoqXG4gICAqIEdldHMgdGhlIGlucHV0IHNvY2tldCBmb3IgdGhlIHZhbHVlIHBhcmFtZXRlci5cbiAgICpcbiAgICogVGhlIHZhbHVlIHNvY2tldCByZXByZXNlbnRzIHRoZSBpbnB1dCB2YWx1ZSB0byBiZSBjb21wYXJlZCBhZ2FpbnN0IHRoZSBlZGdlLlxuICAgKlxuICAgKiBAcmV0dXJucyBUaGUgdmFsdWUgaW5wdXQgc29ja2V0XG4gICAqL1xuICBnZXRTb2NrZXRJbnB1dFZhbHVlKCkge1xuICAgIHJldHVybiB0aGlzLl9faW5wdXRzWzBdO1xuICB9XG5cbiAgLyoqXG4gICAqIEdldHMgdGhlIG91dHB1dCBzb2NrZXQgdGhhdCBwcm92aWRlcyB0aGUgcmVzdWx0IG9mIHRoZSBzdGVwIGZ1bmN0aW9uLlxuICAgKlxuICAgKiBUaGUgb3V0cHV0IHdpbGwgYmUgMC4wIGlmIHZhbHVlIDwgZWRnZSwgYW5kIDEuMCBpZiB2YWx1ZSA+PSBlZGdlLlxuICAgKlxuICAgKiBAcmV0dXJucyBUaGUgb3V0cHV0IHNvY2tldCBjb250YWluaW5nIHRoZSBzdGVwIGZ1bmN0aW9uIHJlc3VsdFxuICAgKi9cbiAgZ2V0U29ja2V0T3V0cHV0KCkge1xuICAgIHJldHVybiB0aGlzLl9fb3V0cHV0c1swXTtcbiAgfVxuXG4gIC8qKlxuICAgKiBHZXRzIHRoZSBhcHByb3ByaWF0ZSBzaGFkZXIgZnVuY3Rpb24gbmFtZSBiYXNlZCBvbiB0aGUgY3VycmVudCBncmFwaGljcyBBUEkgYW5kIGNvbXBvc2l0aW9uIHR5cGUuXG4gICAqXG4gICAqIEZvciBXZWJHUFUsIHJldHVybnMgYSB0eXBlLXNwZWNpZmljIGZ1bmN0aW9uIG5hbWUgKGUuZy4sICdfc3RlcEYzMicsICdfc3RlcFZlYzJmJykuXG4gICAqIEZvciBvdGhlciBBUElzIChXZWJHTCksIHJldHVybnMgdGhlIGJhc2UgZnVuY3Rpb24gbmFtZS5cbiAgICpcbiAgICogQHBhcmFtIGVuZ2luZSAtIFRoZSBlbmdpbmUgaW5zdGFuY2VcbiAgICogQHJldHVybnMgVGhlIHNoYWRlciBmdW5jdGlvbiBuYW1lIHRvIHVzZSBpbiB0aGUgZ2VuZXJhdGVkIHNoYWRlciBjb2RlXG4gICAqIEB0aHJvd3Mge0Vycm9yfSBUaHJvd3MgYW4gZXJyb3IgaWYgdGhlIGNvbXBvc2l0aW9uIHR5cGUgaXMgbm90IGltcGxlbWVudGVkIGZvciBXZWJHUFVcbiAgICovXG4gIGdldFNoYWRlckZ1bmN0aW9uTmFtZURlcml2YXRpdmUoZW5naW5lOiBFbmdpbmUpIHtcbiAgICBpZiAoZW5naW5lLmVuZ2luZVN0YXRlLmN1cnJlbnRQcm9jZXNzQXBwcm9hY2ggPT09IFByb2Nlc3NBcHByb2FjaC5XZWJHUFUpIHtcbiAgICAgIGlmICh0aGlzLl9faW5wdXRzWzBdLmNvbXBvc2l0aW9uVHlwZSA9PT0gQ29tcG9zaXRpb25UeXBlLlNjYWxhcikge1xuICAgICAgICByZXR1cm4gYCR7dGhpcy5fX3NoYWRlckZ1bmN0aW9uTmFtZX1GMzJgO1xuICAgICAgfVxuICAgICAgaWYgKHRoaXMuX19pbnB1dHNbMF0uY29tcG9zaXRpb25UeXBlID09PSBDb21wb3NpdGlvblR5cGUuVmVjMikge1xuICAgICAgICByZXR1cm4gYCR7dGhpcy5fX3NoYWRlckZ1bmN0aW9uTmFtZX1WZWMyZmA7XG4gICAgICB9XG4gICAgICBpZiAodGhpcy5fX2lucHV0c1swXS5jb21wb3NpdGlvblR5cGUgPT09IENvbXBvc2l0aW9uVHlwZS5WZWMzKSB7XG4gICAgICAgIHJldHVybiBgJHt0aGlzLl9fc2hhZGVyRnVuY3Rpb25OYW1lfVZlYzNmYDtcbiAgICAgIH1cbiAgICAgIGlmICh0aGlzLl9faW5wdXRzWzBdLmNvbXBvc2l0aW9uVHlwZSA9PT0gQ29tcG9zaXRpb25UeXBlLlZlYzQpIHtcbiAgICAgICAgcmV0dXJuIGAke3RoaXMuX19zaGFkZXJGdW5jdGlvbk5hbWV9VmVjNGZgO1xuICAgICAgfVxuICAgICAgdGhyb3cgbmV3IEVycm9yKCdOb3QgaW1wbGVtZW50ZWQnKTtcbiAgICB9XG4gICAgcmV0dXJuIHRoaXMuX19zaGFkZXJGdW5jdGlvbk5hbWU7XG4gIH1cbn1cbiJdLAogICJtYXBwaW5ncyI6ICI7QUFBQSxPQUFPLDhCQUE4QjtBQUNyQyxPQUFPLDhCQUE4QjtBQUVyQyxTQUFTLHVCQUFpRDtBQUMxRCxTQUFTLHVCQUF1QjtBQUVoQyxTQUFTLDBCQUEwQjtBQUNuQyxTQUFTLGNBQWM7QUFHdkIsSUFBTSwwQkFDSixPQUFPLGlCQUFpQixlQUFlLGVBQWUsMkJBQTJCO0FBQ25GLElBQU0sMEJBQ0osT0FBTyxrQkFBa0IsZUFBZSxnQkFBZ0IsMkJBQTJCO0FBYTlFLElBQU0saUJBQU4sY0FBNkIsbUJBQW1CO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUEsRUFPckQsWUFBWSxpQkFBc0MsZUFBa0M7QUFDbEYsVUFBTSxTQUFTO0FBQUEsTUFDYixVQUFVLHdCQUF3QjtBQUFBLE1BQ2xDLFVBQVUsd0JBQXdCO0FBQUEsSUFDcEMsQ0FBQztBQUVELFNBQUssU0FBUyxLQUFLLElBQUksT0FBTyxTQUFTLGlCQUFpQixhQUFhLENBQUM7QUFDdEUsU0FBSyxTQUFTLEtBQUssSUFBSSxPQUFPLFFBQVEsaUJBQWlCLGFBQWEsQ0FBQztBQUNyRSxTQUFLLFVBQVUsS0FBSyxJQUFJLE9BQU8sWUFBWSxpQkFBaUIsYUFBYSxDQUFDO0FBQUEsRUFDNUU7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBLEVBU0Esc0JBQXNCO0FBQ3BCLFdBQU8sS0FBSyxTQUFTLENBQUM7QUFBQSxFQUN4QjtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUEsRUFTQSxrQkFBa0I7QUFDaEIsV0FBTyxLQUFLLFVBQVUsQ0FBQztBQUFBLEVBQ3pCO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQSxFQVlBLGdDQUFnQyxRQUFnQjtBQUM5QyxRQUFJLE9BQU8sWUFBWSwyQkFBMkIsZ0JBQWdCLFFBQVE7QUFDeEUsVUFBSSxLQUFLLFNBQVMsQ0FBQyxFQUFFLG9CQUFvQixnQkFBZ0IsUUFBUTtBQUMvRCxlQUFPLEdBQUcsS0FBSyxvQkFBb0I7QUFBQSxNQUNyQztBQUNBLFVBQUksS0FBSyxTQUFTLENBQUMsRUFBRSxvQkFBb0IsZ0JBQWdCLE1BQU07QUFDN0QsZUFBTyxHQUFHLEtBQUssb0JBQW9CO0FBQUEsTUFDckM7QUFDQSxVQUFJLEtBQUssU0FBUyxDQUFDLEVBQUUsb0JBQW9CLGdCQUFnQixNQUFNO0FBQzdELGVBQU8sR0FBRyxLQUFLLG9CQUFvQjtBQUFBLE1BQ3JDO0FBQ0EsVUFBSSxLQUFLLFNBQVMsQ0FBQyxFQUFFLG9CQUFvQixnQkFBZ0IsTUFBTTtBQUM3RCxlQUFPLEdBQUcsS0FBSyxvQkFBb0I7QUFBQSxNQUNyQztBQUNBLFlBQU0sSUFBSSxNQUFNLGlCQUFpQjtBQUFBLElBQ25DO0FBQ0EsV0FBTyxLQUFLO0FBQUEsRUFDZDtBQUNGOyIsCiAgIm5hbWVzIjogW10KfQo=

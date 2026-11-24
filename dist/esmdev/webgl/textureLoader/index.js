@@ -1,0 +1,3 @@
+// src/webgl/textureLoader/index.ts
+export * from "./KTX2TextureLoader.js";
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vc3JjL3dlYmdsL3RleHR1cmVMb2FkZXIvaW5kZXgudHMiXSwKICAic291cmNlc0NvbnRlbnQiOiBbImV4cG9ydCAqIGZyb20gJy4vS1RYMlRleHR1cmVMb2FkZXInO1xuIl0sCiAgIm1hcHBpbmdzIjogIjtBQUFBLGNBQWM7IiwKICAibmFtZXMiOiBbXQp9Cg==

@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/nodes/AttributeColor.vert
+var code = "\nvoid attributeColor(out vec4 outValue) {\n  outValue = a_color;\n}\n";
+var shaderStage = "vertex";
+var isFragmentShader = false;
+var AttributeColor_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  AttributeColor_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvbm9kZXMvQXR0cmlidXRlQ29sb3IudmVydCJdLAogICJzb3VyY2VzQ29udGVudCI6IFsie1wiY29kZVwiOlwiXFxudm9pZCBhdHRyaWJ1dGVDb2xvcihvdXQgdmVjNCBvdXRWYWx1ZSkge1xcbiAgb3V0VmFsdWUgPSBhX2NvbG9yO1xcbn1cXG5cIixcInNoYWRlclN0YWdlXCI6XCJ2ZXJ0ZXhcIixcImlzRnJhZ21lbnRTaGFkZXJcIjpmYWxzZX0iXSwKICAibWFwcGluZ3MiOiAiO0FBQUMsV0FBTztBQUF5RSxrQkFBYztBQUFTLHVCQUFtQjtBQUEzSCwrQkFBQyxNQUFnRixhQUF1QixpQkFBd0I7IiwKICAibmFtZXMiOiBbXQp9Cg==
