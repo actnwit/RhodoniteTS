@@ -1,10 +1,16 @@
-import OpSubtractionShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/OpSubtraction.glsl';
-import OpSubtractionShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/OpSubtraction.wgsl';
+import OpSubtractionShaderityObjectGLSL_ from '../../../../webgl/shaderity_shaders/nodes/raymarching/OpSubtraction.glsl';
+import OpSubtractionShaderityObjectWGSL_ from '../../../../webgpu/shaderity_shaders/nodes/raymarching/OpSubtraction.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
 import { CompositionType } from '../../../definitions/CompositionType';
 import { Scalar } from '../../../math/Scalar';
 import { AbstractShaderNode } from '../../core/AbstractShaderNode';
 import { Socket } from '../../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const OpSubtractionShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? OpSubtractionShaderityObjectGLSL_ : undefined;
+const OpSubtractionShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? OpSubtractionShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that performs CSG (Constructive Solid Geometry) subtraction operations.

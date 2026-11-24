@@ -1,8 +1,14 @@
-import AttributeTangentShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/AttributeTangent.vert';
-import AttributeTangentShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/AttributeTangent.vert.wgsl';
+import AttributeTangentShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/AttributeTangent.vert';
+import AttributeTangentShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/AttributeTangent.vert.wgsl';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const AttributeTangentShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? AttributeTangentShaderityObjectGLSL_ : undefined;
+const AttributeTangentShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? AttributeTangentShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that provides access to vertex tangent attributes.

@@ -1,11 +1,21 @@
-import ToneMappingShaderFragmentGLSL from '../../../webgl/shaderity_shaders/ToneMappingShader/ToneMappingShader.frag';
-import ToneMappingShaderVertexGLSL from '../../../webgl/shaderity_shaders/ToneMappingShader/ToneMappingShader.vert';
-import ToneMappingShaderFragmentWGSL from '../../../webgpu/shaderity_shaders/ToneMappingShader/ToneMappingShader.frag.wgsl';
-import ToneMappingShaderVertexWGSL from '../../../webgpu/shaderity_shaders/ToneMappingShader/ToneMappingShader.vert.wgsl';
+import ToneMappingShaderFragmentGLSL_ from '../../../webgl/shaderity_shaders/ToneMappingShader/ToneMappingShader.frag';
+import ToneMappingShaderVertexGLSL_ from '../../../webgl/shaderity_shaders/ToneMappingShader/ToneMappingShader.vert';
+import ToneMappingShaderFragmentWGSL_ from '../../../webgpu/shaderity_shaders/ToneMappingShader/ToneMappingShader.frag.wgsl';
+import ToneMappingShaderVertexWGSL_ from '../../../webgpu/shaderity_shaders/ToneMappingShader/ToneMappingShader.vert.wgsl';
 import { CustomMaterialContent } from '../../materials/contents/CustomMaterialContent';
 import type { Material } from '../../materials/core/Material';
 import type { Engine } from '../../system/Engine';
 import { createMaterial } from './createMaterial';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const ToneMappingShaderFragmentGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? ToneMappingShaderFragmentGLSL_ : undefined;
+const ToneMappingShaderVertexGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? ToneMappingShaderVertexGLSL_ : undefined;
+const ToneMappingShaderFragmentWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? ToneMappingShaderFragmentWGSL_ : undefined;
+const ToneMappingShaderVertexWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? ToneMappingShaderVertexWGSL_ : undefined;
 
 /**
  * Creates a material for tone mapping HDR content to LDR display.

@@ -1,6 +1,6 @@
 import type { Count } from '../../../types/CommonTypes';
-import VarianceShadowMapDecodeClassicShaderFragment from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.frag';
-import VarianceShadowMapDecodeClassicShaderVertex from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.vert';
+import VarianceShadowMapDecodeClassicShaderFragment_ from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.frag';
+import VarianceShadowMapDecodeClassicShaderVertex_ from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.vert';
 import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ComponentType } from '../../definitions/ComponentType';
@@ -21,6 +21,12 @@ import type { IRenderable } from '../../textures/IRenderable';
 import type { Texture } from '../../textures/Texture';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import type { Material } from '../core/Material';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const VarianceShadowMapDecodeClassicShaderFragment =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? VarianceShadowMapDecodeClassicShaderFragment_ : undefined;
+const VarianceShadowMapDecodeClassicShaderVertex =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? VarianceShadowMapDecodeClassicShaderVertex_ : undefined;
 
 export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMaterialContent {
   static IsPointLight = new ShaderSemanticsClass({ str: 'isPointLight' });

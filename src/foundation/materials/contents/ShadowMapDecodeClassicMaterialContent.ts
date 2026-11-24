@@ -1,6 +1,6 @@
 import type { Count } from '../../../types/CommonTypes';
-import ShadowMapDecodeSingleShaderFragment from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.frag';
-import ShadowMapDecodeSingleShaderVertex from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.vert';
+import ShadowMapDecodeSingleShaderFragment_ from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.frag';
+import ShadowMapDecodeSingleShaderVertex_ from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.vert';
 import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ComponentType } from '../../definitions/ComponentType';
@@ -19,6 +19,12 @@ import type { RenderPass } from '../../renderer/RenderPass';
 import type { Engine } from '../../system/Engine';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import type { Material } from '../core/Material';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const ShadowMapDecodeSingleShaderFragment =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? ShadowMapDecodeSingleShaderFragment_ : undefined;
+const ShadowMapDecodeSingleShaderVertex =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? ShadowMapDecodeSingleShaderVertex_ : undefined;
 
 /**
  * Material content class for decoding shadow maps using the classic shadow mapping technique.

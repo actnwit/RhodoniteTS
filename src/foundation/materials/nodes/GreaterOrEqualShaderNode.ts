@@ -1,11 +1,17 @@
-import GreaterOrEqualShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/GreaterOrEqual.glsl';
-import GreaterOrEqualShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/GreaterOrEqual.wgsl';
+import GreaterOrEqualShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/GreaterOrEqual.glsl';
+import GreaterOrEqualShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/GreaterOrEqual.wgsl';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const GreaterOrEqualShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? GreaterOrEqualShaderityObjectGLSL_ : undefined;
+const GreaterOrEqualShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? GreaterOrEqualShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that performs a greater-than-or-equal comparison operation.

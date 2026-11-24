@@ -1,10 +1,16 @@
-import FlatShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/FlatShader.glsl';
-import FlatShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/FlatShader.wgsl';
+import FlatShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/FlatShader.glsl';
+import FlatShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/FlatShader.wgsl';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { Vector4 } from '../../math/Vector4';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const FlatShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? FlatShaderityObjectGLSL_ : undefined;
+const FlatShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? FlatShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that performs flat shading operations.

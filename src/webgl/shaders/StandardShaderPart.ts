@@ -5,10 +5,13 @@ import type { VertexAttributeEnum } from '../../foundation/definitions/VertexAtt
 import { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
 import type { Socket, SocketDefaultValue } from '../../foundation/materials/core/Socket';
 import type { Engine } from '../../foundation/system/Engine';
-import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.wgsl';
+import vertexInputWGSL_ from '../../webgpu/shaderity_shaders/common/vertexInput.wgsl';
 import morphVariablesGLSL from '../shaderity_shaders/common/morphVariables.glsl';
 import type { AttributeNames } from '../types/CommonTypes';
 import { CommonShaderPart } from './CommonShaderPart';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const vertexInputWGSL = typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? vertexInputWGSL_ : undefined;
 
 /**
  * Base class that provides common shader functionality for both WebGL and WebGPU rendering approaches.

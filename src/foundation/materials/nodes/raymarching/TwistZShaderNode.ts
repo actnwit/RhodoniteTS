@@ -1,10 +1,16 @@
-import TwistZShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/TwistZ.glsl';
-import TwistZShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/TwistZ.wgsl';
+import TwistZShaderityObjectGLSL_ from '../../../../webgl/shaderity_shaders/nodes/raymarching/TwistZ.glsl';
+import TwistZShaderityObjectWGSL_ from '../../../../webgpu/shaderity_shaders/nodes/raymarching/TwistZ.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
 import { CompositionType } from '../../../definitions/CompositionType';
 import { Scalar } from '../../../math/Scalar';
 import { AbstractShaderNode } from '../../core/AbstractShaderNode';
 import { Socket } from '../../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const TwistZShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? TwistZShaderityObjectGLSL_ : undefined;
+const TwistZShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? TwistZShaderityObjectWGSL_ : undefined;
 
 /**
  * A domain node that twists the position around the Z axis.

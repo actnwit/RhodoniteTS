@@ -1,5 +1,5 @@
-import entityUIDOutputSingleShaderFragment from '../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.frag';
-import entityUIDOutputSingleShaderVertex from '../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.vert';
+import entityUIDOutputSingleShaderFragment_ from '../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.frag';
+import entityUIDOutputSingleShaderVertex_ from '../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.vert';
 import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
@@ -10,6 +10,12 @@ import { Vector3 } from '../../math/Vector3';
 import type { Engine } from '../../system/Engine';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import type { Material } from '../core/Material';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const entityUIDOutputSingleShaderFragment =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? entityUIDOutputSingleShaderFragment_ : undefined;
+const entityUIDOutputSingleShaderVertex =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? entityUIDOutputSingleShaderVertex_ : undefined;
 
 /**
  * Material content class for rendering entity UID output.

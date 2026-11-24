@@ -1,10 +1,16 @@
-import BendXZShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/BendXZ.glsl';
-import BendXZShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/BendXZ.wgsl';
+import BendXZShaderityObjectGLSL_ from '../../../../webgl/shaderity_shaders/nodes/raymarching/BendXZ.glsl';
+import BendXZShaderityObjectWGSL_ from '../../../../webgpu/shaderity_shaders/nodes/raymarching/BendXZ.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
 import { CompositionType } from '../../../definitions/CompositionType';
 import { Scalar } from '../../../math/Scalar';
 import { AbstractShaderNode } from '../../core/AbstractShaderNode';
 import { Socket } from '../../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const BendXZShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? BendXZShaderityObjectGLSL_ : undefined;
+const BendXZShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? BendXZShaderityObjectWGSL_ : undefined;
 
 /**
  * A domain node that bends the position in the XZ plane.

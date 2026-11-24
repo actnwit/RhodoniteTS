@@ -1,9 +1,15 @@
-import SummedAreaTableShaderFragment from '../../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.frag';
-import SummedAreaTableShaderVertex from '../../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.vert';
+import SummedAreaTableShaderFragment_ from '../../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.frag';
+import SummedAreaTableShaderVertex_ from '../../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.vert';
 import { CustomMaterialContent } from '../../materials/contents/CustomMaterialContent';
 import type { Material } from '../../materials/core/Material';
 import type { Engine } from '../../system/Engine';
 import { createMaterial } from './createMaterial';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const SummedAreaTableShaderFragment =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? SummedAreaTableShaderFragment_ : undefined;
+const SummedAreaTableShaderVertex =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? SummedAreaTableShaderVertex_ : undefined;
 
 /**
  * Creates a material for generating summed area tables from textures.

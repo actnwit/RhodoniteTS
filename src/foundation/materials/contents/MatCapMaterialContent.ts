@@ -1,5 +1,5 @@
-import MatCapShaderFragment from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.frag';
-import MatCapShaderVertex from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.vert';
+import MatCapShaderFragment_ from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.frag';
+import MatCapShaderVertex_ from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.vert';
 import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
@@ -14,6 +14,10 @@ import { AbstractTexture } from '../../textures/AbstractTexture';
 import type { Sampler } from '../../textures/Sampler';
 import { Texture } from '../../textures/Texture';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const MatCapShaderFragment = typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? MatCapShaderFragment_ : undefined;
+const MatCapShaderVertex = typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? MatCapShaderVertex_ : undefined;
 
 /**
  * Material content implementation for MatCap (Material Capture) rendering.

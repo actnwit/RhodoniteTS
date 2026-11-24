@@ -1,10 +1,16 @@
-import RaymarchHitNormalShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/RaymarchHitNormal.glsl';
-import RaymarchHitNormalShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/RaymarchHitNormal.wgsl';
+import RaymarchHitNormalShaderityObjectGLSL_ from '../../../../webgl/shaderity_shaders/nodes/raymarching/RaymarchHitNormal.glsl';
+import RaymarchHitNormalShaderityObjectWGSL_ from '../../../../webgpu/shaderity_shaders/nodes/raymarching/RaymarchHitNormal.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
 import { CompositionType } from '../../../definitions/CompositionType';
 import { Vector3 } from '../../../math/Vector3';
 import { AbstractShaderNode } from '../../core/AbstractShaderNode';
 import { Socket } from '../../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const RaymarchHitNormalShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? RaymarchHitNormalShaderityObjectGLSL_ : undefined;
+const RaymarchHitNormalShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? RaymarchHitNormalShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that outputs the world-space surface normal of the raymarching hit point.

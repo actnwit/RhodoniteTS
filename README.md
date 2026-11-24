@@ -181,6 +181,21 @@ planeEntity.eulerAngles = Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
 ```
 
 The default export `Rn` references every export, so `import Rn from 'rhodonite'` always bundles the whole library.
+Likewise, `MaterialHelper.createXxxMaterial()` bundles every material; import the functions instead
+(`import { createPbrUberMaterial } from 'rhodonite'`).
+
+An application that uses only one rendering backend can drop the shaders of the other one by defining a flag in its
+bundler. Without the flags, the shaders of both backends are kept.
+
+```js
+// vite.config.js (WebGL2 only). Use __RN_WEBGL__: false for a WebGPU-only application.
+export default {
+  define: { __RN_WEBGPU__: false },
+};
+```
+
+`esbuild` takes the same `define` option, and webpack takes `new webpack.DefinePlugin({ __RN_WEBGPU__: 'false' })`.
+`Engine.init` throws when the requested process approach was excluded this way.
 
 Component classes are registered when they are first added to an entity, not when the library is imported.
 `EntityRepository.tryToAddComponentToEntityByTID()` only finds the core component classes (Transform, SceneGraph,

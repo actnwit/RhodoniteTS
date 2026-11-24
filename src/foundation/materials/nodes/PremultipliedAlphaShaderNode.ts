@@ -1,10 +1,16 @@
 import { ComponentType, type ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
 import { CompositionType } from '../../../foundation/definitions/CompositionType';
-import PremultipliedAlphaShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/PremultipliedAlpha.glsl';
-import PremultipliedAlphaShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/PremultipliedAlpha.wgsl';
+import PremultipliedAlphaShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/PremultipliedAlpha.glsl';
+import PremultipliedAlphaShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/PremultipliedAlpha.wgsl';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const PremultipliedAlphaShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? PremultipliedAlphaShaderityObjectGLSL_ : undefined;
+const PremultipliedAlphaShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? PremultipliedAlphaShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that applies premultiplied alpha transformation to a vec4 color.

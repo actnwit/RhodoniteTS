@@ -107,6 +107,14 @@ src/xr/                 # WebXR support
   classes into a shared registry). Component classes are registered lazily by
   `EntityRepository.addComponentToEntity`; the core ones by `Engine.init`. Avoid value-import cycles: a cycle
   containing `class X extends Y` fails with a TDZ error depending on which module an application imports first.
+- **Keep hubs out of the core path**: import material factories from `foundation/helpers/materials/<name>`, not the
+  `MaterialHelper` object (it references every material). Reach physics through `physics/PhysicsBackend`
+  (registered by `RapierPhysicsStrategy.initialize`), not `RapierPhysicsStrategy` directly.
+- **Shaders by backend**: the common GLSL/WGSL chunks come from the backend modules (`webgl/shaders/glslCommonChunks.ts`,
+  `webgpu/wgslCommonChunks.ts`, read by `ShaderHandler` through `ModuleManager`). Every other shader import under
+  `src/foundation` is gated as `const X = typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? X_ : undefined;`
+  (`__RN_WEBGL__` for GLSL, see `src/backendFlags.d.ts`) so applications can drop a backend with a bundler `define`.
+  Never read a gated shader at module top level.
 - **IIFE Dev** (`dist/iifedev/rhodonite.js`): Browser-ready development bundle
 - **IIFE Prod** (`dist/iife/rhodonite.min.js`): Minified production bundle
 

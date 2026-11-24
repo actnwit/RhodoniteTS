@@ -1,10 +1,16 @@
-import SdRepeatShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/SdRepeat.glsl';
-import SdRepeatShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/SdRepeat.wgsl';
+import SdRepeatShaderityObjectGLSL_ from '../../../../webgl/shaderity_shaders/nodes/raymarching/SdRepeat.glsl';
+import SdRepeatShaderityObjectWGSL_ from '../../../../webgpu/shaderity_shaders/nodes/raymarching/SdRepeat.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
 import { CompositionType } from '../../../definitions/CompositionType';
 import { Scalar } from '../../../math/Scalar';
 import { AbstractShaderNode } from '../../core/AbstractShaderNode';
 import { Socket } from '../../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const SdRepeatShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? SdRepeatShaderityObjectGLSL_ : undefined;
+const SdRepeatShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? SdRepeatShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that repeats a distance function along the X, Y, and Z axes.

@@ -1,11 +1,17 @@
-import GreaterThanShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/GreaterThan.glsl';
-import GreaterThanShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/GreaterThan.wgsl';
+import GreaterThanShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/GreaterThan.glsl';
+import GreaterThanShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/GreaterThan.wgsl';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const GreaterThanShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? GreaterThanShaderityObjectGLSL_ : undefined;
+const GreaterThanShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? GreaterThanShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that performs a greater-than comparison operation.

@@ -1,11 +1,17 @@
-import Atan2ShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Atan2.glsl';
-import Atan2ShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Atan2.wgsl';
+import Atan2ShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/Atan2.glsl';
+import Atan2ShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/Atan2.wgsl';
 import type { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const Atan2ShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? Atan2ShaderityObjectGLSL_ : undefined;
+const Atan2ShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? Atan2ShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that computes atan2(y, x).

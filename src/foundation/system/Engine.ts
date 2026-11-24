@@ -1143,6 +1143,13 @@ export class Engine extends RnObject {
       );
     }
 
+    if (desc.approach === ProcessApproach.WebGL2 && typeof __RN_WEBGL__ !== 'undefined' && !__RN_WEBGL__) {
+      throw new Error('ProcessApproach.WebGL2 is unavailable: this build was bundled with __RN_WEBGL__ = false.');
+    }
+    if (desc.approach === ProcessApproach.WebGPU && typeof __RN_WEBGPU__ !== 'undefined' && !__RN_WEBGPU__) {
+      throw new Error('ProcessApproach.WebGPU is unavailable: this build was bundled with __RN_WEBGPU__ = false.');
+    }
+
     Engine.__registerCoreComponentClasses();
 
     await ModuleManager.getInstance().loadModule('pbr');

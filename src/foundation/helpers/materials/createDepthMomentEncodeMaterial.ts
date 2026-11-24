@@ -1,11 +1,21 @@
-import DepthMomentEncodeShaderFragment from '../../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag';
-import DepthMomentEncodeShaderVertex from '../../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
-import DepthMomentEncodeShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag.wgsl';
-import DepthMomentEncodeShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert.wgsl';
+import DepthMomentEncodeShaderFragment_ from '../../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag';
+import DepthMomentEncodeShaderVertex_ from '../../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
+import DepthMomentEncodeShaderFragmentWebGpu_ from '../../../webgpu/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag.wgsl';
+import DepthMomentEncodeShaderVertexWebGpu_ from '../../../webgpu/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert.wgsl';
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { CustomMaterialContent } from '../../materials/contents/CustomMaterialContent';
 import type { Engine } from '../../system/Engine';
 import { createMaterial } from './createMaterial';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const DepthMomentEncodeShaderFragment =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? DepthMomentEncodeShaderFragment_ : undefined;
+const DepthMomentEncodeShaderVertex =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? DepthMomentEncodeShaderVertex_ : undefined;
+const DepthMomentEncodeShaderFragmentWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? DepthMomentEncodeShaderFragmentWebGpu_ : undefined;
+const DepthMomentEncodeShaderVertexWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? DepthMomentEncodeShaderVertexWebGpu_ : undefined;
 
 /**
  * Creates a material for encoding depth moments for variance shadow mapping.

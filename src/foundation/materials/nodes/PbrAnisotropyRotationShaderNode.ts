@@ -1,11 +1,17 @@
-import PbrAnisotropyRotationShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/PbrAnisotropyRotation.glsl';
-import PbrAnisotropyRotationShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/PbrAnisotropyRotation.wgsl';
+import PbrAnisotropyRotationShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/PbrAnisotropyRotation.glsl';
+import PbrAnisotropyRotationShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/PbrAnisotropyRotation.wgsl';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { Scalar } from '../../math/Scalar';
 import { Vector2 } from '../../math/Vector2';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const PbrAnisotropyRotationShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? PbrAnisotropyRotationShaderityObjectGLSL_ : undefined;
+const PbrAnisotropyRotationShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? PbrAnisotropyRotationShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that performs PBR anisotropy rotation operations.

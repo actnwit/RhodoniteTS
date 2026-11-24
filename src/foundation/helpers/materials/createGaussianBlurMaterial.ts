@@ -1,7 +1,7 @@
-import GaussianBlurSingleShaderFragment from '../../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.frag';
-import GaussianBlurSingleShaderVertex from '../../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.vert';
-import GaussianBlurSingleShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.frag';
-import GaussianBlurSingleShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.vert';
+import GaussianBlurSingleShaderFragment_ from '../../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.frag';
+import GaussianBlurSingleShaderVertex_ from '../../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.vert';
+import GaussianBlurSingleShaderFragmentWebGpu_ from '../../../webgpu/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.frag';
+import GaussianBlurSingleShaderVertexWebGpu_ from '../../../webgpu/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.vert';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
@@ -13,6 +13,16 @@ import { Vector2 } from '../../math/Vector2';
 import { VectorN } from '../../math/VectorN';
 import type { Engine } from '../../system/Engine';
 import { createMaterial } from './createMaterial';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const GaussianBlurSingleShaderFragment =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? GaussianBlurSingleShaderFragment_ : undefined;
+const GaussianBlurSingleShaderVertex =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? GaussianBlurSingleShaderVertex_ : undefined;
+const GaussianBlurSingleShaderFragmentWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? GaussianBlurSingleShaderFragmentWebGpu_ : undefined;
+const GaussianBlurSingleShaderVertexWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? GaussianBlurSingleShaderVertexWebGpu_ : undefined;
 
 /**
  * Creates a material for Gaussian blur post-processing effects.

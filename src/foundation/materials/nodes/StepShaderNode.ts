@@ -1,11 +1,17 @@
-import StepShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Step.glsl';
-import StepShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Step.wgsl';
+import StepShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/Step.glsl';
+import StepShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/Step.wgsl';
 import type { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const StepShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? StepShaderityObjectGLSL_ : undefined;
+const StepShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? StepShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that implements the step function.

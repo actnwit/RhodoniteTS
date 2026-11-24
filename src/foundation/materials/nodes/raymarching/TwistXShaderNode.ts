@@ -1,10 +1,16 @@
-import TwistXShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/TwistX.glsl';
-import TwistXShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/TwistX.wgsl';
+import TwistXShaderityObjectGLSL_ from '../../../../webgl/shaderity_shaders/nodes/raymarching/TwistX.glsl';
+import TwistXShaderityObjectWGSL_ from '../../../../webgpu/shaderity_shaders/nodes/raymarching/TwistX.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
 import { CompositionType } from '../../../definitions/CompositionType';
 import { Scalar } from '../../../math/Scalar';
 import { AbstractShaderNode } from '../../core/AbstractShaderNode';
 import { Socket } from '../../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const TwistXShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? TwistXShaderityObjectGLSL_ : undefined;
+const TwistXShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? TwistXShaderityObjectWGSL_ : undefined;
 
 /**
  * A domain node that twists the position around the X axis.

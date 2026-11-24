@@ -1,11 +1,21 @@
-import PrefilterIBLShaderFragment from '../../../webgl/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.frag';
-import PrefilterIBLShaderVertex from '../../../webgl/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.vert';
-import PrefilterIBLShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.frag.wgsl';
-import PrefilterIBLShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.vert.wgsl';
+import PrefilterIBLShaderFragment_ from '../../../webgl/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.frag';
+import PrefilterIBLShaderVertex_ from '../../../webgl/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.vert';
+import PrefilterIBLShaderFragmentWebGpu_ from '../../../webgpu/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.frag.wgsl';
+import PrefilterIBLShaderVertexWebGpu_ from '../../../webgpu/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.vert.wgsl';
 import { CustomMaterialContent } from '../../materials/contents/CustomMaterialContent';
 import type { Material } from '../../materials/core/Material';
 import type { Engine } from '../../system/Engine';
 import { createMaterial } from './createMaterial';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const PrefilterIBLShaderFragment =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? PrefilterIBLShaderFragment_ : undefined;
+const PrefilterIBLShaderVertex =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? PrefilterIBLShaderVertex_ : undefined;
+const PrefilterIBLShaderFragmentWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? PrefilterIBLShaderFragmentWebGpu_ : undefined;
+const PrefilterIBLShaderVertexWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? PrefilterIBLShaderVertexWebGpu_ : undefined;
 
 /**
  * Creates a material for prefiltering IBL (Image-Based Lighting) environment maps.

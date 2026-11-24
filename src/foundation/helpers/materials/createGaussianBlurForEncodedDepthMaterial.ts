@@ -1,5 +1,5 @@
-import GaussianBlurForEncodedDepthSingleShaderFragment from '../../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
-import GaussianBlurForEncodedDepthSingleShaderVertex from '../../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.vert';
+import GaussianBlurForEncodedDepthSingleShaderFragment_ from '../../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
+import GaussianBlurForEncodedDepthSingleShaderVertex_ from '../../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.vert';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
@@ -10,6 +10,12 @@ import { Vector2 } from '../../math/Vector2';
 import { VectorN } from '../../math/VectorN';
 import type { Engine } from '../../system/Engine';
 import { createMaterial } from './createMaterial';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const GaussianBlurForEncodedDepthSingleShaderFragment =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? GaussianBlurForEncodedDepthSingleShaderFragment_ : undefined;
+const GaussianBlurForEncodedDepthSingleShaderVertex =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? GaussianBlurForEncodedDepthSingleShaderVertex_ : undefined;
 
 /**
  * Creates a material for Gaussian blur applied to encoded depth textures.

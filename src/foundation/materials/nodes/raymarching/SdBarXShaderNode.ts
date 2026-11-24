@@ -1,11 +1,17 @@
-import SdBarXShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/SdBarX.glsl';
-import SdBarXShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/SdBarX.wgsl';
+import SdBarXShaderityObjectGLSL_ from '../../../../webgl/shaderity_shaders/nodes/raymarching/SdBarX.glsl';
+import SdBarXShaderityObjectWGSL_ from '../../../../webgpu/shaderity_shaders/nodes/raymarching/SdBarX.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
 import { CompositionType } from '../../../definitions/CompositionType';
 import { Scalar } from '../../../math/Scalar';
 import { Vector3 } from '../../../math/Vector3';
 import { AbstractShaderNode } from '../../core/AbstractShaderNode';
 import { Socket } from '../../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const SdBarXShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? SdBarXShaderityObjectGLSL_ : undefined;
+const SdBarXShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? SdBarXShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that computes the signed distance function of a bar along the X axis.

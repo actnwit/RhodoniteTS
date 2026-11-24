@@ -1,11 +1,17 @@
-import SdTubeZShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/SdTubeZ.glsl';
-import SdTubeZShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/SdTubeZ.wgsl';
+import SdTubeZShaderityObjectGLSL_ from '../../../../webgl/shaderity_shaders/nodes/raymarching/SdTubeZ.glsl';
+import SdTubeZShaderityObjectWGSL_ from '../../../../webgpu/shaderity_shaders/nodes/raymarching/SdTubeZ.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
 import { CompositionType } from '../../../definitions/CompositionType';
 import { Scalar } from '../../../math/Scalar';
 import { Vector3 } from '../../../math/Vector3';
 import { AbstractShaderNode } from '../../core/AbstractShaderNode';
 import { Socket } from '../../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const SdTubeZShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? SdTubeZShaderityObjectGLSL_ : undefined;
+const SdTubeZShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? SdTubeZShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that computes the signed distance function of a tube along the Z axis.

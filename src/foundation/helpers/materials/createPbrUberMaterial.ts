@@ -1,8 +1,8 @@
 import type { Count } from '../../../types/CommonTypes';
-import pbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
-import pbrSingleShaderVertex from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
-import pbrSingleShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
-import pbrSingleShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
+import pbrSingleShaderFragment_ from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
+import pbrSingleShaderVertex_ from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
+import pbrSingleShaderFragmentWebGpu_ from '../../../webgpu/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
+import pbrSingleShaderVertexWebGpu_ from '../../../webgpu/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
 import { TextureParameter } from '../../definitions';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
@@ -14,6 +14,15 @@ import { VectorN } from '../../math/VectorN';
 import type { Engine } from '../../system/Engine';
 import { getSharedSampler } from '../../textures/Sampler';
 import { createMaterial } from './createMaterial';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const pbrSingleShaderFragment =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? pbrSingleShaderFragment_ : undefined;
+const pbrSingleShaderVertex = typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? pbrSingleShaderVertex_ : undefined;
+const pbrSingleShaderFragmentWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? pbrSingleShaderFragmentWebGpu_ : undefined;
+const pbrSingleShaderVertexWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? pbrSingleShaderVertexWebGpu_ : undefined;
 
 export type PbrUberMaterialOptions = {
   isPbr?: boolean;

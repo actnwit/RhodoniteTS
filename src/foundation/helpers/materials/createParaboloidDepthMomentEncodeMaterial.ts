@@ -1,11 +1,21 @@
-import ParaboloidDepthMomentEncodeShaderFragment from '../../../webgl/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.frag.glsl';
-import ParaboloidDepthMomentEncodeShaderVertex from '../../../webgl/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.vert.glsl';
-import ParaboloidDepthMomentEncodeShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.frag.wgsl';
-import ParaboloidDepthMomentEncodeShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.vert.wgsl';
+import ParaboloidDepthMomentEncodeShaderFragment_ from '../../../webgl/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.frag.glsl';
+import ParaboloidDepthMomentEncodeShaderVertex_ from '../../../webgl/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.vert.glsl';
+import ParaboloidDepthMomentEncodeShaderFragmentWebGpu_ from '../../../webgpu/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.frag.wgsl';
+import ParaboloidDepthMomentEncodeShaderVertexWebGpu_ from '../../../webgpu/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.vert.wgsl';
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { CustomMaterialContent } from '../../materials/contents/CustomMaterialContent';
 import type { Engine } from '../../system/Engine';
 import { createMaterial } from './createMaterial';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const ParaboloidDepthMomentEncodeShaderFragment =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? ParaboloidDepthMomentEncodeShaderFragment_ : undefined;
+const ParaboloidDepthMomentEncodeShaderVertex =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? ParaboloidDepthMomentEncodeShaderVertex_ : undefined;
+const ParaboloidDepthMomentEncodeShaderFragmentWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? ParaboloidDepthMomentEncodeShaderFragmentWebGpu_ : undefined;
+const ParaboloidDepthMomentEncodeShaderVertexWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? ParaboloidDepthMomentEncodeShaderVertexWebGpu_ : undefined;
 
 /**
  * Creates a material for encoding depth moments in paraboloid projection.

@@ -1,5 +1,5 @@
-import PbrSheenPropsShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/PbrSheenProps.glsl';
-import PbrSheenPropsShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/PbrSheenProps.wgsl';
+import PbrSheenPropsShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/PbrSheenProps.glsl';
+import PbrSheenPropsShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/PbrSheenProps.wgsl';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { Vector3 } from '../../math';
@@ -7,6 +7,12 @@ import { Scalar } from '../../math/Scalar';
 import { Vector4 } from '../../math/Vector4';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const PbrSheenPropsShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? PbrSheenPropsShaderityObjectGLSL_ : undefined;
+const PbrSheenPropsShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? PbrSheenPropsShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that performs PBR sheen properties operations.

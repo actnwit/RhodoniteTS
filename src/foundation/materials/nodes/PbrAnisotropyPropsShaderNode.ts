@@ -1,5 +1,5 @@
-import PbrAnisotropyPropsShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/PbrAnisotropyProps.glsl';
-import PbrAnisotropyPropsShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/PbrAnisotropyProps.wgsl';
+import PbrAnisotropyPropsShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/PbrAnisotropyProps.glsl';
+import PbrAnisotropyPropsShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/PbrAnisotropyProps.wgsl';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { Scalar } from '../../math/Scalar';
@@ -7,6 +7,12 @@ import { Vector2 } from '../../math/Vector2';
 import { Vector4 } from '../../math/Vector4';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const PbrAnisotropyPropsShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? PbrAnisotropyPropsShaderityObjectGLSL_ : undefined;
+const PbrAnisotropyPropsShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? PbrAnisotropyPropsShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that performs PBR anisotropy properties operations.

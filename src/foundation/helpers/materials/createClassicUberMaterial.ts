@@ -1,7 +1,7 @@
-import ClassicSingleShaderFragment from '../../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
-import ClassicSingleShaderVertex from '../../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
-import ClassicSingleShaderFragmentWebgpu from '../../../webgpu/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
-import ClassicSingleShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
+import ClassicSingleShaderFragment_ from '../../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
+import ClassicSingleShaderVertex_ from '../../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
+import ClassicSingleShaderFragmentWebgpu_ from '../../../webgpu/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
+import ClassicSingleShaderVertexWebGpu_ from '../../../webgpu/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
 import { TextureParameter } from '../../definitions';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
@@ -13,6 +13,16 @@ import { VectorN } from '../../math/VectorN';
 import type { Engine } from '../../system/Engine';
 import { getSharedSampler } from '../../textures/Sampler';
 import { createMaterial } from './createMaterial';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const ClassicSingleShaderFragment =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? ClassicSingleShaderFragment_ : undefined;
+const ClassicSingleShaderVertex =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? ClassicSingleShaderVertex_ : undefined;
+const ClassicSingleShaderFragmentWebgpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? ClassicSingleShaderFragmentWebgpu_ : undefined;
+const ClassicSingleShaderVertexWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? ClassicSingleShaderVertexWebGpu_ : undefined;
 
 /**
  * Creates a Classic Uber material for traditional non-PBR rendering.

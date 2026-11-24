@@ -1,9 +1,9 @@
 import type { Count } from '../../../types/CommonTypes';
-import SynthesizeHDRTextureShaderFragment from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
-import SynthesizeHDRTextureShaderVertex from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.vert';
+import SynthesizeHDRTextureShaderFragment_ from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
+import SynthesizeHDRTextureShaderVertex_ from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.vert';
 import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
-import SynthesizeHDRTextureShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
-import SynthesizeHDRTextureShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.vert';
+import SynthesizeHDRTextureShaderFragmentWebGpu_ from '../../../webgpu/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
+import SynthesizeHDRTextureShaderVertexWebGpu_ from '../../../webgpu/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.vert';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
@@ -17,6 +17,16 @@ import type { AbstractTexture } from '../../textures/AbstractTexture';
 import { Sampler } from '../../textures/Sampler';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import type { Material } from '../core/Material';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const SynthesizeHDRTextureShaderFragment =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? SynthesizeHDRTextureShaderFragment_ : undefined;
+const SynthesizeHDRTextureShaderVertex =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? SynthesizeHDRTextureShaderVertex_ : undefined;
+const SynthesizeHDRTextureShaderFragmentWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? SynthesizeHDRTextureShaderFragmentWebGpu_ : undefined;
+const SynthesizeHDRTextureShaderVertexWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? SynthesizeHDRTextureShaderVertexWebGpu_ : undefined;
 
 /**
  * Material content for synthesizing HDR textures with optional target region masking.

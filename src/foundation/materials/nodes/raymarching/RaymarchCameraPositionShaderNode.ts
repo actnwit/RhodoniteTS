@@ -1,10 +1,16 @@
-import RaymarchCameraPositionShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/RaymarchCameraPosition.glsl';
-import RaymarchCameraPositionShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/RaymarchCameraPosition.wgsl';
+import RaymarchCameraPositionShaderityObjectGLSL_ from '../../../../webgl/shaderity_shaders/nodes/raymarching/RaymarchCameraPosition.glsl';
+import RaymarchCameraPositionShaderityObjectWGSL_ from '../../../../webgpu/shaderity_shaders/nodes/raymarching/RaymarchCameraPosition.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
 import { CompositionType } from '../../../definitions/CompositionType';
 import { Vector3 } from '../../../math/Vector3';
 import { AbstractShaderNode } from '../../core/AbstractShaderNode';
 import { Socket } from '../../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const RaymarchCameraPositionShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? RaymarchCameraPositionShaderityObjectGLSL_ : undefined;
+const RaymarchCameraPositionShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? RaymarchCameraPositionShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that outputs the world-space camera position.

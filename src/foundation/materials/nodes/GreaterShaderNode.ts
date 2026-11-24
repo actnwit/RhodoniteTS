@@ -1,7 +1,11 @@
-import GreaterShaderityObject from '../../../webgl/shaderity_shaders/nodes/Greater.glsl';
+import GreaterShaderityObject_ from '../../../webgl/shaderity_shaders/nodes/Greater.glsl';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const GreaterShaderityObject =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? GreaterShaderityObject_ : undefined;
 
 /**
  * A shader node that performs a greater-than comparison operation.

@@ -1,10 +1,20 @@
-import FlatSingleShaderFragment from '../../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
-import FlatSingleShaderVertex from '../../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
-import FlatSingleShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
-import FlatSingleShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
+import FlatSingleShaderFragment_ from '../../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
+import FlatSingleShaderVertex_ from '../../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
+import FlatSingleShaderFragmentWebGpu_ from '../../../webgpu/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
+import FlatSingleShaderVertexWebGpu_ from '../../../webgpu/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
 import { CustomMaterialContent } from '../../materials/contents/CustomMaterialContent';
 import type { Engine } from '../../system/Engine';
 import { createMaterial } from './createMaterial';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const FlatSingleShaderFragment =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? FlatSingleShaderFragment_ : undefined;
+const FlatSingleShaderVertex =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? FlatSingleShaderVertex_ : undefined;
+const FlatSingleShaderFragmentWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? FlatSingleShaderFragmentWebGpu_ : undefined;
+const FlatSingleShaderVertexWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? FlatSingleShaderVertexWebGpu_ : undefined;
 
 /**
  * Creates a flat shading material with uniform color rendering.

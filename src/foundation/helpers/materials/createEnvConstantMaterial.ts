@@ -1,10 +1,20 @@
-import EnvConstantSingleShaderFragment from '../../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
-import EnvConstantSingleShaderVertex from '../../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
-import EnvConstantSingleShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
-import EnvConstantSingleShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
+import EnvConstantSingleShaderFragment_ from '../../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
+import EnvConstantSingleShaderVertex_ from '../../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
+import EnvConstantSingleShaderFragmentWebGpu_ from '../../../webgpu/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
+import EnvConstantSingleShaderVertexWebGpu_ from '../../../webgpu/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
 import { CustomMaterialContent } from '../../materials/contents/CustomMaterialContent';
 import type { Engine } from '../../system/Engine';
 import { createMaterial } from './createMaterial';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const EnvConstantSingleShaderFragment =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? EnvConstantSingleShaderFragment_ : undefined;
+const EnvConstantSingleShaderVertex =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? EnvConstantSingleShaderVertex_ : undefined;
+const EnvConstantSingleShaderFragmentWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? EnvConstantSingleShaderFragmentWebGpu_ : undefined;
+const EnvConstantSingleShaderVertexWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? EnvConstantSingleShaderVertexWebGpu_ : undefined;
 
 /**
  * Creates a material for rendering environment constant colors.

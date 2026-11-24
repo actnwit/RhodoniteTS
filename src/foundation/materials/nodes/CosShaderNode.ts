@@ -1,11 +1,17 @@
-import CosShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Cos.glsl';
-import CosShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Cos.wgsl';
+import CosShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/Cos.glsl';
+import CosShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/Cos.wgsl';
 import type { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const CosShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? CosShaderityObjectGLSL_ : undefined;
+const CosShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? CosShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that computes the cosine function of its input value.

@@ -1,5 +1,5 @@
-import FurnaceTestShaderFragment from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.frag';
-import FurnaceTestShaderVertex from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.vert';
+import FurnaceTestShaderFragment_ from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.frag';
+import FurnaceTestShaderVertex_ from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.vert';
 import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
@@ -11,6 +11,12 @@ import { Vector2 } from '../../math/Vector2';
 import type { Engine } from '../../system/Engine';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import type { Material } from '../core/Material';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const FurnaceTestShaderFragment =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? FurnaceTestShaderFragment_ : undefined;
+const FurnaceTestShaderVertex =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? FurnaceTestShaderVertex_ : undefined;
 
 /**
  * Material content for furnace test rendering.

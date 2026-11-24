@@ -1,11 +1,21 @@
-import GammaCorrectionShaderFragment from '../../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
-import GammaCorrectionShaderVertex from '../../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
-import GammaCorrectionShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
-import GammaCorrectionShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
+import GammaCorrectionShaderFragment_ from '../../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
+import GammaCorrectionShaderVertex_ from '../../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
+import GammaCorrectionShaderFragmentWebGpu_ from '../../../webgpu/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
+import GammaCorrectionShaderVertexWebGpu_ from '../../../webgpu/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
 import { CustomMaterialContent } from '../../materials/contents/CustomMaterialContent';
 import type { Material } from '../../materials/core/Material';
 import type { Engine } from '../../system/Engine';
 import { createMaterial } from './createMaterial';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const GammaCorrectionShaderFragment =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? GammaCorrectionShaderFragment_ : undefined;
+const GammaCorrectionShaderVertex =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? GammaCorrectionShaderVertex_ : undefined;
+const GammaCorrectionShaderFragmentWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? GammaCorrectionShaderFragmentWebGpu_ : undefined;
+const GammaCorrectionShaderVertexWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? GammaCorrectionShaderVertexWebGpu_ : undefined;
 
 /**
  * Creates a material for gamma correction post-processing.
