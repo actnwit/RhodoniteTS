@@ -20,6 +20,14 @@ export declare class PointShadowMap {
      */
     constructor(engine: Engine);
     /**
+     * Updates the far plane of the paraboloid depth encoding for a shadow slot.
+     * The receiving materials must use the same value in their `pointLightFarPlane` entry.
+     *
+     * @param shadowSlot - The shadow slot of the light
+     * @param farPlane - The new far plane
+     */
+    setFarPlane(shadowSlot: number, farPlane: number): void;
+    /**
      * Generates render passes for creating shadow maps from a point light source.
      * Creates two render passes: one for the front hemisphere and one for the back hemisphere
      * of the paraboloid shadow mapping technique.
@@ -28,9 +36,11 @@ export declare class PointShadowMap {
      * @param lightEntity - The point light entity that casts shadows
      * @param shadowSlot - The shadow slot of the light (below `Config.maxLightNumber`). Defaults to the shadow slot
      *   of the light component.
+     * @param farPlane - The far plane used to normalize the stored depth (the receiving materials must use the
+     *   same value in their `pointLightFarPlane` entry). Defaults to 1000.
      * @returns An array containing two render passes: [frontRenderPass, backRenderPass]
      */
-    getRenderPasses(entities: ISceneGraphEntity[], lightEntity: ISceneGraphEntity & ILightEntityMethods, shadowSlot?: number): RenderPass[];
+    getRenderPasses(entities: ISceneGraphEntity[], lightEntity: ISceneGraphEntity & ILightEntityMethods, shadowSlot?: number, farPlane?: number): RenderPass[];
     /**
      * Gets the framebuffer used for storing shadow moment data.
      * This framebuffer contains the encoded depth moments for variance shadow mapping.

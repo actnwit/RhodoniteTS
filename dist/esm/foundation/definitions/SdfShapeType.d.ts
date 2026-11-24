@@ -6,6 +6,9 @@ export declare const SdfShapeType: Readonly<{
     Custom: EnumIO;
     Sphere: EnumIO;
     Box: EnumIO;
+    Torus: EnumIO;
+    Capsule: EnumIO;
+    RoundBox: EnumIO;
     from: typeof from;
     fromString: typeof fromString;
 }>;

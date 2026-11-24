@@ -1,4 +1,5 @@
 import type { Size } from '../../../types';
+import { RaymarchingComponent } from '../../components/Raymarching/RaymarchingComponent';
 import { RnObject } from '../../core/RnObject';
 import { type ToneMappingTypeEnum } from '../../definitions';
 import type { Material } from '../../materials/core/Material';
@@ -83,8 +84,15 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __iblRotation;
     private __diffuseIblContribution;
     private __specularIblContribution;
-    private __raymarchingIblState;
+    private __raymarchingIblStates;
     private __samplerForBackBuffer?;
+    /** Per-component raymarching materials and their buffer-less full-screen passes. */
+    private __raymarchingComponentMaterials;
+    private __raymarchingComponentPasses;
+    /** SID of the first per-component pass (it applies the per-frame shared material setup). */
+    private __raymarchingFirstComponentPassSID;
+    /** Cached world AABBs of the SDFs, used for ray interval clipping and scissors. */
+    private __raymarchingAabbCache;
     private __toneMappingType;
     private __bloomHelper;
     private __shadowSystem?;
@@ -92,6 +100,17 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __entitiesForShadow;
     private __raymarchingExpression?;
     private __raymarchingRenderPass?;
+    /** The merged SDF graph of the shadow-casting components. */
+    private __raymarchingShadowJson?;
+    private __raymarchingShadowRegularMaterial?;
+    /** Point light paraboloid shadow materials, one front/back pair per shadow slot. */
+    private __raymarchingShadowPointSlots;
+    /** Whether the SDF shadow casters are split per component (mirrors the visible materials). */
+    private __isRaymarchingComponentShadowMode;
+    /** Per-component regular (spot / directional) SDF shadow caster materials. */
+    private __raymarchingComponentShadowRegularMaterials;
+    /** Per shadow slot, per component paraboloid front/back SDF shadow caster materials. */
+    private __raymarchingComponentShadowPointSlots;
     private __engine;
     constructor(engine: Engine);
     /**
@@ -546,16 +565,212 @@ export declare class ForwardRenderPipeline extends RnObject {
      */
     setToneMappingType(type: ToneMappingTypeEnum): void;
     private __setupRaymarchingExpression;
+    /**
+     * Points a buffer-less raymarching pass at the pipeline's render targets, including
+     * the MSAA resolve targets the transmission pass and mipmap generation read.
+     */
+    private __configureRaymarchingPassTargets;
+    /**
+     * Per-frame setup of the legacy merged raymarching pass.
+     *
+     * The merged material evaluates every component's graph in one distance function,
+     * so the object id and world matrix uniforms are postfixed with the component SID,
+     * and the march is clipped to the union of all component AABBs.
+     *
+     * @param renderPass - The legacy raymarching pass
+     */
+    private __prepareLegacyRaymarchingPass;
+    /**
+     * Assigns the raymarching material of a single component.
+     *
+     * The pipeline renders one buffer-less full-screen pass per materialized component
+     * (in component SID order) with depth test and depth write enabled, so the nearest
+     * SDF wins per pixel. Each material only contains that component's graph: uniforms
+     * and textures are not shared or postfixed, and the texture-slot limit applies per
+     * component instead of to the merged graph of every component.
+     *
+     * When at least one component material is assigned, the legacy merged raymarching
+     * material ({@link setRaymarchingMaterial}) is ignored.
+     *
+     * The pass clips its march to the component's world AABB. Call
+     * `component.invalidateAABB()` when the SDF's size changes through material uniform
+     * values (the editor does this for its uniform controls) so the cached bounds, the
+     * ray interval and the scissor rectangle stay current.
+     *
+     * @param component - The component the material belongs to
+     * @param material - The material, typically from
+     * `MaterialHelper.createNodeBasedRaymarchingComponentMaterial`
+     */
+    setRaymarchingComponentMaterial(component: RaymarchingComponent, material: Material): void;
+    /**
+     * Gets the raymarching material assigned to a component.
+     * @param component - The component whose material is requested
+     */
+    getRaymarchingComponentMaterial(component: RaymarchingComponent): Material | undefined;
+    /**
+     * Removes the raymarching material of a component so it stops rendering.
+     * @param component - The component whose material is removed
+     */
+    removeRaymarchingComponentMaterial(component: RaymarchingComponent): void;
+    /**
+     * Legacy single-material API: renders all components with one merged material.
+     *
+     * Ignored while per-component materials are assigned ({@link setRaymarchingComponentMaterial}).
+     *
+     * @param material - The material built from `MaterialHelper.collectRrnJson`
+     */
     setRaymarchingMaterial(material: Material): void;
+    /**
+     * Creates or updates the buffer-less render pass of each component that owns a
+     * raymarching material, in component SID order. Components without a material are
+     * skipped, and stale passes are dropped.
+     */
+    private __getRaymarchingComponentPasses;
+    /**
+     * Per-frame setup of one component's raymarching pass: its world matrix, the world
+     * AABB used for ray interval clipping, and the scissor rectangle on the screen.
+     *
+     * The world matrix and the AABB are sampled together so the clip interval matches
+     * the transform the shader uses, including on backends that upload material values
+     * one frame later.
+     *
+     * @param componentSID - The SID of the component rendered by the pass
+     */
+    private __prepareRaymarchingComponentPass;
+    /**
+     * Returns the conservative world AABB of a component's SDF, caching it until the
+     * component's AABB version or world matrix changes.
+     *
+     * @param component - The SDF component
+     */
+    private __getCachedRaymarchingAabb;
+    /**
+     * Projects a world AABB to a screen-space scissor rectangle.
+     *
+     * Returns undefined (render the whole target) when the bounds are unbounded or
+     * when any corner is behind the camera, where a naive projection is invalid.
+     *
+     * @param aabb - The world AABB of the SDF
+     */
+    private __calcRaymarchingScissorRect;
+    /** All raymarching materials the pipeline manages (legacy or per component). */
+    private __getAllRaymarchingMaterials;
+    /**
+     * Builds the raymarching expression from the current materials.
+     *
+     * With per-component materials, the expression contains one buffer-less pass per
+     * component (component SID order), composited by the depth test. Otherwise the
+     * legacy merged pass is used. The expression is empty while no raymarching material
+     * is assigned.
+     */
+    private __buildRaymarchingExpression;
+    /**
+     * Rebuilds the shadow caster materials from the current raymarching components
+     * (only the ones with `castShadow`) and requests a shadow map refresh, so the SDF
+     * objects appear in / disappear from the shadow maps.
+     *
+     * With per-component visible materials, the shadow casters are split per component
+     * as well (their textures and uniforms are then independent in the shadow maps).
+     * Otherwise the legacy merged caster materials are rebuilt from `collectRrnJson`.
+     *
+     * Call this when a raymarching graph or a component's `castShadow` flag changes.
+     */
+    refreshRaymarchingShadowMaterial(): void;
+    /**
+     * The raymarching components in a deterministic (component SID) order.
+     */
+    private __getSortedRaymarchingComponents;
+    /** The regular (spot / directional) SDF shadow caster material (for tests/debugging). */
+    getRaymarchingShadowMaterial(): Material | undefined;
+    /** The regular SDF shadow caster material of one component (for tests/debugging). */
+    getRaymarchingComponentShadowMaterial(component: RaymarchingComponent): Material | undefined;
+    /**
+     * Provider of the SDF shadow caster passes handed to the ShadowSystem.
+     */
+    private __getRaymarchingShadowPassProvider;
+    /**
+     * Returns the paraboloid shadow caster material pair for a shadow slot, creating it on
+     * first use. A pair per slot is needed because the light index and the far plane are
+     * material parameters, which WebGPU uploads once per frame.
+     */
+    private __getRaymarchingShadowPointMaterials;
+    private __setRaymarchingShadowPointFarPlane;
+    /**
+     * Returns the paraboloid caster material pair of one component for a shadow slot,
+     * creating it on first use.
+     *
+     * @param shadowSlot - The shadow slot of the point light
+     * @param lightComponentSID - The light component SID stored as `lightIndex`
+     * @param farPlane - The far plane of the point light shadow
+     * @param component - The SDF component rendered into the shadow map
+     */
+    private __getRaymarchingComponentShadowPointMaterials;
+    private __updateRaymarchingShadowPointFarPlane;
+    private __createRaymarchingShadowPasses;
+    /**
+     * Creates one buffer-less SDF shadow caster pass with the given material.
+     *
+     * @param material - The component's (or merged) shadow caster material
+     * @param params - The shadow map variant request
+     */
+    private __createRaymarchingShadowPass;
+    /**
+     * Copies the graph parameters (uniform values, textures) and the current transforms
+     * from the visible raymarching materials to the SDF shadow caster materials.
+     *
+     * With per-component visible materials, each component's caster materials are its
+     * own (same semantic names, no postfixing): their uniforms/textures are copied from
+     * that component's visible material and the component's world matrix is set on them.
+     * Otherwise the legacy merged casters are fed from the merged visible material.
+     *
+     * This runs once per frame BEFORE Engine.process: WebGPU uploads material values in the
+     * prerender stage, so updating them only in a render pass hook would leave the shadow
+     * passes one frame behind. setParameter / setTextureParameter return early for identical
+     * values, so the copy is cheap.
+     */
+    private __syncRaymarchingShadowMaterialParameters;
+    /**
+     * Per-component variant of the shadow caster parameter sync: copies each component's
+     * visible uniforms/textures to its own caster materials (their names match) and sets
+     * the component's world matrix and world AABB, which the shadow shader uses for the
+     * distance scale and the ray interval.
+     */
+    private __syncRaymarchingComponentShadowMaterialParameters;
+    /** Materials outside mesh primitives that still receive shadows (the raymarching materials). */
+    private __getAdditionalShadowMaterials;
     getRaymarchingMaterial(): Material | undefined;
     /**
-     * Applies the pipeline's IBL environment to the raymarching PBR material.
+     * Applies the pipeline's IBL environment to every raymarching PBR material.
      *
      * The raymarching draw is buffer-less and has no mesh renderer component, so
      * the IBL parameters that material contents normally read from the mesh
      * renderer are set on the material here instead.
      */
     private __applyIblToRaymarchingMaterial;
+    /**
+     * Applies the pipeline's IBL environment to one raymarching material.
+     * @param material - The raymarching material
+     */
+    private __applyIblToMaterial;
+    /**
+     * Whether a raymarching material shades with transmission, which means it
+     * samples the scene color behind the SDF.
+     *
+     * Only then does the raymarching expression have to run after the opaque
+     * expressions. Without transmission it keeps its legacy position before them,
+     * so blended meshes that are drawn in the opaque expression (the pipeline may be
+     * configured with isTransmission: false) keep blending over the SDF.
+     */
+    private __isRaymarchingTransmissionEnabled;
+    /**
+     * Binds the resolved scene color to every raymarching material for transmission.
+     *
+     * This is the same reference texture the transmission materials of the transparent
+     * pass sample. The raymarching expression is rendered after the opaque expressions,
+     * so the texture holds the current frame. Materials without the semantic ignore the
+     * call, and an identical binding is a no-op, so this is safe to run every frame.
+     */
+    private __applyBackBufferTextureToRaymarchingMaterial;
     /**
      * Internal method to set up the frame with all configured expressions.
      *
@@ -567,9 +782,11 @@ export declare class ForwardRenderPipeline extends RnObject {
      * 3. Main expressions (opaque rendering)
      * 4. Mipmap generation
      * 5. Multi-view blitting
-     * 6. Transparent expressions
-     * 7. Bloom effect
-     * 8. Tone mapping
+     * 6. Raymarching expression for transmission materials (samples the scene color;
+     *    without transmission the raymarching expression is drawn before step 3)
+     * 7. Transparent expressions
+     * 8. Bloom effect
+     * 9. Tone mapping
      *
      * @internal
      */

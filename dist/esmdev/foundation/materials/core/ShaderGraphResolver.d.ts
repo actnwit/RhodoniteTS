@@ -31,7 +31,16 @@ export declare class ShaderGraphResolver {
      * @param isFullVersion - Whether to generate a full version with all prerequisites and boilerplate
      * @returns Complete fragment shader code as a string, or undefined if generation fails
      */
-    static createPixelShaderCode(engine: Engine, pixelNodes: AbstractShaderNode[], commonShaderPart: CommonShaderPart): string | undefined;
+    static createPixelShaderCode(engine: Engine, pixelNodes: AbstractShaderNode[], commonShaderPart: CommonShaderPart, shadingGroups?: ReadonlyMap<number, AbstractShaderNode[]>): string | undefined;
+    /**
+     * Groups the nodes reachable to each outShadingColor terminal by the component
+     * that authored it. Merged raymarching graphs prefix node ids with `comp<N>_`,
+     * where N is the component SID and also the recorded object id.
+     *
+     * Graphs without that prefix (e.g. a single component built directly) are grouped
+     * under object id 0.
+     */
+    private static __collectShadingGroups;
     /**
      * Validates that all shader nodes have their required input connections properly set.
      * This is a validation step to ensure the shader graph is complete before code generation.
@@ -160,7 +169,7 @@ export declare class ShaderGraphResolver {
      * }
      * ```
      */
-    static generateShaderCodeFromJson(engine: Engine, json: ShaderNodeJson, commonShaderPart: CommonShaderPart): {
+    static generateShaderCodeFromJson(engine: Engine, json: ShaderNodeJson, commonShaderPart: CommonShaderPart, pixelEndNodeNames?: string[]): {
         vertexShader: string;
         pixelShader: string;
         textureInfos: {

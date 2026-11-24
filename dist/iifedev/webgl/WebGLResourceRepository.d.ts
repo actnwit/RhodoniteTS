@@ -941,6 +941,16 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
     createTransformFeedback(): number;
     deleteTransformFeedback(transformFeedbackUid: WebGLResourceHandle): void;
     setViewport(engine: Engine, viewport?: Vector4): void;
+    /**
+     * Applies the scissor rectangle of a render pass (a culling hint for the draw).
+     *
+     * The rectangle uses a top-left origin; WebGL's scissor origin is the bottom-left,
+     * so the y coordinate is flipped against the render target height.
+     *
+     * @param renderPass - The pass whose scissor rectangle is applied, or undefined
+     * to render the whole target
+     */
+    setScissorRect(renderPass?: RenderPass): void;
     clearFrameBuffer(engine: Engine, renderPass: RenderPass, _?: number): void;
     /**
      * Whether the canvas (default framebuffer) has a depth / stencil buffer. Cached because

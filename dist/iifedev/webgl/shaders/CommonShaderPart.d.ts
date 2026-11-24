@@ -3,22 +3,41 @@ import type { CompositionTypeEnum } from '../../foundation/definitions/Compositi
 import type { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
 import type { Socket, SocketDefaultValue } from '../../foundation/materials/core/Socket';
 import type { Engine } from '../../foundation/system/Engine';
+/**
+ * One per-object shading function generated from the graph nodes of a raymarching
+ * component that are reachable to an outShadingColor terminal.
+ */
+export type ShadingSection = {
+    /** The raymarching component index this section is used for. */
+    objectId: number;
+    /** Unique shader function name of the section. */
+    functionName: string;
+    /** Generated statements of the section, without the function header/footer. */
+    body: string;
+};
 export declare abstract class CommonShaderPart {
     abstract getMainBegin(engine: Engine, isVertexStage: boolean): string;
     /**
-     * @param shadingSectionBody - Body of the optional second section generated
-     *   from the graph nodes reachable to an `outShadingColor` terminal. Shader
-     *   parts that do not support such a section ignore it.
+     * @param shadingSections - Per-object shading sections generated from the graph
+     *   nodes reachable to outShadingColor terminals. Shader parts that do not
+     *   support such sections ignore it.
      */
-    abstract getMainEnd(engine: Engine, isVertexStage: boolean, shadingSectionBody?: string): string;
+    abstract getMainEnd(engine: Engine, isVertexStage: boolean, shadingSections?: readonly ShadingSection[]): string;
     /**
-     * Returns the opening code of an optional second shader section, or undefined
-     * when this part does not support one. The resolver emits the nodes reachable
-     * to an `outShadingColor` terminal inside this section, separately from the
-     * main body.
+     * True when this part emits the graph nodes reachable to an outShadingColor
+     * terminal as separate per-object functions (selected by the recorded object id).
      */
-    getShadingSectionBegin(_engine: Engine): string | undefined;
-    /** Returns the closing code of the optional second shader section. */
+    get hasShadingSection(): boolean;
+    /** Prefix used for the generated per-object shading function names. */
+    getShadingFunctionNamePrefix(): string;
+    /**
+     * Shader function names this part already embeds in its prerequisites. The
+     * resolver does not emit definitions for graph nodes with these names.
+     */
+    getEmbeddedShaderFunctionNames(): readonly string[];
+    /** Returns the opening code of one per-object shading function. */
+    getShadingSectionBegin(_engine: Engine, _functionName: string): string;
+    /** Returns the closing code of one per-object shading function. */
     getShadingSectionEnd(_engine: Engine): string;
     abstract getVertexPrerequisites(engine: Engine, shaderNodes: AbstractShaderNode[]): string;
     abstract getPixelPrerequisites(engine: Engine, shaderNodes: AbstractShaderNode[]): string;

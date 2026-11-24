@@ -53,6 +53,8 @@ export declare class SceneGraphComponent extends Component {
     private __worldMergedAABBWithSkeletal;
     private __worldMergedAABB;
     private __isWorldAABBDirty;
+    /** Separate dirty flag: the skeletal and non-skeletal merged AABBs are cached independently. */
+    private __isWorldAABBDirtyWithSkeletal;
     /**
      * Epoch at which this node was last visited by {@link setWorldAABBDirtyParentRecursively}.
      * While it equals the static epoch, this node and all of its ancestors are known to be AABB-dirty,

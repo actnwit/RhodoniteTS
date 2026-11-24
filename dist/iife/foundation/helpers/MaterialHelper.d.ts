@@ -2,8 +2,10 @@ import type { NodeJSON, Vrm0xMaterialProperty } from '../../types';
 import type { Count } from '../../types/CommonTypes';
 import type { ShaderNodeJson } from '../../types/ShaderNodeJson';
 import type { Vrm1_Material } from '../../types/VRMC_materials_mtoon';
+import { type RaymarchingShadowShaderPartKind } from '../../webgl/shaders/RaymarchingShadowShaderPart';
 import type { CameraComponent } from '../components/Camera/CameraComponent';
 import type { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
+import { RaymarchingComponent } from '../components/Raymarching/RaymarchingComponent';
 import type { ShaderSemanticsInfo } from '../definitions/ShaderSemanticsInfo';
 import type { Primitive } from '../geometry/Primitive';
 import type { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
@@ -539,6 +541,34 @@ interface NodeBasedMaterialResult {
  */
 declare function createNodeBasedRaymarchingCustomMaterial(engine: Engine, shaderNodeJson: ShaderNodeJson, currentMaterial?: Material): NodeBasedMaterialResult | undefined;
 /**
+ * Shadow caster materials built from a merged raymarching graph.
+ *
+ * `regular` writes the linear depth moments of spot / directional shadow maps, while
+ * the paraboloid variants write the front (r,g) and back (b,a) hemispheres of the
+ * point light shadow maps.
+ */
+export type RaymarchingShadowMaterials = {
+    regular?: Material;
+    paraboloidFront?: Material;
+    paraboloidBack?: Material;
+};
+/**
+ * Creates the shadow caster materials that render the merged SDF graph into the
+ * shadow maps.
+ *
+ * The shader part is a RaymarchingShadowShaderPart, so the distance function `map()`
+ * is the same as in the visible raymarching material while the fragment main writes
+ * the variance shadow map moments and the fragment depth. The receiver material is not
+ * passed as `currentMaterial`: only the previous shadow materials are reused.
+ *
+ * @param engine - The engine instance
+ * @param shaderNodeJson - The merged raymarching graph (castShadowOnly)
+ * @param currentMaterials - Shadow materials of the previous build, reused when possible
+ * @returns The three shadow materials, or undefined when code generation fails
+ */
+declare function createNodeBasedRaymarchingShadowMaterials(engine: Engine, shaderNodeJson: ShaderNodeJson, currentMaterials?: RaymarchingShadowMaterials): RaymarchingShadowMaterials | undefined;
+export declare function createNodeBasedRaymarchingShadowMaterial(engine: Engine, shaderNodeJson: ShaderNodeJson, kind: RaymarchingShadowShaderPartKind, currentMaterial?: Material): Material | undefined;
+/**
  * Creates or reuses a custom material from a shader node JSON graph.
  * This function handles shader code generation, texture semantics setup,
  * PBR/Classic shader detection, and IBL semantics for PBR materials.
@@ -551,7 +581,45 @@ declare function createNodeBasedRaymarchingCustomMaterial(engine: Engine, shader
  * @returns Object containing the material and shader node flags, or null if generation fails
  */
 declare function createNodeBasedCustomMaterial(engine: Engine, shaderNodeJson: ShaderNodeJson, options?: PbrUberMaterialOptions, currentMaterial?: Material): NodeBasedMaterialResult | undefined;
-declare function collectRrnJson(engine: Engine): NodeJSON;
+declare function collectRrnJson(engine: Engine, { castShadowOnly }?: {
+    castShadowOnly?: boolean;
+}): NodeJSON;
+/**
+ * Semantic name of the component world matrix inside a per-component raymarching
+ * material. Every `SdApplyWorldMatrix` node of the component is normalized to this
+ * name when its material is built, so the pipeline sets one uniform per material.
+ */
+export declare const RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC = "raymarchingWorldMatrix";
+/**
+ * Creates the raymarching material of a single RaymarchingComponent.
+ *
+ * Each component owns a material and a buffer-less full-screen pass (see
+ * `ForwardRenderPipeline.setRaymarchingComponentMaterial`), so its uniforms and
+ * textures are independent: names are not postfixed, and the texture-slot limit
+ * applies to the component's own graph instead of the merged graph of every
+ * component.
+ *
+ * @param engine - The engine instance
+ * @param component - The component that owns the material
+ * @param currentMaterial - An existing material of the same component that can be reused
+ * @returns The material and feature flags, or undefined when generation fails
+ */
+declare function createNodeBasedRaymarchingComponentMaterial(engine: Engine, component: RaymarchingComponent, currentMaterial?: Material): NodeBasedMaterialResult | undefined;
+/**
+ * Creates the SDF shadow caster material of a single RaymarchingComponent.
+ *
+ * Like the visible per-component material, the component's graph is used as authored
+ * (with its world matrix normalized to one semantic), so shadow casters are no longer
+ * one merged material: each component keeps its own textures and uniforms in the
+ * shadow maps too, and the texture-slot limit applies per component.
+ *
+ * @param engine - The engine instance
+ * @param component - The castShadow component the material renders
+ * @param kind - Which shadow map variant the material writes
+ * @param currentMaterial - An existing material of the same component that can be reused
+ * @returns The shadow caster material, or undefined when generation fails
+ */
+declare function createNodeBasedRaymarchingComponentShadowMaterial(engine: Engine, component: RaymarchingComponent, kind: RaymarchingShadowShaderPartKind, currentMaterial?: Material): Material | undefined;
 /**
  * Changes the material assigned to a specific primitive on an entity.
  * This function updates the primitive's material and triggers necessary render state updates.
@@ -569,6 +637,11 @@ export declare const MaterialHelper: Readonly<{
     reuseOrRecreateCustomMaterial: typeof reuseOrRecreateCustomMaterial;
     createNodeBasedCustomMaterial: typeof createNodeBasedCustomMaterial;
     createNodeBasedRaymarchingCustomMaterial: typeof createNodeBasedRaymarchingCustomMaterial;
+    createNodeBasedRaymarchingComponentMaterial: typeof createNodeBasedRaymarchingComponentMaterial;
+    createNodeBasedRaymarchingComponentShadowMaterial: typeof createNodeBasedRaymarchingComponentShadowMaterial;
+    RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC: "raymarchingWorldMatrix";
+    createNodeBasedRaymarchingShadowMaterial: typeof createNodeBasedRaymarchingShadowMaterial;
+    createNodeBasedRaymarchingShadowMaterials: typeof createNodeBasedRaymarchingShadowMaterials;
     createClassicUberMaterial: typeof createClassicUberMaterial;
     createDepthMomentEncodeMaterial: typeof createDepthMomentEncodeMaterial;
     createParaboloidDepthMomentEncodeMaterial: typeof createParaboloidDepthMomentEncodeMaterial;

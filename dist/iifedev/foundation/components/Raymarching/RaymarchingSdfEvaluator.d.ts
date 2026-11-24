@@ -68,6 +68,9 @@ export declare class RaymarchingSdfEvaluator {
     private __inverseTransformCache;
     private __boundsCache;
     private __positionChainCache;
+    private __terminalTransformScaleCache;
+    private __distanceScaleFactor;
+    private __usesWorldMatrix;
     /**
      * Creates an evaluator for one raymarching component.
      * @param nodeJson - The node graph stored in `RaymarchingComponent.rrnJson`
@@ -75,6 +78,14 @@ export declare class RaymarchingSdfEvaluator {
      * @param uniformValueProvider - Optional resolver for Uniform node values
      */
     constructor(nodeJson: NodeJSON, worldMatrix: IMatrix44, uniformValueProvider?: RaymarchingUniformValueProvider);
+    /**
+     * Returns true when the distance subtree of a node contains SdApplyWorldMatrix.
+     * The rendering shader applies the world-space distance correction to a component
+     * whose graph uses it, so the CPU evaluator does the same.
+     * @param node - Root of the distance subtree
+     * @param visited - Node ids already visited
+     */
+    private __distanceNodeUsesWorldMatrix;
     /**
      * Calculates a conservative world-space AABB of the SDF graph.
      * @returns The world-space bounds, or null when the graph is unbounded or
@@ -95,10 +106,36 @@ export declare class RaymarchingSdfEvaluator {
     calcSphere(): RaymarchingSpherePrimitive | null;
     /**
      * Evaluates the signed distance at a world-space point.
+     *
+     * When the graph is evaluated through `SdApplyWorldMatrix`, the returned value is
+     * converted into a conservative world-space distance (the local distance times a
+     * lower bound of the smallest singular value of the component's world matrix),
+     * matching the distance the raymarching shader marches with. `SdApplyTransform`
+     * nodes in a terminal's subtree scale its distance by their smallest axis scale,
+     * again matching the shader.
+     *
      * @param pointInWorld - The point to evaluate
      * @returns The signed distance, or null when the graph is unsupported
      */
     evalDistanceAt(pointInWorld: Vector3): number | null;
+    /**
+     * Input ports that carry the SDF's spatial data (position or distance). The same
+     * set is followed by the shared shader when it links `SdApplyTransform` scale
+     * globals to a terminal.
+     */
+    private static readonly __SPATIAL_INPUT_PORTS;
+    /**
+     * Returns the conservative local-to-world scale of the `SdApplyTransform` nodes
+     * that feed a terminal node's distance subtree.
+     *
+     * A transform node scaled below 1 makes the distances of its subtree larger than
+     * the matching world distances. The factor is the product of the reachable nodes'
+     * smallest axis scales (a valid lower bound for nested chains), clamped to [1e-4, 1].
+     *
+     * @param terminal - The OutUnion / OutDistance node
+     * @returns The scale, or null when a transform scale cannot be evaluated
+     */
+    private __terminalTransformScale;
     /**
      * Marches a ray against the SDF graph.
      * @param originInWorld - Ray origin in world space
@@ -129,6 +166,18 @@ export declare class RaymarchingSdfEvaluator {
      */
     private __evalSphereBounds;
     private __evalPrimitiveBounds;
+    /**
+     * Returns true when a position chain contains a non-linear domain node
+     * (TwistX/Y/Z or BendXY/XZ/YZ/YX/ZX/ZY), which cannot be represented by a matrix.
+     */
+    private __positionChainHasNonLinearNode;
+    /**
+     * Expands primitive bounds for non-linear domain nodes in the position chain.
+     * The chain folds them in as identity, so the extents of the rotated axis pair
+     * are widened to the radius around the rotation axis (a conservative bound for
+     * any angle).
+     */
+    private __expandBoundsForNonLinearChain;
     /**
      * Returns true when a position chain contains SdApplyWorldMatrix.
      * A graph without this node is authored in world space and does not follow

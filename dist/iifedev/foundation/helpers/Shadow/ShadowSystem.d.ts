@@ -1,6 +1,39 @@
+import type { ILightEntityMethods } from '../../components/Light/ILightEntity';
+import { LightComponent } from '../../components/Light/LightComponent';
+import type { Material } from '../../materials/core/Material';
 import { Expression } from '../../renderer/Expression';
+import type { FrameBuffer } from '../../renderer/FrameBuffer';
+import type { RenderPass } from '../../renderer/RenderPass';
 import type { Engine } from '../../system/Engine';
-import type { ISceneGraphEntity } from '../EntityHelper';
+import { type ISceneGraphEntity } from '../EntityHelper';
+/**
+ * Provider of the raymarching (SDF) shadow caster passes.
+ *
+ * The pipeline owns the shadow caster materials (they are built from the merged SDF
+ * graph) and supplies a buffer-less full-screen pass for each shadow map variant. The
+ * ShadowSystem inserts these passes after the mesh caster passes of the same light, so
+ * the moment map ends up with the nearest surface of the two.
+ */
+/**
+ * Parameters of one SDF shadow caster pass request.
+ */
+export type RaymarchingShadowPassParams = {
+    lightComponent: LightComponent;
+    lightEntity: ISceneGraphEntity & ILightEntityMethods;
+    framebuffer: FrameBuffer;
+    kind: 'regular' | 'paraboloidFront' | 'paraboloidBack';
+    /** The shadow slot of the light (index into the per-material parameter arrays). */
+    shadowSlot: number;
+    farPlane?: number;
+};
+export interface RaymarchingShadowPassProvider {
+    /** Whether any raymarching component casts shadows. */
+    hasCaster(): boolean;
+    /** Creates the SDF caster pass(es) for one shadow map variant. */
+    createPasses(params: RaymarchingShadowPassParams): RenderPass[];
+    /** Updates the point light far plane of an existing per-slot caster material pair. */
+    updatePointLightFarPlane?(shadowSlot: number, farPlane: number): void;
+}
 /**
  * A system for managing shadow mapping operations in the rendering pipeline.
  * Handles both directional/spot light shadows and point light shadows with Gaussian blur post-processing.
@@ -28,9 +61,18 @@ export declare class ShadowSystem {
     private __depthBiasPVVersionOfMaterials;
     private __lastTransformUpdateCountForAutoFit;
     private __lastEntityCountForAutoFit;
-    private __lastAutoFitCenter;
-    private __lastAutoFitRadius;
+    private __lastRaymarchingComponentCountForAutoFit;
+    private __lastRaymarchingAABBVersionForAutoFit;
+    private __lastAutoFitBounds;
     private __needsRefresh;
+    private __raymarchingShadowPassProvider?;
+    private static __tmpLightSpaceBounds;
+    /** Last shadow state, so a material assigned later (e.g. the raymarching material) can receive it. */
+    private __depthTextureIndexList;
+    /** Far plane of the paraboloid shadow map of each shadow slot (indexed by slot). */
+    private __pointLightFarPlaneList;
+    private __directionalShadowMap?;
+    private __paraboloidShadowMap?;
     /**
      * Creates a new ShadowSystem instance with the specified shadow map resolution.
      * Initializes shadow map and point shadow map systems, along with framebuffers for texture arrays.
@@ -43,7 +85,7 @@ export declare class ShadowSystem {
      * @param entities - Array of scene graph entities to be rendered for shadow mapping
      * @returns Array of Expression objects containing the shadow mapping render passes
      */
-    getExpressions(entities: ISceneGraphEntity[]): Expression[];
+    getExpressions(entities: ISceneGraphEntity[], additionalMaterials?: readonly Material[], raymarchingShadowPassProvider?: RaymarchingShadowPassProvider): Expression[];
     /**
      * Assigns the shadow slots (the indices of the per-material shadow arrays) to the lights.
      *
@@ -81,17 +123,98 @@ export declare class ShadowSystem {
      */
     private __setDepthTextureIndexList;
     /**
+     * Returns the far plane used to normalize the paraboloid shadow map of a point light.
+     *
+     * The priority is the explicit `pointLightShadowFarPlane`, the effective range of the
+     * light, its automatic range, and finally the farthest shadow receiver in the scene.
+     * A finite far plane keeps the cleared background depth close to the casters; with the
+     * legacy unlimited far plane of 1000 the Gaussian blur mixes the far background into the
+     * moments and the shadows of scenes much smaller than 1000 units disappear.
+     *
+     * @param lightComponent - The point light component
+     * @param entities - The entities in the scene (used for the automatic far plane)
+     */
+    private __getPointLightFarPlane;
+    /**
+     * Returns a far plane that covers every shadow receiver of an unlimited point light.
+     *
+     * The farthest corner of the merged AABBs is used so that receivers at the far side of
+     * an object are still inside the shadow map. Background assets and light gizmos are
+     * ignored. When the scene has no receiver, the legacy value is kept.
+     *
+     * @param lightComponent - The point light component
+     * @param entities - The entities in the scene
+     * @private
+     */
+    private __getSceneFarPlaneForPointLight;
+    /**
+     * Updates the per-slot far planes of the point light shadow maps when they change.
+     * Calling this every frame keeps the automatic far plane in sync with moving lights,
+     * casters and receivers without rebuilding the shadow expressions.
+     *
+     * @param entities - The entities in the scene
+     * @param additionalMaterials - Materials that are not reached through the entities
+     *   (for example the raymarching material)
+     */
+    updatePointLightFarPlanes(entities: ISceneGraphEntity[], additionalMaterials?: readonly Material[]): void;
+    /**
+     * Sets the per-shadow-slot far planes of the paraboloid shadow maps on all entity materials.
+     * @param entities - Array of scene graph entities to apply the far planes to
+     * @param pointLightFarPlaneList - Far plane of each shadow slot (1000 for slots without a point light)
+     * @private
+     */
+    private __setPointLightFarPlaneList;
+    /**
+     * Fits the zNear of the spot light shadow cameras to the scene.
+     *
+     * A perspective shadow map spends most of its depth range near the far plane, which makes
+     * variance shadow maps shallow. Setting zNear below the nearest caster makes the depth
+     * distribution more linear. The value is limited to 5% of the light range and to 1.0 so
+     * that it stays conservative.
+     *
+     * @param entities - The entities in the scene
+     * @private
+     */
+    private __updateSpotLightShadowZNear;
+    private static __isLightEntity;
+    /**
      * Sets the depth bias projection-view matrices for shadow mapping on all PBR materials.
      * Calculates and applies bias matrices for directional and spot lights to reduce shadow acne.
      * @param entities - Array of scene graph entities to apply the bias matrices to
      */
-    setDepthBiasPV(entities: ISceneGraphEntity[]): void;
+    setDepthBiasPV(entities: ISceneGraphEntity[], additionalMaterials?: readonly Material[]): void;
+    /**
+     * Applies the last computed shadow state (shadow maps, index list and bias matrices)
+     * to materials that are assigned after getExpressions() ran, for example the
+     * raymarching material of the buffer-less full-screen pass.
+     */
+    applyShadowParametersToMaterials(materials: readonly Material[]): void;
     /**
      * Background assets (tagged `type: background-assets`, e.g. the environment cube and the grid
      * in RhodoniteEditor2) do not cast shadows. The shadow volume auto-fit excludes them as well.
      */
     private static __isShadowCaster;
     private __autoFitDirectionalLightShadowVolume;
+    /**
+     * Resets the directional/spot shadow volume fitting cache, so the next frame recomputes
+     * the volume (including the SDF bounds).
+     */
+    invalidateShadowVolumeFitting(): void;
+    private __getRaymarchingComponentCount;
+    /**
+     * Merges the world AABBs of the visible raymarching components into `merged`.
+     * The scene graph AABB of an SDF entity already contains the SDF bounds, so the cached
+     * merged AABB is used instead of evaluating the graph again.
+     */
+    private __mergeRaymarchingShadowBounds;
+    /**
+     * Fits every directional light's orthographic shadow camera to `bounds`.
+     *
+     * The bounds are projected into the light's local space, and the ortho extents and the
+     * depth range are taken from that AABB (not from the light-to-center distance). This
+     * keeps the shadow map's world-per-texel small enough for the VSM blur not to wash out
+     * the cast shadows, while still covering every caster and receiver.
+     */
     private __applyAutoFitToDirectionalLights;
     /**
      * Checks if the light configuration has changed since the last update.

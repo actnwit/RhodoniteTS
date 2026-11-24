@@ -76,6 +76,9 @@ export declare class RaymarchingComponent extends Component {
     private __rrnJson;
     private __sdSphereNodeJson;
     private __sdBoxNodeJson;
+    private __sdTorusNodeJson;
+    private __sdCapsuleNodeJson;
+    private __sdRoundBoxNodeJson;
     private __rrnJsonTemplate;
     private __sdfShapeType;
     private __uniformValueProvider?;
@@ -84,6 +87,12 @@ export declare class RaymarchingComponent extends Component {
      * Whether this raymarching component participates in ray casting.
      */
     isPickable: boolean;
+    /**
+     * Whether the SDF of this raymarching component is rendered into the shadow maps.
+     * Casting components are merged into the shadow caster material; non-casting ones are
+     * left out so they do not occlude casting SDFs behind them.
+     */
+    castShadow: boolean;
     constructor(engine: Engine, entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean);
     /**
      * Gets the component type identifier for RaymarchingComponent.
@@ -117,6 +126,11 @@ export declare class RaymarchingComponent extends Component {
      */
     set sdfShapeType(sdfShapeType: SdfShapeTypeEnum);
     /**
+     * Returns the preset SDF node JSON that replaces the template's placeholder node.
+     * Custom (a graph authored in the node editor) has no preset node.
+     */
+    private __getPresetSdfNodeJson;
+    /**
      * Resolves a material parameter used by a Uniform shader node.
      * Set this when the raymarching material changes uniform values at runtime.
      */
@@ -126,6 +140,12 @@ export declare class RaymarchingComponent extends Component {
      * Invalidates the cached scene graph AABB so the merged AABB is recomputed.
      */
     invalidateAABB(): void;
+    /**
+     * A version that changes whenever any raymarching component's AABB may have changed.
+     * The shadow volume auto-fit uses it as part of its cache key.
+     */
+    static getAABBVersion(engine: Engine): number;
+    private static __aabbVersions;
     /**
      * Calculates a conservative world-space AABB of the SDF graph.
      * @returns The world-space bounds, or null when the graph is unbounded

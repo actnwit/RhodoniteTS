@@ -233,6 +233,13 @@ export declare class ModelConverter {
      */
     private static __setupLight;
     /**
+     * Applies glTF light data to a LightComponent. This is used for nodes that contain only a
+     * light and for nodes that contain both a camera and a light.
+     * @param lightComponent - The component to configure
+     * @param light - The glTF light data
+     */
+    private static __configureLightComponent;
+    /**
      * Sets up a camera entity from glTF camera data
      * @param camera - The glTF camera data
      * @param gltfModel - The glTF model data
@@ -314,6 +321,86 @@ export declare class ModelConverter {
     static _createTexture(engine: Engine, image: RnM2Image, gltfModel: RnM2, { autoDetectTransparency }?: {
         autoDetectTransparency?: boolean | undefined;
     }): Promise<Texture>;
+    /**
+     * Parses the texture assignments of the RHODONITE_raymarching_materials extension.
+     *
+     * The extension maps a shader semantic to a glTF texture index. Applications rebuild the
+     * shared raymarching material from the node graphs after import and then apply the textures
+     * with Material.setTextureParameter(semantic, texture, sampler).
+     *
+     * @param gltfModel - The imported glTF model
+     * @returns One entry per valid assignment, in extension order
+     */
+    static getRaymarchingMaterialTextureAssignments(gltfModel: RnM2): {
+        semantic: string;
+        textureIndex: number;
+        samplerIndex?: number;
+    }[];
+    /**
+     * Parses the per-component texture assignments stored in the `RHODONITE_raymarching` node
+     * extensions.
+     *
+     * Each assignment keeps the glTF node index, which the importer also stores on the entity
+     * (`TagGltf2NodeIndex`), so an application can apply the textures to the material it rebuilds
+     * for that component.
+     *
+     * @param gltfModel - The imported glTF model
+     * @returns One entry per valid assignment, in node and extension order
+     */
+    static getRaymarchingComponentTextureAssignments(gltfModel: RnM2): {
+        nodeIndex: number;
+        semantic: string;
+        textureIndex: number;
+        samplerIndex?: number;
+    }[];
+    /**
+     * Filters a semantic to texture-index map down to assignments whose texture and image exist.
+     *
+     * @param gltfModel - The imported glTF model
+     * @param textures - The extension's texture map
+     */
+    private static __getValidRaymarchingTextureAssignments;
+    /**
+     * Creates Rhodonite textures and samplers for the shared raymarching material's texture
+     * assignments saved in the RHODONITE_raymarching_materials extension.
+     *
+     * Apply the returned textures to the rebuilt material with
+     * Material.setTextureParameter(semantic, texture, sampler).
+     *
+     * @param engine - The engine instance
+     * @param gltfModel - The imported glTF model
+     * @returns The created textures and samplers keyed by shader semantic
+     */
+    static createRaymarchingMaterialTextures(engine: Engine, gltfModel: RnM2): Promise<Map<string, {
+        texture: Texture;
+        sampler?: Sampler;
+    }>>;
+    /**
+     * Creates Rhodonite textures and samplers for the per-component assignments saved in each
+     * `RHODONITE_raymarching` node extension.
+     *
+     * The returned map is keyed by glTF node index (the entity's `TagGltf2NodeIndex`), then by
+     * shader semantic. Apply them to the material rebuilt for that component with
+     * Material.setTextureParameter(semantic, texture, sampler).
+     *
+     * @param engine - The engine instance
+     * @param gltfModel - The imported glTF model
+     * @returns The created textures and samplers keyed by node index and shader semantic
+     */
+    static createRaymarchingComponentTextures(engine: Engine, gltfModel: RnM2): Promise<Map<number, Map<string, {
+        texture: Texture;
+        sampler?: Sampler;
+    }>>>;
+    /**
+     * Creates one Rhodonite texture (and sampler) from a glTF texture index.
+     *
+     * @param engine - The engine instance
+     * @param gltfModel - The imported glTF model
+     * @param textureIndex - The glTF texture index
+     * @param samplerIndex - The glTF sampler index of the texture
+     * @returns The created texture and sampler, or null when creation fails
+     */
+    private static __createRaymarchingTexture;
     private static __needResizeToPowerOfTwoOnWebGl1;
     private static __sizeIsPowerOfTwo;
     private static __needParameterInitialization;

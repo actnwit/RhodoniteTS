@@ -284,6 +284,7 @@ export type KHR_lights_punctual_Light = {
         innerConeAngle?: number;
         outerConeAngle?: number;
     };
+    extras?: Gltf2AnyObject;
 };
 export type KHR_lights_punctual = {
     lights: KHR_lights_punctual_Light[];

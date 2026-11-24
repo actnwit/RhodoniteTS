@@ -4,26 +4,37 @@ import type { Engine } from '../../../foundation/system/Engine';
 import type { AttributeNames } from '../../types/CommonTypes';
 import { RaymarchingShaderPart } from '../RaymarchingShaderPart';
 /**
- * OutDistanceShader class provides the out distance function for fragment shaders.
- * This class handles outputting the distance to the surface,
- * supporting both WebGL and WebGPU rendering approaches.
+ * OutDistanceShader generates the terminal function of a raymarching component that
+ * records the component's distance (and object id) as the final output.
  *
- * @extends StandardShaderPart
+ * Like {@link OutUnionShader}, the distance is multiplied by
+ * `rnRaymarchDistanceScale(worldMatrix)`, a conservative local-to-world scale of the
+ * component's world matrix, so that a local-space distance becomes a valid world-space
+ * ray marching step. Without it, scaling an entity below 1 makes sphere tracing
+ * overshoot the surface. `SdApplyTransform` nodes inside the graph contribute their
+ * per-node scale globals as well.
  */
 export declare class OutDistanceShader extends RaymarchingShaderPart {
-    static __instance: OutDistanceShader;
     static readonly materialElement: import("../../../foundation").EnumIO;
+    private static __defaultInstance;
+    private __shaderFunctionName;
+    private __distanceCorrectionUniformNames;
+    private __distanceScaleGlobalNames;
     /**
-     * Private constructor to enforce singleton pattern.
-     */
-    private constructor();
-    /**
-     * Gets the singleton instance of DiscardShader.
-     * Creates a new instance if one doesn't exist.
-     *
-     * @returns The singleton DiscardShader instance
+     * Gets a shared instance with the default function name (`outDistance`) and no
+     * distance correction. Kept for API compatibility; shader nodes create their own
+     * instance so each terminal can carry its component's correction.
      */
     static getInstance(): OutDistanceShader;
+    /**
+     * @param shaderFunctionName - Unique function name of the terminal node
+     * (defaults to `outDistance` for compatibility)
+     * @param distanceCorrectionUniformNames - Per-component world matrix uniforms
+     * used to convert the local-space distance to a conservative world-space distance
+     * @param distanceScaleGlobalNames - Per-`SdApplyTransform` globals that hold the
+     * smallest axis scale of the transform node in the terminal's subtree
+     */
+    constructor(shaderFunctionName?: string, distanceCorrectionUniformNames?: readonly string[], distanceScaleGlobalNames?: readonly string[]);
     /**
      * Gets the vertex shader function definitions.
      * Returns a no-op function since discard is not available in vertex shaders.
@@ -44,7 +55,7 @@ export declare class OutDistanceShader extends RaymarchingShaderPart {
      *
      * @returns Shader code string containing the conditionalDiscard function definition
      */
-    getPixelShaderDefinitions(engine: Engine): "\n      fn outDistance(value: f32) {\n        g_distance = value;\n      }\n      " | "\n      void outDistance(in float value) {\n        g_distance = value;\n      }\n      ";
+    getPixelShaderDefinitions(engine: Engine): string;
     /**
      * Gets the pixel/fragment shader body code.
      * Currently returns empty string as no additional fragment processing is needed.

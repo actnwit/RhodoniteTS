@@ -105,3 +105,18 @@ export interface IRaymarchingEntity extends ISceneGraphEntity, IRaymarchingEntit
  * ```
  */
 export declare function createLightWithCameraEntity(engine: Engine): ILightEntity & ICameraEntityMethods;
+/**
+ * Attaches a camera synchronized to the light to an existing light entity.
+ *
+ * A spot or directional light renders its shadow map from such a camera, so a light has to own one before it casts
+ * shadows. Lights created by the engine ({@link createLightWithCameraEntity}) already have one; this helper attaches
+ * it lazily to lights that were imported without (e.g. glTF lights that do not cast shadows).
+ *
+ * Every camera component adds an entry to the per-buffer-view offset tables of the generated shaders, so attaching
+ * the camera to lights that never cast shadows would make every shader of the scene larger and slower.
+ * Does nothing for point lights, or when the entity already has a camera.
+ *
+ * @param engine - The engine instance
+ * @param lightEntity - The light entity to extend
+ */
+export declare function attachLightShadowCamera(engine: Engine, lightEntity: ILightEntity): void;

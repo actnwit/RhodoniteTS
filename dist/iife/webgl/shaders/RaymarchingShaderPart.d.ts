@@ -3,7 +3,7 @@ import type { CompositionTypeEnum } from '../../foundation/definitions/Compositi
 import type { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
 import type { Socket, SocketDefaultValue } from '../../foundation/materials/core/Socket';
 import type { Engine } from '../../foundation/system/Engine';
-import { CommonShaderPart } from './CommonShaderPart';
+import { CommonShaderPart, type ShadingSection } from './CommonShaderPart';
 /**
  * RaymarchingShaderPart is a class that provides common shader functionality for both WebGL and WebGPU rendering approaches.
  * This class handles shader code generation, vertex/fragment shader prerequisites, and cross-platform compatibility
@@ -18,13 +18,14 @@ export declare class RaymarchingShaderPart extends CommonShaderPart {
      * @returns The shader code string for the main function beginning
      */
     getMainBegin(engine: Engine, isVertexStage: boolean): string;
+    get hasShadingSection(): boolean;
+    getShadingFunctionNamePrefix(): string;
     /**
-     * Opens the optional shading section emitted from the graph nodes reachable to
-     * an OutShadingColor node. It runs once per hit fragment, after `map()` has
-     * been evaluated during the ray march.
+     * Opens one per-object shading function emitted from the graph nodes of a
+     * component that are reachable to its OutShadingColor node.
      */
-    getShadingSectionBegin(engine: Engine): string;
-    /** Closes the shading section opened by getShadingSectionBegin. */
+    getShadingSectionBegin(engine: Engine, functionName: string): string;
+    /** Closes the shading function opened by getShadingSectionBegin. */
     getShadingSectionEnd(_engine: Engine): string;
     /**
      * Generates the main function ending code for vertex or fragment shaders.
@@ -32,10 +33,10 @@ export declare class RaymarchingShaderPart extends CommonShaderPart {
      *
      * @param engine - The engine instance
      * @param isVertexStage - True if generating code for vertex shader, false for fragment shader
-     * @param shadingSectionBody - Optional body of the shading section (see getShadingSectionBegin)
+     * @param shadingSections - Per-object shading functions selected by the hit object id
      * @returns The shader code string for the main function ending
      */
-    getMainEnd(engine: Engine, isVertexStage: boolean, shadingSectionBody?: string): string;
+    getMainEnd(engine: Engine, isVertexStage: boolean, shadingSections?: readonly ShadingSection[]): string;
     getMaterialSIDForWebGL(): string;
     /**
      * Generates vertex shader prerequisites for Raymarching shader.
@@ -53,7 +54,12 @@ export declare class RaymarchingShaderPart extends CommonShaderPart {
      * @param shaderNodes - Array of shader nodes used to generate varying variables for WebGPU
      * @returns The complete fragment shader prerequisites code string
      */
-    getPixelPrerequisites(engine: Engine, shaderNodes: AbstractShaderNode[]): string;
+    /**
+     * The PBR shader function is embedded in the prerequisites below. The resolver
+     * skips the duplicate definition emitted by a PbrShader node in a shading graph.
+     */
+    getEmbeddedShaderFunctionNames(): readonly string[];
+    getPixelPrerequisites(engine: Engine, _shaderNodes: AbstractShaderNode[]): string;
     /**
      * Returns the PBR shading function definitions shared with the PBR material
      * plus the raymarching PBR wrapper used by the fragment shader.

@@ -5,6 +5,11 @@ import { Socket } from '../../core/Socket';
  * This node serves as the terminal node for fragment shaders, accepting two distance values
  * and outputting the minimum of the two.
  *
+ * The generated function converts the distance of the component's local space into a
+ * conservative world-space distance using the component's world matrix (see
+ * {@link OutUnionShader}). The matrix uniform names are supplied by the merged graph
+ * (`MaterialHelper.collectRrnJson`), one per component that uses `SdApplyWorldMatrix`.
+ *
  * @example
  * ```typescript
  * const outUnionNode = new OutUnionShaderNode();
@@ -13,12 +18,27 @@ import { Socket } from '../../core/Socket';
  * ```
  */
 export declare class OutUnionShaderNode extends AbstractShaderNode {
+    private __distanceCorrectionUniformNames;
+    private __distanceScaleGlobalNames;
     /**
      * Creates a new OutUnionShaderNode instance.
      * Initializes the node with an EndShader instance and sets up the input socket
      * for receiving Vec4 color values.
      */
     constructor();
+    /**
+     * Sets the per-component world matrix uniforms used to convert the local-space
+     * distance to a conservative world-space distance.
+     * @param uniformNames - Uniform names of the component's world matrices
+     */
+    setDistanceCorrectionUniformNames(uniformNames: readonly string[]): void;
+    /**
+     * Sets the per-`SdApplyTransform` scale globals of the transform nodes in this
+     * terminal's subtree, so their local-space distances become world-space steps.
+     * @param globalNames - Global names written by the reachable transform nodes
+     */
+    setDistanceScaleGlobalNames(globalNames: readonly string[]): void;
+    private __rebuildCommonPart;
     /**
      * Gets the input socket for connecting color values to this output node.
      * The socket accepts Vec4 values representing RGBA color components.

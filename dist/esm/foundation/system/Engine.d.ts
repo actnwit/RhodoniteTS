@@ -221,6 +221,13 @@ export declare class Engine extends RnObject {
     static get timeAtProcessEnd(): number;
     static createCamera(engine: Engine): void;
     private setViewportForNormalRendering;
+    /**
+     * Applies the pass's scissor rectangle for normal (non-XR) rendering.
+     *
+     * The scissor is a culling hint; XR/AR passes use their own viewports, so they
+     * run without one.
+     */
+    private setScissorForNormalRendering;
     private bindFramebufferWebGL;
     private __displayRnInfo;
     /**

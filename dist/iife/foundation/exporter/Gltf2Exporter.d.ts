@@ -2,6 +2,7 @@ import { type Gltf2 } from '../../types/glTF2';
 import type { Gltf2Ex } from '../../types/glTF2ForOutput';
 import type { Tag } from '../core/RnObject';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
+import type { Material } from '../materials/core/Material';
 import type { Engine } from '../system/Engine';
 export declare const GLTF2_EXPORT_GLTF = "glTF";
 export declare const GLTF2_EXPORT_GLB = "glTF-Binary";
@@ -22,6 +23,22 @@ export interface Gltf2ExporterArguments {
     type: Gltf2ExportType;
     /** Tags to exclude from export */
     excludeTags?: Tag[];
+    /**
+     * The shared raymarching material. Its user-assigned Texture2D parameters are exported to the
+     * RHODONITE_raymarching_materials root extension so that they survive a save/load round trip.
+     * Ignored when `raymarchingComponentMaterials` is provided.
+     */
+    raymarchingMaterial?: Material;
+    /**
+     * Per-component raymarching materials. Each material's user-assigned Texture2D parameters are
+     * exported into that component's `RHODONITE_raymarching` node extension, so components with
+     * different textures round-trip independently. When provided (non-empty), the root shared
+     * texture extension is not written.
+     */
+    raymarchingComponentMaterials?: {
+        entity: ISceneGraphEntity;
+        material: Material;
+    }[];
 }
 /**
  * The glTF2 format Exporter class.
@@ -104,6 +121,16 @@ export declare class Gltf2Exporter {
     static __createNodes(json: Gltf2Ex, entities: ISceneGraphEntity[], topLevelEntities: ISceneGraphEntity[]): void;
     private static __exportLight;
     private static __ensureLightsExtension;
+    /**
+     * Exports the graph of a RaymarchingComponent as a Rhodonite node extension.
+     * The raymarching material is shared by every component and is rebuilt by the
+     * editor from the graphs, so only the per-component graph is stored here.
+     *
+     * @param json - The output glTF JSON
+     * @param entity - The entity to export
+     * @param node - The glTF node of the entity
+     */
+    private static __exportRaymarching;
     private static __ensureExtensionUsed;
     private static __registerMaterialIndex;
     private static __shouldEmitPointerTarget;
@@ -156,6 +183,46 @@ export declare class Gltf2Exporter {
      * @returns Object mapping texture names to their glTF texture indices
      */
     private static __processNodeBasedMaterialTextures;
+    /**
+     * Exports the user-assigned textures of the shared raymarching material.
+     *
+     * The raymarching material is shared by every raymarching component, so its texture parameters
+     * live at the glTF root instead of the per-node RHODONITE_raymarching extension. The images are
+     * written into the standard glTF images/textures/samplers arrays, and the extension maps each
+     * shader semantic to its texture index. Only textures declared by Texture2D nodes in the
+     * material's graph are exported; engine-managed textures (IBL, shadow maps, the sheen LUT and
+     * the transmission back buffer) are not.
+     *
+     * @param json - The output glTF JSON
+     * @param option - Export options, including the raymarching material to export
+     */
+    private static __exportRaymarchingMaterials;
+    /**
+     * Exports each component's raymarching textures into its `RHODONITE_raymarching` node
+     * extension.
+     *
+     * The node index of an entity is assigned by {@link __createNodes}, so this runs after the
+     * nodes are written. Texture indices refer to the shared glTF `textures` array, and images
+     * are deduplicated by the normal texture processing.
+     *
+     * @param json - The output glTF JSON
+     * @param componentMaterials - The per-component materials to export
+     * @param option - Export options
+     */
+    private static __exportRaymarchingComponentMaterials;
+    /**
+     * Exports the user-assigned Texture2D parameters of a raymarching material.
+     *
+     * Only textures declared by Texture2D nodes in the graph are user-authored. The material
+     * also carries engine-managed textures (IBL, shadows, the sheen LUT, the transmission back
+     * buffer), and exporting those would embed environment/shadow data into the scene.
+     *
+     * @param json - The output glTF JSON
+     * @param material - The material whose textures are exported
+     * @param option - Export options
+     * @returns The semantic to texture-index map, or undefined when the material has none
+     */
+    private static __exportMaterialUserTextures;
     private static __setupMaterial;
     private static __processParameters;
     /**

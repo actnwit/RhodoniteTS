@@ -28,6 +28,9 @@ export declare class LightComponent extends Component {
     private __enable;
     private __shadowAreaSizeForDirectionalLight;
     private __shadowZNearForDirectionalLight;
+    private __shadowZNearForSpotLight;
+    private __isShadowZNearForSpotLightAuto;
+    private __pointLightShadowFarPlane;
     private __shadowCameraOffsetForDirectionalLight;
     castShadow: boolean;
     private _lightPosition;
@@ -182,6 +185,48 @@ export declare class LightComponent extends Component {
      * Gets the zNear value used for DirectionalLight shadow camera.
      */
     get shadowZNearForDirectionalLight(): number;
+    /**
+     * Sets the zNear value of the SpotLight shadow camera.
+     *
+     * @remarks
+     * A larger zNear makes the perspective depth of the shadow map more linear, which
+     * improves the contrast of variance shadow maps. It must stay below the distance
+     * from the light to the nearest shadow caster, or that caster is clipped.
+     * Setting this property disables the automatic fitting of `ShadowSystem`
+     * (`isShadowZNearForSpotLightAuto` becomes false).
+     * Updating this property increments updateCount so the camera sync is refreshed.
+     */
+    set shadowZNearForSpotLight(value: number);
+    /**
+     * Gets the zNear value used for SpotLight shadow camera.
+     */
+    get shadowZNearForSpotLight(): number;
+    /**
+     * Sets the far plane of the paraboloid shadow map of this PointLight.
+     *
+     * @remarks
+     * The far plane normalizes the stored depth. A smaller value keeps the blurred
+     * background out of the shadow moments, but receivers farther than the far plane
+     * cannot be shaded correctly. -1 (the default) fits it automatically: the light's
+     * effective range when available, otherwise the farthest shadow receiver in the scene.
+     * Updating this property increments updateCount.
+     */
+    set pointLightShadowFarPlane(value: number);
+    /**
+     * Gets the explicit far plane of the PointLight shadow map (-1: automatic).
+     */
+    get pointLightShadowFarPlane(): number;
+    /**
+     * Whether the SpotLight shadow camera zNear is fitted automatically from the
+     * distance to the nearest shadow caster.
+     */
+    get isShadowZNearForSpotLightAuto(): boolean;
+    /**
+     * Sets the automatically fitted zNear value. Does nothing when the user set
+     * `shadowZNearForSpotLight` explicitly.
+     * @internal
+     */
+    _setShadowZNearForSpotLightAuto(value: number): void;
     /**
      * Sets the shadow camera offset for DirectionalLight.
      * This offset is applied to position the shadow camera at the scene center.

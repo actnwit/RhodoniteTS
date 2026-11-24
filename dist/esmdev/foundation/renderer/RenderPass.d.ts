@@ -13,6 +13,18 @@ import { Vector4 } from '../math/Vector4';
 import type { Engine } from '../system/Engine';
 import type { FrameBuffer } from './FrameBuffer';
 /**
+ * A scissor rectangle in render-target pixels.
+ *
+ * The origin is the top-left corner of the render target (the same convention as
+ * WebGPU's `setScissorRect`); the WebGL path converts it to the bottom-left origin.
+ */
+export type RenderPassScissorRect = {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+};
+/**
  * A render pass represents a collection of rendering resources and settings used in the rendering pipeline.
  * It manages entities, materials, framebuffers, and various rendering states to control how objects are rendered.
  *
@@ -37,6 +49,7 @@ export declare class RenderPass extends RnObject {
     private __resolveFrameBuffer?;
     private __resolveFrameBuffer2?;
     private __viewport?;
+    private __scissorRect?;
     private __material?;
     private __primitiveMaterial;
     /** Whether to clear the color buffer before rendering */
@@ -308,6 +321,21 @@ export declare class RenderPass extends RnObject {
      * @returns A Vector4 containing (x, y, width, height) of the viewport, or undefined if not set
      */
     getViewport(): MutableVector4 | undefined;
+    /**
+     * Sets a scissor rectangle that limits rendering to the given pixels.
+     *
+     * The rectangle is in render-target pixels with a top-left origin. It is a
+     * culling hint (for example, the screen projection of an SDF's world AABB), so
+     * backends that cannot apply it simply render the whole target.
+     *
+     * @param rect - The scissor rectangle, or undefined to render the whole target
+     */
+    setScissorRect(rect?: RenderPassScissorRect): void;
+    /**
+     * Gets the scissor rectangle of this pass.
+     * @returns The scissor rectangle, or undefined when the whole target is rendered
+     */
+    getScissorRect(): RenderPassScissorRect | undefined;
     /**
      * Sets the resolve framebuffer for multisampling.
      * The resolve framebuffer is used as the destination when resolving multisampled content.
