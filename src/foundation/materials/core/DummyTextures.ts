@@ -115,6 +115,18 @@ export class DummyTextures {
   }
 
   /**
+   * Waits until the sheen LUT texture has its GPU resource.
+   *
+   * Model importers await this before creating materials for models with KHR_materials_sheen. A WebGPU bind
+   * group that is created while the texture has no resource keeps the placeholder binding even after the
+   * texture is generated, so the lazy background load is not enough for that path.
+   */
+  async loadSheenLutTexture(): Promise<void> {
+    this.__isSheenLutRequested = true;
+    await this.sheenLutTexture.generateSheenLutTextureFromDataUri();
+  }
+
+  /**
    * Starts loading the sheen LUT texture in the background. The PBR module that contains the image data is
    * fetched only when this is called, so applications without sheen materials never download it.
    * The same Texture object is updated in place when the image arrives.
@@ -123,8 +135,7 @@ export class DummyTextures {
     if (this.__isSheenLutRequested) {
       return;
     }
-    this.__isSheenLutRequested = true;
-    void this.sheenLutTexture.generateSheenLutTextureFromDataUri().catch(error => {
+    void this.loadSheenLutTexture().catch(error => {
       Logger.default.warn(`Failed to generate the sheen LUT texture: ${error}`);
     });
   }

@@ -262,6 +262,29 @@ export class ModelConverter {
   }
 
   /**
+   * Loads the sheen LUT before materials are created when the model uses KHR_materials_sheen.
+   *
+   * A WebGPU bind group created while the LUT texture has no GPU resource keeps the placeholder binding, so
+   * the importer waits for the texture instead of relying on the lazy background load in the material factory.
+   *
+   * @param engine - The engine instance
+   * @param gltfModel - The glTF model data to inspect
+   * @internal
+   */
+  private static async __preloadSheenLutTexture(engine: Engine, gltfModel: RnM2): Promise<void> {
+    const materials = gltfModel.materials ?? [];
+    const usesSheen = materials.some(material => material.extensions?.KHR_materials_sheen != null);
+    if (!usesSheen) {
+      return;
+    }
+    try {
+      await engine.dummyTextures.loadSheenLutTexture();
+    } catch (error) {
+      Logger.default.warn(`Failed to load the sheen LUT texture: ${error}`);
+    }
+  }
+
+  /**
    * Sets up textures from the glTF model asynchronously
    * @param gltfModel - The glTF model data
    * @returns Promise resolving to array of Rhodonite textures
@@ -374,6 +397,7 @@ export class ModelConverter {
     await this.__preloadMToonMaterialSupport(gltfModel);
     await RhodoniteImportExtension.preloadNodeBasedMaterialSupport(gltfModel);
     await this.preloadRaymarchingSupport(gltfModel);
+    await this.__preloadSheenLutTexture(engine, gltfModel);
 
     // Materials
     const rnMaterials = this.__setupMaterials(engine, gltfModel, rnTextures, rnSamplers);
