@@ -80,8 +80,10 @@ void main() {
   vec3 rd = normalize((invViewMatrix * vec4(farPoint.xyz - nearPoint.xyz, 0.0)).xyz);
   float maxDist = length(farWorld - ro);
 
-  // March only inside the conservative world AABB of the SDF (supplied per
-  // component or per merged graph by the pipeline).
+  // Skip rays that miss the conservative world AABB of the SDF (supplied per
+  // component or per merged graph by the pipeline). Rays that intersect it keep the
+  // legacy march from the origin, so the sampled surface and its depth moments match
+  // the references; only misses are cut short.
   float aabbTEnter;
   float aabbTExit;
   bool aabbHits = rnRayAabbInterval(
@@ -92,22 +94,24 @@ void main() {
     aabbTEnter,
     aabbTExit
   );
-  float tStart = max(aabbTEnter, 0.0);
-  float tEnd = min(aabbTExit, maxDist);
-  if (!aabbHits || tEnd < tStart) {
+  if (!aabbHits) {
     discard;
   }
 
   float h = 1.0;
-  float t = tStart;
+  float t = 0.0;
   for (int i = 0; i < 256; i++) {
     h = map(ro + rd * t);
     t += h;
-    if (h < 0.01 || t > tEnd) {
+    if (h < 0.01 || t > maxDist) {
+      break;
+    }
+    if (t > aabbTExit) {
+      h = 1.0;
       break;
     }
   }
-  if (h >= 0.01 || t > tEnd) {
+  if (h >= 0.01 || t > maxDist) {
     discard;
   }
 
@@ -149,30 +153,34 @@ fn main(input: VertexOutput) -> FragmentOutput {
   let rd = normalize((invViewMatrix * vec4f(farPoint.xyz - nearPoint.xyz, 0.0)).xyz);
   let maxDist = length(farWorld - ro);
 
-  // March only inside the conservative world AABB of the SDF (supplied per
-  // component or per merged graph by the pipeline).
+  // Skip rays that miss the conservative world AABB of the SDF (supplied per
+  // component or per merged graph by the pipeline). Rays that intersect it keep the
+  // legacy march from the origin, so the sampled surface and its depth moments match
+  // the references; only misses are cut short.
   let aabbInterval = rnRayAabbInterval(
     ro,
     rd,
     get_raymarchAabbMin(uniformDrawParameters.materialSid, 0u),
     get_raymarchAabbMax(uniformDrawParameters.materialSid, 0u)
   );
-  let tStart = max(aabbInterval.tEnter, 0.0);
-  let tEnd = min(aabbInterval.tExit, maxDist);
-  if (!aabbInterval.hits || tEnd < tStart) {
+  if (!aabbInterval.hits) {
     discard;
   }
 
   var h = 1.0;
-  var t = tStart;
+  var t = 0.0;
   for (var i = 0; i < 256; i++) {
     h = map(ro + rd * t);
     t += h;
-    if (h < 0.01 || t > tEnd) {
+    if (h < 0.01 || t > maxDist) {
+      break;
+    }
+    if (t > aabbInterval.tExit) {
+      h = 1.0;
       break;
     }
   }
-  if (h >= 0.01 || t > tEnd) {
+  if (h >= 0.01 || t > maxDist) {
     discard;
   }
 
@@ -214,7 +222,9 @@ void main() {
   vec3 ro = get_lightPosition(uint(lightIndex));
   float farPlane = get_shadowFarPlane(materialSID, 0u);
 
-  // March only inside the conservative world AABB of the SDF.
+  // Skip rays that miss the conservative world AABB of the SDF. Rays that intersect
+  // it keep the legacy march from the light position, so the sampled surface and its
+  // moments match the references; only misses are cut short.
   float aabbTEnter;
   float aabbTExit;
   bool aabbHits = rnRayAabbInterval(
@@ -225,22 +235,24 @@ void main() {
     aabbTEnter,
     aabbTExit
   );
-  float tStart = max(aabbTEnter, 0.0);
-  float tEnd = min(aabbTExit, farPlane);
-  if (!aabbHits || tEnd < tStart) {
+  if (!aabbHits) {
     discard;
   }
 
   float h = 1.0;
-  float t = tStart;
+  float t = 0.0;
   for (int i = 0; i < 256; i++) {
     h = map(ro + rd * t);
     t += h;
-    if (h < 0.01 || t > tEnd) {
+    if (h < 0.01 || t > farPlane) {
+      break;
+    }
+    if (t > aabbTExit) {
+      h = 1.0;
       break;
     }
   }
-  if (h >= 0.01 || t > tEnd) {
+  if (h >= 0.01 || t > farPlane) {
     discard;
   }
 
@@ -285,29 +297,33 @@ fn main(input: VertexOutput) -> FragmentOutput {
   let ro = get_lightPosition(u32(lightIndex));
   let farPlane = get_shadowFarPlane(materialSID, 0u);
 
-  // March only inside the conservative world AABB of the SDF.
+  // Skip rays that miss the conservative world AABB of the SDF. Rays that intersect
+  // it keep the legacy march from the light position, so the sampled surface and its
+  // moments match the references; only misses are cut short.
   let aabbInterval = rnRayAabbInterval(
     ro,
     rd,
     get_raymarchAabbMin(uniformDrawParameters.materialSid, 0u),
     get_raymarchAabbMax(uniformDrawParameters.materialSid, 0u)
   );
-  let tStart = max(aabbInterval.tEnter, 0.0);
-  let tEnd = min(aabbInterval.tExit, farPlane);
-  if (!aabbInterval.hits || tEnd < tStart) {
+  if (!aabbInterval.hits) {
     discard;
   }
 
   var h = 1.0;
-  var t = tStart;
+  var t = 0.0;
   for (var i = 0; i < 256; i++) {
     h = map(ro + rd * t);
     t += h;
-    if (h < 0.01 || t > tEnd) {
+    if (h < 0.01 || t > farPlane) {
+      break;
+    }
+    if (t > aabbInterval.tExit) {
+      h = 1.0;
       break;
     }
   }
-  if (h >= 0.01 || t > tEnd) {
+  if (h >= 0.01 || t > farPlane) {
     discard;
   }
 
