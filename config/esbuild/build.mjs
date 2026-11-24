@@ -61,6 +61,16 @@ if (target == null) {
 
 const outDir = path.resolve(projectRoot, target.outDir);
 
+// "__"-prefixed members are internal by convention. Mangling them shrinks every class, and the shared mangleCache
+// keeps the per-file ESM output consistent (without it, esbuild assigns names per entry point and cross-module
+// accesses break). The reserved names cross the package boundary:
+//   __esModule    - CommonJS interop
+//   __importedType - the editor reads it from the glTF load options
+//   the rest      - members that existing samples access directly
+const mangleProps = /^__/;
+const reserveProps = /^__(esModule|proto__|importedType|animationTrack|createAndUpdateDataTextureInner|dataTextureUid)$/;
+const mangleCache = {};
+
 async function emitDeclarations() {
   const command = process.platform === 'win32' ? 'tsc.cmd' : 'tsc';
   const args = [
@@ -141,6 +151,9 @@ function createUnbundledOptions() {
     esbuildOptions: {
       sourcemap: target.sourcemap,
       minify: target.minify,
+      mangleProps,
+      reserveProps,
+      mangleCache,
       platform: 'browser',
       target: 'es2019',
       logLevel: 'warning',
@@ -161,6 +174,9 @@ function createOptions() {
     globalName: target.globalName,
     sourcemap: target.sourcemap,
     minify: target.minify,
+    mangleProps,
+    reserveProps,
+    mangleCache,
     treeShaking: target.treeShaking,
     platform: 'browser',
     target: 'es2019',

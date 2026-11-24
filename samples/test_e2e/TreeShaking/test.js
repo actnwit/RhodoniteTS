@@ -106,6 +106,9 @@ test('TreeShaking glTF bundle keeps optional material implementations lazy', () 
       // Rapier and the Draco decoder are loaded only for models that need them.
       path.endsWith('/physics/Rapier/RapierPhysicsStrategy.js') ||
       path.endsWith('/importer/DrcPointCloudImporter.js') ||
+      // The raymarching component and its SDF evaluator are loaded only for RHODONITE_raymarching nodes.
+      path.endsWith('/components/Raymarching/RaymarchingComponent.js') ||
+      path.endsWith('/components/Raymarching/RaymarchingSdfEvaluator.js') ||
       // The importer does not pull the camera controller implementation either.
       path.endsWith('/components/CameraController/CameraControllerComponent.js') ||
       path.endsWith('/cameras/OrbitCameraController.js') ||
@@ -119,6 +122,8 @@ test('TreeShaking glTF bundle keeps optional material implementations lazy', () 
   expect([...allInputs].some(path => path.endsWith('/createMToon1Material.js'))).toBe(true);
   expect([...allInputs].some(path => path.endsWith('/RapierPhysicsStrategy.js'))).toBe(true);
   expect([...allInputs].some(path => path.endsWith('/DrcPointCloudImporter.js'))).toBe(true);
+  expect([...allInputs].some(path => path.endsWith('/RaymarchingComponent.js'))).toBe(true);
+  expect([...allInputs].some(path => path.endsWith('/RaymarchingSdfEvaluator.js'))).toBe(true);
 });
 
 test('TreeShaking PBR bundle does not include optional material implementations', () => {
@@ -143,6 +148,8 @@ test('TreeShaking PBR bundle does not include optional material implementations'
       // Optional components and unused mesh shapes stay out of a PBR-only application.
       path.endsWith('/components/Animation/AnimationComponent.js') ||
       path.endsWith('/components/CameraController/CameraControllerComponent.js') ||
+      path.endsWith('/components/Raymarching/RaymarchingComponent.js') ||
+      path.endsWith('/components/Raymarching/RaymarchingSdfEvaluator.js') ||
       path.endsWith('/cameras/OrbitCameraController.js') ||
       path.endsWith('/cameras/WalkThroughCameraController.js') ||
       path.endsWith('/foundation/helpers/MeshHelperObject.js') ||

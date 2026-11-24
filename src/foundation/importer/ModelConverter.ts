@@ -38,7 +38,6 @@ import { createLightEntity } from '../components/Light/createLightEntity';
 import { LightComponent } from '../components/Light/LightComponent';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
-import { RaymarchingComponent } from '../components/Raymarching/RaymarchingComponent';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
@@ -110,6 +109,15 @@ type CreateMToon1Material = typeof import('../helpers/materials/createMToon1Mate
  */
 let createMToon0xMaterialImpl: CreateMToon0xMaterial | undefined;
 let createMToon1MaterialImpl: CreateMToon1Material | undefined;
+
+type RaymarchingComponentClass = typeof import('../components/Raymarching/RaymarchingComponent').RaymarchingComponent;
+
+/**
+ * The raymarching component (and its SDF evaluator) is loaded only for models that use the RHODONITE_raymarching
+ * extension. A plain glTF application never pays for it.
+ */
+let raymarchingComponentClass: RaymarchingComponentClass | undefined;
+let raymarchingComponentPromise: Promise<void> | undefined;
 
 /**
  * A converter class from glTF2 model to Rhodonite Native data
@@ -232,6 +240,28 @@ export class ModelConverter {
   }
 
   /**
+   * Loads the raymarching component only when a node uses the RHODONITE_raymarching extension.
+   *
+   * @param gltfModel - The glTF model data to inspect
+   * @internal
+   */
+  static async preloadRaymarchingSupport(gltfModel: RnM2): Promise<void> {
+    const usesRaymarching = (gltfModel.nodes ?? []).some(node => {
+      const extensions = node.extensions as { RHODONITE_raymarching?: unknown } | undefined;
+      return extensions?.RHODONITE_raymarching != null;
+    });
+    if (!usesRaymarching || raymarchingComponentClass != null) {
+      return;
+    }
+    if (raymarchingComponentPromise == null) {
+      raymarchingComponentPromise = import('../components/Raymarching/RaymarchingComponent').then(module => {
+        raymarchingComponentClass = module.RaymarchingComponent;
+      });
+    }
+    await raymarchingComponentPromise;
+  }
+
+  /**
    * Sets up textures from the glTF model asynchronously
    * @param gltfModel - The glTF model data
    * @returns Promise resolving to array of Rhodonite textures
@@ -340,9 +370,10 @@ export class ModelConverter {
     const rnTextures = await this.__setupTextures(engine, gltfModel);
     const rnSamplers = this.__createSamplers(engine, gltfModel);
 
-    // Optional material implementations stay out of applications that do not use them.
+    // Optional material implementations and the raymarching component stay out of applications that do not use them.
     await this.__preloadMToonMaterialSupport(gltfModel);
     await RhodoniteImportExtension.preloadNodeBasedMaterialSupport(gltfModel);
+    await this.preloadRaymarchingSupport(gltfModel);
 
     // Materials
     const rnMaterials = this.__setupMaterials(engine, gltfModel, rnTextures, rnSamplers);
@@ -1410,23 +1441,31 @@ export class ModelConverter {
           | undefined
       )?.RHODONITE_raymarching;
       if (raymarchingExtension != null && entity.tryToGetRaymarching() == null) {
-        const raymarchingEntity = engine.entityRepository.addComponentToEntity(
-          RaymarchingComponent,
-          entity
-        ) as unknown as IRaymarchingEntity;
-        const raymarchingComponent = raymarchingEntity.getRaymarching();
-        if (raymarchingExtension.graph != null) {
-          raymarchingComponent.rrnJson = raymarchingExtension.graph;
-        } else if (raymarchingExtension.sdfShapeType != null) {
-          raymarchingComponent.sdfShapeType = SdfShapeType.from(raymarchingExtension.sdfShapeType);
+        const RaymarchingComponent = raymarchingComponentClass;
+        if (RaymarchingComponent == null) {
+          Logger.default.warn(
+            'RHODONITE_raymarching: Raymarching support is not loaded. Import the model through the asynchronous ' +
+              'ModelConverter.convertToRhodoniteObject(), or await ModelConverter.preloadRaymarchingSupport() first.'
+          );
+        } else {
+          const raymarchingEntity = engine.entityRepository.addComponentToEntity(
+            RaymarchingComponent,
+            entity
+          ) as unknown as IRaymarchingEntity;
+          const raymarchingComponent = raymarchingEntity.getRaymarching();
+          if (raymarchingExtension.graph != null) {
+            raymarchingComponent.rrnJson = raymarchingExtension.graph;
+          } else if (raymarchingExtension.sdfShapeType != null) {
+            raymarchingComponent.sdfShapeType = SdfShapeType.from(raymarchingExtension.sdfShapeType);
+          }
+          if (raymarchingExtension.isPickable != null) {
+            raymarchingComponent.isPickable = raymarchingExtension.isPickable;
+          }
+          if (raymarchingExtension.castShadow != null) {
+            raymarchingComponent.castShadow = raymarchingExtension.castShadow;
+          }
+          entity = raymarchingEntity as unknown as ISceneGraphEntity;
         }
-        if (raymarchingExtension.isPickable != null) {
-          raymarchingComponent.isPickable = raymarchingExtension.isPickable;
-        }
-        if (raymarchingExtension.castShadow != null) {
-          raymarchingComponent.castShadow = raymarchingExtension.castShadow;
-        }
-        entity = raymarchingEntity as unknown as ISceneGraphEntity;
       }
 
       if (this.__isMorphing(node, gltfModel)) {
