@@ -20,7 +20,15 @@ import { Matrix44 } from '../math/Matrix44';
 import { Quaternion } from '../math/Quaternion';
 import { Vector3 } from '../math/Vector3';
 import { Logger } from '../misc/Logger';
-import { RapierPhysicsStrategy } from '../physics/Rapier/RapierPhysicsStrategy';
+
+type RapierPhysicsStrategyClass = typeof import('../physics/Rapier/RapierPhysicsStrategy').RapierPhysicsStrategy;
+
+/**
+ * The Rapier strategy is loaded on demand. Importing it statically would make every glTF application that
+ * includes the importer pay for the physics engine integration even when no model uses KHR_physics_rigid_bodies.
+ */
+let rapierPhysicsStrategyClass: RapierPhysicsStrategyClass | undefined;
+let rapierPhysicsStrategyPromise: Promise<void> | undefined;
 
 const KHR_IMPLICIT_SHAPES = 'KHR_implicit_shapes';
 const KHR_PHYSICS_RIGID_BODIES = 'KHR_physics_rigid_bodies';
@@ -707,6 +715,31 @@ export function collectKhrStaticBoxColliders(gltfModel: RnM2): KhrBoxColliderCol
   return { colliders, warnings };
 }
 
+/** Whether the model uses the KHR_physics_rigid_bodies extension. */
+export function hasKhrPhysicsExtension(gltfModel: RnM2): boolean {
+  return gltfModel.extensionsUsed?.includes(KHR_PHYSICS_RIGID_BODIES) === true;
+}
+
+/**
+ * Loads the Rapier physics strategy when the model actually uses KHR_physics_rigid_bodies.
+ * The importer calls this before `setupKhrStaticColliders`, so the synchronous setup can use the loaded class.
+ * @internal
+ */
+export async function preloadKhrPhysicsSupport(gltfModel: RnM2): Promise<void> {
+  if (!hasKhrPhysicsExtension(gltfModel)) {
+    return;
+  }
+  if (rapierPhysicsStrategyClass != null) {
+    return;
+  }
+  if (rapierPhysicsStrategyPromise == null) {
+    rapierPhysicsStrategyPromise = import('../physics/Rapier/RapierPhysicsStrategy').then(module => {
+      rapierPhysicsStrategyClass = module.RapierPhysicsStrategy;
+    });
+  }
+  await rapierPhysicsStrategyPromise;
+}
+
 /**
  * Creates Rapier fixed bodies for supported KHR_physics_rigid_bodies colliders.
  */
@@ -752,10 +785,11 @@ export function setupKhrStaticColliders(gltfModel: RnM2, rnEntities: ISceneGraph
     bindings.push({ group, entity, shapeComponent, shapeIndices });
   }
 
-  if (!RapierPhysicsStrategy.isInitialized) {
+  const RapierPhysicsStrategy = rapierPhysicsStrategyClass;
+  if (RapierPhysicsStrategy == null || !RapierPhysicsStrategy.isInitialized) {
     const colliderCount = bindings.reduce((sum, binding) => sum + binding.shapeIndices.length, 0);
     Logger.default.warn(
-      `${KHR_PHYSICS_RIGID_BODIES}: Rapier is not initialized; ${colliderCount} physics binding(s) were skipped.`
+      `${KHR_PHYSICS_RIGID_BODIES}: Rapier is not loaded or not initialized; ${colliderCount} physics binding(s) were skipped.`
     );
     return;
   }

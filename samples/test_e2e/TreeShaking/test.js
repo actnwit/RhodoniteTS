@@ -63,6 +63,15 @@ test('TreeShaking bundle leaves out what the sample does not use', () => {
       /\/webgpu\/shaderity_shaders\//.test(path) ||
       // Material factories are imported one by one, never through the MaterialHelper namespace.
       path.endsWith('/foundation/helpers/MaterialHelper.js') ||
+      // Optional components register their hooks when they are imported; the Engine does not import them.
+      /\/foundation\/components\/Animation\/AnimationComponent\.js$/.test(path) ||
+      /\/foundation\/components\/CameraController\/CameraControllerComponent\.js$/.test(path) ||
+      /\/foundation\/cameras\/(Orbit|WalkThrough)CameraController\.js$/.test(path) ||
+      // Named mesh helpers drop the unused shapes and the compatibility MeshHelper object.
+      path.endsWith('/foundation/helpers/MeshHelperObject.js') ||
+      /\/foundation\/geometry\/shapes\/(?!Plane\.js$|IShape\.js$)[^/]+\.js$/.test(path) ||
+      // __RN_WEBGPU__ = false drops the WebGPU shader utility as well as the WGSL shaders.
+      path.endsWith('/foundation/materials/core/ShaderityUtilityWebGPU.js') ||
       // KTX2 (Zstandard decoder, ktx-parse) and Rapier are loaded only when they are used.
       /KTX2TextureLoader\.js$|_deps\/(zstddec|ktx-parse)\.js$|RapierPhysicsStrategy\.js$/.test(path)
   );
@@ -93,7 +102,14 @@ test('TreeShaking glTF bundle keeps optional material implementations lazy', () 
       /\/materials\/nodes\//.test(path) ||
       // MToon is used only by VRM models.
       /\/helpers\/materials\/createMToon(0x|1)Material\.js$/.test(path) ||
-      /\/materials\/contents\/MToon(0x|1)MaterialContent\.js$/.test(path)
+      /\/materials\/contents\/MToon(0x|1)MaterialContent\.js$/.test(path) ||
+      // Rapier and the Draco decoder are loaded only for models that need them.
+      path.endsWith('/physics/Rapier/RapierPhysicsStrategy.js') ||
+      path.endsWith('/importer/DrcPointCloudImporter.js') ||
+      // The importer does not pull the camera controller implementation either.
+      path.endsWith('/components/CameraController/CameraControllerComponent.js') ||
+      path.endsWith('/cameras/OrbitCameraController.js') ||
+      path.endsWith('/cameras/WalkThroughCameraController.js')
   );
   expect(unexpected).toEqual([]);
 
@@ -101,6 +117,8 @@ test('TreeShaking glTF bundle keeps optional material implementations lazy', () 
   const allInputs = new Set(Object.values(metafile.outputs).flatMap(output => Object.keys(output.inputs)));
   expect([...allInputs].some(path => path.endsWith('/createNodeBasedCustomMaterial.js'))).toBe(true);
   expect([...allInputs].some(path => path.endsWith('/createMToon1Material.js'))).toBe(true);
+  expect([...allInputs].some(path => path.endsWith('/RapierPhysicsStrategy.js'))).toBe(true);
+  expect([...allInputs].some(path => path.endsWith('/DrcPointCloudImporter.js'))).toBe(true);
 });
 
 test('TreeShaking PBR bundle does not include optional material implementations', () => {
@@ -121,7 +139,14 @@ test('TreeShaking PBR bundle does not include optional material implementations'
       /\/materials\/nodes\//.test(path) ||
       // MToon is used only by VRM models.
       /\/helpers\/materials\/createMToon(0x|1)Material\.js$/.test(path) ||
-      /\/materials\/contents\/MToon(0x|1)MaterialContent\.js$/.test(path)
+      /\/materials\/contents\/MToon(0x|1)MaterialContent\.js$/.test(path) ||
+      // Optional components and unused mesh shapes stay out of a PBR-only application.
+      path.endsWith('/components/Animation/AnimationComponent.js') ||
+      path.endsWith('/components/CameraController/CameraControllerComponent.js') ||
+      path.endsWith('/cameras/OrbitCameraController.js') ||
+      path.endsWith('/cameras/WalkThroughCameraController.js') ||
+      path.endsWith('/foundation/helpers/MeshHelperObject.js') ||
+      /\/geometry\/shapes\/(?!Plane\.js$|IShape\.js$)[^/]+\.js$/.test(path)
   );
   expect(unexpected).toEqual([]);
 });

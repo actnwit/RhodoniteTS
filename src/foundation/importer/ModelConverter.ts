@@ -95,7 +95,7 @@ import type { Engine } from '../system/Engine';
 import { Sampler } from '../textures/Sampler';
 import { Texture } from '../textures/Texture';
 import { detectBoneDataTypeForSkin } from './BoneDataTypeDetector';
-import { setupKhrStaticColliders } from './KhrPhysicsImporter';
+import { preloadKhrPhysicsSupport, setupKhrStaticColliders } from './KhrPhysicsImporter';
 import { RhodoniteImportExtension } from './RhodoniteImportExtension';
 
 declare let DracoDecoderModule: any;
@@ -372,6 +372,8 @@ export class ModelConverter {
     // Hierarchy
     this._setupHierarchy(gltfModel, rnEntities);
 
+    // Rapier is loaded only for models that use KHR_physics_rigid_bodies.
+    await preloadKhrPhysicsSupport(gltfModel);
     setupKhrStaticColliders(gltfModel, rnEntities);
 
     this.__setupNodeVisibility(gltfModel, rnEntities);

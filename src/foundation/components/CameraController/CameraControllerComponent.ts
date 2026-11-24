@@ -3,6 +3,7 @@ import type { ICameraController } from '../../cameras/ICameraController';
 import { OrbitCameraController } from '../../cameras/OrbitCameraController';
 import { WalkThroughCameraController } from '../../cameras/WalkThroughCameraController';
 import { Component } from '../../core/Component';
+import { registerComponentRuntimeHooks } from '../../core/ComponentRuntimeHooks';
 import type { IEntity } from '../../core/Entity';
 import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions';
@@ -11,6 +12,11 @@ import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
+import {
+  _deleteCameraControllerUpdateCount,
+  _getCameraControllerUpdateCount,
+  _setCameraControllerUpdateCount,
+} from './CameraControllerUpdateCount';
 
 /**
  * A component that manages and controls camera behavior and movement.
@@ -18,9 +24,6 @@ import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
  */
 export class CameraControllerComponent extends Component {
   private __cameraController: ICameraController;
-
-  /** Map to store update count per Engine instance for multi-engine support */
-  private static __updateCountMap: Map<Engine, number> = new Map();
 
   /**
    * Creates a new CameraControllerComponent instance.
@@ -121,7 +124,7 @@ export class CameraControllerComponent extends Component {
    * @param count - The new update count value
    */
   _updateCount(count: number) {
-    CameraControllerComponent.__updateCountMap.set(this.__engine, count);
+    _setCameraControllerUpdateCount(this.__engine, count);
   }
 
   /**
@@ -131,7 +134,7 @@ export class CameraControllerComponent extends Component {
    * @returns The current update count for the specified engine
    */
   static getUpdateCount(engine: Engine): number {
-    return CameraControllerComponent.__updateCountMap.get(engine) ?? 0;
+    return _getCameraControllerUpdateCount(engine);
   }
 
   /**
@@ -165,6 +168,22 @@ export class CameraControllerComponent extends Component {
    * @internal
    */
   static _cleanupForEngine(engine: Engine): void {
-    CameraControllerComponent.__updateCountMap.delete(engine);
+    _deleteCameraControllerUpdateCount(engine);
   }
 }
+
+/** Update count seen by the last processed frame, per engine (the Engine's initial value was -1). */
+const lastUpdateCountMap = new Map<Engine, number>();
+
+// The Engine reaches the camera controller update count through these hooks, so it does not import the
+// component (and the orbit/walk-through controllers it creates).
+registerComponentRuntimeHooks({
+  cleanup: engine => {
+    CameraControllerComponent._cleanupForEngine(engine);
+    lastUpdateCountMap.delete(engine);
+  },
+  isDirty: engine => CameraControllerComponent.getUpdateCount(engine) !== (lastUpdateCountMap.get(engine) ?? -1),
+  markUpdated: engine => {
+    lastUpdateCountMap.set(engine, CameraControllerComponent.getUpdateCount(engine));
+  },
+});

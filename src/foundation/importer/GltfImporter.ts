@@ -8,7 +8,7 @@ import type { RnPromiseCallback } from '../misc/RnPromise';
 import { Expression } from '../renderer/Expression';
 import { RenderPass } from '../renderer/RenderPass';
 import type { Engine } from '../system/Engine';
-import { DrcPointCloudImporter } from './DrcPointCloudImporter';
+import type { DrcPointCloudImporter } from './DrcPointCloudImporter';
 import { detectFormatByArrayBuffers } from './FormatDetector';
 import { Gltf2Importer } from './Gltf2Importer';
 import { ModelConverter } from './ModelConverter';
@@ -307,7 +307,9 @@ export class GltfImporter {
         return new Ok();
       }
       case FileType.Draco: {
-        const importer = DrcPointCloudImporter.getInstance() as DrcPointCloudImporter;
+        // The Draco decoder is only loaded for Draco files.
+        const { DrcPointCloudImporter: DrcPointCloudImporterClass } = await import('./DrcPointCloudImporter');
+        const importer = DrcPointCloudImporterClass.getInstance() as DrcPointCloudImporter;
         const gltfModel = await importer.importArrayBuffer(uri, fileArrayBuffer, options);
         if (gltfModel == null) {
           return new Err({

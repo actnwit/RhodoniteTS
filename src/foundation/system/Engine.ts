@@ -5,11 +5,8 @@ import type { WebGLResourceRepository } from '../../webgl/WebGLResourceRepositor
 import type { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
 import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import type { RnXR } from '../../xr/main';
-import { AnimationComponent } from '../components/Animation/AnimationComponent';
-import { AnimationStateRepository } from '../components/Animation/AnimationStateRepository';
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { createCameraEntity } from '../components/Camera/createCameraEntity';
-import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
 import { LightComponent } from '../components/Light/LightComponent';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
@@ -20,6 +17,7 @@ import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { Component } from '../core/Component';
 import { ComponentMemoryRegistry } from '../core/ComponentMemoryRegistry';
 import { ComponentRepository } from '../core/ComponentRepository';
+import { _getComponentRuntimeHooks } from '../core/ComponentRuntimeHooks';
 import { Config } from '../core/Config';
 import { EntityRepository } from '../core/EntityRepository';
 import { GlobalDataRepository } from '../core/GlobalDataRepository';
@@ -134,7 +132,6 @@ export class Engine extends RnObject {
   private __logger: Logger;
   private __dummyTextures?: DummyTextures;
   private __lastCameraComponentsUpdateCount = -1;
-  private __lastCameraControllerComponentsUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastPrimitiveCount = -1;
   private __lastLightComponentsUpdateCount = -1;
@@ -271,12 +268,12 @@ export class Engine extends RnObject {
       this.__memoryManager = undefined;
     }
 
+    // Optional component modules clean up their own Engine-keyed state.
+    this.__cleanupComponentRuntimeHooks();
+
     // Clean up static resources in components that use Engine-keyed maps
-    AnimationStateRepository._cleanupForEngine(this);
-    AnimationComponent._cleanupForEngine(this);
     TransformComponent._cleanupForEngine(this);
     SceneGraphComponent._cleanupForEngine(this);
-    CameraControllerComponent._cleanupForEngine(this);
     CameraComponent._cleanupForEngine(this);
     LightComponent._cleanupForEngine(this);
     MeshRendererComponent._cleanupForEngine(this);
@@ -307,7 +304,6 @@ export class Engine extends RnObject {
     // Reset internal state
     this.__renderPassTickCount = 0;
     this.__lastCameraComponentsUpdateCount = -1;
-    this.__lastCameraControllerComponentsUpdateCount = -1;
     this.__lastTransformComponentsUpdateCount = -1;
     this.__lastPrimitiveCount = -1;
 
@@ -465,7 +461,7 @@ export class Engine extends RnObject {
       this.__beginGpuTimer();
     }
     Time._processBegin(this);
-    AnimationStateRepository.beginProcessFrame(this);
+    this.__processComponentRuntimeHooksBeginFrame();
     let expressions: Expression[] = value;
     if (value instanceof Frame) {
       expressions = value.expressions;
@@ -857,10 +853,9 @@ export class Engine extends RnObject {
       } else {
         if (
           !this.__engineState.webgpuRenderBundleMode ||
-          AnimationComponent.getIsAnimating(this) ||
+          this.__isComponentRuntimeHookDirty() ||
           TransformComponent.getUpdateCount(this) !== this.__lastTransformComponentsUpdateCount ||
           CameraComponent.getCurrentCameraUpdateCount(this) !== this.__lastCameraComponentsUpdateCount ||
-          CameraControllerComponent.getUpdateCount(this) !== this.__lastCameraControllerComponentsUpdateCount ||
           Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount ||
           LightComponent.getUpdateCount(this) !== this.__lastLightComponentsUpdateCount
         ) {
@@ -893,10 +888,37 @@ export class Engine extends RnObject {
       }
     }
     this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this);
-    this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(this);
+    this.__processComponentRuntimeHooksMarkUpdated();
     this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this);
     this.__lastPrimitiveCount = Primitive.getPrimitiveCount();
     this.__lastLightComponentsUpdateCount = LightComponent.getUpdateCount(this);
+  }
+
+  private __processComponentRuntimeHooksBeginFrame() {
+    for (const hooks of _getComponentRuntimeHooks()) {
+      hooks.beginFrame?.(this);
+    }
+  }
+
+  private __isComponentRuntimeHookDirty(): boolean {
+    for (const hooks of _getComponentRuntimeHooks()) {
+      if (hooks.isDirty?.(this) === true) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private __processComponentRuntimeHooksMarkUpdated() {
+    for (const hooks of _getComponentRuntimeHooks()) {
+      hooks.markUpdated?.(this);
+    }
+  }
+
+  private __cleanupComponentRuntimeHooks() {
+    for (const hooks of _getComponentRuntimeHooks()) {
+      hooks.cleanup?.(this);
+    }
   }
 
   private _processWebGL(expressions: Expression[]) {
@@ -978,10 +1000,9 @@ export class Engine extends RnObject {
         }
       } else {
         if (
-          AnimationComponent.getIsAnimating(this) ||
+          this.__isComponentRuntimeHookDirty() ||
           TransformComponent.getUpdateCount(this) !== this.__lastTransformComponentsUpdateCount ||
           CameraComponent.getCurrentCameraUpdateCount(this) !== this.__lastCameraComponentsUpdateCount ||
-          CameraControllerComponent.getUpdateCount(this) !== this.__lastCameraControllerComponentsUpdateCount ||
           Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount ||
           LightComponent.getUpdateCount(this) !== this.__lastLightComponentsUpdateCount
         ) {
@@ -1012,7 +1033,7 @@ export class Engine extends RnObject {
       }
     }
     this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this);
-    this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(this);
+    this.__processComponentRuntimeHooksMarkUpdated();
     this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this);
     this.__lastPrimitiveCount = Primitive.getPrimitiveCount();
     this.__lastLightComponentsUpdateCount = LightComponent.getUpdateCount(this);
@@ -1135,9 +1156,9 @@ export class Engine extends RnObject {
     ComponentRepository._ensureComponentClassRegistered(MeshComponent);
     ComponentRepository._ensureComponentClassRegistered(MeshRendererComponent);
     ComponentRepository._ensureComponentClassRegistered(CameraComponent);
-    ComponentRepository._ensureComponentClassRegistered(CameraControllerComponent);
     ComponentRepository._ensureComponentClassRegistered(LightComponent);
-    ComponentRepository._ensureComponentClassRegistered(AnimationComponent);
+    // AnimationComponent and CameraControllerComponent register themselves on first use and provide their own
+    // runtime hooks, so they stay out of the core path.
     // SkeletalComponent registers its bone data members when its module is evaluated, and every generated
     // shader declares the bone data getters (get_boneData etc.), so the class must be part of the core
     // even in applications without skinned meshes.

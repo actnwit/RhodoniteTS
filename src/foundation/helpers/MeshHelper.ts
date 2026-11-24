@@ -90,7 +90,7 @@ const resolveBoxShapeDescriptor = (size: IVector3, required: boolean) => {
  * });
  * ```
  */
-const createPlane = (
+export const createPlane = (
   engine: Engine,
   desc: PlaneDescriptor & {
     direction?: 'xz' | 'xy' | 'yz';
@@ -148,7 +148,7 @@ const createPlane = (
  * });
  * ```
  */
-const createLine = (engine: Engine, desc: LineDescriptor = {}) => {
+export const createLine = (engine: Engine, desc: LineDescriptor = {}) => {
   const primitive = new Line(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
@@ -170,7 +170,7 @@ const createLine = (engine: Engine, desc: LineDescriptor = {}) => {
  * });
  * ```
  */
-const createGrid = (engine: Engine, desc: GridDescriptor = {}) => {
+export const createGrid = (engine: Engine, desc: GridDescriptor = {}) => {
   const primitive = new Grid(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
@@ -198,7 +198,7 @@ const createGrid = (engine: Engine, desc: GridDescriptor = {}) => {
  * });
  * ```
  */
-const createCone = (engine: Engine, desc: ConeDescriptor = {}) => {
+export const createCone = (engine: Engine, desc: ConeDescriptor = {}) => {
   const primitive = new Cone(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
@@ -247,7 +247,7 @@ const createCone = (engine: Engine, desc: ConeDescriptor = {}) => {
  * });
  * ```
  */
-const createCylinder = (engine: Engine, desc: CylinderDescriptor = {}) => {
+export const createCylinder = (engine: Engine, desc: CylinderDescriptor = {}) => {
   const primitive = new Cylinder(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
@@ -297,7 +297,7 @@ const createCylinder = (engine: Engine, desc: CylinderDescriptor = {}) => {
  * });
  * ```
  */
-const createCube = (engine: Engine, desc: CubeDescriptor = {}): IMeshEntity => {
+export const createCube = (engine: Engine, desc: CubeDescriptor = {}): IMeshEntity => {
   const primitive = new Cube(engine);
   primitive.generate(desc);
   const physics = Is.exist(desc.physics) && desc.physics.use ? desc.physics : undefined;
@@ -339,7 +339,7 @@ const createCube = (engine: Engine, desc: CubeDescriptor = {}): IMeshEntity => {
  * });
  * ```
  */
-const createCubes = (engine: Engine, numberToCreate: number, desc: CubeDescriptor = {}): IMeshEntity[] => {
+export const createCubes = (engine: Engine, numberToCreate: number, desc: CubeDescriptor = {}): IMeshEntity[] => {
   const primitive = new Cube(engine);
   primitive.generate(desc);
   const mesh = new Mesh(engine);
@@ -395,7 +395,7 @@ const createCubes = (engine: Engine, numberToCreate: number, desc: CubeDescripto
  * });
  * ```
  */
-const createSphere = (engine: Engine, desc: SphereDescriptor = {}): IMeshEntity => {
+export const createSphere = (engine: Engine, desc: SphereDescriptor = {}): IMeshEntity => {
   const primitive = new Sphere(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
@@ -436,7 +436,7 @@ const createSphere = (engine: Engine, desc: SphereDescriptor = {}): IMeshEntity 
  * });
  * ```
  */
-const createSpheres = (engine: Engine, numberToCreate: number, desc: SphereDescriptor = {}): IMeshEntity[] => {
+export const createSpheres = (engine: Engine, numberToCreate: number, desc: SphereDescriptor = {}): IMeshEntity[] => {
   const primitive = new Sphere(engine);
   primitive.generate(desc);
   const mesh = new Mesh(engine);
@@ -477,7 +477,7 @@ const createSpheres = (engine: Engine, numberToCreate: number, desc: SphereDescr
  * });
  * ```
  */
-const createJoint = (engine: Engine, desc: JointDescriptor = {}) => {
+export const createJoint = (engine: Engine, desc: JointDescriptor = {}) => {
   const primitive = new Joint(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
@@ -500,7 +500,7 @@ const createJoint = (engine: Engine, desc: JointDescriptor = {}) => {
  * });
  * ```
  */
-const createAxis = (engine: Engine, desc: AxisDescriptor = {}) => {
+export const createAxis = (engine: Engine, desc: AxisDescriptor = {}) => {
   const primitive = new Axis(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
@@ -532,7 +532,7 @@ const createAxis = (engine: Engine, desc: AxisDescriptor = {}) => {
  * });
  * ```
  */
-const createRing = (engine: Engine, desc: RingDescriptor = {}) => {
+export const createRing = (engine: Engine, desc: RingDescriptor = {}) => {
   const primitive = new Ring(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
@@ -566,7 +566,7 @@ const createRing = (engine: Engine, desc: RingDescriptor = {}) => {
  * });
  * ```
  */
-const createCapsule = (engine: Engine, desc: CapsuleDescriptor = {}) => {
+export const createCapsule = (engine: Engine, desc: CapsuleDescriptor = {}) => {
   const primitive = new Capsule(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
@@ -607,7 +607,7 @@ const createCapsule = (engine: Engine, desc: CapsuleDescriptor = {}) => {
  * const entity = createShape(customPrimitive);
  * ```
  */
-function createShape(engine: Engine, primitive: IShape) {
+export function createShape(engine: Engine, primitive: IShape) {
   const entity = createMeshEntity(engine);
   const meshComponent = entity.getMesh();
   const mesh = new Mesh(engine);
@@ -615,20 +615,3 @@ function createShape(engine: Engine, primitive: IShape) {
   meshComponent.setMesh(mesh);
   return entity;
 }
-
-export const MeshHelper = Object.freeze({
-  createPlane,
-  createLine,
-  createGrid,
-  createCone,
-  createCylinder,
-  createCube,
-  createCubes,
-  createSphere,
-  createSpheres,
-  createCapsule,
-  createJoint,
-  createAxis,
-  createRing,
-  createShape,
-});

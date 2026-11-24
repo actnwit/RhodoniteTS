@@ -21,7 +21,7 @@ import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { Is } from '../../misc/Is';
 import type { Engine } from '../../system/Engine';
-import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
+import { _getCameraControllerUpdateCount } from '../CameraController/CameraControllerUpdateCount';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { TransformComponent } from '../Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
@@ -1162,7 +1162,7 @@ export class CameraComponent extends Component {
       this.__lastUpdateCount === this.__updateCount &&
       this.__lastTransformComponentsUpdateCount === TransformComponent.getUpdateCount(this.__engine) &&
       this.__lastLightComponentsUpdateCount === lightComponentUpdateCount &&
-      this.__lastCameraControllerComponentsUpdateCount === CameraControllerComponent.getUpdateCount(this.__engine)
+      this.__lastCameraControllerComponentsUpdateCount === _getCameraControllerUpdateCount(this.__engine)
     ) {
       return;
     }
@@ -1241,7 +1241,7 @@ export class CameraComponent extends Component {
     this.__lastUpdateCount = this.__updateCount;
     this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this.__engine);
     this.__lastLightComponentsUpdateCount = lightComponentUpdateCount;
-    this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(this.__engine);
+    this.__lastCameraControllerComponentsUpdateCount = _getCameraControllerUpdateCount(this.__engine);
   }
 
   /**

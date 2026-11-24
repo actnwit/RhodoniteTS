@@ -26,7 +26,7 @@ import { ModuleManager } from '../../system/ModuleManager';
 import type { CubeTexture } from '../../textures/CubeTexture';
 import type { RenderTargetTextureCube } from '../../textures/RenderTargetTextureCube';
 import { CameraComponent } from '../Camera/CameraComponent';
-import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
+import { _getCameraControllerUpdateCount } from '../CameraController/CameraControllerUpdateCount';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import type { MeshComponent } from '../Mesh/MeshComponent';
 import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
@@ -371,7 +371,7 @@ export class MeshRendererComponent extends Component {
     const isGpuCullingActive = MeshRendererComponent._isGpuCullingActive(engine, renderPass);
     if (
       TransformComponent.getUpdateCount(engine) === renderPass._lastTransformComponentsUpdateCount &&
-      CameraControllerComponent.getUpdateCount(engine) === renderPass._lastCameraControllerComponentsUpdateCount &&
+      _getCameraControllerUpdateCount(engine) === renderPass._lastCameraControllerComponentsUpdateCount &&
       SceneGraphComponent.getUpdateCount(engine) === renderPass._lastSceneGraphComponentsUpdateCount &&
       multiDrawGroupVersion === renderPass._lastMultiDrawGroupVersion &&
       isGpuCullingActive === scratch.isGpuCullingActive &&
@@ -544,7 +544,7 @@ export class MeshRendererComponent extends Component {
     renderPass._lastPrimitives = primitives;
 
     renderPass._lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(engine);
-    renderPass._lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(engine);
+    renderPass._lastCameraControllerComponentsUpdateCount = _getCameraControllerUpdateCount(engine);
     renderPass._lastSceneGraphComponentsUpdateCount = SceneGraphComponent.getUpdateCount(engine);
     renderPass._lastMultiDrawGroupVersion = multiDrawGroupVersion;
     if (resultChanged) {
