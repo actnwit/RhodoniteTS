@@ -1,0 +1,1 @@
+var t=new Map;function o(e,n){t.set(e,n)}function r(e){var n;return(n=t.get(e))!=null?n:0}function a(e){t.delete(e)}export{a as _deleteCameraControllerUpdateCount,r as _getCameraControllerUpdateCount,o as _setCameraControllerUpdateCount};

@@ -86,7 +86,6 @@ export declare class Engine extends RnObject {
     private __logger;
     private __dummyTextures?;
     private __lastCameraComponentsUpdateCount;
-    private __lastCameraControllerComponentsUpdateCount;
     private __lastTransformComponentsUpdateCount;
     private __lastPrimitiveCount;
     private __lastLightComponentsUpdateCount;
@@ -227,6 +226,10 @@ export declare class Engine extends RnObject {
     private __renderDeferredEffekseerEffectsAfterResolveWebGPU;
     private __renderMeshesWebGPU;
     private _processWebGPU;
+    private __processComponentRuntimeHooksBeginFrame;
+    private __isComponentRuntimeHookDirty;
+    private __processComponentRuntimeHooksMarkUpdated;
+    private __cleanupComponentRuntimeHooks;
     private _processWebGL;
     static get processTime(): number;
     static get timeAtProcessBegin(): number;

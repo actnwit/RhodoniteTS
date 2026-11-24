@@ -4,6 +4,7 @@ export * from './EntityHelper';
 export * from './GaussianBlurHelper';
 export * from './MaterialHelper';
 export * from './MeshHelper';
+export * from './MeshHelperObject';
 export * from './materials/index';
 export * from './RenderableHelper';
 export * from './RenderPassHelper';
