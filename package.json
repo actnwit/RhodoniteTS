@@ -22,7 +22,10 @@
     "./vendor/*": "./vendor/*",
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
+  "sideEffects": [
+    "./dist/esm/_deps/chunk-*.js",
+    "./dist/esmdev/_deps/chunk-*.js"
+  ],
   "files": [
     "dist/esm",
     "dist/esmdev",
