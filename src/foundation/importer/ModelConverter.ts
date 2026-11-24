@@ -67,8 +67,6 @@ import type {
 } from '../helpers/EntityHelper';
 import { attachLightShadowCamera } from '../helpers/EntityHelper';
 import { createClassicUberMaterial } from '../helpers/materials/createClassicUberMaterial';
-import { createMToon0xMaterial } from '../helpers/materials/createMToon0xMaterial';
-import { createMToon1Material } from '../helpers/materials/createMToon1Material';
 import { createPbrUberMaterial } from '../helpers/materials/createPbrUberMaterial';
 import type { Material } from '../materials/core/Material';
 import { AnimatedQuaternion } from '../math/AnimatedQuaternion';
@@ -101,6 +99,17 @@ import { setupKhrStaticColliders } from './KhrPhysicsImporter';
 import { RhodoniteImportExtension } from './RhodoniteImportExtension';
 
 declare let DracoDecoderModule: any;
+
+type CreateMToon0xMaterial = typeof import('../helpers/materials/createMToon0xMaterial').createMToon0xMaterial;
+type CreateMToon1Material = typeof import('../helpers/materials/createMToon1Material').createMToon1Material;
+
+/**
+ * MToon material implementations are loaded on demand. They pull in the MToon shaders and material contents, which
+ * a plain glTF model never uses. The importer preloads them before generating materials when the model actually
+ * contains VRM materials, so the synchronous material functions can call them through these variables.
+ */
+let createMToon0xMaterialImpl: CreateMToon0xMaterial | undefined;
+let createMToon1MaterialImpl: CreateMToon1Material | undefined;
 
 /**
  * A converter class from glTF2 model to Rhodonite Native data
@@ -187,6 +196,39 @@ export class ModelConverter {
       }
     }
     return rnMaterials;
+  }
+
+  /**
+   * Loads the MToon material implementations only when the model actually uses VRM materials.
+   * This keeps the MToon material contents and shaders out of plain glTF applications.
+   *
+   * @param gltfModel - The glTF model data to inspect
+   * @internal
+   */
+  private static async __preloadMToonMaterialSupport(gltfModel: RnM2): Promise<void> {
+    const materials = gltfModel.materials ?? [];
+    const needsMToon1 = materials.some(material => material.extensions?.VRMC_materials_mtoon != null);
+    const needsMToon0x = materials.some(material => {
+      const materialProperties = material.extras?.vrm0xMaterialProperty as Vrm0xMaterialProperty | undefined;
+      return materialProperties?.shader === 'VRM/MToon';
+    });
+
+    const loads: Promise<void>[] = [];
+    if (needsMToon1 && createMToon1MaterialImpl == null) {
+      loads.push(
+        import('../helpers/materials/createMToon1Material').then(module => {
+          createMToon1MaterialImpl = module.createMToon1Material;
+        })
+      );
+    }
+    if (needsMToon0x && createMToon0xMaterialImpl == null) {
+      loads.push(
+        import('../helpers/materials/createMToon0xMaterial').then(module => {
+          createMToon0xMaterialImpl = module.createMToon0xMaterial;
+        })
+      );
+    }
+    await Promise.all(loads);
   }
 
   /**
@@ -297,6 +339,10 @@ export class ModelConverter {
 
     const rnTextures = await this.__setupTextures(engine, gltfModel);
     const rnSamplers = this.__createSamplers(engine, gltfModel);
+
+    // Optional material implementations stay out of applications that do not use them.
+    await this.__preloadMToonMaterialSupport(gltfModel);
+    await RhodoniteImportExtension.preloadNodeBasedMaterialSupport(gltfModel);
 
     // Materials
     const rnMaterials = this.__setupMaterials(engine, gltfModel, rnTextures, rnSamplers);
@@ -1788,6 +1834,14 @@ export class ModelConverter {
 
     const VRMC_materials_mtoon = materialJson.extensions?.VRMC_materials_mtoon;
     if (VRMC_materials_mtoon != null) {
+      const createMToon1Material = createMToon1MaterialImpl;
+      if (createMToon1Material == null) {
+        Logger.default.error(
+          'VRM 1.0 material support is not loaded. Import the model through ModelConverter.convertToRhodoniteObject().'
+        );
+        return undefined;
+      }
+
       // argument
       const defaultMaterialHelperArgument = rnLoaderOptions.defaultMaterialHelperArgumentArray![0];
 
@@ -1978,6 +2032,14 @@ export class ModelConverter {
     const materialProperties = materialJson.extras!.vrm0xMaterialProperty as Vrm0xMaterialProperty;
     const shaderName = materialProperties.shader;
     if (shaderName === 'VRM/MToon') {
+      const createMToon0xMaterial = createMToon0xMaterialImpl;
+      if (createMToon0xMaterial == null) {
+        Logger.default.error(
+          'VRM 0.x material support is not loaded. Import the model through ModelConverter.convertToRhodoniteObject().'
+        );
+        return undefined;
+      }
+
       // argument
       const defaultMaterialHelperArgument = rnLoaderOptions.defaultMaterialHelperArgumentArray![0];
 
@@ -2154,11 +2216,15 @@ export class ModelConverter {
           rnSamplers ?? [],
           pbrUberMaterialOptions
         );
-        if (!customMaterial) {
-          throw new Error('Failed to create node-based custom material');
+        if (Is.exist(customMaterial)) {
+          customMaterial.isTranslucent = isTranslucent;
+          return customMaterial;
         }
-        customMaterial.isTranslucent = isTranslucent;
-        return customMaterial;
+        // The node-based material implementation is loaded on demand. Falling back to the default material
+        // keeps the synchronous convertToRhodoniteObjectSimple() path usable.
+        Logger.default.error(
+          'RHODONITE_materials_node: Failed to create a node-based material. Falling back to the default material.'
+        );
       }
     }
 

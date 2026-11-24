@@ -11,6 +11,11 @@ samples/**/types.js*
 samples/test_e2e/common/testHelpers.js
 samples/test_e2e/common/testHelpers.js.map
 samples/test_e2e/TreeShaking/bundle/
+samples/test_e2e/TreeShaking/bundle-gltf/
+samples/test_e2e/TreeShaking/mainGltf.js
+samples/test_e2e/TreeShaking/mainGltf.js.map
+# Temporary package files created by scripts/build-tree-shaking-sample.mjs.
+samples/test_e2e/TreeShaking/package.json
 samples/test_e2e/PointLightShadowMap/PointShadowMap.js
 samples/test_e2e/PointLightShadowMap/PointShadowMap.js.map
 samples/test_e2e/MultipleLightsShadowMap/PointShadowMap.js

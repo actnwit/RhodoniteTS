@@ -6,6 +6,10 @@
   "compilerOptions": {
     "module": "ESNext",
     "rootDir": "..",
+    // The TreeShaking sample imports the package by name (bundled by scripts/build-tree-shaking-sample.mjs).
+    "paths": {
+      "rhodonite": ["./../dist/esmdev/index.d.ts"]
+    },
     "declaration": false,
     "declarationDir": null,
     "lib": ["ES2022", "DOM", "ESNext"],

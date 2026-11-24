@@ -49,9 +49,17 @@ export class ModuleManager {
   ): Promise<any> {
     let module: any;
     if (moduleName.toLowerCase() === 'webgl') {
-      module = await (await import(/* webpackChunkName: "webgl" */ '../../webgl/main')).default;
+      if (typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__) {
+        module = await (await import(/* webpackChunkName: "webgl" */ '../../webgl/main')).default;
+      } else {
+        throw new Error('WebGL support is disabled in this build (__RN_WEBGL__ = false).');
+      }
     } else if (moduleName.toLowerCase() === 'webgpu') {
-      module = await (await import(/* webpackChunkName: "webgpu" */ '../../webgpu/main')).default;
+      if (typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__) {
+        module = await (await import(/* webpackChunkName: "webgpu" */ '../../webgpu/main')).default;
+      } else {
+        throw new Error('WebGPU support is disabled in this build (__RN_WEBGPU__ = false).');
+      }
     } else if (moduleName.toLowerCase() === 'effekseer') {
       module = await (await import(/* webpackChunkName: "effekseer" */ '../../effekseer/main')).Effekseer;
       module.EffekseerComponent.wasmModuleUri = options?.wasm;

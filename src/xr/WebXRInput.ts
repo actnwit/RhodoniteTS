@@ -4,8 +4,6 @@ import { MotionController } from 'webxr-input-profiles/packages/motion-controlle
 import { fetchProfile } from 'webxr-input-profiles/packages/motion-controllers/src/profiles.js';
 import type { IEntity } from '../foundation/core/Entity';
 import type { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
-import { Gltf2Importer } from '../foundation/importer/Gltf2Importer';
-import { ModelConverter } from '../foundation/importer/ModelConverter';
 import type { IMutableQuaternion } from '../foundation/math/IQuaternion';
 import type { IMutableVector3 } from '../foundation/math/IVector';
 import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
@@ -138,6 +136,8 @@ export async function createMotionController(
   const motionController = new MotionController(xrInputSource, profile, assetPath!);
   motionControllers.set(xrInputSource, motionController);
   const result = await addMotionControllerToScene(motionController);
+  // The glTF importer and its optional material implementations are loaded only when a controller model is needed.
+  const { ModelConverter } = await import('../foundation/importer/ModelConverter');
   const rootGroup = await ModelConverter.convertToRhodoniteObject(engine, result);
   return rootGroup;
 }
@@ -148,6 +148,7 @@ export async function createMotionController(
  * @returns Promise that resolves to the loaded asset
  */
 async function addMotionControllerToScene(motionController: MotionController) {
+  const { Gltf2Importer } = await import('../foundation/importer/Gltf2Importer');
   const asset = await Gltf2Importer.importFromUrl(motionController.assetUrl);
   addTouchPointDots(motionController, asset);
   // MyEngine.scene.add(asset);

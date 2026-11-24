@@ -1165,7 +1165,7 @@ export class Engine extends RnObject {
 
     Engine.__registerCoreComponentClasses();
 
-    await ModuleManager.getInstance().loadModule('pbr');
+    // The PBR module (the sheen LUT image) is loaded on demand by DummyTextures.requestSheenLutTexture().
     // The XR support pulls in the glTF importer (controller models), so it is loaded only when requested.
     const rnXRModule =
       (desc.xr ?? Engine._loadXRByDefault) ? ((await ModuleManager.getInstance().loadModule('xr')) as RnXR) : undefined;

@@ -3,7 +3,7 @@
 // the bundle that scripts/build-tree-shaking-sample.mjs creates with esbuild, so the bundler tree-shakes everything
 // this file does not use, and `__RN_WEBGPU__: false` drops the WGSL shaders. The E2E test checks both the rendering
 // and the contents of that bundle.
-import { Config, Engine, MeshHelper, ProcessApproach, Vector3 } from '../../../dist/esmdev/index.js';
+import { Config, Engine, MeshHelper, ProcessApproach, Vector3 } from 'rhodonite';
 
 declare const window: any;
 

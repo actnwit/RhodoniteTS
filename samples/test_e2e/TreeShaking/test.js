@@ -5,11 +5,16 @@ const setURL = 'http://localhost:8082/samples/test_e2e/TreeShaking';
 
 // esbuild's metafile of the sample bundle, written by scripts/build-tree-shaking-sample.mjs (pnpm build-samples).
 const readMetafile = () => JSON.parse(readFileSync('./samples/test_e2e/TreeShaking/bundle/meta.json', 'utf8'));
+// The glTF/PBR scenario is bundled too, but the page never loads it: only its metafile is inspected.
+const readGltfMetafile = () => JSON.parse(readFileSync('./samples/test_e2e/TreeShaking/bundle-gltf/meta.json', 'utf8'));
 
-/** The source modules that the entry chunk and its static imports contain, i.e. what loads before main.ts runs. */
-const staticallyLoadedModules = metafile => {
+/**
+ * The source modules that the entry chunk and its static imports contain, i.e. what loads before the sample runs.
+ * The metafile also lists the lazy chunks as entry points, so the sample entry is selected by its path.
+ */
+const staticallyLoadedModules = (metafile, entrySuffix) => {
   const outputs = metafile.outputs;
-  const entry = Object.keys(outputs).find(path => outputs[path].entryPoint != null);
+  const entry = Object.keys(outputs).find(path => outputs[path].entryPoint?.endsWith(entrySuffix));
   const chunks = new Set();
   const stack = [entry];
   while (stack.length > 0) {
@@ -40,7 +45,7 @@ test('regression test TreeShaking', async () => {
 });
 
 test('TreeShaking bundle leaves out what the sample does not use', () => {
-  const modules = staticallyLoadedModules(readMetafile());
+  const modules = staticallyLoadedModules(readMetafile(), 'samples/test_e2e/TreeShaking/main.ts');
 
   // Sanity check: the bundle is built from the unbundled ESM output.
   expect(modules.some(path => path.endsWith('dist/esmdev/foundation/system/Engine.js'))).toBe(true);
@@ -59,6 +64,60 @@ test('TreeShaking bundle leaves out what the sample does not use', () => {
       /KTX2TextureLoader\.js$|_deps\/(zstddec|ktx-parse)\.js$|RapierPhysicsStrategy\.js$/.test(path)
   );
   expect(unexpected).toEqual([]);
+});
+
+test('TreeShaking bundle does not emit the disabled WebGPU backend', () => {
+  const outputs = readMetafile().outputs;
+  const webgpuChunk = Object.entries(outputs).find(([, output]) =>
+    output.entryPoint?.endsWith('dist/esmdev/webgpu/main.js')
+  );
+  // __RN_WEBGPU__ = false removes the dynamic import itself, so the chunk is not emitted at all.
+  expect(webgpuChunk).toBeUndefined();
+});
+
+test('TreeShaking glTF bundle keeps optional material implementations lazy', () => {
+  const metafile = readGltfMetafile();
+  const modules = staticallyLoadedModules(metafile, 'samples/test_e2e/TreeShaking/mainGltf.ts');
+
+  // The glTF importer and the PBR material are part of this application.
+  expect(modules.some(path => path.endsWith('dist/esmdev/foundation/importer/ModelConverter.js'))).toBe(true);
+
+  const unexpected = modules.filter(
+    path =>
+      // Node-based materials pull the shader graph resolver and every shader node class.
+      path.endsWith('/helpers/materials/createNodeBasedCustomMaterial.js') ||
+      path.endsWith('/materials/core/ShaderGraphResolver.js') ||
+      /\/materials\/nodes\//.test(path) ||
+      // MToon is used only by VRM models.
+      /\/helpers\/materials\/createMToon(0x|1)Material\.js$/.test(path) ||
+      /\/materials\/contents\/MToon(0x|1)MaterialContent\.js$/.test(path)
+  );
+  expect(unexpected).toEqual([]);
+
+  // They are still emitted for models that use them, but only as lazy chunks.
+  const allInputs = new Set(Object.values(metafile.outputs).flatMap(output => Object.keys(output.inputs)));
+  expect([...allInputs].some(path => path.endsWith('/createNodeBasedCustomMaterial.js'))).toBe(true);
+  expect([...allInputs].some(path => path.endsWith('/createMToon1Material.js'))).toBe(true);
+});
+
+test('TreeShaking sample does not download the PBR sheen LUT at runtime', async () => {
+  const metafile = readMetafile();
+  const pbrChunk = Object.entries(metafile.outputs).find(([, output]) =>
+    output.entryPoint?.endsWith('dist/esmdev/pbr/main.js')
+  )?.[0];
+  // The module stays a lazy chunk, but the sample creates no sheen material, so it must not be requested.
+  expect(pbrChunk).toBeDefined();
+  const pbrChunkFileName = pbrChunk.split('/').pop();
+
+  const page = await browser.newPage();
+  const requestedFiles = [];
+  page.on('request', request => requestedFiles.push(request.url().split('/').pop()));
+  await page.setDefaultNavigationTimeout(2000000);
+  await page.goto(setURL);
+  await page.waitForFunction(() => window._rendered, { timeout: 2000000 });
+  await page.close();
+
+  expect(requestedFiles).not.toContain(pbrChunkFileName);
 });
 
 test('TreeShaking sample does not download the XR module at runtime', async () => {
