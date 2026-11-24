@@ -1,37 +1,12 @@
 import ShaderityModule, { type ShaderityObject } from 'shaderity';
 import type { CGAPIResourceHandle } from '../../../types/CommonTypes';
-import { alphaProcessGlsl } from '../../../webgl/shaderity_shaders/common/alphaProcess';
-import { enableVertexExtensionsGlsl } from '../../../webgl/shaderity_shaders/common/enableVertexExtensions';
-import { fullscreenGlsl } from '../../../webgl/shaderity_shaders/common/fullscreen';
-import { glslPrecisionGlsl } from '../../../webgl/shaderity_shaders/common/glslPrecision';
-import { iblDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/iblDefinition';
-import { mainPrerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/mainPrerequisites';
-import { opticalDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/opticalDefinition';
-import { outputSrgbGlsl } from '../../../webgl/shaderity_shaders/common/outputSrgb';
-import { pbrDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/pbrDefinition';
-import { prerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/prerequisites';
-import { processGeometryGlsl } from '../../../webgl/shaderity_shaders/common/processGeometry';
-import { shadowGlsl } from '../../../webgl/shaderity_shaders/common/shadow';
-import { vertexInGlsl } from '../../../webgl/shaderity_shaders/common/vertexIn';
-import { vertexInOutGlsl } from '../../../webgl/shaderity_shaders/common/vertexInOut';
-import { wireframeGlsl } from '../../../webgl/shaderity_shaders/common/wireframe';
+import type { RnWebGL } from '../../../webgl/main';
+import type { GlslCommonChunks } from '../../../webgl/shaders/glslCommonChunks';
 import type { AttributeNames } from '../../../webgl/types/CommonTypes';
 import type { WebGLContextWrapper } from '../../../webgl/WebGLContextWrapper';
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
-import { alphaProcessWgsl } from '../../../webgpu/shaderity_shaders/common/alphaProcess';
-import { boneDecodeWgsl } from '../../../webgpu/shaderity_shaders/common/boneDecode';
-import { fullscreenWgsl } from '../../../webgpu/shaderity_shaders/common/fullscreen';
-import { iblDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/iblDefinition';
-import { mainPrerequisitesWgsl } from '../../../webgpu/shaderity_shaders/common/mainPrerequisites';
-import { opticalDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/opticalDefinition';
-import { outputSrgbWgsl } from '../../../webgpu/shaderity_shaders/common/outputSrgb';
-import { pbrDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/pbrDefinition';
-import { prerequisitesWgsl } from '../../../webgpu/shaderity_shaders/common/prerequisites';
-import { processGeometryWgsl } from '../../../webgpu/shaderity_shaders/common/processGeometry';
-import { shadowWgsl } from '../../../webgpu/shaderity_shaders/common/shadow';
-import { vertexInputWgsl } from '../../../webgpu/shaderity_shaders/common/vertexInput';
-import { vertexOutputWgsl } from '../../../webgpu/shaderity_shaders/common/vertexOutput';
-import { wireframeWgsl } from '../../../webgpu/shaderity_shaders/common/wireframe';
+import type { RnWebGpu } from '../../../webgpu/main';
+import type { WgslCommonChunks } from '../../../webgpu/wgslCommonChunks';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 import { Component } from '../../core/Component';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
@@ -43,12 +18,37 @@ import type { VertexAttributeEnum } from '../../definitions/VertexAttribute';
 import type { Primitive } from '../../geometry/Primitive';
 import { Is } from '../../misc/Is';
 import type { Engine } from '../../system/Engine';
+import { ModuleManager } from '../../system/ModuleManager';
 import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import type { Material } from './Material';
 import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
 import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
+
+/**
+ * The common GLSL chunks come with the WebGL module (loaded by Engine.init for ProcessApproach.WebGL2),
+ * so that WebGPU applications do not bundle them.
+ */
+function __getGlslCommonChunks(): GlslCommonChunks {
+  const webglModule = ModuleManager.getInstance().getModule('webgl') as RnWebGL | undefined;
+  if (webglModule == null) {
+    throw new Error('The WebGL module is not loaded. Initialize the engine with ProcessApproach.WebGL2 first.');
+  }
+  return webglModule.glslCommonChunks;
+}
+
+/**
+ * The common WGSL chunks come with the WebGPU module (loaded by Engine.init for ProcessApproach.WebGPU),
+ * so that WebGL applications do not bundle them.
+ */
+function __getWgslCommonChunks(): WgslCommonChunks {
+  const webgpuModule = ModuleManager.getInstance().getModule('webgpu') as RnWebGpu | undefined;
+  if (webgpuModule == null) {
+    throw new Error('The WebGPU module is not loaded. Initialize the engine with ProcessApproach.WebGPU first.');
+  }
+  return webgpuModule.wgslCommonChunks;
+}
 
 /**
  * Handles shader program creation, caching, and management for the rendering system.
@@ -238,9 +238,9 @@ export function _createProgramAsSingleOperationWebGL(
 
   // Determine if Multi-View rendering is enabled for WebXR
   const webglResourceRepository = engine.webglResourceRepository;
-  const webXRSystem = engine.webXRSystem;
+  const webXRSystem = engine._webXRSystemIfEnabled;
   const isMultiViewVRRendering =
-    Is.exist(webXRSystem) && webXRSystem.isWebXRMode && webglResourceRepository.isSupportMultiViewVRRendering(engine);
+    Is.exist(webXRSystem) && webXRSystem?.isWebXRMode && webglResourceRepository.isSupportMultiViewVRRendering(engine);
 
   const cacheQuery =
     Component.getStateVersion(engine) +
@@ -276,27 +276,28 @@ export function _createProgramAsSingleOperationWebGL(
   let pixelShader = _setupGlobalShaderDefinitionWebGL(engine, material.__materialTypeName, primitive);
   pixelShader += '#define RN_IS_PIXEL_SHADER\n';
 
+  const glslChunks = __getGlslCommonChunks();
   const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(
     engine,
     materialNode.vertexShaderityObject!,
     primitive,
     {
-      enableVertexExtensions: enableVertexExtensionsGlsl.code,
-      glslPrecision: glslPrecisionGlsl.code,
-      vertexInOut: vertexInOutGlsl.code,
-      fullscreen: fullscreenGlsl.code,
+      enableVertexExtensions: glslChunks.enableVertexExtensions,
+      glslPrecision: glslChunks.glslPrecision,
+      vertexInOut: glslChunks.vertexInOut,
+      fullscreen: glslChunks.fullscreen,
       WellKnownComponentTIDs,
       getters: vertexPropertiesStr,
       definitions: definitions,
-      prerequisites: prerequisitesGlsl.code,
-      mainPrerequisites: mainPrerequisitesGlsl.code,
+      prerequisites: glslChunks.prerequisites,
+      mainPrerequisites: glslChunks.mainPrerequisites,
       matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
-      opticalDefinition: opticalDefinitionGlsl.code,
-      shadowDefinition: shadowGlsl.code,
-      pbrDefinition: pbrDefinitionGlsl.code,
-      iblDefinition: iblDefinitionGlsl.code,
-      alphaProcess: alphaProcessGlsl.code,
-      processGeometry: processGeometryGlsl.code,
+      opticalDefinition: glslChunks.opticalDefinition,
+      shadowDefinition: glslChunks.shadow,
+      pbrDefinition: glslChunks.pbrDefinition,
+      iblDefinition: glslChunks.iblDefinition,
+      alphaProcess: glslChunks.alphaProcess,
+      processGeometry: glslChunks.processGeometry,
       Config: engine.config,
     }
   );
@@ -306,22 +307,22 @@ export function _createProgramAsSingleOperationWebGL(
     materialNode.pixelShaderityObject!,
     primitive,
     {
-      glslPrecision: glslPrecisionGlsl.code,
+      glslPrecision: glslChunks.glslPrecision,
       WellKnownComponentTIDs,
-      vertexIn: vertexInGlsl.code,
+      vertexIn: glslChunks.vertexIn,
       renderTargetBegin: webglResourceRepository.getGlslRenderTargetBeginString(4),
       getters: pixelPropertiesStr,
       definitions: definitions + alphaMode,
-      prerequisites: prerequisitesGlsl.code,
-      mainPrerequisites: mainPrerequisitesGlsl.code,
+      prerequisites: glslChunks.prerequisites,
+      mainPrerequisites: glslChunks.mainPrerequisites,
       matricesGetters: componentDataAccessMethodDefinitionsForPixelShader,
-      opticalDefinition: opticalDefinitionGlsl.code,
-      pbrDefinition: pbrDefinitionGlsl.code,
-      iblDefinition: iblDefinitionGlsl.code,
-      alphaProcess: alphaProcessGlsl.code,
-      outputSrgb: outputSrgbGlsl.code,
-      wireframe: wireframeGlsl.code,
-      shadowDefinition: shadowGlsl.code,
+      opticalDefinition: glslChunks.opticalDefinition,
+      pbrDefinition: glslChunks.pbrDefinition,
+      iblDefinition: glslChunks.iblDefinition,
+      alphaProcess: glslChunks.alphaProcess,
+      outputSrgb: glslChunks.outputSrgb,
+      wireframe: glslChunks.wireframe,
+      shadowDefinition: glslChunks.shadow,
       Config: engine.config,
     }
   );
@@ -397,10 +398,10 @@ export function _setupGlobalShaderDefinitionWebGL(engine: Engine, materialTypeNa
     }
   }
 
-  const webXRSystem = engine.webXRSystem;
+  const webXRSystem = engine._webXRSystemIfEnabled;
   if (
     Is.exist(webXRSystem) &&
-    webXRSystem.isWebXRMode &&
+    webXRSystem?.isWebXRMode &&
     webglResourceRepository.isSupportMultiViewVRRendering(engine)
   ) {
     definitions += '#define WEBGL2_MULTI_VIEW\n';
@@ -486,27 +487,28 @@ export function _createProgramAsSingleOperationWebGpu(
     propertySetterOfMaterial
   );
 
+  const wgslChunks = __getWgslCommonChunks();
   const vertexShaderityObject = ShaderityUtilityWebGPU.fillTemplate(
     engine,
     materialNode.vertexShaderityObject!,
     primitive,
     {
       WellKnownComponentTIDs,
-      vertexInput: vertexInputWgsl.code,
-      vertexOutput: vertexOutputWgsl.code,
-      prerequisites: prerequisitesWgsl.code,
-      mainPrerequisites: mainPrerequisitesWgsl.code,
-      fullscreen: fullscreenWgsl.code,
+      vertexInput: wgslChunks.vertexInput,
+      vertexOutput: wgslChunks.vertexOutput,
+      prerequisites: wgslChunks.prerequisites,
+      mainPrerequisites: wgslChunks.mainPrerequisites,
+      fullscreen: wgslChunks.fullscreen,
       getters: vertexPropertiesStr,
       definitions: `// RN_IS_VERTEX_SHADER\n#define RN_IS_VERTEX_SHADER\n${definitions}`,
       matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
-      opticalDefinition: opticalDefinitionWgsl.code,
-      shadowDefinition: shadowWgsl.code,
-      pbrDefinition: pbrDefinitionWgsl.code,
-      iblDefinition: iblDefinitionWgsl.code,
-      alphaProcess: alphaProcessWgsl.code,
+      opticalDefinition: wgslChunks.opticalDefinition,
+      shadowDefinition: wgslChunks.shadow,
+      pbrDefinition: wgslChunks.pbrDefinition,
+      iblDefinition: wgslChunks.iblDefinition,
+      alphaProcess: wgslChunks.alphaProcess,
       // The bone decoding is shared with the skinning compute shader (WebGpuVertexDeformer).
-      processGeometry: `#ifdef RN_IS_SKINNING\n${boneDecodeWgsl.code}\n#endif\n${processGeometryWgsl.code}`,
+      processGeometry: `#ifdef RN_IS_SKINNING\n${wgslChunks.boneDecode}\n#endif\n${wgslChunks.processGeometry}`,
       Config: engine.config,
     }
   );
@@ -517,19 +519,19 @@ export function _createProgramAsSingleOperationWebGpu(
     primitive,
     {
       WellKnownComponentTIDs,
-      vertexOutput: vertexOutputWgsl.code,
-      prerequisites: prerequisitesWgsl.code,
-      mainPrerequisites: mainPrerequisitesWgsl.code,
+      vertexOutput: wgslChunks.vertexOutput,
+      prerequisites: wgslChunks.prerequisites,
+      mainPrerequisites: wgslChunks.mainPrerequisites,
       getters: pixelPropertiesStr,
       definitions: `// RN_IS_PIXEL_SHADER\n#define RN_IS_PIXEL_SHADER\n${definitions}${alphaMode}`,
       matricesGetters: componentDataAccessMethodDefinitionsForPixelShader,
-      opticalDefinition: opticalDefinitionWgsl.code,
-      shadowDefinition: shadowWgsl.code,
-      pbrDefinition: pbrDefinitionWgsl.code,
-      iblDefinition: iblDefinitionWgsl.code,
-      alphaProcess: alphaProcessWgsl.code,
-      outputSrgb: outputSrgbWgsl.code,
-      wireframe: wireframeWgsl.code,
+      opticalDefinition: wgslChunks.opticalDefinition,
+      shadowDefinition: wgslChunks.shadow,
+      pbrDefinition: wgslChunks.pbrDefinition,
+      iblDefinition: wgslChunks.iblDefinition,
+      alphaProcess: wgslChunks.alphaProcess,
+      outputSrgb: wgslChunks.outputSrgb,
+      wireframe: wgslChunks.wireframe,
       Config: engine.config,
     }
   );

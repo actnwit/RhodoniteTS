@@ -1,8 +1,14 @@
-import AttributeWeightShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/AttributeWeight.vert.glsl';
-import AttributeWeightShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/AttributeWeight.vert.wgsl';
+import AttributeWeightShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/AttributeWeight.vert.glsl';
+import AttributeWeightShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/AttributeWeight.vert.wgsl';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const AttributeWeightShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? AttributeWeightShaderityObjectGLSL_ : undefined;
+const AttributeWeightShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? AttributeWeightShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that handles attribute weight calculations in vertex shaders.

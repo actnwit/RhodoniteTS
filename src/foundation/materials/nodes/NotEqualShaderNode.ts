@@ -1,11 +1,17 @@
-import NotEqualShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/NotEqual.glsl';
-import NotEqualShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/NotEqual.wgsl';
+import NotEqualShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/NotEqual.glsl';
+import NotEqualShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/NotEqual.wgsl';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const NotEqualShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? NotEqualShaderityObjectGLSL_ : undefined;
+const NotEqualShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? NotEqualShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that performs a not-equal comparison operation.

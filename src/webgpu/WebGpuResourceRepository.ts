@@ -1520,8 +1520,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       return;
     }
 
-    const webXRSystem = engine.webXRSystem;
-    const isXrTarget = renderPass.getFramebuffer() == null && webXRSystem.isWebXRMode && renderPass.isOutputForVr;
+    const webXRSystem = engine._webXRSystemIfEnabled;
+    const isXrTarget = renderPass.getFramebuffer() == null && webXRSystem?.isWebXRMode && renderPass.isOutputForVr;
     if (renderPass.getResolveFramebuffer() == null && !isXrTarget) {
       // Nothing is drawn by this render pass, so beginning a render pass only to clear is deferred.
       // The clear is folded into the load ops of the next render pass on the same attachments
@@ -1568,7 +1568,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
 
     const colorAttachments: GPURenderPassColorAttachment[] = [];
     let depthStencilAttachment: GPURenderPassDepthStencilAttachment | undefined;
-    const webxrSystem = engine.webXRSystem;
+    const webxrSystem = engine._webXRSystemIfEnabled;
     if (renderPass.toClearColorBuffer) {
       const framebuffer = renderPass.getFramebuffer();
       if (framebuffer != null) {
@@ -1588,7 +1588,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
             storeOp: 'store',
           });
         }
-      } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
+      } else if (webxrSystem?.isWebXRMode && renderPass.isOutputForVr) {
         const view = engine.engineState.xrPoseWebGPU!.views[displayIdx];
         const subImage = engine.engineState.xrGpuBinding.getViewSubImage(
           engine.engineState.xrProjectionLayerWebGPU!,
@@ -1631,7 +1631,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           depthLoadOp: 'clear',
           depthStoreOp: 'store',
         };
-      } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
+      } else if (webxrSystem?.isWebXRMode && renderPass.isOutputForVr) {
         const view = engine.engineState.xrPoseWebGPU!.views[displayIdx];
         const subImage = engine.engineState.xrGpuBinding.getViewSubImage(
           engine.engineState.xrProjectionLayerWebGPU!,
@@ -1907,7 +1907,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     let colorFormats: GPUTextureFormat[] = [];
     let depthStencilFormat: GPUTextureFormat | undefined;
     let sampleCount = 1;
-    const webxrSystem = engine.webXRSystem;
+    const webxrSystem = engine._webXRSystemIfEnabled;
     if (framebuffer != null) {
       for (const colorAttachment of framebuffer.colorAttachments) {
         if (colorAttachment == null) {
@@ -1944,7 +1944,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       } else {
         depthStencilFormat = undefined;
       }
-    } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
+    } else if (webxrSystem?.isWebXRMode && renderPass.isOutputForVr) {
       const view = engine.engineState.xrPoseWebGPU!.views[displayIdx];
       const subImage = engine.engineState.xrGpuBinding.getViewSubImage(
         engine.engineState.xrProjectionLayerWebGPU!,
@@ -2003,7 +2003,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           ? (this.__webGpuResources.get(textureResourceUid) as GPUTexture | undefined)
           : undefined;
       colorFormat = texture?.format;
-    } else if (engine.webXRSystem.isWebXRMode && renderPass.isOutputForVr) {
+    } else if (engine._webXRSystemIfEnabled?.isWebXRMode && renderPass.isOutputForVr) {
       const view = engine.engineState.xrPoseWebGPU!.views[displayIdx];
       const subImage = engine.engineState.xrGpuBinding.getViewSubImage(
         engine.engineState.xrProjectionLayerWebGPU!,
@@ -2033,7 +2033,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
 
     const framebuffer = renderPass.getFramebuffer();
     const resolveFramebuffer = renderPass.getResolveFramebuffer();
-    const webxrSystem = engine.webXRSystem;
+    const webxrSystem = engine._webXRSystemIfEnabled;
     const colorAttachments: GPURenderPassColorAttachment[] = [];
     if (resolveFramebuffer != null) {
       for (const colorAttachment of resolveFramebuffer.colorAttachments) {
@@ -2057,7 +2057,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           storeOp: 'store',
         });
       }
-    } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
+    } else if (webxrSystem?.isWebXRMode && renderPass.isOutputForVr) {
       const view = engine.engineState.xrPoseWebGPU!.views[displayIdx];
       const subImage = engine.engineState.xrGpuBinding.getViewSubImage(
         engine.engineState.xrProjectionLayerWebGPU!,
@@ -2239,7 +2239,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       return RENDER_PASS_TARGET_KIND_FRAMEBUFFER;
     }
 
-    if (engine.webXRSystem.isWebXRMode && renderPass.isOutputForVr) {
+    if (engine._webXRSystemIfEnabled?.isWebXRMode && renderPass.isOutputForVr) {
       // WebXR sub-image views are created per render pass, so they are never merged.
       return RENDER_PASS_TARGET_KIND_NONE;
     }
@@ -2485,7 +2485,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const colorLoadOp: GPULoadOp = clearValue != null ? 'clear' : 'load';
     const depthLoadOp: GPULoadOp = depthClearValue != null ? 'clear' : 'load';
 
-    const webxrSystem = engine.webXRSystem;
+    const webxrSystem = engine._webXRSystemIfEnabled;
 
     if (resolveFramebuffer != null && framebuffer != null) {
       let depthTextureView = this.__systemDepthTextureView!;
@@ -2565,7 +2565,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       }
       renderPassDescriptor.colorAttachments = colorAttachments as GPURenderPassColorAttachment[];
       this.__renderPassEncoder = this.__beginRenderPass(renderPassDescriptor);
-    } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
+    } else if (webxrSystem?.isWebXRMode && renderPass.isOutputForVr) {
       const colorAttachments: GPURenderPassColorAttachment[] = [];
       const view = engine.engineState.xrPoseWebGPU!.views[displayIdx];
       const subImage = engine.engineState.xrGpuBinding.getViewSubImage(

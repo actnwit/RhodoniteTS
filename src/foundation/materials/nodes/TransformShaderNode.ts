@@ -1,11 +1,17 @@
-import MultiplyShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Transform.glsl';
-import MultiplyShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Transform.wgsl';
+import MultiplyShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/Transform.glsl';
+import MultiplyShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/Transform.wgsl';
 import type { ComponentTypeEnum } from '../../definitions/ComponentType';
 import type { CompositionTypeEnum } from '../../definitions/CompositionType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const MultiplyShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? MultiplyShaderityObjectGLSL_ : undefined;
+const MultiplyShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? MultiplyShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that performs matrix-vector transformation operations.

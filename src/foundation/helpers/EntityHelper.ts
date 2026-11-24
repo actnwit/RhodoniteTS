@@ -1,4 +1,3 @@
-import { WellKnownComponentTIDs } from '../components';
 import type { IAnimationEntityMethods } from '../components/Animation/IAnimationEntity';
 import type { IAnimationStateEntityMethods } from '../components/AnimationState';
 import type { IBlendShapeEntityMethods } from '../components/BlendShape/IBlendShapeEntity';
@@ -16,6 +15,7 @@ import type { ISceneGraphEntityMethods } from '../components/SceneGraph/ISceneGr
 import type { IShapeEntityMethods } from '../components/Shape/IShapeEntity';
 import type { ISkeletalEntityMethods } from '../components/Skeletal/ISkeletalEntity';
 import type { ITransformEntityMethods } from '../components/Transform/ITransformEntity';
+import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import type { IEntity } from '../core/Entity';
 import { LightType } from '../definitions/LightType';
 import type { Engine } from '../system/Engine';

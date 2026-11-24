@@ -681,9 +681,9 @@ export class EffekseerComponent extends Component {
     const viewMatrix = EffekseerComponent.__tmp_identityMatrix_0;
     const projectionMatrix = EffekseerComponent.__tmp_identityMatrix_1;
 
-    if (this.__engine.webXRSystem.isWebXRMode) {
-      const webXRProjectionMatrix = this.__engine.webXRSystem._getProjectMatrixAt(displayIdx);
-      const webXRViewMatrix = this.__engine.webXRSystem._getViewMatrixAt(displayIdx);
+    if (this.__engine._webXRSystemIfEnabled?.isWebXRMode) {
+      const webXRProjectionMatrix = this.__engine._webXRSystemIfEnabled._getProjectMatrixAt(displayIdx);
+      const webXRViewMatrix = this.__engine._webXRSystemIfEnabled._getViewMatrixAt(displayIdx);
       if (Is.exist(webXRProjectionMatrix) && Is.exist(webXRViewMatrix)) {
         viewMatrix.copyComponents(webXRViewMatrix);
         projectionMatrix.copyComponents(webXRProjectionMatrix);
@@ -710,12 +710,16 @@ export class EffekseerComponent extends Component {
   }
 
   private __drawEffekseerEffectWebXR(): void {
+    const webXRSystem = this.__engine._webXRSystemIfEnabled;
+    if (webXRSystem == null) {
+      return;
+    }
     for (let i = 0; i < 2; i++) {
-      const projectionMatrix = this.__engine.webXRSystem._getProjectMatrixAt(i);
-      const viewMatrix = this.__engine.webXRSystem._getViewMatrixAt(i);
+      const projectionMatrix = webXRSystem._getProjectMatrixAt(i);
+      const viewMatrix = webXRSystem._getViewMatrixAt(i);
       if (Is.exist(projectionMatrix) && Is.exist(viewMatrix) && Is.exist(this.__context)) {
         const webGLResourceRepository = this.__engine.webglResourceRepository;
-        webGLResourceRepository.setViewport(this.__engine, this.__engine.webXRSystem._getViewportAt(i));
+        webGLResourceRepository.setViewport(this.__engine, webXRSystem._getViewportAt(i));
         this.__context.setProjectionMatrix(projectionMatrix._v);
         this.__context.setCameraMatrix(viewMatrix._v);
         this.__context.draw();
@@ -728,7 +732,7 @@ export class EffekseerComponent extends Component {
       this.moveStageTo(ProcessStage.Load);
       return;
     }
-    if (this.__engine.webXRSystem.isWebXRMode) {
+    if (this.__engine._webXRSystemIfEnabled?.isWebXRMode) {
       this.__drawEffekseerEffectWebXR();
     } else {
       this.__drawEffekseerEffectNormal();

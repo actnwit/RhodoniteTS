@@ -1,11 +1,17 @@
-import SdTubeXShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/SdTubeX.glsl';
-import SdTubeXShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/SdTubeX.wgsl';
+import SdTubeXShaderityObjectGLSL_ from '../../../../webgl/shaderity_shaders/nodes/raymarching/SdTubeX.glsl';
+import SdTubeXShaderityObjectWGSL_ from '../../../../webgpu/shaderity_shaders/nodes/raymarching/SdTubeX.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
 import { CompositionType } from '../../../definitions/CompositionType';
 import { Scalar } from '../../../math/Scalar';
 import { Vector3 } from '../../../math/Vector3';
 import { AbstractShaderNode } from '../../core/AbstractShaderNode';
 import { Socket } from '../../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const SdTubeXShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? SdTubeXShaderityObjectGLSL_ : undefined;
+const SdTubeXShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? SdTubeXShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that computes the signed distance function of a tube along the X axis.

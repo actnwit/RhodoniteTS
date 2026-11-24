@@ -1,5 +1,5 @@
-import PbrEmissivePropsShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/PbrEmissiveProps.glsl';
-import PbrEmissivePropsShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/PbrEmissiveProps.wgsl';
+import PbrEmissivePropsShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/PbrEmissiveProps.glsl';
+import PbrEmissivePropsShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/PbrEmissiveProps.wgsl';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { Scalar } from '../../math/Scalar';
@@ -7,6 +7,12 @@ import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const PbrEmissivePropsShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? PbrEmissivePropsShaderityObjectGLSL_ : undefined;
+const PbrEmissivePropsShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? PbrEmissivePropsShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that performs PBR emissive properties operations.

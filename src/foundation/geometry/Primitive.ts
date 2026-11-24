@@ -7,7 +7,7 @@ import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentT
 import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
 import { PrimitiveMode, type PrimitiveModeEnum } from '../definitions/PrimitiveMode';
 import { VertexAttribute, type VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
-import { MaterialHelper } from '../helpers/MaterialHelper';
+import { createClassicUberMaterial } from '../helpers/materials/createClassicUberMaterial';
 import type { Material } from '../materials/core/Material';
 import { AABB } from '../math/AABB';
 import type { IVector3 } from '../math/IVector';
@@ -97,7 +97,7 @@ export class Primitive extends RnObject {
     super();
     this.__engine = engine;
     if (Primitive.__defaultMaterial == null) {
-      Primitive.__defaultMaterial = MaterialHelper.createClassicUberMaterial(this.__engine, {
+      Primitive.__defaultMaterial = createClassicUberMaterial(this.__engine, {
         isSkinning: true,
         isLighting: true,
       });
@@ -474,7 +474,7 @@ export class Primitive extends RnObject {
     if (material != null) {
       this.material = material;
     } else {
-      this.material = MaterialHelper.createClassicUberMaterial(this.__engine, {
+      this.material = createClassicUberMaterial(this.__engine, {
         isSkinning: true,
         isLighting: true,
       });

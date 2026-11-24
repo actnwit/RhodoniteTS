@@ -163,6 +163,60 @@ If you use bundler, you can simply import rhodonite, like
 import Rn from 'rhodonite';
 ```
 
+#### Tree shaking
+
+The ESModule packages (`dist/esm`, `dist/esmdev`) keep one file per source module, and the package is marked
+`"sideEffects": false`. With a bundler (Vite, Rollup, Rolldown, webpack, esbuild, ...), import what you use by name
+and the bundler leaves the rest of Rhodonite out of your bundle:
+
+```typescript
+import { Engine, MeshHelper, ProcessApproach, Vector3 } from 'rhodonite';
+
+const engine = await Engine.init({
+  approach: ProcessApproach.WebGL2,
+  canvas: document.getElementById('world') as HTMLCanvasElement,
+});
+const planeEntity = MeshHelper.createPlane(engine);
+planeEntity.eulerAngles = Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
+```
+
+The default export `Rn` references every export, so `import Rn from 'rhodonite'` always bundles the whole library.
+Likewise, `MaterialHelper.createXxxMaterial()` bundles every material; import the functions instead
+(`import { createPbrUberMaterial } from 'rhodonite'`).
+
+An application that uses only one rendering backend can drop the shaders of the other one by defining a flag in its
+bundler. Without the flags, the shaders of both backends are kept.
+
+```js
+// vite.config.js (WebGL2 only). Use __RN_WEBGL__: false for a WebGPU-only application.
+export default {
+  define: { __RN_WEBGPU__: false },
+};
+```
+
+`esbuild` takes the same `define` option, and webpack takes `new webpack.DefinePlugin({ __RN_WEBGPU__: 'false' })`.
+`Engine.init` throws when the requested process approach was excluded this way.
+
+With named imports, two optional features are enabled explicitly (the default `Rn` export enables both
+automatically):
+
+```typescript
+import { Engine, ProcessApproach, registerGizmos } from 'rhodonite';
+
+// Gizmos (isTranslationGizmoVisible, isLightGizmoVisible, isShapeGizmoVisible, ...)
+registerGizmos();
+
+// WebXR / WebAR: load the XR support at init, or later with `await engine.enableXR()`
+const engine = await Engine.init({ approach: ProcessApproach.WebGL2, canvas, xr: true });
+```
+
+Without them, showing a gizmo or reading `engine.webXRSystem` throws an error that says what to call.
+
+Component classes are registered when they are first added to an entity, not when the library is imported.
+`EntityRepository.tryToAddComponentToEntityByTID()` only finds the core component classes (Transform, SceneGraph,
+Mesh, MeshRenderer, Camera, CameraController, Light, Animation) and the classes added before; pass the class to
+`EntityRepository.addComponentToEntity()` for the others.
+
 #### Using IIFE package
 
 See the last part of https://github.com/actnwit/RhodoniteTS/wiki/Install .

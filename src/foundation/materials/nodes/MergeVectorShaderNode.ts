@@ -1,10 +1,16 @@
-import MergeVectorShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/MergeVector.glsl';
-import MergeVectorShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/MergeVector.wgsl';
+import MergeVectorShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/MergeVector.glsl';
+import MergeVectorShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/MergeVector.wgsl';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const MergeVectorShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? MergeVectorShaderityObjectGLSL_ : undefined;
+const MergeVectorShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? MergeVectorShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that merges vector components to create various vector outputs.

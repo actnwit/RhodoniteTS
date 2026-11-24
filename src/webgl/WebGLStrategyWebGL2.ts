@@ -1514,8 +1514,8 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
   private __setCurrentComponentSIDsForEachDisplayIdx(renderPass: RenderPass, displayIdx: 0 | 1, isVRMainPass: boolean) {
     if (isVRMainPass) {
       let cameraComponentSid = -1;
-      const webxrSystem = this.__engine.webXRSystem;
-      if (webxrSystem.isWebXRMode) {
+      const webxrSystem = this.__engine._webXRSystemIfEnabled;
+      if (webxrSystem?.isWebXRMode) {
         if (webxrSystem.isMultiView()) {
           cameraComponentSid = webxrSystem._getCameraComponentSIDAt(0);
         } else {
@@ -1722,7 +1722,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     const gl = glw.getRawContextAsWebGL2();
 
     const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(this.__engine, renderPass);
-    const displayCount = WebGLStrategyCommonMethod.getDisplayCount(isVRMainPass, this.__engine.webXRSystem);
+    const displayCount = WebGLStrategyCommonMethod.getDisplayCount(isVRMainPass, this.__engine._webXRSystemIfEnabled);
     // The sort publishes the primitives in the same order as their uids, so the hot loops can
     // skip a repository lookup per primitive. The check keeps this valid for callers that pass
     // another array (e.g. a cloned render pass).

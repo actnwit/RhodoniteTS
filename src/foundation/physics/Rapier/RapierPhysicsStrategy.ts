@@ -1,3 +1,5 @@
+import { PhysicsComponent } from '../../components/Physics/PhysicsComponent';
+import type { ShapeComponent } from '../../components/Shape/ShapeComponent';
 import { TriggerComponent } from '../../components/Trigger/TriggerComponent';
 import type { Config } from '../../core/Config';
 import { PhysicsShape } from '../../definitions/PhysicsShapeType';
@@ -14,6 +16,7 @@ import {
 } from '../../math';
 import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
+import { _setPhysicsBackend, type PhysicsBackend, type ShapePhysicsOptions } from '../PhysicsBackend';
 import type {
   PhysicsBodyProperty,
   PhysicsColliderProperty,
@@ -288,7 +291,29 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     RapierPhysicsStrategy.__defaultWorldState = undefined;
     RapierPhysicsStrategy.__worldStates.clear();
     RapierPhysicsStrategy.__stepParticipants.clear();
+    _setPhysicsBackend(RapierPhysicsStrategy.__physicsBackend);
   }
+
+  /**
+   * The backend through which engine-side code reaches Rapier once it is initialized
+   * (see {@link PhysicsBackend}).
+   */
+  private static __physicsBackend: PhysicsBackend = {
+    update: (frameId: number | undefined, deltaTime: number, engine: Engine) =>
+      RapierPhysicsStrategy.update(frameId, deltaTime, engine),
+    cleanupForEngine: (engine: Engine) => RapierPhysicsStrategy._cleanupForEngine(engine),
+    bindShapePhysics: (entity: ISceneGraphEntity, shapeComponent: ShapeComponent, options: ShapePhysicsOptions) => {
+      const physicsEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
+      const physicsComponent = physicsEntity.getPhysics();
+      physicsComponent.setStrategy(new RapierPhysicsStrategy());
+      physicsComponent.bindShape({
+        shapeComponent,
+        body: { move: options.move, density: options.density },
+        collider: { friction: options.friction, restitution: options.restitution },
+      });
+      return physicsEntity;
+    },
+  };
 
   /**
    * Returns true when Rapier bindings have already been injected.

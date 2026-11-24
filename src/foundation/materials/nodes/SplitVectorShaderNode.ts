@@ -1,10 +1,16 @@
-import SplitVectorShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/SplitVector.glsl';
-import SplitVectorShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/SplitVector.wgsl';
+import SplitVectorShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/SplitVector.glsl';
+import SplitVectorShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/SplitVector.wgsl';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const SplitVectorShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? SplitVectorShaderityObjectGLSL_ : undefined;
+const SplitVectorShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? SplitVectorShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that splits vector inputs into their individual components or smaller vectors.

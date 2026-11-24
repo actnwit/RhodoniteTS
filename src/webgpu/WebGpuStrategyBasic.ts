@@ -1012,11 +1012,11 @@ ${indexStr}
     }
 
     const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
-    const webxrSystem = this.__engine.webXRSystem;
+    const webxrSystem = this.__engine._webXRSystemIfEnabled;
     const cameraSID = this.__getAppropriateCameraComponentSID(
       renderPass,
       displayIdx as 0 | 1,
-      webxrSystem.isWebXRMode && renderPass.isVrRendering
+      (webxrSystem?.isWebXRMode ?? false) && renderPass.isVrRendering
     );
 
     const primitiveIdxHasMorph = Primitive.getPrimitiveIdxHasMorph(primitive.primitiveUid) ?? 0;
@@ -1220,9 +1220,9 @@ ${indexStr}
    */
   private __getAppropriateCameraComponentSID(renderPass: RenderPass, displayIdx: 0 | 1, isVRMainPass: boolean): number {
     if (isVRMainPass) {
-      const webxrSystem = this.__engine.webXRSystem;
+      const webxrSystem = this.__engine._webXRSystemIfEnabled;
       let cameraComponentSid = -1;
-      if (webxrSystem.isWebXRMode) {
+      if (webxrSystem?.isWebXRMode) {
         if (webxrSystem.isMultiView()) {
           cameraComponentSid = webxrSystem._getCameraComponentSIDAt(0);
         } else {

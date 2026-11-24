@@ -13,11 +13,11 @@ import {
   type Vrm0xMaterialProperty,
 } from '../../../types';
 import type { Array3, Array4, Count } from '../../../types/CommonTypes';
-import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.frag.glsl';
-import mToonSingleShaderVertex from '../../../webgl/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.vert.glsl';
+import mToonSingleShaderFragment_ from '../../../webgl/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.frag.glsl';
+import mToonSingleShaderVertex_ from '../../../webgl/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.vert.glsl';
 import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
-import mToonSingleShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.frag.wgsl';
-import mToonSingleShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.vert.wgsl';
+import mToonSingleShaderFragmentWebGpu_ from '../../../webgpu/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.frag.wgsl';
+import mToonSingleShaderVertexWebGpu_ from '../../../webgpu/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.vert.wgsl';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 import { HdriFormat, ProcessApproach, TextureParameter } from '../../definitions';
@@ -38,6 +38,16 @@ import { Sampler } from '../../textures/Sampler';
 import type { Texture } from '../../textures/Texture';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import type { Material } from '../core/Material';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const mToonSingleShaderFragment =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? mToonSingleShaderFragment_ : undefined;
+const mToonSingleShaderVertex =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? mToonSingleShaderVertex_ : undefined;
+const mToonSingleShaderFragmentWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? mToonSingleShaderFragmentWebGpu_ : undefined;
+const mToonSingleShaderVertexWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? mToonSingleShaderVertexWebGpu_ : undefined;
 
 /**
  * Material content implementation for MToon 0.x shader.

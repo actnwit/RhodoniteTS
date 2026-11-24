@@ -1,11 +1,17 @@
-import LessThanShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/LessThan.glsl';
-import LessThanShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/LessThan.wgsl';
+import LessThanShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/LessThan.glsl';
+import LessThanShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/LessThan.wgsl';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const LessThanShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? LessThanShaderityObjectGLSL_ : undefined;
+const LessThanShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? LessThanShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that performs a less-than comparison operation.

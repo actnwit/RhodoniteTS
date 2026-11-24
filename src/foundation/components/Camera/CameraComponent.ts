@@ -1035,8 +1035,8 @@ export class CameraComponent extends Component {
    */
   get projectionMatrix() {
     if (this._xrLeft || this._xrRight) {
-      const webXRSystem = this.__engine.webXRSystem;
-      if (webXRSystem.isWebXRMode) {
+      const webXRSystem = this.__engine._webXRSystemIfEnabled;
+      if (webXRSystem?.isWebXRMode) {
         if (this._xrLeft) {
           return webXRSystem.leftProjectionMatrix;
         }
@@ -1225,8 +1225,8 @@ export class CameraComponent extends Component {
 
     if (this._xrLeft || this._xrRight) {
       // In XR mode, get the projection matrix from WebXRSystem
-      const webXRSystem = this.__engine.webXRSystem;
-      if (webXRSystem.isWebXRMode) {
+      const webXRSystem = this.__engine._webXRSystemIfEnabled;
+      if (webXRSystem?.isWebXRMode) {
         if (this._xrLeft) {
           this._projectionMatrix.copyComponents(webXRSystem.leftProjectionMatrix);
         } else if (this._xrRight) {

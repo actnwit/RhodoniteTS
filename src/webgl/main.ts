@@ -1,4 +1,5 @@
 import getRenderingStrategy from './getRenderingStrategy';
+import { glslCommonChunks } from './shaders/glslCommonChunks';
 import { StandardShaderPart } from './shaders/StandardShaderPart';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
 import { type VertexHandles as vertexHandles, WebGLResourceRepository } from './WebGLResourceRepository';
@@ -6,6 +7,7 @@ import type { WebGLStrategy as webGLStrategy } from './WebGLStrategy';
 import { WebGLStrategyWebGL2 } from './WebGLStrategyWebGL2';
 
 const WebGL = Object.freeze({
+  glslCommonChunks,
   getRenderingStrategy,
   StandardShaderPart,
   WebGLContextWrapper,

@@ -10,8 +10,8 @@ import { Cube } from '../geometry/shapes/Cube';
 import { Plane } from '../geometry/shapes/Plane';
 import type { RaycastResultEx1 } from '../geometry/types/GeometryTypes';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
-import { MaterialHelper } from '../helpers/MaterialHelper';
 import { MeshHelper } from '../helpers/MeshHelper';
+import { createClassicUberMaterial } from '../helpers/materials/createClassicUberMaterial';
 import type { Material } from '../materials/core/Material';
 import type { IMatrix44 } from '../math/IMatrix';
 import type { IVector3 } from '../math/IVector';
@@ -327,7 +327,7 @@ export class TranslationGizmo extends Gizmo {
     xCubeEntity.tryToSetUniqueName('TranslationGizmo_xCube', true);
     xCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0.5, 0, 0);
     const xCubeMesh = new Mesh(this.__engine);
-    const xCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
+    const xCubeMaterial = createClassicUberMaterial(this.__engine);
     xCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([1, 0, 0, 1]));
     const xCubePrimitive = new Cube(this.__engine);
     xCubePrimitive.generate({
@@ -342,7 +342,7 @@ export class TranslationGizmo extends Gizmo {
     yCubeEntity.tryToSetUniqueName('TranslationGizmo_yCube', true);
     yCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0.5, 0);
     const yCubeMesh = new Mesh(this.__engine);
-    const yCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
+    const yCubeMaterial = createClassicUberMaterial(this.__engine);
     yCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 1, 0, 1]));
     const yCubePrimitive = new Cube(this.__engine);
     yCubePrimitive.generate({
@@ -357,7 +357,7 @@ export class TranslationGizmo extends Gizmo {
     zCubeEntity.tryToSetUniqueName('TranslationGizmo_zCube', true);
     zCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 0.5);
     const zCubeMesh = new Mesh(this.__engine);
-    const zCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
+    const zCubeMaterial = createClassicUberMaterial(this.__engine);
     zCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 1, 1]));
     const zCubePrimitive = new Cube(this.__engine);
     zCubePrimitive.generate({
@@ -404,7 +404,7 @@ export class TranslationGizmo extends Gizmo {
     xyPlaneEntity.tryToSetUniqueName('TranslationGizmo_xyPlane', true);
     xyPlaneEntity.getSceneGraph().isVisible = false;
     xyPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(MathUtil.degreeToRadian(90), 0, 0);
-    const xyPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
+    const xyPlaneMaterial = createClassicUberMaterial(this.__engine);
     xyPlaneMaterial.alphaMode = AlphaMode.Blend;
     xyPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 0.5, 0]));
     const xyPlaneMesh = new Mesh(this.__engine);
@@ -426,7 +426,7 @@ export class TranslationGizmo extends Gizmo {
     yzPlaneEntity.tryToSetUniqueName('TranslationGizmo_yzPlane', true);
     yzPlaneEntity.getSceneGraph().isVisible = false;
     yzPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(0, 0, MathUtil.degreeToRadian(90));
-    const yzPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
+    const yzPlaneMaterial = createClassicUberMaterial(this.__engine);
     yzPlaneMaterial.alphaMode = AlphaMode.Blend;
     yzPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0.5, 0, 0, 0]));
     const yzPlaneMesh = new Mesh(this.__engine);
@@ -447,7 +447,7 @@ export class TranslationGizmo extends Gizmo {
     const zxPlaneEntity = createMeshEntity(this.__engine);
     zxPlaneEntity.tryToSetUniqueName('TranslationGizmo_zxPlane', true);
     zxPlaneEntity.getSceneGraph().isVisible = false;
-    const zxPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
+    const zxPlaneMaterial = createClassicUberMaterial(this.__engine);
     zxPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0.5, 0, 0]));
     zxPlaneMaterial.alphaMode = AlphaMode.Blend;
     const zxPlaneMesh = new Mesh(this.__engine);

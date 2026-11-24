@@ -49,6 +49,23 @@ export class ComponentRepository {
   }
 
   /**
+   * Registers a component class only when no class is registered for its ComponentTID yet.
+   *
+   * @remarks
+   * Component classes are registered lazily, when they are first used, instead of by a module that
+   * registers every component on import. That keeps unused components out of tree-shaken bundles.
+   * A class that was registered explicitly for the same ComponentTID is kept as is.
+   *
+   * @param componentClass - The component class constructor to register
+   * @internal
+   */
+  public static _ensureComponentClassRegistered(componentClass: typeof Component) {
+    if (!this.__componentClasses.has(componentClass.componentTID)) {
+      this.__componentClasses.set(componentClass.componentTID, componentClass);
+    }
+  }
+
+  /**
    * Unregisters a component class from the repository.
    * This removes the component class associated with the given ComponentTID.
    *
@@ -299,7 +316,21 @@ export class ComponentRepository {
    * ```
    */
   public getComponentsWithType(componentType: typeof Component): Array<Component> {
-    const components = this.__components.get(componentType.componentTID);
+    return this.getComponentsWithTID(componentType.componentTID);
+  }
+
+  /**
+   * Retrieves all active (non-null) component instances of the specified ComponentTID.
+   *
+   * @remarks
+   * Unlike {@link getComponentsWithType}, this does not need the component class itself, so a module can
+   * query components without importing (and bundling) their class.
+   *
+   * @param componentTID - The ComponentTID of the components to retrieve
+   * @returns Array of active component instances (never includes undefined elements)
+   */
+  public getComponentsWithTID(componentTID: ComponentTID): Array<Component> {
+    const components = this.__components.get(componentTID);
     if (components == null) {
       return [];
     }

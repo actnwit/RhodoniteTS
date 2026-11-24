@@ -1,8 +1,14 @@
-import AttributeNormalShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/AttributeNormal.vert';
-import AttributeNormalShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/AttributeNormal.vert.wgsl';
+import AttributeNormalShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/AttributeNormal.vert';
+import AttributeNormalShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/AttributeNormal.vert.wgsl';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const AttributeNormalShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? AttributeNormalShaderityObjectGLSL_ : undefined;
+const AttributeNormalShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? AttributeNormalShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that provides access to vertex normal attributes.

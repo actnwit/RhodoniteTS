@@ -17,7 +17,13 @@ import { TextureFormat } from '../../definitions/TextureFormat';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { Bloom } from '../../helpers/BloomHelper';
 import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
-import { MaterialHelper } from '../../helpers/MaterialHelper';
+import {
+  collectRrnJson,
+  createNodeBasedRaymarchingComponentShadowMaterial,
+  createNodeBasedRaymarchingShadowMaterial,
+  RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC,
+} from '../../helpers/materials/createNodeBasedRaymarchingMaterials';
+import { createToneMappingMaterial } from '../../helpers/materials/createToneMappingMaterial';
 import { RenderableHelper } from '../../helpers/RenderableHelper';
 import { RenderPassHelper } from '../../helpers/RenderPassHelper';
 import {
@@ -126,7 +132,6 @@ export class ForwardRenderPipeline extends RnObject {
   private __toneMappingExpression?: Expression;
   private __toneMappingMaterial?: Material;
   private __transparentOnlyExpressions: Expression[] = [];
-  private __webXRSystem?: WebXRSystem;
   private __drawFunc?: DrawFunc;
   private __diffuseCubeTexture?: CubeTexture;
   private __specularCubeTexture?: CubeTexture;
@@ -326,8 +331,6 @@ export class ForwardRenderPipeline extends RnObject {
 
     // Initial Expression
     this.__initialExpression = this.__setupInitialExpression();
-
-    this.__webXRSystem = this.__engine.webXRSystem;
 
     if (this.__expressions.length > 0) {
       this.setExpressions(this.__expressions);
@@ -574,8 +577,9 @@ export class ForwardRenderPipeline extends RnObject {
         error: undefined,
       });
     }
-    const webXRSystem = this.__webXRSystem;
-    if (Is.exist(webXRSystem) && webXRSystem.isWebXRMode) {
+    // Read on use: the XR support may be enabled after the pipeline was set up (engine.enableXR()).
+    const webXRSystem = this.__engine._webXRSystemIfEnabled;
+    if (Is.exist(webXRSystem) && webXRSystem?.isWebXRMode) {
       width = webXRSystem.getCanvasWidthForVr();
       height = webXRSystem.getCanvasHeightForVr();
     }
@@ -1010,11 +1014,11 @@ export class ForwardRenderPipeline extends RnObject {
    * @internal
    */
   private __createRenderTargets(canvasWidth: number, canvasHeight: number) {
-    const webXRSystem = this.__engine.webXRSystem;
+    const webXRSystem = this.__engine._webXRSystemIfEnabled;
     const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     if (
       Is.exist(webXRSystem) &&
-      webXRSystem.isWebXRMode &&
+      webXRSystem?.isWebXRMode &&
       cgApiResourceRepository.isSupportMultiViewVRRendering(this.__engine)
     ) {
       const framebufferMultiView = RenderableHelper.createFrameBufferTextureArrayForMultiView(this.__engine, {
@@ -1201,7 +1205,7 @@ export class ForwardRenderPipeline extends RnObject {
    */
   private __setupToneMappingExpression(toneMappingTargetRenderTargetTexture: RenderTargetTexture) {
     const expressionToneMappingEffect = new Expression();
-    const materialToneMapping = MaterialHelper.createToneMappingMaterial(this.__engine);
+    const materialToneMapping = createToneMappingMaterial(this.__engine);
     this.__toneMappingMaterial = materialToneMapping;
     this.setToneMappingType(this.__toneMappingType);
 
@@ -1470,7 +1474,7 @@ export class ForwardRenderPipeline extends RnObject {
    *
    * @param component - The component the material belongs to
    * @param material - The material, typically from
-   * `MaterialHelper.createNodeBasedRaymarchingComponentMaterial`
+   * `createNodeBasedRaymarchingComponentMaterial`
    */
   public setRaymarchingComponentMaterial(component: RaymarchingComponent, material: Material) {
     this.__raymarchingComponentMaterials.set(component.componentSID, material);
@@ -1512,7 +1516,7 @@ export class ForwardRenderPipeline extends RnObject {
    *
    * Ignored while per-component materials are assigned ({@link setRaymarchingComponentMaterial}).
    *
-   * @param material - The material built from `MaterialHelper.collectRrnJson`
+   * @param material - The material built from `collectRrnJson`
    */
   public setRaymarchingMaterial(material: Material) {
     this.__raymarchingRenderPass?.setBufferLessFullScreenRendering(material);
@@ -1607,7 +1611,7 @@ export class ForwardRenderPipeline extends RnObject {
     if (material == null || component == null || sceneGraph == null) {
       return;
     }
-    material.setParameter(MaterialHelper.RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC, sceneGraph.matrixInner);
+    material.setParameter(RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC, sceneGraph.matrixInner);
     const aabb = this.__getCachedRaymarchingAabb(component);
     material.setParameter('raymarchAabbMin', aabb?.min ?? RAYMARCHING_UNBOUNDED_AABB_MIN);
     material.setParameter('raymarchAabbMax', aabb?.max ?? RAYMARCHING_UNBOUNDED_AABB_MAX);
@@ -1795,7 +1799,7 @@ export class ForwardRenderPipeline extends RnObject {
         if (!component.castShadow || !this.__raymarchingComponentMaterials.has(componentSID)) {
           continue;
         }
-        const material = MaterialHelper.createNodeBasedRaymarchingComponentShadowMaterial(
+        const material = createNodeBasedRaymarchingComponentShadowMaterial(
           this.__engine,
           component,
           'regular',
@@ -1806,11 +1810,11 @@ export class ForwardRenderPipeline extends RnObject {
         }
       }
     } else {
-      const castShadowJson = MaterialHelper.collectRrnJson(this.__engine, { castShadowOnly: true });
+      const castShadowJson = collectRrnJson(this.__engine, { castShadowOnly: true });
       if (castShadowJson.nodes.length > 0) {
         const json = castShadowJson as unknown as ShaderNodeJson;
         this.__raymarchingShadowJson = json;
-        this.__raymarchingShadowRegularMaterial = MaterialHelper.createNodeBasedRaymarchingShadowMaterial(
+        this.__raymarchingShadowRegularMaterial = createNodeBasedRaymarchingShadowMaterial(
           this.__engine,
           json,
           'regular',
@@ -1875,8 +1879,8 @@ export class ForwardRenderPipeline extends RnObject {
       if (json == null) {
         return undefined;
       }
-      const front = MaterialHelper.createNodeBasedRaymarchingShadowMaterial(this.__engine, json, 'paraboloidFront');
-      const back = MaterialHelper.createNodeBasedRaymarchingShadowMaterial(this.__engine, json, 'paraboloidBack');
+      const front = createNodeBasedRaymarchingShadowMaterial(this.__engine, json, 'paraboloidFront');
+      const back = createNodeBasedRaymarchingShadowMaterial(this.__engine, json, 'paraboloidBack');
       if (front == null || back == null) {
         return undefined;
       }
@@ -1920,16 +1924,8 @@ export class ForwardRenderPipeline extends RnObject {
     }
     let pair = slotPairs.get(component.componentSID);
     if (pair == null) {
-      const front = MaterialHelper.createNodeBasedRaymarchingComponentShadowMaterial(
-        this.__engine,
-        component,
-        'paraboloidFront'
-      );
-      const back = MaterialHelper.createNodeBasedRaymarchingComponentShadowMaterial(
-        this.__engine,
-        component,
-        'paraboloidBack'
-      );
+      const front = createNodeBasedRaymarchingComponentShadowMaterial(this.__engine, component, 'paraboloidFront');
+      const back = createNodeBasedRaymarchingComponentShadowMaterial(this.__engine, component, 'paraboloidBack');
       if (front == null || back == null) {
         return undefined;
       }
@@ -2212,14 +2208,14 @@ export class ForwardRenderPipeline extends RnObject {
       const aabbMax = aabb?.max ?? RAYMARCHING_UNBOUNDED_AABB_MAX;
       for (const shadowMaterial of shadowMaterials) {
         if (worldMatrix != null) {
-          shadowMaterial.setParameter(MaterialHelper.RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC, worldMatrix);
+          shadowMaterial.setParameter(RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC, worldMatrix);
         }
         shadowMaterial.setParameter('raymarchAabbMin', aabbMin);
         shadowMaterial.setParameter('raymarchAabbMax', aabbMax);
         for (const info of shadowMaterial.fieldsInfoArray) {
           const semantic = info.semantic;
           if (
-            semantic === MaterialHelper.RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC ||
+            semantic === RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC ||
             semantic === 'raymarchAabbMin' ||
             semantic === 'raymarchAabbMax' ||
             semantic === 'lightIndex' ||

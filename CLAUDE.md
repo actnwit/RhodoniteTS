@@ -98,13 +98,34 @@ src/xr/                 # WebXR support
 ## Build System
 
 ### Build Targets
-- **ESM Dev** (`dist/esmdev/`): Development build with source maps and debugging
-- **ESM Prod** (`dist/esm/`): Production build with tree-shaking and optimization
+- **ESM Dev** (`dist/esmdev/`): Development build with inline source maps, one file per source module
+- **ESM Prod** (`dist/esm/`): Minified production build, one file per source module
+- The ESM builds are unbundled (`config/esbuild/unbundled.mjs`) so that applications can tree-shake them;
+  `package.json` declares `"sideEffects": false`. Imports that leave `src/` (npm packages, `vendor/*.js`) are
+  bundled once into `dist/<target>/_deps/`, so the output also runs in browsers without an import map.
+- **Tree-shaking rules**: no module may do work at import time that another module relies on (e.g. registering
+  classes into a shared registry). Component classes are registered lazily by
+  `EntityRepository.addComponentToEntity`; the core ones by `Engine.init`. Avoid value-import cycles: a cycle
+  containing `class X extends Y` fails with a TDZ error depending on which module an application imports first.
+- **Keep hubs out of the core path**: import material factories from `foundation/helpers/materials/<name>`, not the
+  `MaterialHelper` object (it references every material). Reach physics through `physics/PhysicsBackend`
+  (registered by `RapierPhysicsStrategy.initialize`), not `RapierPhysicsStrategy` directly.
+- **Shaders by backend**: the common GLSL/WGSL chunks come from the backend modules (`webgl/shaders/glslCommonChunks.ts`,
+  `webgpu/wgslCommonChunks.ts`, read by `ShaderHandler` through `ModuleManager`). Every other shader import under
+  `src/foundation` is gated as `const X = typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? X_ : undefined;`
+  (`__RN_WEBGL__` for GLSL, see `src/backendFlags.d.ts`) so applications can drop a backend with a bundler `define`.
+  Never read a gated shader at module top level.
+- **Optional features stay out of the core path**: create gizmos only through `_getGizmoClass(kind)`
+  (`gizmos/GizmoRegistry.ts`; classes are registered by `registerGizmos()`). Internal code reads XR state through
+  `engine._webXRSystemIfEnabled` / `_webARSystemIfEnabled` (undefined unless XR is enabled), never the public
+  `webXRSystem` getter, which throws when XR is off. The default `Rn` export enables both via
+  `enableRnNamespaceDefaults` (bound to the default export value so webpack cannot skip it); the build rewrites
+  `dist/*/index.d.ts` so that `Rn` stays usable as a type namespace.
 - **IIFE Dev** (`dist/iifedev/rhodonite.js`): Browser-ready development bundle
 - **IIFE Prod** (`dist/iife/rhodonite.min.js`): Minified production bundle
 
 ### Build Tools
-- **tsup**: Primary build tool using esbuild for fast compilation
+- **esbuild**: Primary build tool (`config/esbuild/build.mjs`)
 - **esbuild-plugin-shaderity**: Processes shader files during build
 - **esbuild-plugin-version**: Handles version file generation
 - **TypeScript**: Type checking and .d.ts generation
@@ -135,6 +156,10 @@ src/xr/                 # WebXR support
   (in the container shell: `bash config/e2e/run-in-docker.sh shell`). `--update` takes an
   optional value, so `--update ./samples/<Sample>` swallows the path and updates the whole suite.
 - **Snapshots**: Image comparison with automatic snapshot updating
+- **TreeShaking sample**: `samples/test_e2e/TreeShaking` is the only sample that is bundled. `pnpm build-samples`
+  runs `scripts/build-tree-shaking-sample.mjs` (esbuild, named imports, `__RN_WEBGPU__: false`) after `tsc`, and the
+  test checks the bundle's metafile (no gizmos, XR, WGSL, MaterialHelper, KTX2, Rapier) as well as the rendering.
+  If it fails after a change, something in the core path started importing an optional feature again.
 
 ## Development Patterns
 

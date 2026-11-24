@@ -7,13 +7,13 @@ import { Quaternion } from '../../math/Quaternion';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
 import { Time } from '../../misc/Time';
+import { _getPhysicsBackend } from '../../physics/PhysicsBackend';
 import type {
   PhysicsBodyProperty,
   PhysicsColliderProperty,
   PhysicsMotionProperty,
 } from '../../physics/PhysicsProperty';
 import type { PhysicsShapeInstanceBinding, PhysicsStrategy } from '../../physics/PhysicsStrategy';
-import { RapierPhysicsStrategy } from '../../physics/Rapier/RapierPhysicsStrategy';
 import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
 import type { Engine } from '../../system/Engine';
 import { AnimationComponent } from '../Animation/AnimationComponent';
@@ -418,7 +418,7 @@ export class PhysicsComponent extends Component {
     if (!AnimationComponent.getIsAnimating(engine)) {
       return;
     }
-    RapierPhysicsStrategy.update(
+    _getPhysicsBackend()?.update(
       AnimationStateRepository.getProcessFrameToken(engine),
       Time.getIntervalProcessBegin(engine),
       engine

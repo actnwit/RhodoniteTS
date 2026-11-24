@@ -1,10 +1,16 @@
-import PbrBaseColorPropsShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/PbrBaseColorProps.glsl';
-import PbrBaseColorPropsShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/PbrBaseColorProps.wgsl';
+import PbrBaseColorPropsShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/PbrBaseColorProps.glsl';
+import PbrBaseColorPropsShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/PbrBaseColorProps.wgsl';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { Vector4 } from '../../math/Vector4';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const PbrBaseColorPropsShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? PbrBaseColorPropsShaderityObjectGLSL_ : undefined;
+const PbrBaseColorPropsShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? PbrBaseColorPropsShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that performs PBR base color properties operations.

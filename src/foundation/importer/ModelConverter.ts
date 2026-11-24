@@ -38,10 +38,10 @@ import { createLightEntity } from '../components/Light/createLightEntity';
 import { LightComponent } from '../components/Light/LightComponent';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
+import { RaymarchingComponent } from '../components/Raymarching/RaymarchingComponent';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
-import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { AlphaMode } from '../definitions/AlphaMode';
 import { AnimationInterpolation } from '../definitions/AnimationInterpolation';
 import { BufferUse } from '../definitions/BufferUse';
@@ -66,7 +66,10 @@ import type {
   ISceneGraphEntity,
 } from '../helpers/EntityHelper';
 import { attachLightShadowCamera } from '../helpers/EntityHelper';
-import { MaterialHelper } from '../helpers/MaterialHelper';
+import { createClassicUberMaterial } from '../helpers/materials/createClassicUberMaterial';
+import { createMToon0xMaterial } from '../helpers/materials/createMToon0xMaterial';
+import { createMToon1Material } from '../helpers/materials/createMToon1Material';
+import { createPbrUberMaterial } from '../helpers/materials/createPbrUberMaterial';
 import type { Material } from '../materials/core/Material';
 import { AnimatedQuaternion } from '../math/AnimatedQuaternion';
 import { AnimatedScalar } from '../math/AnimatedScalar';
@@ -1318,8 +1321,8 @@ export class ModelConverter {
         // A glTF node can carry both a camera and a light. Editor-created lights are such
         // nodes: createLightWithCameraEntity attaches the light camera to the light entity.
         if (node.extensions?.KHR_lights_punctual != null) {
-          const lightEntity = engine.entityRepository.tryToAddComponentToEntityByTID(
-            WellKnownComponentTIDs.LightComponentTID,
+          const lightEntity = engine.entityRepository.addComponentToEntity(
+            LightComponent,
             cameraEntity
           ) as unknown as ICameraEntity & ILightEntity;
           this.__configureLightComponent(lightEntity.getLight(), node.extensions.KHR_lights_punctual.light);
@@ -1359,10 +1362,10 @@ export class ModelConverter {
           | undefined
       )?.RHODONITE_raymarching;
       if (raymarchingExtension != null && entity.tryToGetRaymarching() == null) {
-        const raymarchingEntity = engine.entityRepository.tryToAddComponentToEntityByTID(
-          WellKnownComponentTIDs.RaymarchingComponentTID,
+        const raymarchingEntity = engine.entityRepository.addComponentToEntity(
+          RaymarchingComponent,
           entity
-        ) as IRaymarchingEntity;
+        ) as unknown as IRaymarchingEntity;
         const raymarchingComponent = raymarchingEntity.getRaymarching();
         if (raymarchingExtension.graph != null) {
           raymarchingComponent.rrnJson = raymarchingExtension.graph;
@@ -1814,7 +1817,7 @@ export class ModelConverter {
         // The VRM 1.0 specification defaults outlineWidthMode to "none" when it is omitted.
         const outlineWidthMode = VRMC_materials_mtoon.outlineWidthMode;
         if (outlineWidthMode === 'worldCoordinates' || outlineWidthMode === 'screenCoordinates') {
-          outlineMaterial = MaterialHelper.createMToon1Material(engine, {
+          outlineMaterial = createMToon1Material(engine, {
             additionalName,
             isMorphing,
             isSkinning,
@@ -1835,7 +1838,7 @@ export class ModelConverter {
         }
       }
 
-      const material = MaterialHelper.createMToon1Material(engine, {
+      const material = createMToon1Material(engine, {
         additionalName,
         isMorphing,
         isSkinning,
@@ -2002,7 +2005,7 @@ export class ModelConverter {
       if (renderPassOutline != null) {
         let outlineMaterial: Material | undefined;
         if (materialProperties.floatProperties._OutlineWidthMode !== 0) {
-          outlineMaterial = MaterialHelper.createMToon0xMaterial(engine, {
+          outlineMaterial = createMToon0xMaterial(engine, {
             additionalName,
             isMorphing,
             isSkinning,
@@ -2024,7 +2027,7 @@ export class ModelConverter {
         }
       }
 
-      const material = MaterialHelper.createMToon0xMaterial(engine, {
+      const material = createMToon0xMaterial(engine, {
         additionalName,
         isMorphing,
         isSkinning,
@@ -2087,9 +2090,15 @@ export class ModelConverter {
       }
 
       // For specified default material helper
-      const materialHelperName = rnLoaderOptions.defaultMaterialHelperName;
-      if (materialHelperName != null) {
-        return (MaterialHelper as any)[materialHelperName](...rnLoaderOptions.defaultMaterialHelperArgumentArray!);
+      const materialHelper = rnLoaderOptions.defaultMaterialHelper;
+      if (materialHelper != null) {
+        return materialHelper(engine, ...(rnLoaderOptions.defaultMaterialHelperArgumentArray ?? []));
+      }
+      if (rnLoaderOptions.defaultMaterialHelperName != null) {
+        Logger.default.error(
+          `defaultMaterialHelperName ("${rnLoaderOptions.defaultMaterialHelperName}") is no longer supported. ` +
+            'Pass the function with defaultMaterialHelper instead, e.g. defaultMaterialHelper: createClassicUberMaterial.'
+        );
       }
     }
 
@@ -2155,7 +2164,7 @@ export class ModelConverter {
 
     if (Number.parseFloat(gltfModel.asset?.version) >= 2) {
       // For glTF 2
-      const material = MaterialHelper.createPbrUberMaterial(engine, pbrUberMaterialOptions);
+      const material = createPbrUberMaterial(engine, pbrUberMaterialOptions);
       const makeOutputSrgb = this.__makeOutputSrgb(gltfModel);
       if (Is.exist(makeOutputSrgb)) {
         material.setParameter('makeOutputSrgb', makeOutputSrgb);
@@ -2164,7 +2173,7 @@ export class ModelConverter {
       return material;
     }
     // For glTF 1
-    const material = MaterialHelper.createClassicUberMaterial(engine, {
+    const material = createClassicUberMaterial(engine, {
       isSkinning,
       isLighting,
       additionalName: additionalName,

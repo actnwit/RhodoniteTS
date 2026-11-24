@@ -6,7 +6,7 @@ import { Mesh } from '../geometry/Mesh';
 import { Ring } from '../geometry/shapes/Ring';
 import type { RaycastResultEx1 } from '../geometry/types/GeometryTypes';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
-import { MaterialHelper } from '../helpers/MaterialHelper';
+import { createClassicUberMaterial } from '../helpers/materials/createClassicUberMaterial';
 import type { Material } from '../materials/core/Material';
 import type { IVector3 } from '../math/IVector';
 import { Matrix33 } from '../math/Matrix33';
@@ -841,7 +841,7 @@ export class RotationGizmo extends Gizmo {
   }
 
   private static __createRingMaterial(engine: Engine, color: Vector4): Material {
-    const material = MaterialHelper.createClassicUberMaterial(engine);
+    const material = createClassicUberMaterial(engine);
     material.alphaMode = AlphaMode.Blend;
     material.cullFace = false;
     material.setParameter('diffuseColorFactor', color);

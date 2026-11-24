@@ -1,8 +1,8 @@
-import DetectHighLuminanceAndCorrectShaderFragment from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag';
-import DetectHighLuminanceAndCorrectShaderVertex from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.vert';
+import DetectHighLuminanceAndCorrectShaderFragment_ from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag';
+import DetectHighLuminanceAndCorrectShaderVertex_ from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.vert';
 import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
-import DetectHighLuminanceAndCorrectShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag';
-import DetectHighLuminanceAndCorrectShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.vert';
+import DetectHighLuminanceAndCorrectShaderFragmentWebGpu_ from '../../../webgpu/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag';
+import DetectHighLuminanceAndCorrectShaderVertexWebGpu_ from '../../../webgpu/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.vert';
 import { TextureParameter } from '../../definitions';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
@@ -15,6 +15,18 @@ import type { Engine } from '../../system/Engine';
 import type { AbstractTexture } from '../../textures/AbstractTexture';
 import { Sampler } from '../../textures/Sampler';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const DetectHighLuminanceAndCorrectShaderFragment =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? DetectHighLuminanceAndCorrectShaderFragment_ : undefined;
+const DetectHighLuminanceAndCorrectShaderVertex =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? DetectHighLuminanceAndCorrectShaderVertex_ : undefined;
+const DetectHighLuminanceAndCorrectShaderFragmentWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__
+    ? DetectHighLuminanceAndCorrectShaderFragmentWebGpu_
+    : undefined;
+const DetectHighLuminanceAndCorrectShaderVertexWebGpu =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? DetectHighLuminanceAndCorrectShaderVertexWebGpu_ : undefined;
 
 /**
  * A material content class that detects high luminance areas in textures and applies correction.

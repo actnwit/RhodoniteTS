@@ -12,7 +12,6 @@ import { getMultiDrawStateKeyId, getPrimitiveMeshRendererFingerPrintId } from '.
 import type { RnWebGL, WebGLStrategy } from '../../../webgl/main';
 import type { RnWebGpu } from '../../../webgpu/main';
 import type { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
-import type { RnXR } from '../../../xr/main';
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
 import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
@@ -399,12 +398,9 @@ export class MeshRendererComponent extends Component {
       CameraComponent.setCurrent(engine, cameraComponent.componentSID);
     }
     if (renderPass.isVrRendering) {
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      if (rnXRModule != null) {
-        const webxrSystem = engine.webXRSystem;
-        if (webxrSystem.isWebXRMode) {
-          cameraComponent = webxrSystem._getCameraComponentAt(0) as CameraComponent;
-        }
+      const webxrSystem = engine._webXRSystemIfEnabled;
+      if (webxrSystem?.isWebXRMode) {
+        cameraComponent = webxrSystem._getCameraComponentAt(0) as CameraComponent;
       }
     }
 
@@ -818,8 +814,8 @@ export class MeshRendererComponent extends Component {
       return false;
     }
     // A multi-view draw renders both eyes, which have different frusta.
-    const webxrSystem = engine.webXRSystem;
-    if (renderPass.isVrRendering && webxrSystem.isWebXRMode && webxrSystem.isMultiView()) {
+    const webxrSystem = engine._webXRSystemIfEnabled;
+    if (renderPass.isVrRendering && webxrSystem?.isWebXRMode && webxrSystem.isMultiView()) {
       return false;
     }
     return true;

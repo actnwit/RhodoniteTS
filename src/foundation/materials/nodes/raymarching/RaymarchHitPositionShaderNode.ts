@@ -1,10 +1,16 @@
-import RaymarchHitPositionShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/RaymarchHitPosition.glsl';
-import RaymarchHitPositionShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/RaymarchHitPosition.wgsl';
+import RaymarchHitPositionShaderityObjectGLSL_ from '../../../../webgl/shaderity_shaders/nodes/raymarching/RaymarchHitPosition.glsl';
+import RaymarchHitPositionShaderityObjectWGSL_ from '../../../../webgpu/shaderity_shaders/nodes/raymarching/RaymarchHitPosition.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
 import { CompositionType } from '../../../definitions/CompositionType';
 import { Vector4 } from '../../../math/Vector4';
 import { AbstractShaderNode } from '../../core/AbstractShaderNode';
 import { Socket } from '../../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const RaymarchHitPositionShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? RaymarchHitPositionShaderityObjectGLSL_ : undefined;
+const RaymarchHitPositionShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? RaymarchHitPositionShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that outputs the world position of the raymarching hit point.

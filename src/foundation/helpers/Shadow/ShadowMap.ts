@@ -7,7 +7,7 @@ import type { FrameBuffer } from '../../renderer/FrameBuffer';
 import { RenderPass } from '../../renderer/RenderPass';
 import type { Engine } from '../../system/Engine';
 import type { ISceneGraphEntity } from '../EntityHelper';
-import { MaterialHelper } from '../MaterialHelper';
+import { createDepthMomentEncodeMaterial } from '../materials/createDepthMomentEncodeMaterial';
 import { RenderableHelper } from '../RenderableHelper';
 
 /**
@@ -40,7 +40,7 @@ export class ShadowMap {
       depthTextureFormat: TextureFormat.Depth32F,
     });
 
-    this.__shadowMomentMaterial = MaterialHelper.createDepthMomentEncodeMaterial(engine);
+    this.__shadowMomentMaterial = createDepthMomentEncodeMaterial(engine);
   }
 
   /**

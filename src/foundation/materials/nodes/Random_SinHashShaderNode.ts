@@ -1,5 +1,5 @@
-import Random_SinHashShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Random_SinHash.glsl';
-import Random_SinHashShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Random_SinHash.wgsl';
+import Random_SinHashShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/Random_SinHash.glsl';
+import Random_SinHashShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/Random_SinHash.wgsl';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
@@ -7,6 +7,12 @@ import { Vector2 } from '../../math/Vector2';
 import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const Random_SinHashShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? Random_SinHashShaderityObjectGLSL_ : undefined;
+const Random_SinHashShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? Random_SinHashShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that outputs a random number between 0 and 1 using Hash-based PRNG.

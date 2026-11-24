@@ -1,9 +1,15 @@
-import AttributePositionShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/AttributePosition.vert';
-import AttributePositionShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/AttributePosition.vert.wgsl';
+import AttributePositionShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/AttributePosition.vert';
+import AttributePositionShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/AttributePosition.vert.wgsl';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const AttributePositionShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? AttributePositionShaderityObjectGLSL_ : undefined;
+const AttributePositionShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? AttributePositionShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that provides access to vertex position attributes.

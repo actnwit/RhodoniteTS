@@ -1,9 +1,14 @@
-import OrShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Or.glsl';
-import OrShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Or.wgsl';
+import OrShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/Or.glsl';
+import OrShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/Or.wgsl';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const OrShaderityObjectGLSL = typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? OrShaderityObjectGLSL_ : undefined;
+const OrShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? OrShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that performs a logical OR operation on two boolean values.

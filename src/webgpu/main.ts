@@ -1,8 +1,10 @@
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 import { WebGpuResourceRepository } from './WebGpuResourceRepository';
 import { WebGpuStrategyBasic } from './WebGpuStrategyBasic';
+import { wgslCommonChunks } from './wgslCommonChunks';
 
 const WebGpu = Object.freeze({
+  wgslCommonChunks,
   WebGpuDeviceWrapper,
   WebGpuResourceRepository,
   WebGpuStrategyBasic,

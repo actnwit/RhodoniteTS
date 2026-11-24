@@ -1,10 +1,16 @@
-import OpSmoothUnionShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/OpSmoothUnion.glsl';
-import OpSmoothUnionShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/OpSmoothUnion.wgsl';
+import OpSmoothUnionShaderityObjectGLSL_ from '../../../../webgl/shaderity_shaders/nodes/raymarching/OpSmoothUnion.glsl';
+import OpSmoothUnionShaderityObjectWGSL_ from '../../../../webgpu/shaderity_shaders/nodes/raymarching/OpSmoothUnion.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
 import { CompositionType } from '../../../definitions/CompositionType';
 import { Scalar } from '../../../math/Scalar';
 import { AbstractShaderNode } from '../../core/AbstractShaderNode';
 import { Socket } from '../../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const OpSmoothUnionShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? OpSmoothUnionShaderityObjectGLSL_ : undefined;
+const OpSmoothUnionShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? OpSmoothUnionShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that blends two distance values with a smooth union.

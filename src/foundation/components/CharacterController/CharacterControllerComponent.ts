@@ -12,7 +12,7 @@ import type {
   CharacterGroundContact,
   CharacterMotionState,
 } from '../../physics/CharacterControllerStrategy';
-import { RapierPhysicsStrategy } from '../../physics/Rapier/RapierPhysicsStrategy';
+import { _getPhysicsBackend } from '../../physics/PhysicsBackend';
 import type { Engine } from '../../system/Engine';
 import { EventPubSub, type EventSubscriberIndex } from '../../system/EventPubSub';
 import { AnimationComponent } from '../Animation/AnimationComponent';
@@ -86,7 +86,7 @@ export class CharacterControllerComponent extends Component {
     if (!AnimationComponent.getIsAnimating(engine)) {
       return;
     }
-    RapierPhysicsStrategy.update(
+    _getPhysicsBackend()?.update(
       AnimationStateRepository.getProcessFrameToken(engine),
       Time.getIntervalProcessBegin(engine),
       engine

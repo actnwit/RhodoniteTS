@@ -8,7 +8,8 @@ import type { RenderPass } from '../renderer/RenderPass';
 import type { Engine } from '../system/Engine';
 import type { AbstractTexture } from '../textures/AbstractTexture';
 import type { RenderTargetTexture } from '../textures/RenderTargetTexture';
-import { MaterialHelper } from './MaterialHelper';
+import { createGaussianBlurMaterial } from './materials/createGaussianBlurMaterial';
+import { createSynthesizeHDRMaterial } from './materials/createSynthesizeHDRMaterial';
 import { RenderableHelper } from './RenderableHelper';
 import { RenderPassHelper } from './RenderPassHelper';
 
@@ -207,7 +208,7 @@ export class GaussianBlur {
       );
     }
 
-    const materialSynthesizeTextures = MaterialHelper.createSynthesizeHDRMaterial(
+    const materialSynthesizeTextures = createSynthesizeHDRMaterial(
       this.__engine,
       {
         maxInstancesNumber: 1,
@@ -275,7 +276,7 @@ export class GaussianBlur {
     resolutionHeightBlur: number,
     textureFormat: TextureFormatEnum
   ) {
-    const material = MaterialHelper.createGaussianBlurMaterial(this.__engine);
+    const material = createGaussianBlurMaterial(this.__engine);
 
     const gaussianDistributionRatio = MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
       kernelSize: gaussianKernelSize,

@@ -1,11 +1,17 @@
-import ClampShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Clamp.glsl';
-import ClampShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Clamp.wgsl';
+import ClampShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/Clamp.glsl';
+import ClampShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/Clamp.wgsl';
 import type { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const ClampShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? ClampShaderityObjectGLSL_ : undefined;
+const ClampShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? ClampShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that implements the clamp function to constrain a value between a minimum and maximum.

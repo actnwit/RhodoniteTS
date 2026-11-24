@@ -1,10 +1,16 @@
-import AttributeTexcoordShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/AttributeTexcoord.vert';
-import AttributeTexcoordShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/AttributeTexcoord.vert.wgsl';
+import AttributeTexcoordShaderityObjectGLSL_ from '../../../webgl/shaderity_shaders/nodes/AttributeTexcoord.vert';
+import AttributeTexcoordShaderityObjectWGSL_ from '../../../webgpu/shaderity_shaders/nodes/AttributeTexcoord.vert.wgsl';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { Scalar } from '../../math/Scalar';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
+
+// Shaders of a backend excluded at build time (see src/backendFlags.d.ts) are dropped by the bundler.
+const AttributeTexcoordShaderityObjectGLSL =
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? AttributeTexcoordShaderityObjectGLSL_ : undefined;
+const AttributeTexcoordShaderityObjectWGSL =
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? AttributeTexcoordShaderityObjectWGSL_ : undefined;
 
 /**
  * A shader node that provides texture coordinate attributes from vertex data.

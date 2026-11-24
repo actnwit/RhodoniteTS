@@ -5,7 +5,7 @@ import { CompositionType, type CompositionTypeEnum } from '../definitions/Compos
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { VertexAttribute, type VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
 import { Primitive } from '../geometry/Primitive';
-import { MaterialHelper } from '../helpers/MaterialHelper';
+import { createClassicUberMaterial } from '../helpers/materials/createClassicUberMaterial';
 import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
@@ -1199,7 +1199,7 @@ export class DrcPointCloudImporter {
     const primitive = Primitive.createPrimitive(engine, {
       attributeSemantics: attributeSemantics,
       attributes: attributes,
-      material: MaterialHelper.createClassicUberMaterial(engine, {
+      material: createClassicUberMaterial(engine, {
         isSkinning: false,
         isLighting: true,
       }),

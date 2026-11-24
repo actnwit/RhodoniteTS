@@ -279,8 +279,8 @@ function getViewport(engine: Engine, renderPass: RenderPass) {
  */
 function setVRViewport(engine: Engine, _renderPass: RenderPass, displayIdx: Index) {
   const webglResourceRepository = engine.webglResourceRepository;
-  const webxrSystem = engine.webXRSystem;
-  if (webxrSystem.isWebXRMode) {
+  const webxrSystem = engine._webXRSystemIfEnabled;
+  if (webxrSystem?.isWebXRMode) {
     webglResourceRepository.setViewport(engine, webxrSystem._getViewportAt(displayIdx));
   }
 }
@@ -294,8 +294,8 @@ function setVRViewport(engine: Engine, _renderPass: RenderPass, displayIdx: Inde
  * @param webxrSystem - The WebXR system instance
  * @returns 1 or 2 depending on the rendering configuration
  */
-function getDisplayCount(isVRMainPass: boolean, webxrSystem: WebXRSystem): 1 | 2 {
-  if (webxrSystem.isWebXRMode) {
+function getDisplayCount(isVRMainPass: boolean, webxrSystem: WebXRSystem | undefined): 1 | 2 {
+  if (webxrSystem?.isWebXRMode) {
     if (webxrSystem.isMultiView()) {
       return 1;
     }
@@ -315,8 +315,8 @@ function getDisplayCount(isVRMainPass: boolean, webxrSystem: WebXRSystem): 1 | 2
  * @returns True if this is a VR main pass, false otherwise
  */
 function isVrMainPass(engine: Engine, renderPass: RenderPass) {
-  const webxrSystem = engine.webXRSystem;
-  const isVRMainPass = webxrSystem.isWebXRMode && renderPass.isVrRendering;
+  const webxrSystem = engine._webXRSystemIfEnabled;
+  const isVRMainPass = (webxrSystem?.isWebXRMode ?? false) && renderPass.isVrRendering;
   return isVRMainPass;
 }
 
