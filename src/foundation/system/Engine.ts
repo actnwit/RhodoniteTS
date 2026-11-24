@@ -11,6 +11,7 @@ import { CameraComponent } from '../components/Camera/CameraComponent';
 import { createCameraEntity } from '../components/Camera/createCameraEntity';
 import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
 import { LightComponent } from '../components/Light/LightComponent';
+import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { TransformComponent } from '../components/Transform/TransformComponent';
@@ -1109,6 +1110,27 @@ export class Engine extends RnObject {
    * @param desc
    * @returns
    */
+  /**
+   * Registers the component classes the engine itself processes every frame.
+   *
+   * @remarks
+   * Other component classes are registered on first use by `EntityRepository.addComponentToEntity`.
+   * The core classes are registered here because the render loop looks up the MeshRendererComponent class
+   * by its ComponentTID, and because entity helpers such as `createGroupEntity` and `createMeshEntity` add
+   * them by ComponentTID: importing the classes there would create circular imports between the
+   * components, the gizmos and the mesh helpers.
+   */
+  private static __registerCoreComponentClasses() {
+    ComponentRepository._ensureComponentClassRegistered(TransformComponent);
+    ComponentRepository._ensureComponentClassRegistered(SceneGraphComponent);
+    ComponentRepository._ensureComponentClassRegistered(MeshComponent);
+    ComponentRepository._ensureComponentClassRegistered(MeshRendererComponent);
+    ComponentRepository._ensureComponentClassRegistered(CameraComponent);
+    ComponentRepository._ensureComponentClassRegistered(CameraControllerComponent);
+    ComponentRepository._ensureComponentClassRegistered(LightComponent);
+    ComponentRepository._ensureComponentClassRegistered(AnimationComponent);
+  }
+
   public static async init(desc: EngineInitDescription): Promise<Engine> {
     if (
       desc.approach !== ProcessApproach.None &&
@@ -1120,6 +1142,8 @@ export class Engine extends RnObject {
         `Unsupported process approach "${value}". The "Uniform" and "DataTexture" modes were removed. Use ProcessApproach.WebGL2 ("WebGL2") or ProcessApproach.WebGPU ("WebGPU").`
       );
     }
+
+    Engine.__registerCoreComponentClasses();
 
     await ModuleManager.getInstance().loadModule('pbr');
     await ModuleManager.getInstance().loadModule('xr');

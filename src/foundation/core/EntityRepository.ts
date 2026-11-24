@@ -254,7 +254,7 @@ export class EntityRepository {
     for (let i = 1; i <= WellKnownComponentTIDs.maxWellKnownTidNumber; i++) {
       const component = entity.getComponentByComponentTID(i);
       if (Is.exist(component)) {
-        this.tryToAddComponentToEntityByTID(i, newEntity);
+        this.addComponentToEntity(component.constructor as typeof Component, newEntity);
         const componentOfNewEntity = newEntity.getComponentByComponentTID(i);
         if (Is.exist(componentOfNewEntity)) {
           componentOfNewEntity._shallowCopyFrom(component);
@@ -320,6 +320,10 @@ export class EntityRepository {
    * if the component class exists. If the component class is not found, the entity
    * is returned unchanged.
    *
+   * Component classes are registered when they are first added with {@link addComponentToEntity}
+   * (or explicitly with `ComponentRepository.registerComponentClass`), not when the library is
+   * imported. Prefer {@link addComponentToEntity} with the component class, which always works.
+   *
    * @param componentTID - The component type identifier
    * @param entity - The entity to add the component to
    * @returns The entity (possibly with the new component added)
@@ -336,6 +340,10 @@ export class EntityRepository {
   public tryToAddComponentToEntityByTID(componentTID: ComponentTID, entity: IEntity): IEntity {
     const componentClass = ComponentRepository.getComponentClass(componentTID);
     if (Is.not.exist(componentClass)) {
+      Logger.default.warn(
+        `The component class of ComponentTID ${componentTID} is not registered yet. ` +
+          'Use addComponentToEntity() with the component class, or register it with ComponentRepository.registerComponentClass().'
+      );
       return entity;
     }
     return this.addComponentToEntity(componentClass, entity);
@@ -374,6 +382,10 @@ export class EntityRepository {
       Logger.default.info('This entity already has the Component.');
       return entity as EntityType & ComponentToComponentMethods<ComponentType>;
     }
+
+    // Register the class on first use (there is no import-time registration, so that unused
+    // component classes can be tree-shaken away).
+    ComponentRepository._ensureComponentClassRegistered(componentClass);
 
     // Create Component
     const component = this.__engine.componentRepository.createComponent(

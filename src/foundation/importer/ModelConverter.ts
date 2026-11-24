@@ -38,10 +38,10 @@ import { createLightEntity } from '../components/Light/createLightEntity';
 import { LightComponent } from '../components/Light/LightComponent';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
+import { RaymarchingComponent } from '../components/Raymarching/RaymarchingComponent';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
-import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { AlphaMode } from '../definitions/AlphaMode';
 import { AnimationInterpolation } from '../definitions/AnimationInterpolation';
 import { BufferUse } from '../definitions/BufferUse';
@@ -1318,8 +1318,8 @@ export class ModelConverter {
         // A glTF node can carry both a camera and a light. Editor-created lights are such
         // nodes: createLightWithCameraEntity attaches the light camera to the light entity.
         if (node.extensions?.KHR_lights_punctual != null) {
-          const lightEntity = engine.entityRepository.tryToAddComponentToEntityByTID(
-            WellKnownComponentTIDs.LightComponentTID,
+          const lightEntity = engine.entityRepository.addComponentToEntity(
+            LightComponent,
             cameraEntity
           ) as unknown as ICameraEntity & ILightEntity;
           this.__configureLightComponent(lightEntity.getLight(), node.extensions.KHR_lights_punctual.light);
@@ -1359,10 +1359,10 @@ export class ModelConverter {
           | undefined
       )?.RHODONITE_raymarching;
       if (raymarchingExtension != null && entity.tryToGetRaymarching() == null) {
-        const raymarchingEntity = engine.entityRepository.tryToAddComponentToEntityByTID(
-          WellKnownComponentTIDs.RaymarchingComponentTID,
+        const raymarchingEntity = engine.entityRepository.addComponentToEntity(
+          RaymarchingComponent,
           entity
-        ) as IRaymarchingEntity;
+        ) as unknown as IRaymarchingEntity;
         const raymarchingComponent = raymarchingEntity.getRaymarching();
         if (raymarchingExtension.graph != null) {
           raymarchingComponent.rrnJson = raymarchingExtension.graph;

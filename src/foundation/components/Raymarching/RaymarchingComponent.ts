@@ -16,7 +16,7 @@ import type { Vector4 } from '../../math/Vector4';
 import type { Engine } from '../../system/Engine';
 import type { CameraComponent } from '../Camera/CameraComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
-import type { ShapeComponent } from '../Shape/ShapeComponent';
+import { ShapeComponent } from '../Shape/ShapeComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import {
   type RaymarchingRaycastHit,
@@ -861,7 +861,7 @@ export class RaymarchingComponent extends Component {
   private __getOrCreateShapeComponent(shapeComponent?: ShapeComponent): ShapeComponent | undefined {
     let component = shapeComponent ?? this.entity.tryToGetShape();
     if (component == null) {
-      this.__entityRepository.tryToAddComponentToEntityByTID(WellKnownComponentTIDs.ShapeComponentTID, this.entity);
+      this.__entityRepository.addComponentToEntity(ShapeComponent, this.entity);
       component = this.entity.tryToGetShape();
     }
     return component;

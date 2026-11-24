@@ -60,7 +60,8 @@ import ToneMappingShaderFragmentWGSL from '../../webgpu/shaderity_shaders/ToneMa
 import ToneMappingShaderVertexWGSL from '../../webgpu/shaderity_shaders/ToneMappingShader/ToneMappingShader.vert.wgsl';
 import type { CameraComponent } from '../components/Camera/CameraComponent';
 import type { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
-import { RaymarchingComponent } from '../components/Raymarching/RaymarchingComponent';
+import type { RaymarchingComponent } from '../components/Raymarching/RaymarchingComponent';
+import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { ProcessApproach, TextureParameter } from '../definitions';
 import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
@@ -3056,7 +3057,9 @@ function collectRrnJson(engine: Engine, { castShadowOnly = false }: { castShadow
     connections: [],
   };
 
-  const raymarchingComponents = engine.componentRepository.getComponentsWithType(RaymarchingComponent);
+  const raymarchingComponents = engine.componentRepository.getComponentsWithTID(
+    WellKnownComponentTIDs.RaymarchingComponentTID
+  );
   for (const component of raymarchingComponents) {
     const raymarchingComponent = component as RaymarchingComponent;
     if (castShadowOnly && !raymarchingComponent.castShadow) {
