@@ -19,8 +19,16 @@ import { Vector3 } from '../../math/Vector3';
 import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
 import type { Material } from './Material';
-import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
-import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
+import { ShaderityUtilityWebGL as ShaderityUtilityWebGL_ } from './ShaderityUtilityWebGL';
+import { ShaderityUtilityWebGPU as ShaderityUtilityWebGPU_ } from './ShaderityUtilityWebGPU';
+
+// A backend excluded at build time (see src/backendFlags.d.ts) is dropped by the bundler.
+const ShaderityUtilityWebGL = (
+  typeof __RN_WEBGL__ === 'undefined' || __RN_WEBGL__ ? ShaderityUtilityWebGL_ : undefined
+) as typeof ShaderityUtilityWebGL_;
+const ShaderityUtilityWebGPU = (
+  typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? ShaderityUtilityWebGPU_ : undefined
+) as typeof ShaderityUtilityWebGPU_;
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 

@@ -1,0 +1,107 @@
+// src/foundation/materials/contents/MatCapMaterialContent.ts
+import MatCapShaderFragment_ from "../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.frag.js";
+import MatCapShaderVertex_ from "../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.vert.js";
+import { ComponentType } from "../../definitions/ComponentType.js";
+import { CompositionType } from "../../definitions/CompositionType.js";
+import { ShaderSemanticsClass } from "../../definitions/ShaderSemantics.js";
+import { ShaderType } from "../../definitions/ShaderType.js";
+import { Scalar } from "../../math/Scalar.js";
+import { Vector3 } from "../../math/Vector3.js";
+import { Logger } from "../../misc/Logger.js";
+import { AbstractTexture } from "../../textures/AbstractTexture.js";
+import { Texture } from "../../textures/Texture.js";
+import { AbstractMaterialContent } from "../core/AbstractMaterialContent.js";
+var MatCapShaderFragment = typeof __RN_WEBGL__ === "undefined" || __RN_WEBGL__ ? MatCapShaderFragment_ : void 0;
+var MatCapShaderVertex = typeof __RN_WEBGL__ === "undefined" || __RN_WEBGL__ ? MatCapShaderVertex_ : void 0;
+var MatCapMaterialContent = class extends AbstractMaterialContent {
+  /**
+   * Creates a new MatCap material content instance.
+   *
+   * @param engine - The engine instance
+   * @param materialName - The name identifier for this material
+   * @param isSkinning - Whether this material supports skeletal animation/skinning
+   * @param uri - Optional URI to load the MatCap texture from
+   * @param texture - Optional pre-existing texture to use as the MatCap texture
+   * @param sampler - Optional sampler settings for texture sampling behavior
+   */
+  constructor(engine, materialName, isSkinning, uri, texture, sampler) {
+    super(materialName, { isSkinning }, MatCapShaderVertex, MatCapShaderFragment, engine);
+    let matCapTexture;
+    if (typeof uri === "string") {
+      matCapTexture = new Texture(engine);
+      (async (uri2) => {
+        await matCapTexture.generateTextureFromUrl(uri2, {
+          type: ComponentType.UnsignedByte
+        });
+      })(uri);
+    } else if (texture instanceof AbstractTexture) {
+      matCapTexture = texture;
+    } else {
+      Logger.default.warn("no matcap texture");
+      matCapTexture = engine.dummyTextures.dummyBlackTexture;
+    }
+    const shaderSemanticsInfoArray = [];
+    shaderSemanticsInfoArray.push({
+      semantic: "wireframe",
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.Vec3,
+      stage: ShaderType.PixelShader,
+      initialValue: Vector3.fromCopyArray([0, 0, 1]),
+      min: 0,
+      max: 10
+    });
+    shaderSemanticsInfoArray.push(
+      {
+        semantic: "pointSize",
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Scalar,
+        stage: ShaderType.VertexShader,
+        soloDatum: true,
+        initialValue: Scalar.fromCopyNumber(30),
+        min: 0,
+        max: 100
+      },
+      {
+        semantic: "pointDistanceAttenuation",
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Vec3,
+        stage: ShaderType.VertexShader,
+        soloDatum: true,
+        initialValue: Vector3.fromCopyArray([0, 0.1, 0.01]),
+        min: 0,
+        max: 1
+      }
+    );
+    shaderSemanticsInfoArray.push({
+      semantic: "matCapTexture",
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      initialValue: [1, matCapTexture, sampler],
+      min: 0,
+      max: Number.MAX_SAFE_INTEGER
+    });
+    this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
+  }
+  /**
+   * Sets internal GPU parameters specific to MatCap material rendering for WebGL.
+   * This method configures uniforms and matrices required for proper MatCap material rendering,
+   * including world transformations, camera settings, and skeletal animation support.
+   *
+   * @param params - Configuration object containing rendering parameters
+   * @param params.engine - The engine instance
+   * @param params.shaderProgram - The WebGL shader program to configure
+   * @param params.args - WebGL rendering arguments containing matrices, camera, and entity data
+   */
+  _setInternalSettingParametersToGpuWebGLPerMaterial({
+    engine,
+    shaderProgram,
+    args
+  }) {
+  }
+};
+MatCapMaterialContent.MatCapTexture = new ShaderSemanticsClass({ str: "matCapTexture" });
+export {
+  MatCapMaterialContent
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vbWF0ZXJpYWxzL2NvbnRlbnRzL01hdENhcE1hdGVyaWFsQ29udGVudC50cyJdLAogICJzb3VyY2VzQ29udGVudCI6IFsiaW1wb3J0IE1hdENhcFNoYWRlckZyYWdtZW50XyBmcm9tICcuLi8uLi8uLi93ZWJnbC9zaGFkZXJpdHlfc2hhZGVycy9NYXRDYXBTaGFkZXIvTWF0Q2FwU2hhZGVyLmZyYWcnO1xuaW1wb3J0IE1hdENhcFNoYWRlclZlcnRleF8gZnJvbSAnLi4vLi4vLi4vd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvTWF0Q2FwU2hhZGVyL01hdENhcFNoYWRlci52ZXJ0JztcbmltcG9ydCB0eXBlIHsgUmVuZGVyaW5nQXJnV2ViR0wgfSBmcm9tICcuLi8uLi8uLi93ZWJnbC90eXBlcy9Db21tb25UeXBlcyc7XG5pbXBvcnQgeyBDb21wb25lbnRUeXBlIH0gZnJvbSAnLi4vLi4vZGVmaW5pdGlvbnMvQ29tcG9uZW50VHlwZSc7XG5pbXBvcnQgeyBDb21wb3NpdGlvblR5cGUgfSBmcm9tICcuLi8uLi9kZWZpbml0aW9ucy9Db21wb3NpdGlvblR5cGUnO1xuaW1wb3J0IHsgU2hhZGVyU2VtYW50aWNzQ2xhc3MgfSBmcm9tICcuLi8uLi9kZWZpbml0aW9ucy9TaGFkZXJTZW1hbnRpY3MnO1xuaW1wb3J0IHR5cGUgeyBTaGFkZXJTZW1hbnRpY3NJbmZvIH0gZnJvbSAnLi4vLi4vZGVmaW5pdGlvbnMvU2hhZGVyU2VtYW50aWNzSW5mbyc7XG5pbXBvcnQgeyBTaGFkZXJUeXBlIH0gZnJvbSAnLi4vLi4vZGVmaW5pdGlvbnMvU2hhZGVyVHlwZSc7XG5pbXBvcnQgeyBTY2FsYXIgfSBmcm9tICcuLi8uLi9tYXRoL1NjYWxhcic7XG5pbXBvcnQgeyBWZWN0b3IzIH0gZnJvbSAnLi4vLi4vbWF0aC9WZWN0b3IzJztcbmltcG9ydCB7IExvZ2dlciB9IGZyb20gJy4uLy4uL21pc2MvTG9nZ2VyJztcbmltcG9ydCB0eXBlIHsgRW5naW5lIH0gZnJvbSAnLi4vLi4vc3lzdGVtL0VuZ2luZSc7XG5pbXBvcnQgeyBBYnN0cmFjdFRleHR1cmUgfSBmcm9tICcuLi8uLi90ZXh0dXJlcy9BYnN0cmFjdFRleHR1cmUnO1xuaW1wb3J0IHR5cGUgeyBTYW1wbGVyIH0gZnJvbSAnLi4vLi4vdGV4dHVyZXMvU2FtcGxlcic7XG5pbXBvcnQgeyBUZXh0dXJlIH0gZnJvbSAnLi4vLi4vdGV4dHVyZXMvVGV4dHVyZSc7XG5pbXBvcnQgeyBBYnN0cmFjdE1hdGVyaWFsQ29udGVudCB9IGZyb20gJy4uL2NvcmUvQWJzdHJhY3RNYXRlcmlhbENvbnRlbnQnO1xuXG4vLyBTaGFkZXJzIG9mIGEgYmFja2VuZCBleGNsdWRlZCBhdCBidWlsZCB0aW1lIChzZWUgc3JjL2JhY2tlbmRGbGFncy5kLnRzKSBhcmUgZHJvcHBlZCBieSB0aGUgYnVuZGxlci5cbmNvbnN0IE1hdENhcFNoYWRlckZyYWdtZW50ID0gdHlwZW9mIF9fUk5fV0VCR0xfXyA9PT0gJ3VuZGVmaW5lZCcgfHwgX19STl9XRUJHTF9fID8gTWF0Q2FwU2hhZGVyRnJhZ21lbnRfIDogdW5kZWZpbmVkO1xuY29uc3QgTWF0Q2FwU2hhZGVyVmVydGV4ID0gdHlwZW9mIF9fUk5fV0VCR0xfXyA9PT0gJ3VuZGVmaW5lZCcgfHwgX19STl9XRUJHTF9fID8gTWF0Q2FwU2hhZGVyVmVydGV4XyA6IHVuZGVmaW5lZDtcblxuLyoqXG4gKiBNYXRlcmlhbCBjb250ZW50IGltcGxlbWVudGF0aW9uIGZvciBNYXRDYXAgKE1hdGVyaWFsIENhcHR1cmUpIHJlbmRlcmluZy5cbiAqIE1hdENhcCBpcyBhIHRlY2huaXF1ZSB0aGF0IGNhcHR1cmVzIG1hdGVyaWFsIGFwcGVhcmFuY2UgZnJvbSBhIHNwaGVyZSB1bmRlciBzcGVjaWZpYyBsaWdodGluZyBjb25kaXRpb25zXG4gKiBhbmQgYXBwbGllcyBpdCB0byAzRCBvYmplY3RzIGZvciByZWFsaXN0aWMgbWF0ZXJpYWwgcmVwcmVzZW50YXRpb24uXG4gKi9cbmV4cG9ydCBjbGFzcyBNYXRDYXBNYXRlcmlhbENvbnRlbnQgZXh0ZW5kcyBBYnN0cmFjdE1hdGVyaWFsQ29udGVudCB7XG4gIHN0YXRpYyBNYXRDYXBUZXh0dXJlID0gbmV3IFNoYWRlclNlbWFudGljc0NsYXNzKHsgc3RyOiAnbWF0Q2FwVGV4dHVyZScgfSk7XG5cbiAgLyoqXG4gICAqIENyZWF0ZXMgYSBuZXcgTWF0Q2FwIG1hdGVyaWFsIGNvbnRlbnQgaW5zdGFuY2UuXG4gICAqXG4gICAqIEBwYXJhbSBlbmdpbmUgLSBUaGUgZW5naW5lIGluc3RhbmNlXG4gICAqIEBwYXJhbSBtYXRlcmlhbE5hbWUgLSBUaGUgbmFtZSBpZGVudGlmaWVyIGZvciB0aGlzIG1hdGVyaWFsXG4gICAqIEBwYXJhbSBpc1NraW5uaW5nIC0gV2hldGhlciB0aGlzIG1hdGVyaWFsIHN1cHBvcnRzIHNrZWxldGFsIGFuaW1hdGlvbi9za2lubmluZ1xuICAgKiBAcGFyYW0gdXJpIC0gT3B0aW9uYWwgVVJJIHRvIGxvYWQgdGhlIE1hdENhcCB0ZXh0dXJlIGZyb21cbiAgICogQHBhcmFtIHRleHR1cmUgLSBPcHRpb25hbCBwcmUtZXhpc3RpbmcgdGV4dHVyZSB0byB1c2UgYXMgdGhlIE1hdENhcCB0ZXh0dXJlXG4gICAqIEBwYXJhbSBzYW1wbGVyIC0gT3B0aW9uYWwgc2FtcGxlciBzZXR0aW5ncyBmb3IgdGV4dHVyZSBzYW1wbGluZyBiZWhhdmlvclxuICAgKi9cbiAgY29uc3RydWN0b3IoXG4gICAgZW5naW5lOiBFbmdpbmUsXG4gICAgbWF0ZXJpYWxOYW1lOiBzdHJpbmcsXG4gICAgaXNTa2lubmluZzogYm9vbGVhbixcbiAgICB1cmk/OiBzdHJpbmcsXG4gICAgdGV4dHVyZT86IEFic3RyYWN0VGV4dHVyZSxcbiAgICBzYW1wbGVyPzogU2FtcGxlclxuICApIHtcbiAgICBzdXBlcihtYXRlcmlhbE5hbWUsIHsgaXNTa2lubmluZzogaXNTa2lubmluZyB9LCBNYXRDYXBTaGFkZXJWZXJ0ZXgsIE1hdENhcFNoYWRlckZyYWdtZW50LCBlbmdpbmUpO1xuXG4gICAgbGV0IG1hdENhcFRleHR1cmU6IGFueTtcbiAgICBpZiAodHlwZW9mIHVyaSA9PT0gJ3N0cmluZycpIHtcbiAgICAgIG1hdENhcFRleHR1cmUgPSBuZXcgVGV4dHVyZShlbmdpbmUpO1xuICAgICAgKGFzeW5jICh1cmk6IHN0cmluZykgPT4ge1xuICAgICAgICBhd2FpdCBtYXRDYXBUZXh0dXJlLmdlbmVyYXRlVGV4dHVyZUZyb21VcmwodXJpLCB7XG4gICAgICAgICAgdHlwZTogQ29tcG9uZW50VHlwZS5VbnNpZ25lZEJ5dGUsXG4gICAgICAgIH0pO1xuICAgICAgfSkodXJpKTtcbiAgICB9IGVsc2UgaWYgKHRleHR1cmUgaW5zdGFuY2VvZiBBYnN0cmFjdFRleHR1cmUpIHtcbiAgICAgIG1hdENhcFRleHR1cmUgPSB0ZXh0dXJlO1xuICAgIH0gZWxzZSB7XG4gICAgICBMb2dnZXIuZGVmYXVsdC53YXJuKCdubyBtYXRjYXAgdGV4dHVyZScpO1xuICAgICAgbWF0Q2FwVGV4dHVyZSA9IGVuZ2luZS5kdW1teVRleHR1cmVzLmR1bW15QmxhY2tUZXh0dXJlO1xuICAgIH1cblxuICAgIGNvbnN0IHNoYWRlclNlbWFudGljc0luZm9BcnJheTogU2hhZGVyU2VtYW50aWNzSW5mb1tdID0gW107XG5cbiAgICBzaGFkZXJTZW1hbnRpY3NJbmZvQXJyYXkucHVzaCh7XG4gICAgICBzZW1hbnRpYzogJ3dpcmVmcmFtZScsXG4gICAgICBjb21wb25lbnRUeXBlOiBDb21wb25lbnRUeXBlLkZsb2F0LFxuICAgICAgY29tcG9zaXRpb25UeXBlOiBDb21wb3NpdGlvblR5cGUuVmVjMyxcbiAgICAgIHN0YWdlOiBTaGFkZXJUeXBlLlBpeGVsU2hhZGVyLFxuICAgICAgaW5pdGlhbFZhbHVlOiBWZWN0b3IzLmZyb21Db3B5QXJyYXkoWzAsIDAsIDFdKSxcbiAgICAgIG1pbjogMCxcbiAgICAgIG1heDogMTAsXG4gICAgfSk7XG5cbiAgICAvLyBwb2ludCBjbG91ZFxuICAgIHNoYWRlclNlbWFudGljc0luZm9BcnJheS5wdXNoKFxuICAgICAge1xuICAgICAgICBzZW1hbnRpYzogJ3BvaW50U2l6ZScsXG4gICAgICAgIGNvbXBvbmVudFR5cGU6IENvbXBvbmVudFR5cGUuRmxvYXQsXG4gICAgICAgIGNvbXBvc2l0aW9uVHlwZTogQ29tcG9zaXRpb25UeXBlLlNjYWxhcixcbiAgICAgICAgc3RhZ2U6IFNoYWRlclR5cGUuVmVydGV4U2hhZGVyLFxuICAgICAgICBzb2xvRGF0dW06IHRydWUsXG4gICAgICAgIGluaXRpYWxWYWx1ZTogU2NhbGFyLmZyb21Db3B5TnVtYmVyKDMwLjApLFxuICAgICAgICBtaW46IDAsXG4gICAgICAgIG1heDogMTAwLFxuICAgICAgfSxcbiAgICAgIHtcbiAgICAgICAgc2VtYW50aWM6ICdwb2ludERpc3RhbmNlQXR0ZW51YXRpb24nLFxuICAgICAgICBjb21wb25lbnRUeXBlOiBDb21wb25lbnRUeXBlLkZsb2F0LFxuICAgICAgICBjb21wb3NpdGlvblR5cGU6IENvbXBvc2l0aW9uVHlwZS5WZWMzLFxuICAgICAgICBzdGFnZTogU2hhZGVyVHlwZS5WZXJ0ZXhTaGFkZXIsXG4gICAgICAgIHNvbG9EYXR1bTogdHJ1ZSxcbiAgICAgICAgaW5pdGlhbFZhbHVlOiBWZWN0b3IzLmZyb21Db3B5QXJyYXkoWzAuMCwgMC4xLCAwLjAxXSksXG4gICAgICAgIG1pbjogMCxcbiAgICAgICAgbWF4OiAxLFxuICAgICAgfVxuICAgICk7XG5cbiAgICBzaGFkZXJTZW1hbnRpY3NJbmZvQXJyYXkucHVzaCh7XG4gICAgICBzZW1hbnRpYzogJ21hdENhcFRleHR1cmUnLFxuICAgICAgY29tcG9uZW50VHlwZTogQ29tcG9uZW50VHlwZS5JbnQsXG4gICAgICBjb21wb3NpdGlvblR5cGU6IENvbXBvc2l0aW9uVHlwZS5UZXh0dXJlMkQsXG4gICAgICBzdGFnZTogU2hhZGVyVHlwZS5QaXhlbFNoYWRlcixcbiAgICAgIGluaXRpYWxWYWx1ZTogWzEsIG1hdENhcFRleHR1cmUsIHNhbXBsZXJdLFxuICAgICAgbWluOiAwLFxuICAgICAgbWF4OiBOdW1iZXIuTUFYX1NBRkVfSU5URUdFUixcbiAgICB9KTtcblxuICAgIHRoaXMuc2V0U2hhZGVyU2VtYW50aWNzSW5mb0FycmF5KHNoYWRlclNlbWFudGljc0luZm9BcnJheSk7XG4gIH1cblxuICAvKipcbiAgICogU2V0cyBpbnRlcm5hbCBHUFUgcGFyYW1ldGVycyBzcGVjaWZpYyB0byBNYXRDYXAgbWF0ZXJpYWwgcmVuZGVyaW5nIGZvciBXZWJHTC5cbiAgICogVGhpcyBtZXRob2QgY29uZmlndXJlcyB1bmlmb3JtcyBhbmQgbWF0cmljZXMgcmVxdWlyZWQgZm9yIHByb3BlciBNYXRDYXAgbWF0ZXJpYWwgcmVuZGVyaW5nLFxuICAgKiBpbmNsdWRpbmcgd29ybGQgdHJhbnNmb3JtYXRpb25zLCBjYW1lcmEgc2V0dGluZ3MsIGFuZCBza2VsZXRhbCBhbmltYXRpb24gc3VwcG9ydC5cbiAgICpcbiAgICogQHBhcmFtIHBhcmFtcyAtIENvbmZpZ3VyYXRpb24gb2JqZWN0IGNvbnRhaW5pbmcgcmVuZGVyaW5nIHBhcmFtZXRlcnNcbiAgICogQHBhcmFtIHBhcmFtcy5lbmdpbmUgLSBUaGUgZW5naW5lIGluc3RhbmNlXG4gICAqIEBwYXJhbSBwYXJhbXMuc2hhZGVyUHJvZ3JhbSAtIFRoZSBXZWJHTCBzaGFkZXIgcHJvZ3JhbSB0byBjb25maWd1cmVcbiAgICogQHBhcmFtIHBhcmFtcy5hcmdzIC0gV2ViR0wgcmVuZGVyaW5nIGFyZ3VtZW50cyBjb250YWluaW5nIG1hdHJpY2VzLCBjYW1lcmEsIGFuZCBlbnRpdHkgZGF0YVxuICAgKi9cbiAgX3NldEludGVybmFsU2V0dGluZ1BhcmFtZXRlcnNUb0dwdVdlYkdMUGVyTWF0ZXJpYWwoe1xuICAgIGVuZ2luZSxcbiAgICBzaGFkZXJQcm9ncmFtLFxuICAgIGFyZ3MsXG4gIH06IHtcbiAgICBlbmdpbmU6IEVuZ2luZTtcbiAgICBzaGFkZXJQcm9ncmFtOiBXZWJHTFByb2dyYW07XG4gICAgYXJnczogUmVuZGVyaW5nQXJnV2ViR0w7XG4gIH0pIHtcbiAgICAvLyBQYXJhbWV0ZXJzIGFyZSB1cGxvYWRlZCB0aHJvdWdoIHRoZSBXZWJHTDIgZGF0YSB0ZXh0dXJlLlxuICB9XG59XG4iXSwKICAibWFwcGluZ3MiOiAiO0FBQUEsT0FBTywyQkFBMkI7QUFDbEMsT0FBTyx5QkFBeUI7QUFFaEMsU0FBUyxxQkFBcUI7QUFDOUIsU0FBUyx1QkFBdUI7QUFDaEMsU0FBUyw0QkFBNEI7QUFFckMsU0FBUyxrQkFBa0I7QUFDM0IsU0FBUyxjQUFjO0FBQ3ZCLFNBQVMsZUFBZTtBQUN4QixTQUFTLGNBQWM7QUFFdkIsU0FBUyx1QkFBdUI7QUFFaEMsU0FBUyxlQUFlO0FBQ3hCLFNBQVMsK0JBQStCO0FBR3hDLElBQU0sdUJBQXVCLE9BQU8saUJBQWlCLGVBQWUsZUFBZSx3QkFBd0I7QUFDM0csSUFBTSxxQkFBcUIsT0FBTyxpQkFBaUIsZUFBZSxlQUFlLHNCQUFzQjtBQU9oRyxJQUFNLHdCQUFOLGNBQW9DLHdCQUF3QjtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUEsRUFhakUsWUFDRSxRQUNBLGNBQ0EsWUFDQSxLQUNBLFNBQ0EsU0FDQTtBQUNBLFVBQU0sY0FBYyxFQUFFLFdBQXVCLEdBQUcsb0JBQW9CLHNCQUFzQixNQUFNO0FBRWhHLFFBQUk7QUFDSixRQUFJLE9BQU8sUUFBUSxVQUFVO0FBQzNCLHNCQUFnQixJQUFJLFFBQVEsTUFBTTtBQUNsQyxPQUFDLE9BQU9BLFNBQWdCO0FBQ3RCLGNBQU0sY0FBYyx1QkFBdUJBLE1BQUs7QUFBQSxVQUM5QyxNQUFNLGNBQWM7QUFBQSxRQUN0QixDQUFDO0FBQUEsTUFDSCxHQUFHLEdBQUc7QUFBQSxJQUNSLFdBQVcsbUJBQW1CLGlCQUFpQjtBQUM3QyxzQkFBZ0I7QUFBQSxJQUNsQixPQUFPO0FBQ0wsYUFBTyxRQUFRLEtBQUssbUJBQW1CO0FBQ3ZDLHNCQUFnQixPQUFPLGNBQWM7QUFBQSxJQUN2QztBQUVBLFVBQU0sMkJBQWtELENBQUM7QUFFekQsNkJBQXlCLEtBQUs7QUFBQSxNQUM1QixVQUFVO0FBQUEsTUFDVixlQUFlLGNBQWM7QUFBQSxNQUM3QixpQkFBaUIsZ0JBQWdCO0FBQUEsTUFDakMsT0FBTyxXQUFXO0FBQUEsTUFDbEIsY0FBYyxRQUFRLGNBQWMsQ0FBQyxHQUFHLEdBQUcsQ0FBQyxDQUFDO0FBQUEsTUFDN0MsS0FBSztBQUFBLE1BQ0wsS0FBSztBQUFBLElBQ1AsQ0FBQztBQUdELDZCQUF5QjtBQUFBLE1BQ3ZCO0FBQUEsUUFDRSxVQUFVO0FBQUEsUUFDVixlQUFlLGNBQWM7QUFBQSxRQUM3QixpQkFBaUIsZ0JBQWdCO0FBQUEsUUFDakMsT0FBTyxXQUFXO0FBQUEsUUFDbEIsV0FBVztBQUFBLFFBQ1gsY0FBYyxPQUFPLGVBQWUsRUFBSTtBQUFBLFFBQ3hDLEtBQUs7QUFBQSxRQUNMLEtBQUs7QUFBQSxNQUNQO0FBQUEsTUFDQTtBQUFBLFFBQ0UsVUFBVTtBQUFBLFFBQ1YsZUFBZSxjQUFjO0FBQUEsUUFDN0IsaUJBQWlCLGdCQUFnQjtBQUFBLFFBQ2pDLE9BQU8sV0FBVztBQUFBLFFBQ2xCLFdBQVc7QUFBQSxRQUNYLGNBQWMsUUFBUSxjQUFjLENBQUMsR0FBSyxLQUFLLElBQUksQ0FBQztBQUFBLFFBQ3BELEtBQUs7QUFBQSxRQUNMLEtBQUs7QUFBQSxNQUNQO0FBQUEsSUFDRjtBQUVBLDZCQUF5QixLQUFLO0FBQUEsTUFDNUIsVUFBVTtBQUFBLE1BQ1YsZUFBZSxjQUFjO0FBQUEsTUFDN0IsaUJBQWlCLGdCQUFnQjtBQUFBLE1BQ2pDLE9BQU8sV0FBVztBQUFBLE1BQ2xCLGNBQWMsQ0FBQyxHQUFHLGVBQWUsT0FBTztBQUFBLE1BQ3hDLEtBQUs7QUFBQSxNQUNMLEtBQUssT0FBTztBQUFBLElBQ2QsQ0FBQztBQUVELFNBQUssNEJBQTRCLHdCQUF3QjtBQUFBLEVBQzNEO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQSxFQVlBLG1EQUFtRDtBQUFBLElBQ2pEO0FBQUEsSUFDQTtBQUFBLElBQ0E7QUFBQSxFQUNGLEdBSUc7QUFBQSxFQUVIO0FBQ0Y7QUE1R2Esc0JBQ0osZ0JBQWdCLElBQUkscUJBQXFCLEVBQUUsS0FBSyxnQkFBZ0IsQ0FBQzsiLAogICJuYW1lcyI6IFsidXJpIl0KfQo=

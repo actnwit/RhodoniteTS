@@ -1,7 +1,7 @@
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
 import { BlendShapeComponent } from '../foundation/components/BlendShape/BlendShapeComponent';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
-import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
+import { _getCameraControllerUpdateCount } from '../foundation/components/CameraController/CameraControllerUpdateCount';
 import { LightComponent } from '../foundation/components/Light/LightComponent';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
@@ -818,7 +818,7 @@ ${indexStr}
       TransformComponent.getUpdateCount(this.__engine) !== this.__lastTransformComponentsUpdateCount ||
       SceneGraphComponent.getUpdateCount(this.__engine) !== this.__lastSceneGraphComponentsUpdateCount ||
       CameraComponent.getCurrentCameraUpdateCount(this.__engine) !== this.__lastCameraComponentsUpdateCount ||
-      CameraControllerComponent.getUpdateCount(this.__engine) !== this.__lastCameraControllerComponentsUpdateCount ||
+      _getCameraControllerUpdateCount(this.__engine) !== this.__lastCameraControllerComponentsUpdateCount ||
       this.__engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount ||
       this.__engine.lightClusterSystem.dataVersion !== this.__lastLightClusterDataVersion ||
       LightComponent.getUpdateCount(this.__engine) !== this.__lastLightComponentsUpdateCount
@@ -838,7 +838,7 @@ ${indexStr}
       this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this.__engine);
       this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.getUpdateCount(this.__engine);
       this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this.__engine);
-      this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(this.__engine);
+      this.__lastCameraControllerComponentsUpdateCount = _getCameraControllerUpdateCount(this.__engine);
       this.__lastMaterialsUpdateCount = this.__engine.materialRepository.stateVersion;
       this.__lastLightClusterDataVersion = this.__engine.lightClusterSystem.dataVersion;
       this.__lastLightComponentsUpdateCount = LightComponent.getUpdateCount(this.__engine);

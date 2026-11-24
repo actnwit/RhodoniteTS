@@ -11,7 +11,7 @@ import type { Vector4 } from '../../math/Vector4';
 import type { Engine } from '../../system/Engine';
 import type { CameraComponent } from '../Camera/CameraComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
-import type { ShapeComponent } from '../Shape/ShapeComponent';
+import { ShapeComponent } from '../Shape/ShapeComponent';
 import { type RaymarchingRaycastHit, type RaymarchingRaycastOptions, type RaymarchingUniformValueProvider } from './RaymarchingSdfEvaluator';
 /**
  * Options for creating a box shape from the SDF bounds.

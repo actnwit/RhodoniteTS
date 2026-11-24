@@ -14,7 +14,7 @@ import { Logger } from '../misc/Logger';
 import { type ICGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { Expression } from '../renderer/Expression';
 import { Frame } from '../renderer/Frame';
-import { LightClusterSystem } from '../renderer/lightCluster/LightClusterSystem';
+import type { ILightClusterSystem } from '../renderer/lightCluster/LightClusterSystemStub';
 import { EngineState } from './EngineState';
 import type { WebARSystem } from '../../xr/WebARSystem';
 import type { WebXRSystem } from '../../xr/WebXRSystem';
@@ -29,6 +29,12 @@ interface EngineInitDescription {
     webglOption?: WebGLContextAttributes;
     notToDisplayRnInfoAtInit?: boolean;
     config?: Config;
+    /**
+     * Loads the WebXR/WebAR support (`engine.webXRSystem`, `engine.webARSystem`) during initialization.
+     * Defaults to false for named imports, and to true when the default `Rn` namespace export is used.
+     * It can also be enabled later with `await engine.enableXR()`.
+     */
+    xr?: boolean;
 }
 /**
  * The system class is the entry point of the Rhodonite library.
@@ -61,8 +67,14 @@ export declare class Engine extends RnObject {
     private __animationFrameObject?;
     private __renderLoopFunc?;
     private __args;
-    private __webXRSystem;
-    private __webARSystem;
+    private __webXRSystem?;
+    private __webARSystem?;
+    /**
+     * Whether `Engine.init` loads the XR support when `EngineInitDescription.xr` is omitted.
+     * The default `Rn` namespace export sets it to true for compatibility.
+     * @internal
+     */
+    static _loadXRByDefault: boolean;
     private __entityRepository;
     private __componentRepository;
     private __componentMemoryRegistry;
@@ -70,11 +82,13 @@ export declare class Engine extends RnObject {
     private __materialRepository;
     private __globalDataRepository;
     private __lightClusterSystem;
+    private __lightClusterSystemPromise?;
+    private __isLightClusterSystemLoaded;
+    private __isDestroyed;
     private __config;
     private __logger;
     private __dummyTextures?;
     private __lastCameraComponentsUpdateCount;
-    private __lastCameraControllerComponentsUpdateCount;
     private __lastTransformComponentsUpdateCount;
     private __lastPrimitiveCount;
     private __lastLightComponentsUpdateCount;
@@ -215,6 +229,10 @@ export declare class Engine extends RnObject {
     private __renderDeferredEffekseerEffectsAfterResolveWebGPU;
     private __renderMeshesWebGPU;
     private _processWebGPU;
+    private __processComponentRuntimeHooksBeginFrame;
+    private __isComponentRuntimeHookDirty;
+    private __processComponentRuntimeHooksMarkUpdated;
+    private __cleanupComponentRuntimeHooks;
     private _processWebGL;
     static get processTime(): number;
     static get timeAtProcessBegin(): number;
@@ -247,22 +265,81 @@ export declare class Engine extends RnObject {
      * @param desc
      * @returns
      */
+    /**
+     * Registers the component classes the engine itself processes every frame.
+     *
+     * @remarks
+     * Other component classes are registered on first use by `EntityRepository.addComponentToEntity`.
+     * The core classes are registered here because the render loop looks up the MeshRendererComponent class
+     * by its ComponentTID, because SkeletalComponent's bone data members must be registered before any shader is
+     * generated, and because entity helpers such as `createGroupEntity` and `createMeshEntity` add
+     * them by ComponentTID: importing the classes there would create circular imports between the
+     * components, the gizmos and the mesh helpers.
+     */
+    private static __registerCoreComponentClasses;
     static init(desc: EngineInitDescription): Promise<Engine>;
     get processApproach(): import("..").ProcessApproachClass;
     resizeCanvas(width: number, height: number): void;
     getCanvasSize(): [number, number];
-    getCurrentWebGLContextWrapper(): import("../../webgl").WebGLContextWrapper | undefined;
+    getCurrentWebGLContextWrapper(): import("../..").WebGLContextWrapper | undefined;
     get entityRepository(): EntityRepository;
     get componentRepository(): ComponentRepository;
     get componentMemoryRegistry(): ComponentMemoryRegistry;
+    /**
+     * The WebXR (VR) system.
+     * @throws If the XR support is not enabled (see {@link enableXR} and `EngineInitDescription.xr`)
+     */
     get webXRSystem(): WebXRSystem;
+    /**
+     * The WebAR system.
+     * @throws If the XR support is not enabled (see {@link enableXR} and `EngineInitDescription.xr`)
+     */
     get webARSystem(): WebARSystem;
+    /** Whether the XR support (WebXR and WebAR systems) is enabled. */
+    get isXREnabled(): boolean;
+    /**
+     * The WebXR system, or undefined when the XR support is not enabled.
+     * Internal code uses it so that rendering without XR never needs the XR module.
+     * @internal
+     */
+    get _webXRSystemIfEnabled(): WebXRSystem | undefined;
+    /**
+     * The WebAR system, or undefined when the XR support is not enabled.
+     * @internal
+     */
+    get _webARSystemIfEnabled(): WebARSystem | undefined;
+    /**
+     * Enables the WebXR/WebAR support after initialization by loading the XR module.
+     * Does nothing when it is already enabled (e.g. by `Engine.init({ xr: true })`).
+     *
+     * @returns The WebXR system
+     *
+     * @example
+     * ```typescript
+     * const webXRSystem = await engine.enableXR();
+     * await webXRSystem.readyForWebXR(buttonElement, basePath);
+     * ```
+     */
+    enableXR(): Promise<WebXRSystem>;
+    private __initXRSystems;
+    private static readonly __xrNotEnabledMessage;
     get memoryManager(): MemoryManager;
     get globalDataRepository(): GlobalDataRepository;
     /**
+     * Starts loading the light cluster system. Called when the first light is added; applications without lights
+     * never download it.
+     * @internal
+     */
+    _requestLightClusterSystem(): void;
+    /**
+     * Waits for the real light cluster system. Tests and applications that need it immediately call this.
+     * @internal
+     */
+    _ensureLightClusterSystem(): Promise<ILightClusterSystem>;
+    /**
      * The system that builds the light lists of Clustered Forward rendering.
      */
-    get lightClusterSystem(): LightClusterSystem;
+    get lightClusterSystem(): ILightClusterSystem;
     get materialRepository(): MaterialRepository;
     get webglResourceRepository(): WebGLResourceRepository;
     get cgApiResourceRepository(): ICGAPIResourceRepository;

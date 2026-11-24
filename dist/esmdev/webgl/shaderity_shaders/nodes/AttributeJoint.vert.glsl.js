@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/nodes/AttributeJoint.vert.glsl
+var code = "void attributeJoint(out uvec4 outValue) {\n  outValue = uvec4(a_joint);\n}\n";
+var shaderStage = "vertex";
+var isFragmentShader = false;
+var AttributeJoint_vert_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  AttributeJoint_vert_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvbm9kZXMvQXR0cmlidXRlSm9pbnQudmVydC5nbHNsIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJ7XCJjb2RlXCI6XCJ2b2lkIGF0dHJpYnV0ZUpvaW50KG91dCB1dmVjNCBvdXRWYWx1ZSkge1xcbiAgb3V0VmFsdWUgPSB1dmVjNChhX2pvaW50KTtcXG59XFxuXCIsXCJzaGFkZXJTdGFnZVwiOlwidmVydGV4XCIsXCJpc0ZyYWdtZW50U2hhZGVyXCI6ZmFsc2V9Il0sCiAgIm1hcHBpbmdzIjogIjtBQUFDLFdBQU87QUFBK0Usa0JBQWM7QUFBUyx1QkFBbUI7QUFBakksb0NBQUMsTUFBc0YsYUFBdUIsaUJBQXdCOyIsCiAgIm5hbWVzIjogW10KfQo=

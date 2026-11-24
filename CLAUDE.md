@@ -177,6 +177,13 @@ src/xr/                 # WebXR support
 - Extend `AbstractMaterialContent` for new material types
 - Use shader nodes for composable material features
 - Register materials with `MaterialRepository`
+- Node-based materials (`createNodeBasedCustomMaterial`, the raymarching factories) and MToon
+  (`createMToon0xMaterial`, `createMToon1Material`) live in
+  `foundation/helpers/materials/optionalMaterials.ts` and are exported from the
+  `rhodonite/optional-materials` subpath, not the package root. They pull in the shader graph
+  resolver / every shader node / the MToon contents, so keep them out of the root barrel:
+  re-exporting them there makes bundlers keep that subtree for every app that imports another
+  material factory. The `MaterialHelper` object still includes them for compatibility.
 
 ### Asset Loading
 - Use `AssetLoader` with appropriate extension loaders

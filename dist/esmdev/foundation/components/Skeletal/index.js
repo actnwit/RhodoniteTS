@@ -1,0 +1,6 @@
+// src/foundation/components/Skeletal/index.ts
+export * from "./AnimationRetarget/index.js";
+export * from "./createSkeletalEntity.js";
+export * from "./ISkeletalEntity.js";
+export * from "./SkeletalComponent.js";
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vY29tcG9uZW50cy9Ta2VsZXRhbC9pbmRleC50cyJdLAogICJzb3VyY2VzQ29udGVudCI6IFsiZXhwb3J0ICogZnJvbSAnLi9BbmltYXRpb25SZXRhcmdldCc7XG5leHBvcnQgKiBmcm9tICcuL2NyZWF0ZVNrZWxldGFsRW50aXR5JztcbmV4cG9ydCAqIGZyb20gJy4vSVNrZWxldGFsRW50aXR5JztcbmV4cG9ydCAqIGZyb20gJy4vU2tlbGV0YWxDb21wb25lbnQnO1xuIl0sCiAgIm1hcHBpbmdzIjogIjtBQUFBLGNBQWM7QUFDZCxjQUFjO0FBQ2QsY0FBYztBQUNkLGNBQWM7IiwKICAibmFtZXMiOiBbXQp9Cg==

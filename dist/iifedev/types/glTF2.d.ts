@@ -2,7 +2,9 @@ import type { CameraComponent } from '../foundation/components/Camera/CameraComp
 import type { BoneDataTypeEnum } from '../foundation/definitions/BoneDataType';
 import type { ShaderSemanticsEnum } from '../foundation/definitions/ShaderSemantics';
 import type { ILoaderExtension } from '../foundation/importer/ILoaderExtension';
+import type { Material } from '../foundation/materials/core/Material';
 import type { Expression } from '../foundation/renderer/Expression';
+import type { Engine } from '../foundation/system/Engine';
 import type { GL_DATA_BYTE, GL_DATA_FLOAT, GL_DATA_INT, GL_DATA_SHORT, GL_DATA_UNSIGNED_BYTE, GL_DATA_UNSIGNED_INT, GL_DATA_UNSIGNED_SHORT } from '../types/WebGLConstants';
 import type { Array3, Array4, Index } from './CommonTypes';
 export interface Gltf2AnyObject {
@@ -320,7 +322,17 @@ export type GltfLoadOption = {
     files?: GltfFileBuffers;
     loaderExtensionName?: string;
     loaderExtension?: ILoaderExtension;
+    /**
+     * @deprecated Looking up a material helper by name keeps every material helper in the bundle and is no longer
+     * supported. Pass the function itself with {@link defaultMaterialHelper} instead, e.g.
+     * `defaultMaterialHelper: createClassicUberMaterial`.
+     */
     defaultMaterialHelperName?: string;
+    /**
+     * Creates the material used for every glTF material instead of the default one.
+     * It is called with the engine followed by the elements of {@link defaultMaterialHelperArgumentArray}.
+     */
+    defaultMaterialHelper?: (engine: Engine, ...args: any[]) => Material;
     defaultMaterialHelperArgumentArray?: any[];
     statesOfElements?: [
         {

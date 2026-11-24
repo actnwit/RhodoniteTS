@@ -1,0 +1,105 @@
+// src/webgl/shaders/nodes/SdApplyWorldMatrix.ts
+import { ProcessApproach } from "../../../foundation/definitions/ProcessApproach.js";
+import { RaymarchingShaderPart } from "../RaymarchingShaderPart.js";
+var SdApplyWorldMatrixShader = class extends RaymarchingShaderPart {
+  /**
+   * Private constructor to enforce singleton pattern.
+   */
+  constructor(shaderFunctionName) {
+    super();
+    this.eF = "";
+    this.Br = "";
+    this.Br = shaderFunctionName;
+  }
+  setVariableName(name) {
+    this.eF = name;
+  }
+  /**
+   * Gets the vertex shader function definitions.
+   * Returns a no-op function since discard is not available in vertex shaders.
+   *
+   * @returns Shader code string containing a no-op conditionalDiscard function
+   */
+  getVertexShaderDefinitions(engine) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
+      return "";
+    }
+    return "";
+  }
+  /**
+   * Gets the vertex shader body code.
+   * Currently returns empty string as no additional vertex processing is needed.
+   *
+   * @returns Empty shader body string
+   */
+  get vertexShaderBody() {
+    return "";
+  }
+  /**
+   * Gets the pixel/fragment shader function definitions for conditional discard.
+   * Returns appropriate function definition based on the current process approach (WebGL/WebGPU).
+   *
+   * @returns Shader code string containing the conditionalDiscard function definition
+   */
+  getPixelShaderDefinitions(engine) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
+      return `
+fn ${this.Br}(position: vec3f, outTransformedPosition: ptr<function, vec3f>) {
+  let transform = get_${this.eF}(uniformDrawParameters.materialSid, 0u);
+  let inv = inverseMat4(transform);
+  let tp = (inv * vec4f(position, 1.0)).xyz;
+  *outTransformedPosition = tp;
+}
+      `;
+    }
+    return `
+void ${this.Br}(in vec3 position, out vec3 outTransformedPosition) {
+  ${this.getMaterialSIDForWebGL()}
+  mat4 transform = get_${this.eF}(materialSID, 0u);
+  mat4 inv = inverse(transform);
+  vec3 tp = (inv * vec4(position, 1.0)).xyz;
+  outTransformedPosition = tp;
+}
+      `;
+  }
+  /**
+   * Gets the pixel/fragment shader body code.
+   * Currently returns empty string as no additional fragment processing is needed.
+   *
+   * @returns Empty shader body string
+   */
+  getPixelShaderBody() {
+    return "";
+  }
+  /**
+   * Gets the attribute names required by this shader part.
+   * DiscardShader doesn't require any specific vertex attributes.
+   *
+   * @returns Empty array of attribute names
+   */
+  get attributeNames() {
+    return [];
+  }
+  /**
+   * Gets the vertex attribute semantics required by this shader part.
+   * DiscardShader doesn't require any specific vertex attribute semantics.
+   *
+   * @returns Empty array of vertex attribute enums
+   */
+  get attributeSemantics() {
+    return [];
+  }
+  /**
+   * Gets the attribute compositions required by this shader part.
+   * DiscardShader doesn't require any specific attribute compositions.
+   *
+   * @returns Empty array of composition type enums
+   */
+  get attributeCompositions() {
+    return [];
+  }
+};
+export {
+  SdApplyWorldMatrixShader
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL3dlYmdsL3NoYWRlcnMvbm9kZXMvU2RBcHBseVdvcmxkTWF0cml4LnRzIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJpbXBvcnQgdHlwZSB7IENvbXBvc2l0aW9uVHlwZUVudW0gfSBmcm9tICcuLi8uLi8uLi9mb3VuZGF0aW9uL2RlZmluaXRpb25zL0NvbXBvc2l0aW9uVHlwZSc7XG5pbXBvcnQgeyBQcm9jZXNzQXBwcm9hY2ggfSBmcm9tICcuLi8uLi8uLi9mb3VuZGF0aW9uL2RlZmluaXRpb25zL1Byb2Nlc3NBcHByb2FjaCc7XG5pbXBvcnQgdHlwZSB7IFZlcnRleEF0dHJpYnV0ZUVudW0gfSBmcm9tICcuLi8uLi8uLi9mb3VuZGF0aW9uL2RlZmluaXRpb25zL1ZlcnRleEF0dHJpYnV0ZSc7XG5pbXBvcnQgdHlwZSB7IEVuZ2luZSB9IGZyb20gJy4uLy4uLy4uL2ZvdW5kYXRpb24vc3lzdGVtL0VuZ2luZSc7XG5pbXBvcnQgdHlwZSB7IEF0dHJpYnV0ZU5hbWVzIH0gZnJvbSAnLi4vLi4vdHlwZXMvQ29tbW9uVHlwZXMnO1xuaW1wb3J0IHsgUmF5bWFyY2hpbmdTaGFkZXJQYXJ0IH0gZnJvbSAnLi4vUmF5bWFyY2hpbmdTaGFkZXJQYXJ0JztcblxuLyoqXG4gKiBTZEFwcGx5V29ybGRNYXRyaXhTaGFkZXIgY2xhc3MgcHJvdmlkZXMgdGhlIGFwcGx5IHdvcmxkIG1hdHJpeCBmdW5jdGlvbiBmb3IgZnJhZ21lbnQgc2hhZGVycy5cbiAqIFRoaXMgY2xhc3MgaGFuZGxlcyBhcHBseWluZyB0aGUgd29ybGQgbWF0cml4IHRvIHRoZSBwb3NpdGlvbixcbiAqIHN1cHBvcnRpbmcgYm90aCBXZWJHTCBhbmQgV2ViR1BVIHJlbmRlcmluZyBhcHByb2FjaGVzLlxuICpcbiAqIEBleHRlbmRzIFJheW1hcmNoaW5nU2hhZGVyUGFydFxuICovXG5leHBvcnQgY2xhc3MgU2RBcHBseVdvcmxkTWF0cml4U2hhZGVyIGV4dGVuZHMgUmF5bWFyY2hpbmdTaGFkZXJQYXJ0IHtcbiAgcHJpdmF0ZSBfX3ZhcmlhYmxlTmFtZSA9ICcnO1xuICBwcml2YXRlIF9fc2hhZGVyRnVuY3Rpb25OYW1lID0gJyc7XG4gIC8qKlxuICAgKiBQcml2YXRlIGNvbnN0cnVjdG9yIHRvIGVuZm9yY2Ugc2luZ2xldG9uIHBhdHRlcm4uXG4gICAqL1xuICBjb25zdHJ1Y3RvcihzaGFkZXJGdW5jdGlvbk5hbWU6IHN0cmluZykge1xuICAgIHN1cGVyKCk7XG4gICAgdGhpcy5fX3NoYWRlckZ1bmN0aW9uTmFtZSA9IHNoYWRlckZ1bmN0aW9uTmFtZTtcbiAgfVxuXG4gIHNldFZhcmlhYmxlTmFtZShuYW1lOiBhbnkpIHtcbiAgICB0aGlzLl9fdmFyaWFibGVOYW1lID0gbmFtZTtcbiAgfVxuXG4gIC8qKlxuICAgKiBHZXRzIHRoZSB2ZXJ0ZXggc2hhZGVyIGZ1bmN0aW9uIGRlZmluaXRpb25zLlxuICAgKiBSZXR1cm5zIGEgbm8tb3AgZnVuY3Rpb24gc2luY2UgZGlzY2FyZCBpcyBub3QgYXZhaWxhYmxlIGluIHZlcnRleCBzaGFkZXJzLlxuICAgKlxuICAgKiBAcmV0dXJucyBTaGFkZXIgY29kZSBzdHJpbmcgY29udGFpbmluZyBhIG5vLW9wIGNvbmRpdGlvbmFsRGlzY2FyZCBmdW5jdGlvblxuICAgKi9cbiAgZ2V0VmVydGV4U2hhZGVyRGVmaW5pdGlvbnMoZW5naW5lOiBFbmdpbmUpIHtcbiAgICBpZiAoZW5naW5lLmVuZ2luZVN0YXRlLmN1cnJlbnRQcm9jZXNzQXBwcm9hY2ggPT09IFByb2Nlc3NBcHByb2FjaC5XZWJHUFUpIHtcbiAgICAgIHJldHVybiAnJztcbiAgICB9XG4gICAgcmV0dXJuICcnO1xuICB9XG5cbiAgLyoqXG4gICAqIEdldHMgdGhlIHZlcnRleCBzaGFkZXIgYm9keSBjb2RlLlxuICAgKiBDdXJyZW50bHkgcmV0dXJucyBlbXB0eSBzdHJpbmcgYXMgbm8gYWRkaXRpb25hbCB2ZXJ0ZXggcHJvY2Vzc2luZyBpcyBuZWVkZWQuXG4gICAqXG4gICAqIEByZXR1cm5zIEVtcHR5IHNoYWRlciBib2R5IHN0cmluZ1xuICAgKi9cbiAgZ2V0IHZlcnRleFNoYWRlckJvZHkoKSB7XG4gICAgcmV0dXJuICcnO1xuICB9XG5cbiAgLyoqXG4gICAqIEdldHMgdGhlIHBpeGVsL2ZyYWdtZW50IHNoYWRlciBmdW5jdGlvbiBkZWZpbml0aW9ucyBmb3IgY29uZGl0aW9uYWwgZGlzY2FyZC5cbiAgICogUmV0dXJucyBhcHByb3ByaWF0ZSBmdW5jdGlvbiBkZWZpbml0aW9uIGJhc2VkIG9uIHRoZSBjdXJyZW50IHByb2Nlc3MgYXBwcm9hY2ggKFdlYkdML1dlYkdQVSkuXG4gICAqXG4gICAqIEByZXR1cm5zIFNoYWRlciBjb2RlIHN0cmluZyBjb250YWluaW5nIHRoZSBjb25kaXRpb25hbERpc2NhcmQgZnVuY3Rpb24gZGVmaW5pdGlvblxuICAgKi9cbiAgZ2V0UGl4ZWxTaGFkZXJEZWZpbml0aW9ucyhlbmdpbmU6IEVuZ2luZSkge1xuICAgIGlmIChlbmdpbmUuZW5naW5lU3RhdGUuY3VycmVudFByb2Nlc3NBcHByb2FjaCA9PT0gUHJvY2Vzc0FwcHJvYWNoLldlYkdQVSkge1xuICAgICAgcmV0dXJuIGBcbmZuICR7dGhpcy5fX3NoYWRlckZ1bmN0aW9uTmFtZX0ocG9zaXRpb246IHZlYzNmLCBvdXRUcmFuc2Zvcm1lZFBvc2l0aW9uOiBwdHI8ZnVuY3Rpb24sIHZlYzNmPikge1xuICBsZXQgdHJhbnNmb3JtID0gZ2V0XyR7dGhpcy5fX3ZhcmlhYmxlTmFtZX0odW5pZm9ybURyYXdQYXJhbWV0ZXJzLm1hdGVyaWFsU2lkLCAwdSk7XG4gIGxldCBpbnYgPSBpbnZlcnNlTWF0NCh0cmFuc2Zvcm0pO1xuICBsZXQgdHAgPSAoaW52ICogdmVjNGYocG9zaXRpb24sIDEuMCkpLnh5ejtcbiAgKm91dFRyYW5zZm9ybWVkUG9zaXRpb24gPSB0cDtcbn1cbiAgICAgIGA7XG4gICAgfVxuICAgIHJldHVybiBgXG52b2lkICR7dGhpcy5fX3NoYWRlckZ1bmN0aW9uTmFtZX0oaW4gdmVjMyBwb3NpdGlvbiwgb3V0IHZlYzMgb3V0VHJhbnNmb3JtZWRQb3NpdGlvbikge1xuICAke3RoaXMuZ2V0TWF0ZXJpYWxTSURGb3JXZWJHTCgpfVxuICBtYXQ0IHRyYW5zZm9ybSA9IGdldF8ke3RoaXMuX192YXJpYWJsZU5hbWV9KG1hdGVyaWFsU0lELCAwdSk7XG4gIG1hdDQgaW52ID0gaW52ZXJzZSh0cmFuc2Zvcm0pO1xuICB2ZWMzIHRwID0gKGludiAqIHZlYzQocG9zaXRpb24sIDEuMCkpLnh5ejtcbiAgb3V0VHJhbnNmb3JtZWRQb3NpdGlvbiA9IHRwO1xufVxuICAgICAgYDtcbiAgfVxuXG4gIC8qKlxuICAgKiBHZXRzIHRoZSBwaXhlbC9mcmFnbWVudCBzaGFkZXIgYm9keSBjb2RlLlxuICAgKiBDdXJyZW50bHkgcmV0dXJucyBlbXB0eSBzdHJpbmcgYXMgbm8gYWRkaXRpb25hbCBmcmFnbWVudCBwcm9jZXNzaW5nIGlzIG5lZWRlZC5cbiAgICpcbiAgICogQHJldHVybnMgRW1wdHkgc2hhZGVyIGJvZHkgc3RyaW5nXG4gICAqL1xuICBnZXRQaXhlbFNoYWRlckJvZHkoKSB7XG4gICAgcmV0dXJuICcnO1xuICB9XG5cbiAgLyoqXG4gICAqIEdldHMgdGhlIGF0dHJpYnV0ZSBuYW1lcyByZXF1aXJlZCBieSB0aGlzIHNoYWRlciBwYXJ0LlxuICAgKiBEaXNjYXJkU2hhZGVyIGRvZXNuJ3QgcmVxdWlyZSBhbnkgc3BlY2lmaWMgdmVydGV4IGF0dHJpYnV0ZXMuXG4gICAqXG4gICAqIEByZXR1cm5zIEVtcHR5IGFycmF5IG9mIGF0dHJpYnV0ZSBuYW1lc1xuICAgKi9cbiAgZ2V0IGF0dHJpYnV0ZU5hbWVzKCk6IEF0dHJpYnV0ZU5hbWVzIHtcbiAgICByZXR1cm4gW107XG4gIH1cblxuICAvKipcbiAgICogR2V0cyB0aGUgdmVydGV4IGF0dHJpYnV0ZSBzZW1hbnRpY3MgcmVxdWlyZWQgYnkgdGhpcyBzaGFkZXIgcGFydC5cbiAgICogRGlzY2FyZFNoYWRlciBkb2Vzbid0IHJlcXVpcmUgYW55IHNwZWNpZmljIHZlcnRleCBhdHRyaWJ1dGUgc2VtYW50aWNzLlxuICAgKlxuICAgKiBAcmV0dXJucyBFbXB0eSBhcnJheSBvZiB2ZXJ0ZXggYXR0cmlidXRlIGVudW1zXG4gICAqL1xuICBnZXQgYXR0cmlidXRlU2VtYW50aWNzKCk6IEFycmF5PFZlcnRleEF0dHJpYnV0ZUVudW0+IHtcbiAgICByZXR1cm4gW107XG4gIH1cblxuICAvKipcbiAgICogR2V0cyB0aGUgYXR0cmlidXRlIGNvbXBvc2l0aW9ucyByZXF1aXJlZCBieSB0aGlzIHNoYWRlciBwYXJ0LlxuICAgKiBEaXNjYXJkU2hhZGVyIGRvZXNuJ3QgcmVxdWlyZSBhbnkgc3BlY2lmaWMgYXR0cmlidXRlIGNvbXBvc2l0aW9ucy5cbiAgICpcbiAgICogQHJldHVybnMgRW1wdHkgYXJyYXkgb2YgY29tcG9zaXRpb24gdHlwZSBlbnVtc1xuICAgKi9cbiAgZ2V0IGF0dHJpYnV0ZUNvbXBvc2l0aW9ucygpOiBBcnJheTxDb21wb3NpdGlvblR5cGVFbnVtPiB7XG4gICAgcmV0dXJuIFtdO1xuICB9XG59XG4iXSwKICAibWFwcGluZ3MiOiAiO0FBQ0EsU0FBUyx1QkFBdUI7QUFJaEMsU0FBUyw2QkFBNkI7QUFTL0IsSUFBTSwyQkFBTixjQUF1QyxzQkFBc0I7QUFBQTtBQUFBO0FBQUE7QUFBQSxFQU1sRSxZQUFZLG9CQUE0QjtBQUN0QyxVQUFNO0FBTlIsU0FBUUEsS0FBaUI7QUFDekIsU0FBUUMsS0FBdUI7QUFNN0IsU0FBS0EsS0FBdUI7QUFBQSxFQUM5QjtBQUFBLEVBRUEsZ0JBQWdCLE1BQVc7QUFDekIsU0FBS0QsS0FBaUI7QUFBQSxFQUN4QjtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBLEVBUUEsMkJBQTJCLFFBQWdCO0FBQ3pDLFFBQUksT0FBTyxZQUFZLDJCQUEyQixnQkFBZ0IsUUFBUTtBQUN4RSxhQUFPO0FBQUEsSUFDVDtBQUNBLFdBQU87QUFBQSxFQUNUO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUEsRUFRQSxJQUFJLG1CQUFtQjtBQUNyQixXQUFPO0FBQUEsRUFDVDtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBLEVBUUEsMEJBQTBCLFFBQWdCO0FBQ3hDLFFBQUksT0FBTyxZQUFZLDJCQUEyQixnQkFBZ0IsUUFBUTtBQUN4RSxhQUFPO0FBQUEsS0FDUixLQUFLQyxFQUFvQjtBQUFBLHdCQUNOLEtBQUtELEVBQWM7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUEsSUFNdkM7QUFDQSxXQUFPO0FBQUEsT0FDSixLQUFLQyxFQUFvQjtBQUFBLElBQzVCLEtBQUssdUJBQXVCLENBQUM7QUFBQSx5QkFDUixLQUFLRCxFQUFjO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBLEVBTTFDO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUEsRUFRQSxxQkFBcUI7QUFDbkIsV0FBTztBQUFBLEVBQ1Q7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQSxFQVFBLElBQUksaUJBQWlDO0FBQ25DLFdBQU8sQ0FBQztBQUFBLEVBQ1Y7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQSxFQVFBLElBQUkscUJBQWlEO0FBQ25ELFdBQU8sQ0FBQztBQUFBLEVBQ1Y7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQSxFQVFBLElBQUksd0JBQW9EO0FBQ3RELFdBQU8sQ0FBQztBQUFBLEVBQ1Y7QUFDRjsiLAogICJuYW1lcyI6IFsiX192YXJpYWJsZU5hbWUiLCAiX19zaGFkZXJGdW5jdGlvbk5hbWUiXQp9Cg==

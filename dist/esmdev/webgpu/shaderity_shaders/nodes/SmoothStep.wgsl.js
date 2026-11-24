@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgpu/shaderity_shaders/nodes/SmoothStep.wgsl
+var code = "fn _smoothstepF32(value: f32, edge0: f32, edge1: f32, outValue: ptr<function, f32>) {\n  *outValue = smoothstep(edge0, edge1, value);\n}\nfn _smoothstepVec2f(value: vec2<f32>, edge0: vec2<f32>, edge1: vec2<f32>, outValue: ptr<function, vec2<f32>>) {\n  *outValue = smoothstep(edge0, edge1, value);\n}\nfn _smoothstepVec3f(value: vec3<f32>, edge0: vec3<f32>, edge1: vec3<f32>, outValue: ptr<function, vec3<f32>>) {\n  *outValue = smoothstep(edge0, edge1, value);\n}\nfn _smoothstepVec4f(value: vec4<f32>, edge0: vec4<f32>, edge1: vec4<f32>, outValue: ptr<function, vec4<f32>>) {\n  *outValue = smoothstep(edge0, edge1, value);\n}\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var SmoothStep_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  SmoothStep_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ3B1L3NoYWRlcml0eV9zaGFkZXJzL25vZGVzL1Ntb290aFN0ZXAud2dzbCJdLAogICJzb3VyY2VzQ29udGVudCI6IFsie1wiY29kZVwiOlwiZm4gX3Ntb290aHN0ZXBGMzIodmFsdWU6IGYzMiwgZWRnZTA6IGYzMiwgZWRnZTE6IGYzMiwgb3V0VmFsdWU6IHB0cjxmdW5jdGlvbiwgZjMyPikge1xcbiAgKm91dFZhbHVlID0gc21vb3Roc3RlcChlZGdlMCwgZWRnZTEsIHZhbHVlKTtcXG59XFxuZm4gX3Ntb290aHN0ZXBWZWMyZih2YWx1ZTogdmVjMjxmMzI+LCBlZGdlMDogdmVjMjxmMzI+LCBlZGdlMTogdmVjMjxmMzI+LCBvdXRWYWx1ZTogcHRyPGZ1bmN0aW9uLCB2ZWMyPGYzMj4+KSB7XFxuICAqb3V0VmFsdWUgPSBzbW9vdGhzdGVwKGVkZ2UwLCBlZGdlMSwgdmFsdWUpO1xcbn1cXG5mbiBfc21vb3Roc3RlcFZlYzNmKHZhbHVlOiB2ZWMzPGYzMj4sIGVkZ2UwOiB2ZWMzPGYzMj4sIGVkZ2UxOiB2ZWMzPGYzMj4sIG91dFZhbHVlOiBwdHI8ZnVuY3Rpb24sIHZlYzM8ZjMyPj4pIHtcXG4gICpvdXRWYWx1ZSA9IHNtb290aHN0ZXAoZWRnZTAsIGVkZ2UxLCB2YWx1ZSk7XFxufVxcbmZuIF9zbW9vdGhzdGVwVmVjNGYodmFsdWU6IHZlYzQ8ZjMyPiwgZWRnZTA6IHZlYzQ8ZjMyPiwgZWRnZTE6IHZlYzQ8ZjMyPiwgb3V0VmFsdWU6IHB0cjxmdW5jdGlvbiwgdmVjNDxmMzI+Pikge1xcbiAgKm91dFZhbHVlID0gc21vb3Roc3RlcChlZGdlMCwgZWRnZTEsIHZhbHVlKTtcXG59XFxuXCIsXCJzaGFkZXJTdGFnZVwiOlwiZnJhZ21lbnRcIixcImlzRnJhZ21lbnRTaGFkZXJcIjp0cnVlfSJdLAogICJtYXBwaW5ncyI6ICI7QUFBQyxXQUFPO0FBQXluQixrQkFBYztBQUFXLHVCQUFtQjtBQUE3cUIsMkJBQUMsTUFBZ29CLGFBQXlCLGlCQUF1QjsiLAogICJuYW1lcyI6IFtdCn0K

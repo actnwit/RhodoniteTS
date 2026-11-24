@@ -10,7 +10,7 @@ import { Cube } from '../geometry/shapes/Cube';
 import { Plane } from '../geometry/shapes/Plane';
 import type { RaycastResultEx1 } from '../geometry/types/GeometryTypes';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
-import { MeshHelper } from '../helpers/MeshHelper';
+import { MeshHelper } from '../helpers/MeshHelperObject';
 import { createClassicUberMaterial } from '../helpers/materials/createClassicUberMaterial';
 import type { Material } from '../materials/core/Material';
 import type { IMatrix44 } from '../math/IMatrix';

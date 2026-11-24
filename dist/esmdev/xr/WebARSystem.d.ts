@@ -130,7 +130,7 @@ export declare class WebARSystem {
      *
      * @returns The current view matrix for rendering
      */
-    get viewMatrix(): import("../foundation").Matrix44;
+    get viewMatrix(): import("..").Matrix44;
     /**
      * Updates the viewer pose and camera information from the XR frame.
      *

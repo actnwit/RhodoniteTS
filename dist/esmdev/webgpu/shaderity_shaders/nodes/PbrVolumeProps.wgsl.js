@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgpu/shaderity_shaders/nodes/PbrVolumeProps.wgsl
+var code = "fn pbrVolumeProps(\n  thicknessFactor: f32,\n  thicknessTexture: vec4<f32>,\n  attenuationDistance: f32,\n  attenuationColor: vec3<f32>,\n  outVolumeProps: ptr<function, VolumeProps>) {\n#ifdef RN_USE_VOLUME\n  (*outVolumeProps).thickness = thicknessFactor * thicknessTexture.g;\n  (*outVolumeProps).attenuationColor = attenuationColor;\n  (*outVolumeProps).attenuationDistance = attenuationDistance;\n#else\n  (*outVolumeProps).thickness = 0.0;\n  (*outVolumeProps).attenuationColor = vec3<f32>(1.0);\n  (*outVolumeProps).attenuationDistance = 1e20;\n#endif // RN_USE_VOLUME\n}\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var PbrVolumeProps_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  PbrVolumeProps_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ3B1L3NoYWRlcml0eV9zaGFkZXJzL25vZGVzL1BiclZvbHVtZVByb3BzLndnc2wiXSwKICAic291cmNlc0NvbnRlbnQiOiBbIntcImNvZGVcIjpcImZuIHBiclZvbHVtZVByb3BzKFxcbiAgdGhpY2tuZXNzRmFjdG9yOiBmMzIsXFxuICB0aGlja25lc3NUZXh0dXJlOiB2ZWM0PGYzMj4sXFxuICBhdHRlbnVhdGlvbkRpc3RhbmNlOiBmMzIsXFxuICBhdHRlbnVhdGlvbkNvbG9yOiB2ZWMzPGYzMj4sXFxuICBvdXRWb2x1bWVQcm9wczogcHRyPGZ1bmN0aW9uLCBWb2x1bWVQcm9wcz4pIHtcXG4jaWZkZWYgUk5fVVNFX1ZPTFVNRVxcbiAgKCpvdXRWb2x1bWVQcm9wcykudGhpY2tuZXNzID0gdGhpY2tuZXNzRmFjdG9yICogdGhpY2tuZXNzVGV4dHVyZS5nO1xcbiAgKCpvdXRWb2x1bWVQcm9wcykuYXR0ZW51YXRpb25Db2xvciA9IGF0dGVudWF0aW9uQ29sb3I7XFxuICAoKm91dFZvbHVtZVByb3BzKS5hdHRlbnVhdGlvbkRpc3RhbmNlID0gYXR0ZW51YXRpb25EaXN0YW5jZTtcXG4jZWxzZVxcbiAgKCpvdXRWb2x1bWVQcm9wcykudGhpY2tuZXNzID0gMC4wO1xcbiAgKCpvdXRWb2x1bWVQcm9wcykuYXR0ZW51YXRpb25Db2xvciA9IHZlYzM8ZjMyPigxLjApO1xcbiAgKCpvdXRWb2x1bWVQcm9wcykuYXR0ZW51YXRpb25EaXN0YW5jZSA9IDFlMjA7XFxuI2VuZGlmIC8vIFJOX1VTRV9WT0xVTUVcXG59XFxuXCIsXCJzaGFkZXJTdGFnZVwiOlwiZnJhZ21lbnRcIixcImlzRnJhZ21lbnRTaGFkZXJcIjp0cnVlfSJdLAogICJtYXBwaW5ncyI6ICI7QUFBQyxXQUFPO0FBQXVrQixrQkFBYztBQUFXLHVCQUFtQjtBQUEzbkIsK0JBQUMsTUFBOGtCLGFBQXlCLGlCQUF1QjsiLAogICJuYW1lcyI6IFtdCn0K

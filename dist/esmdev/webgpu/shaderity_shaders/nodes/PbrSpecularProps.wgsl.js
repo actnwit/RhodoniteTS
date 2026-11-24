@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgpu/shaderity_shaders/nodes/PbrSpecularProps.wgsl
+var code = "fn pbrSpecularProps(\n  specularFactor: f32,\n  specularTexture: vec4<f32>,\n  specularColorFactor: vec3<f32>,\n  specularColorTexture: vec4<f32>,\n  outSpecularProps: ptr<function, SpecularProps>) {\n#ifdef RN_USE_SPECULAR\n  (*outSpecularProps).specularWeight = specularFactor * specularTexture.a;\n  (*outSpecularProps).specularColor = specularColorFactor * specularColorTexture.rgb;\n#else\n  (*outSpecularProps).specularWeight = 1.0;\n  (*outSpecularProps).specularColor = vec3f(1.0, 1.0, 1.0);\n#endif // RN_USE_SPECULAR\n}\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var PbrSpecularProps_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  PbrSpecularProps_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ3B1L3NoYWRlcml0eV9zaGFkZXJzL25vZGVzL1BiclNwZWN1bGFyUHJvcHMud2dzbCJdLAogICJzb3VyY2VzQ29udGVudCI6IFsie1wiY29kZVwiOlwiZm4gcGJyU3BlY3VsYXJQcm9wcyhcXG4gIHNwZWN1bGFyRmFjdG9yOiBmMzIsXFxuICBzcGVjdWxhclRleHR1cmU6IHZlYzQ8ZjMyPixcXG4gIHNwZWN1bGFyQ29sb3JGYWN0b3I6IHZlYzM8ZjMyPixcXG4gIHNwZWN1bGFyQ29sb3JUZXh0dXJlOiB2ZWM0PGYzMj4sXFxuICBvdXRTcGVjdWxhclByb3BzOiBwdHI8ZnVuY3Rpb24sIFNwZWN1bGFyUHJvcHM+KSB7XFxuI2lmZGVmIFJOX1VTRV9TUEVDVUxBUlxcbiAgKCpvdXRTcGVjdWxhclByb3BzKS5zcGVjdWxhcldlaWdodCA9IHNwZWN1bGFyRmFjdG9yICogc3BlY3VsYXJUZXh0dXJlLmE7XFxuICAoKm91dFNwZWN1bGFyUHJvcHMpLnNwZWN1bGFyQ29sb3IgPSBzcGVjdWxhckNvbG9yRmFjdG9yICogc3BlY3VsYXJDb2xvclRleHR1cmUucmdiO1xcbiNlbHNlXFxuICAoKm91dFNwZWN1bGFyUHJvcHMpLnNwZWN1bGFyV2VpZ2h0ID0gMS4wO1xcbiAgKCpvdXRTcGVjdWxhclByb3BzKS5zcGVjdWxhckNvbG9yID0gdmVjM2YoMS4wLCAxLjAsIDEuMCk7XFxuI2VuZGlmIC8vIFJOX1VTRV9TUEVDVUxBUlxcbn1cXG5cIixcInNoYWRlclN0YWdlXCI6XCJmcmFnbWVudFwiLFwiaXNGcmFnbWVudFNoYWRlclwiOnRydWV9Il0sCiAgIm1hcHBpbmdzIjogIjtBQUFDLFdBQU87QUFBc2hCLGtCQUFjO0FBQVcsdUJBQW1CO0FBQTFrQixpQ0FBQyxNQUE2aEIsYUFBeUIsaUJBQXVCOyIsCiAgIm5hbWVzIjogW10KfQo=

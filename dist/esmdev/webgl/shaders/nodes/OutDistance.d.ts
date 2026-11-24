@@ -15,7 +15,7 @@ import { RaymarchingShaderPart } from '../RaymarchingShaderPart';
  * per-node scale globals as well.
  */
 export declare class OutDistanceShader extends RaymarchingShaderPart {
-    static readonly materialElement: import("../../../foundation").EnumIO;
+    static readonly materialElement: import("../../..").EnumIO;
     private static __defaultInstance;
     private __shaderFunctionName;
     private __distanceCorrectionUniformNames;

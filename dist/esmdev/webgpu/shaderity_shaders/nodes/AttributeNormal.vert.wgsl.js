@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgpu/shaderity_shaders/nodes/AttributeNormal.vert.wgsl
+var code = "fn attributeNormal(outValue: ptr<function, vec3<f32>>) {\n  *outValue = a_normal;\n}\n";
+var shaderStage = "vertex";
+var isFragmentShader = false;
+var AttributeNormal_vert_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  AttributeNormal_vert_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ3B1L3NoYWRlcml0eV9zaGFkZXJzL25vZGVzL0F0dHJpYnV0ZU5vcm1hbC52ZXJ0Lndnc2wiXSwKICAic291cmNlc0NvbnRlbnQiOiBbIntcImNvZGVcIjpcImZuIGF0dHJpYnV0ZU5vcm1hbChvdXRWYWx1ZTogcHRyPGZ1bmN0aW9uLCB2ZWMzPGYzMj4+KSB7XFxuICAqb3V0VmFsdWUgPSBhX25vcm1hbDtcXG59XFxuXCIsXCJzaGFkZXJTdGFnZVwiOlwidmVydGV4XCIsXCJpc0ZyYWdtZW50U2hhZGVyXCI6ZmFsc2V9Il0sCiAgIm1hcHBpbmdzIjogIjtBQUFDLFdBQU87QUFBeUYsa0JBQWM7QUFBUyx1QkFBbUI7QUFBM0kscUNBQUMsTUFBZ0csYUFBdUIsaUJBQXdCOyIsCiAgIm5hbWVzIjogW10KfQo=

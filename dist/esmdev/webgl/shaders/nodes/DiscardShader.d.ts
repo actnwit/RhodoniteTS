@@ -12,7 +12,7 @@ import { StandardShaderPart } from '../StandardShaderPart';
  */
 export declare class DiscardShader extends StandardShaderPart {
     static __instance: DiscardShader;
-    static readonly materialElement: import("../../../foundation").EnumIO;
+    static readonly materialElement: import("../../..").EnumIO;
     /**
      * Private constructor to enforce singleton pattern.
      */

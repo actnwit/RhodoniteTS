@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/nodes/raymarching/RaymarchHitDistance.glsl
+var code = "void raymarchHitDistance(out float outValue) {\n  uint cameraSID = uint(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */]);\n  outValue = length(g_hitPosition - get_viewPosition(cameraSID));\n}\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var RaymarchHitDistance_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  RaymarchHitDistance_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvbm9kZXMvcmF5bWFyY2hpbmcvUmF5bWFyY2hIaXREaXN0YW5jZS5nbHNsIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJ7XCJjb2RlXCI6XCJ2b2lkIHJheW1hcmNoSGl0RGlzdGFuY2Uob3V0IGZsb2F0IG91dFZhbHVlKSB7XFxuICB1aW50IGNhbWVyYVNJRCA9IHVpbnQodV9jdXJyZW50Q29tcG9uZW50U0lEc1svKiBzaGFkZXJpdHk6IEB7V2VsbEtub3duQ29tcG9uZW50VElEcy5DYW1lcmFDb21wb25lbnRUSUR9ICovXSk7XFxuICBvdXRWYWx1ZSA9IGxlbmd0aChnX2hpdFBvc2l0aW9uIC0gZ2V0X3ZpZXdQb3NpdGlvbihjYW1lcmFTSUQpKTtcXG59XFxuXCIsXCJzaGFkZXJTdGFnZVwiOlwiZnJhZ21lbnRcIixcImlzRnJhZ21lbnRTaGFkZXJcIjp0cnVlfSJdLAogICJtYXBwaW5ncyI6ICI7QUFBQyxXQUFPO0FBQTBPLGtCQUFjO0FBQVcsdUJBQW1CO0FBQTlSLG9DQUFDLE1BQWlQLGFBQXlCLGlCQUF1QjsiLAogICJuYW1lcyI6IFtdCn0K

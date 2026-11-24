@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/nodes/raymarching/RaymarchHitNormal.glsl
+var code = "void raymarchHitNormal(out vec3 outNormal) {\n  outNormal = g_hitNormal;\n}\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var RaymarchHitNormal_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  RaymarchHitNormal_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvbm9kZXMvcmF5bWFyY2hpbmcvUmF5bWFyY2hIaXROb3JtYWwuZ2xzbCJdLAogICJzb3VyY2VzQ29udGVudCI6IFsie1wiY29kZVwiOlwidm9pZCByYXltYXJjaEhpdE5vcm1hbChvdXQgdmVjMyBvdXROb3JtYWwpIHtcXG4gIG91dE5vcm1hbCA9IGdfaGl0Tm9ybWFsO1xcbn1cXG5cIixcInNoYWRlclN0YWdlXCI6XCJmcmFnbWVudFwiLFwiaXNGcmFnbWVudFNoYWRlclwiOnRydWV9Il0sCiAgIm1hcHBpbmdzIjogIjtBQUFDLFdBQU87QUFBZ0Ysa0JBQWM7QUFBVyx1QkFBbUI7QUFBcEksa0NBQUMsTUFBdUYsYUFBeUIsaUJBQXVCOyIsCiAgIm5hbWVzIjogW10KfQo=

@@ -1,0 +1,1 @@
+import{createCameraEntity as n}from"../Camera/createCameraEntity.js";import{CameraControllerComponent as r}from"./CameraControllerComponent.js";function y(t,e){let o=n(t,e);return t.entityRepository.addComponentToEntity(r,o)}export{y as createCameraControllerEntity};

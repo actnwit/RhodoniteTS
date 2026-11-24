@@ -1,0 +1,60 @@
+// src/foundation/materials/nodes/AcosShaderNode.ts
+import AcosShaderityObjectGLSL_ from "../../../webgl/shaderity_shaders/nodes/Acos.glsl.js";
+import AcosShaderityObjectWGSL_ from "../../../webgpu/shaderity_shaders/nodes/Acos.wgsl.js";
+import { CompositionType } from "../../definitions/CompositionType.js";
+import { ProcessApproach } from "../../definitions/ProcessApproach.js";
+import { AbstractShaderNode } from "../core/AbstractShaderNode.js";
+import { Socket } from "../core/Socket.js";
+var AcosShaderityObjectGLSL = typeof __RN_WEBGL__ === "undefined" || __RN_WEBGL__ ? AcosShaderityObjectGLSL_ : void 0;
+var AcosShaderityObjectWGSL = typeof __RN_WEBGPU__ === "undefined" || __RN_WEBGPU__ ? AcosShaderityObjectWGSL_ : void 0;
+var AcosShaderNode = class extends AbstractShaderNode {
+  /**
+   * @param compositionType - The composition type (Scalar, Vec2, Vec3, Vec4)
+   * @param componentType - The component type (Float)
+   */
+  constructor(compositionType, componentType) {
+    super("_acos", {
+      codeGLSL: AcosShaderityObjectGLSL.code,
+      codeWGSL: AcosShaderityObjectWGSL.code
+    });
+    this.zr.push(new Socket("value", compositionType, componentType));
+    this.Cr.push(new Socket("outValue", compositionType, componentType));
+  }
+  /**
+   * Gets the input socket that accepts the value to compute the arc cosine of.
+   */
+  getSocketInputValue() {
+    return this.zr[0];
+  }
+  /**
+   * Gets the output socket that contains the computed arc cosine.
+   */
+  getSocketOutput() {
+    return this.Cr[0];
+  }
+  /**
+   * Gets the platform-specific shader function name for the acos operation.
+   */
+  getShaderFunctionNameDerivative(engine) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
+      if (this.zr[0].compositionType === CompositionType.Scalar) {
+        return `${this.Br}F32`;
+      }
+      if (this.zr[0].compositionType === CompositionType.Vec2) {
+        return `${this.Br}Vec2f`;
+      }
+      if (this.zr[0].compositionType === CompositionType.Vec3) {
+        return `${this.Br}Vec3f`;
+      }
+      if (this.zr[0].compositionType === CompositionType.Vec4) {
+        return `${this.Br}Vec4f`;
+      }
+      throw new Error("Not implemented");
+    }
+    return this.Br;
+  }
+};
+export {
+  AcosShaderNode
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vbWF0ZXJpYWxzL25vZGVzL0Fjb3NTaGFkZXJOb2RlLnRzIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJpbXBvcnQgQWNvc1NoYWRlcml0eU9iamVjdEdMU0xfIGZyb20gJy4uLy4uLy4uL3dlYmdsL3NoYWRlcml0eV9zaGFkZXJzL25vZGVzL0Fjb3MuZ2xzbCc7XG5pbXBvcnQgQWNvc1NoYWRlcml0eU9iamVjdFdHU0xfIGZyb20gJy4uLy4uLy4uL3dlYmdwdS9zaGFkZXJpdHlfc2hhZGVycy9ub2Rlcy9BY29zLndnc2wnO1xuaW1wb3J0IHR5cGUgeyBDb21wb25lbnRUeXBlRW51bSB9IGZyb20gJy4uLy4uL2RlZmluaXRpb25zL0NvbXBvbmVudFR5cGUnO1xuaW1wb3J0IHsgQ29tcG9zaXRpb25UeXBlLCB0eXBlIENvbXBvc2l0aW9uVHlwZUVudW0gfSBmcm9tICcuLi8uLi9kZWZpbml0aW9ucy9Db21wb3NpdGlvblR5cGUnO1xuaW1wb3J0IHsgUHJvY2Vzc0FwcHJvYWNoIH0gZnJvbSAnLi4vLi4vZGVmaW5pdGlvbnMvUHJvY2Vzc0FwcHJvYWNoJztcbmltcG9ydCB0eXBlIHsgRW5naW5lIH0gZnJvbSAnLi4vLi4vc3lzdGVtL0VuZ2luZSc7XG5pbXBvcnQgeyBBYnN0cmFjdFNoYWRlck5vZGUgfSBmcm9tICcuLi9jb3JlL0Fic3RyYWN0U2hhZGVyTm9kZSc7XG5pbXBvcnQgeyBTb2NrZXQgfSBmcm9tICcuLi9jb3JlL1NvY2tldCc7XG5cbi8vIFNoYWRlcnMgb2YgYSBiYWNrZW5kIGV4Y2x1ZGVkIGF0IGJ1aWxkIHRpbWUgKHNlZSBzcmMvYmFja2VuZEZsYWdzLmQudHMpIGFyZSBkcm9wcGVkIGJ5IHRoZSBidW5kbGVyLlxuY29uc3QgQWNvc1NoYWRlcml0eU9iamVjdEdMU0wgPVxuICB0eXBlb2YgX19STl9XRUJHTF9fID09PSAndW5kZWZpbmVkJyB8fCBfX1JOX1dFQkdMX18gPyBBY29zU2hhZGVyaXR5T2JqZWN0R0xTTF8gOiB1bmRlZmluZWQ7XG5jb25zdCBBY29zU2hhZGVyaXR5T2JqZWN0V0dTTCA9XG4gIHR5cGVvZiBfX1JOX1dFQkdQVV9fID09PSAndW5kZWZpbmVkJyB8fCBfX1JOX1dFQkdQVV9fID8gQWNvc1NoYWRlcml0eU9iamVjdFdHU0xfIDogdW5kZWZpbmVkO1xuXG4vKipcbiAqIEEgc2hhZGVyIG5vZGUgdGhhdCBjb21wdXRlcyB0aGUgYXJjIGNvc2luZSBvZiBpdHMgaW5wdXQuXG4gKiBTdXBwb3J0cyBzY2FsYXIsIHZlYzIsIHZlYzMgYW5kIHZlYzQgZmxvYXQgdmFsdWVzLlxuICovXG5leHBvcnQgY2xhc3MgQWNvc1NoYWRlck5vZGUgZXh0ZW5kcyBBYnN0cmFjdFNoYWRlck5vZGUge1xuICAvKipcbiAgICogQHBhcmFtIGNvbXBvc2l0aW9uVHlwZSAtIFRoZSBjb21wb3NpdGlvbiB0eXBlIChTY2FsYXIsIFZlYzIsIFZlYzMsIFZlYzQpXG4gICAqIEBwYXJhbSBjb21wb25lbnRUeXBlIC0gVGhlIGNvbXBvbmVudCB0eXBlIChGbG9hdClcbiAgICovXG4gIGNvbnN0cnVjdG9yKGNvbXBvc2l0aW9uVHlwZTogQ29tcG9zaXRpb25UeXBlRW51bSwgY29tcG9uZW50VHlwZTogQ29tcG9uZW50VHlwZUVudW0pIHtcbiAgICBzdXBlcignX2Fjb3MnLCB7XG4gICAgICBjb2RlR0xTTDogQWNvc1NoYWRlcml0eU9iamVjdEdMU0wuY29kZSxcbiAgICAgIGNvZGVXR1NMOiBBY29zU2hhZGVyaXR5T2JqZWN0V0dTTC5jb2RlLFxuICAgIH0pO1xuXG4gICAgdGhpcy5fX2lucHV0cy5wdXNoKG5ldyBTb2NrZXQoJ3ZhbHVlJywgY29tcG9zaXRpb25UeXBlLCBjb21wb25lbnRUeXBlKSk7XG4gICAgdGhpcy5fX291dHB1dHMucHVzaChuZXcgU29ja2V0KCdvdXRWYWx1ZScsIGNvbXBvc2l0aW9uVHlwZSwgY29tcG9uZW50VHlwZSkpO1xuICB9XG5cbiAgLyoqXG4gICAqIEdldHMgdGhlIGlucHV0IHNvY2tldCB0aGF0IGFjY2VwdHMgdGhlIHZhbHVlIHRvIGNvbXB1dGUgdGhlIGFyYyBjb3NpbmUgb2YuXG4gICAqL1xuICBnZXRTb2NrZXRJbnB1dFZhbHVlKCkge1xuICAgIHJldHVybiB0aGlzLl9faW5wdXRzWzBdO1xuICB9XG5cbiAgLyoqXG4gICAqIEdldHMgdGhlIG91dHB1dCBzb2NrZXQgdGhhdCBjb250YWlucyB0aGUgY29tcHV0ZWQgYXJjIGNvc2luZS5cbiAgICovXG4gIGdldFNvY2tldE91dHB1dCgpIHtcbiAgICByZXR1cm4gdGhpcy5fX291dHB1dHNbMF07XG4gIH1cblxuICAvKipcbiAgICogR2V0cyB0aGUgcGxhdGZvcm0tc3BlY2lmaWMgc2hhZGVyIGZ1bmN0aW9uIG5hbWUgZm9yIHRoZSBhY29zIG9wZXJhdGlvbi5cbiAgICovXG4gIGdldFNoYWRlckZ1bmN0aW9uTmFtZURlcml2YXRpdmUoZW5naW5lOiBFbmdpbmUpIHtcbiAgICBpZiAoZW5naW5lLmVuZ2luZVN0YXRlLmN1cnJlbnRQcm9jZXNzQXBwcm9hY2ggPT09IFByb2Nlc3NBcHByb2FjaC5XZWJHUFUpIHtcbiAgICAgIGlmICh0aGlzLl9faW5wdXRzWzBdLmNvbXBvc2l0aW9uVHlwZSA9PT0gQ29tcG9zaXRpb25UeXBlLlNjYWxhcikge1xuICAgICAgICByZXR1cm4gYCR7dGhpcy5fX3NoYWRlckZ1bmN0aW9uTmFtZX1GMzJgO1xuICAgICAgfVxuICAgICAgaWYgKHRoaXMuX19pbnB1dHNbMF0uY29tcG9zaXRpb25UeXBlID09PSBDb21wb3NpdGlvblR5cGUuVmVjMikge1xuICAgICAgICByZXR1cm4gYCR7dGhpcy5fX3NoYWRlckZ1bmN0aW9uTmFtZX1WZWMyZmA7XG4gICAgICB9XG4gICAgICBpZiAodGhpcy5fX2lucHV0c1swXS5jb21wb3NpdGlvblR5cGUgPT09IENvbXBvc2l0aW9uVHlwZS5WZWMzKSB7XG4gICAgICAgIHJldHVybiBgJHt0aGlzLl9fc2hhZGVyRnVuY3Rpb25OYW1lfVZlYzNmYDtcbiAgICAgIH1cbiAgICAgIGlmICh0aGlzLl9faW5wdXRzWzBdLmNvbXBvc2l0aW9uVHlwZSA9PT0gQ29tcG9zaXRpb25UeXBlLlZlYzQpIHtcbiAgICAgICAgcmV0dXJuIGAke3RoaXMuX19zaGFkZXJGdW5jdGlvbk5hbWV9VmVjNGZgO1xuICAgICAgfVxuICAgICAgdGhyb3cgbmV3IEVycm9yKCdOb3QgaW1wbGVtZW50ZWQnKTtcbiAgICB9XG4gICAgcmV0dXJuIHRoaXMuX19zaGFkZXJGdW5jdGlvbk5hbWU7XG4gIH1cbn1cbiJdLAogICJtYXBwaW5ncyI6ICI7QUFBQSxPQUFPLDhCQUE4QjtBQUNyQyxPQUFPLDhCQUE4QjtBQUVyQyxTQUFTLHVCQUFpRDtBQUMxRCxTQUFTLHVCQUF1QjtBQUVoQyxTQUFTLDBCQUEwQjtBQUNuQyxTQUFTLGNBQWM7QUFHdkIsSUFBTSwwQkFDSixPQUFPLGlCQUFpQixlQUFlLGVBQWUsMkJBQTJCO0FBQ25GLElBQU0sMEJBQ0osT0FBTyxrQkFBa0IsZUFBZSxnQkFBZ0IsMkJBQTJCO0FBTTlFLElBQU0saUJBQU4sY0FBNkIsbUJBQW1CO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQSxFQUtyRCxZQUFZLGlCQUFzQyxlQUFrQztBQUNsRixVQUFNLFNBQVM7QUFBQSxNQUNiLFVBQVUsd0JBQXdCO0FBQUEsTUFDbEMsVUFBVSx3QkFBd0I7QUFBQSxJQUNwQyxDQUFDO0FBRUQsU0FBS0EsR0FBUyxLQUFLLElBQUksT0FBTyxTQUFTLGlCQUFpQixhQUFhLENBQUM7QUFDdEUsU0FBS0MsR0FBVSxLQUFLLElBQUksT0FBTyxZQUFZLGlCQUFpQixhQUFhLENBQUM7QUFBQSxFQUM1RTtBQUFBO0FBQUE7QUFBQTtBQUFBLEVBS0Esc0JBQXNCO0FBQ3BCLFdBQU8sS0FBS0QsR0FBUyxDQUFDO0FBQUEsRUFDeEI7QUFBQTtBQUFBO0FBQUE7QUFBQSxFQUtBLGtCQUFrQjtBQUNoQixXQUFPLEtBQUtDLEdBQVUsQ0FBQztBQUFBLEVBQ3pCO0FBQUE7QUFBQTtBQUFBO0FBQUEsRUFLQSxnQ0FBZ0MsUUFBZ0I7QUFDOUMsUUFBSSxPQUFPLFlBQVksMkJBQTJCLGdCQUFnQixRQUFRO0FBQ3hFLFVBQUksS0FBS0QsR0FBUyxDQUFDLEVBQUUsb0JBQW9CLGdCQUFnQixRQUFRO0FBQy9ELGVBQU8sR0FBRyxLQUFLRSxFQUFvQjtBQUFBLE1BQ3JDO0FBQ0EsVUFBSSxLQUFLRixHQUFTLENBQUMsRUFBRSxvQkFBb0IsZ0JBQWdCLE1BQU07QUFDN0QsZUFBTyxHQUFHLEtBQUtFLEVBQW9CO0FBQUEsTUFDckM7QUFDQSxVQUFJLEtBQUtGLEdBQVMsQ0FBQyxFQUFFLG9CQUFvQixnQkFBZ0IsTUFBTTtBQUM3RCxlQUFPLEdBQUcsS0FBS0UsRUFBb0I7QUFBQSxNQUNyQztBQUNBLFVBQUksS0FBS0YsR0FBUyxDQUFDLEVBQUUsb0JBQW9CLGdCQUFnQixNQUFNO0FBQzdELGVBQU8sR0FBRyxLQUFLRSxFQUFvQjtBQUFBLE1BQ3JDO0FBQ0EsWUFBTSxJQUFJLE1BQU0saUJBQWlCO0FBQUEsSUFDbkM7QUFDQSxXQUFPLEtBQUtBO0FBQUEsRUFDZDtBQUNGOyIsCiAgIm5hbWVzIjogWyJfX2lucHV0cyIsICJfX291dHB1dHMiLCAiX19zaGFkZXJGdW5jdGlvbk5hbWUiXQp9Cg==

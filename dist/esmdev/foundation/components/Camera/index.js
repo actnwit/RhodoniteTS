@@ -1,0 +1,5 @@
+// src/foundation/components/Camera/index.ts
+export * from "./CameraComponent.js";
+export * from "./createCameraEntity.js";
+export * from "./ICameraEntity.js";
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vY29tcG9uZW50cy9DYW1lcmEvaW5kZXgudHMiXSwKICAic291cmNlc0NvbnRlbnQiOiBbImV4cG9ydCAqIGZyb20gJy4vQ2FtZXJhQ29tcG9uZW50JztcbmV4cG9ydCAqIGZyb20gJy4vY3JlYXRlQ2FtZXJhRW50aXR5JztcbmV4cG9ydCAqIGZyb20gJy4vSUNhbWVyYUVudGl0eSc7XG4iXSwKICAibWFwcGluZ3MiOiAiO0FBQUEsY0FBYztBQUNkLGNBQWM7QUFDZCxjQUFjOyIsCiAgIm5hbWVzIjogW10KfQo=

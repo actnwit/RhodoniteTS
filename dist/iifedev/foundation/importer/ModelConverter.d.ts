@@ -54,6 +54,32 @@ export declare class ModelConverter {
      */
     private static __setupMaterials;
     /**
+     * Loads the MToon material implementations only when the model actually uses VRM materials.
+     * This keeps the MToon material contents and shaders out of plain glTF applications.
+     *
+     * @param gltfModel - The glTF model data to inspect
+     * @internal
+     */
+    private static __preloadMToonMaterialSupport;
+    /**
+     * Loads the raymarching component only when a node uses the RHODONITE_raymarching extension.
+     *
+     * @param gltfModel - The glTF model data to inspect
+     * @internal
+     */
+    static preloadRaymarchingSupport(gltfModel: RnM2): Promise<void>;
+    /**
+     * Loads the sheen LUT before materials are created when the model uses KHR_materials_sheen.
+     *
+     * A WebGPU bind group created while the LUT texture has no GPU resource keeps the placeholder binding, so
+     * the importer waits for the texture instead of relying on the lazy background load in the material factory.
+     *
+     * @param engine - The engine instance
+     * @param gltfModel - The glTF model data to inspect
+     * @internal
+     */
+    private static __preloadSheenLutTexture;
+    /**
      * Sets up textures from the glTF model asynchronously
      * @param gltfModel - The glTF model data
      * @returns Promise resolving to array of Rhodonite textures

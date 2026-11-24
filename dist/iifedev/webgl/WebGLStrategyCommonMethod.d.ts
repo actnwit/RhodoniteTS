@@ -51,7 +51,7 @@ declare function setVRViewport(engine: Engine, _renderPass: RenderPass, displayI
  * @param webxrSystem - The WebXR system instance
  * @returns 1 or 2 depending on the rendering configuration
  */
-declare function getDisplayCount(isVRMainPass: boolean, webxrSystem: WebXRSystem): 1 | 2;
+declare function getDisplayCount(isVRMainPass: boolean, webxrSystem: WebXRSystem | undefined): 1 | 2;
 /**
  * Determines if the given render pass is a VR main rendering pass.
  * A VR main pass is one that renders to VR displays when WebXR mode is active.
@@ -77,16 +77,16 @@ declare function getPointSpriteShaderSemanticsInfoArray(): ({
         readonly __webgpuStr: string;
         readonly __wgslStr: string;
         readonly __isArray: boolean;
-        readonly __vec4SizeOfProperty: import("../types").IndexOf16Bytes;
+        readonly __vec4SizeOfProperty: import("..").IndexOf16Bytes;
         readonly __dummyStr: "SCALAR";
         get webgpu(): string;
         get wgsl(): string;
-        getNumberOfComponents(): import("../types").Count;
-        getGlslStr(componentType: import("../foundation").ComponentTypeEnum): string;
-        getGlslInitialValue(componentType: import("../foundation").ComponentTypeEnum): string;
-        getWgslInitialValue(componentType: import("../foundation").ComponentTypeEnum): string;
-        toWGSLType(componentType: import("../foundation").ComponentTypeEnum): string;
-        getVec4SizeOfProperty(): import("../types").IndexOf16Bytes;
+        getNumberOfComponents(): import("..").Count;
+        getGlslStr(componentType: import("..").ComponentTypeEnum): string;
+        getGlslInitialValue(componentType: import("..").ComponentTypeEnum): string;
+        getWgslInitialValue(componentType: import("..").ComponentTypeEnum): string;
+        toWGSLType(componentType: import("..").ComponentTypeEnum): string;
+        getVec4SizeOfProperty(): import("..").IndexOf16Bytes;
         readonly index: number;
         readonly symbol: symbol;
         readonly str: string;
@@ -108,7 +108,7 @@ declare function getPointSpriteShaderSemanticsInfoArray(): ({
         readonly symbol: symbol;
         readonly str: string;
     };
-    stage: import("../foundation").EnumIO;
+    stage: import("..").EnumIO;
     initialValue: Scalar;
     min: number;
     max: number;
@@ -124,16 +124,16 @@ declare function getPointSpriteShaderSemanticsInfoArray(): ({
         readonly __webgpuStr: string;
         readonly __wgslStr: string;
         readonly __isArray: boolean;
-        readonly __vec4SizeOfProperty: import("../types").IndexOf16Bytes;
+        readonly __vec4SizeOfProperty: import("..").IndexOf16Bytes;
         readonly __dummyStr: "VEC3";
         get webgpu(): string;
         get wgsl(): string;
-        getNumberOfComponents(): import("../types").Count;
-        getGlslStr(componentType: import("../foundation").ComponentTypeEnum): string;
-        getGlslInitialValue(componentType: import("../foundation").ComponentTypeEnum): string;
-        getWgslInitialValue(componentType: import("../foundation").ComponentTypeEnum): string;
-        toWGSLType(componentType: import("../foundation").ComponentTypeEnum): string;
-        getVec4SizeOfProperty(): import("../types").IndexOf16Bytes;
+        getNumberOfComponents(): import("..").Count;
+        getGlslStr(componentType: import("..").ComponentTypeEnum): string;
+        getGlslInitialValue(componentType: import("..").ComponentTypeEnum): string;
+        getWgslInitialValue(componentType: import("..").ComponentTypeEnum): string;
+        toWGSLType(componentType: import("..").ComponentTypeEnum): string;
+        getVec4SizeOfProperty(): import("..").IndexOf16Bytes;
         readonly index: number;
         readonly symbol: symbol;
         readonly str: string;
@@ -155,7 +155,7 @@ declare function getPointSpriteShaderSemanticsInfoArray(): ({
         readonly symbol: symbol;
         readonly str: string;
     };
-    stage: import("../foundation").EnumIO;
+    stage: import("..").EnumIO;
     initialValue: Vector3;
     min: number;
     max: number;

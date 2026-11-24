@@ -1,0 +1,3 @@
+// src/webgl/types/index.ts
+export * from "./CommonTypes.js";
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vc3JjL3dlYmdsL3R5cGVzL2luZGV4LnRzIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJleHBvcnQgKiBmcm9tICcuL0NvbW1vblR5cGVzJztcbiJdLAogICJtYXBwaW5ncyI6ICI7QUFBQSxjQUFjOyIsCiAgIm5hbWVzIjogW10KfQo=

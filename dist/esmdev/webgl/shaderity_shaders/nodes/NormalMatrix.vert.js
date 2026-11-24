@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/nodes/NormalMatrix.vert
+var code = "\nvoid normalMatrix(out mat3 outValue) {\n  outValue = get_normalMatrix(uint(a_instanceIds.x));\n}\n";
+var shaderStage = "vertex";
+var isFragmentShader = false;
+var NormalMatrix_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  NormalMatrix_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvbm9kZXMvTm9ybWFsTWF0cml4LnZlcnQiXSwKICAic291cmNlc0NvbnRlbnQiOiBbIntcImNvZGVcIjpcIlxcbnZvaWQgbm9ybWFsTWF0cml4KG91dCBtYXQzIG91dFZhbHVlKSB7XFxuICBvdXRWYWx1ZSA9IGdldF9ub3JtYWxNYXRyaXgodWludChhX2luc3RhbmNlSWRzLngpKTtcXG59XFxuXCIsXCJzaGFkZXJTdGFnZVwiOlwidmVydGV4XCIsXCJpc0ZyYWdtZW50U2hhZGVyXCI6ZmFsc2V9Il0sCiAgIm1hcHBpbmdzIjogIjtBQUFDLFdBQU87QUFBdUcsa0JBQWM7QUFBUyx1QkFBbUI7QUFBekosNkJBQUMsTUFBOEcsYUFBdUIsaUJBQXdCOyIsCiAgIm5hbWVzIjogW10KfQo=

@@ -38,7 +38,7 @@ import type { IMeshEntity } from './EntityHelper';
  * });
  * ```
  */
-declare const createPlane: (engine: Engine, desc?: PlaneDescriptor & {
+export declare const createPlane: (engine: Engine, desc?: PlaneDescriptor & {
     direction?: 'xz' | 'xy' | 'yz';
 }) => IMeshEntity;
 /**
@@ -56,7 +56,7 @@ declare const createPlane: (engine: Engine, desc?: PlaneDescriptor & {
  * });
  * ```
  */
-declare const createLine: (engine: Engine, desc?: LineDescriptor) => IMeshEntity;
+export declare const createLine: (engine: Engine, desc?: LineDescriptor) => IMeshEntity;
 /**
  * Creates a grid mesh entity for visual reference.
  *
@@ -72,7 +72,7 @@ declare const createLine: (engine: Engine, desc?: LineDescriptor) => IMeshEntity
  * });
  * ```
  */
-declare const createGrid: (engine: Engine, desc?: GridDescriptor) => IMeshEntity;
+export declare const createGrid: (engine: Engine, desc?: GridDescriptor) => IMeshEntity;
 /**
  * Creates a cone mesh entity with optional physics simulation.
  *
@@ -94,7 +94,7 @@ declare const createGrid: (engine: Engine, desc?: GridDescriptor) => IMeshEntity
  * });
  * ```
  */
-declare const createCone: (engine: Engine, desc?: ConeDescriptor) => IMeshEntity;
+export declare const createCone: (engine: Engine, desc?: ConeDescriptor) => IMeshEntity;
 /**
  * Creates a centered cylinder or truncated-cone mesh entity with optional physics simulation.
  *
@@ -116,7 +116,7 @@ declare const createCone: (engine: Engine, desc?: ConeDescriptor) => IMeshEntity
  * });
  * ```
  */
-declare const createCylinder: (engine: Engine, desc?: CylinderDescriptor) => IMeshEntity;
+export declare const createCylinder: (engine: Engine, desc?: CylinderDescriptor) => IMeshEntity;
 /**
  * Creates a cube mesh entity with optional physics simulation.
  *
@@ -142,7 +142,7 @@ declare const createCylinder: (engine: Engine, desc?: CylinderDescriptor) => IMe
  * });
  * ```
  */
-declare const createCube: (engine: Engine, desc?: CubeDescriptor) => IMeshEntity;
+export declare const createCube: (engine: Engine, desc?: CubeDescriptor) => IMeshEntity;
 /**
  * Creates multiple cube mesh entities efficiently by sharing the same mesh geometry.
  * This is more performance-friendly than creating individual cubes when you need many instances.
@@ -165,7 +165,7 @@ declare const createCube: (engine: Engine, desc?: CubeDescriptor) => IMeshEntity
  * });
  * ```
  */
-declare const createCubes: (engine: Engine, numberToCreate: number, desc?: CubeDescriptor) => IMeshEntity[];
+export declare const createCubes: (engine: Engine, numberToCreate: number, desc?: CubeDescriptor) => IMeshEntity[];
 /**
  * Creates a sphere mesh entity with optional physics simulation.
  *
@@ -191,7 +191,7 @@ declare const createCubes: (engine: Engine, numberToCreate: number, desc?: CubeD
  * });
  * ```
  */
-declare const createSphere: (engine: Engine, desc?: SphereDescriptor) => IMeshEntity;
+export declare const createSphere: (engine: Engine, desc?: SphereDescriptor) => IMeshEntity;
 /**
  * Creates multiple sphere mesh entities efficiently by sharing the same mesh geometry.
  * This is more performance-friendly than creating individual spheres when you need many instances.
@@ -218,7 +218,7 @@ declare const createSphere: (engine: Engine, desc?: SphereDescriptor) => IMeshEn
  * });
  * ```
  */
-declare const createSpheres: (engine: Engine, numberToCreate: number, desc?: SphereDescriptor) => IMeshEntity[];
+export declare const createSpheres: (engine: Engine, numberToCreate: number, desc?: SphereDescriptor) => IMeshEntity[];
 /**
  * Creates a joint mesh entity for skeletal animation or mechanical connections.
  *
@@ -234,7 +234,7 @@ declare const createSpheres: (engine: Engine, numberToCreate: number, desc?: Sph
  * });
  * ```
  */
-declare const createJoint: (engine: Engine, desc?: JointDescriptor) => IMeshEntity;
+export declare const createJoint: (engine: Engine, desc?: JointDescriptor) => IMeshEntity;
 /**
  * Creates an axis mesh entity for coordinate system visualization.
  * Typically displays X, Y, and Z axes with different colors.
@@ -251,7 +251,7 @@ declare const createJoint: (engine: Engine, desc?: JointDescriptor) => IMeshEnti
  * });
  * ```
  */
-declare const createAxis: (engine: Engine, desc?: AxisDescriptor) => IMeshEntity;
+export declare const createAxis: (engine: Engine, desc?: AxisDescriptor) => IMeshEntity;
 /**
  * Creates a ring (annulus) mesh entity.
  *
@@ -277,7 +277,7 @@ declare const createAxis: (engine: Engine, desc?: AxisDescriptor) => IMeshEntity
  * });
  * ```
  */
-declare const createRing: (engine: Engine, desc?: RingDescriptor) => IMeshEntity;
+export declare const createRing: (engine: Engine, desc?: RingDescriptor) => IMeshEntity;
 /**
  * Creates a capsule mesh entity with optional physics simulation.
  * A capsule is a cylinder with hemispherical caps at both ends.
@@ -305,7 +305,7 @@ declare const createRing: (engine: Engine, desc?: RingDescriptor) => IMeshEntity
  * });
  * ```
  */
-declare const createCapsule: (engine: Engine, desc?: CapsuleDescriptor) => IMeshEntity;
+export declare const createCapsule: (engine: Engine, desc?: CapsuleDescriptor) => IMeshEntity;
 /**
  * Creates a mesh entity from a primitive shape.
  * This is a utility function used internally by other creation methods.
@@ -321,21 +321,4 @@ declare const createCapsule: (engine: Engine, desc?: CapsuleDescriptor) => IMesh
  * const entity = createShape(customPrimitive);
  * ```
  */
-declare function createShape(engine: Engine, primitive: IShape): IMeshEntity;
-export declare const MeshHelper: Readonly<{
-    createPlane: typeof createPlane;
-    createLine: typeof createLine;
-    createGrid: typeof createGrid;
-    createCone: typeof createCone;
-    createCylinder: typeof createCylinder;
-    createCube: typeof createCube;
-    createCubes: typeof createCubes;
-    createSphere: typeof createSphere;
-    createSpheres: typeof createSpheres;
-    createCapsule: typeof createCapsule;
-    createJoint: typeof createJoint;
-    createAxis: typeof createAxis;
-    createRing: typeof createRing;
-    createShape: typeof createShape;
-}>;
-export {};
+export declare function createShape(engine: Engine, primitive: IShape): IMeshEntity;

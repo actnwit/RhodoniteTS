@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/nodes/FlatShader.glsl
+var code = "void flatShader(in vec4 vertexColor, in vec4 diffuseColorFactor, in vec4 diffuseTextureColor, out vec4 outColor) {\n  outColor = vertexColor * diffuseColorFactor * diffuseTextureColor;\n}\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var FlatShader_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  FlatShader_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvbm9kZXMvRmxhdFNoYWRlci5nbHNsIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJ7XCJjb2RlXCI6XCJ2b2lkIGZsYXRTaGFkZXIoaW4gdmVjNCB2ZXJ0ZXhDb2xvciwgaW4gdmVjNCBkaWZmdXNlQ29sb3JGYWN0b3IsIGluIHZlYzQgZGlmZnVzZVRleHR1cmVDb2xvciwgb3V0IHZlYzQgb3V0Q29sb3IpIHtcXG4gIG91dENvbG9yID0gdmVydGV4Q29sb3IgKiBkaWZmdXNlQ29sb3JGYWN0b3IgKiBkaWZmdXNlVGV4dHVyZUNvbG9yO1xcbn1cXG5cIixcInNoYWRlclN0YWdlXCI6XCJmcmFnbWVudFwiLFwiaXNGcmFnbWVudFNoYWRlclwiOnRydWV9Il0sCiAgIm1hcHBpbmdzIjogIjtBQUFDLFdBQU87QUFBZ00sa0JBQWM7QUFBVyx1QkFBbUI7QUFBcFAsMkJBQUMsTUFBdU0sYUFBeUIsaUJBQXVCOyIsCiAgIm5hbWVzIjogW10KfQo=

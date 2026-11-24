@@ -1,0 +1,1 @@
+import{createGroupEntity as n}from"../SceneGraph/createGroupEntity.js";import{SkeletalComponent as o}from"./SkeletalComponent.js";function y(t){let e=n(t);return t.entityRepository.addComponentToEntity(o,e)}export{y as createSkeletalEntity};

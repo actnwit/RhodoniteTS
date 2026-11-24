@@ -1,0 +1,7 @@
+var o=`fn twistZ(position: vec3f, strength: f32, outPosition: ptr<function, vec3f>) {
+  let angle = strength * position.z;
+  let c = cos(angle);
+  let s = sin(angle);
+  *outPosition = vec3f(c * position.x - s * position.y, s * position.x + c * position.y, position.z);
+}
+`,i="fragment",s=!0,e={code:o,shaderStage:i,isFragmentShader:s};export{o as code,e as default,s as isFragmentShader,i as shaderStage};

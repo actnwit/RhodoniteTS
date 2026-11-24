@@ -440,6 +440,9 @@ export function addPbrSheenSemanticInfo(
   additionalShaderSemanticInfo: ShaderSemanticsInfo[],
   { sheenEnvIsInternalSetting = true }: { sheenEnvIsInternalSetting?: boolean } = {}
 ) {
+  // The LUT image is loaded on demand so applications without sheen never download it.
+  engine.dummyTextures.requestSheenLutTexture();
+
   // Create a sampler for sheen LUT texture
   const sampler = getSharedSampler(engine, {
     minFilter: TextureParameter.Linear,

@@ -1,0 +1,49 @@
+var o=`/* shaderity: @{definitions} */
+/* shaderity: @{vertexOutput} */
+/* shaderity: @{prerequisites} */
+
+/* shaderity: @{getters} */
+/* shaderity: @{matricesGetters} */
+
+// #param diffuseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
+// #param diffuseColorTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param diffuseColorTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param diffuseColorTextureRotation: f32; // initialValue=0
+
+fn flatShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseTextureColor: vec4<f32>, outColor: ptr<function, vec4<f32>>) {
+  *outColor = vertexColor * diffuseColorFactor * diffuseTextureColor;
+}
+
+
+@group(1) @binding(1) var diffuseColorTexture: texture_2d<f32>; // initialValue=blue
+@group(2) @binding(1) var diffuseColorSampler: sampler;
+
+@fragment
+fn main(
+  input: VertexOutput
+) -> @location(0) vec4<f32> {
+/* shaderity: @{mainPrerequisites} */
+
+  let diffuseColorFactor = get_diffuseColorFactor(materialSID, 0);
+
+  // diffuseColorTexture (Considered to be premultiplied alpha)
+  let diffuseColorTextureTransformScale = get_diffuseColorTextureTransformScale(materialSID, 0);
+  let diffuseColorTextureTransformOffset = get_diffuseColorTextureTransformOffset(materialSID, 0);
+  let diffuseColorTextureRotation = get_diffuseColorTextureRotation(materialSID, 0);
+  let diffuseColorTexUv = uvTransform(diffuseColorTextureTransformScale, diffuseColorTextureTransformOffset, diffuseColorTextureRotation, input.texcoord_0);
+  let textureColor = textureSample(diffuseColorTexture, diffuseColorSampler, diffuseColorTexUv);
+
+  var diffuseColor = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+#ifdef RN_USE_TEXCOORD_0
+  flatShader(input.color_0, diffuseColorFactor, textureColor, &diffuseColor);
+#else
+  diffuseColor = input.color_0 * diffuseColorFactor;
+#endif
+
+  var alpha = diffuseColor.a;
+  /* shaderity: @{alphaProcess} */
+  diffuseColor.a = alpha;
+
+  return vec4<f32>(diffuseColor.rgb * diffuseColor.a, diffuseColor.a);
+}
+`,f="fragment",t=!0,i={code:o,shaderStage:f,isFragmentShader:t};export{o as code,i as default,t as isFragmentShader,f as shaderStage};

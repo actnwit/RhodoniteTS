@@ -98,6 +98,8 @@ async function importGltfJson(gltfModel: RnM2) {
     notToDisplayRnInfoAtInit: true,
   });
   await Gltf2Importer._loadInner(gltfModel, {}, {});
+  // The synchronous conversion does not preload optional components.
+  await ModelConverter.preloadRaymarchingSupport(gltfModel);
   ModelConverter.convertToRhodoniteObjectSimple(engine, gltfModel);
   const rnEntities = (gltfModel.asset.extras as { rnEntities: ISceneGraphEntity[] }).rnEntities;
   return { engine, rnEntities };

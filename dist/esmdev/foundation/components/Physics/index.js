@@ -1,0 +1,5 @@
+// src/foundation/components/Physics/index.ts
+export * from "./createPhysicsEntity.js";
+export * from "./IPhysicsEntity.js";
+export * from "./PhysicsComponent.js";
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vY29tcG9uZW50cy9QaHlzaWNzL2luZGV4LnRzIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJleHBvcnQgKiBmcm9tICcuL2NyZWF0ZVBoeXNpY3NFbnRpdHknO1xuZXhwb3J0ICogZnJvbSAnLi9JUGh5c2ljc0VudGl0eSc7XG5leHBvcnQgKiBmcm9tICcuL1BoeXNpY3NDb21wb25lbnQnO1xuIl0sCiAgIm1hcHBpbmdzIjogIjtBQUFBLGNBQWM7QUFDZCxjQUFjO0FBQ2QsY0FBYzsiLAogICJuYW1lcyI6IFtdCn0K

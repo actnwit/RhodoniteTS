@@ -1,6 +1,6 @@
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
-import { MeshHelper } from '../helpers/MeshHelper';
+import { MeshHelper } from '../helpers/MeshHelperObject';
 import { createPbrUberMaterial } from '../helpers/materials/createPbrUberMaterial';
 import { MutableQuaternion } from '../math/MutableQuaternion';
 import { MutableVector3 } from '../math/MutableVector3';

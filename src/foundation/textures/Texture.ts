@@ -88,6 +88,8 @@ export class Texture extends AbstractTexture implements Disposable {
     type: ComponentTypeEnum;
     generateMipmap: boolean;
   };
+  /** Keeps concurrent sheen LUT requests from loading the PBR module and the image more than once. */
+  private __sheenLutLoadPromise?: Promise<void>;
 
   private static managedRegistry: FinalizationRegistry<FinalizationRegistryObject> =
     new FinalizationRegistry<FinalizationRegistryObject>(texObj => {
@@ -438,15 +440,24 @@ export class Texture extends AbstractTexture implements Disposable {
   /**
    * Generates a sheen lookup table texture from embedded data URI.
    * This is used for physically-based rendering (PBR) sheen calculations.
-   * Requires the PBR module to be loaded.
+   * The PBR module (which contains the image data) is loaded on demand and only once.
    *
    * @returns Promise that resolves when texture is ready
-   * @throws Error if PBR module is not available
    */
-  async generateSheenLutTextureFromDataUri() {
+  async generateSheenLutTextureFromDataUri(): Promise<void> {
+    if (this.__isTextureReady) {
+      return;
+    }
+    if (this.__sheenLutLoadPromise == null) {
+      this.__sheenLutLoadPromise = this.__generateSheenLutTextureFromDataUri();
+    }
+    await this.__sheenLutLoadPromise;
+  }
+
+  private async __generateSheenLutTextureFromDataUri(): Promise<void> {
     const moduleName = 'pbr';
     const moduleManager = ModuleManager.getInstance();
-    const pbrModule = moduleManager.getModule(moduleName)! as any;
+    const pbrModule = (await moduleManager.loadModule(moduleName)) as { sheen_E_and_DGTerm: string };
     const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     if (cgApiResourceRepository == null) {
       Logger.default.error('Failed to get CGAPIResourceRepository.');

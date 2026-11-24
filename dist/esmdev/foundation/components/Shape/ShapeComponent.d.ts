@@ -3,7 +3,7 @@ import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
 import { type EntityRepository } from '../../core/EntityRepository';
 import { type ShapeDescriptor, type ShapeInstance, type ShapeLocalTransform } from '../../geometry/Shape';
-import { ShapeGizmo } from '../../gizmos/ShapeGizmo';
+import type { ShapeGizmo } from '../../gizmos/ShapeGizmo';
 import type { AABB } from '../../math/AABB';
 import type { IVector3 } from '../../math/IVector';
 import type { Engine } from '../../system/Engine';

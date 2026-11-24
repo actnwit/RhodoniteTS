@@ -21,7 +21,6 @@ import type { IEntity } from '../core';
 import type { ShaderSemanticsName } from '../definitions';
 import { AnimationInterpolation } from '../definitions';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
-import { createNodeBasedCustomMaterial } from '../helpers/materials/createNodeBasedCustomMaterial';
 import type { PbrUberMaterialOptions } from '../helpers/materials/createPbrUberMaterial';
 import type { Material } from '../materials/core/Material';
 import { AnimatedScalar } from '../math/AnimatedScalar';
@@ -35,6 +34,17 @@ import { Logger } from '../misc/Logger';
 import type { Engine } from '../system/Engine';
 import type { Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';
+
+type CreateNodeBasedCustomMaterial =
+  typeof import('../helpers/materials/createNodeBasedCustomMaterial').createNodeBasedCustomMaterial;
+
+/**
+ * The node-based material implementation is loaded on demand. It pulls in the shader graph resolver and every
+ * shader node class, so importing it statically would make every application that includes the glTF importer pay
+ * for it even when no model uses the RHODONITE_materials_node extension.
+ */
+let createNodeBasedCustomMaterialImpl: CreateNodeBasedCustomMaterial | undefined;
+let nodeBasedMaterialSupportPromise: Promise<void> | undefined;
 
 /**
  * Extension class for importing Rhodonite-specific features from RnM2 format files.
@@ -69,6 +79,34 @@ export class RhodoniteImportExtension {
   }
 
   /**
+   * Loads the node-based material implementation when the model actually uses the RHODONITE_materials_node
+   * extension. The importer calls this before materials are generated, so the synchronous
+   * {@link createNodeBasedMaterial} can use the loaded function without making the import path asynchronous.
+   *
+   * @param gltfJson - The RnM2 format JSON data to inspect
+   * @internal
+   */
+  static async preloadNodeBasedMaterialSupport(gltfJson: RnM2): Promise<void> {
+    const usesNodeBasedMaterial = gltfJson.materials?.some(material => this.hasNodeBasedMaterialExtension(material));
+    if (usesNodeBasedMaterial !== true) {
+      return;
+    }
+    await this.__loadNodeBasedMaterialSupport();
+  }
+
+  private static async __loadNodeBasedMaterialSupport(): Promise<void> {
+    if (createNodeBasedCustomMaterialImpl != null) {
+      return;
+    }
+    if (nodeBasedMaterialSupportPromise == null) {
+      nodeBasedMaterialSupportPromise = import('../helpers/materials/createNodeBasedCustomMaterial').then(module => {
+        createNodeBasedCustomMaterialImpl = module.createNodeBasedCustomMaterial;
+      });
+    }
+    await nodeBasedMaterialSupportPromise;
+  }
+
+  /**
    * Creates a node-based custom material from RHODONITE_materials_node extension data.
    * Uses ShaderGraphResolver to generate shader code from the loaded .rmn JSON,
    * then creates a custom material using MaterialHelper.
@@ -94,6 +132,15 @@ export class RhodoniteImportExtension {
 
     if (!extension?.shaderNodeJson) {
       Logger.default.warn('RHODONITE_materials_node: No shader node JSON loaded for material');
+      return undefined;
+    }
+
+    const createNodeBasedCustomMaterial = createNodeBasedCustomMaterialImpl;
+    if (createNodeBasedCustomMaterial == null) {
+      Logger.default.error(
+        'RHODONITE_materials_node: Node-based material support is not loaded. Import the model through the ' +
+          'ModelConverter, or await RhodoniteImportExtension.preloadNodeBasedMaterialSupport() before creating materials.'
+      );
       return undefined;
     }
 

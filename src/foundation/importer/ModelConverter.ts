@@ -38,7 +38,6 @@ import { createLightEntity } from '../components/Light/createLightEntity';
 import { LightComponent } from '../components/Light/LightComponent';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
-import { RaymarchingComponent } from '../components/Raymarching/RaymarchingComponent';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
@@ -67,8 +66,6 @@ import type {
 } from '../helpers/EntityHelper';
 import { attachLightShadowCamera } from '../helpers/EntityHelper';
 import { createClassicUberMaterial } from '../helpers/materials/createClassicUberMaterial';
-import { createMToon0xMaterial } from '../helpers/materials/createMToon0xMaterial';
-import { createMToon1Material } from '../helpers/materials/createMToon1Material';
 import { createPbrUberMaterial } from '../helpers/materials/createPbrUberMaterial';
 import type { Material } from '../materials/core/Material';
 import { AnimatedQuaternion } from '../math/AnimatedQuaternion';
@@ -97,10 +94,30 @@ import type { Engine } from '../system/Engine';
 import { Sampler } from '../textures/Sampler';
 import { Texture } from '../textures/Texture';
 import { detectBoneDataTypeForSkin } from './BoneDataTypeDetector';
-import { setupKhrStaticColliders } from './KhrPhysicsImporter';
+import { preloadKhrPhysicsSupport, setupKhrStaticColliders } from './KhrPhysicsImporter';
 import { RhodoniteImportExtension } from './RhodoniteImportExtension';
 
 declare let DracoDecoderModule: any;
+
+type CreateMToon0xMaterial = typeof import('../helpers/materials/createMToon0xMaterial').createMToon0xMaterial;
+type CreateMToon1Material = typeof import('../helpers/materials/createMToon1Material').createMToon1Material;
+
+/**
+ * MToon material implementations are loaded on demand. They pull in the MToon shaders and material contents, which
+ * a plain glTF model never uses. The importer preloads them before generating materials when the model actually
+ * contains VRM materials, so the synchronous material functions can call them through these variables.
+ */
+let createMToon0xMaterialImpl: CreateMToon0xMaterial | undefined;
+let createMToon1MaterialImpl: CreateMToon1Material | undefined;
+
+type RaymarchingComponentClass = typeof import('../components/Raymarching/RaymarchingComponent').RaymarchingComponent;
+
+/**
+ * The raymarching component (and its SDF evaluator) is loaded only for models that use the RHODONITE_raymarching
+ * extension. A plain glTF application never pays for it.
+ */
+let raymarchingComponentClass: RaymarchingComponentClass | undefined;
+let raymarchingComponentPromise: Promise<void> | undefined;
 
 /**
  * A converter class from glTF2 model to Rhodonite Native data
@@ -187,6 +204,84 @@ export class ModelConverter {
       }
     }
     return rnMaterials;
+  }
+
+  /**
+   * Loads the MToon material implementations only when the model actually uses VRM materials.
+   * This keeps the MToon material contents and shaders out of plain glTF applications.
+   *
+   * @param gltfModel - The glTF model data to inspect
+   * @internal
+   */
+  private static async __preloadMToonMaterialSupport(gltfModel: RnM2): Promise<void> {
+    const materials = gltfModel.materials ?? [];
+    const needsMToon1 = materials.some(material => material.extensions?.VRMC_materials_mtoon != null);
+    const needsMToon0x = materials.some(material => {
+      const materialProperties = material.extras?.vrm0xMaterialProperty as Vrm0xMaterialProperty | undefined;
+      return materialProperties?.shader === 'VRM/MToon';
+    });
+
+    const loads: Promise<void>[] = [];
+    if (needsMToon1 && createMToon1MaterialImpl == null) {
+      loads.push(
+        import('../helpers/materials/createMToon1Material').then(module => {
+          createMToon1MaterialImpl = module.createMToon1Material;
+        })
+      );
+    }
+    if (needsMToon0x && createMToon0xMaterialImpl == null) {
+      loads.push(
+        import('../helpers/materials/createMToon0xMaterial').then(module => {
+          createMToon0xMaterialImpl = module.createMToon0xMaterial;
+        })
+      );
+    }
+    await Promise.all(loads);
+  }
+
+  /**
+   * Loads the raymarching component only when a node uses the RHODONITE_raymarching extension.
+   *
+   * @param gltfModel - The glTF model data to inspect
+   * @internal
+   */
+  static async preloadRaymarchingSupport(gltfModel: RnM2): Promise<void> {
+    const usesRaymarching = (gltfModel.nodes ?? []).some(node => {
+      const extensions = node.extensions as { RHODONITE_raymarching?: unknown } | undefined;
+      return extensions?.RHODONITE_raymarching != null;
+    });
+    if (!usesRaymarching || raymarchingComponentClass != null) {
+      return;
+    }
+    if (raymarchingComponentPromise == null) {
+      raymarchingComponentPromise = import('../components/Raymarching/RaymarchingComponent').then(module => {
+        raymarchingComponentClass = module.RaymarchingComponent;
+      });
+    }
+    await raymarchingComponentPromise;
+  }
+
+  /**
+   * Loads the sheen LUT before materials are created when the model uses KHR_materials_sheen.
+   *
+   * A WebGPU bind group created while the LUT texture has no GPU resource keeps the placeholder binding, so
+   * the importer waits for the texture instead of relying on the lazy background load in the material factory.
+   *
+   * @param engine - The engine instance
+   * @param gltfModel - The glTF model data to inspect
+   * @internal
+   */
+  private static async __preloadSheenLutTexture(engine: Engine, gltfModel: RnM2): Promise<void> {
+    const materials = gltfModel.materials ?? [];
+    const usesSheen = materials.some(material => material.extensions?.KHR_materials_sheen != null);
+    if (!usesSheen) {
+      return;
+    }
+    try {
+      await engine.dummyTextures.loadSheenLutTexture();
+    } catch (error) {
+      Logger.default.warn(`Failed to load the sheen LUT texture: ${error}`);
+    }
   }
 
   /**
@@ -298,6 +393,12 @@ export class ModelConverter {
     const rnTextures = await this.__setupTextures(engine, gltfModel);
     const rnSamplers = this.__createSamplers(engine, gltfModel);
 
+    // Optional material implementations and the raymarching component stay out of applications that do not use them.
+    await this.__preloadMToonMaterialSupport(gltfModel);
+    await RhodoniteImportExtension.preloadNodeBasedMaterialSupport(gltfModel);
+    await this.preloadRaymarchingSupport(gltfModel);
+    await this.__preloadSheenLutTexture(engine, gltfModel);
+
     // Materials
     const rnMaterials = this.__setupMaterials(engine, gltfModel, rnTextures, rnSamplers);
 
@@ -326,6 +427,8 @@ export class ModelConverter {
     // Hierarchy
     this._setupHierarchy(gltfModel, rnEntities);
 
+    // Rapier is loaded only for models that use KHR_physics_rigid_bodies.
+    await preloadKhrPhysicsSupport(gltfModel);
     setupKhrStaticColliders(gltfModel, rnEntities);
 
     this.__setupNodeVisibility(gltfModel, rnEntities);
@@ -1362,23 +1465,31 @@ export class ModelConverter {
           | undefined
       )?.RHODONITE_raymarching;
       if (raymarchingExtension != null && entity.tryToGetRaymarching() == null) {
-        const raymarchingEntity = engine.entityRepository.addComponentToEntity(
-          RaymarchingComponent,
-          entity
-        ) as unknown as IRaymarchingEntity;
-        const raymarchingComponent = raymarchingEntity.getRaymarching();
-        if (raymarchingExtension.graph != null) {
-          raymarchingComponent.rrnJson = raymarchingExtension.graph;
-        } else if (raymarchingExtension.sdfShapeType != null) {
-          raymarchingComponent.sdfShapeType = SdfShapeType.from(raymarchingExtension.sdfShapeType);
+        const RaymarchingComponent = raymarchingComponentClass;
+        if (RaymarchingComponent == null) {
+          Logger.default.warn(
+            'RHODONITE_raymarching: Raymarching support is not loaded. Import the model through the asynchronous ' +
+              'ModelConverter.convertToRhodoniteObject(), or await ModelConverter.preloadRaymarchingSupport() first.'
+          );
+        } else {
+          const raymarchingEntity = engine.entityRepository.addComponentToEntity(
+            RaymarchingComponent,
+            entity
+          ) as unknown as IRaymarchingEntity;
+          const raymarchingComponent = raymarchingEntity.getRaymarching();
+          if (raymarchingExtension.graph != null) {
+            raymarchingComponent.rrnJson = raymarchingExtension.graph;
+          } else if (raymarchingExtension.sdfShapeType != null) {
+            raymarchingComponent.sdfShapeType = SdfShapeType.from(raymarchingExtension.sdfShapeType);
+          }
+          if (raymarchingExtension.isPickable != null) {
+            raymarchingComponent.isPickable = raymarchingExtension.isPickable;
+          }
+          if (raymarchingExtension.castShadow != null) {
+            raymarchingComponent.castShadow = raymarchingExtension.castShadow;
+          }
+          entity = raymarchingEntity as unknown as ISceneGraphEntity;
         }
-        if (raymarchingExtension.isPickable != null) {
-          raymarchingComponent.isPickable = raymarchingExtension.isPickable;
-        }
-        if (raymarchingExtension.castShadow != null) {
-          raymarchingComponent.castShadow = raymarchingExtension.castShadow;
-        }
-        entity = raymarchingEntity as unknown as ISceneGraphEntity;
       }
 
       if (this.__isMorphing(node, gltfModel)) {
@@ -1788,6 +1899,14 @@ export class ModelConverter {
 
     const VRMC_materials_mtoon = materialJson.extensions?.VRMC_materials_mtoon;
     if (VRMC_materials_mtoon != null) {
+      const createMToon1Material = createMToon1MaterialImpl;
+      if (createMToon1Material == null) {
+        Logger.default.error(
+          'VRM 1.0 material support is not loaded. Import the model through ModelConverter.convertToRhodoniteObject().'
+        );
+        return undefined;
+      }
+
       // argument
       const defaultMaterialHelperArgument = rnLoaderOptions.defaultMaterialHelperArgumentArray![0];
 
@@ -1978,6 +2097,14 @@ export class ModelConverter {
     const materialProperties = materialJson.extras!.vrm0xMaterialProperty as Vrm0xMaterialProperty;
     const shaderName = materialProperties.shader;
     if (shaderName === 'VRM/MToon') {
+      const createMToon0xMaterial = createMToon0xMaterialImpl;
+      if (createMToon0xMaterial == null) {
+        Logger.default.error(
+          'VRM 0.x material support is not loaded. Import the model through ModelConverter.convertToRhodoniteObject().'
+        );
+        return undefined;
+      }
+
       // argument
       const defaultMaterialHelperArgument = rnLoaderOptions.defaultMaterialHelperArgumentArray![0];
 
@@ -2154,11 +2281,15 @@ export class ModelConverter {
           rnSamplers ?? [],
           pbrUberMaterialOptions
         );
-        if (!customMaterial) {
-          throw new Error('Failed to create node-based custom material');
+        if (Is.exist(customMaterial)) {
+          customMaterial.isTranslucent = isTranslucent;
+          return customMaterial;
         }
-        customMaterial.isTranslucent = isTranslucent;
-        return customMaterial;
+        // The node-based material implementation is loaded on demand. Falling back to the default material
+        // keeps the synchronous convertToRhodoniteObjectSimple() path usable.
+        Logger.default.error(
+          'RHODONITE_materials_node: Failed to create a node-based material. Falling back to the default material.'
+        );
       }
     }
 

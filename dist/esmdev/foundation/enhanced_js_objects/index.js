@@ -1,0 +1,3 @@
+// src/foundation/enhanced_js_objects/index.ts
+export * from "./Array.js";
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vZW5oYW5jZWRfanNfb2JqZWN0cy9pbmRleC50cyJdLAogICJzb3VyY2VzQ29udGVudCI6IFsiZXhwb3J0ICogZnJvbSAnLi9BcnJheSc7XG4iXSwKICAibWFwcGluZ3MiOiAiO0FBQUEsY0FBYzsiLAogICJuYW1lcyI6IFtdCn0K

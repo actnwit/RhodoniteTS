@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/nodes/raymarching/RaymarchCameraPosition.glsl
+var code = "void raymarchCameraPosition(out vec3 outValue) {\n  uint cameraSID = uint(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */]);\n  outValue = get_viewPosition(cameraSID);\n}\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var RaymarchCameraPosition_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  RaymarchCameraPosition_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvbm9kZXMvcmF5bWFyY2hpbmcvUmF5bWFyY2hDYW1lcmFQb3NpdGlvbi5nbHNsIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJ7XCJjb2RlXCI6XCJ2b2lkIHJheW1hcmNoQ2FtZXJhUG9zaXRpb24ob3V0IHZlYzMgb3V0VmFsdWUpIHtcXG4gIHVpbnQgY2FtZXJhU0lEID0gdWludCh1X2N1cnJlbnRDb21wb25lbnRTSURzWy8qIHNoYWRlcml0eTogQHtXZWxsS25vd25Db21wb25lbnRUSURzLkNhbWVyYUNvbXBvbmVudFRJRH0gKi9dKTtcXG4gIG91dFZhbHVlID0gZ2V0X3ZpZXdQb3NpdGlvbihjYW1lcmFTSUQpO1xcbn1cXG5cIixcInNoYWRlclN0YWdlXCI6XCJmcmFnbWVudFwiLFwiaXNGcmFnbWVudFNoYWRlclwiOnRydWV9Il0sCiAgIm1hcHBpbmdzIjogIjtBQUFDLFdBQU87QUFBb04sa0JBQWM7QUFBVyx1QkFBbUI7QUFBeFEsdUNBQUMsTUFBMk4sYUFBeUIsaUJBQXVCOyIsCiAgIm5hbWVzIjogW10KfQo=

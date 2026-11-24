@@ -1,0 +1,1 @@
+import{FurnaceTestMaterialContent as n}from"../../materials/contents/FurnaceTestMaterialContent.js";import{createMaterial as o}from"./createMaterial.js";function s(t,{additionalName:e="",maxInstancesNumber:a=1}={}){let r=`FurnaceTest_${e}`,i=new n(t,r);return o(t,i,a)}export{s as createFurnaceTestMaterial};

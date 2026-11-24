@@ -52,7 +52,7 @@ export declare class AnimatedVector4 extends Vector4 implements IVector4, IAnima
     /**
      * Gets the internal value array without allocating a copy. Do not mutate the returned array.
      */
-    getValueArray(): import("../../types").TypedArray;
+    getValueArray(): import("../..").TypedArray;
     /**
      * Sets the time and blending ratio and evaluates the value at most once.
      */

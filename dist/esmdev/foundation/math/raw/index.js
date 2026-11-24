@@ -1,0 +1,3 @@
+// src/foundation/math/raw/index.ts
+export * from "./raw_extension.js";
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vbWF0aC9yYXcvaW5kZXgudHMiXSwKICAic291cmNlc0NvbnRlbnQiOiBbImV4cG9ydCAqIGZyb20gJy4vcmF3X2V4dGVuc2lvbic7XG4iXSwKICAibWFwcGluZ3MiOiAiO0FBQUEsY0FBYzsiLAogICJuYW1lcyI6IFtdCn0K

@@ -1,0 +1,1 @@
+import{createTransformEntity as e}from"../Transform/createTransformEntity.js";import{WellKnownComponentTIDs as o}from"../WellKnownComponentTIDs.js";function y(n){let t=e(n);return t.engine.entityRepository.tryToAddComponentToEntityByTID(o.SceneGraphComponentTID,t)}export{y as createGroupEntity};

@@ -50,6 +50,14 @@ export declare function collectKhrRigidBodyGroups(gltfModel: RnM2): KhrRigidBody
 export declare function collectKhrStaticColliders(gltfModel: RnM2): KhrColliderCollection;
 /** @deprecated Use collectKhrStaticColliders. */
 export declare function collectKhrStaticBoxColliders(gltfModel: RnM2): KhrBoxColliderCollection;
+/** Whether the model uses the KHR_physics_rigid_bodies extension. */
+export declare function hasKhrPhysicsExtension(gltfModel: RnM2): boolean;
+/**
+ * Loads the Rapier physics strategy when the model actually uses KHR_physics_rigid_bodies.
+ * The importer calls this before `setupKhrStaticColliders`, so the synchronous setup can use the loaded class.
+ * @internal
+ */
+export declare function preloadKhrPhysicsSupport(gltfModel: RnM2): Promise<void>;
 /**
  * Creates Rapier fixed bodies for supported KHR_physics_rigid_bodies colliders.
  */

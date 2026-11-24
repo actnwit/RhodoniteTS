@@ -1,0 +1,59 @@
+// src/webgpu/WebGpuDeviceWrapper.ts
+var WebGpuDeviceWrapper = class {
+  /**
+   * Creates a new WebGpuDeviceWrapper instance.
+   * Initializes the WebGPU context and configures the canvas with the provided device.
+   *
+   * @param canvas - The HTML canvas element to be used for WebGPU rendering
+   * @param gpuAdapter - The WebGPU adapter for the graphics hardware
+   * @param gpuDevice - The WebGPU device for executing GPU operations
+   */
+  constructor(canvas, gpuAdapter, gpuDevice) {
+    this.UF = canvas;
+    this.a = canvas.getContext("webgpu");
+    this.VF = gpuAdapter;
+    this.TF = gpuDevice;
+    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+    this.a.configure({
+      device: this.TF,
+      format: presentationFormat,
+      alphaMode: "premultiplied"
+    });
+  }
+  /**
+   * Gets the HTML canvas element associated with this wrapper.
+   *
+   * @returns The canvas element used for WebGPU rendering
+   */
+  get canvas() {
+    return this.UF;
+  }
+  /**
+   * Gets the WebGPU adapter associated with this wrapper.
+   *
+   * @returns The WebGPU adapter representing the graphics hardware
+   */
+  get gpuAdapter() {
+    return this.VF;
+  }
+  /**
+   * Gets the WebGPU device associated with this wrapper.
+   *
+   * @returns The WebGPU device for executing GPU operations
+   */
+  get gpuDevice() {
+    return this.TF;
+  }
+  /**
+   * Gets the WebGPU canvas context associated with this wrapper.
+   *
+   * @returns The configured WebGPU canvas context for rendering
+   */
+  get context() {
+    return this.a;
+  }
+};
+export {
+  WebGpuDeviceWrapper
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vc3JjL3dlYmdwdS9XZWJHcHVEZXZpY2VXcmFwcGVyLnRzIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyIvKipcbiAqIEEgd3JhcHBlciBjbGFzcyBmb3IgV2ViR1BVIGRldmljZSBtYW5hZ2VtZW50IGFuZCBjYW52YXMgY29udGV4dCBjb25maWd1cmF0aW9uLlxuICogVGhpcyBjbGFzcyBlbmNhcHN1bGF0ZXMgdGhlIFdlYkdQVSBhZGFwdGVyLCBkZXZpY2UsIGFuZCBjYW52YXMgY29udGV4dCxcbiAqIHByb3ZpZGluZyBhIGNvbnZlbmllbnQgaW50ZXJmYWNlIGZvciBXZWJHUFUgcmVuZGVyaW5nIG9wZXJhdGlvbnMuXG4gKi9cbmV4cG9ydCBjbGFzcyBXZWJHcHVEZXZpY2VXcmFwcGVyIHtcbiAgcHJpdmF0ZSBfX2NhbnZhczogSFRNTENhbnZhc0VsZW1lbnQ7XG4gIHByaXZhdGUgX19ncHVBZGFwdGVyOiBHUFVBZGFwdGVyO1xuICBwcml2YXRlIF9fZ3B1RGV2aWNlOiBHUFVEZXZpY2U7XG4gIHByaXZhdGUgX19jb250ZXh0OiBHUFVDYW52YXNDb250ZXh0O1xuXG4gIC8qKlxuICAgKiBDcmVhdGVzIGEgbmV3IFdlYkdwdURldmljZVdyYXBwZXIgaW5zdGFuY2UuXG4gICAqIEluaXRpYWxpemVzIHRoZSBXZWJHUFUgY29udGV4dCBhbmQgY29uZmlndXJlcyB0aGUgY2FudmFzIHdpdGggdGhlIHByb3ZpZGVkIGRldmljZS5cbiAgICpcbiAgICogQHBhcmFtIGNhbnZhcyAtIFRoZSBIVE1MIGNhbnZhcyBlbGVtZW50IHRvIGJlIHVzZWQgZm9yIFdlYkdQVSByZW5kZXJpbmdcbiAgICogQHBhcmFtIGdwdUFkYXB0ZXIgLSBUaGUgV2ViR1BVIGFkYXB0ZXIgZm9yIHRoZSBncmFwaGljcyBoYXJkd2FyZVxuICAgKiBAcGFyYW0gZ3B1RGV2aWNlIC0gVGhlIFdlYkdQVSBkZXZpY2UgZm9yIGV4ZWN1dGluZyBHUFUgb3BlcmF0aW9uc1xuICAgKi9cbiAgY29uc3RydWN0b3IoY2FudmFzOiBIVE1MQ2FudmFzRWxlbWVudCwgZ3B1QWRhcHRlcjogR1BVQWRhcHRlciwgZ3B1RGV2aWNlOiBHUFVEZXZpY2UpIHtcbiAgICB0aGlzLl9fY2FudmFzID0gY2FudmFzO1xuICAgIHRoaXMuX19jb250ZXh0ID0gY2FudmFzLmdldENvbnRleHQoJ3dlYmdwdScpIGFzIHVua25vd24gYXMgR1BVQ2FudmFzQ29udGV4dDtcbiAgICB0aGlzLl9fZ3B1QWRhcHRlciA9IGdwdUFkYXB0ZXI7XG4gICAgdGhpcy5fX2dwdURldmljZSA9IGdwdURldmljZTtcbiAgICBjb25zdCBwcmVzZW50YXRpb25Gb3JtYXQgPSBuYXZpZ2F0b3IuZ3B1LmdldFByZWZlcnJlZENhbnZhc0Zvcm1hdCgpO1xuICAgIHRoaXMuX19jb250ZXh0LmNvbmZpZ3VyZSh7XG4gICAgICBkZXZpY2U6IHRoaXMuX19ncHVEZXZpY2UsXG4gICAgICBmb3JtYXQ6IHByZXNlbnRhdGlvbkZvcm1hdCxcbiAgICAgIGFscGhhTW9kZTogJ3ByZW11bHRpcGxpZWQnLFxuICAgIH0pO1xuICB9XG5cbiAgLyoqXG4gICAqIEdldHMgdGhlIEhUTUwgY2FudmFzIGVsZW1lbnQgYXNzb2NpYXRlZCB3aXRoIHRoaXMgd3JhcHBlci5cbiAgICpcbiAgICogQHJldHVybnMgVGhlIGNhbnZhcyBlbGVtZW50IHVzZWQgZm9yIFdlYkdQVSByZW5kZXJpbmdcbiAgICovXG4gIGdldCBjYW52YXMoKTogSFRNTENhbnZhc0VsZW1lbnQge1xuICAgIHJldHVybiB0aGlzLl9fY2FudmFzO1xuICB9XG5cbiAgLyoqXG4gICAqIEdldHMgdGhlIFdlYkdQVSBhZGFwdGVyIGFzc29jaWF0ZWQgd2l0aCB0aGlzIHdyYXBwZXIuXG4gICAqXG4gICAqIEByZXR1cm5zIFRoZSBXZWJHUFUgYWRhcHRlciByZXByZXNlbnRpbmcgdGhlIGdyYXBoaWNzIGhhcmR3YXJlXG4gICAqL1xuICBnZXQgZ3B1QWRhcHRlcigpOiBHUFVBZGFwdGVyIHtcbiAgICByZXR1cm4gdGhpcy5fX2dwdUFkYXB0ZXI7XG4gIH1cblxuICAvKipcbiAgICogR2V0cyB0aGUgV2ViR1BVIGRldmljZSBhc3NvY2lhdGVkIHdpdGggdGhpcyB3cmFwcGVyLlxuICAgKlxuICAgKiBAcmV0dXJucyBUaGUgV2ViR1BVIGRldmljZSBmb3IgZXhlY3V0aW5nIEdQVSBvcGVyYXRpb25zXG4gICAqL1xuICBnZXQgZ3B1RGV2aWNlKCk6IEdQVURldmljZSB7XG4gICAgcmV0dXJuIHRoaXMuX19ncHVEZXZpY2U7XG4gIH1cblxuICAvKipcbiAgICogR2V0cyB0aGUgV2ViR1BVIGNhbnZhcyBjb250ZXh0IGFzc29jaWF0ZWQgd2l0aCB0aGlzIHdyYXBwZXIuXG4gICAqXG4gICAqIEByZXR1cm5zIFRoZSBjb25maWd1cmVkIFdlYkdQVSBjYW52YXMgY29udGV4dCBmb3IgcmVuZGVyaW5nXG4gICAqL1xuICBnZXQgY29udGV4dCgpOiBHUFVDYW52YXNDb250ZXh0IHtcbiAgICByZXR1cm4gdGhpcy5fX2NvbnRleHQ7XG4gIH1cbn1cbiJdLAogICJtYXBwaW5ncyI6ICI7QUFLTyxJQUFNLHNCQUFOLE1BQTBCO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBLEVBYy9CLFlBQVksUUFBMkIsWUFBd0IsV0FBc0I7QUFDbkYsU0FBS0EsS0FBVztBQUNoQixTQUFLQyxJQUFZLE9BQU8sV0FBVyxRQUFRO0FBQzNDLFNBQUtDLEtBQWU7QUFDcEIsU0FBS0MsS0FBYztBQUNuQixVQUFNLHFCQUFxQixVQUFVLElBQUkseUJBQXlCO0FBQ2xFLFNBQUtGLEVBQVUsVUFBVTtBQUFBLE1BQ3ZCLFFBQVEsS0FBS0U7QUFBQSxNQUNiLFFBQVE7QUFBQSxNQUNSLFdBQVc7QUFBQSxJQUNiLENBQUM7QUFBQSxFQUNIO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBLEVBT0EsSUFBSSxTQUE0QjtBQUM5QixXQUFPLEtBQUtIO0FBQUEsRUFDZDtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQSxFQU9BLElBQUksYUFBeUI7QUFDM0IsV0FBTyxLQUFLRTtBQUFBLEVBQ2Q7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUEsRUFPQSxJQUFJLFlBQXVCO0FBQ3pCLFdBQU8sS0FBS0M7QUFBQSxFQUNkO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBLEVBT0EsSUFBSSxVQUE0QjtBQUM5QixXQUFPLEtBQUtGO0FBQUEsRUFDZDtBQUNGOyIsCiAgIm5hbWVzIjogWyJfX2NhbnZhcyIsICJfX2NvbnRleHQiLCAiX19ncHVBZGFwdGVyIiwgIl9fZ3B1RGV2aWNlIl0KfQo=

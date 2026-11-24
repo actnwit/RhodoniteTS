@@ -63,7 +63,7 @@ export declare class MutableVector4_<T extends FloatTypedArrayConstructor> exten
      *
      * @returns The underlying typed array [x, y, z, w]
      */
-    raw(): import("../../types").TypedArray;
+    raw(): import("../..").TypedArray;
     /**
      * Sets the value at the specified index.
      *

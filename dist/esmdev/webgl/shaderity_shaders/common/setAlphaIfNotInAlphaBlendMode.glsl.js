@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/common/setAlphaIfNotInAlphaBlendMode.glsl
+var code = "#ifdef RN_IS_ALPHA_MODE_BLEND\n#else\n  rt0.a = 1.0;\n#endif\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var setAlphaIfNotInAlphaBlendMode_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  setAlphaIfNotInAlphaBlendMode_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvY29tbW9uL3NldEFscGhhSWZOb3RJbkFscGhhQmxlbmRNb2RlLmdsc2wiXSwKICAic291cmNlc0NvbnRlbnQiOiBbIntcImNvZGVcIjpcIiNpZmRlZiBSTl9JU19BTFBIQV9NT0RFX0JMRU5EXFxuI2Vsc2VcXG4gIHJ0MC5hID0gMS4wO1xcbiNlbmRpZlxcblwiLFwic2hhZGVyU3RhZ2VcIjpcImZyYWdtZW50XCIsXCJpc0ZyYWdtZW50U2hhZGVyXCI6dHJ1ZX0iXSwKICAibWFwcGluZ3MiOiAiO0FBQUMsV0FBTztBQUFpRSxrQkFBYztBQUFXLHVCQUFtQjtBQUFySCw4Q0FBQyxNQUF3RSxhQUF5QixpQkFBdUI7IiwKICAibmFtZXMiOiBbXQp9Cg==

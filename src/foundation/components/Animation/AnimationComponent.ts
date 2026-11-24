@@ -11,6 +11,7 @@ import type {
 import type { ComponentTID, Index, Second, TypedArray } from '../../../types/CommonTypes';
 import { TagKhrNodeVisibilityVisible } from '../../../types/glTF2';
 import { Component } from '../../core/Component';
+import { registerComponentRuntimeHooks } from '../../core/ComponentRuntimeHooks';
 import type { IEntity } from '../../core/Entity';
 import { applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions';
@@ -1403,3 +1404,15 @@ export class AnimationComponent extends Component {
     AnimationComponent.__animationGlobalInfoMap.delete(engine);
   }
 }
+
+// The Engine reaches animation state through these hooks, so it does not import the animation implementation.
+registerComponentRuntimeHooks({
+  beginFrame: engine => {
+    AnimationStateRepository.beginProcessFrame(engine);
+  },
+  cleanup: engine => {
+    AnimationStateRepository._cleanupForEngine(engine);
+    AnimationComponent._cleanupForEngine(engine);
+  },
+  isDirty: engine => AnimationComponent.getIsAnimating(engine),
+});

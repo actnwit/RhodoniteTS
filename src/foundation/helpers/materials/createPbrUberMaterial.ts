@@ -174,6 +174,8 @@ export function createPbrUberMaterial(
   }
 
   if (isSheen) {
+    // The LUT image is loaded on demand so applications without sheen never download it.
+    engine.dummyTextures.requestSheenLutTexture();
     additionalShaderSemanticInfo.push({
       semantic: 'sheenColorTexture',
       componentType: ComponentType.Int,

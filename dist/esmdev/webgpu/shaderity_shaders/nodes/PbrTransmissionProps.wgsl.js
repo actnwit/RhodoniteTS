@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgpu/shaderity_shaders/nodes/PbrTransmissionProps.wgsl
+var code = "fn pbrTransmissionProps(\n  transmissionFactor: f32,\n  transmissionTexture: vec4<f32>,\n  outTransmission: ptr<function, f32>) {\n  (*outTransmission) = transmissionFactor * transmissionTexture.r;\n}\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var PbrTransmissionProps_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  PbrTransmissionProps_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ3B1L3NoYWRlcml0eV9zaGFkZXJzL25vZGVzL1BiclRyYW5zbWlzc2lvblByb3BzLndnc2wiXSwKICAic291cmNlc0NvbnRlbnQiOiBbIntcImNvZGVcIjpcImZuIHBiclRyYW5zbWlzc2lvblByb3BzKFxcbiAgdHJhbnNtaXNzaW9uRmFjdG9yOiBmMzIsXFxuICB0cmFuc21pc3Npb25UZXh0dXJlOiB2ZWM0PGYzMj4sXFxuICBvdXRUcmFuc21pc3Npb246IHB0cjxmdW5jdGlvbiwgZjMyPikge1xcbiAgKCpvdXRUcmFuc21pc3Npb24pID0gdHJhbnNtaXNzaW9uRmFjdG9yICogdHJhbnNtaXNzaW9uVGV4dHVyZS5yO1xcbn1cXG5cIixcInNoYWRlclN0YWdlXCI6XCJmcmFnbWVudFwiLFwiaXNGcmFnbWVudFNoYWRlclwiOnRydWV9Il0sCiAgIm1hcHBpbmdzIjogIjtBQUFDLFdBQU87QUFBNk0sa0JBQWM7QUFBVyx1QkFBbUI7QUFBalEscUNBQUMsTUFBb04sYUFBeUIsaUJBQXVCOyIsCiAgIm5hbWVzIjogW10KfQo=

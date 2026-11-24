@@ -1,0 +1,1 @@
+var t=class{constructor(e,r){this.Wc=e,this.eA=r}get semantic(){return this.Wc}getScalarAsArray(e,r){return[this.eA.getScalar(e,r)]}getVec2AsArray(e,r){return this.eA.getVec2AsArray(e,r)}getVec3AsArray(e,r){return this.eA.getVec3AsArray(e,r)}getVec4AsArray(e,r){return this.eA.getVec4AsArray(e,r)}};export{t as SimpleVertexAttribute};

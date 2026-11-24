@@ -1,0 +1,1 @@
+import{createGroupEntity as y}from"../SceneGraph/createGroupEntity.js";import{WellKnownComponentTIDs as e}from"../WellKnownComponentTIDs.js";function m(t){let n=y(t),o=t.entityRepository.tryToAddComponentToEntityByTID(e.MeshComponentTID,n);return t.entityRepository.tryToAddComponentToEntityByTID(e.MeshRendererComponentTID,o)}export{m as createMeshEntity};

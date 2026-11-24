@@ -1,0 +1,5 @@
+// src/foundation/components/Shape/index.ts
+export * from "./createShapeEntity.js";
+export * from "./IShapeEntity.js";
+export * from "./ShapeComponent.js";
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vY29tcG9uZW50cy9TaGFwZS9pbmRleC50cyJdLAogICJzb3VyY2VzQ29udGVudCI6IFsiZXhwb3J0ICogZnJvbSAnLi9jcmVhdGVTaGFwZUVudGl0eSc7XG5leHBvcnQgKiBmcm9tICcuL0lTaGFwZUVudGl0eSc7XG5leHBvcnQgKiBmcm9tICcuL1NoYXBlQ29tcG9uZW50JztcbiJdLAogICJtYXBwaW5ncyI6ICI7QUFBQSxjQUFjO0FBQ2QsY0FBYztBQUNkLGNBQWM7IiwKICAibmFtZXMiOiBbXQp9Cg==

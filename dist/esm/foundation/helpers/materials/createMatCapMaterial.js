@@ -1,0 +1,1 @@
+import{MatCapMaterialContent as l}from"../../materials/contents/MatCapMaterialContent.js";import{createMaterial as u}from"./createMaterial.js";function C(e,{additionalName:a="",isSkinning:t=!1,uri:m,texture:o,sampler:n,maxInstancesNumber:i=10}){let p=`MatCap_${a}`,s=new l(e,p,t,m,o,n),r=u(e,s,i);return t&&r.addShaderDefine("RN_IS_SKINNING"),r}export{C as createMatCapMaterial};

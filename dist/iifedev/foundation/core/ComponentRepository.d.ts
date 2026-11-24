@@ -37,6 +37,18 @@ export declare class ComponentRepository {
      */
     static registerComponentClass(componentClass: typeof Component): void;
     /**
+     * Registers a component class only when no class is registered for its ComponentTID yet.
+     *
+     * @remarks
+     * Component classes are registered lazily, when they are first used, instead of by a module that
+     * registers every component on import. That keeps unused components out of tree-shaken bundles.
+     * A class that was registered explicitly for the same ComponentTID is kept as is.
+     *
+     * @param componentClass - The component class constructor to register
+     * @internal
+     */
+    static _ensureComponentClassRegistered(componentClass: typeof Component): void;
+    /**
      * Unregisters a component class from the repository.
      * This removes the component class associated with the given ComponentTID.
      *
@@ -172,6 +184,17 @@ export declare class ComponentRepository {
      * ```
      */
     getComponentsWithType(componentType: typeof Component): Array<Component>;
+    /**
+     * Retrieves all active (non-null) component instances of the specified ComponentTID.
+     *
+     * @remarks
+     * Unlike {@link getComponentsWithType}, this does not need the component class itself, so a module can
+     * query components without importing (and bundling) their class.
+     *
+     * @param componentTID - The ComponentTID of the components to retrieve
+     * @returns Array of active component instances (never includes undefined elements)
+     */
+    getComponentsWithTID(componentTID: ComponentTID): Array<Component>;
     /**
      * Gets an array of all component instances of the specified type.
      * This is an internal method that includes undefined slots in the array.

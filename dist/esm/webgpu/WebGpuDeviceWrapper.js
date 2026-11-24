@@ -1,0 +1,1 @@
+var e=class{constructor(t,a,n){this.pP=t,this.e=t.getContext("webgpu"),this.gP=a,this.vP=n;let r=navigator.gpu.getPreferredCanvasFormat();this.e.configure({device:this.vP,format:r,alphaMode:"premultiplied"})}get canvas(){return this.pP}get gpuAdapter(){return this.gP}get gpuDevice(){return this.vP}get context(){return this.e}};export{e as WebGpuDeviceWrapper};

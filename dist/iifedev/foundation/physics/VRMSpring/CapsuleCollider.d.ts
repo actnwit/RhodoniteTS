@@ -1,5 +1,5 @@
 import type { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
-import { CapsuleColliderGizmo } from '../../gizmos/CapsuleColliderGizmo';
+import type { CapsuleColliderGizmo } from '../../gizmos/CapsuleColliderGizmo';
 import { Vector3 } from '../../math/Vector3';
 import type { Engine } from '../../system/Engine';
 /**

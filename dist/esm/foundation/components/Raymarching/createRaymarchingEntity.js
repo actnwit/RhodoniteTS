@@ -1,0 +1,1 @@
+import{createGroupEntity as e}from"../SceneGraph/createGroupEntity.js";import{RaymarchingComponent as o}from"./RaymarchingComponent.js";function m(t){let n=e(t);return t.entityRepository.addComponentToEntity(o,n)}export{m as createRaymarchingEntity};

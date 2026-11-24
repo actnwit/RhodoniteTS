@@ -1,0 +1,50 @@
+// src/foundation/misc/RnException.ts
+var _RnException = class _RnException extends Error {
+  /**
+   * Creates a new RnException instance.
+   *
+   * @param err - The RnError object containing the error message and details
+   *
+   * @remarks
+   * The constructor automatically formats the error message to include both
+   * the message and error details. If the error object contains a nested
+   * RnException, it will display "see below Exception ↓" followed by the
+   * nested exception's string representation.
+   */
+  constructor(err) {
+    const nestedError = err.error;
+    super(`
+  message: ${err.message}
+  error: ${typeof (nestedError == null ? void 0 : nestedError._rnException) !== "undefined" ? `see below Exception \u2193${nestedError.toString()}` : err.error}
+`);
+    this.err = err;
+    this.name = _RnException._prefix;
+  }
+  /**
+   * Retrieves the original RnError object that was used to create this exception.
+   *
+   * @returns The RnError object containing the original error message and details
+   *
+   * @example
+   * ```typescript
+   * try {
+   *   // some operation that throws RnException
+   * } catch (error) {
+   *   if (error instanceof RnException) {
+   *     const originalError = error.getRnError();
+   *     console.log(originalError.message);
+   *   }
+   * }
+   * ```
+   */
+  getRnError() {
+    return this.err;
+  }
+};
+/** Prefix string used in the exception name to identify Rhodonite exceptions */
+_RnException._prefix = "\nRhodonite Exception";
+var RnException = _RnException;
+export {
+  RnException
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vbWlzYy9SbkV4Y2VwdGlvbi50cyJdLAogICJzb3VyY2VzQ29udGVudCI6IFsiaW1wb3J0IHR5cGUgeyBFcnIsIFJuRXJyb3IgfSBmcm9tICcuL1Jlc3VsdCc7XG5cbi8qKlxuICogQ3VzdG9tIGV4Y2VwdGlvbiBjbGFzcyBmb3IgUmhvZG9uaXRlIGZyYW1ld29yayBlcnJvcnMuXG4gKiBUaGlzIGNsYXNzIGV4dGVuZHMgdGhlIHN0YW5kYXJkIEVycm9yIGNsYXNzIHRvIHByb3ZpZGUgZW5oYW5jZWQgZXJyb3IgaGFuZGxpbmdcbiAqIHdpdGggc3RydWN0dXJlZCBlcnJvciBpbmZvcm1hdGlvbiBmcm9tIFJuRXJyb3Igb2JqZWN0cy5cbiAqXG4gKiBAdGVtcGxhdGUgRXJyT2JqIC0gVGhlIHR5cGUgb2YgdGhlIGVycm9yIG9iamVjdCBjb250YWluZWQgd2l0aGluIHRoZSBSbkVycm9yXG4gKlxuICogQGV4YW1wbGVcbiAqIGBgYHR5cGVzY3JpcHRcbiAqIGNvbnN0IHJuRXJyb3I6IFJuRXJyb3I8c3RyaW5nPiA9IHtcbiAqICAgbWVzc2FnZTogXCJPcGVyYXRpb24gZmFpbGVkXCIsXG4gKiAgIGVycm9yOiBcIkludmFsaWQgcGFyYW1ldGVyXCJcbiAqIH07XG4gKiBjb25zdCBleGNlcHRpb24gPSBuZXcgUm5FeGNlcHRpb24ocm5FcnJvcik7XG4gKiB0aHJvdyBleGNlcHRpb247XG4gKiBgYGBcbiAqL1xuZXhwb3J0IGNsYXNzIFJuRXhjZXB0aW9uPEVyck9iaj4gZXh0ZW5kcyBFcnJvciB7XG4gIC8qKiBQcmVmaXggc3RyaW5nIHVzZWQgaW4gdGhlIGV4Y2VwdGlvbiBuYW1lIHRvIGlkZW50aWZ5IFJob2Rvbml0ZSBleGNlcHRpb25zICovXG4gIHN0YXRpYyByZWFkb25seSBfcHJlZml4ID0gJ1xcblJob2Rvbml0ZSBFeGNlcHRpb24nO1xuXG4gIC8qKlxuICAgKiBDcmVhdGVzIGEgbmV3IFJuRXhjZXB0aW9uIGluc3RhbmNlLlxuICAgKlxuICAgKiBAcGFyYW0gZXJyIC0gVGhlIFJuRXJyb3Igb2JqZWN0IGNvbnRhaW5pbmcgdGhlIGVycm9yIG1lc3NhZ2UgYW5kIGRldGFpbHNcbiAgICpcbiAgICogQHJlbWFya3NcbiAgICogVGhlIGNvbnN0cnVjdG9yIGF1dG9tYXRpY2FsbHkgZm9ybWF0cyB0aGUgZXJyb3IgbWVzc2FnZSB0byBpbmNsdWRlIGJvdGhcbiAgICogdGhlIG1lc3NhZ2UgYW5kIGVycm9yIGRldGFpbHMuIElmIHRoZSBlcnJvciBvYmplY3QgY29udGFpbnMgYSBuZXN0ZWRcbiAgICogUm5FeGNlcHRpb24sIGl0IHdpbGwgZGlzcGxheSBcInNlZSBiZWxvdyBFeGNlcHRpb24gXHUyMTkzXCIgZm9sbG93ZWQgYnkgdGhlXG4gICAqIG5lc3RlZCBleGNlcHRpb24ncyBzdHJpbmcgcmVwcmVzZW50YXRpb24uXG4gICAqL1xuICBjb25zdHJ1Y3Rvcihwcml2YXRlIGVycjogUm5FcnJvcjxFcnJPYmo+KSB7XG4gICAgLy8gZXJyLmVycm9yIGlzIG9wdGlvbmFsIChtYW55IGVycm9ycyBjYXJyeSBvbmx5IGEgbWVzc2FnZSksIHNvIGl0IG11c3Qgbm90IGJlIGRlcmVmZXJlbmNlZCBibGluZGx5LlxuICAgIGNvbnN0IG5lc3RlZEVycm9yID0gZXJyLmVycm9yIGFzIEVycjx1bmtub3duLCBFcnJPYmo+IHwgdW5kZWZpbmVkO1xuICAgIHN1cGVyKGBcbiAgbWVzc2FnZTogJHtlcnIubWVzc2FnZX1cbiAgZXJyb3I6ICR7XG4gICAgdHlwZW9mIG5lc3RlZEVycm9yPy5fcm5FeGNlcHRpb24gIT09ICd1bmRlZmluZWQnID8gYHNlZSBiZWxvdyBFeGNlcHRpb24gXHUyMTkzJHtuZXN0ZWRFcnJvciEudG9TdHJpbmcoKX1gIDogZXJyLmVycm9yXG4gIH1cbmApO1xuICAgIHRoaXMubmFtZSA9IFJuRXhjZXB0aW9uLl9wcmVmaXg7XG4gIH1cblxuICAvKipcbiAgICogUmV0cmlldmVzIHRoZSBvcmlnaW5hbCBSbkVycm9yIG9iamVjdCB0aGF0IHdhcyB1c2VkIHRvIGNyZWF0ZSB0aGlzIGV4Y2VwdGlvbi5cbiAgICpcbiAgICogQHJldHVybnMgVGhlIFJuRXJyb3Igb2JqZWN0IGNvbnRhaW5pbmcgdGhlIG9yaWdpbmFsIGVycm9yIG1lc3NhZ2UgYW5kIGRldGFpbHNcbiAgICpcbiAgICogQGV4YW1wbGVcbiAgICogYGBgdHlwZXNjcmlwdFxuICAgKiB0cnkge1xuICAgKiAgIC8vIHNvbWUgb3BlcmF0aW9uIHRoYXQgdGhyb3dzIFJuRXhjZXB0aW9uXG4gICAqIH0gY2F0Y2ggKGVycm9yKSB7XG4gICAqICAgaWYgKGVycm9yIGluc3RhbmNlb2YgUm5FeGNlcHRpb24pIHtcbiAgICogICAgIGNvbnN0IG9yaWdpbmFsRXJyb3IgPSBlcnJvci5nZXRSbkVycm9yKCk7XG4gICAqICAgICBjb25zb2xlLmxvZyhvcmlnaW5hbEVycm9yLm1lc3NhZ2UpO1xuICAgKiAgIH1cbiAgICogfVxuICAgKiBgYGBcbiAgICovXG4gIGdldFJuRXJyb3IoKSB7XG4gICAgcmV0dXJuIHRoaXMuZXJyO1xuICB9XG59XG4iXSwKICAibWFwcGluZ3MiOiAiO0FBbUJPLElBQU0sZUFBTixNQUFNLHFCQUE0QixNQUFNO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBLEVBZTdDLFlBQW9CLEtBQXNCO0FBRXhDLFVBQU0sY0FBYyxJQUFJO0FBQ3hCLFVBQU07QUFBQSxhQUNHLElBQUksT0FBTztBQUFBLFdBRXBCLFFBQU8sMkNBQWEsa0JBQWlCLGNBQWMsNkJBQXdCLFlBQWEsU0FBUyxDQUFDLEtBQUssSUFBSSxLQUM3RztBQUFBLENBQ0Q7QUFScUI7QUFTbEIsU0FBSyxPQUFPLGFBQVk7QUFBQSxFQUMxQjtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQSxFQW1CQSxhQUFhO0FBQ1gsV0FBTyxLQUFLO0FBQUEsRUFDZDtBQUNGO0FBQUE7QUEvQ2EsYUFFSyxVQUFVO0FBRnJCLElBQU0sY0FBTjsiLAogICJuYW1lcyI6IFtdCn0K

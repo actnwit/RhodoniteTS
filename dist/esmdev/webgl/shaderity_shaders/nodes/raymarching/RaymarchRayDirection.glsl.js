@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/nodes/raymarching/RaymarchRayDirection.glsl
+var code = "void raymarchRayDirection(out vec3 outValue) {\n  uint cameraSID = uint(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */]);\n  outValue = normalize(g_hitPosition - get_viewPosition(cameraSID));\n}\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var RaymarchRayDirection_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  RaymarchRayDirection_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvbm9kZXMvcmF5bWFyY2hpbmcvUmF5bWFyY2hSYXlEaXJlY3Rpb24uZ2xzbCJdLAogICJzb3VyY2VzQ29udGVudCI6IFsie1wiY29kZVwiOlwidm9pZCByYXltYXJjaFJheURpcmVjdGlvbihvdXQgdmVjMyBvdXRWYWx1ZSkge1xcbiAgdWludCBjYW1lcmFTSUQgPSB1aW50KHVfY3VycmVudENvbXBvbmVudFNJRHNbLyogc2hhZGVyaXR5OiBAe1dlbGxLbm93bkNvbXBvbmVudFRJRHMuQ2FtZXJhQ29tcG9uZW50VElEfSAqL10pO1xcbiAgb3V0VmFsdWUgPSBub3JtYWxpemUoZ19oaXRQb3NpdGlvbiAtIGdldF92aWV3UG9zaXRpb24oY2FtZXJhU0lEKSk7XFxufVxcblwiLFwic2hhZGVyU3RhZ2VcIjpcImZyYWdtZW50XCIsXCJpc0ZyYWdtZW50U2hhZGVyXCI6dHJ1ZX0iXSwKICAibWFwcGluZ3MiOiAiO0FBQUMsV0FBTztBQUE2TyxrQkFBYztBQUFXLHVCQUFtQjtBQUFqUyxxQ0FBQyxNQUFvUCxhQUF5QixpQkFBdUI7IiwKICAibmFtZXMiOiBbXQp9Cg==

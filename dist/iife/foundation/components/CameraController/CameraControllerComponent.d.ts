@@ -12,8 +12,6 @@ import type { ComponentToComponentMethods } from '../ComponentTypes';
  */
 export declare class CameraControllerComponent extends Component {
     private __cameraController;
-    /** Map to store update count per Engine instance for multi-engine support */
-    private static __updateCountMap;
     /**
      * Creates a new CameraControllerComponent instance.
      *

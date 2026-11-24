@@ -11,7 +11,6 @@ export * from './Mesh/index';
 export * from './MeshRenderer/index';
 export * from './Physics/index';
 export * from './Raymarching/index';
-export * from './registerComponents';
 export * from './SceneGraph/index';
 export * from './Shape/index';
 export * from './Skeletal/index';

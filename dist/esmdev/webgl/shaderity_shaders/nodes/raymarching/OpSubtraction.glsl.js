@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/nodes/raymarching/OpSubtraction.glsl
+var code = "void opSubtraction(in float base, in float subtractor, out float outValue) {\n  outValue = max(base, -subtractor);\n}\n\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var OpSubtraction_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  OpSubtraction_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvbm9kZXMvcmF5bWFyY2hpbmcvT3BTdWJ0cmFjdGlvbi5nbHNsIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJ7XCJjb2RlXCI6XCJ2b2lkIG9wU3VidHJhY3Rpb24oaW4gZmxvYXQgYmFzZSwgaW4gZmxvYXQgc3VidHJhY3Rvciwgb3V0IGZsb2F0IG91dFZhbHVlKSB7XFxuICBvdXRWYWx1ZSA9IG1heChiYXNlLCAtc3VidHJhY3Rvcik7XFxufVxcblxcblwiLFwic2hhZGVyU3RhZ2VcIjpcImZyYWdtZW50XCIsXCJpc0ZyYWdtZW50U2hhZGVyXCI6dHJ1ZX0iXSwKICAibWFwcGluZ3MiOiAiO0FBQUMsV0FBTztBQUE0SCxrQkFBYztBQUFXLHVCQUFtQjtBQUFoTCw4QkFBQyxNQUFtSSxhQUF5QixpQkFBdUI7IiwKICAibmFtZXMiOiBbXQp9Cg==

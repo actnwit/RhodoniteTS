@@ -42,7 +42,7 @@ export declare class AnimatedVector2 extends Vector2 implements IVector2, IAnima
     /**
      * Gets the internal value array without allocating a copy. Do not mutate the returned array.
      */
-    getValueArray(): import("../../types").TypedArray;
+    getValueArray(): import("../..").TypedArray;
     /**
      * Sets the time and blending ratio and evaluates the value at most once.
      */

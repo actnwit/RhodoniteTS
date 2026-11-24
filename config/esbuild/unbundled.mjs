@@ -155,6 +155,10 @@ export async function buildUnbundled({
     builtDepsKey = depsKey;
     await build({
       ...esbuildOptions,
+      // Dependencies are bundled separately with their own name map, which could diverge from the main build.
+      mangleProps: undefined,
+      reserveProps: undefined,
+      mangleCache: undefined,
       absWorkingDir: projectRoot,
       entryPoints: [...deps.entries()].map(([absPath, outName]) => ({ in: absPath, out: outName })),
       outdir: path.join(outDir, depsDirName),

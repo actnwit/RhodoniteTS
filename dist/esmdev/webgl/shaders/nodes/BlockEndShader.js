@@ -1,0 +1,86 @@
+// src/webgl/shaders/nodes/BlockEndShader.ts
+import { StandardShaderPart } from "../StandardShaderPart.js";
+var BlockEndShader = class extends StandardShaderPart {
+  /**
+   * Creates a new BlockEndShader instance.
+   *
+   * @param __functionName - The name of the GLSL function to generate
+   * @param __valueInputs - Array of input shader sockets that define the function parameters
+   * @param __valueOutputs - Array of output shader sockets that define the function return values
+   */
+  constructor(__functionName, __valueInputs, __valueOutputs) {
+    super();
+    this.bF = __functionName;
+    this.Ws = __valueInputs;
+    this.Xs = __valueOutputs;
+  }
+  /**
+   * Generates the vertex shader function definition.
+   * Creates a GLSL function that takes input parameters and assigns them directly to output parameters.
+   *
+   * @returns The GLSL function definition string for vertex shaders
+   */
+  getVertexShaderDefinitions(_engine) {
+    let funcStr = `void ${this.bF}(`;
+    for (let i = 0; i < this.Ws.length; i++) {
+      const input = this.Ws[i];
+      const type = input.compositionType.getGlslStr(input.componentType);
+      funcStr += `
+        in ${type} value${i},`;
+    }
+    for (let i = 0; i < this.Xs.length; i++) {
+      const output = this.Xs[i];
+      const type = output.compositionType.getGlslStr(output.componentType);
+      funcStr += `
+        out ${type} outValue${i}${i === this.Xs.length - 1 ? "" : ","}`;
+    }
+    funcStr += ") {\n";
+    for (let i = 0; i < this.Xs.length; i++) {
+      funcStr += `
+      outValue${i} = value${i};
+`;
+    }
+    funcStr += "}";
+    return funcStr;
+  }
+  /**
+   * Generates the pixel shader function definition.
+   * Returns the same definition as the vertex shader since the logic is identical.
+   *
+   * @returns The GLSL function definition string for pixel shaders
+   */
+  getPixelShaderDefinitions(engine) {
+    return this.getVertexShaderDefinitions(engine);
+  }
+  /**
+   * Gets the attribute names required by this shader component.
+   * This block end shader doesn't require any specific vertex attributes.
+   *
+   * @returns An empty array as no attributes are needed
+   */
+  get attributeNames() {
+    return [];
+  }
+  /**
+   * Gets the vertex attribute semantics required by this shader component.
+   * This block end shader doesn't require any specific vertex attribute semantics.
+   *
+   * @returns An empty array as no attribute semantics are needed
+   */
+  get attributeSemantics() {
+    return [];
+  }
+  /**
+   * Gets the composition types for vertex attributes required by this shader component.
+   * This block end shader doesn't require any specific attribute compositions.
+   *
+   * @returns An empty array as no attribute compositions are needed
+   */
+  get attributeCompositions() {
+    return [];
+  }
+};
+export {
+  BlockEndShader
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL3dlYmdsL3NoYWRlcnMvbm9kZXMvQmxvY2tFbmRTaGFkZXIudHMiXSwKICAic291cmNlc0NvbnRlbnQiOiBbImltcG9ydCB0eXBlIHsgQ29tcG9zaXRpb25UeXBlRW51bSB9IGZyb20gJy4uLy4uLy4uL2ZvdW5kYXRpb24vZGVmaW5pdGlvbnMvQ29tcG9zaXRpb25UeXBlJztcbmltcG9ydCB0eXBlIHsgVmVydGV4QXR0cmlidXRlRW51bSB9IGZyb20gJy4uLy4uLy4uL2ZvdW5kYXRpb24vZGVmaW5pdGlvbnMvVmVydGV4QXR0cmlidXRlJztcbmltcG9ydCB0eXBlIHsgU2hhZGVyU29ja2V0IH0gZnJvbSAnLi4vLi4vLi4vZm91bmRhdGlvbi9tYXRlcmlhbHMvY29yZS9BYnN0cmFjdFNoYWRlck5vZGUnO1xuaW1wb3J0IHR5cGUgeyBFbmdpbmUgfSBmcm9tICcuLi8uLi8uLi9mb3VuZGF0aW9uL3N5c3RlbS9FbmdpbmUnO1xuaW1wb3J0IHR5cGUgeyBBdHRyaWJ1dGVOYW1lcyB9IGZyb20gJy4uLy4uL3R5cGVzL0NvbW1vblR5cGVzJztcbmltcG9ydCB7IFN0YW5kYXJkU2hhZGVyUGFydCB9IGZyb20gJy4uL1N0YW5kYXJkU2hhZGVyUGFydCc7XG5cbi8qKlxuICogQSBzaGFkZXIgY29tcG9uZW50IHRoYXQgZ2VuZXJhdGVzIHRoZSBlbmRpbmcgYmxvY2sgb2YgYSBzaGFkZXIgZnVuY3Rpb24uXG4gKiBUaGlzIGNsYXNzIGNyZWF0ZXMgR0xTTCBmdW5jdGlvbiBkZWZpbml0aW9ucyB0aGF0IHBhc3MgaW5wdXQgdmFsdWVzIGRpcmVjdGx5IHRvIG91dHB1dCB2YWx1ZXMsXG4gKiBlZmZlY3RpdmVseSBhY3RpbmcgYXMgYSBwYXNzLXRocm91Z2ggYmxvY2sgaW4gc2hhZGVyIG5vZGUgZ3JhcGhzLlxuICovXG5leHBvcnQgY2xhc3MgQmxvY2tFbmRTaGFkZXIgZXh0ZW5kcyBTdGFuZGFyZFNoYWRlclBhcnQge1xuICAvKipcbiAgICogQ3JlYXRlcyBhIG5ldyBCbG9ja0VuZFNoYWRlciBpbnN0YW5jZS5cbiAgICpcbiAgICogQHBhcmFtIF9fZnVuY3Rpb25OYW1lIC0gVGhlIG5hbWUgb2YgdGhlIEdMU0wgZnVuY3Rpb24gdG8gZ2VuZXJhdGVcbiAgICogQHBhcmFtIF9fdmFsdWVJbnB1dHMgLSBBcnJheSBvZiBpbnB1dCBzaGFkZXIgc29ja2V0cyB0aGF0IGRlZmluZSB0aGUgZnVuY3Rpb24gcGFyYW1ldGVyc1xuICAgKiBAcGFyYW0gX192YWx1ZU91dHB1dHMgLSBBcnJheSBvZiBvdXRwdXQgc2hhZGVyIHNvY2tldHMgdGhhdCBkZWZpbmUgdGhlIGZ1bmN0aW9uIHJldHVybiB2YWx1ZXNcbiAgICovXG4gIGNvbnN0cnVjdG9yKFxuICAgIHByaXZhdGUgX19mdW5jdGlvbk5hbWU6IHN0cmluZyxcbiAgICBwcml2YXRlIF9fdmFsdWVJbnB1dHM6IFNoYWRlclNvY2tldFtdLFxuICAgIHByaXZhdGUgX192YWx1ZU91dHB1dHM6IFNoYWRlclNvY2tldFtdXG4gICkge1xuICAgIHN1cGVyKCk7XG4gIH1cblxuICAvKipcbiAgICogR2VuZXJhdGVzIHRoZSB2ZXJ0ZXggc2hhZGVyIGZ1bmN0aW9uIGRlZmluaXRpb24uXG4gICAqIENyZWF0ZXMgYSBHTFNMIGZ1bmN0aW9uIHRoYXQgdGFrZXMgaW5wdXQgcGFyYW1ldGVycyBhbmQgYXNzaWducyB0aGVtIGRpcmVjdGx5IHRvIG91dHB1dCBwYXJhbWV0ZXJzLlxuICAgKlxuICAgKiBAcmV0dXJucyBUaGUgR0xTTCBmdW5jdGlvbiBkZWZpbml0aW9uIHN0cmluZyBmb3IgdmVydGV4IHNoYWRlcnNcbiAgICovXG4gIGdldFZlcnRleFNoYWRlckRlZmluaXRpb25zKF9lbmdpbmU6IEVuZ2luZSkge1xuICAgIGxldCBmdW5jU3RyID0gYHZvaWQgJHt0aGlzLl9fZnVuY3Rpb25OYW1lfShgO1xuXG4gICAgZm9yIChsZXQgaSA9IDA7IGkgPCB0aGlzLl9fdmFsdWVJbnB1dHMubGVuZ3RoOyBpKyspIHtcbiAgICAgIGNvbnN0IGlucHV0ID0gdGhpcy5fX3ZhbHVlSW5wdXRzW2ldO1xuICAgICAgY29uc3QgdHlwZSA9IGlucHV0LmNvbXBvc2l0aW9uVHlwZS5nZXRHbHNsU3RyKGlucHV0LmNvbXBvbmVudFR5cGUpO1xuICAgICAgZnVuY1N0ciArPSBgXG4gICAgICAgIGluICR7dHlwZX0gdmFsdWUke2l9LGA7XG4gICAgfVxuXG4gICAgZm9yIChsZXQgaSA9IDA7IGkgPCB0aGlzLl9fdmFsdWVPdXRwdXRzLmxlbmd0aDsgaSsrKSB7XG4gICAgICBjb25zdCBvdXRwdXQgPSB0aGlzLl9fdmFsdWVPdXRwdXRzW2ldO1xuICAgICAgY29uc3QgdHlwZSA9IG91dHB1dC5jb21wb3NpdGlvblR5cGUuZ2V0R2xzbFN0cihvdXRwdXQuY29tcG9uZW50VHlwZSk7XG4gICAgICBmdW5jU3RyICs9IGBcbiAgICAgICAgb3V0ICR7dHlwZX0gb3V0VmFsdWUke2l9JHtpID09PSB0aGlzLl9fdmFsdWVPdXRwdXRzLmxlbmd0aCAtIDEgPyAnJyA6ICcsJ31gO1xuICAgIH1cblxuICAgIGZ1bmNTdHIgKz0gJykge1xcbic7XG4gICAgZm9yIChsZXQgaSA9IDA7IGkgPCB0aGlzLl9fdmFsdWVPdXRwdXRzLmxlbmd0aDsgaSsrKSB7XG4gICAgICBmdW5jU3RyICs9IGBcbiAgICAgIG91dFZhbHVlJHtpfSA9IHZhbHVlJHtpfTtcXG5gO1xuICAgIH1cbiAgICBmdW5jU3RyICs9ICd9JztcblxuICAgIHJldHVybiBmdW5jU3RyO1xuICB9XG5cbiAgLyoqXG4gICAqIEdlbmVyYXRlcyB0aGUgcGl4ZWwgc2hhZGVyIGZ1bmN0aW9uIGRlZmluaXRpb24uXG4gICAqIFJldHVybnMgdGhlIHNhbWUgZGVmaW5pdGlvbiBhcyB0aGUgdmVydGV4IHNoYWRlciBzaW5jZSB0aGUgbG9naWMgaXMgaWRlbnRpY2FsLlxuICAgKlxuICAgKiBAcmV0dXJucyBUaGUgR0xTTCBmdW5jdGlvbiBkZWZpbml0aW9uIHN0cmluZyBmb3IgcGl4ZWwgc2hhZGVyc1xuICAgKi9cbiAgZ2V0UGl4ZWxTaGFkZXJEZWZpbml0aW9ucyhlbmdpbmU6IEVuZ2luZSkge1xuICAgIHJldHVybiB0aGlzLmdldFZlcnRleFNoYWRlckRlZmluaXRpb25zKGVuZ2luZSk7XG4gIH1cblxuICAvKipcbiAgICogR2V0cyB0aGUgYXR0cmlidXRlIG5hbWVzIHJlcXVpcmVkIGJ5IHRoaXMgc2hhZGVyIGNvbXBvbmVudC5cbiAgICogVGhpcyBibG9jayBlbmQgc2hhZGVyIGRvZXNuJ3QgcmVxdWlyZSBhbnkgc3BlY2lmaWMgdmVydGV4IGF0dHJpYnV0ZXMuXG4gICAqXG4gICAqIEByZXR1cm5zIEFuIGVtcHR5IGFycmF5IGFzIG5vIGF0dHJpYnV0ZXMgYXJlIG5lZWRlZFxuICAgKi9cbiAgZ2V0IGF0dHJpYnV0ZU5hbWVzKCk6IEF0dHJpYnV0ZU5hbWVzIHtcbiAgICByZXR1cm4gW107XG4gIH1cblxuICAvKipcbiAgICogR2V0cyB0aGUgdmVydGV4IGF0dHJpYnV0ZSBzZW1hbnRpY3MgcmVxdWlyZWQgYnkgdGhpcyBzaGFkZXIgY29tcG9uZW50LlxuICAgKiBUaGlzIGJsb2NrIGVuZCBzaGFkZXIgZG9lc24ndCByZXF1aXJlIGFueSBzcGVjaWZpYyB2ZXJ0ZXggYXR0cmlidXRlIHNlbWFudGljcy5cbiAgICpcbiAgICogQHJldHVybnMgQW4gZW1wdHkgYXJyYXkgYXMgbm8gYXR0cmlidXRlIHNlbWFudGljcyBhcmUgbmVlZGVkXG4gICAqL1xuICBnZXQgYXR0cmlidXRlU2VtYW50aWNzKCk6IEFycmF5PFZlcnRleEF0dHJpYnV0ZUVudW0+IHtcbiAgICByZXR1cm4gW107XG4gIH1cblxuICAvKipcbiAgICogR2V0cyB0aGUgY29tcG9zaXRpb24gdHlwZXMgZm9yIHZlcnRleCBhdHRyaWJ1dGVzIHJlcXVpcmVkIGJ5IHRoaXMgc2hhZGVyIGNvbXBvbmVudC5cbiAgICogVGhpcyBibG9jayBlbmQgc2hhZGVyIGRvZXNuJ3QgcmVxdWlyZSBhbnkgc3BlY2lmaWMgYXR0cmlidXRlIGNvbXBvc2l0aW9ucy5cbiAgICpcbiAgICogQHJldHVybnMgQW4gZW1wdHkgYXJyYXkgYXMgbm8gYXR0cmlidXRlIGNvbXBvc2l0aW9ucyBhcmUgbmVlZGVkXG4gICAqL1xuICBnZXQgYXR0cmlidXRlQ29tcG9zaXRpb25zKCk6IEFycmF5PENvbXBvc2l0aW9uVHlwZUVudW0+IHtcbiAgICByZXR1cm4gW107XG4gIH1cbn1cbiJdLAogICJtYXBwaW5ncyI6ICI7QUFLQSxTQUFTLDBCQUEwQjtBQU81QixJQUFNLGlCQUFOLGNBQTZCLG1CQUFtQjtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUEsRUFRckQsWUFDVSxnQkFDQSxlQUNBLGdCQUNSO0FBQ0EsVUFBTTtBQUpFLFNBQUFBLEtBQUE7QUFDQSxTQUFBQyxLQUFBO0FBQ0EsU0FBQUMsS0FBQTtBQUFBLEVBR1Y7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQSxFQVFBLDJCQUEyQixTQUFpQjtBQUMxQyxRQUFJLFVBQVUsUUFBUSxLQUFLRixFQUFjO0FBRXpDLGFBQVMsSUFBSSxHQUFHLElBQUksS0FBS0MsR0FBYyxRQUFRLEtBQUs7QUFDbEQsWUFBTSxRQUFRLEtBQUtBLEdBQWMsQ0FBQztBQUNsQyxZQUFNLE9BQU8sTUFBTSxnQkFBZ0IsV0FBVyxNQUFNLGFBQWE7QUFDakUsaUJBQVc7QUFBQSxhQUNKLElBQUksU0FBUyxDQUFDO0FBQUEsSUFDdkI7QUFFQSxhQUFTLElBQUksR0FBRyxJQUFJLEtBQUtDLEdBQWUsUUFBUSxLQUFLO0FBQ25ELFlBQU0sU0FBUyxLQUFLQSxHQUFlLENBQUM7QUFDcEMsWUFBTSxPQUFPLE9BQU8sZ0JBQWdCLFdBQVcsT0FBTyxhQUFhO0FBQ25FLGlCQUFXO0FBQUEsY0FDSCxJQUFJLFlBQVksQ0FBQyxHQUFHLE1BQU0sS0FBS0EsR0FBZSxTQUFTLElBQUksS0FBSyxHQUFHO0FBQUEsSUFDN0U7QUFFQSxlQUFXO0FBQ1gsYUFBUyxJQUFJLEdBQUcsSUFBSSxLQUFLQSxHQUFlLFFBQVEsS0FBSztBQUNuRCxpQkFBVztBQUFBLGdCQUNELENBQUMsV0FBVyxDQUFDO0FBQUE7QUFBQSxJQUN6QjtBQUNBLGVBQVc7QUFFWCxXQUFPO0FBQUEsRUFDVDtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBLEVBUUEsMEJBQTBCLFFBQWdCO0FBQ3hDLFdBQU8sS0FBSywyQkFBMkIsTUFBTTtBQUFBLEVBQy9DO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUEsRUFRQSxJQUFJLGlCQUFpQztBQUNuQyxXQUFPLENBQUM7QUFBQSxFQUNWO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUEsRUFRQSxJQUFJLHFCQUFpRDtBQUNuRCxXQUFPLENBQUM7QUFBQSxFQUNWO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUEsRUFRQSxJQUFJLHdCQUFvRDtBQUN0RCxXQUFPLENBQUM7QUFBQSxFQUNWO0FBQ0Y7IiwKICAibmFtZXMiOiBbIl9fZnVuY3Rpb25OYW1lIiwgIl9fdmFsdWVJbnB1dHMiLCAiX192YWx1ZU91dHB1dHMiXQp9Cg==

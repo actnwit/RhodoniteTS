@@ -1,0 +1,4 @@
+// src/foundation/components/BlendShape/index.ts
+export * from "./BlendShapeComponent.js";
+export * from "./IBlendShapeEntity.js";
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vY29tcG9uZW50cy9CbGVuZFNoYXBlL2luZGV4LnRzIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJleHBvcnQgKiBmcm9tICcuL0JsZW5kU2hhcGVDb21wb25lbnQnO1xuZXhwb3J0ICogZnJvbSAnLi9JQmxlbmRTaGFwZUVudGl0eSc7XG4iXSwKICAibWFwcGluZ3MiOiAiO0FBQUEsY0FBYztBQUNkLGNBQWM7IiwKICAibmFtZXMiOiBbXQp9Cg==

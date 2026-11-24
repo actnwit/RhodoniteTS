@@ -185,6 +185,11 @@ export declare class RapierPhysicsStrategy implements PhysicsStrategy {
      */
     static initialize(rapierModule: RapierPhysicsModuleLike, worldProperty?: PhysicsWorldProperty): Promise<void>;
     /**
+     * The backend through which engine-side code reaches Rapier once it is initialized
+     * (see {@link PhysicsBackend}).
+     */
+    private static __physicsBackend;
+    /**
      * Returns true when Rapier bindings have already been injected.
      */
     static get isInitialized(): boolean;

@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgpu/shaderity_shaders/nodes/PbrAnisotropyProps.wgsl
+var code = "fn pbrAnisotropyProps(\n  anisotropyStrength: f32,\n  anisotropyRotation: vec2<f32>,\n  anisotropyTexture: vec4<f32>,\n  outAnisotropyProps: ptr<function, AnisotropyProps>) {\n#ifdef RN_USE_ANISOTROPY\n  (*outAnisotropyProps).anisotropy = anisotropyStrength * anisotropyTexture.b;\n  let direction = anisotropyTexture.rg * 2.0 - vec2<f32>(1.0);\n  (*outAnisotropyProps).direction = mat2x2<f32>(anisotropyRotation.x, anisotropyRotation.y, -anisotropyRotation.y, anisotropyRotation.x) * normalize(direction);\n#else\n  (*outAnisotropyProps).anisotropy = 0.0;\n  (*outAnisotropyProps).direction = vec2<f32>(0.0, 0.0);\n#endif // RN_USE_ANISOTROPY\n}\n";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var PbrAnisotropyProps_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  PbrAnisotropyProps_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ3B1L3NoYWRlcml0eV9zaGFkZXJzL25vZGVzL1BickFuaXNvdHJvcHlQcm9wcy53Z3NsIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJ7XCJjb2RlXCI6XCJmbiBwYnJBbmlzb3Ryb3B5UHJvcHMoXFxuICBhbmlzb3Ryb3B5U3RyZW5ndGg6IGYzMixcXG4gIGFuaXNvdHJvcHlSb3RhdGlvbjogdmVjMjxmMzI+LFxcbiAgYW5pc290cm9weVRleHR1cmU6IHZlYzQ8ZjMyPixcXG4gIG91dEFuaXNvdHJvcHlQcm9wczogcHRyPGZ1bmN0aW9uLCBBbmlzb3Ryb3B5UHJvcHM+KSB7XFxuI2lmZGVmIFJOX1VTRV9BTklTT1RST1BZXFxuICAoKm91dEFuaXNvdHJvcHlQcm9wcykuYW5pc290cm9weSA9IGFuaXNvdHJvcHlTdHJlbmd0aCAqIGFuaXNvdHJvcHlUZXh0dXJlLmI7XFxuICBsZXQgZGlyZWN0aW9uID0gYW5pc290cm9weVRleHR1cmUucmcgKiAyLjAgLSB2ZWMyPGYzMj4oMS4wKTtcXG4gICgqb3V0QW5pc290cm9weVByb3BzKS5kaXJlY3Rpb24gPSBtYXQyeDI8ZjMyPihhbmlzb3Ryb3B5Um90YXRpb24ueCwgYW5pc290cm9weVJvdGF0aW9uLnksIC1hbmlzb3Ryb3B5Um90YXRpb24ueSwgYW5pc290cm9weVJvdGF0aW9uLngpICogbm9ybWFsaXplKGRpcmVjdGlvbik7XFxuI2Vsc2VcXG4gICgqb3V0QW5pc290cm9weVByb3BzKS5hbmlzb3Ryb3B5ID0gMC4wO1xcbiAgKCpvdXRBbmlzb3Ryb3B5UHJvcHMpLmRpcmVjdGlvbiA9IHZlYzI8ZjMyPigwLjAsIDAuMCk7XFxuI2VuZGlmIC8vIFJOX1VTRV9BTklTT1RST1BZXFxufVxcblwiLFwic2hhZGVyU3RhZ2VcIjpcImZyYWdtZW50XCIsXCJpc0ZyYWdtZW50U2hhZGVyXCI6dHJ1ZX0iXSwKICAibWFwcGluZ3MiOiAiO0FBQUMsV0FBTztBQUEyb0Isa0JBQWM7QUFBVyx1QkFBbUI7QUFBL3JCLG1DQUFDLE1BQWtwQixhQUF5QixpQkFBdUI7IiwKICAibmFtZXMiOiBbXQp9Cg==

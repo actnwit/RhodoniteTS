@@ -2,7 +2,7 @@ import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import type { ShapeComponent } from '../components/Shape/ShapeComponent';
 import type { ShapeInstance } from '../geometry/Shape';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
-import { MeshHelper } from '../helpers/MeshHelper';
+import { MeshHelper } from '../helpers/MeshHelperObject';
 import { createPbrUberMaterial } from '../helpers/materials/createPbrUberMaterial';
 import type { Material } from '../materials/core/Material';
 import { Vector3 } from '../math/Vector3';

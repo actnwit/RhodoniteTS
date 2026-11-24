@@ -1,0 +1,12 @@
+// shaderity:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/src/webgl/shaderity_shaders/common/correspondenceBetweenLinearAndSrgb.glsl
+var code = "vec3 linearToSrgb(vec3 linearColor) {\n  return pow(linearColor, vec3(1.0/2.2));\n}\n\nvec3 srgbToLinear(vec3 srgbColor) {\n  return pow(srgbColor, vec3(2.2));\n}";
+var shaderStage = "fragment";
+var isFragmentShader = true;
+var correspondenceBetweenLinearAndSrgb_default = { code, shaderStage, isFragmentShader };
+export {
+  code,
+  correspondenceBetweenLinearAndSrgb_default as default,
+  isFragmentShader,
+  shaderStage
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsic2hhZGVyaXR5Oi9Vc2Vycy9lbWFkdXJhbmRhbC9naHEvZ2l0aHViLmNvbS9hY3Rud2l0L1Job2Rvbml0ZUVkaXRvcjIvc3VibW9kdWxlcy9SaG9kb25pdGVUUy9zcmMvd2ViZ2wvc2hhZGVyaXR5X3NoYWRlcnMvY29tbW9uL2NvcnJlc3BvbmRlbmNlQmV0d2VlbkxpbmVhckFuZFNyZ2IuZ2xzbCJdLAogICJzb3VyY2VzQ29udGVudCI6IFsie1wiY29kZVwiOlwidmVjMyBsaW5lYXJUb1NyZ2IodmVjMyBsaW5lYXJDb2xvcikge1xcbiAgcmV0dXJuIHBvdyhsaW5lYXJDb2xvciwgdmVjMygxLjAvMi4yKSk7XFxufVxcblxcbnZlYzMgc3JnYlRvTGluZWFyKHZlYzMgc3JnYkNvbG9yKSB7XFxuICByZXR1cm4gcG93KHNyZ2JDb2xvciwgdmVjMygyLjIpKTtcXG59XCIsXCJzaGFkZXJTdGFnZVwiOlwiZnJhZ21lbnRcIixcImlzRnJhZ21lbnRTaGFkZXJcIjp0cnVlfSJdLAogICJtYXBwaW5ncyI6ICI7QUFBQyxXQUFPO0FBQXFLLGtCQUFjO0FBQVcsdUJBQW1CO0FBQXpOLG1EQUFDLE1BQTRLLGFBQXlCLGlCQUF1QjsiLAogICJuYW1lcyI6IFtdCn0K

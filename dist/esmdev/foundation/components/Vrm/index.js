@@ -1,0 +1,4 @@
+// src/foundation/components/Vrm/index.ts
+export * from "./IVrmEntity.js";
+export * from "./VrmComponent.js";
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vLi4vLi4vLi4vLi4vc3JjL2ZvdW5kYXRpb24vY29tcG9uZW50cy9Wcm0vaW5kZXgudHMiXSwKICAic291cmNlc0NvbnRlbnQiOiBbImV4cG9ydCAqIGZyb20gJy4vSVZybUVudGl0eSc7XG5leHBvcnQgKiBmcm9tICcuL1ZybUNvbXBvbmVudCc7XG4iXSwKICAibWFwcGluZ3MiOiAiO0FBQUEsY0FBYztBQUNkLGNBQWM7IiwKICAibmFtZXMiOiBbXQp9Cg==
