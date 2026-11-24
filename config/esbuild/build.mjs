@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { rm } from 'node:fs/promises';
+import { rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build, context } from 'esbuild';
@@ -91,6 +91,28 @@ async function emitDeclarations() {
       }
     });
   });
+
+  if (target.unbundled) {
+    await writeIndexDeclaration();
+  }
+}
+
+/**
+ * Rewrites the emitted index.d.ts so that the default export is declared as the `Rn` namespace.
+ *
+ * src/index.ts creates the default export with `enableRnNamespaceDefaults(RnNamespace)`, which returns the
+ * namespace object itself; tsc declares it as a constant (`declare const Rn: typeof RnNamespace`), and a constant
+ * cannot be used in type positions such as `Rn.ISceneGraphEntity`. Declaring it as the namespace again keeps the
+ * types that applications have always used, and matches the runtime value.
+ */
+async function writeIndexDeclaration() {
+  const indexDeclaration = [
+    "import * as Rn from './import';",
+    "export * from './import';",
+    'export default Rn;',
+    '',
+  ].join('\n');
+  await writeFile(path.join(outDir, 'index.d.ts'), indexDeclaration);
 }
 
 function createDeclarationPlugin() {

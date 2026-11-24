@@ -115,6 +115,10 @@ src/xr/                 # WebXR support
   `src/foundation` is gated as `const X = typeof __RN_WEBGPU__ === 'undefined' || __RN_WEBGPU__ ? X_ : undefined;`
   (`__RN_WEBGL__` for GLSL, see `src/backendFlags.d.ts`) so applications can drop a backend with a bundler `define`.
   Never read a gated shader at module top level.
+- **Optional features stay out of the core path**: create gizmos only through `_getGizmoClass(kind)`
+  (`gizmos/GizmoRegistry.ts`; classes are registered by `registerGizmos()`). The default `Rn` export enables them
+  via `enableRnNamespaceDefaults` (bound to the default export value so webpack cannot skip it); the build rewrites
+  `dist/*/index.d.ts` so that `Rn` stays usable as a type namespace.
 - **IIFE Dev** (`dist/iifedev/rhodonite.js`): Browser-ready development bundle
 - **IIFE Prod** (`dist/iife/rhodonite.min.js`): Minified production bundle
 

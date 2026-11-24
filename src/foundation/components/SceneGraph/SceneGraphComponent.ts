@@ -8,12 +8,13 @@ import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { ShaderType } from '../../definitions/ShaderType';
 import type { RaycastResultEx2 } from '../../geometry/types/GeometryTypes';
-import { AABBGizmo } from '../../gizmos/AABBGizmo';
-import { JointGizmo } from '../../gizmos/JointGizmo';
-import { LocatorGizmo } from '../../gizmos/LocatorGizmo';
-import { RotationGizmo } from '../../gizmos/RotationGizmo';
-import { ScaleGizmo } from '../../gizmos/ScaleGizmo';
-import { TranslationGizmo } from '../../gizmos/TranslationGizmo';
+import type { AABBGizmo } from '../../gizmos/AABBGizmo';
+import { _getGizmoClass } from '../../gizmos/GizmoRegistry';
+import type { JointGizmo } from '../../gizmos/JointGizmo';
+import type { LocatorGizmo } from '../../gizmos/LocatorGizmo';
+import type { RotationGizmo } from '../../gizmos/RotationGizmo';
+import type { ScaleGizmo } from '../../gizmos/ScaleGizmo';
+import type { TranslationGizmo } from '../../gizmos/TranslationGizmo';
 import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
 import { AABB } from '../../math/AABB';
 import type { IMatrix44 } from '../../math/IMatrix';
@@ -241,7 +242,7 @@ export class SceneGraphComponent extends Component {
     if (flg) {
       this.__hasGizmos = true;
       if (Is.not.defined(this.__aabbGizmo)) {
-        this.__aabbGizmo = new AABBGizmo(this.entity.engine, this.entity);
+        this.__aabbGizmo = new (_getGizmoClass('aabb'))(this.entity.engine, this.entity);
         this.__aabbGizmo._setup();
       }
       this.__aabbGizmo.isVisible = true;
@@ -271,7 +272,7 @@ export class SceneGraphComponent extends Component {
     if (flg) {
       this.__hasGizmos = true;
       if (Is.not.defined(this.__locatorGizmo)) {
-        this.__locatorGizmo = new LocatorGizmo(this.entity.engine, this.entity);
+        this.__locatorGizmo = new (_getGizmoClass('locator'))(this.entity.engine, this.entity);
         this.__locatorGizmo._setup();
       }
       this.__locatorGizmo.isVisible = true;
@@ -301,7 +302,7 @@ export class SceneGraphComponent extends Component {
     if (flg) {
       this.__hasGizmos = true;
       if (Is.not.defined(this.__translationGizmo)) {
-        this.__translationGizmo = new TranslationGizmo(this.entity.engine, this.entity);
+        this.__translationGizmo = new (_getGizmoClass('translation'))(this.entity.engine, this.entity);
         this.__translationGizmo._setup();
       }
       this.__translationGizmo.isVisible = true;
@@ -336,7 +337,7 @@ export class SceneGraphComponent extends Component {
     if (flg) {
       this.__hasGizmos = true;
       if (Is.not.defined(this.__rotationGizmo)) {
-        this.__rotationGizmo = new RotationGizmo(this.entity.engine, this.entity);
+        this.__rotationGizmo = new (_getGizmoClass('rotation'))(this.entity.engine, this.entity);
         this.__rotationGizmo._setup();
         this.__rotationGizmo.setSpace(this.__transformGizmoSpace);
       }
@@ -370,7 +371,7 @@ export class SceneGraphComponent extends Component {
     if (flg) {
       this.__hasGizmos = true;
       if (Is.not.defined(this.__scaleGizmo)) {
-        this.__scaleGizmo = new ScaleGizmo(this.entity.engine, this.entity);
+        this.__scaleGizmo = new (_getGizmoClass('scale'))(this.entity.engine, this.entity);
         this.__scaleGizmo._setup();
       }
       this.__scaleGizmo.isVisible = true;
@@ -405,7 +406,7 @@ export class SceneGraphComponent extends Component {
     if (flg && this.isJoint()) {
       this.__hasGizmos = true;
       if (Is.not.defined(this.__jointGizmo)) {
-        this.__jointGizmo = new JointGizmo(this.entity.engine, this.entity);
+        this.__jointGizmo = new (_getGizmoClass('joint'))(this.entity.engine, this.entity);
         this.__jointGizmo._setup();
       }
       this.__jointGizmo.isVisible = true;

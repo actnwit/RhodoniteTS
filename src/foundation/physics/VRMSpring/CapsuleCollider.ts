@@ -1,5 +1,6 @@
 import type { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
-import { CapsuleColliderGizmo } from '../../gizmos/CapsuleColliderGizmo';
+import type { CapsuleColliderGizmo } from '../../gizmos/CapsuleColliderGizmo';
+import { _getGizmoClass } from '../../gizmos/GizmoRegistry';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { Vector3 } from '../../math/Vector3';
@@ -148,7 +149,7 @@ export class CapsuleCollider {
    */
   setGizmoVisible(visible: boolean): void {
     if (this.__gizmo == null) {
-      this.__gizmo = new CapsuleColliderGizmo(this.__engine, this);
+      this.__gizmo = new (_getGizmoClass('capsuleCollider'))(this.__engine, this);
       this.__gizmo._setup();
     }
     this.__gizmo.isVisible = visible;

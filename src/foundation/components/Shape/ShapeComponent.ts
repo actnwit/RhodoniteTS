@@ -9,7 +9,8 @@ import {
   type ShapeInstance,
   type ShapeLocalTransform,
 } from '../../geometry/Shape';
-import { ShapeGizmo } from '../../gizmos/ShapeGizmo';
+import { _getGizmoClass } from '../../gizmos/GizmoRegistry';
+import type { ShapeGizmo } from '../../gizmos/ShapeGizmo';
 import { Quaternion, Vector3 } from '../../math';
 import type { AABB } from '../../math/AABB';
 import type { IVector3 } from '../../math/IVector';
@@ -189,7 +190,7 @@ export class ShapeComponent extends Component {
 
   set isShapeGizmoVisible(visible: boolean) {
     if (visible && this.__shapeGizmo == null) {
-      this.__shapeGizmo = new ShapeGizmo(this.__engine, this);
+      this.__shapeGizmo = new (_getGizmoClass('shape'))(this.__engine, this);
       this.__shapeGizmo._setup();
     }
     if (this.__shapeGizmo != null) {

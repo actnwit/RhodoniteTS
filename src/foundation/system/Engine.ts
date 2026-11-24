@@ -51,11 +51,7 @@ import { _cleanupWebGLStatesCacheForEngine } from '../../webgl/WebGLStrategyComm
 import type { WebARSystem } from '../../xr/WebARSystem';
 import type { WebXRSystem } from '../../xr/WebXRSystem';
 import { RnObject } from '../core/RnObject';
-import { AABBGizmo } from '../gizmos/AABBGizmo';
-import { LocatorGizmo } from '../gizmos/LocatorGizmo';
-import { RotationGizmo } from '../gizmos/RotationGizmo';
-import { ScaleGizmo } from '../gizmos/ScaleGizmo';
-import { TranslationGizmo } from '../gizmos/TranslationGizmo';
+import { _cleanupGizmosForEngine } from '../gizmos/GizmoRegistry';
 import { _cleanupRenderPassHelperForEngine } from '../helpers/RenderPassHelper';
 import { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
 import { MaterialRepository } from '../materials/core/MaterialRepository';
@@ -271,11 +267,7 @@ export class Engine extends RnObject {
     _getPhysicsBackend()?.cleanupForEngine(this);
 
     // Clean up gizmo resources that are managed per-Engine
-    TranslationGizmo._cleanupForEngine(this);
-    ScaleGizmo._cleanupForEngine(this);
-    RotationGizmo._cleanupForEngine(this);
-    AABBGizmo._cleanupForEngine(this);
-    LocatorGizmo._cleanupForEngine(this);
+    _cleanupGizmosForEngine(this);
 
     // Clean up material content caches for this engine
     AbstractMaterialContent._cleanupForEngine(this);

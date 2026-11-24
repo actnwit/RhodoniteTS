@@ -8,7 +8,8 @@ import { CompositionType } from '../../definitions/CompositionType';
 import { LightType, type LightTypeEnum } from '../../definitions/LightType';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { ShaderType } from '../../definitions/ShaderType';
-import { LightGizmo } from '../../gizmos/LightGizmo';
+import { _getGizmoClass } from '../../gizmos/GizmoRegistry';
+import type { LightGizmo } from '../../gizmos/LightGizmo';
 import type { ILightEntity } from '../../helpers/EntityHelper';
 import { MutableVector3 } from '../../math';
 import { MutableVector4 } from '../../math/MutableVector4';
@@ -505,7 +506,7 @@ export class LightComponent extends Component {
   set isLightGizmoVisible(flg: boolean) {
     if (flg) {
       if (Is.not.defined(this.__lightGizmo)) {
-        this.__lightGizmo = new LightGizmo(this.entity.engine, this.entity);
+        this.__lightGizmo = new (_getGizmoClass('light'))(this.entity.engine, this.entity);
         this.__lightGizmo._setup();
       }
       this.__lightGizmo.isVisible = true;

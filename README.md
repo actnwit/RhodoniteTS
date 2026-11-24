@@ -197,6 +197,17 @@ export default {
 `esbuild` takes the same `define` option, and webpack takes `new webpack.DefinePlugin({ __RN_WEBGPU__: 'false' })`.
 `Engine.init` throws when the requested process approach was excluded this way.
 
+With named imports, gizmos are enabled explicitly (the default `Rn` export enables them automatically):
+
+```typescript
+import { registerGizmos } from 'rhodonite';
+
+// Gizmos (isTranslationGizmoVisible, isLightGizmoVisible, isShapeGizmoVisible, ...)
+registerGizmos();
+```
+
+Without it, showing a gizmo throws an error that says what to call.
+
 Component classes are registered when they are first added to an entity, not when the library is imported.
 `EntityRepository.tryToAddComponentToEntityByTID()` only finds the core component classes (Transform, SceneGraph,
 Mesh, MeshRenderer, Camera, CameraController, Light, Animation) and the classes added before; pass the class to

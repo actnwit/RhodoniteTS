@@ -1,5 +1,6 @@
 import type { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
-import { SphereColliderGizmo } from '../../gizmos/SphereColliderGizmo';
+import { _getGizmoClass } from '../../gizmos/GizmoRegistry';
+import type { SphereColliderGizmo } from '../../gizmos/SphereColliderGizmo';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
@@ -120,7 +121,7 @@ export class SphereCollider {
    */
   setGizmoVisible(visible: boolean): void {
     if (this.__gizmo == null) {
-      this.__gizmo = new SphereColliderGizmo(this.__engine, this);
+      this.__gizmo = new (_getGizmoClass('sphereCollider'))(this.__engine, this);
       this.__gizmo._setup();
     }
     this.__gizmo.isVisible = visible;
