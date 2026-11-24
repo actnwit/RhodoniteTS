@@ -40,7 +40,11 @@ async function createLocalPackage() {
     JSON.stringify({
       name: 'rhodonite',
       type: 'module',
-      exports: { '.': './dist/esmdev/index.js', './dist/*': './dist/*' },
+      exports: {
+        '.': './dist/esmdev/index.js',
+        './optional-materials': './dist/esmdev/foundation/helpers/materials/optionalMaterials.js',
+        './dist/*': './dist/*',
+      },
       sideEffects: ['./dist/esmdev/_deps/chunk-*.js'],
     })
   );
@@ -55,6 +59,8 @@ async function createLocalPackage() {
 const entries = [
   { entry: 'main.ts', outDir: 'bundle' },
   { entry: 'mainGltf.ts', outDir: 'bundle-gltf' },
+  { entry: 'mainPbr.ts', outDir: 'bundle-pbr' },
+  { entry: 'mainOptional.ts', outDir: 'bundle-optional' },
 ];
 
 const disposeLocalPackage = await createLocalPackage();

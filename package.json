@@ -18,6 +18,10 @@
       "types": "./dist/esm/index.d.ts",
       "default": "./dist/esm/index.js"
     },
+    "./optional-materials": {
+      "types": "./dist/esm/foundation/helpers/materials/optionalMaterials.d.ts",
+      "default": "./dist/esm/foundation/helpers/materials/optionalMaterials.js"
+    },
     "./dist/*": "./dist/*",
     "./vendor/*": "./vendor/*",
     "./package.json": "./package.json"

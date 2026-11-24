@@ -8,7 +8,8 @@
     "rootDir": "..",
     // The TreeShaking sample imports the package by name (bundled by scripts/build-tree-shaking-sample.mjs).
     "paths": {
-      "rhodonite": ["./../dist/esmdev/index.d.ts"]
+      "rhodonite": ["./../dist/esmdev/index.d.ts"],
+      "rhodonite/optional-materials": ["./../dist/esmdev/foundation/helpers/materials/optionalMaterials.d.ts"]
     },
     "declaration": false,
     "declarationDir": null,

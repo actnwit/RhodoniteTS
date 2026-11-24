@@ -5,8 +5,11 @@ const setURL = 'http://localhost:8082/samples/test_e2e/TreeShaking';
 
 // esbuild's metafile of the sample bundle, written by scripts/build-tree-shaking-sample.mjs (pnpm build-samples).
 const readMetafile = () => JSON.parse(readFileSync('./samples/test_e2e/TreeShaking/bundle/meta.json', 'utf8'));
-// The glTF/PBR scenario is bundled too, but the page never loads it: only its metafile is inspected.
+// The other scenarios are bundled too, but the page never loads them: only their metafiles are inspected.
 const readGltfMetafile = () => JSON.parse(readFileSync('./samples/test_e2e/TreeShaking/bundle-gltf/meta.json', 'utf8'));
+const readPbrMetafile = () => JSON.parse(readFileSync('./samples/test_e2e/TreeShaking/bundle-pbr/meta.json', 'utf8'));
+const readOptionalMetafile = () =>
+  JSON.parse(readFileSync('./samples/test_e2e/TreeShaking/bundle-optional/meta.json', 'utf8'));
 
 /**
  * The source modules that the entry chunk and its static imports contain, i.e. what loads before the sample runs.
@@ -98,6 +101,37 @@ test('TreeShaking glTF bundle keeps optional material implementations lazy', () 
   const allInputs = new Set(Object.values(metafile.outputs).flatMap(output => Object.keys(output.inputs)));
   expect([...allInputs].some(path => path.endsWith('/createNodeBasedCustomMaterial.js'))).toBe(true);
   expect([...allInputs].some(path => path.endsWith('/createMToon1Material.js'))).toBe(true);
+});
+
+test('TreeShaking PBR bundle does not include optional material implementations', () => {
+  const metafile = readPbrMetafile();
+  const modules = staticallyLoadedModules(metafile, 'samples/test_e2e/TreeShaking/mainPbr.ts');
+
+  // The PBR material factory and its shader are the only material implementation this application uses.
+  expect(modules.some(path => path.endsWith('/helpers/materials/createPbrUberMaterial.js'))).toBe(true);
+  expect(modules.some(path => path.endsWith('/webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag.js'))).toBe(
+    true
+  );
+
+  const unexpected = modules.filter(
+    path =>
+      // Node-based materials pull the shader graph resolver and every shader node class.
+      path.endsWith('/helpers/materials/createNodeBasedCustomMaterial.js') ||
+      path.endsWith('/materials/core/ShaderGraphResolver.js') ||
+      /\/materials\/nodes\//.test(path) ||
+      // MToon is used only by VRM models.
+      /\/helpers\/materials\/createMToon(0x|1)Material\.js$/.test(path) ||
+      /\/materials\/contents\/MToon(0x|1)MaterialContent\.js$/.test(path)
+  );
+  expect(unexpected).toEqual([]);
+});
+
+test('TreeShaking optional-materials subpath provides the optional factories', () => {
+  const metafile = readOptionalMetafile();
+  const modules = staticallyLoadedModules(metafile, 'samples/test_e2e/TreeShaking/mainOptional.ts');
+
+  expect(modules.some(path => path.endsWith('/helpers/materials/createMToon1Material.js'))).toBe(true);
+  expect(modules.some(path => path.endsWith('/materials/contents/MToon1MaterialContent.js'))).toBe(true);
 });
 
 test('TreeShaking sample does not download the PBR sheen LUT at runtime', async () => {
