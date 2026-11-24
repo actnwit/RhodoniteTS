@@ -152,6 +152,139 @@ export class RaymarchingComponent extends Component {
     },
   };
 
+  private __sdTorusNodeJson = {
+    id: '395df09a261a97eb',
+    name: 'SdTorus',
+    outputs: {
+      outDistance: {
+        id: 'ad50a972a9417d0a',
+        label: 'Out Distance',
+        socket: {
+          name: 'Scalar<float>',
+        },
+      },
+    },
+    inputs: {
+      position: {
+        id: '37692daa15c2d683',
+        label: 'Position',
+        socket: {
+          name: 'Vector3<float>',
+        },
+      },
+      radius: {
+        id: '7a2e51b1667d273d',
+        label: 'Radius',
+        socket: {
+          name: 'Scalar<float>',
+        },
+      },
+      tubeRadius: {
+        id: '8f3c2a6d4b1e9075',
+        label: 'Tube Radius',
+        socket: {
+          name: 'Scalar<float>',
+        },
+      },
+    },
+    controls: {},
+    position: {
+      x: -0.352127266212392,
+      y: -235.13699920478643,
+    },
+  };
+
+  private __sdCapsuleNodeJson = {
+    id: '395df09a261a97eb',
+    name: 'SdCapsule',
+    outputs: {
+      outDistance: {
+        id: 'ad50a972a9417d0a',
+        label: 'Out Distance',
+        socket: {
+          name: 'Scalar<float>',
+        },
+      },
+    },
+    inputs: {
+      position: {
+        id: '37692daa15c2d683',
+        label: 'Position',
+        socket: {
+          name: 'Vector3<float>',
+        },
+      },
+      pointA: {
+        id: '4c7e1d9a3b6f2508',
+        label: 'Point A',
+        socket: {
+          name: 'Vector3<float>',
+        },
+      },
+      pointB: {
+        id: 'a1b5c9e3d7f20486',
+        label: 'Point B',
+        socket: {
+          name: 'Vector3<float>',
+        },
+      },
+      radius: {
+        id: '7a2e51b1667d273d',
+        label: 'Radius',
+        socket: {
+          name: 'Scalar<float>',
+        },
+      },
+    },
+    controls: {},
+    position: {
+      x: -0.352127266212392,
+      y: -235.13699920478643,
+    },
+  };
+
+  private __sdRoundBoxNodeJson = {
+    id: '395df09a261a97eb',
+    name: 'SdRoundBox',
+    outputs: {
+      outDistance: {
+        id: 'ad50a972a9417d0a',
+        label: 'Out Distance',
+        socket: {
+          name: 'Scalar<float>',
+        },
+      },
+    },
+    inputs: {
+      position: {
+        id: '37692daa15c2d683',
+        label: 'Position',
+        socket: {
+          name: 'Vector3<float>',
+        },
+      },
+      size: {
+        id: 'e2f7a9c4b1d63508',
+        label: 'Size',
+        socket: {
+          name: 'Vector3<float>',
+        },
+      },
+      radius: {
+        id: '6d2b8f4a1c9e7530',
+        label: 'Radius',
+        socket: {
+          name: 'Scalar<float>',
+        },
+      },
+    },
+    controls: {},
+    position: {
+      x: -0.352127266212392,
+      y: -235.13699920478643,
+    },
+  };
+
   private __rrnJsonTemplate: NodeJSON = {
     nodes: [
       {
@@ -345,16 +478,32 @@ export class RaymarchingComponent extends Component {
     this.__sdfShapeType = sdfShapeType;
     this.invalidateAABB();
 
-    if (sdfShapeType === SdfShapeType.Sphere) {
-      const rrnJson = JSON.parse(JSON.stringify(this.__rrnJsonTemplate));
-      rrnJson.nodes[1] = JSON.parse(JSON.stringify(this.__sdSphereNodeJson));
-      this.__rrnJson = rrnJson;
-    } else if (sdfShapeType === SdfShapeType.Box) {
-      const rrnJson = JSON.parse(JSON.stringify(this.__rrnJsonTemplate));
-      rrnJson.nodes[1] = JSON.parse(JSON.stringify(this.__sdBoxNodeJson));
-      this.__rrnJson = rrnJson;
-    } else {
-      this.__rrnJson = JSON.parse(JSON.stringify(this.__rrnJsonTemplate));
+    const rrnJson = JSON.parse(JSON.stringify(this.__rrnJsonTemplate));
+    const presetNodeJson = this.__getPresetSdfNodeJson(sdfShapeType);
+    if (presetNodeJson != null) {
+      rrnJson.nodes[1] = JSON.parse(JSON.stringify(presetNodeJson));
+    }
+    this.__rrnJson = rrnJson;
+  }
+
+  /**
+   * Returns the preset SDF node JSON that replaces the template's placeholder node.
+   * Custom (a graph authored in the node editor) has no preset node.
+   */
+  private __getPresetSdfNodeJson(sdfShapeType: SdfShapeTypeEnum) {
+    switch (sdfShapeType) {
+      case SdfShapeType.Sphere:
+        return this.__sdSphereNodeJson;
+      case SdfShapeType.Box:
+        return this.__sdBoxNodeJson;
+      case SdfShapeType.Torus:
+        return this.__sdTorusNodeJson;
+      case SdfShapeType.Capsule:
+        return this.__sdCapsuleNodeJson;
+      case SdfShapeType.RoundBox:
+        return this.__sdRoundBoxNodeJson;
+      default:
+        return undefined;
     }
   }
 

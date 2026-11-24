@@ -107,7 +107,11 @@ async function importGltfJson(gltfModel: RnM2) {
  * A stand-in for the shared raymarching material. The exporter only needs the field list and the
  * texture parameters, so the texture is represented by a canvas whose toBlob returns a tiny PNG.
  */
-function createMockRaymarchingMaterial(): Material {
+function createMockRaymarchingMaterial(
+  semantic = 'u_testTexture',
+  textureName = 'TestTexture',
+  textureUID = 42
+): Material {
   const pngBytes = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
   const fakeCanvas = {
     toBlob(callback: (blob: Blob | null) => void) {
@@ -121,8 +125,8 @@ function createMockRaymarchingMaterial(): Material {
     wrapT: { index: 10497 },
   };
   const fakeTexture = {
-    textureUID: 42,
-    name: 'TestTexture',
+    textureUID,
+    name: textureName,
     isTextureReady: true,
     isDummyTexture: false,
     width: 1,
@@ -131,11 +135,11 @@ function createMockRaymarchingMaterial(): Material {
   };
   return {
     shaderNodeJson: {
-      nodes: [{ name: 'Texture2D', controls: { name: { value: 'u_testTexture' } } }],
+      nodes: [{ name: 'Texture2D', controls: { name: { value: semantic } } }],
       connections: [],
     },
     fieldsInfoArray: [
-      { semantic: 'u_testTexture', compositionType: CompositionType.Texture2D },
+      { semantic, compositionType: CompositionType.Texture2D },
       { semantic: 'diffuseEnvTexture', compositionType: CompositionType.Texture2D },
       { semantic: 'sheenLutTexture', compositionType: CompositionType.Texture2D },
       { semantic: 'depthTexture', compositionType: CompositionType.Texture2DArray },
@@ -303,4 +307,59 @@ test('postfixes uniform names per component so shared graphs can differ', async 
   const result = MaterialHelper.createNodeBasedRaymarchingCustomMaterial(engine, collected as any);
   expect(result).toBeDefined();
   expect(result!.material._allFieldsInfo.has(`objectColor_${componentSID}` as any)).toBe(true);
+});
+
+test('exports per-component raymarching material textures on each node', async () => {
+  const exportEngine = await createExportEngine();
+  const entityA = createRaymarchingEntity(exportEngine);
+  entityA.getRaymarching().rrnJson = createSphereGraph();
+  entityA.tryToSetUniqueName('SDF A', true);
+  const entityB = createRaymarchingEntity(exportEngine);
+  entityB.getRaymarching().rrnJson = createSphereGraph();
+  entityB.tryToSetUniqueName('SDF B', true);
+
+  const buffer = await Gltf2Exporter.export(exportEngine, 'RaymarchingPerComponentExport', {
+    entities: [entityA, entityB],
+    type: GLTF2_EXPORT_NO_DOWNLOAD,
+    raymarchingComponentMaterials: [
+      { entity: entityA, material: createMockRaymarchingMaterial('u_textureA', 'TextureA', 101) },
+      { entity: entityB, material: createMockRaymarchingMaterial('u_textureB', 'TextureB', 102) },
+    ],
+  });
+  const json = parseGlbJson(buffer);
+
+  // The textures travel on each component's node extension, not on the root extension.
+  expect(json.extensions?.RHODONITE_raymarching_materials).toBeUndefined();
+  expect(json.nodes[0].extensions.RHODONITE_raymarching.textures).toEqual({ u_textureA: { index: 0 } });
+  expect(json.nodes[1].extensions.RHODONITE_raymarching.textures).toEqual({ u_textureB: { index: 1 } });
+  expect(json.textures).toHaveLength(2);
+  expect(json.images.map((image: any) => image.name)).toEqual(['TextureA', 'TextureB']);
+});
+
+test('parses per-component raymarching texture assignments from node extensions', () => {
+  const gltfModel = {
+    asset: { version: '2.0', extras: {} },
+    nodes: [
+      { extensions: { RHODONITE_raymarching: { textures: { u_a: { index: 0 } } } } },
+      { extensions: { RHODONITE_raymarching: { textures: { u_b: { index: 1 }, u_missing: { index: 9 } } } } },
+      {},
+    ],
+    images: [
+      { bufferView: 0, mimeType: 'image/png' },
+      { bufferView: 1, mimeType: 'image/png' },
+    ],
+    textures: [
+      { sampler: 1, source: 0 },
+      { sampler: 0, source: 1 },
+    ],
+    samplers: [{}, {}],
+  } as unknown as RnM2;
+
+  expect(ModelConverter.getRaymarchingComponentTextureAssignments(gltfModel)).toEqual([
+    { nodeIndex: 0, semantic: 'u_a', textureIndex: 0, samplerIndex: 1 },
+    { nodeIndex: 1, semantic: 'u_b', textureIndex: 1, samplerIndex: 0 },
+  ]);
+  expect(
+    ModelConverter.getRaymarchingComponentTextureAssignments({ asset: { version: '2.0' } } as unknown as RnM2)
+  ).toEqual([]);
 });

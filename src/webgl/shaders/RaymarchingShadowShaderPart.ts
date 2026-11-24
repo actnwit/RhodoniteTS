@@ -63,6 +63,7 @@ export class RaymarchingShadowShaderPart extends RaymarchingShaderPart {
 }
 void main() {
   uint cameraSID = uint(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */]);
+  ${this.getMaterialSIDForWebGL()}
   mat4 viewMatrix = get_viewMatrix(cameraSID);
   mat4 projectionMatrix = get_projectionMatrix(cameraSID);
   mat4 invViewMatrix = inverse(viewMatrix);
@@ -79,12 +80,34 @@ void main() {
   vec3 rd = normalize((invViewMatrix * vec4(farPoint.xyz - nearPoint.xyz, 0.0)).xyz);
   float maxDist = length(farWorld - ro);
 
+  // Skip rays that miss the conservative world AABB of the SDF (supplied per
+  // component or per merged graph by the pipeline). Rays that intersect it keep the
+  // legacy march from the origin, so the sampled surface and its depth moments match
+  // the references; only misses are cut short.
+  float aabbTEnter;
+  float aabbTExit;
+  bool aabbHits = rnRayAabbInterval(
+    ro,
+    rd,
+    get_raymarchAabbMin(materialSID, 0u),
+    get_raymarchAabbMax(materialSID, 0u),
+    aabbTEnter,
+    aabbTExit
+  );
+  if (!aabbHits) {
+    discard;
+  }
+
   float h = 1.0;
   float t = 0.0;
   for (int i = 0; i < 256; i++) {
     h = map(ro + rd * t);
     t += h;
     if (h < 0.01 || t > maxDist) {
+      break;
+    }
+    if (t > aabbTExit) {
+      h = 1.0;
       break;
     }
   }
@@ -130,12 +153,30 @@ fn main(input: VertexOutput) -> FragmentOutput {
   let rd = normalize((invViewMatrix * vec4f(farPoint.xyz - nearPoint.xyz, 0.0)).xyz);
   let maxDist = length(farWorld - ro);
 
+  // Skip rays that miss the conservative world AABB of the SDF (supplied per
+  // component or per merged graph by the pipeline). Rays that intersect it keep the
+  // legacy march from the origin, so the sampled surface and its depth moments match
+  // the references; only misses are cut short.
+  let aabbInterval = rnRayAabbInterval(
+    ro,
+    rd,
+    get_raymarchAabbMin(uniformDrawParameters.materialSid, 0u),
+    get_raymarchAabbMax(uniformDrawParameters.materialSid, 0u)
+  );
+  if (!aabbInterval.hits) {
+    discard;
+  }
+
   var h = 1.0;
   var t = 0.0;
   for (var i = 0; i < 256; i++) {
     h = map(ro + rd * t);
     t += h;
     if (h < 0.01 || t > maxDist) {
+      break;
+    }
+    if (t > aabbInterval.tExit) {
+      h = 1.0;
       break;
     }
   }
@@ -181,12 +222,33 @@ void main() {
   vec3 ro = get_lightPosition(uint(lightIndex));
   float farPlane = get_shadowFarPlane(materialSID, 0u);
 
+  // Skip rays that miss the conservative world AABB of the SDF. Rays that intersect
+  // it keep the legacy march from the light position, so the sampled surface and its
+  // moments match the references; only misses are cut short.
+  float aabbTEnter;
+  float aabbTExit;
+  bool aabbHits = rnRayAabbInterval(
+    ro,
+    rd,
+    get_raymarchAabbMin(materialSID, 0u),
+    get_raymarchAabbMax(materialSID, 0u),
+    aabbTEnter,
+    aabbTExit
+  );
+  if (!aabbHits) {
+    discard;
+  }
+
   float h = 1.0;
   float t = 0.0;
   for (int i = 0; i < 256; i++) {
     h = map(ro + rd * t);
     t += h;
     if (h < 0.01 || t > farPlane) {
+      break;
+    }
+    if (t > aabbTExit) {
+      h = 1.0;
       break;
     }
   }
@@ -235,12 +297,29 @@ fn main(input: VertexOutput) -> FragmentOutput {
   let ro = get_lightPosition(u32(lightIndex));
   let farPlane = get_shadowFarPlane(materialSID, 0u);
 
+  // Skip rays that miss the conservative world AABB of the SDF. Rays that intersect
+  // it keep the legacy march from the light position, so the sampled surface and its
+  // moments match the references; only misses are cut short.
+  let aabbInterval = rnRayAabbInterval(
+    ro,
+    rd,
+    get_raymarchAabbMin(uniformDrawParameters.materialSid, 0u),
+    get_raymarchAabbMax(uniformDrawParameters.materialSid, 0u)
+  );
+  if (!aabbInterval.hits) {
+    discard;
+  }
+
   var h = 1.0;
   var t = 0.0;
   for (var i = 0; i < 256; i++) {
     h = map(ro + rd * t);
     t += h;
     if (h < 0.01 || t > farPlane) {
+      break;
+    }
+    if (t > aabbInterval.tExit) {
+      h = 1.0;
       break;
     }
   }

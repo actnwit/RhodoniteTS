@@ -561,3 +561,53 @@ test('links an SdApplyTransform scale global to the raymarching terminal that us
   // The global is declared (and initialized) at shader scope before its function.
   expect(pixelShader).toMatch(/float g_sdApplyTransformScale_\d+ = 1\.0;/);
 });
+
+test('march the distance field inside the component AABB', async () => {
+  const engine = await Engine.init({
+    approach: ProcessApproach.None,
+    canvas: document.createElement('canvas'),
+  });
+
+  const graph = {
+    nodes: [
+      {
+        id: 'init',
+        name: 'InitialPosition',
+        outputs: { outPosition: { id: 'init_out', label: 'OutPosition', socket: { name: 'Vector3<float>' } } },
+        inputs: {},
+        controls: {},
+        position: { x: 0, y: 0 },
+      },
+      {
+        id: 'box',
+        name: 'SdBox',
+        outputs: { outDistance: { id: 'box_dist', label: 'OutDistance', socket: { name: 'Scalar<float>' } } },
+        inputs: { position: { id: 'box_pos', label: 'Position', socket: { name: 'Vector3<float>' } } },
+        controls: {},
+        position: { x: 0, y: 0 },
+      },
+      {
+        id: 'out',
+        name: 'OutUnion',
+        outputs: {},
+        inputs: { in1: { id: 'out_in', label: 'InScalar<float>', socket: { name: 'Scalar<float>' } } },
+        controls: {},
+        position: { x: 0, y: 0 },
+      },
+    ],
+    connections: [
+      { id: 'c1', from: { id: 'init', portName: 'outPosition' }, to: { id: 'box', portName: 'position' } },
+      { id: 'c2', from: { id: 'box', portName: 'outDistance' }, to: { id: 'out', portName: 'in1' } },
+    ],
+  };
+
+  const code = ShaderGraphResolver.generateShaderCodeFromJson(engine, graph as any, new RaymarchingShaderPart());
+  expect(code).toBeDefined();
+  const pixelShader = code!.pixelShader;
+
+  // The march is clipped to the world AABB the pipeline supplies per component.
+  expect(pixelShader).toContain('rnRayAabbInterval(');
+  expect(pixelShader).toContain('get_raymarchAabbMin(');
+  expect(pixelShader).toContain('get_raymarchAabbMax(');
+  expect(pixelShader).toContain('aabbHits');
+});

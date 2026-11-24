@@ -17,8 +17,11 @@ const Sphere: SdfShapeTypeEnum = new SdfShapeTypeClass({
   str: 'Sphere',
 });
 const Box: SdfShapeTypeEnum = new SdfShapeTypeClass({ index: 2, str: 'Box' });
+const Torus: SdfShapeTypeEnum = new SdfShapeTypeClass({ index: 3, str: 'Torus' });
+const Capsule: SdfShapeTypeEnum = new SdfShapeTypeClass({ index: 4, str: 'Capsule' });
+const RoundBox: SdfShapeTypeEnum = new SdfShapeTypeClass({ index: 5, str: 'RoundBox' });
 
-const typeList = [Custom, Sphere, Box];
+const typeList = [Custom, Sphere, Box, Torus, Capsule, RoundBox];
 
 function from(index: number): SdfShapeTypeEnum {
   return _from({ typeList, index }) as SdfShapeTypeEnum;
@@ -32,6 +35,9 @@ export const SdfShapeType = Object.freeze({
   Custom,
   Sphere,
   Box,
+  Torus,
+  Capsule,
+  RoundBox,
   from,
   fromString,
 });

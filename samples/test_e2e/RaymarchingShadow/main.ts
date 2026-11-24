@@ -71,14 +71,12 @@ cameraEntity.localPosition = Rn.Vector3.fromCopy3(0, 1.5, 8);
 cameraEntity.localEulerAngles = Rn.Vector3.fromCopy3(-10.6 * (Math.PI / 180), 0, 0);
 
 // Raymarching material (fixed PBR fallback, includes shadow mapping)
-const result = Rn.MaterialHelper.createNodeBasedRaymarchingCustomMaterial(
-  engine,
-  Rn.MaterialHelper.collectRrnJson(engine) as unknown as Rn.ShaderNodeJson
-);
+const raymarchingComponent = sphereEntity.getRaymarching();
+const result = Rn.MaterialHelper.createNodeBasedRaymarchingComponentMaterial(engine, raymarchingComponent);
 if (!result) {
-  throw new Error('Failed to create node-based raymarching custom material');
+  throw new Error('Failed to create node-based raymarching component material');
 }
-forwardRenderPipeline.setRaymarchingMaterial(result.material);
+forwardRenderPipeline.setRaymarchingComponentMaterial(raymarchingComponent, result.material);
 
 // Main expression with the shadow caster
 const casterExpression = new Rn.Expression();

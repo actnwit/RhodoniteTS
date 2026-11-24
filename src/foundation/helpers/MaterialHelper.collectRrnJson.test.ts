@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
 import { createRaymarchingEntity } from '../components/Raymarching/createRaymarchingEntity';
+import { CompositionType } from '../definitions/CompositionType';
 import { ProcessApproach } from '../definitions/ProcessApproach';
 import { SdfShapeType } from '../definitions/SdfShapeType';
 import { Engine } from '../system/Engine';
@@ -85,4 +86,113 @@ test('collectRrnJson passes the component world matrix to the SDF terminals for 
   // The component's authored graph is not modified by the merged copy.
   const authoredUnion = raymarchingComponent.rrnJson.nodes.find(node => node.name === 'OutUnion');
   expect(authoredUnion?.controls?.distanceCorrectionMatrices).toBeUndefined();
+});
+
+test('creates a per-component raymarching material with its own world matrix semantic', async () => {
+  const engine = await Engine.init({
+    approach: ProcessApproach.None,
+    canvas: document.createElement('canvas'),
+  });
+  const entity = createRaymarchingEntity(engine);
+  const raymarchingComponent = entity.getRaymarching();
+  raymarchingComponent.sdfShapeType = SdfShapeType.Box;
+
+  const result = MaterialHelper.createNodeBasedRaymarchingComponentMaterial(engine, raymarchingComponent);
+  expect(result).toBeDefined();
+  const material = result!.material;
+
+  // The component's graph is cloned and normalized for its own material: the world
+  // matrix is one fixed semantic, and the distance terminals read it for correction.
+  const graph = material.shaderNodeJson as any;
+  const worldMatrixNode = graph.nodes.find((node: any) => node.name === 'SdApplyWorldMatrix');
+  expect(worldMatrixNode.controls.name.value).toBe('raymarchingWorldMatrix');
+  const terminal = graph.nodes.find((node: any) => node.name === 'OutUnion');
+  expect(terminal.controls.distanceCorrectionMatrices.value).toEqual(['raymarchingWorldMatrix']);
+
+  const semantics = material.fieldsInfoArray.map(info => info.semantic);
+  expect(semantics).toContain('raymarchingWorldMatrix');
+  expect(semantics).toContain('raymarchAabbMin');
+  expect(semantics).toContain('raymarchAabbMax');
+
+  // The authored graph is not mutated by the material preparation.
+  const authoredWorldMatrixNode = raymarchingComponent.rrnJson.nodes.find(node => node.name === 'SdApplyWorldMatrix');
+  expect(authoredWorldMatrixNode?.controls?.name?.value).toBe(`worldMatrix_${raymarchingComponent.componentSID}`);
+});
+
+test('creates per-component SDF shadow caster materials with the normalized world matrix', async () => {
+  const engine = await Engine.init({
+    approach: ProcessApproach.None,
+    canvas: document.createElement('canvas'),
+  });
+  const entity = createRaymarchingEntity(engine);
+  const raymarchingComponent = entity.getRaymarching();
+  raymarchingComponent.sdfShapeType = SdfShapeType.Box;
+
+  const regular = MaterialHelper.createNodeBasedRaymarchingComponentShadowMaterial(
+    engine,
+    raymarchingComponent,
+    'regular'
+  );
+  expect(regular).toBeDefined();
+  const regularSemantics = regular!.fieldsInfoArray.map(info => info.semantic);
+  expect(regularSemantics).toContain('raymarchingWorldMatrix');
+  // The caster march is clipped to the world AABB of the SDF.
+  expect(regularSemantics).toContain('raymarchAabbMin');
+  expect(regularSemantics).toContain('raymarchAabbMax');
+  const graph = regular!.shaderNodeJson as any;
+  const terminal = graph.nodes.find((node: any) => node.name === 'OutUnion');
+  expect(terminal.controls.distanceCorrectionMatrices.value).toEqual(['raymarchingWorldMatrix']);
+
+  // Point light casters need the per-slot light index and far plane parameters.
+  const paraboloid = MaterialHelper.createNodeBasedRaymarchingComponentShadowMaterial(
+    engine,
+    raymarchingComponent,
+    'paraboloidFront'
+  );
+  expect(paraboloid).toBeDefined();
+  const paraboloidSemantics = paraboloid!.fieldsInfoArray.map(info => info.semantic);
+  expect(paraboloidSemantics).toContain('lightIndex');
+  expect(paraboloidSemantics).toContain('shadowFarPlane');
+});
+
+test('declares Uniform node semantics on a per-component raymarching material', async () => {
+  const engine = await Engine.init({
+    approach: ProcessApproach.None,
+    canvas: document.createElement('canvas'),
+  });
+  const entity = createRaymarchingEntity(engine);
+  const raymarchingComponent = entity.getRaymarching();
+  raymarchingComponent.sdfShapeType = SdfShapeType.Box;
+
+  // Connect a UniformVector3Float to the box size, like the editor's uniform controls.
+  const json = JSON.parse(JSON.stringify(raymarchingComponent.rrnJson));
+  const boxNode = json.nodes.find((node: any) => node.name === 'SdBox');
+  json.nodes.push({
+    id: 'size_uniform',
+    name: 'UniformVector3Float',
+    outputs: { out1: { id: 'size_uniform_out', label: 'Out', socket: { name: 'Vector3<float>' } } },
+    inputs: {},
+    controls: {
+      name: { value: 'sizeUniform' },
+      initialX: { value: 1 },
+      initialY: { value: 0.5 },
+      initialZ: { value: 2 },
+    },
+    position: { x: 0, y: 0 },
+  });
+  json.connections.push({
+    id: 'size_uniform_connection',
+    from: { id: 'size_uniform', portName: 'out1' },
+    to: { id: boxNode.id, portName: 'size' },
+  });
+  raymarchingComponent.rrnJson = json;
+
+  const result = MaterialHelper.createNodeBasedRaymarchingComponentMaterial(engine, raymarchingComponent);
+  expect(result).toBeDefined();
+  const material = result!.material;
+  const info = material.fieldsInfoArray.find(fieldInfo => fieldInfo.semantic === 'sizeUniform');
+  expect(info).toBeDefined();
+  expect(info!.compositionType).toBe(CompositionType.Vec3);
+  const code: string = (material as any)._materialContent.pixelShaderityObject.code;
+  expect(code).toContain('get_sizeUniform(');
 });

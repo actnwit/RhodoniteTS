@@ -19,6 +19,19 @@ import type { FrameBuffer } from './FrameBuffer';
 type PrimitiveRnObjectUID = number;
 
 /**
+ * A scissor rectangle in render-target pixels.
+ *
+ * The origin is the top-left corner of the render target (the same convention as
+ * WebGPU's `setScissorRect`); the WebGL path converts it to the bottom-left origin.
+ */
+export type RenderPassScissorRect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+/**
  * A render pass represents a collection of rendering resources and settings used in the rendering pipeline.
  * It manages entities, materials, framebuffers, and various rendering states to control how objects are rendered.
  *
@@ -43,6 +56,7 @@ export class RenderPass extends RnObject {
   private __resolveFrameBuffer?: FrameBuffer;
   private __resolveFrameBuffer2?: FrameBuffer;
   private __viewport?: MutableVector4;
+  private __scissorRect?: RenderPassScissorRect;
   private __material?: Material;
   private __primitiveMaterial: Map<PrimitiveRnObjectUID, WeakRef<Material>> = new Map();
 
@@ -565,6 +579,36 @@ export class RenderPass extends RnObject {
     }
 
     return viewport;
+  }
+
+  /**
+   * Sets a scissor rectangle that limits rendering to the given pixels.
+   *
+   * The rectangle is in render-target pixels with a top-left origin. It is a
+   * culling hint (for example, the screen projection of an SDF's world AABB), so
+   * backends that cannot apply it simply render the whole target.
+   *
+   * @param rect - The scissor rectangle, or undefined to render the whole target
+   */
+  setScissorRect(rect?: RenderPassScissorRect) {
+    if (rect == null) {
+      this.__scissorRect = undefined;
+      return;
+    }
+    this.__scissorRect = {
+      x: Math.floor(rect.x),
+      y: Math.floor(rect.y),
+      width: Math.max(0, Math.floor(rect.width)),
+      height: Math.max(0, Math.floor(rect.height)),
+    };
+  }
+
+  /**
+   * Gets the scissor rectangle of this pass.
+   * @returns The scissor rectangle, or undefined when the whole target is rendered
+   */
+  getScissorRect(): RenderPassScissorRect | undefined {
+    return this.__scissorRect;
   }
 
   /**

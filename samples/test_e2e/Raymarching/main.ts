@@ -85,15 +85,18 @@ const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 cameraEntity.getCameraController().controller.setTarget(earth);
 
 const spheres = createSpheres();
-const result = Rn.MaterialHelper.createNodeBasedRaymarchingCustomMaterial(
-  engine,
-  Rn.MaterialHelper.collectRrnJson(engine) as unknown as Rn.ShaderNodeJson
-);
-if (!result) {
-  throw new Error('Failed to create node-based raymarching custom material');
+// One material (and one buffer-less pass) per component: textures and uniforms are
+// not shared across components, and the passes composite through the depth test.
+const raymarchingComponents = engine.componentRepository.getComponentsWithType(
+  Rn.RaymarchingComponent
+) as Rn.RaymarchingComponent[];
+for (const raymarchingComponent of raymarchingComponents) {
+  const result = Rn.MaterialHelper.createNodeBasedRaymarchingComponentMaterial(engine, raymarchingComponent);
+  if (!result) {
+    throw new Error('Failed to create node-based raymarching component material');
+  }
+  forwardRenderPipeline.setRaymarchingComponentMaterial(raymarchingComponent, result.material);
 }
-const material = result.material;
-forwardRenderPipeline.setRaymarchingMaterial(material);
 
 Rn.AnimationComponent.setIsAnimating(engine, false);
 // Render Loop

@@ -3631,6 +3631,28 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     }
   }
 
+  /**
+   * Applies the scissor rectangle of a render pass (a culling hint for the draw).
+   *
+   * The rectangle uses a top-left origin; WebGL's scissor origin is the bottom-left,
+   * so the y coordinate is flipped against the render target height.
+   *
+   * @param renderPass - The pass whose scissor rectangle is applied, or undefined
+   * to render the whole target
+   */
+  setScissorRect(renderPass?: RenderPass) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const rect = renderPass?.getScissorRect();
+    if (rect == null) {
+      gl.disable(gl.SCISSOR_TEST);
+      return;
+    }
+    const framebuffer = renderPass!.getFramebuffer();
+    const targetHeight = framebuffer?.height ?? this.__glw!.canvas.height;
+    gl.enable(gl.SCISSOR_TEST);
+    gl.scissor(rect.x, targetHeight - (rect.y + rect.height), rect.width, rect.height);
+  }
+
   clearFrameBuffer(engine: Engine, renderPass: RenderPass, _ = 0) {
     const gl = this.__glw!.getRawContext();
     // When the render pass targets the canvas (see Engine.bindFramebufferWebGL) and the canvas was

@@ -192,16 +192,27 @@ fn main(
   // Transform from view space to world space
   let rd = normalize((invViewMatrix * rayView).xyz);
 
-  // March the distance field until a surface is hit. The march starts at the camera
-  // position: starting one unit away skips (or lands inside) objects that are closer
-  // than that, which used to clip small / near SDF shapes depending on the camera
-  // distance. The shadow camera passes already start at 0.
-  var h: f32;
+  // March the distance field inside the conservative world AABB of the SDF (supplied
+  // per component by the pipeline). Rays that miss the box exit immediately instead
+  // of running the full step budget. The march starts at the camera position;
+  // starting one unit away used to skip small / near SDF shapes depending on the
+  // camera distance. The shadow camera passes already start at 0.
+  let aabbInterval = rnRayAabbInterval(
+    ro,
+    rd,
+    get_raymarchAabbMin(uniformDrawParameters.materialSid, 0u),
+    get_raymarchAabbMax(uniformDrawParameters.materialSid, 0u)
+  );
+  var h: f32 = 1.0;
   var t: f32 = 0.0;
-  for(var i=0;i<256;i++){
-    h=map(ro+rd*t);
-    t+=h;
-    if(h<.01) { break; }
+  if (aabbInterval.hits) {
+    t = max(aabbInterval.tEnter, 0.0);
+    for(var i=0;i<256;i++){
+      h=map(ro+rd*t);
+      t+=h;
+      if(h<.01) { break; }
+      if(t > aabbInterval.tExit) { h = 1.0; break; }
+    }
   }
 
   if(h<.01){
@@ -285,6 +296,7 @@ void main() {
   #if defined(WEBGL2_MULTI_VIEW) && defined(RN_IS_VERTEX_SHADER)
     cameraSID += uint(gl_ViewID_OVR);
   #endif
+  ${this.getMaterialSIDForWebGL()}
 
   mat4 viewMatrix = get_viewMatrix(cameraSID);
   mat4 projectionMatrix = get_projectionMatrix(cameraSID);
@@ -305,15 +317,31 @@ void main() {
   // Transform from view space to world space
   vec3 rd = normalize((invViewMatrix * rayView).xyz);
 
-  // March the distance field until a surface is hit. The march starts at the camera
-  // position: starting one unit away skips (or lands inside) objects that are closer
-  // than that, which used to clip small / near SDF shapes depending on the camera
-  // distance. The shadow camera passes already start at 0.
-  float h,t=0.;
-  for(int i=0;i<256;i++){
-    h=map(ro+rd*t);
-    t+=h;
-    if(h<.01)break;
+  // March the distance field inside the conservative world AABB of the SDF (supplied
+  // per component by the pipeline). Rays that miss the box exit immediately instead
+  // of running the full step budget. The march starts at the camera position;
+  // starting one unit away used to skip small / near SDF shapes depending on the
+  // camera distance. The shadow camera passes already start at 0.
+  float aabbTEnter;
+  float aabbTExit;
+  bool aabbHits = rnRayAabbInterval(
+    ro,
+    rd,
+    get_raymarchAabbMin(materialSID, 0u),
+    get_raymarchAabbMax(materialSID, 0u),
+    aabbTEnter,
+    aabbTExit
+  );
+  float h = 1.0;
+  float t = 0.0;
+  if (aabbHits) {
+    t = max(aabbTEnter, 0.0);
+    for(int i=0;i<256;i++){
+      h=map(ro+rd*t);
+      t+=h;
+      if(h<.01)break;
+      if(t > aabbTExit) { h = 1.0; break; }
+    }
   }
 
   if(h<.01){
@@ -584,6 +612,51 @@ fn rnRaymarchDistanceScale(worldMatrix: mat4x4<f32>) -> f32 {
   let frobeniusSq = dot(column0, column0) + dot(column1, column1) + dot(column2, column2);
   return 1.0 / sqrt(max(frobeniusSq, 0.00000001));
 }
+
+struct RnRayAabbInterval {
+  tEnter: f32,
+  tExit: f32,
+  hits: bool,
+}
+
+// Ray interval inside an axis-aligned box (a conservative culling bound for the SDF).
+fn rnRayAabbInterval(rayOrigin: vec3f, rayDirection: vec3f, boundsMin: vec3f, boundsMax: vec3f) -> RnRayAabbInterval {
+  var interval: RnRayAabbInterval;
+  interval.tEnter = 0.0;
+  interval.tExit = 1e20;
+  interval.hits = true;
+  for (var i = 0u; i < 3u; i++) {
+    let origin = rayOrigin[i];
+    let direction = rayDirection[i];
+    let minimum = boundsMin[i];
+    let maximum = boundsMax[i];
+    if (abs(direction) < 0.00000001) {
+      if (origin < minimum || origin > maximum) {
+        interval.hits = false;
+        return interval;
+      }
+    } else {
+      let inverse = 1.0 / direction;
+      var tNear = (minimum - origin) * inverse;
+      var tFar = (maximum - origin) * inverse;
+      if (tNear > tFar) {
+        let tmp = tNear;
+        tNear = tFar;
+        tFar = tmp;
+      }
+      interval.tEnter = max(interval.tEnter, tNear);
+      interval.tExit = min(interval.tExit, tFar);
+      if (interval.tEnter > interval.tExit) {
+        interval.hits = false;
+        return interval;
+      }
+    }
+  }
+  if (interval.tExit < 0.0) {
+    interval.hits = false;
+  }
+  return interval;
+}
 `;
       pixelShaderPrerequisites += RaymarchingShaderPart.__getPbrFunctionsWGSL();
       return pixelShaderPrerequisites;
@@ -713,6 +786,38 @@ float rnRaymarchDistanceScale(mat4 worldMatrix) {
   vec3 column2 = inverseMatrix[2].xyz;
   float frobeniusSq = dot(column0, column0) + dot(column1, column1) + dot(column2, column2);
   return inversesqrt(max(frobeniusSq, 0.00000001));
+}
+
+// Ray interval inside an axis-aligned box (a conservative culling bound for the SDF).
+bool rnRayAabbInterval(vec3 rayOrigin, vec3 rayDirection, vec3 boundsMin, vec3 boundsMax, out float tEnter, out float tExit) {
+  tEnter = 0.0;
+  tExit = 1e20;
+  for (int i = 0; i < 3; i++) {
+    float origin = rayOrigin[i];
+    float direction = rayDirection[i];
+    float minimum = boundsMin[i];
+    float maximum = boundsMax[i];
+    if (abs(direction) < 0.00000001) {
+      if (origin < minimum || origin > maximum) {
+        return false;
+      }
+    } else {
+      float inverse = 1.0 / direction;
+      float tNear = (minimum - origin) * inverse;
+      float tFar = (maximum - origin) * inverse;
+      if (tNear > tFar) {
+        float tmp = tNear;
+        tNear = tFar;
+        tFar = tmp;
+      }
+      tEnter = max(tEnter, tNear);
+      tExit = min(tExit, tFar);
+      if (tEnter > tExit) {
+        return false;
+      }
+    }
+  }
+  return tExit >= 0.0;
 }
 `;
     pixelShaderPrerequisites += RaymarchingShaderPart.__getPbrFunctionsGLSL();
