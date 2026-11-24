@@ -4,7 +4,7 @@ import { RaymarchingShaderPart } from "./RaymarchingShaderPart.js";
 var RaymarchingShadowShaderPart = class _RaymarchingShadowShaderPart extends RaymarchingShaderPart {
   constructor(kind) {
     super();
-    this.VE = kind;
+    this.WE = kind;
   }
   /**
    * The shadow shader shades no visible surface, so no per-object shading functions
@@ -22,16 +22,16 @@ var RaymarchingShadowShaderPart = class _RaymarchingShadowShaderPart extends Ray
       return "";
     }
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      return this.VE === "regular" ? this.XE() : this.YE();
+      return this.WE === "regular" ? this.YE() : this.ZE();
     }
-    return this.VE === "regular" ? this.ZE() : this._E();
+    return this.WE === "regular" ? this._E() : this.$E();
   }
   /**
    * Spot / directional shadow map main: unprojects the near and far points of the light
    * camera for each pixel (works for both perspective spot and orthographic directional
    * cameras), marches the SDF, and writes the VSM moments of the hit depth.
    */
-  ZE() {
+  _E() {
     return `
   return g_distance;
 }
@@ -93,11 +93,11 @@ void main() {
   vec4 clipPos = projectionMatrix * viewMatrix * vec4(p, 1.0);
   float depth = clamp(clipPos.z / clipPos.w * 0.5 + 0.5, 0.0, 1.0);
   gl_FragDepth = depth;
-  rt0 = vec4(depth, depth * depth + 0.25 * ${_RaymarchingShadowShaderPart.WE()}, 0.0, 1.0);
+  rt0 = vec4(depth, depth * depth + 0.25 * ${_RaymarchingShadowShaderPart.XE()}, 0.0, 1.0);
 }
 `;
   }
-  XE() {
+  YE() {
     return `
   return g_distance;
 }
@@ -161,7 +161,7 @@ fn main(input: VertexOutput) -> FragmentOutput {
   let clipPos = projectionMatrix * viewMatrix * vec4f(p, 1.0);
   let depth = clamp(clipPos.z / clipPos.w, 0.0, 1.0);
   output.depth = depth;
-  output.color = vec4f(depth, depth * depth + 0.25 * ${_RaymarchingShadowShaderPart.WE()}, 0.0, 1.0);
+  output.color = vec4f(depth, depth * depth + 0.25 * ${_RaymarchingShadowShaderPart.XE()}, 0.0, 1.0);
   return output;
 }
 `;
@@ -171,8 +171,8 @@ fn main(input: VertexOutput) -> FragmentOutput {
    * the paraboloid texture coordinate, marches from the light position, and writes the
    * normalized distance moments into the hemisphere channels.
    */
-  _E() {
-    const isFront = this.VE === "paraboloidFront";
+  $E() {
+    const isFront = this.WE === "paraboloidFront";
     const signHemisphere = isFront ? "1.0" : "-1.0";
     const channelWrites = isFront ? "rt0 = vec4(depth, moment, 1.0, 1.0);" : "rt0 = vec4(1.0, 1.0, depth, moment);";
     return `
@@ -231,13 +231,13 @@ void main() {
   vec3 p = ro + rd * t;
   float depth = clamp(length(p - ro) / farPlane, 0.0, 1.0);
   gl_FragDepth = depth;
-  float moment = depth * depth + 0.25 * ${_RaymarchingShadowShaderPart.WE()};
+  float moment = depth * depth + 0.25 * ${_RaymarchingShadowShaderPart.XE()};
   ${channelWrites}
 }
 `;
   }
-  YE() {
-    const isFront = this.VE === "paraboloidFront";
+  ZE() {
+    const isFront = this.WE === "paraboloidFront";
     const signHemisphere = isFront ? "1.0" : "-1.0";
     const channelWrites = isFront ? "output.color = vec4f(depth, moment, 1.0, 1.0);" : "output.color = vec4f(1.0, 1.0, depth, moment);";
     return `
@@ -299,7 +299,7 @@ fn main(input: VertexOutput) -> FragmentOutput {
   let p = ro + rd * t;
   let depth = clamp(length(p - ro) / farPlane, 0.0, 1.0);
   output.depth = depth;
-  let moment = depth * depth + 0.25 * ${_RaymarchingShadowShaderPart.WE()};
+  let moment = depth * depth + 0.25 * ${_RaymarchingShadowShaderPart.XE()};
   ${channelWrites}
   return output;
 }
@@ -311,7 +311,7 @@ fn main(input: VertexOutput) -> FragmentOutput {
    * derivatives, so a small constant term is used instead to keep the same self-shadow
    * acne behavior.
    */
-  static WE() {
+  static XE() {
     return "1e-6";
   }
 };

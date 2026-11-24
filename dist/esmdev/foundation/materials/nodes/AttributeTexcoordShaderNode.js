@@ -20,10 +20,10 @@ var AttributeTexcoordShaderNode = class extends AbstractShaderNode {
       codeWGSL: AttributeTexcoordShaderityObjectWGSL.code
     });
     this.setShaderStage("Vertex");
-    this.yr.push(
+    this.zr.push(
       new Socket("texcoordIndex", CompositionType.Scalar, ComponentType.UnsignedInt, Scalar.fromCopyNumber(0))
     );
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Vec3,
       componentType: ComponentType.Float,
       name: "outValue"

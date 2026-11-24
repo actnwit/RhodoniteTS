@@ -19,28 +19,28 @@ var ClassicShaderNode = class extends AbstractShaderNode {
       codeGLSL: ClassicShaderityObjectGLSL.code,
       codeWGSL: ClassicShaderityObjectWGSL.code
     });
-    this.yr.push(
+    this.zr.push(
       new Socket("vertexColor", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("diffuseColorFactor", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("diffuseColorTexture", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("shadingModel", CompositionType.Scalar, ComponentType.UnsignedInt, Scalar.fromCopyNumber(2))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("shininess", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(10))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("positionInWorld", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(0, 0, 0, 1))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("normalInWorld", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 1))
     );
-    this.Br.push(new Socket("outColor", CompositionType.Vec4, ComponentType.Float));
+    this.Cr.push(new Socket("outColor", CompositionType.Vec4, ComponentType.Float));
   }
   /**
    * Gets the output socket that contains the result of the addition operation.
@@ -48,7 +48,7 @@ var ClassicShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the addition result
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
   /**
    * Sets the shading model value for this ClassicShader node.
@@ -57,9 +57,9 @@ var ClassicShaderNode = class extends AbstractShaderNode {
    * @param value - The shading model value (1: Lambert, 2: Blinn-Phong, 3: Phong)
    */
   setShadingModel(value) {
-    const idx = this.yr.findIndex((input) => input.name === "shadingModel");
+    const idx = this.zr.findIndex((input) => input.name === "shadingModel");
     if (idx !== -1) {
-      this.yr[idx] = new Socket(
+      this.zr[idx] = new Socket(
         "shadingModel",
         CompositionType.Scalar,
         ComponentType.UnsignedInt,

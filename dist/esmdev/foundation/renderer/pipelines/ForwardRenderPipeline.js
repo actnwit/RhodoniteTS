@@ -42,39 +42,39 @@ var ForwardRenderPipeline = class extends RnObject {
   constructor(engine) {
     super();
     this.dm = 0;
-    this.Cy = 0;
-    this.yz = false;
-    this.Gy = false;
-    this.Dy = false;
-    this.zz = 1024;
+    this.Dy = 0;
+    this.zz = false;
+    this.Hy = false;
+    this.Ey = false;
+    this.Az = 1024;
     /** main expressions */
     this.gi = [];
-    this.bz = new Expression();
-    this.Ty = [];
-    this.qz = 0;
-    this.rz = 1;
+    this.cz = new Expression();
+    this.Uy = [];
+    this.rz = 0;
     this.sz = 1;
-    this.tz = /* @__PURE__ */ new Map();
+    this.tz = 1;
+    this.uz = /* @__PURE__ */ new Map();
     /** Per-component raymarching materials and their buffer-less full-screen passes. */
-    this.Ey = /* @__PURE__ */ new Map();
-    this.Uy = /* @__PURE__ */ new Map();
+    this.Fy = /* @__PURE__ */ new Map();
+    this.Vy = /* @__PURE__ */ new Map();
     /** SID of the first per-component pass (it applies the per-frame shared material setup). */
-    this.uz = -1;
+    this.vz = -1;
     /** Cached world AABBs of the SDFs, used for ray interval clipping and scissors. */
-    this.iz = /* @__PURE__ */ new Map();
-    this.Cz = ToneMappingType.GT_ToneMap;
-    this.wz = [];
-    this.Dz = [];
+    this.jz = /* @__PURE__ */ new Map();
+    this.Dz = ToneMappingType.GT_ToneMap;
+    this.xz = [];
+    this.Ez = [];
     /** Point light paraboloid shadow materials, one front/back pair per shadow slot. */
-    this.Xy = /* @__PURE__ */ new Map();
+    this.Yy = /* @__PURE__ */ new Map();
     /** Whether the SDF shadow casters are split per component (mirrors the visible materials). */
-    this.Yy = false;
+    this.Zy = false;
     /** Per-component regular (spot / directional) SDF shadow caster materials. */
-    this.Oy = /* @__PURE__ */ new Map();
+    this.Py = /* @__PURE__ */ new Map();
     /** Per shadow slot, per component paraboloid front/back SDF shadow caster materials. */
-    this.Zy = /* @__PURE__ */ new Map();
+    this._y = /* @__PURE__ */ new Map();
     this.c = engine;
-    this.vz = new Bloom(engine);
+    this.wz = new Bloom(engine);
   }
   /**
    * Destroys all allocated 3D API resources including frame buffers and textures.
@@ -85,43 +85,43 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @internal
    */
-  Kz() {
-    if (this.Fy != null) {
-      this.Fy.destroy3DAPIResources();
-      this.Fy = void 0;
+  Lz() {
+    if (this.Gy != null) {
+      this.Gy.destroy3DAPIResources();
+      this.Gy = void 0;
     }
-    if (this.Ny != null) {
-      this.Ny.destroy3DAPIResources();
-      this.Ny = void 0;
+    if (this.Oy != null) {
+      this.Oy.destroy3DAPIResources();
+      this.Oy = void 0;
     }
-    if (this.Ly != null) {
-      this.Ly.destroy3DAPIResources();
-      this.Ly = void 0;
-    }
-    if (this.Iy != null) {
-      this.Iy.destroy3DAPIResources();
-      this.Iy = void 0;
+    if (this.My != null) {
+      this.My.destroy3DAPIResources();
+      this.My = void 0;
     }
     if (this.Jy != null) {
       this.Jy.destroy3DAPIResources();
       this.Jy = void 0;
     }
-    this.vz.destroy3DAPIResources();
-    this.Hy = void 0;
-    this.cz = void 0;
+    if (this.Ky != null) {
+      this.Ky.destroy3DAPIResources();
+      this.Ky = void 0;
+    }
+    this.wz.destroy3DAPIResources();
+    this.Iy = void 0;
     this.dz = void 0;
     this.ez = void 0;
-    this.$y = void 0;
-    this.Sy = void 0;
-    this.Wy = void 0;
-    this.My = void 0;
-    this.Xy.clear();
-    this.Yy = false;
-    this.Oy.clear();
-    this.Zy.clear();
-    this.Uy.clear();
-    this.iz.clear();
-    this.tz.clear();
+    this.fz = void 0;
+    this.az = void 0;
+    this.Ty = void 0;
+    this.Xy = void 0;
+    this.Ny = void 0;
+    this.Yy.clear();
+    this.Zy = false;
+    this.Py.clear();
+    this._y.clear();
+    this.Vy.clear();
+    this.jz.clear();
+    this.uz.clear();
   }
   /**
    * Initializes the rendering pipeline with the specified configuration.
@@ -158,20 +158,20 @@ var ForwardRenderPipeline = class extends RnObject {
    */
   async setup(canvasWidth, canvasHeight, { isShadow = false, isBloom = false, shadowMapSize = 1024, isSimple = false } = {}) {
     this.dm = canvasWidth;
-    this.Cy = canvasHeight;
-    this.Gy = isBloom;
-    this.yz = isShadow;
-    this.Dy = isSimple;
-    this.zz = shadowMapSize;
-    if (this.Hy != null) {
+    this.Dy = canvasHeight;
+    this.Hy = isBloom;
+    this.zz = isShadow;
+    this.Ey = isSimple;
+    this.Az = shadowMapSize;
+    if (this.Iy != null) {
       return new Err({
         message: "Already setup",
         error: void 0
       });
     }
     const frame = new Frame();
-    this.Hy = frame;
-    if (!this.Dy) {
+    this.Iy = frame;
+    if (!this.Ey) {
       const samplerForBackBuffer = new Sampler(this.c, {
         wrapS: TextureParameter.Repeat,
         wrapT: TextureParameter.Repeat,
@@ -179,44 +179,44 @@ var ForwardRenderPipeline = class extends RnObject {
         magFilter: TextureParameter.Linear
       });
       samplerForBackBuffer.create();
-      this.hz = samplerForBackBuffer;
-      this.Lz(canvasWidth, canvasHeight);
+      this.iz = samplerForBackBuffer;
+      this.Mz(canvasWidth, canvasHeight);
       if (isShadow) {
-        this.Ky = new ShadowSystem(this.c, shadowMapSize);
+        this.Ly = new ShadowSystem(this.c, shadowMapSize);
       }
-      if (this.Jy != null && !MiscUtil.isMobile()) {
-        this.cz = this.Mz(this.Jy);
+      if (this.Ky != null && !MiscUtil.isMobile()) {
+        this.dz = this.Nz(this.Ky);
       }
-      if (this.Fy != null) {
-        this.pz = this.Nz(
-          this.Fy
+      if (this.Gy != null) {
+        this.qz = this.Oz(
+          this.Gy
         );
-        this.dz = this.Oz(this.Fy);
+        this.ez = this.Pz(this.Gy);
       }
-      const mainFrameBufferResolve = this.Pz();
+      const mainFrameBufferResolve = this.Qz();
       let toneMappingTargetRenderTargetTexture = mainFrameBufferResolve.getColorAttachedRenderTargetTexture(0);
       if (isBloom) {
         const textureToBloom = mainFrameBufferResolve.getColorAttachedRenderTargetTexture(
           0
         );
-        const { bloomExpression, bloomedRenderTarget } = this.vz.createBloomExpression({
+        const { bloomExpression, bloomedRenderTarget } = this.wz.createBloomExpression({
           textureToBloom,
           parameters: {}
         });
-        this.ez = bloomExpression;
+        this.fz = bloomExpression;
         toneMappingTargetRenderTargetTexture = bloomedRenderTarget;
       }
-      const toneMappingExpression = this.Qz(toneMappingTargetRenderTargetTexture);
-      this.$y = toneMappingExpression;
+      const toneMappingExpression = this.Rz(toneMappingTargetRenderTargetTexture);
+      this.az = toneMappingExpression;
     }
-    this.oz = this.Rz();
+    this.pz = this.Sz();
     if (this.gi.length > 0) {
       this.setExpressions(this.gi);
     }
-    const [raymarchingExpression, raymarchingRenderPass] = this.Sz();
-    this.Sy = raymarchingExpression;
-    this.Vy = raymarchingRenderPass;
-    this.Py();
+    const [raymarchingExpression, raymarchingRenderPass] = this.Tz();
+    this.Ty = raymarchingExpression;
+    this.Wy = raymarchingRenderPass;
+    this.Qy();
     return new Ok();
   }
   /**
@@ -226,11 +226,11 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @internal
    */
-  xz() {
-    if (this.Fy != null) {
-      return this._y;
+  yz() {
+    if (this.Gy != null) {
+      return this.$y;
     }
-    return this.Jy;
+    return this.Ky;
   }
   /**
    * Gets the main frame buffer used for resolve operations.
@@ -239,11 +239,11 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @internal
    */
-  Pz() {
-    if (this.Fy != null) {
-      return this.Ny;
+  Qz() {
+    if (this.Gy != null) {
+      return this.Oy;
     }
-    return this.Iy;
+    return this.Jy;
   }
   /**
    * Gets the main frame buffer used for rendering operations.
@@ -252,11 +252,11 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @internal
    */
-  az() {
-    if (this.Fy != null) {
-      return this.Fy;
+  bz() {
+    if (this.Gy != null) {
+      return this.Gy;
     }
-    return this.Ly;
+    return this.My;
   }
   /**
    * Sets the expressions to be rendered by the pipeline.
@@ -283,26 +283,26 @@ var ForwardRenderPipeline = class extends RnObject {
     isTransmission: true
   }) {
     const expressionsTranslucent = expressions.map((expression) => expression.clone());
-    this.Tz(expressions, {
+    this.Uz(expressions, {
       isTransmission: options.isTransmission
     });
     if (options.isTransmission) {
-      this.Uz(expressionsTranslucent);
+      this.Vz(expressionsTranslucent);
     }
-    if (this.Ky != null) {
+    if (this.Ly != null) {
       const entities = this.gi.flatMap(
         (expression) => expression.renderPasses.flatMap((renderPass) => renderPass.entities)
       );
-      this.wz = this.Ky.getExpressions(
+      this.xz = this.Ly.getExpressions(
         entities,
-        this.Ez(),
-        this.Fz()
+        this.Fz(),
+        this.Gz()
       );
     }
-    this.Py();
+    this.Qy();
   }
   setGizmoExpression(expression) {
-    this.bz = expression;
+    this.cz = expression;
   }
   /**
    * Starts the main rendering loop with the provided draw function.
@@ -334,31 +334,31 @@ var ForwardRenderPipeline = class extends RnObject {
    * ```
    */
   startRenderLoop(func) {
-    if (this.Hy == null) {
+    if (this.Iy == null) {
       return new Err({
         message: "not initialized.",
         error: void 0
       });
     }
-    this.Bz = func;
-    this.Py();
+    this.Cz = func;
+    this.Qy();
     this.c.startRenderLoop(() => {
-      const shadowSystem = this.Ky;
+      const shadowSystem = this.Ly;
       if (shadowSystem != null) {
-        const entities = this.Dz;
-        const additionalMaterials = this.Ez();
+        const entities = this.Ez;
+        const additionalMaterials = this.Fz();
         if (shadowSystem.isLightChanged()) {
-          this.wz = shadowSystem.getExpressions(
+          this.xz = shadowSystem.getExpressions(
             entities,
             additionalMaterials,
-            this.Fz()
+            this.Gz()
           );
-          this.Py();
+          this.Qy();
         }
         shadowSystem.setDepthBiasPV(entities, additionalMaterials);
       }
-      this.Vz();
-      func(this.Hy);
+      this.Wz();
+      func(this.Iy);
     });
     return new Ok();
   }
@@ -376,7 +376,7 @@ var ForwardRenderPipeline = class extends RnObject {
    * ```
    */
   draw() {
-    this.Bz(this.Hy);
+    this.Cz(this.Iy);
   }
   /**
    * Requests a refresh of the shadow map expressions on the next frame.
@@ -395,7 +395,7 @@ var ForwardRenderPipeline = class extends RnObject {
    */
   setNeedsShadowMapRefresh() {
     var _a;
-    (_a = this.Ky) == null ? void 0 : _a.setNeedsRefresh();
+    (_a = this.Ly) == null ? void 0 : _a.setNeedsRefresh();
   }
   /**
    * Resizes the rendering pipeline to match new canvas dimensions.
@@ -422,7 +422,7 @@ var ForwardRenderPipeline = class extends RnObject {
    * ```
    */
   resize(width, height) {
-    if (this.Hy == null) {
+    if (this.Iy == null) {
       return new Err({
         message: "not initialized.",
         error: void 0
@@ -435,7 +435,7 @@ var ForwardRenderPipeline = class extends RnObject {
     }
     if (width <= 0 || height <= 0) {
       let fallbackWidth = this.dm;
-      let fallbackHeight = this.Cy;
+      let fallbackHeight = this.Dy;
       if (fallbackWidth <= 0 || fallbackHeight <= 0) {
         const [currentWidth, currentHeight] = this.c.getCanvasSize();
         fallbackWidth = currentWidth;
@@ -453,12 +453,12 @@ var ForwardRenderPipeline = class extends RnObject {
     }
     const savedRaymarchingMaterial = this.getRaymarchingMaterial();
     this.c.resizeCanvas(width, height);
-    this.Kz();
+    this.Lz();
     this.setup(width, height, {
-      isShadow: this.yz,
-      isBloom: this.Gy,
-      shadowMapSize: this.zz,
-      isSimple: this.Dy
+      isShadow: this.zz,
+      isBloom: this.Hy,
+      shadowMapSize: this.Az,
+      isSimple: this.Ey
     });
     if (savedRaymarchingMaterial != null) {
       this.setRaymarchingMaterial(savedRaymarchingMaterial);
@@ -494,15 +494,15 @@ var ForwardRenderPipeline = class extends RnObject {
    * ```
    */
   setIBLTextures(diffuse, specular, sheen) {
-    this.fz = diffuse;
-    this.gz = specular;
+    this.gz = diffuse;
+    this.hz = specular;
     if (Is.exist(sheen)) {
-      this.Ry = sheen;
+      this.Sy = sheen;
     }
-    this.Gz();
     this.Hz();
+    this.Iz();
+    this.Ry();
     this.Qy();
-    this.Py();
   }
   /**
    * Gets the initial expression used for buffer clearing and setup.
@@ -514,7 +514,7 @@ var ForwardRenderPipeline = class extends RnObject {
    * clearing of color and depth buffers before main rendering begins.
    */
   getInitialExpression() {
-    return this.oz;
+    return this.pz;
   }
   /**
    * Gets the tone mapping expression used for HDR to LDR conversion.
@@ -527,7 +527,7 @@ var ForwardRenderPipeline = class extends RnObject {
    * output suitable for display devices.
    */
   getToneMappingExpression() {
-    return this.$y;
+    return this.az;
   }
   /**
    * Sets the contribution factor for diffuse IBL lighting.
@@ -552,8 +552,8 @@ var ForwardRenderPipeline = class extends RnObject {
    * ```
    */
   setDiffuseIBLContribution(value) {
-    this.rz = value;
-    this.Qy();
+    this.sz = value;
+    this.Ry();
     for (const expression of this.gi) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
@@ -564,7 +564,7 @@ var ForwardRenderPipeline = class extends RnObject {
         }
       }
     }
-    for (const expression of this.Ty) {
+    for (const expression of this.Uy) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
@@ -598,8 +598,8 @@ var ForwardRenderPipeline = class extends RnObject {
    * ```
    */
   setSpecularIBLContribution(value) {
-    this.sz = value;
-    this.Qy();
+    this.tz = value;
+    this.Ry();
     for (const expression of this.gi) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
@@ -610,7 +610,7 @@ var ForwardRenderPipeline = class extends RnObject {
         }
       }
     }
-    for (const expression of this.Ty) {
+    for (const expression of this.Uy) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
@@ -648,8 +648,8 @@ var ForwardRenderPipeline = class extends RnObject {
    * ```
    */
   setIBLRotation(radian) {
-    this.qz = radian;
-    this.Qy();
+    this.rz = radian;
+    this.Ry();
     for (const expression of this.gi) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
@@ -670,7 +670,7 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @internal
    */
-  Tz(expressions, options = {
+  Uz(expressions, options = {
     isTransmission: true
   }) {
     for (const expression of expressions) {
@@ -684,20 +684,20 @@ var ForwardRenderPipeline = class extends RnObject {
           rp.setToRenderTranslucentPrimitives(true);
         }
         rp.toClearDepthBuffer = false;
-        if (!this.Dy) {
-          const mainFrameBuffer = this.az();
+        if (!this.Ey) {
+          const mainFrameBuffer = this.bz();
           if (mainFrameBuffer != null) {
             rp.setFramebuffer(mainFrameBuffer);
-            if (this.Ly != null) {
-              rp.setResolveFramebuffer(this.Iy);
-              rp.setResolveFramebuffer2(this.Jy);
+            if (this.My != null) {
+              rp.setResolveFramebuffer(this.Jy);
+              rp.setResolveFramebuffer2(this.Ky);
             }
           }
         }
       }
     }
     this.gi = expressions;
-    this.Gz();
+    this.Hz();
   }
   /**
    * Internal method to configure expressions specifically for transparent object transmission.
@@ -710,7 +710,7 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @internal
    */
-  Uz(expressions) {
+  Vz(expressions) {
     for (const expression of expressions) {
       expression.tryToSetUniqueName("modelTransparentForTransmission", true);
       for (const rp of expression.renderPasses) {
@@ -720,10 +720,10 @@ var ForwardRenderPipeline = class extends RnObject {
         rp.setToRenderBlendWithoutZWritePrimitives(false);
         rp.toClearDepthBuffer = false;
         rp.toClearColorBuffer = false;
-        if (!this.Dy) {
-          rp.setFramebuffer(this.az());
-          if (this.Iy != null) {
-            rp.setResolveFramebuffer(this.Iy);
+        if (!this.Ey) {
+          rp.setFramebuffer(this.bz());
+          if (this.Jy != null) {
+            rp.setResolveFramebuffer(this.Jy);
           }
           for (const entity of rp.entities) {
             const meshComponent = entity.tryToGetMesh();
@@ -734,8 +734,8 @@ var ForwardRenderPipeline = class extends RnObject {
                   const primitive = mesh.getPrimitiveAt(i);
                   primitive.material.setTextureParameter(
                     "backBufferTexture",
-                    this.xz().getColorAttachedRenderTargetTexture(0),
-                    this.hz
+                    this.yz().getColorAttachedRenderTargetTexture(0),
+                    this.iz
                   );
                 }
               }
@@ -744,8 +744,8 @@ var ForwardRenderPipeline = class extends RnObject {
         }
       }
     }
-    this.Ty = expressions;
-    this.Hz();
+    this.Uy = expressions;
+    this.Iz();
   }
   /**
    * Refreshes the back buffer texture on all transparent materials.
@@ -757,15 +757,15 @@ var ForwardRenderPipeline = class extends RnObject {
    */
   refreshBackBufferTextureOnTransparentMaterials() {
     var _a;
-    if (this.Dy) {
+    if (this.Ey) {
       return;
     }
-    const backBufferTexture = (_a = this.xz()) == null ? void 0 : _a.getColorAttachedRenderTargetTexture(0);
-    const sampler = this.hz;
+    const backBufferTexture = (_a = this.yz()) == null ? void 0 : _a.getColorAttachedRenderTargetTexture(0);
+    const sampler = this.iz;
     if (backBufferTexture == null || sampler == null) {
       return;
     }
-    for (const expression of this.Ty) {
+    for (const expression of this.Uy) {
       for (const rp of expression.renderPasses) {
         for (const entity of rp.entities) {
           const meshComponent = entity.tryToGetMesh();
@@ -789,7 +789,7 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @internal
    */
-  Rz() {
+  Sz() {
     const expression = new Expression();
     expression.tryToSetUniqueName("Initial", true);
     const initialRenderPass = new RenderPass(this.c);
@@ -799,12 +799,12 @@ var ForwardRenderPipeline = class extends RnObject {
     initialRenderPass.isOutputForVr = true;
     initialRenderPass.tryToSetUniqueName("InitialRenderPass", true);
     expression.addRenderPasses([initialRenderPass]);
-    if (!this.Dy) {
+    if (!this.Ey) {
       const initialRenderPassForFrameBuffer = new RenderPass(this.c);
       initialRenderPassForFrameBuffer.clearColor = Vector4.fromCopyArray4([0, 0, 0, 0]);
       initialRenderPassForFrameBuffer.toClearColorBuffer = true;
       initialRenderPassForFrameBuffer.toClearDepthBuffer = true;
-      initialRenderPassForFrameBuffer.setFramebuffer(this.az());
+      initialRenderPassForFrameBuffer.setFramebuffer(this.bz());
       initialRenderPassForFrameBuffer.tryToSetUniqueName("InitialRenderPassForFrameBuffer", true);
       expression.addRenderPasses([initialRenderPassForFrameBuffer]);
     }
@@ -823,7 +823,7 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @internal
    */
-  Lz(canvasWidth, canvasHeight) {
+  Mz(canvasWidth, canvasHeight) {
     const webXRSystem = this.c._webXRSystemIfEnabled;
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
     if (Is.exist(webXRSystem) && (webXRSystem == null ? void 0 : webXRSystem.isWebXRMode) && cgApiResourceRepository.isSupportMultiViewVRRendering(this.c)) {
@@ -832,16 +832,16 @@ var ForwardRenderPipeline = class extends RnObject {
         height: canvasHeight,
         arrayLength: 2,
         level: 0,
-        internalFormat: this.Gy ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8,
-        format: this.Gy ? PixelFormat.RGB : PixelFormat.RGBA,
-        type: this.Gy ? ComponentType.Float : ComponentType.UnsignedByte
+        internalFormat: this.Hy ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8,
+        format: this.Hy ? PixelFormat.RGB : PixelFormat.RGBA,
+        type: this.Hy ? ComponentType.Float : ComponentType.UnsignedByte
       });
       framebufferMultiView.tryToSetUniqueName("FramebufferTargetOfToneMappingMultiView", true);
       const framebufferMultiViewBlit = RenderableHelper.createFrameBuffer(this.c, {
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
-        textureFormats: [this.Gy ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
+        textureFormats: [this.Hy ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
         createDepthBuffer: false
       });
       framebufferMultiViewBlit.tryToSetUniqueName("FramebufferTargetOfToneMappingMultiViewBlit", true);
@@ -849,26 +849,26 @@ var ForwardRenderPipeline = class extends RnObject {
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
-        textureFormats: [this.Gy ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
+        textureFormats: [this.Hy ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
         createDepthBuffer: false
       });
       framebufferMultiViewBlitBackBuffer.tryToSetUniqueName(
         "FramebufferTargetOfToneMappingMultiViewBlitBackBuffer",
         true
       );
-      this.Fy = framebufferMultiView;
-      this.Ny = framebufferMultiViewBlit;
-      this._y = framebufferMultiViewBlitBackBuffer;
-      this.Ly = void 0;
-      this.Iy = void 0;
+      this.Gy = framebufferMultiView;
+      this.Oy = framebufferMultiViewBlit;
+      this.$y = framebufferMultiViewBlitBackBuffer;
+      this.My = void 0;
       this.Jy = void 0;
+      this.Ky = void 0;
     } else {
       console.log(`canvasWidth: ${canvasWidth}, canvasHeight: ${canvasHeight}`);
       const framebufferMsaa = RenderableHelper.createFrameBufferMSAA(this.c, {
         width: canvasWidth,
         height: canvasHeight,
         colorBufferNum: 1,
-        colorFormats: [this.Gy ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
+        colorFormats: [this.Hy ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
         sampleCountMSAA: 4,
         depthBufferFormat: TextureFormat.Depth32F
       });
@@ -877,7 +877,7 @@ var ForwardRenderPipeline = class extends RnObject {
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
-        textureFormats: [this.Gy ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
+        textureFormats: [this.Hy ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
         createDepthBuffer: true,
         depthTextureFormat: TextureFormat.Depth32F
       });
@@ -886,16 +886,16 @@ var ForwardRenderPipeline = class extends RnObject {
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
-        textureFormats: [this.Gy ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
+        textureFormats: [this.Hy ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
         createDepthBuffer: false
       });
       framebufferResolveForReference.tryToSetUniqueName("FramebufferTargetOfToneMappingResolveForReference", true);
-      this.Fy = void 0;
-      this.Ny = void 0;
-      this._y = void 0;
-      this.Ly = framebufferMsaa;
-      this.Iy = framebufferResolve;
-      this.Jy = framebufferResolveForReference;
+      this.Gy = void 0;
+      this.Oy = void 0;
+      this.$y = void 0;
+      this.My = framebufferMsaa;
+      this.Jy = framebufferResolve;
+      this.Ky = framebufferResolveForReference;
     }
   }
   /**
@@ -906,7 +906,7 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @internal
    */
-  Mz(resolveFramebuffer2) {
+  Nz(resolveFramebuffer2) {
     const expression = new Expression();
     expression.tryToSetUniqueName("GenerateMipmaps", true);
     const renderPass = new RenderPass(this.c);
@@ -927,7 +927,7 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @internal
    */
-  Nz(multiViewFrameBuffer) {
+  Oz(multiViewFrameBuffer) {
     const expression = new Expression();
     expression.tryToSetUniqueName("MultiViewBlitBackBuffer", true);
     const renderPass = new RenderPass(this.c);
@@ -935,8 +935,8 @@ var ForwardRenderPipeline = class extends RnObject {
     renderPass.tryToSetUniqueName("MultiViewBlitBackBuffer", true);
     renderPass.toClearDepthBuffer = false;
     renderPass.setPostRenderFunction(() => {
-      if (this._y != null && !MiscUtil.isMobile()) {
-        const texture = this._y.colorAttachments[0];
+      if (this.$y != null && !MiscUtil.isMobile()) {
+        const texture = this.$y.colorAttachments[0];
         multiViewFrameBuffer.colorAttachments[0].blitToTexture2dFromTexture2dArrayFake(
           texture
         );
@@ -953,7 +953,7 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @internal
    */
-  Oz(multiViewFrameBuffer) {
+  Pz(multiViewFrameBuffer) {
     const expression = new Expression();
     expression.tryToSetUniqueName("MultiViewBlit", true);
     const renderPass = new RenderPass(this.c);
@@ -961,8 +961,8 @@ var ForwardRenderPipeline = class extends RnObject {
     renderPass.tryToSetUniqueName("MultiViewBlit", true);
     renderPass.toClearDepthBuffer = false;
     renderPass.setPostRenderFunction(() => {
-      if (this.Ny != null) {
-        const texture = this.Ny.colorAttachments[0];
+      if (this.Oy != null) {
+        const texture = this.Oy.colorAttachments[0];
         multiViewFrameBuffer.colorAttachments[0].blitToTexture2dFromTexture2dArrayFake(
           texture
         );
@@ -983,11 +983,11 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @internal
    */
-  Qz(toneMappingTargetRenderTargetTexture) {
+  Rz(toneMappingTargetRenderTargetTexture) {
     const expressionToneMappingEffect = new Expression();
     const materialToneMapping = createToneMappingMaterial(this.c);
-    this.Az = materialToneMapping;
-    this.setToneMappingType(this.Cz);
+    this.Bz = materialToneMapping;
+    this.setToneMappingType(this.Dz);
     const renderPassToneMapping = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
       this.c,
       materialToneMapping,
@@ -1023,7 +1023,7 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @internal
    */
-  gA(shadowMapSize) {
+  hA(shadowMapSize) {
     return RenderableHelper.createFrameBuffer(this.c, {
       width: shadowMapSize,
       height: shadowMapSize,
@@ -1038,16 +1038,16 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @internal
    */
-  Gz() {
+  Hz() {
     for (const expression of this.gi) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
           if (Is.exist(meshRendererComponent)) {
             meshRendererComponent.setIBLCubeMap(
-              this.fz,
               this.gz,
-              this.Ry
+              this.hz,
+              this.Sy
             );
           }
         }
@@ -1059,16 +1059,16 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @internal
    */
-  Hz() {
-    for (const expression of this.Ty) {
+  Iz() {
+    for (const expression of this.Uy) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
           if (Is.exist(meshRendererComponent)) {
             meshRendererComponent.setIBLCubeMap(
-              this.fz,
               this.gz,
-              this.Ry
+              this.hz,
+              this.Sy
             );
           }
         }
@@ -1105,11 +1105,11 @@ var ForwardRenderPipeline = class extends RnObject {
    * ```
    */
   setToneMappingType(type) {
-    const toneMappingMaterial = this.Az;
+    const toneMappingMaterial = this.Bz;
     if (toneMappingMaterial == null) {
       return;
     }
-    this.Cz = type;
+    this.Dz = type;
     toneMappingMaterial.removeShaderDefine("RN_USE_KHRONOS_PBR_NEUTRAL");
     toneMappingMaterial.removeShaderDefine("RN_USE_REINHARD");
     toneMappingMaterial.removeShaderDefine("RN_USE_GT_TONEMAP");
@@ -1130,14 +1130,14 @@ var ForwardRenderPipeline = class extends RnObject {
       toneMappingMaterial.addShaderDefine("RN_USE_ACES_HILL_EXPOSURE_BOOST");
     }
   }
-  Sz() {
+  Tz() {
     const expression = new Expression();
     expression.tryToSetUniqueName("Raymarching", true);
     const renderPass = new RenderPass(this.c);
     renderPass.toClearDepthBuffer = false;
     renderPass.isDepthTest = true;
-    this.Iz(renderPass);
-    renderPass.setPreRenderFunction(() => this.Wz(renderPass));
+    this.Jz(renderPass);
+    renderPass.setPreRenderFunction(() => this.Xz(renderPass));
     expression.addRenderPasses([renderPass]);
     renderPass.tryToSetUniqueName("Raymarching", true);
     return [expression, renderPass];
@@ -1146,13 +1146,13 @@ var ForwardRenderPipeline = class extends RnObject {
    * Points a buffer-less raymarching pass at the pipeline's render targets, including
    * the MSAA resolve targets the transmission pass and mipmap generation read.
    */
-  Iz(renderPass) {
+  Jz(renderPass) {
     var _a;
-    const mainFrameBuffer = this.az();
+    const mainFrameBuffer = this.bz();
     renderPass.setFramebuffer(mainFrameBuffer);
-    if (mainFrameBuffer != null && this.Ly != null) {
-      renderPass.setResolveFramebuffer(this.Iy);
-      renderPass.setResolveFramebuffer2((_a = this.Jy) != null ? _a : void 0);
+    if (mainFrameBuffer != null && this.My != null) {
+      renderPass.setResolveFramebuffer(this.Jy);
+      renderPass.setResolveFramebuffer2((_a = this.Ky) != null ? _a : void 0);
     } else {
       renderPass.setResolveFramebuffer(void 0);
       renderPass.setResolveFramebuffer2(void 0);
@@ -1167,9 +1167,9 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @param renderPass - The legacy raymarching pass
    */
-  Wz(renderPass) {
-    this.Qy();
-    this.jz();
+  Xz(renderPass) {
+    this.Ry();
+    this.kz();
     const material = renderPass.material;
     if (material == null) {
       return;
@@ -1193,7 +1193,7 @@ var ForwardRenderPipeline = class extends RnObject {
           Scalar.fromCopyNumber(raymarchingComponent.componentSID)
         );
       }
-      const aabb = this.kz(raymarchingComponent);
+      const aabb = this.lz(raymarchingComponent);
       if (aabb == null) {
         unionable = false;
         continue;
@@ -1236,13 +1236,13 @@ var ForwardRenderPipeline = class extends RnObject {
    */
   setRaymarchingComponentMaterial(component, material) {
     var _a;
-    this.Ey.set(component.componentSID, material);
-    this.Qy();
-    this.jz();
-    (_a = this.Ky) == null ? void 0 : _a.applyShadowParametersToMaterials([material]);
+    this.Fy.set(component.componentSID, material);
+    this.Ry();
+    this.kz();
+    (_a = this.Ly) == null ? void 0 : _a.applyShadowParametersToMaterials([material]);
     this.refreshRaymarchingShadowMaterial();
-    if (this.Hy != null) {
-      this.Py();
+    if (this.Iy != null) {
+      this.Qy();
     }
   }
   /**
@@ -1250,17 +1250,17 @@ var ForwardRenderPipeline = class extends RnObject {
    * @param component - The component whose material is requested
    */
   getRaymarchingComponentMaterial(component) {
-    return this.Ey.get(component.componentSID);
+    return this.Fy.get(component.componentSID);
   }
   /**
    * Removes the raymarching material of a component so it stops rendering.
    * @param component - The component whose material is removed
    */
   removeRaymarchingComponentMaterial(component) {
-    if (this.Ey.delete(component.componentSID)) {
+    if (this.Fy.delete(component.componentSID)) {
       this.refreshRaymarchingShadowMaterial();
-      if (this.Hy != null) {
-        this.Py();
+      if (this.Iy != null) {
+        this.Qy();
       }
     }
   }
@@ -1273,13 +1273,13 @@ var ForwardRenderPipeline = class extends RnObject {
    */
   setRaymarchingMaterial(material) {
     var _a, _b;
-    (_a = this.Vy) == null ? void 0 : _a.setBufferLessFullScreenRendering(material);
-    this.Qy();
-    this.jz();
-    (_b = this.Ky) == null ? void 0 : _b.applyShadowParametersToMaterials([material]);
+    (_a = this.Wy) == null ? void 0 : _a.setBufferLessFullScreenRendering(material);
+    this.Ry();
+    this.kz();
+    (_b = this.Ly) == null ? void 0 : _b.applyShadowParametersToMaterials([material]);
     this.refreshRaymarchingShadowMaterial();
-    if (this.Hy != null) {
-      this.Py();
+    if (this.Iy != null) {
+      this.Qy();
     }
   }
   /**
@@ -1287,43 +1287,43 @@ var ForwardRenderPipeline = class extends RnObject {
    * raymarching material, in component SID order. Components without a material are
    * skipped, and stale passes are dropped.
    */
-  Xz() {
+  Yz() {
     const passes = [];
     const existingComponentSids = /* @__PURE__ */ new Set();
-    this.uz = -1;
-    if (this.Ey.size > 0) {
-      for (const component of this.lz()) {
+    this.vz = -1;
+    if (this.Fy.size > 0) {
+      for (const component of this.mz()) {
         const componentSID = component.componentSID;
-        const material = this.Ey.get(componentSID);
+        const material = this.Fy.get(componentSID);
         if (material == null) {
           continue;
         }
         existingComponentSids.add(componentSID);
-        let renderPass = this.Uy.get(componentSID);
+        let renderPass = this.Vy.get(componentSID);
         if (renderPass == null) {
           renderPass = new RenderPass(this.c);
           renderPass.toClearDepthBuffer = false;
           renderPass.isDepthTest = true;
-          renderPass.setPreRenderFunction(() => this.Yz(componentSID));
+          renderPass.setPreRenderFunction(() => this.Zz(componentSID));
           renderPass.tryToSetUniqueName(`Raymarching_${componentSID}`, true);
-          this.Uy.set(componentSID, renderPass);
+          this.Vy.set(componentSID, renderPass);
         }
         renderPass.setBufferLessFullScreenRendering(material);
-        this.Iz(renderPass);
+        this.Jz(renderPass);
         if (passes.length === 0) {
-          this.uz = componentSID;
+          this.vz = componentSID;
         }
         passes.push(renderPass);
       }
     }
-    for (const componentSID of [...this.Uy.keys()]) {
+    for (const componentSID of [...this.Vy.keys()]) {
       if (!existingComponentSids.has(componentSID)) {
-        this.Uy.delete(componentSID);
+        this.Vy.delete(componentSID);
       }
     }
-    for (const componentSID of [...this.Ey.keys()]) {
+    for (const componentSID of [...this.Fy.keys()]) {
       if (!existingComponentSids.has(componentSID) && this.c.componentRepository.getComponent(RaymarchingComponent, componentSID) == null) {
-        this.Ey.delete(componentSID);
+        this.Fy.delete(componentSID);
       }
     }
     return passes;
@@ -1338,23 +1338,23 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @param componentSID - The SID of the component rendered by the pass
    */
-  Yz(componentSID) {
+  Zz(componentSID) {
     var _a, _b, _c;
-    if (componentSID === this.uz) {
-      this.Qy();
-      this.jz();
+    if (componentSID === this.vz) {
+      this.Ry();
+      this.kz();
     }
-    const material = this.Ey.get(componentSID);
+    const material = this.Fy.get(componentSID);
     const component = this.c.componentRepository.getComponent(RaymarchingComponent, componentSID);
     const sceneGraph = component == null ? void 0 : component.entity.tryToGetSceneGraph();
     if (material == null || component == null || sceneGraph == null) {
       return;
     }
     material.setParameter(RAYMARCHING_COMPONENT_WORLD_MATRIX_SEMANTIC, sceneGraph.matrixInner);
-    const aabb = this.kz(component);
+    const aabb = this.lz(component);
     material.setParameter("raymarchAabbMin", (_a = aabb == null ? void 0 : aabb.min) != null ? _a : RAYMARCHING_UNBOUNDED_AABB_MIN);
     material.setParameter("raymarchAabbMax", (_b = aabb == null ? void 0 : aabb.max) != null ? _b : RAYMARCHING_UNBOUNDED_AABB_MAX);
-    (_c = this.Uy.get(componentSID)) == null ? void 0 : _c.setScissorRect(this.Zz(aabb));
+    (_c = this.Vy.get(componentSID)) == null ? void 0 : _c.setScissorRect(this._z(aabb));
   }
   /**
    * Returns the conservative world AABB of a component's SDF, caching it until the
@@ -1362,7 +1362,7 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @param component - The SDF component
    */
-  kz(component) {
+  lz(component) {
     const sceneGraph = component.entity.tryToGetSceneGraph();
     if (sceneGraph == null) {
       return null;
@@ -1388,20 +1388,20 @@ var ForwardRenderPipeline = class extends RnObject {
     ];
     const aabbVersion = RaymarchingComponent.getAABBVersion(this.c);
     const cacheKey = component.componentSID;
-    const cached = this.iz.get(cacheKey);
+    const cached = this.jz.get(cacheKey);
     if (cached != null && cached.aabbVersion === aabbVersion && cached.matrix.length === elements.length && cached.matrix.every((value, index) => value === elements[index])) {
       return cached.aabb;
     }
     const aabb = component.calcWorldAABB();
     if (aabb == null) {
-      this.iz.delete(cacheKey);
+      this.jz.delete(cacheKey);
       return null;
     }
     const result = {
       min: Vector3.fromCopy3(aabb.minPoint.x, aabb.minPoint.y, aabb.minPoint.z),
       max: Vector3.fromCopy3(aabb.maxPoint.x, aabb.maxPoint.y, aabb.maxPoint.z)
     };
-    this.iz.set(cacheKey, { aabbVersion, matrix: elements, aabb: result });
+    this.jz.set(cacheKey, { aabbVersion, matrix: elements, aabb: result });
     return result;
   }
   /**
@@ -1412,8 +1412,8 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @param aabb - The world AABB of the SDF
    */
-  Zz(aabb) {
-    if (aabb == null || this.dm <= 0 || this.Cy <= 0) {
+  _z(aabb) {
+    if (aabb == null || this.dm <= 0 || this.Dy <= 0) {
       return void 0;
     }
     const camera = this.c.componentRepository.getComponent(
@@ -1439,7 +1439,7 @@ var ForwardRenderPipeline = class extends RnObject {
       const ndcX = clip.x / clip.w;
       const ndcY = clip.y / clip.w;
       const pixelX = (ndcX * 0.5 + 0.5) * this.dm;
-      const pixelY = (-ndcY * 0.5 + 0.5) * this.Cy;
+      const pixelY = (-ndcY * 0.5 + 0.5) * this.Dy;
       minX = Math.min(minX, pixelX);
       minY = Math.min(minY, pixelY);
       maxX = Math.max(maxX, pixelX);
@@ -1449,21 +1449,21 @@ var ForwardRenderPipeline = class extends RnObject {
     const x = Math.max(0, Math.floor(minX) - margin);
     const y = Math.max(0, Math.floor(minY) - margin);
     const right = Math.min(this.dm, Math.ceil(maxX) + margin);
-    const bottom = Math.min(this.Cy, Math.ceil(maxY) + margin);
+    const bottom = Math.min(this.Dy, Math.ceil(maxY) + margin);
     const width = right - x;
     const height = bottom - y;
     if (width <= 0 || height <= 0) {
       return { x: 0, y: 0, width: 1, height: 1 };
     }
-    if (x === 0 && y === 0 && width === this.dm && height === this.Cy) {
+    if (x === 0 && y === 0 && width === this.dm && height === this.Dy) {
       return void 0;
     }
     return { x, y, width, height };
   }
   /** All raymarching materials the pipeline manages (legacy or per component). */
-  mz() {
+  nz() {
     const materials = [];
-    for (const material of this.Ey.values()) {
+    for (const material of this.Fy.values()) {
       materials.push(material);
     }
     const legacyMaterial = this.getRaymarchingMaterial();
@@ -1480,14 +1480,14 @@ var ForwardRenderPipeline = class extends RnObject {
    * legacy merged pass is used. The expression is empty while no raymarching material
    * is assigned.
    */
-  _z() {
+  $z() {
     const expression = new Expression();
     expression.tryToSetUniqueName("Raymarching", true);
-    const componentPasses = this.Xz();
+    const componentPasses = this.Yz();
     if (componentPasses.length > 0) {
       expression.addRenderPasses(componentPasses);
-    } else if (this.Vy != null && this.Vy.material != null) {
-      expression.addRenderPasses([this.Vy]);
+    } else if (this.Wy != null && this.Wy.material != null) {
+      expression.addRenderPasses([this.Wy]);
     }
     return expression;
   }
@@ -1503,21 +1503,21 @@ var ForwardRenderPipeline = class extends RnObject {
    * Call this when a raymarching graph or a component's `castShadow` flag changes.
    */
   refreshRaymarchingShadowMaterial() {
-    const previousRegular = this.My;
-    const previousComponentRegular = new Map(this.Oy);
-    this.Wy = void 0;
-    this.My = void 0;
-    this.Xy.clear();
-    this.Oy.clear();
-    this.Zy.clear();
-    this.Yy = this.Ey.size > 0;
-    if (this.Ky == null || this.c.config.maxLightNumber <= 0) {
+    const previousRegular = this.Ny;
+    const previousComponentRegular = new Map(this.Py);
+    this.Xy = void 0;
+    this.Ny = void 0;
+    this.Yy.clear();
+    this.Py.clear();
+    this._y.clear();
+    this.Zy = this.Fy.size > 0;
+    if (this.Ly == null || this.c.config.maxLightNumber <= 0) {
       return;
     }
-    if (this.Yy) {
-      for (const component of this.lz()) {
+    if (this.Zy) {
+      for (const component of this.mz()) {
         const componentSID = component.componentSID;
-        if (!component.castShadow || !this.Ey.has(componentSID)) {
+        if (!component.castShadow || !this.Fy.has(componentSID)) {
           continue;
         }
         const material = createNodeBasedRaymarchingComponentShadowMaterial(
@@ -1527,15 +1527,15 @@ var ForwardRenderPipeline = class extends RnObject {
           previousComponentRegular.get(componentSID)
         );
         if (material != null) {
-          this.Oy.set(componentSID, material);
+          this.Py.set(componentSID, material);
         }
       }
     } else {
       const castShadowJson = collectRrnJson(this.c, { castShadowOnly: true });
       if (castShadowJson.nodes.length > 0) {
         const json = castShadowJson;
-        this.Wy = json;
-        this.My = createNodeBasedRaymarchingShadowMaterial(
+        this.Xy = json;
+        this.Ny = createNodeBasedRaymarchingShadowMaterial(
           this.c,
           json,
           "regular",
@@ -1543,33 +1543,33 @@ var ForwardRenderPipeline = class extends RnObject {
         );
       }
     }
-    this.Ky.invalidateShadowVolumeFitting();
-    this.Ky.setNeedsRefresh();
+    this.Ly.invalidateShadowVolumeFitting();
+    this.Ly.setNeedsRefresh();
   }
   /**
    * The raymarching components in a deterministic (component SID) order.
    */
-  lz() {
+  mz() {
     const components = this.c.componentRepository.getComponentsWithType(RaymarchingComponent).slice();
     components.sort((a, b) => a.componentSID - b.componentSID);
     return components;
   }
   /** The regular (spot / directional) SDF shadow caster material (for tests/debugging). */
   getRaymarchingShadowMaterial() {
-    return this.My;
+    return this.Ny;
   }
   /** The regular SDF shadow caster material of one component (for tests/debugging). */
   getRaymarchingComponentShadowMaterial(component) {
-    return this.Oy.get(component.componentSID);
+    return this.Py.get(component.componentSID);
   }
   /**
    * Provider of the SDF shadow caster passes handed to the ShadowSystem.
    */
-  Fz() {
+  Gz() {
     return {
-      hasCaster: () => this.Yy ? this.Oy.size > 0 : this.Wy != null && this.My != null,
-      createPasses: (params) => this.$z(params),
-      updatePointLightFarPlane: (shadowSlot, farPlane) => this.aA(shadowSlot, farPlane)
+      hasCaster: () => this.Zy ? this.Py.size > 0 : this.Xy != null && this.Ny != null,
+      createPasses: (params) => this.aA(params),
+      updatePointLightFarPlane: (shadowSlot, farPlane) => this.bA(shadowSlot, farPlane)
     };
   }
   /**
@@ -1577,10 +1577,10 @@ var ForwardRenderPipeline = class extends RnObject {
    * first use. A pair per slot is needed because the light index and the far plane are
    * material parameters, which WebGPU uploads once per frame.
    */
-  bA(shadowSlot, lightComponentSID, farPlane) {
-    let pair = this.Xy.get(shadowSlot);
+  cA(shadowSlot, lightComponentSID, farPlane) {
+    let pair = this.Yy.get(shadowSlot);
     if (pair == null) {
-      const json = this.Wy;
+      const json = this.Xy;
       if (json == null) {
         return void 0;
       }
@@ -1590,15 +1590,15 @@ var ForwardRenderPipeline = class extends RnObject {
         return void 0;
       }
       pair = { front, back };
-      this.Xy.set(shadowSlot, pair);
+      this.Yy.set(shadowSlot, pair);
     }
     const lightIndex = Scalar.fromCopyNumber(lightComponentSID);
     pair.front.setParameter("lightIndex", lightIndex);
     pair.back.setParameter("lightIndex", lightIndex);
-    this.nz(pair, farPlane);
+    this.oz(pair, farPlane);
     return pair;
   }
-  nz(pair, farPlane) {
+  oz(pair, farPlane) {
     const value = Scalar.fromCopyNumber(farPlane);
     pair.front.setParameter("shadowFarPlane", value);
     pair.back.setParameter("shadowFarPlane", value);
@@ -1612,11 +1612,11 @@ var ForwardRenderPipeline = class extends RnObject {
    * @param farPlane - The far plane of the point light shadow
    * @param component - The SDF component rendered into the shadow map
    */
-  cA(shadowSlot, lightComponentSID, farPlane, component) {
-    let slotPairs = this.Zy.get(shadowSlot);
+  dA(shadowSlot, lightComponentSID, farPlane, component) {
+    let slotPairs = this._y.get(shadowSlot);
     if (slotPairs == null) {
       slotPairs = /* @__PURE__ */ new Map();
-      this.Zy.set(shadowSlot, slotPairs);
+      this._y.set(shadowSlot, slotPairs);
     }
     let pair = slotPairs.get(component.componentSID);
     if (pair == null) {
@@ -1631,35 +1631,35 @@ var ForwardRenderPipeline = class extends RnObject {
     const lightIndex = Scalar.fromCopyNumber(lightComponentSID);
     pair.front.setParameter("lightIndex", lightIndex);
     pair.back.setParameter("lightIndex", lightIndex);
-    this.nz(pair, farPlane);
+    this.oz(pair, farPlane);
     return pair;
   }
-  aA(shadowSlot, farPlane) {
-    const pair = this.Xy.get(shadowSlot);
+  bA(shadowSlot, farPlane) {
+    const pair = this.Yy.get(shadowSlot);
     if (pair != null) {
-      this.nz(pair, farPlane);
+      this.oz(pair, farPlane);
     }
-    const componentPairs = this.Zy.get(shadowSlot);
+    const componentPairs = this._y.get(shadowSlot);
     if (componentPairs != null) {
       for (const componentPair of componentPairs.values()) {
-        this.nz(componentPair, farPlane);
+        this.oz(componentPair, farPlane);
       }
     }
   }
-  $z(params) {
+  aA(params) {
     const { lightComponent, kind, shadowSlot, farPlane } = params;
-    if (this.Yy) {
+    if (this.Zy) {
       const passes = [];
-      for (const component of this.lz()) {
+      for (const component of this.mz()) {
         const componentSID = component.componentSID;
-        if (!component.castShadow || !this.Ey.has(componentSID)) {
+        if (!component.castShadow || !this.Fy.has(componentSID)) {
           continue;
         }
         let material2;
         if (kind === "regular") {
-          material2 = this.Oy.get(componentSID);
+          material2 = this.Py.get(componentSID);
         } else {
-          const pair = this.cA(
+          const pair = this.dA(
             shadowSlot,
             lightComponent.componentSID,
             farPlane != null ? farPlane : 1e3,
@@ -1670,21 +1670,21 @@ var ForwardRenderPipeline = class extends RnObject {
         if (material2 == null) {
           continue;
         }
-        passes.push(this.Jz(material2, params));
+        passes.push(this.Kz(material2, params));
       }
       return passes;
     }
     let material;
     if (kind === "regular") {
-      material = this.My;
+      material = this.Ny;
     } else {
-      const pair = this.bA(shadowSlot, lightComponent.componentSID, farPlane != null ? farPlane : 1e3);
+      const pair = this.cA(shadowSlot, lightComponent.componentSID, farPlane != null ? farPlane : 1e3);
       material = kind === "paraboloidFront" ? pair == null ? void 0 : pair.front : pair == null ? void 0 : pair.back;
     }
     if (material == null) {
       return [];
     }
-    return [this.Jz(material, params)];
+    return [this.Kz(material, params)];
   }
   /**
    * Creates one buffer-less SDF shadow caster pass with the given material.
@@ -1692,7 +1692,7 @@ var ForwardRenderPipeline = class extends RnObject {
    * @param material - The component's (or merged) shadow caster material
    * @param params - The shadow map variant request
    */
-  Jz(material, { lightEntity, framebuffer, kind }) {
+  Kz(material, { lightEntity, framebuffer, kind }) {
     const renderPass = new RenderPass(this.c);
     renderPass.isVrRendering = false;
     renderPass.setBufferLessFullScreenRendering(material);
@@ -1721,22 +1721,22 @@ var ForwardRenderPipeline = class extends RnObject {
    * passes one frame behind. setParameter / setTextureParameter return early for identical
    * values, so the copy is cheap.
    */
-  Vz() {
-    if (this.Yy) {
-      this.dA();
+  Wz() {
+    if (this.Zy) {
+      this.eA();
       return;
     }
-    if (this.Wy == null) {
+    if (this.Xy == null) {
       return;
     }
     const materials = [];
-    if (this.My != null) {
-      materials.push(this.My);
+    if (this.Ny != null) {
+      materials.push(this.Ny);
     }
-    for (const pair of this.Xy.values()) {
+    for (const pair of this.Yy.values()) {
       materials.push(pair.front, pair.back);
     }
-    const componentMaterials = this.Ey;
+    const componentMaterials = this.Fy;
     const legacyMaterial = this.getRaymarchingMaterial();
     const firstMaterial = componentMaterials.size > 0 ? componentMaterials.values().next().value : legacyMaterial;
     const copySharedParameter = (material, semantic, info) => {
@@ -1770,7 +1770,7 @@ var ForwardRenderPipeline = class extends RnObject {
         continue;
       }
       unionable = true;
-      const aabb = this.kz(raymarchingComponent);
+      const aabb = this.lz(raymarchingComponent);
       if (aabb == null) {
         unionable = false;
         break;
@@ -1832,23 +1832,23 @@ var ForwardRenderPipeline = class extends RnObject {
    * the component's world matrix and world AABB, which the shadow shader uses for the
    * distance scale and the ray interval.
    */
-  dA() {
+  eA() {
     var _a, _b;
-    for (const component of this.lz()) {
+    for (const component of this.mz()) {
       const componentSID = component.componentSID;
       if (!component.castShadow) {
         continue;
       }
-      const visibleMaterial = this.Ey.get(componentSID);
+      const visibleMaterial = this.Fy.get(componentSID);
       if (visibleMaterial == null) {
         continue;
       }
       const shadowMaterials = [];
-      const regular = this.Oy.get(componentSID);
+      const regular = this.Py.get(componentSID);
       if (regular != null) {
         shadowMaterials.push(regular);
       }
-      for (const slotPairs of this.Zy.values()) {
+      for (const slotPairs of this._y.values()) {
         const pair = slotPairs.get(componentSID);
         if (pair != null) {
           shadowMaterials.push(pair.front, pair.back);
@@ -1859,7 +1859,7 @@ var ForwardRenderPipeline = class extends RnObject {
       }
       const sceneGraph = component.entity.tryToGetSceneGraph();
       const worldMatrix = sceneGraph == null ? void 0 : sceneGraph.matrixInner;
-      const aabb = this.kz(component);
+      const aabb = this.lz(component);
       const aabbMin = (_a = aabb == null ? void 0 : aabb.min) != null ? _a : RAYMARCHING_UNBOUNDED_AABB_MIN;
       const aabbMax = (_b = aabb == null ? void 0 : aabb.max) != null ? _b : RAYMARCHING_UNBOUNDED_AABB_MAX;
       for (const shadowMaterial of shadowMaterials) {
@@ -1889,12 +1889,12 @@ var ForwardRenderPipeline = class extends RnObject {
     }
   }
   /** Materials outside mesh primitives that still receive shadows (the raymarching materials). */
-  Ez() {
-    return this.mz();
+  Fz() {
+    return this.nz();
   }
   getRaymarchingMaterial() {
     var _a;
-    return (_a = this.Vy) == null ? void 0 : _a.material;
+    return (_a = this.Wy) == null ? void 0 : _a.material;
   }
   /**
    * Applies the pipeline's IBL environment to every raymarching PBR material.
@@ -1903,16 +1903,16 @@ var ForwardRenderPipeline = class extends RnObject {
    * the IBL parameters that material contents normally read from the mesh
    * renderer are set on the material here instead.
    */
-  Qy() {
-    for (const material of this.mz()) {
-      this.eA(material);
+  Ry() {
+    for (const material of this.nz()) {
+      this.fA(material);
     }
   }
   /**
    * Applies the pipeline's IBL environment to one raymarching material.
    * @param material - The raymarching material
    */
-  eA(material) {
+  fA(material) {
     var _a, _b, _c, _d, _e, _f;
     const diffuseEnvValue = material.getTextureParameter(ShaderSemantics.DiffuseEnvTexture.str);
     const specularEnvValue = material.getTextureParameter(ShaderSemantics.SpecularEnvTexture.str);
@@ -1920,16 +1920,16 @@ var ForwardRenderPipeline = class extends RnObject {
       return;
     }
     const sheenEnvValue = material.getTextureParameter(ShaderSemantics.SheenEnvTexture.str);
-    const diffuse = this.fz;
-    const specular = this.gz;
+    const diffuse = this.gz;
+    const specular = this.hz;
     if (diffuse == null || specular == null) {
       return;
     }
-    const state = `${diffuse.objectUID}:${diffuse.isTextureReady}:${specular.objectUID}:${specular.isTextureReady}:${(_b = (_a = this.Ry) == null ? void 0 : _a.objectUID) != null ? _b : -1}:${(_d = (_c = this.Ry) == null ? void 0 : _c.isTextureReady) != null ? _d : false}:${this.qz}:${this.rz}:${this.sz}`;
-    if (state === this.tz.get(material.objectUID)) {
+    const state = `${diffuse.objectUID}:${diffuse.isTextureReady}:${specular.objectUID}:${specular.isTextureReady}:${(_b = (_a = this.Sy) == null ? void 0 : _a.objectUID) != null ? _b : -1}:${(_d = (_c = this.Sy) == null ? void 0 : _c.isTextureReady) != null ? _d : false}:${this.rz}:${this.sz}:${this.tz}`;
+    if (state === this.uz.get(material.objectUID)) {
       return;
     }
-    this.tz.set(material.objectUID, state);
+    this.uz.set(material.objectUID, state);
     const sampler = diffuseEnvValue[2];
     if (diffuse.isTextureReady) {
       material.setTextureParameter(ShaderSemantics.DiffuseEnvTexture.str, diffuse, sampler);
@@ -1937,7 +1937,7 @@ var ForwardRenderPipeline = class extends RnObject {
     if (specular.isTextureReady) {
       material.setTextureParameter(ShaderSemantics.SpecularEnvTexture.str, specular, sampler);
       if (sheenEnvValue != null) {
-        const sheen = ((_e = this.Ry) == null ? void 0 : _e.isTextureReady) ? this.Ry : specular;
+        const sheen = ((_e = this.Sy) == null ? void 0 : _e.isTextureReady) ? this.Sy : specular;
         const sheenSampler = (_f = sheenEnvValue[2]) != null ? _f : sampler;
         material.setTextureParameter(ShaderSemantics.SheenEnvTexture.str, sheen, sheenSampler);
       }
@@ -1946,9 +1946,9 @@ var ForwardRenderPipeline = class extends RnObject {
       "iblParameter",
       Vector4.fromCopy4(
         specular.mipmapLevelNumber,
-        this.rz,
         this.sz,
-        this.qz
+        this.tz,
+        this.rz
       )
     );
     material.setParameter("hdriFormat", Vector2.fromCopy2(diffuse.hdriFormat.index, specular.hdriFormat.index));
@@ -1962,8 +1962,8 @@ var ForwardRenderPipeline = class extends RnObject {
    * so blended meshes that are drawn in the opaque expression (the pipeline may be
    * configured with isTransmission: false) keep blending over the SDF.
    */
-  fA() {
-    return this.mz().some((material) => material.isShaderDefine("RN_USE_TRANSMISSION"));
+  gA() {
+    return this.nz().some((material) => material.isShaderDefine("RN_USE_TRANSMISSION"));
   }
   /**
    * Binds the resolved scene color to every raymarching material for transmission.
@@ -1973,17 +1973,17 @@ var ForwardRenderPipeline = class extends RnObject {
    * so the texture holds the current frame. Materials without the semantic ignore the
    * call, and an identical binding is a no-op, so this is safe to run every frame.
    */
-  jz() {
+  kz() {
     var _a;
-    if (this.Dy) {
+    if (this.Ey) {
       return;
     }
-    const backBufferTexture = (_a = this.xz()) == null ? void 0 : _a.getColorAttachedRenderTargetTexture(0);
-    const sampler = this.hz;
+    const backBufferTexture = (_a = this.yz()) == null ? void 0 : _a.getColorAttachedRenderTargetTexture(0);
+    const sampler = this.iz;
     if (backBufferTexture == null || sampler == null) {
       return;
     }
-    for (const material of this.mz()) {
+    for (const material of this.nz()) {
       material.setTextureParameter(ShaderSemantics.BackBufferTexture.str, backBufferTexture, sampler);
     }
   }
@@ -2006,26 +2006,26 @@ var ForwardRenderPipeline = class extends RnObject {
    *
    * @internal
    */
-  Py() {
-    const frame = this.Hy;
+  Qy() {
+    const frame = this.Iy;
     if (frame == null) {
       console.log("Frame is not set.");
       return;
     }
     frame.clearExpressions();
-    frame.addExpression(this.oz);
-    this.Sy = this._z();
-    if (!this.Dy) {
-      for (const exp of this.wz) {
+    frame.addExpression(this.pz);
+    this.Ty = this.$z();
+    if (!this.Ey) {
+      for (const exp of this.xz) {
         frame.addExpression(exp);
       }
     }
-    const raymarchingUsesTransmission = this.fA();
-    if (!raymarchingUsesTransmission && this.Sy != null) {
-      frame.addExpression(this.Sy);
+    const raymarchingUsesTransmission = this.gA();
+    if (!raymarchingUsesTransmission && this.Ty != null) {
+      frame.addExpression(this.Ty);
     }
     for (const exp of this.gi) {
-      if (this.Dy) {
+      if (this.Ey) {
         exp.renderPasses.forEach((renderPass) => {
           renderPass.isOutputForVr = true;
         });
@@ -2036,17 +2036,17 @@ var ForwardRenderPipeline = class extends RnObject {
       }
       frame.addExpression(exp);
     }
-    if (!this.Dy && this.cz != null && !MiscUtil.isMobile()) {
-      frame.addExpression(this.cz);
+    if (!this.Ey && this.dz != null && !MiscUtil.isMobile()) {
+      frame.addExpression(this.dz);
     }
-    if (!this.Dy && this.pz != null) {
-      frame.addExpression(this.pz);
+    if (!this.Ey && this.qz != null) {
+      frame.addExpression(this.qz);
     }
-    if (raymarchingUsesTransmission && this.Sy != null) {
-      frame.addExpression(this.Sy);
+    if (raymarchingUsesTransmission && this.Ty != null) {
+      frame.addExpression(this.Ty);
     }
-    for (const exp of this.Ty) {
-      if (this.Dy) {
+    for (const exp of this.Uy) {
+      if (this.Ey) {
         exp.renderPasses.forEach((renderPass) => {
           renderPass.isOutputForVr = true;
         });
@@ -2057,33 +2057,33 @@ var ForwardRenderPipeline = class extends RnObject {
       }
       frame.addExpression(exp);
     }
-    if (this.bz.renderPasses.length > 0) {
-      if (!this.Dy) {
-        const mainFrameBuffer = this.az();
+    if (this.cz.renderPasses.length > 0) {
+      if (!this.Ey) {
+        const mainFrameBuffer = this.bz();
         if (mainFrameBuffer != null) {
-          for (const rp of this.bz.renderPasses) {
+          for (const rp of this.cz.renderPasses) {
             rp.setFramebuffer(mainFrameBuffer);
-            if (this.Ly != null) {
-              rp.setResolveFramebuffer(this.Iy);
+            if (this.My != null) {
+              rp.setResolveFramebuffer(this.Jy);
             }
           }
         }
       }
-      frame.addExpression(this.bz);
+      frame.addExpression(this.cz);
     }
-    if (!this.Dy && this.dz != null) {
-      frame.addExpression(this.dz);
-    }
-    if (!this.Dy && this.Gy && this.ez != null) {
+    if (!this.Ey && this.ez != null) {
       frame.addExpression(this.ez);
     }
-    if (!this.Dy && this.$y != null) {
-      frame.addExpression(this.$y);
+    if (!this.Ey && this.Hy && this.fz != null) {
+      frame.addExpression(this.fz);
+    }
+    if (!this.Ey && this.az != null) {
+      frame.addExpression(this.az);
     }
     const entities = this.gi.flatMap(
       (expression) => expression.renderPasses.flatMap((renderPass) => renderPass.entities)
     );
-    this.Dz = entities;
+    this.Ez = entities;
   }
 };
 export {

@@ -2,10 +2,10 @@
 import { SymbolWeakMap } from "./SymbolWeakMap.js";
 var Cache = class {
   constructor() {
-    this.Ru = new SymbolWeakMap();
+    this.Su = new SymbolWeakMap();
   }
   register(value) {
-    this.Ru.set(/* @__PURE__ */ Symbol(), value);
+    this.Su.set(/* @__PURE__ */ Symbol(), value);
   }
   // public read(): T {}
 };

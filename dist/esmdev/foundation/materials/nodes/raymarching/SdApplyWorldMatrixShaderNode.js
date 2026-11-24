@@ -11,18 +11,18 @@ var SdApplyWorldMatrixShaderNode = class extends AbstractShaderNode {
    */
   constructor() {
     super("sdApplyWorldMatrix", {});
-    this.Ar += `_${this.Er}`;
-    this.zr = new SdApplyWorldMatrixShader(this.Ar);
+    this.Br += `_${this.Fr}`;
+    this.Ar = new SdApplyWorldMatrixShader(this.Br);
     this.setShaderStage("Fragment");
-    this.yr.push(
+    this.zr.push(
       new Socket("position", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 0))
     );
-    this.Br.push(
+    this.Cr.push(
       new Socket("outTransformedPosition", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 0))
     );
   }
   setUniformDataName(value) {
-    this.zr.setVariableName(value);
+    this.Ar.setVariableName(value);
   }
 };
 export {

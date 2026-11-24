@@ -19,9 +19,9 @@ var OpUnionShaderNode = class extends AbstractShaderNode {
       codeWGSL: OpUnionShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.yr.push(new Socket("lhs", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
-    this.yr.push(new Socket("rhs", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
-    this.Br.push(
+    this.zr.push(new Socket("lhs", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
+    this.zr.push(new Socket("rhs", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
+    this.Cr.push(
       new Socket("outValue", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
   }
@@ -32,7 +32,7 @@ var OpUnionShaderNode = class extends AbstractShaderNode {
    * @returns The left-hand side input socket
    */
   getSocketInputLhs() {
-    return this.yr[0];
+    return this.zr[0];
   }
   /**
    * Gets the right-hand side input socket.
@@ -41,7 +41,7 @@ var OpUnionShaderNode = class extends AbstractShaderNode {
    * @returns The right-hand side input socket
    */
   getSocketInputRhs() {
-    return this.yr[1];
+    return this.zr[1];
   }
   /**
    * Gets the output socket that contains the result of the union operation.
@@ -49,7 +49,7 @@ var OpUnionShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the union result
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
 };
 export {

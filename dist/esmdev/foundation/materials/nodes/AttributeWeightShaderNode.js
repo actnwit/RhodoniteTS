@@ -23,7 +23,7 @@ var AttributeWeightShaderNode = class extends AbstractShaderNode {
       codeWGSL: AttributeWeightShaderityObjectWGSL.code
     });
     this.setShaderStage("Vertex");
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: "outValue"

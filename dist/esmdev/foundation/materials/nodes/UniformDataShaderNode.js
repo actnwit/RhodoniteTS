@@ -11,9 +11,9 @@ var UniformDataShaderNode = class extends AbstractShaderNode {
    */
   constructor(compositionType, componentType) {
     super("uniformData", {});
-    this.Ar += `_${this.Er}`;
-    this.zr = new UniformDataShader(this.Ar, compositionType, componentType);
-    this.Br.push(new Socket("outValue", compositionType, componentType));
+    this.Br += `_${this.Fr}`;
+    this.Ar = new UniformDataShader(this.Br, compositionType, componentType);
+    this.Cr.push(new Socket("outValue", compositionType, componentType));
   }
   /**
    * Sets the default input value for the specified input parameter.
@@ -24,7 +24,7 @@ var UniformDataShaderNode = class extends AbstractShaderNode {
    */
   setDefaultInputValue(inputName, value) {
     if (inputName === "value") {
-      this.zr.setDefaultValue(value);
+      this.Ar.setDefaultValue(value);
     }
   }
   /**
@@ -34,7 +34,7 @@ var UniformDataShaderNode = class extends AbstractShaderNode {
    * @param value - The variable name to use for the uniform data in the shader
    */
   setUniformDataName(value) {
-    this.zr.setVariableName(value);
+    this.Ar.setVariableName(value);
   }
 };
 export {

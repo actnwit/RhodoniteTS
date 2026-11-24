@@ -19,9 +19,9 @@ var SdRepeatYShaderNode = class extends AbstractShaderNode {
       codeWGSL: SdRepeatYShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.yr.push(new Socket("position", CompositionType.Vec3, ComponentType.Float));
-    this.yr.push(new Socket("interval", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1)));
-    this.Br.push(new Socket("outPosition", CompositionType.Vec3, ComponentType.Float));
+    this.zr.push(new Socket("position", CompositionType.Vec3, ComponentType.Float));
+    this.zr.push(new Socket("interval", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1)));
+    this.Cr.push(new Socket("outPosition", CompositionType.Vec3, ComponentType.Float));
   }
   /**
    * Gets the output socket that contains the result of the subtraction operation.
@@ -29,7 +29,7 @@ var SdRepeatYShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the subtraction result
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
 };
 export {

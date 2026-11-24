@@ -15,12 +15,12 @@ var RaymarchTBNShaderNode = class extends AbstractShaderNode {
       codeWGSL: RaymarchTBNShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.Br.push(
+    this.Cr.push(
       new Socket("outValue", CompositionType.Mat3, ComponentType.Float, Matrix33.identity())
     );
   }
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
 };
 export {

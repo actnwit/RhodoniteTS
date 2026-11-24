@@ -15,17 +15,17 @@ var WireframeMaterialNode = class extends AbstractShaderNode {
     super("wireframe", {
       codeGLSL: WireframeShaderityObject.code
     });
-    this.yr.push({
+    this.zr.push({
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: "existingFragColor"
     });
-    this.yr.push({
+    this.zr.push({
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: "wireframeColor"
     });
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: "outColor"

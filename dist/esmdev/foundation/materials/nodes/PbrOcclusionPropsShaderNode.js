@@ -18,13 +18,13 @@ var PbrOcclusionPropsShaderNode = class extends AbstractShaderNode {
       codeGLSL: PbrOcclusionPropsShaderityObjectGLSL.code,
       codeWGSL: PbrOcclusionPropsShaderityObjectWGSL.code
     });
-    this.yr.push(
+    this.zr.push(
       new Socket("occlusionTexture", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("occlusionStrength", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1))
     );
-    this.Br.push(new Socket("outOcclusionProps", CompositionType.OcclusionProps, ComponentType.Unknown));
+    this.Cr.push(new Socket("outOcclusionProps", CompositionType.OcclusionProps, ComponentType.Unknown));
   }
   /**
    * Gets the output socket that contains the result of the PBR shading operation.
@@ -32,7 +32,7 @@ var PbrOcclusionPropsShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the PBR shading result
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
 };
 export {

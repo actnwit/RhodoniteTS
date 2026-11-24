@@ -45,7 +45,7 @@ var ShadowMapDecodeClassicMaterialContent = class extends AbstractMaterialConten
       ShadowMapDecodeSingleShaderFragment,
       engine
     );
-    this.jr = encodedDepthRenderPass;
+    this.kr = encodedDepthRenderPass;
     const encodedDepthFramebuffer = encodedDepthRenderPass.getFramebuffer();
     if (encodedDepthFramebuffer == null) {
       Logger.default.error("encodedDepthRenderPass does not have framebuffer");
@@ -238,12 +238,12 @@ var ShadowMapDecodeClassicMaterialContent = class extends AbstractMaterialConten
         CameraComponent.getCurrent(engine)
       );
     }
-    const encodedDepthCameraComponent = this.jr.cameraComponent;
+    const encodedDepthCameraComponent = this.kr.cameraComponent;
     material.setParameter("zNearInner", encodedDepthCameraComponent.zNearInner);
     material.setParameter("zFarInner", encodedDepthCameraComponent.zFarInner);
     material.setParameter(
       "lightViewProjectionMatrix",
-      this.jr.cameraComponent.viewProjectionMatrix
+      this.kr.cameraComponent.viewProjectionMatrix
     );
     const blendShapeComponent = args.entity.tryToGetBlendShape();
     this.setMorphInfo(shaderProgram, args.entity.getMesh(), args.primitive, blendShapeComponent);
@@ -280,9 +280,9 @@ ShadowMapDecodeClassicMaterialContent.DepthTexture = new ShaderSemanticsClass({
 /** Shader semantic indicating whether the light source is a point light */
 ShadowMapDecodeClassicMaterialContent.IsPointLight = new ShaderSemanticsClass({ str: "isPointLight" });
 /** Cached value of the last used near clipping plane distance for optimization */
-ShadowMapDecodeClassicMaterialContent.ar = 0;
-/** Cached value of the last used far clipping plane distance for optimization */
 ShadowMapDecodeClassicMaterialContent.br = 0;
+/** Cached value of the last used far clipping plane distance for optimization */
+ShadowMapDecodeClassicMaterialContent.cr = 0;
 export {
   ShadowMapDecodeClassicMaterialContent
 };

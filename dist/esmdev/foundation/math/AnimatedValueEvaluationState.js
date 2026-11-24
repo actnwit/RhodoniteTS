@@ -1,32 +1,32 @@
 // src/foundation/math/AnimatedValueEvaluationState.ts
 var AnimatedValueEvaluationState = class {
   constructor() {
-    this.ut = false;
-    this.wt = 0;
+    this.vt = false;
     this.xt = 0;
     this.yt = 0;
+    this.zt = 0;
     /** Segment cursor for the first active sampler (used by keyframe search memoization). */
     this.firstCursor = { i: -1 };
     /** Segment cursor for the second active sampler (used by keyframe search memoization). */
     this.secondCursor = { i: -1 };
     /** Reused scratch buffers for two-track blending (double precision to match the previous math). */
-    this.vt = new Float64Array(0);
-    this.zt = new Float64Array(0);
+    this.wt = new Float64Array(0);
+    this.At = new Float64Array(0);
   }
   /**
    * Ensures the blending scratch buffers can hold `length` components.
    */
   ensureScratch(length) {
-    if (this.vt.length < length) {
-      this.vt = new Float64Array(length);
-      this.zt = new Float64Array(length);
+    if (this.wt.length < length) {
+      this.wt = new Float64Array(length);
+      this.At = new Float64Array(length);
     }
   }
   get scratchFirst() {
-    return this.vt;
+    return this.wt;
   }
   get scratchSecond() {
-    return this.zt;
+    return this.At;
   }
   /**
    * Returns true when the animated value must be re-evaluated.
@@ -35,13 +35,13 @@ var AnimatedValueEvaluationState = class {
    * @param hasSecondSampler - Whether a second sampler contributes to the result
    */
   shouldEvaluate(effectiveTime, blendingRatio, hasSecondSampler) {
-    if (!this.ut) {
+    if (!this.vt) {
       return true;
     }
-    if (this.wt !== effectiveTime) {
+    if (this.xt !== effectiveTime) {
       return true;
     }
-    if (hasSecondSampler && this.xt !== blendingRatio) {
+    if (hasSecondSampler && this.yt !== blendingRatio) {
       return true;
     }
     return false;
@@ -50,16 +50,16 @@ var AnimatedValueEvaluationState = class {
    * Records a completed evaluation and increments the evaluation counter.
    */
   markEvaluated(effectiveTime, blendingRatio) {
-    this.ut = true;
-    this.wt = effectiveTime;
-    this.xt = blendingRatio;
-    this.yt++;
+    this.vt = true;
+    this.xt = effectiveTime;
+    this.yt = blendingRatio;
+    this.zt++;
   }
   /**
    * Drops the memoized result and resets the keyframe cursors.
    */
   invalidate() {
-    this.ut = false;
+    this.vt = false;
     this.resetCursors();
   }
   /**
@@ -73,7 +73,7 @@ var AnimatedValueEvaluationState = class {
    * Number of actual interpolations performed. Intended for tests and benchmarks.
    */
   get evaluationCount() {
-    return this.yt;
+    return this.zt;
   }
 };
 export {

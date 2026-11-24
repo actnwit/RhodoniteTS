@@ -19,14 +19,14 @@ var CastToFloatShaderNode = class extends AbstractShaderNode {
       codeGLSL: CastToFloatShaderityObjectGLSL.code,
       codeWGSL: CastToFloatShaderityObjectWGSL.code
     });
-    this.Ys = inputComponentType;
-    this.Xs = compositionType;
-    this.yr.push({
+    this.Zs = inputComponentType;
+    this.Ys = compositionType;
+    this.zr.push({
       compositionType,
       componentType: inputComponentType,
       name: "value"
     });
-    this.Br.push({
+    this.Cr.push({
       compositionType,
       componentType: ComponentType.Float,
       name: "outValue"
@@ -49,26 +49,26 @@ var CastToFloatShaderNode = class extends AbstractShaderNode {
   getShaderFunctionNameDerivative(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       let typeSuffix = "";
-      if (this.Ys === ComponentType.Bool) {
+      if (this.Zs === ComponentType.Bool) {
         typeSuffix = "Bool";
-      } else if (this.Ys === ComponentType.Int) {
+      } else if (this.Zs === ComponentType.Int) {
         typeSuffix = "Int";
-      } else if (this.Ys === ComponentType.UnsignedInt) {
+      } else if (this.Zs === ComponentType.UnsignedInt) {
         typeSuffix = "Uint";
       }
       let vecSuffix = "";
-      if (this.Xs === CompositionType.Scalar) {
+      if (this.Ys === CompositionType.Scalar) {
         vecSuffix = "Scalar";
-      } else if (this.Xs === CompositionType.Vec2) {
+      } else if (this.Ys === CompositionType.Vec2) {
         vecSuffix = "Vec2";
-      } else if (this.Xs === CompositionType.Vec3) {
+      } else if (this.Ys === CompositionType.Vec3) {
         vecSuffix = "Vec3";
-      } else if (this.Xs === CompositionType.Vec4) {
+      } else if (this.Ys === CompositionType.Vec4) {
         vecSuffix = "Vec4";
       }
-      return `${this.Ar}${typeSuffix}${vecSuffix}`;
+      return `${this.Br}${typeSuffix}${vecSuffix}`;
     }
-    return this.Ar;
+    return this.Br;
   }
 };
 export {

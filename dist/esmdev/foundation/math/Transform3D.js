@@ -9,21 +9,21 @@ var _Transform3D = class _Transform3D {
   constructor(x) {
     this.ia = 0;
     /** The local matrix composed from the current position, rotation and scale. */
-    this.Kt = MutableMatrix44.identity();
-    this.Lt = false;
+    this.Lt = MutableMatrix44.identity();
+    this.Mt = false;
     /** The position, rotation and scale the cached matrix was composed from (to detect direct inner mutations). */
-    this.Mt = new Float64Array(3);
-    this.Nt = new Float64Array(4);
-    this.Ot = new Float64Array(3);
-    this.Gt = MutableVector3.dummy();
-    this.It = MutableVector3.dummy();
-    this.Ht = MutableQuaternion.dummy();
+    this.Nt = new Float64Array(3);
+    this.Ot = new Float64Array(4);
+    this.Pt = new Float64Array(3);
+    this.Ht = MutableVector3.dummy();
+    this.Jt = MutableVector3.dummy();
+    this.It = MutableQuaternion.dummy();
     if (x !== void 0) {
       this.setTransform(x.positionInner, x.scaleInner, MutableQuaternion.fromCopyQuaternion(x.rotationInner));
     } else {
-      this.Gt = MutableVector3.zero();
-      this.It = MutableVector3.one();
-      this.Ht = MutableQuaternion.identity();
+      this.Ht = MutableVector3.zero();
+      this.Jt = MutableVector3.one();
+      this.It = MutableQuaternion.identity();
     }
   }
   /**
@@ -48,18 +48,18 @@ var _Transform3D = class _Transform3D {
    * @param vec - The new position vector
    */
   set position(vec) {
-    this.Gt.copyComponents(vec);
-    this.Jt("position");
+    this.Ht.copyComponents(vec);
+    this.Kt("position");
   }
   /**
    * Sets the position using an array of three numbers.
    * @param array - Array containing [x, y, z] position values
    */
   setPositionAsArray3(array) {
-    this.Gt._v[0] = array[0];
-    this.Gt._v[1] = array[1];
-    this.Gt._v[2] = array[2];
-    this.Jt("position");
+    this.Ht._v[0] = array[0];
+    this.Ht._v[1] = array[1];
+    this.Ht._v[2] = array[2];
+    this.Kt("position");
   }
   /**
    * Gets a copy of the local position vector.
@@ -73,7 +73,7 @@ var _Transform3D = class _Transform3D {
    * @returns The internal MutableVector3 position object
    */
   get positionInner() {
-    return this.Gt;
+    return this.Ht;
   }
   /**
    * Sets the rotation using Euler angles (XYZ order).
@@ -105,25 +105,25 @@ var _Transform3D = class _Transform3D {
    * @returns A Vector3 containing rotation angles in radians [x, y, z]
    */
   get eulerAnglesInner() {
-    return this.Ht.toEulerAngles();
+    return this.It.toEulerAngles();
   }
   /**
    * Sets the scale of the transform.
    * @param vec - The new scale vector
    */
   set scale(vec) {
-    this.It.copyComponents(vec);
-    this.Jt();
+    this.Jt.copyComponents(vec);
+    this.Kt();
   }
   /**
    * Sets the scale using an array of three numbers.
    * @param array - Array containing [x, y, z] scale values
    */
   setScaleAsArray3(array) {
-    this.It._v[0] = array[0];
-    this.It._v[1] = array[1];
-    this.It._v[2] = array[2];
-    this.Jt();
+    this.Jt._v[0] = array[0];
+    this.Jt._v[1] = array[1];
+    this.Jt._v[2] = array[2];
+    this.Kt();
   }
   /**
    * Gets a copy of the local scale vector.
@@ -137,26 +137,26 @@ var _Transform3D = class _Transform3D {
    * @returns The internal MutableVector3 scale object
    */
   get scaleInner() {
-    return this.It;
+    return this.Jt;
   }
   /**
    * Sets the rotation using a quaternion.
    * @param quat - The new rotation quaternion
    */
   set rotation(quat) {
-    this.Ht.copyComponents(quat);
-    this.Jt();
+    this.It.copyComponents(quat);
+    this.Kt();
   }
   /**
    * Sets the rotation using an array of four numbers representing a quaternion.
    * @param array - Array containing [x, y, z, w] quaternion values
    */
   setRotationAsArray4(array) {
-    this.Ht._v[0] = array[0];
-    this.Ht._v[1] = array[1];
-    this.Ht._v[2] = array[2];
-    this.Ht._v[3] = array[3];
-    this.Jt();
+    this.It._v[0] = array[0];
+    this.It._v[1] = array[1];
+    this.It._v[2] = array[2];
+    this.It._v[3] = array[3];
+    this.Kt();
   }
   /**
    * Gets a copy of the local rotation quaternion.
@@ -170,7 +170,7 @@ var _Transform3D = class _Transform3D {
    * @returns The internal Quaternion rotation object
    */
   get rotationInner() {
-    return this.Ht;
+    return this.It;
   }
   /**
    * Internal method to increment the update counter when transform changes.
@@ -182,16 +182,16 @@ var _Transform3D = class _Transform3D {
    * @param change - What changed: `'position'` or everything (`'all'`).
    * @private
    */
-  Jt(change = "all") {
+  Kt(change = "all") {
     this.ia++;
-    if (change === "position" && this.Lt) {
-      const v = this.Kt._v;
-      v[12] = this.Gt._v[0];
-      v[13] = this.Gt._v[1];
-      v[14] = this.Gt._v[2];
-      this.Mt.set(this.Gt._v);
+    if (change === "position" && this.Mt) {
+      const v = this.Lt._v;
+      v[12] = this.Ht._v[0];
+      v[13] = this.Ht._v[1];
+      v[14] = this.Ht._v[2];
+      this.Nt.set(this.Ht._v);
     } else {
-      this.Lt = false;
+      this.Mt = false;
     }
   }
   /**
@@ -200,10 +200,10 @@ var _Transform3D = class _Transform3D {
    * @param mat - The transformation matrix to decompose
    */
   set matrix(mat) {
-    this.Ht.fromMatrix(mat);
-    mat.getTranslateTo(this.Gt);
-    mat.getScaleTo(this.It);
-    this.Jt();
+    this.It.fromMatrix(mat);
+    mat.getTranslateTo(this.Ht);
+    mat.getScaleTo(this.Jt);
+    this.Kt();
   }
   /**
    * Gets a copy of the local transformation matrix.
@@ -218,13 +218,13 @@ var _Transform3D = class _Transform3D {
    * @returns A MutableMatrix44 representing the composed transformation
    */
   get matrixInner() {
-    this.Pt();
-    return this.Kt.clone();
+    this.Qt();
+    return this.Lt.clone();
   }
   /**
    * Composes the local matrix from the current position, rotation and scale and stores it in the cache.
    */
-  Qt() {
+  Rt() {
     const scale = this.scaleInner;
     const n00 = scale._v[0];
     const n11 = scale._v[1];
@@ -249,7 +249,7 @@ var _Transform3D = class _Transform3D {
     const m21 = 2 * (cx + wx);
     const m22 = 1 - 2 * (sx + sy);
     const translate = this.positionInner;
-    this.Kt.setComponents(
+    this.Lt.setComponents(
       m00 * n00,
       m01 * n11,
       m02 * n22,
@@ -267,27 +267,27 @@ var _Transform3D = class _Transform3D {
       0,
       1
     );
-    this.Mt.set(this.Gt._v);
     this.Nt.set(this.Ht._v);
     this.Ot.set(this.It._v);
+    this.Pt.set(this.Jt._v);
   }
   /**
    * Brings the cached matrix up to date. Direct mutations of the inner vectors (positionInner and the like)
    * bypass the setters, so they are detected here: a position-only change updates the translation column, and
    * a rotation or scale change recomposes the matrix.
    */
-  Pt() {
-    if (!this.Lt) {
-      this.Qt();
-      this.Lt = true;
+  Qt() {
+    if (!this.Mt) {
+      this.Rt();
+      this.Mt = true;
       return;
     }
-    const p = this.Gt._v;
-    const q = this.Ht._v;
-    const s = this.It._v;
-    const mp = this.Mt;
-    const mq = this.Nt;
-    const ms = this.Ot;
+    const p = this.Ht._v;
+    const q = this.It._v;
+    const s = this.Jt._v;
+    const mp = this.Nt;
+    const mq = this.Ot;
+    const ms = this.Pt;
     let rotationScaleChanged = false;
     for (let i = 0; i < 4; i++) {
       if (q[i] !== mq[i]) {
@@ -304,11 +304,11 @@ var _Transform3D = class _Transform3D {
       }
     }
     if (rotationScaleChanged) {
-      this.Qt();
+      this.Rt();
       return;
     }
     if (p[0] !== mp[0] || p[1] !== mp[1] || p[2] !== mp[2]) {
-      const v = this.Kt._v;
+      const v = this.Lt._v;
       v[12] = p[0];
       v[13] = p[1];
       v[14] = p[2];
@@ -324,8 +324,8 @@ var _Transform3D = class _Transform3D {
    * @param mat - The target matrix to store the result in
    */
   getMatrixInnerTo(mat) {
-    this.Pt();
-    mat.copyComponents(this.Kt);
+    this.Qt();
+    mat.copyComponents(this.Lt);
   }
   /**
    * Gets the number of times this transform has been updated.
@@ -431,10 +431,10 @@ var _Transform3D = class _Transform3D {
    * @param rotation - The rotation component as a quaternion
    */
   setTransform(translate, scale, rotation) {
-    this.Gt = translate.clone();
-    this.Ht = rotation.clone();
-    this.It = scale.clone();
-    this.Jt();
+    this.Ht = translate.clone();
+    this.It = rotation.clone();
+    this.Jt = scale.clone();
+    this.Kt();
   }
 };
 _Transform3D.yc = MutableMatrix44.zero();

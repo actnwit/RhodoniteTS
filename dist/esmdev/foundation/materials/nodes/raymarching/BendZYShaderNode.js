@@ -15,12 +15,12 @@ var BendZYShaderNode = class extends AbstractShaderNode {
       codeWGSL: BendZYShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.yr.push(new Socket("position", CompositionType.Vec3, ComponentType.Float));
-    this.yr.push(new Socket("strength", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.5)));
-    this.Br.push(new Socket("outPosition", CompositionType.Vec3, ComponentType.Float));
+    this.zr.push(new Socket("position", CompositionType.Vec3, ComponentType.Float));
+    this.zr.push(new Socket("strength", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.5)));
+    this.Cr.push(new Socket("outPosition", CompositionType.Vec3, ComponentType.Float));
   }
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
 };
 export {

@@ -17,41 +17,41 @@ var AcosShaderNode = class extends AbstractShaderNode {
       codeGLSL: AcosShaderityObjectGLSL.code,
       codeWGSL: AcosShaderityObjectWGSL.code
     });
-    this.yr.push(new Socket("value", compositionType, componentType));
-    this.Br.push(new Socket("outValue", compositionType, componentType));
+    this.zr.push(new Socket("value", compositionType, componentType));
+    this.Cr.push(new Socket("outValue", compositionType, componentType));
   }
   /**
    * Gets the input socket that accepts the value to compute the arc cosine of.
    */
   getSocketInputValue() {
-    return this.yr[0];
+    return this.zr[0];
   }
   /**
    * Gets the output socket that contains the computed arc cosine.
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
   /**
    * Gets the platform-specific shader function name for the acos operation.
    */
   getShaderFunctionNameDerivative(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      if (this.yr[0].compositionType === CompositionType.Scalar) {
-        return `${this.Ar}F32`;
+      if (this.zr[0].compositionType === CompositionType.Scalar) {
+        return `${this.Br}F32`;
       }
-      if (this.yr[0].compositionType === CompositionType.Vec2) {
-        return `${this.Ar}Vec2f`;
+      if (this.zr[0].compositionType === CompositionType.Vec2) {
+        return `${this.Br}Vec2f`;
       }
-      if (this.yr[0].compositionType === CompositionType.Vec3) {
-        return `${this.Ar}Vec3f`;
+      if (this.zr[0].compositionType === CompositionType.Vec3) {
+        return `${this.Br}Vec3f`;
       }
-      if (this.yr[0].compositionType === CompositionType.Vec4) {
-        return `${this.Ar}Vec4f`;
+      if (this.zr[0].compositionType === CompositionType.Vec4) {
+        return `${this.Br}Vec4f`;
       }
       throw new Error("Not implemented");
     }
-    return this.Ar;
+    return this.Br;
   }
 };
 export {

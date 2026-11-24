@@ -18,22 +18,22 @@ var PbrClearcoatPropsShaderNode = class extends AbstractShaderNode {
       codeGLSL: PbrClearcoatPropsShaderityObjectGLSL.code,
       codeWGSL: PbrClearcoatPropsShaderityObjectWGSL.code
     });
-    this.yr.push(
+    this.zr.push(
       new Socket("clearcoatFactor", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("clearcoatTexture", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("clearcoatRoughnessFactor", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("clearcoatRoughnessTexture", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("clearcoatNormalTexture", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(0.5, 0.5, 1, 1))
     );
-    this.Br.push(new Socket("outClearcoatProps", CompositionType.ClearcoatProps, ComponentType.Unknown));
+    this.Cr.push(new Socket("outClearcoatProps", CompositionType.ClearcoatProps, ComponentType.Unknown));
   }
   /**
    * Gets the output socket that contains the result of the PBR shading operation.
@@ -41,7 +41,7 @@ var PbrClearcoatPropsShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the PBR shading result
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
 };
 export {

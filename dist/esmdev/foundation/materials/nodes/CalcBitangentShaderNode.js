@@ -21,11 +21,11 @@ var CalcBitangentShaderNode = class extends AbstractShaderNode {
       codeGLSL: CalcBitangentShaderityObjectGLSL.code,
       codeWGSL: CalcBitangentShaderityObjectWGSL.code
     });
-    this.yr.push(new Socket("tangent", CompositionType.Vec4, ComponentType.Float));
-    this.yr.push(new Socket("normalInWorld", CompositionType.Vec3, ComponentType.Float));
-    this.yr.push(new Socket("worldMatrix", CompositionType.Mat4, ComponentType.Float));
-    this.Br.push(new Socket("outTangentInWorld", CompositionType.Vec3, ComponentType.Float));
-    this.Br.push(new Socket("outBitangentInWorld", CompositionType.Vec3, ComponentType.Float));
+    this.zr.push(new Socket("tangent", CompositionType.Vec4, ComponentType.Float));
+    this.zr.push(new Socket("normalInWorld", CompositionType.Vec3, ComponentType.Float));
+    this.zr.push(new Socket("worldMatrix", CompositionType.Mat4, ComponentType.Float));
+    this.Cr.push(new Socket("outTangentInWorld", CompositionType.Vec3, ComponentType.Float));
+    this.Cr.push(new Socket("outBitangentInWorld", CompositionType.Vec3, ComponentType.Float));
   }
   /**
    * Gets the output socket that contains the tangent vector in world space.
@@ -33,7 +33,7 @@ var CalcBitangentShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the tangent vector in world space
    */
   getSocketOutputTangentInWorld() {
-    return this.Br[0];
+    return this.Cr[0];
   }
   /**
    * Gets the output socket that contains the bitangent vector in world space.
@@ -41,7 +41,7 @@ var CalcBitangentShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the bitangent vector in world space
    */
   getSocketOutputBitangentInWorld() {
-    return this.Br[1];
+    return this.Cr[1];
   }
 };
 export {

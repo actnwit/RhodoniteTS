@@ -19,62 +19,62 @@ import {
 var MaxPackableShadowSlot = 254;
 var LightClusterSystem = class {
   constructor(engine) {
-    this.hy = 0;
-    this.ry = -1;
-    this.Mx = 0;
-    // The light lists of the current and the previous frame (for change detection)
-    this.Yx = new Float64Array(0);
-    this.Zx = new Float64Array(0);
-    this.Vx = new Float64Array(0);
-    this._x = new Float64Array(0);
-    this.$x = new Float64Array(0);
-    this.ay = 0;
     this.iy = 0;
-    this.Px = 0;
-    /** The number of local lights that emit light (counted for Config.clusteredForwardMinLocalLightNumber). */
+    this.sy = -1;
+    this.Nx = 0;
+    // The light lists of the current and the previous frame (for change detection)
+    this.Zx = new Float64Array(0);
+    this._x = new Float64Array(0);
+    this.Wx = new Float64Array(0);
+    this.$x = new Float64Array(0);
+    this.ay = new Float64Array(0);
+    this.by = 0;
     this.jy = 0;
-    this.ky = -1;
+    this.Qx = 0;
+    /** The number of local lights that emit light (counted for Config.clusteredForwardMinLocalLightNumber). */
+    this.ky = 0;
     this.ly = -1;
-    this.By = -1;
-    this.Qx = [];
-    /** The camera component SID of each view slot (-1: free). */
-    this.Nx = [];
-    /** Whether each view slot holds valid clusters for its camera, the current lights and the matrices below. */
+    this.my = -1;
+    this.Cy = -1;
     this.Rx = [];
+    /** The camera component SID of each view slot (-1: free). */
+    this.Ox = [];
+    /** Whether each view slot holds valid clusters for its camera, the current lights and the matrices below. */
+    this.Sx = [];
     /** The view and projection matrices each view slot was built with. */
-    this.my = new Float32Array(0);
+    this.ny = new Float32Array(0);
     /** The cameras whose `lightClusterViewInfo` currently points to a view region. */
-    this.Wx = /* @__PURE__ */ new Set();
-    this.ny = false;
+    this.Xx = /* @__PURE__ */ new Set();
     this.oy = false;
+    this.py = false;
     /** The order of the local lights of the view being built, sorted by view depth when the number of lights is large. */
-    this.sy = [];
-    this.py = new Float64Array(0);
-    this.by = new Float64Array(0);
+    this.ty = [];
+    this.qy = new Float64Array(0);
     this.cy = new Float64Array(0);
-    this.qy = new Uint32Array(0);
+    this.dy = new Float64Array(0);
+    this.ry = new Uint32Array(0);
     /** The GPU build inputs (sorted spheres, entries and slice ranges) of the views, stored per view slot. */
-    this.dy = new Float32Array(0);
-    this.Sx = 0;
-    this.Tx = [];
+    this.ey = new Float32Array(0);
+    this.Tx = 0;
+    this.Ux = [];
     /** The number of local lights of the view built in each slot. */
-    this.ey = [];
+    this.fy = [];
     /**
      * The byte ranges (in the GPU instance data) of the cluster tables and light index lists of the views. They are
      * large and written by this system or the compute shaders, so the generic upload of the GPU instance data skips them.
      */
-    this.fy = [];
-    /** The byte ranges built on the CPU since the last upload, which the rendering strategy uploads separately. */
     this.gy = [];
+    /** The byte ranges built on the CPU since the last upload, which the rendering strategy uploads separately. */
+    this.hy = [];
     /** The data of `u_lightClusterView` of the WebGL2 shaders (7 vec4). */
-    this.ty = new Float32Array(LightClusterLayout.viewHeaderVec4Count * 4 + 4);
+    this.uy = new Float32Array(LightClusterLayout.viewHeaderVec4Count * 4 + 4);
     this.c = engine;
   }
   /**
    * Incremented whenever this system writes to the GPU instance data.
    */
   get dataVersion() {
-    return this.hy;
+    return this.iy;
   }
   /**
    * Whether the cluster tables are built by WebGPU compute shaders instead of the CPU.
@@ -88,15 +88,15 @@ var LightClusterSystem = class {
    * @internal
    */
   _getGpuBuildParams() {
-    if (!this.isGpuBuild || this.Tx.length === 0 || this.Ox == null) {
+    if (!this.isGpuBuild || this.Ux.length === 0 || this.Px == null) {
       return void 0;
     }
     return {
-      views: this.Tx,
-      data: this.dy,
-      dataStride: this.Sx,
-      localCapacity: this.Mx,
-      layout: this.Ox
+      views: this.Ux,
+      data: this.ey,
+      dataStride: this.Tx,
+      localCapacity: this.Nx,
+      layout: this.Px
     };
   }
   /**
@@ -106,7 +106,7 @@ var LightClusterSystem = class {
    * @internal
    */
   _getExcludedByteRanges() {
-    return this.fy;
+    return this.gy;
   }
   /**
    * Returns the byte ranges of the GPU instance data built on the CPU since the last call, and clears them.
@@ -115,8 +115,8 @@ var LightClusterSystem = class {
    * @internal
    */
   _takeDirtyByteRanges() {
-    const ranges = this.gy;
-    this.gy = [];
+    const ranges = this.hy;
+    this.hy = [];
     return ranges;
   }
   /**
@@ -127,11 +127,11 @@ var LightClusterSystem = class {
    * @internal
    */
   _getViewUniformData(cameraSid) {
-    const data = this.ty;
+    const data = this.uy;
     const headerLength = LightClusterLayout.viewHeaderVec4Count * 4;
-    const slot = cameraSid >= 0 ? this.Nx.indexOf(cameraSid) : -1;
-    const region = slot >= 0 ? this.Qx[slot] : void 0;
-    if (region == null || !this.Wx.has(cameraSid)) {
+    const slot = cameraSid >= 0 ? this.Ox.indexOf(cameraSid) : -1;
+    const region = slot >= 0 ? this.Rx[slot] : void 0;
+    if (region == null || !this.Xx.has(cameraSid)) {
       data.fill(0);
       data[headerLength] = -1;
       return data;
@@ -148,28 +148,28 @@ var LightClusterSystem = class {
    * @param expressions - The expressions rendered in this frame
    */
   update(expressions) {
-    if (!this.uy()) {
+    if (!this.vy()) {
       return;
     }
-    let isChanged = this.vy();
+    let isChanged = this.wy();
     const isLightsChanged = isChanged;
     const config = this.c.config;
     const isGpuBuild = this.isGpuBuild;
     const maxViewNumber = Math.max(0, Math.floor(config.clusteredForwardMaxViewNumber));
     const minLocalLightNumber = Math.max(1, Math.floor(config.clusteredForwardMinLocalLightNumber));
-    const cameraSids = config.isClusteredForwardEnabled && this.jy >= minLocalLightNumber && maxViewNumber > 0 && !this.ny ? this.wy(expressions) : [];
+    const cameraSids = config.isClusteredForwardEnabled && this.ky >= minLocalLightNumber && maxViewNumber > 0 && !this.oy ? this.xy(expressions) : [];
     if (isLightsChanged) {
-      this.xy();
+      this.yy();
       isChanged = true;
     }
-    this.Tx.length = 0;
-    isChanged = this.yy(cameraSids, maxViewNumber, isLightsChanged, isGpuBuild) || isChanged;
+    this.Ux.length = 0;
+    isChanged = this.zy(cameraSids, maxViewNumber, isLightsChanged, isGpuBuild) || isChanged;
     if (isChanged) {
-      this.hy++;
+      this.iy++;
     }
   }
-  uy() {
-    if (this.Ux != null) {
+  vy() {
+    if (this.Vx != null) {
       return true;
     }
     const engine = this.c;
@@ -177,46 +177,46 @@ var LightClusterSystem = class {
     if (value == null) {
       return false;
     }
-    this.Ux = value._v;
-    this.ry = engine.globalDataRepository.getLocationOffsetOfProperty("clusteredLightData");
+    this.Vx = value._v;
+    this.sy = engine.globalDataRepository.getLocationOffsetOfProperty("clusteredLightData");
     const config = engine.config;
-    this.Mx = Math.min(
+    this.Nx = Math.min(
       getLightListCapacity(config.maxLightListLength),
-      (this.Ux.length / 4 - LightClusterLayout.globalHeaderVec4Count) * 4
+      (this.Vx.length / 4 - LightClusterLayout.globalHeaderVec4Count) * 4
     );
-    this.Yx = new Float64Array(this.Mx);
-    this.Zx = new Float64Array(this.Mx);
-    this.Vx = new Float64Array(this.Mx * 4);
-    this._x = new Float64Array(this.Mx * 4);
-    this.$x = new Float64Array(this.Mx);
-    this.Ox = getLightClusterViewLayout(
+    this.Zx = new Float64Array(this.Nx);
+    this._x = new Float64Array(this.Nx);
+    this.Wx = new Float64Array(this.Nx * 4);
+    this.$x = new Float64Array(this.Nx * 4);
+    this.ay = new Float64Array(this.Nx);
+    this.Px = getLightClusterViewLayout(
       config.clusteredForwardGridSize,
       config.clusteredForwardLightCapacityPerCluster
     );
-    this.py = new Float64Array(this.Mx);
-    this.by = new Float64Array(this.Mx * 4);
-    this.cy = new Float64Array(this.Mx);
-    this.qy = new Uint32Array(this.Ox.gridZ * 2);
+    this.qy = new Float64Array(this.Nx);
+    this.cy = new Float64Array(this.Nx * 4);
+    this.dy = new Float64Array(this.Nx);
+    this.ry = new Uint32Array(this.Px.gridZ * 2);
     const maxViewNumber = Math.max(0, Math.floor(config.clusteredForwardMaxViewNumber));
-    this.Sx = this.Mx * 5 + this.Ox.gridZ * 2;
-    this.dy = new Float32Array(maxViewNumber * this.Sx);
-    this.Nx = new Array(maxViewNumber).fill(-1);
-    this.Rx = new Array(maxViewNumber).fill(false);
-    this.ey = new Array(maxViewNumber).fill(0);
-    this.my = new Float32Array(maxViewNumber * 32);
-    this.Qx = new Array(maxViewNumber).fill(void 0);
+    this.Tx = this.Nx * 5 + this.Px.gridZ * 2;
+    this.ey = new Float32Array(maxViewNumber * this.Tx);
+    this.Ox = new Array(maxViewNumber).fill(-1);
+    this.Sx = new Array(maxViewNumber).fill(false);
+    this.fy = new Array(maxViewNumber).fill(0);
+    this.ny = new Float32Array(maxViewNumber * 32);
+    this.Rx = new Array(maxViewNumber).fill(void 0);
     return true;
   }
   /**
    * Collects the enabled lights into the all-light list and the local light spheres.
    * @returns true if the lists changed since the previous frame
    */
-  vy() {
+  wy() {
     const lightComponents = this.c.componentRepository._getComponents(LightComponent);
-    const capacity = this.Mx;
-    const entries = this.Yx;
-    const spheres = this.Vx;
-    const localEntries = this.$x;
+    const capacity = this.Nx;
+    const entries = this.Zx;
+    const spheres = this.Wx;
+    const localEntries = this.ay;
     const maxShadowSlot = Math.min(this.c.config.maxLightNumber - 1, MaxPackableShadowSlot);
     let globalCount = 0;
     let localCount = 0;
@@ -262,22 +262,22 @@ var LightClusterSystem = class {
         }
       }
     }
-    if (isCapacityExceeded && !this.oy) {
+    if (isCapacityExceeded && !this.py) {
       Logger.default.warn(
         `LightClusterSystem: The number of enabled lights exceeds Config.maxLightListLength (${capacity}). The other lights are ignored.`
       );
-      this.oy = true;
+      this.py = true;
     }
     entries.set(localEntries.subarray(0, localCount), globalCount);
     const allCount = globalCount + localCount;
-    this.ay = allCount;
-    this.iy = globalCount;
-    this.Px = localCount;
-    this.jy = emittingLocalCount;
-    let isChanged = allCount !== this.ky || globalCount !== this.ly;
+    this.by = allCount;
+    this.jy = globalCount;
+    this.Qx = localCount;
+    this.ky = emittingLocalCount;
+    let isChanged = allCount !== this.ly || globalCount !== this.my;
     if (!isChanged) {
       for (let i = 0; i < allCount; i++) {
-        if (entries[i] !== this.Zx[i]) {
+        if (entries[i] !== this._x[i]) {
           isChanged = true;
           break;
         }
@@ -285,17 +285,17 @@ var LightClusterSystem = class {
     }
     if (!isChanged) {
       for (let i = 0; i < localCount * 4; i++) {
-        if (spheres[i] !== this._x[i]) {
+        if (spheres[i] !== this.$x[i]) {
           isChanged = true;
           break;
         }
       }
     }
     if (isChanged) {
-      this.Zx.set(entries.subarray(0, allCount));
-      this._x.set(spheres.subarray(0, localCount * 4));
-      this.ky = allCount;
-      this.ly = globalCount;
+      this._x.set(entries.subarray(0, allCount));
+      this.$x.set(spheres.subarray(0, localCount * 4));
+      this.ly = allCount;
+      this.my = globalCount;
     }
     return isChanged;
   }
@@ -306,20 +306,20 @@ var LightClusterSystem = class {
    * the entries, 4 per vec4. The shaders read the counts from the header: `globalCount` is how many entries they
    * read from the all-light list, and the rest of the list of a clustered fragment comes from the view region.
    */
-  xy() {
-    const data = this.Ux;
-    data[0] = this.ay;
-    data[1] = this.iy;
-    data[2] = this.Px;
+  yy() {
+    const data = this.Vx;
+    data[0] = this.by;
+    data[1] = this.jy;
+    data[2] = this.Qx;
     data[3] = -1;
     const offset = LightClusterLayout.globalHeaderVec4Count * 4;
-    data.set(this.Yx.subarray(0, this.ay), offset);
+    data.set(this.Zx.subarray(0, this.by), offset);
   }
   /**
    * Lists the cameras of the render passes that may draw lit materials, in the order of the render passes.
    * The rules are the same as the camera selection of the rendering strategies.
    */
-  wy(expressions) {
+  xy(expressions) {
     const engine = this.c;
     const webXRSystem = engine._webXRSystemIfEnabled;
     const cameraSids = [];
@@ -360,14 +360,14 @@ var LightClusterSystem = class {
    * `lightClusterViewInfo` of the cameras.
    * @returns true if anything was written
    */
-  yy(cameraSids, maxViewNumber, isLightsChanged, isGpuBuild) {
+  zy(cameraSids, maxViewNumber, isLightsChanged, isGpuBuild) {
     var _a, _b;
     const engine = this.c;
-    const layout = this.Ox;
+    const layout = this.Px;
     let isChanged = false;
     const newSlotCameraSids = new Array(maxViewNumber).fill(-1);
     for (const sid of cameraSids) {
-      const slot = this.Nx.indexOf(sid);
+      const slot = this.Ox.indexOf(sid);
       if (slot >= 0) {
         newSlotCameraSids[slot] = sid;
       }
@@ -382,45 +382,45 @@ var LightClusterSystem = class {
       }
       newSlotCameraSids[slot] = sid;
     }
-    for (const sid of Array.from(this.Wx)) {
+    for (const sid of Array.from(this.Xx)) {
       if (!newSlotCameraSids.includes(sid)) {
         const camera = engine.componentRepository.getComponent(CameraComponent, sid);
         if (camera != null && camera._lightClusterViewInfoForGpu._v[0] !== -1) {
           camera._lightClusterViewInfoForGpu._v[0] = -1;
           isChanged = true;
         }
-        this.Wx.delete(sid);
+        this.Xx.delete(sid);
       }
     }
     for (let slot = 0; slot < maxViewNumber; slot++) {
       const sid = newSlotCameraSids[slot];
-      if (sid !== this.Nx[slot]) {
-        this.Nx[slot] = sid;
-        this.Rx[slot] = false;
+      if (sid !== this.Ox[slot]) {
+        this.Ox[slot] = sid;
+        this.Sx[slot] = false;
       }
       if (sid < 0) {
         continue;
       }
       const camera = engine.componentRepository.getComponent(CameraComponent, sid);
       if (camera == null) {
-        this.Nx[slot] = -1;
+        this.Ox[slot] = -1;
         continue;
       }
-      let region = this.Qx[slot];
+      let region = this.Rx[slot];
       if (region == null) {
-        region = this.zy(layout.viewVec4Count);
+        region = this.Ay(layout.viewVec4Count);
         if (region == null) {
-          this.Nx[slot] = -1;
+          this.Ox[slot] = -1;
           continue;
         }
-        this.Qx[slot] = region;
+        this.Rx[slot] = region;
         const start = (region.vec4Base + LightClusterLayout.viewHeaderVec4Count) * 16;
-        this.fy.push([start, (region.vec4Base + layout.viewVec4Count) * 16]);
-        this.fy.sort((a, b) => a[0] - b[0]);
+        this.gy.push([start, (region.vec4Base + layout.viewVec4Count) * 16]);
+        this.gy.sort((a, b) => a[0] - b[0]);
       }
       const viewMatrix = camera.viewMatrix._v;
       const projectionMatrix = camera._projectionMatrixForGpu._v;
-      const matrices = this.my;
+      const matrices = this.ny;
       const matrixOffset = slot * 32;
       let isMatrixChanged = false;
       for (let i = 0; i < 16; i++) {
@@ -429,7 +429,7 @@ var LightClusterSystem = class {
           break;
         }
       }
-      if (isLightsChanged || isMatrixChanged || !this.Rx[slot]) {
+      if (isLightsChanged || isMatrixChanged || !this.Sx[slot]) {
         matrices.set(viewMatrix, matrixOffset);
         matrices.set(projectionMatrix, matrixOffset + 16);
         writeLightClusterViewHeader(
@@ -437,30 +437,30 @@ var LightClusterSystem = class {
           0,
           viewMatrix,
           projectionMatrix,
-          this.Vx,
-          this.Px,
+          this.Wx,
+          this.Qx,
           layout,
           camera.zNear,
           camera.zFar
         );
-        this.Ay(region.array, slot, isGpuBuild, layout);
-        this.ey[slot] = this.Px;
+        this.By(region.array, slot, isGpuBuild, layout);
+        this.fy[slot] = this.Qx;
         if (!isGpuBuild) {
-          (_b = this[_a = "Xx"]) != null ? _b : this[_a] = createLightClusterBuildScratch(layout);
+          (_b = this[_a = "Yx"]) != null ? _b : this[_a] = createLightClusterBuildScratch(layout);
           buildLightClustersOnCpu(
             region.array,
             0,
             layout,
-            this.by,
             this.cy,
-            this.Px,
-            this.Xx
+            this.dy,
+            this.Qx,
+            this.Yx
           );
           const start = (region.vec4Base + LightClusterLayout.viewHeaderVec4Count) * 16;
-          const usedVec4Count = layout.tableVec4Count + this.Xx.usedIndexVec4Count;
-          this.gy.push([start, start + usedVec4Count * 16]);
+          const usedVec4Count = layout.tableVec4Count + this.Yx.usedIndexVec4Count;
+          this.hy.push([start, start + usedVec4Count * 16]);
         }
-        this.Rx[slot] = true;
+        this.Sx[slot] = true;
         isChanged = true;
       }
       const viewInfo = camera._lightClusterViewInfoForGpu._v;
@@ -468,17 +468,17 @@ var LightClusterSystem = class {
         viewInfo[0] = region.vec4Base;
         isChanged = true;
       }
-      this.Wx.add(sid);
+      this.Xx.add(sid);
     }
-    this.Tx.length = 0;
+    this.Ux.length = 0;
     if (isGpuBuild) {
       for (let slot = 0; slot < maxViewNumber; slot++) {
-        const region = this.Qx[slot];
-        if (this.Rx[slot] && region != null && this.Nx[slot] >= 0) {
-          this.Tx.push({
+        const region = this.Rx[slot];
+        if (this.Sx[slot] && region != null && this.Ox[slot] >= 0) {
+          this.Ux.push({
             viewVec4Base: region.vec4Base,
-            localCount: this.ey[slot],
-            dataOffset: slot * this.Sx
+            localCount: this.fy[slot],
+            dataOffset: slot * this.Tx
           });
         }
       }
@@ -494,15 +494,15 @@ var LightClusterSystem = class {
    *
    * For the GPU build, the sorted spheres, entries and ranges are copied to the GPU build data of the view.
    */
-  Ay(header, slot, isGpuBuild, layout) {
-    const localCount = this.Px;
+  By(header, slot, isGpuBuild, layout) {
+    const localCount = this.Qx;
     const capacity = layout.clusterLightCapacity;
     const gridZ = layout.gridZ;
-    const spheres = this.Vx;
-    const localEntries = this.$x;
-    const sortedSpheres = this.by;
-    const sortedEntries = this.cy;
-    const ranges = this.qy;
+    const spheres = this.Wx;
+    const localEntries = this.ay;
+    const sortedSpheres = this.cy;
+    const sortedEntries = this.dy;
+    const ranges = this.ry;
     if (localCount <= capacity) {
       sortedSpheres.set(spheres.subarray(0, localCount * 4));
       sortedEntries.set(localEntries.subarray(0, localCount));
@@ -511,8 +511,8 @@ var LightClusterSystem = class {
         ranges[z * 2 + 1] = localCount;
       }
     } else {
-      const depths = this.py;
-      const order = this.sy;
+      const depths = this.qy;
+      const order = this.ty;
       order.length = localCount;
       const dx = header[12];
       const dy = header[13];
@@ -556,9 +556,9 @@ var LightClusterSystem = class {
       }
     }
     if (isGpuBuild) {
-      const dataOffset = slot * this.Sx;
-      const localCapacity = this.Mx;
-      const data = this.dy;
+      const dataOffset = slot * this.Tx;
+      const localCapacity = this.Nx;
+      const data = this.ey;
       data.set(sortedSpheres.subarray(0, localCount * 4), dataOffset);
       data.set(sortedEntries.subarray(0, localCount), dataOffset + localCapacity * 4);
       const rangeBase = dataOffset + localCapacity * 5;
@@ -574,7 +574,7 @@ var LightClusterSystem = class {
    * shaders can read the table with the same `fetchElement` / `get_clusteredLightData` accessor as any other data,
    * and why the strategies have to skip it in the generic upload (see `_getExcludedByteRanges`).
    */
-  zy(vec4Count) {
+  Ay(vec4Count) {
     const memoryManager = this.c.memoryManager;
     const byteLength = vec4Count * 16;
     const layerCount = this.c.config.bufferSizeDivisionRatiosForGPUInstanceDataUsage.length;
@@ -598,7 +598,7 @@ var LightClusterSystem = class {
       return { array, vec4Base: byteOffset / 16 };
     }
     Logger.default.warn("LightClusterSystem: Failed to allocate the light cluster data. All lights are evaluated.");
-    this.ny = true;
+    this.oy = true;
     return void 0;
   }
 };

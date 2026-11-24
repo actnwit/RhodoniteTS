@@ -12,7 +12,7 @@ var RapierPhysicsWorldQueryStrategy = class {
     if (rapier.Ray == null || world.castRayAndGetNormal == null) {
       throw new Error("The injected Rapier module does not support ray casting.");
     }
-    const predicate = this.ww(options);
+    const predicate = this.xw(options);
     const hit = world.castRayAndGetNormal(
       new rapier.Ray(origin, normalizedDirection),
       maxDistance,
@@ -58,7 +58,7 @@ var RapierPhysicsWorldQueryStrategy = class {
       RapierPhysicsStrategy._packCollisionGroups(options.collisionGroup, options.collisionMask),
       void 0,
       void 0,
-      this.ww(options)
+      this.xw(options)
     );
     if (hit == null) {
       return void 0;
@@ -77,7 +77,7 @@ var RapierPhysicsWorldQueryStrategy = class {
       fraction: distance / maxDistance
     };
   }
-  ww(options) {
+  xw(options) {
     const excludedEntities = new Set(options.excludeEntities);
     return (collider) => {
       var _a, _b;

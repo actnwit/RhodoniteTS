@@ -45,44 +45,44 @@ import { MaterialRepository } from "../materials/core/MaterialRepository.js";
 var _Engine = class _Engine extends RnObject {
   constructor(processApproach, cgApiResourceRepository, maxGPUDataStorageSize, config, rnXRModule) {
     super();
-    this.iA = ProcessApproach.None;
-    this.mA = new EngineState();
-    this.nA = 0;
-    this.pA = -1;
-    this.DA = [];
-    this.rA = new LightClusterSystemStub();
-    this.IA = false;
+    this.jA = ProcessApproach.None;
+    this.nA = new EngineState();
+    this.oA = 0;
+    this.qA = -1;
+    this.EA = [];
+    this.sA = new LightClusterSystemStub();
+    this.JA = false;
     this.g = false;
-    this.uA = -1;
-    this.Hc = -1;
     this.vA = -1;
+    this.Hc = -1;
+    this.wA = -1;
     this.Ic = -1;
     /** Shader program cache map for this engine instance. Maps shader text to program UIDs. */
-    this.SA = /* @__PURE__ */ new Map();
-    this.wA = false;
-    this.LA = -1;
-    this.sA = config != null ? config : new Config();
-    this.HA = new Logger();
-    this.HA.logLevel = this.sA.logLevel;
-    this.LA = _Engine.KA;
-    this.iA = processApproach;
-    this.jA = cgApiResourceRepository;
-    this.EA = new ComponentMemoryRegistry();
-    this.qA = new ComponentRepository(this);
+    this.TA = /* @__PURE__ */ new Map();
+    this.xA = false;
+    this.MA = -1;
+    this.tA = config != null ? config : new Config();
+    this.IA = new Logger();
+    this.IA.logLevel = this.tA.logLevel;
+    this.MA = _Engine.LA;
+    this.jA = processApproach;
+    this.kA = cgApiResourceRepository;
+    this.FA = new ComponentMemoryRegistry();
+    this.rA = new ComponentRepository(this);
     this.Se = new EntityRepository(this);
-    this.FA = new MaterialRepository();
+    this.GA = new MaterialRepository();
     this.wi = MemoryManager.createInstanceIfNotCreated(this, maxGPUDataStorageSize);
     if (rnXRModule != null) {
-      this.MA(rnXRModule);
+      this.NA(rnXRModule);
     }
-    this.AA = GlobalDataRepository.init(this);
-    _Engine.KA++;
+    this.BA = GlobalDataRepository.init(this);
+    _Engine.LA++;
   }
   get engineUid() {
-    return this.LA;
+    return this.MA;
   }
   static getEngine(objectUid) {
-    const engine = _Engine.JA.get(objectUid);
+    const engine = _Engine.KA.get(objectUid);
     if (Is.not.exist(engine)) {
       return void 0;
     }
@@ -126,30 +126,30 @@ var _Engine = class _Engine extends RnObject {
    */
   destroy() {
     this.stopRenderLoop();
-    this.zA = void 0;
-    this.DA = [];
-    this.Kz();
+    this.AA = void 0;
+    this.EA = [];
+    this.Lz();
   }
   /**
    * Internal method that performs the actual resource cleanup.
    * Called after the render loop has fully stopped.
    */
-  Kz() {
+  Lz() {
     var _a, _b;
     this.g = true;
-    this.FA._makeShaderInvalidateToAllMaterials();
+    this.GA._makeShaderInvalidateToAllMaterials();
     const entities = this.Se._getEntities();
     for (const entity of entities) {
       this.Se.deleteEntity(entity.entityUID);
     }
-    if (Is.exist(this.tA)) {
-      this.tA.destroy();
-      this.tA = void 0;
+    if (Is.exist(this.uA)) {
+      this.uA.destroy();
+      this.uA = void 0;
     }
-    if (Is.exist(this.kA)) {
-      this.kA.clearCache();
+    if (Is.exist(this.lA)) {
+      this.lA.clearCache();
       try {
-        const deviceWrapper = this.kA.getWebGpuDeviceWrapper();
+        const deviceWrapper = this.lA.getWebGpuDeviceWrapper();
         if (deviceWrapper) {
           deviceWrapper.context.unconfigure();
         }
@@ -160,7 +160,7 @@ var _Engine = class _Engine extends RnObject {
       this.wi.destroy();
       this.wi = void 0;
     }
-    this.TA();
+    this.UA();
     TransformComponent._cleanupForEngine(this);
     SceneGraphComponent._cleanupForEngine(this);
     CameraComponent._cleanupForEngine(this);
@@ -171,16 +171,16 @@ var _Engine = class _Engine extends RnObject {
     AbstractMaterialContent._cleanupForEngine(this);
     _cleanupRenderPassHelperForEngine(this);
     _cleanupWebGLStatesCacheForEngine(this);
-    (_b = this.oA) == null ? void 0 : _b.destroy();
-    this.oA = void 0;
-    this.EA.destroy();
-    this.xA = void 0;
+    (_b = this.pA) == null ? void 0 : _b.destroy();
+    this.pA = void 0;
+    this.FA.destroy();
     this.yA = void 0;
-    this.nA = 0;
-    this.uA = -1;
-    this.Hc = -1;
+    this.zA = void 0;
+    this.oA = 0;
     this.vA = -1;
-    _Engine.JA.delete(this.objectUID);
+    this.Hc = -1;
+    this.wA = -1;
+    _Engine.KA.delete(this.objectUID);
     this.unregister();
   }
   /**
@@ -197,16 +197,16 @@ var _Engine = class _Engine extends RnObject {
    * @param args - arguments you want to be passed to renderLoopFunc
    */
   startRenderLoop(renderLoopFunc, ...args) {
-    this.zA = renderLoopFunc;
-    this.DA = args;
-    if (this.pA !== -1) {
+    this.AA = renderLoopFunc;
+    this.EA = args;
+    if (this.qA !== -1) {
       this.stopRenderLoop();
     }
-    const animationFrameObject = this.NA();
-    this.CA = animationFrameObject;
+    const animationFrameObject = this.OA();
+    this.DA = animationFrameObject;
     const requestAnimationFrame = animationFrameObject.requestAnimationFrame.bind(animationFrameObject);
-    const webXRSystem = this.hA;
-    const webARSystem = this.lA;
+    const webXRSystem = this.iA;
+    const webARSystem = this.mA;
     const hasExtraArgs = args.length > 0;
     const callArgs = hasExtraArgs ? [0, ...args] : [];
     const invokeRenderLoopFunc = hasExtraArgs ? (time) => {
@@ -227,14 +227,14 @@ var _Engine = class _Engine extends RnObject {
       } else {
         invokeRenderLoopFunc(_time);
       }
-      this.pA = requestAnimationFrame(__renderLoopFunc);
+      this.qA = requestAnimationFrame(__renderLoopFunc);
     });
-    this.pA = requestAnimationFrame(__renderLoopFunc);
+    this.qA = requestAnimationFrame(__renderLoopFunc);
   }
-  NA() {
+  OA() {
     let animationFrameObject = window;
-    const webXRSystem = this.hA;
-    const webARSystem = this.lA;
+    const webXRSystem = this.iA;
+    const webARSystem = this.mA;
     if (webXRSystem == null ? void 0 : webXRSystem.requestedToEnterWebXR) {
       animationFrameObject = webXRSystem.xrSession;
     } else if (webARSystem == null ? void 0 : webARSystem.requestedToEnterWebAR) {
@@ -250,19 +250,19 @@ var _Engine = class _Engine extends RnObject {
    */
   stopRenderLoop() {
     var _a;
-    const animationFrameObject = (_a = this.CA) != null ? _a : this.NA();
-    if (this.pA !== -1) {
-      animationFrameObject.cancelAnimationFrame(this.pA);
+    const animationFrameObject = (_a = this.DA) != null ? _a : this.OA();
+    if (this.qA !== -1) {
+      animationFrameObject.cancelAnimationFrame(this.qA);
     }
-    this.pA = -1;
-    this.CA = void 0;
+    this.qA = -1;
+    this.DA = void 0;
   }
   /**
    * Restart a render loop.
    */
   restartRenderLoop() {
-    if (this.zA != null) {
-      this.startRenderLoop(this.zA, ...this.DA);
+    if (this.AA != null) {
+      this.startRenderLoop(this.AA, ...this.EA);
     }
   }
   /**
@@ -275,7 +275,7 @@ var _Engine = class _Engine extends RnObject {
    * @param clearColor - color to clear the canvas
    */
   processAuto(clearColor = Vector4.fromCopy4(0, 0, 0, 1)) {
-    if (Is.not.exist(this.xA)) {
+    if (Is.not.exist(this.yA)) {
       const expression = new Expression();
       const renderPassInit = new RenderPass(this);
       renderPassInit.toClearColorBuffer = true;
@@ -283,22 +283,22 @@ var _Engine = class _Engine extends RnObject {
       renderPassInit.clearColor = clearColor;
       const renderPassMain = new RenderPass(this);
       expression.addRenderPasses([renderPassInit, renderPassMain]);
-      this.xA = expression;
-      this.yA = renderPassMain;
+      this.yA = expression;
+      this.zA = renderPassMain;
     }
-    this.yA.clearEntities();
+    this.zA.clearEntities();
     const entities = this.Se._getEntities();
-    this.yA.addEntities(entities);
-    this.process([this.xA]);
+    this.zA.addEntities(entities);
+    this.process([this.yA]);
   }
   process(value) {
-    const gpuTimerEnabled = this.wA;
+    const gpuTimerEnabled = this.xA;
     if (gpuTimerEnabled) {
-      this.UA();
+      this.VA();
     }
     Time._processBegin(this);
-    this.VA();
-    if (!this.IA && LightComponent.getUpdateCount(this) > 0) {
+    this.WA();
+    if (!this.JA && LightComponent.getUpdateCount(this) > 0) {
       this._requestLightClusterSystem();
     }
     let expressions = value;
@@ -308,7 +308,7 @@ var _Engine = class _Engine extends RnObject {
     if (CameraComponent.getCurrent(this) === Component.InvalidObjectUID) {
       _Engine.createCamera(this);
     }
-    const time = this.AA.getValue("time", 0);
+    const time = this.BA.getValue("time", 0);
     time._v[0] = Time.timeFromSystemStart;
     if (this.processApproach === ProcessApproach.WebGPU) {
       this._processWebGPU(expressions);
@@ -317,7 +317,7 @@ var _Engine = class _Engine extends RnObject {
     }
     Time._processEnd();
     if (gpuTimerEnabled) {
-      this.WA();
+      this.XA();
     }
   }
   /**
@@ -328,10 +328,10 @@ var _Engine = class _Engine extends RnObject {
    * `timestamp-query` feature in WebGPU), which add a small overhead. See {@link gpuTimeMilliseconds}.
    */
   get gpuTimerEnabled() {
-    return this.wA;
+    return this.xA;
   }
   set gpuTimerEnabled(flag) {
-    this.wA = flag;
+    this.xA = flag;
   }
   /**
    * Whether the GPU time can be measured in this environment.
@@ -339,10 +339,10 @@ var _Engine = class _Engine extends RnObject {
    */
   get isGpuTimerSupported() {
     var _a, _b;
-    if (this.iA === ProcessApproach.WebGPU) {
+    if (this.jA === ProcessApproach.WebGPU) {
       return this.webGpuResourceRepository._getGpuTimer().isSupported;
     }
-    return (_b = (_a = this.OA()) == null ? void 0 : _a.isSupported) != null ? _b : false;
+    return (_b = (_a = this.PA()) == null ? void 0 : _a.isSupported) != null ? _b : false;
   }
   /**
    * The GPU time spent on the latest measured process() call, in milliseconds.
@@ -356,13 +356,13 @@ var _Engine = class _Engine extends RnObject {
    */
   get gpuTimeMilliseconds() {
     var _a, _b;
-    if (!this.wA) {
+    if (!this.xA) {
       return void 0;
     }
-    if (this.iA === ProcessApproach.WebGPU) {
-      return (_a = this.kA) == null ? void 0 : _a._getGpuTimer().lastGpuTimeMilliseconds;
+    if (this.jA === ProcessApproach.WebGPU) {
+      return (_a = this.lA) == null ? void 0 : _a._getGpuTimer().lastGpuTimeMilliseconds;
     }
-    return (_b = this.oA) == null ? void 0 : _b.lastGpuTimeMilliseconds;
+    return (_b = this.pA) == null ? void 0 : _b.lastGpuTimeMilliseconds;
   }
   /**
    * The GPU time of each pass of the latest measured process() call, in milliseconds, keyed by the pass label.
@@ -375,39 +375,39 @@ var _Engine = class _Engine extends RnObject {
    */
   get gpuPassTimesMilliseconds() {
     var _a;
-    if (!this.wA || this.iA !== ProcessApproach.WebGPU) {
+    if (!this.xA || this.jA !== ProcessApproach.WebGPU) {
       return void 0;
     }
-    return (_a = this.kA) == null ? void 0 : _a._getGpuTimer().lastPassGpuTimesMilliseconds;
+    return (_a = this.lA) == null ? void 0 : _a._getGpuTimer().lastPassGpuTimesMilliseconds;
   }
-  OA() {
+  PA() {
     var _a;
-    if (this.oA == null) {
-      const glw = (_a = this.BA) == null ? void 0 : _a.currentWebGLContextWrapper;
+    if (this.pA == null) {
+      const glw = (_a = this.CA) == null ? void 0 : _a.currentWebGLContextWrapper;
       if (glw == null) {
         return void 0;
       }
-      this.oA = new WebGLGpuTimer(glw.getRawContextAsWebGL2());
+      this.pA = new WebGLGpuTimer(glw.getRawContextAsWebGL2());
     }
-    return this.oA;
+    return this.pA;
   }
-  UA() {
+  VA() {
     var _a, _b;
-    if (this.iA === ProcessApproach.WebGPU) {
-      (_a = this.kA) == null ? void 0 : _a._getGpuTimer().beginFrame();
+    if (this.jA === ProcessApproach.WebGPU) {
+      (_a = this.lA) == null ? void 0 : _a._getGpuTimer().beginFrame();
     } else {
-      (_b = this.OA()) == null ? void 0 : _b.begin();
+      (_b = this.PA()) == null ? void 0 : _b.begin();
     }
   }
-  WA() {
+  XA() {
     var _a, _b;
-    if (this.iA === ProcessApproach.WebGPU) {
-      (_a = this.kA) == null ? void 0 : _a._getGpuTimer().endFrame();
+    if (this.jA === ProcessApproach.WebGPU) {
+      (_a = this.lA) == null ? void 0 : _a._getGpuTimer().endFrame();
     } else {
-      (_b = this.oA) == null ? void 0 : _b.end();
+      (_b = this.pA) == null ? void 0 : _b.end();
     }
   }
-  XA({
+  YA({
     webGpuResourceRepository,
     renderPass,
     renderPassTickCount,
@@ -449,7 +449,7 @@ var _Engine = class _Engine extends RnObject {
       });
     }
     webGpuResourceRepository.clearFrameBuffer(this, renderPass, displayIdx);
-    this.YA({
+    this.ZA({
       webGpuResourceRepository,
       renderPass,
       renderPassTickCount,
@@ -474,7 +474,7 @@ var _Engine = class _Engine extends RnObject {
     renderPass.doPostRender();
     return shouldRenderEffekseerEffects;
   }
-  ZA({
+  _A({
     webGpuResourceRepository,
     currentRenderPass,
     deferredEffekseerRenderJobs,
@@ -505,7 +505,7 @@ var _Engine = class _Engine extends RnObject {
       job.renderPass._copyResolve1ToResolve2WebGpu();
     }
   }
-  YA({
+  ZA({
     webGpuResourceRepository,
     renderPass,
     renderPassTickCount,
@@ -527,7 +527,7 @@ var _Engine = class _Engine extends RnObject {
       } else {
         doRender = !webGpuResourceRepository.renderWithRenderBundle(this, renderPass, displayIdx);
       }
-      (_a = this.mA).webgpuRenderBundleMode || (_a.webgpuRenderBundleMode = doRender);
+      (_a = this.nA).webgpuRenderBundleMode || (_a.webgpuRenderBundleMode = doRender);
     }
     if (!doRender) {
       return renderPassEncoderForEffekseer;
@@ -552,18 +552,18 @@ var _Engine = class _Engine extends RnObject {
   }
   _processWebGPU(expressions) {
     var _a, _b;
-    const componentTids = this.qA.getComponentTIDs();
+    const componentTids = this.rA.getComponentTIDs();
     const webGpuResourceRepository = this.webGpuResourceRepository;
-    const webxrSystem = this.hA;
+    const webxrSystem = this.iA;
     for (const stage of Component._processStages) {
       if (stage === ProcessStage.Render) {
-        this.rA.update(expressions);
+        this.sA.update(expressions);
         MeshRendererComponent.common_$prerender(this);
         const isWebXRMode = (_a = webxrSystem == null ? void 0 : webxrSystem.isWebXRMode) != null ? _a : false;
         const isMultiView = (_b = webxrSystem == null ? void 0 : webxrSystem.isMultiView()) != null ? _b : false;
-        const xrPose = this.mA.xrPoseWebGPU;
+        const xrPose = this.nA.xrPoseWebGPU;
         const displayCount = isWebXRMode && !isMultiView && xrPose != null ? xrPose.views.length : 1;
-        const hasAnyEffekseerComponents = this.qA.hasAnyComponent(
+        const hasAnyEffekseerComponents = this.rA.hasAnyComponent(
           WellKnownComponentTIDs.EffekseerComponentTID
         );
         const isMultiDisplay = displayCount > 1;
@@ -578,7 +578,7 @@ var _Engine = class _Engine extends RnObject {
               let renderPassTickCount = renderPassTickCountMap == null ? void 0 : renderPassTickCountMap.get(renderPassUid);
               let primitiveUids;
               if (renderPassTickCount === void 0) {
-                renderPassTickCount = this.nA;
+                renderPassTickCount = this.oA;
                 renderPass._isChangedSortRenderResult = false;
                 primitiveUids = MeshRendererComponent.sort_$render(this, renderPass);
                 if (renderPassTickCountMap != null) {
@@ -588,7 +588,7 @@ var _Engine = class _Engine extends RnObject {
               } else {
                 primitiveUids = primitiveUidsMap.get(renderPassUid);
               }
-              const renderedEffekseerEffects = this.XA({
+              const renderedEffekseerEffects = this.YA({
                 webGpuResourceRepository,
                 renderPass,
                 renderPassTickCount,
@@ -599,7 +599,7 @@ var _Engine = class _Engine extends RnObject {
               });
               renderedEffekseerEffectsInDisplay || (renderedEffekseerEffectsInDisplay = renderedEffekseerEffects);
               if (deferredEffekseerRenderJobs != null && deferredEffekseerRenderJobs.length > 0) {
-                this.ZA({
+                this._A({
                   webGpuResourceRepository,
                   currentRenderPass: renderPass,
                   deferredEffekseerRenderJobs,
@@ -609,7 +609,7 @@ var _Engine = class _Engine extends RnObject {
               if (displayIdx === displayCount - 1) {
                 renderPassTickCountMap == null ? void 0 : renderPassTickCountMap.delete(renderPassUid);
                 primitiveUidsMap == null ? void 0 : primitiveUidsMap.delete(renderPassUid);
-                this.nA++;
+                this.oA++;
               }
             }
           }
@@ -619,17 +619,17 @@ var _Engine = class _Engine extends RnObject {
         }
         webGpuResourceRepository.flush();
       } else {
-        if (!this.mA.webgpuRenderBundleMode || this.PA() || TransformComponent.getUpdateCount(this) !== this.Hc || CameraComponent.getCurrentCameraUpdateCount(this) !== this.uA || Primitive.getPrimitiveCount() !== this.vA || LightComponent.getUpdateCount(this) !== this.Ic) {
+        if (!this.nA.webgpuRenderBundleMode || this.QA() || TransformComponent.getUpdateCount(this) !== this.Hc || CameraComponent.getCurrentCameraUpdateCount(this) !== this.vA || Primitive.getPrimitiveCount() !== this.wA || LightComponent.getUpdateCount(this) !== this.Ic) {
           const commonMethodName = `common_${stage.methodName}`;
           for (const componentTid of componentTids) {
             const componentClass = ComponentRepository.getComponentClass(componentTid);
             const componentClass_commonMethod = componentClass[commonMethodName];
             if (componentClass_commonMethod) {
               componentClass_commonMethod({
-                processApproach: this.iA,
+                processApproach: this.jA,
                 renderPass: void 0,
                 processStage: stage,
-                renderPassTickCount: this.nA,
+                renderPassTickCount: this.oA,
                 displayIdx: 0,
                 engine: this
               });
@@ -642,19 +642,19 @@ var _Engine = class _Engine extends RnObject {
         SceneGraphComponent._updateTransformGizmosByCameraChange(this);
       }
     }
-    this.uA = CameraComponent.getCurrentCameraUpdateCount(this);
-    this.QA();
+    this.vA = CameraComponent.getCurrentCameraUpdateCount(this);
+    this.RA();
     this.Hc = TransformComponent.getUpdateCount(this);
-    this.vA = Primitive.getPrimitiveCount();
+    this.wA = Primitive.getPrimitiveCount();
     this.Ic = LightComponent.getUpdateCount(this);
   }
-  VA() {
+  WA() {
     var _a;
     for (const hooks of _getComponentRuntimeHooks()) {
       (_a = hooks.beginFrame) == null ? void 0 : _a.call(hooks, this);
     }
   }
-  PA() {
+  QA() {
     var _a;
     for (const hooks of _getComponentRuntimeHooks()) {
       if (((_a = hooks.isDirty) == null ? void 0 : _a.call(hooks, this)) === true) {
@@ -663,13 +663,13 @@ var _Engine = class _Engine extends RnObject {
     }
     return false;
   }
-  QA() {
+  RA() {
     var _a;
     for (const hooks of _getComponentRuntimeHooks()) {
       (_a = hooks.markUpdated) == null ? void 0 : _a.call(hooks, this);
     }
   }
-  TA() {
+  UA() {
     var _a;
     for (const hooks of _getComponentRuntimeHooks()) {
       (_a = hooks.cleanup) == null ? void 0 : _a.call(hooks, this);
@@ -677,14 +677,14 @@ var _Engine = class _Engine extends RnObject {
   }
   _processWebGL(expressions) {
     const repo = this.webglResourceRepository;
-    const componentTids = this.qA.getComponentTIDs();
-    const renderingComponentTids = this.qA.getRenderingComponentTIDs();
+    const componentTids = this.rA.getComponentTIDs();
+    const renderingComponentTids = this.rA.getRenderingComponentTIDs();
     for (const stage of Component._processStages) {
       const methodName = stage.methodName;
       const commonMethodName = `common_${methodName}`;
       if (stage === ProcessStage.Render) {
         repo.getMultiDrawRepository(this).rebuildDirtyGroups();
-        this.rA.update(expressions);
+        this.sA.update(expressions);
         MeshRendererComponent.common_$prerender(this);
         for (const exp of expressions) {
           for (const componentTid of renderingComponentTids) {
@@ -699,7 +699,7 @@ var _Engine = class _Engine extends RnObject {
               this.setViewportForNormalRendering(renderPass);
               this.setScissorForNormalRendering(renderPass);
               if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
-                this.jA.clearFrameBuffer(this, renderPass);
+                this.kA.clearFrameBuffer(this, renderPass);
               }
               renderPass._isChangedSortRenderResult = false;
               const primitiveUids = MeshRendererComponent.sort_$render(this, renderPass);
@@ -708,10 +708,10 @@ var _Engine = class _Engine extends RnObject {
                 const componentClass_commonMethod = componentClass[commonMethodName];
                 if (componentClass_commonMethod) {
                   const renderedSomething = componentClass_commonMethod({
-                    processApproach: this.iA,
+                    processApproach: this.jA,
                     renderPass,
                     processStage: stage,
-                    renderPassTickCount: this.nA,
+                    renderPassTickCount: this.oA,
                     primitiveUids,
                     displayIdx: 0,
                     engine: this
@@ -731,23 +731,23 @@ var _Engine = class _Engine extends RnObject {
                 }
                 webGLResourceRepository.restoreTexture2DBindingsForEffekseer(currentTexture2DBindings);
               }
-              this.nA++;
+              this.oA++;
               renderPass._copyFramebufferToResolveFramebuffersWebGL();
               renderPass.doPostRender();
             }
           }
         }
       } else {
-        if (this.PA() || TransformComponent.getUpdateCount(this) !== this.Hc || CameraComponent.getCurrentCameraUpdateCount(this) !== this.uA || Primitive.getPrimitiveCount() !== this.vA || LightComponent.getUpdateCount(this) !== this.Ic) {
+        if (this.QA() || TransformComponent.getUpdateCount(this) !== this.Hc || CameraComponent.getCurrentCameraUpdateCount(this) !== this.vA || Primitive.getPrimitiveCount() !== this.wA || LightComponent.getUpdateCount(this) !== this.Ic) {
           for (const componentTid of componentTids) {
             const componentClass = ComponentRepository.getComponentClass(componentTid);
             const componentClass_commonMethod = componentClass[commonMethodName];
             if (componentClass_commonMethod) {
               componentClass_commonMethod({
-                processApproach: this.iA,
+                processApproach: this.jA,
                 renderPass: void 0,
                 processStage: stage,
-                renderPassTickCount: this.nA,
+                renderPassTickCount: this.oA,
                 displayIdx: 0,
                 engine: this
               });
@@ -760,10 +760,10 @@ var _Engine = class _Engine extends RnObject {
         SceneGraphComponent._updateTransformGizmosByCameraChange(this);
       }
     }
-    this.uA = CameraComponent.getCurrentCameraUpdateCount(this);
-    this.QA();
+    this.vA = CameraComponent.getCurrentCameraUpdateCount(this);
+    this.RA();
     this.Hc = TransformComponent.getUpdateCount(this);
-    this.vA = Primitive.getPrimitiveCount();
+    this.wA = Primitive.getPrimitiveCount();
     this.Ic = LightComponent.getUpdateCount(this);
   }
   static get processTime() {
@@ -787,10 +787,10 @@ var _Engine = class _Engine extends RnObject {
     cameraEntity.getCamera().yMag = 1;
   }
   setViewportForNormalRendering(renderPass) {
-    const webXRSystem = this.hA;
-    const webARSystem = this.lA;
+    const webXRSystem = this.iA;
+    const webARSystem = this.mA;
     if ((!(webXRSystem == null ? void 0 : webXRSystem.isWebXRMode) || !renderPass.isVrRendering) && !(webARSystem == null ? void 0 : webARSystem.isWebARMode)) {
-      this.jA.setViewport(this, renderPass.getViewport());
+      this.kA.setViewport(this, renderPass.getViewport());
     }
   }
   /**
@@ -800,9 +800,9 @@ var _Engine = class _Engine extends RnObject {
    * run without one.
    */
   setScissorForNormalRendering(renderPass) {
-    const webXRSystem = this.hA;
-    const webARSystem = this.lA;
-    const repository = this.jA;
+    const webXRSystem = this.iA;
+    const webARSystem = this.mA;
+    const repository = this.kA;
     if ((!(webXRSystem == null ? void 0 : webXRSystem.isWebXRMode) || !renderPass.isVrRendering) && !(webARSystem == null ? void 0 : webARSystem.isWebARMode)) {
       repository.setScissorRect(renderPass);
     } else {
@@ -810,24 +810,24 @@ var _Engine = class _Engine extends RnObject {
     }
   }
   bindFramebufferWebGL(renderPass) {
-    const webXRSystem = this.hA;
-    const webARSystem = this.lA;
+    const webXRSystem = this.iA;
+    const webARSystem = this.mA;
     if ((webXRSystem == null ? void 0 : webXRSystem.isWebXRMode) && renderPass.isOutputForVr) {
-      const glw = this.jA.currentWebGLContextWrapper;
+      const glw = this.kA.currentWebGLContextWrapper;
       const gl = glw.getRawContext();
       gl.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.framebuffer);
     } else if (webARSystem == null ? void 0 : webARSystem.isWebARMode) {
-      const glw = this.jA.currentWebGLContextWrapper;
+      const glw = this.kA.currentWebGLContextWrapper;
       const gl = glw.getRawContext();
       gl.bindFramebuffer(gl.FRAMEBUFFER, webARSystem.framebuffer);
     } else {
-      this.jA.bindFramebuffer(renderPass.getFramebuffer());
-      this.jA.setDrawTargets(renderPass);
+      this.kA.bindFramebuffer(renderPass.getFramebuffer());
+      this.kA.setDrawTargets(renderPass);
     }
   }
-  _A() {
+  $A() {
     console.log(
-      `%cRhodonite%cWeb3D Library%c %cversion%c${VERSION.version}%c %cbranch%c${VERSION.branch}%c %cmode%c${this.iA.str}`,
+      `%cRhodonite%cWeb3D Library%c %cversion%c${VERSION.version}%c %cbranch%c${VERSION.branch}%c %cmode%c${this.jA.str}`,
       "font-weight: bold; padding: 4px 8px; border-radius: 6px 0px 0px 6px; background: linear-gradient(to right, #ff0084 0%,#ff0022 100%);",
       "padding: 4px; border-radius: 0px 6px 6px 0px; background: linear-gradient(to right, #8400ff 0%,#4400ff 100%);",
       "",
@@ -869,7 +869,7 @@ var _Engine = class _Engine extends RnObject {
    * them by ComponentTID: importing the classes there would create circular imports between the
    * components, the gizmos and the mesh helpers.
    */
-  static $A() {
+  static aB() {
     ComponentRepository._ensureComponentClassRegistered(TransformComponent);
     ComponentRepository._ensureComponentClassRegistered(SceneGraphComponent);
     ComponentRepository._ensureComponentClassRegistered(MeshComponent);
@@ -892,7 +892,7 @@ var _Engine = class _Engine extends RnObject {
     if (desc.approach === ProcessApproach.WebGPU && typeof __RN_WEBGPU__ !== "undefined" && !__RN_WEBGPU__) {
       throw new Error("ProcessApproach.WebGPU is unavailable: this build was bundled with __RN_WEBGPU__ = false.");
     }
-    _Engine.$A();
+    _Engine.aB();
     const rnXRModule = ((_c = desc.xr) != null ? _c : _Engine._loadXRByDefault) ? await ModuleManager.getInstance().loadModule("xr") : void 0;
     let maxGPUDataStorageSize = 0;
     let cgApiResourceRepository;
@@ -944,19 +944,19 @@ var _Engine = class _Engine extends RnObject {
       maxGPUDataStorageSize = 1024 ** 2 * 4 * 4;
     }
     const engine = new _Engine(desc.approach, cgApiResourceRepository, maxGPUDataStorageSize, desc.config, rnXRModule);
-    engine.mA.currentProcessApproach = desc.approach;
-    engine.sA.eventTargetDom = (_e = engine.sA.eventTargetDom) != null ? _e : desc.canvas;
+    engine.nA.currentProcessApproach = desc.approach;
+    engine.tA.eventTargetDom = (_e = engine.tA.eventTargetDom) != null ? _e : desc.canvas;
     if (desc.approach === ProcessApproach.WebGPU) {
-      engine.kA = cgApiResourceRepository;
+      engine.lA = cgApiResourceRepository;
     }
     if (desc.approach === ProcessApproach.WebGL2) {
-      engine.BA = cgApiResourceRepository;
+      engine.CA = cgApiResourceRepository;
     }
-    engine.jA = cgApiResourceRepository;
+    engine.kA = cgApiResourceRepository;
     if (desc.notToDisplayRnInfoAtInit !== true) {
-      engine._A();
+      engine.$A();
     }
-    const globalDataRepository = engine.AA;
+    const globalDataRepository = engine.BA;
     globalDataRepository.initialize(desc.approach);
     if (desc.canvas != null && desc.approach === ProcessApproach.WebGL2) {
       desc.canvas.addEventListener(
@@ -972,57 +972,57 @@ var _Engine = class _Engine extends RnObject {
         engine.restartRenderLoop();
       });
     }
-    engine.tA = await DummyTextures.init(engine);
-    engine.mA.viewportAspectRatio = desc.canvas != null ? desc.canvas.width / desc.canvas.height : 1;
+    engine.uA = await DummyTextures.init(engine);
+    engine.nA.viewportAspectRatio = desc.canvas != null ? desc.canvas.width / desc.canvas.height : 1;
     return engine;
   }
   get processApproach() {
-    return this.iA;
+    return this.jA;
   }
   resizeCanvas(width, height) {
     const repo = this.cgApiResourceRepository;
     repo.resizeCanvas(width, height);
-    this.mA.viewportAspectRatio = width / height;
+    this.nA.viewportAspectRatio = width / height;
   }
   getCanvasSize() {
     const repo = this.cgApiResourceRepository;
     return repo.getCanvasSize();
   }
   getCurrentWebGLContextWrapper() {
-    return this.jA.currentWebGLContextWrapper;
+    return this.kA.currentWebGLContextWrapper;
   }
   get entityRepository() {
     return this.Se;
   }
   get componentRepository() {
-    return this.qA;
+    return this.rA;
   }
   get componentMemoryRegistry() {
-    return this.EA;
+    return this.FA;
   }
   /**
    * The WebXR (VR) system.
    * @throws If the XR support is not enabled (see {@link enableXR} and `EngineInitDescription.xr`)
    */
   get webXRSystem() {
-    if (this.hA == null) {
-      throw new Error(_Engine.RA);
+    if (this.iA == null) {
+      throw new Error(_Engine.SA);
     }
-    return this.hA;
+    return this.iA;
   }
   /**
    * The WebAR system.
    * @throws If the XR support is not enabled (see {@link enableXR} and `EngineInitDescription.xr`)
    */
   get webARSystem() {
-    if (this.lA == null) {
-      throw new Error(_Engine.RA);
+    if (this.mA == null) {
+      throw new Error(_Engine.SA);
     }
-    return this.lA;
+    return this.mA;
   }
   /** Whether the XR support (WebXR and WebAR systems) is enabled. */
   get isXREnabled() {
-    return this.hA != null;
+    return this.iA != null;
   }
   /**
    * The WebXR system, or undefined when the XR support is not enabled.
@@ -1030,14 +1030,14 @@ var _Engine = class _Engine extends RnObject {
    * @internal
    */
   get _webXRSystemIfEnabled() {
-    return this.hA;
+    return this.iA;
   }
   /**
    * The WebAR system, or undefined when the XR support is not enabled.
    * @internal
    */
   get _webARSystemIfEnabled() {
-    return this.lA;
+    return this.mA;
   }
   /**
    * Enables the WebXR/WebAR support after initialization by loading the XR module.
@@ -1052,23 +1052,23 @@ var _Engine = class _Engine extends RnObject {
    * ```
    */
   async enableXR() {
-    if (this.hA == null) {
+    if (this.iA == null) {
       const rnXRModule = await ModuleManager.getInstance().loadModule("xr");
-      if (this.hA == null) {
-        this.MA(rnXRModule);
+      if (this.iA == null) {
+        this.NA(rnXRModule);
       }
     }
-    return this.hA;
+    return this.iA;
   }
-  MA(rnXRModule) {
-    this.hA = rnXRModule.WebXRSystem.init(this);
-    this.lA = rnXRModule.WebARSystem.init(this);
+  NA(rnXRModule) {
+    this.iA = rnXRModule.WebXRSystem.init(this);
+    this.mA = rnXRModule.WebARSystem.init(this);
   }
   get memoryManager() {
     return this.wi;
   }
   get globalDataRepository() {
-    return this.AA;
+    return this.BA;
   }
   /**
    * Starts loading the light cluster system. Called when the first light is added; applications without lights
@@ -1076,15 +1076,15 @@ var _Engine = class _Engine extends RnObject {
    * @internal
    */
   _requestLightClusterSystem() {
-    if (this.g || this.GA != null) {
+    if (this.g || this.HA != null) {
       return;
     }
-    this.GA = import("../renderer/lightCluster/LightClusterSystem.js").then(({ LightClusterSystem }) => {
+    this.HA = import("../renderer/lightCluster/LightClusterSystem.js").then(({ LightClusterSystem }) => {
       if (this.g) {
         return;
       }
-      this.rA = new LightClusterSystem(this);
-      this.IA = true;
+      this.sA = new LightClusterSystem(this);
+      this.JA = true;
     }).catch((error) => {
       Logger.default.warn(`Failed to load the light cluster system: ${error}`);
     });
@@ -1095,38 +1095,38 @@ var _Engine = class _Engine extends RnObject {
    */
   async _ensureLightClusterSystem() {
     this._requestLightClusterSystem();
-    await this.GA;
-    return this.rA;
+    await this.HA;
+    return this.sA;
   }
   /**
    * The system that builds the light lists of Clustered Forward rendering.
    */
   get lightClusterSystem() {
-    return this.rA;
-  }
-  get materialRepository() {
-    return this.FA;
-  }
-  get webglResourceRepository() {
-    return this.BA;
-  }
-  get cgApiResourceRepository() {
-    return this.jA;
-  }
-  get webGpuResourceRepository() {
-    return this.kA;
-  }
-  get dummyTextures() {
-    return this.tA;
-  }
-  get engineState() {
-    return this.mA;
-  }
-  get config() {
     return this.sA;
   }
+  get materialRepository() {
+    return this.GA;
+  }
+  get webglResourceRepository() {
+    return this.CA;
+  }
+  get cgApiResourceRepository() {
+    return this.kA;
+  }
+  get webGpuResourceRepository() {
+    return this.lA;
+  }
+  get dummyTextures() {
+    return this.uA;
+  }
+  get engineState() {
+    return this.nA;
+  }
+  get config() {
+    return this.tA;
+  }
   get logger() {
-    return this.HA;
+    return this.IA;
   }
   /**
    * Gets the shader program cache for this engine instance.
@@ -1135,7 +1135,7 @@ var _Engine = class _Engine extends RnObject {
    * @internal
    */
   get shaderProgramCache() {
-    return this.SA;
+    return this.TA;
   }
 };
 /**
@@ -1144,9 +1144,9 @@ var _Engine = class _Engine extends RnObject {
  * @internal
  */
 _Engine._loadXRByDefault = false;
-_Engine.JA = /* @__PURE__ */ new Map();
-_Engine.KA = 0;
-_Engine.RA = "The XR support is not enabled. Initialize the engine with Engine.init({ xr: true }) or call await engine.enableXR() first. The default Rn namespace export enables it automatically.";
+_Engine.KA = /* @__PURE__ */ new Map();
+_Engine.LA = 0;
+_Engine.SA = "The XR support is not enabled. Initialize the engine with Engine.init({ xr: true }) or call await engine.enableXR() first. The default Rn namespace export enables it automatically.";
 var Engine = _Engine;
 export {
   Engine

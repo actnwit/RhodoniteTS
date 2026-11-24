@@ -219,7 +219,7 @@ var Vrm0xImporter = class _Vrm0xImporter {
       for (const idxOfArray in boneGroup.bones) {
         const boneNodeIndex = boneGroup.bones[idxOfArray];
         const entity = gltfModel.asset.extras.rnEntities[boneNodeIndex];
-        this.Rq(vrmSpringBoneGroup, entity, boneGroup, addedEntities);
+        this.Sq(vrmSpringBoneGroup, entity, boneGroup, addedEntities);
       }
       if (boneGroup.center != null && boneGroup.center !== -1) {
         vrmSpringBoneGroup.center = gltfModel.asset.extras.rnEntities[boneGroup.center].getSceneGraph();
@@ -227,7 +227,7 @@ var Vrm0xImporter = class _Vrm0xImporter {
       boneGroups.push(vrmSpringBoneGroup);
     }
     for (const boneGroup of boneGroups) {
-      this.Sq(boneGroup, boneGroup.rootBone);
+      this.Tq(boneGroup, boneGroup.rootBone);
     }
   }
   /**
@@ -240,7 +240,7 @@ var Vrm0xImporter = class _Vrm0xImporter {
    * @param boneGroup - The VRM bone group configuration data
    * @param addedEntities - Array to track already processed entities to avoid duplicates
    */
-  static Rq(vrmSpring, entity, boneGroup, addedEntities) {
+  static Sq(vrmSpring, entity, boneGroup, addedEntities) {
     const sg = entity.getSceneGraph();
     const children = sg.children;
     if (!addedEntities.includes(entity)) {
@@ -258,7 +258,7 @@ var Vrm0xImporter = class _Vrm0xImporter {
       addedEntities.push(entity);
     }
     for (const child of children) {
-      this.Rq(vrmSpring, child.entity, boneGroup, addedEntities);
+      this.Sq(vrmSpring, child.entity, boneGroup, addedEntities);
     }
   }
   /**
@@ -269,7 +269,7 @@ var Vrm0xImporter = class _Vrm0xImporter {
    * @param boneGroup - The VRM spring bone group containing physics parameters
    * @param sg - The scene graph component to attach physics to
    */
-  static Sq(boneGroup, sg) {
+  static Tq(boneGroup, sg) {
     const entity = sg.entity;
     const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
     const physicsComponent = newEntity.getPhysics();
@@ -361,7 +361,7 @@ var Vrm0xImporter = class _Vrm0xImporter {
     const materialProperties = gltfModel.extensions.VRM.materialProperties;
     for (const materialProperty of materialProperties) {
       if (materialProperty.shader === "VRM/MToon") {
-        this.Tq(gltfModel, texturesLength);
+        this.Uq(gltfModel, texturesLength);
         break;
       }
     }
@@ -374,51 +374,51 @@ var Vrm0xImporter = class _Vrm0xImporter {
    * @param gltfModel - The GLTF model containing MToon materials
    * @param texturesLength - The total number of textures for dummy texture assignment
    */
-  static Tq(gltfModel, texturesLength) {
+  static Uq(gltfModel, texturesLength) {
     const materialProperties = gltfModel.extensions.VRM.materialProperties;
     const dummyWhiteTextureNumber = texturesLength - 2;
     const dummyBlackTextureNumber = texturesLength - 1;
     for (let i = 0; i < materialProperties.length; i++) {
       const floatProperties = materialProperties[i].floatProperties;
-      this.Qq(floatProperties, "_BlendMode", 0);
-      this.Qq(floatProperties, "_BumpScale", 1);
-      this.Qq(floatProperties, "_CullMode", 2);
-      this.Qq(floatProperties, "_Cutoff", 0.5);
-      this.Qq(floatProperties, "_DebugMode", 0);
-      this.Qq(floatProperties, "_DstBlend", 0);
-      this.Qq(floatProperties, "_IndirectLightIntensity", 0.1);
-      this.Qq(floatProperties, "_LightColorAttenuation", 0);
-      this.Qq(floatProperties, "_OutlineColorMode", 0);
-      this.Qq(floatProperties, "_OutlineCullMode", 1);
-      this.Qq(floatProperties, "_OutlineLightingMix", 1);
-      this.Qq(floatProperties, "_OutlineScaledMaxDistance", 1);
-      this.Qq(floatProperties, "_OutlineWidth", 0.5);
-      this.Qq(floatProperties, "_OutlineWidthMode", 0);
-      this.Qq(floatProperties, "_ReceiveShadowRate", 1);
-      this.Qq(floatProperties, "_RimFresnelPower", 1);
-      this.Qq(floatProperties, "_RimLift", 0);
-      this.Qq(floatProperties, "_RimLightingMix", 0);
-      this.Qq(floatProperties, "_ShadeShift", 0);
-      this.Qq(floatProperties, "_ShadeToony", 0.9);
-      this.Qq(floatProperties, "_ShadingGradeRate", 1);
-      this.Qq(floatProperties, "_SrcBlend", 1);
-      this.Qq(floatProperties, "_ZWrite", 1);
+      this.Rq(floatProperties, "_BlendMode", 0);
+      this.Rq(floatProperties, "_BumpScale", 1);
+      this.Rq(floatProperties, "_CullMode", 2);
+      this.Rq(floatProperties, "_Cutoff", 0.5);
+      this.Rq(floatProperties, "_DebugMode", 0);
+      this.Rq(floatProperties, "_DstBlend", 0);
+      this.Rq(floatProperties, "_IndirectLightIntensity", 0.1);
+      this.Rq(floatProperties, "_LightColorAttenuation", 0);
+      this.Rq(floatProperties, "_OutlineColorMode", 0);
+      this.Rq(floatProperties, "_OutlineCullMode", 1);
+      this.Rq(floatProperties, "_OutlineLightingMix", 1);
+      this.Rq(floatProperties, "_OutlineScaledMaxDistance", 1);
+      this.Rq(floatProperties, "_OutlineWidth", 0.5);
+      this.Rq(floatProperties, "_OutlineWidthMode", 0);
+      this.Rq(floatProperties, "_ReceiveShadowRate", 1);
+      this.Rq(floatProperties, "_RimFresnelPower", 1);
+      this.Rq(floatProperties, "_RimLift", 0);
+      this.Rq(floatProperties, "_RimLightingMix", 0);
+      this.Rq(floatProperties, "_ShadeShift", 0);
+      this.Rq(floatProperties, "_ShadeToony", 0.9);
+      this.Rq(floatProperties, "_ShadingGradeRate", 1);
+      this.Rq(floatProperties, "_SrcBlend", 1);
+      this.Rq(floatProperties, "_ZWrite", 1);
       const vectorProperties = materialProperties[i].vectorProperties;
-      this.Qq(vectorProperties, "_Color", [1, 1, 1, 1]);
-      this.Qq(vectorProperties, "_EmissionColor", [0, 0, 0]);
-      this.Qq(vectorProperties, "_OutlineColor", [0, 0, 0, 1]);
-      this.Qq(vectorProperties, "_ShadeColor", [0.97, 0.81, 0.86, 1]);
-      this.Qq(vectorProperties, "_RimColor", [0, 0, 0]);
+      this.Rq(vectorProperties, "_Color", [1, 1, 1, 1]);
+      this.Rq(vectorProperties, "_EmissionColor", [0, 0, 0]);
+      this.Rq(vectorProperties, "_OutlineColor", [0, 0, 0, 1]);
+      this.Rq(vectorProperties, "_ShadeColor", [0.97, 0.81, 0.86, 1]);
+      this.Rq(vectorProperties, "_RimColor", [0, 0, 0]);
       const textureProperties = materialProperties[i].textureProperties;
-      this.Qq(textureProperties, "_BumpMap", dummyWhiteTextureNumber);
-      this.Qq(textureProperties, "_EmissionMap", dummyBlackTextureNumber);
-      this.Qq(textureProperties, "_MainTex", dummyWhiteTextureNumber);
-      this.Qq(textureProperties, "_OutlineWidthTexture", dummyWhiteTextureNumber);
-      this.Qq(textureProperties, "_ReceiveShadowTexture", dummyWhiteTextureNumber);
-      this.Qq(textureProperties, "_RimTexture", dummyBlackTextureNumber);
-      this.Qq(textureProperties, "_ShadeTexture", dummyWhiteTextureNumber);
-      this.Qq(textureProperties, "_ShadingGradeTexture", dummyWhiteTextureNumber);
-      this.Qq(textureProperties, "_SphereAdd", dummyBlackTextureNumber);
+      this.Rq(textureProperties, "_BumpMap", dummyWhiteTextureNumber);
+      this.Rq(textureProperties, "_EmissionMap", dummyBlackTextureNumber);
+      this.Rq(textureProperties, "_MainTex", dummyWhiteTextureNumber);
+      this.Rq(textureProperties, "_OutlineWidthTexture", dummyWhiteTextureNumber);
+      this.Rq(textureProperties, "_ReceiveShadowTexture", dummyWhiteTextureNumber);
+      this.Rq(textureProperties, "_RimTexture", dummyBlackTextureNumber);
+      this.Rq(textureProperties, "_ShadeTexture", dummyWhiteTextureNumber);
+      this.Rq(textureProperties, "_ShadingGradeTexture", dummyWhiteTextureNumber);
+      this.Rq(textureProperties, "_SphereAdd", dummyBlackTextureNumber);
     }
     for (let i = 0; i < gltfModel.materials.length; i++) {
       const material = gltfModel.materials[i];
@@ -437,7 +437,7 @@ var Vrm0xImporter = class _Vrm0xImporter {
    * @param propertyName - The name of the property to check
    * @param initialValue - The default value to set if the property is undefined
    */
-  static Qq(object, propertyName, initialValue) {
+  static Rq(object, propertyName, initialValue) {
     if (object[propertyName] == null) object[propertyName] = initialValue;
   }
   /**

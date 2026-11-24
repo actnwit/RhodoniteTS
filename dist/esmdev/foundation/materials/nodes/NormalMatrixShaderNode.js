@@ -24,7 +24,7 @@ var NormalMatrixShaderNode = class extends AbstractShaderNode {
       codeWGSL: NormalMatrixShaderityObjectWGSL.code
     });
     this.setShaderStage("Vertex");
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Mat3,
       componentType: ComponentType.Float,
       name: "outValue"

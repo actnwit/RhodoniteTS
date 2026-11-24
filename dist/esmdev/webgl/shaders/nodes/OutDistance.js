@@ -9,10 +9,10 @@ var _OutDistanceShader = class _OutDistanceShader extends RaymarchingShaderPart 
    * instance so each terminal can carry its component's correction.
    */
   static getInstance() {
-    if (!this.cF) {
-      this.cF = new _OutDistanceShader();
+    if (!this.dF) {
+      this.dF = new _OutDistanceShader();
     }
-    return this.cF;
+    return this.dF;
   }
   /**
    * @param shaderFunctionName - Unique function name of the terminal node
@@ -24,9 +24,9 @@ var _OutDistanceShader = class _OutDistanceShader extends RaymarchingShaderPart 
    */
   constructor(shaderFunctionName = "outDistance", distanceCorrectionUniformNames = [], distanceScaleGlobalNames = []) {
     super();
-    this.Ar = shaderFunctionName;
-    this.$s = [...distanceCorrectionUniformNames];
-    this.at = [...distanceScaleGlobalNames];
+    this.Br = shaderFunctionName;
+    this.at = [...distanceCorrectionUniformNames];
+    this.bt = [...distanceScaleGlobalNames];
   }
   /**
    * Gets the vertex shader function definitions.
@@ -58,12 +58,12 @@ var _OutDistanceShader = class _OutDistanceShader extends RaymarchingShaderPart 
   getPixelShaderDefinitions(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-fn ${this.Ar}(value: f32, objectId: f32) {
+fn ${this.Br}(value: f32, objectId: f32) {
   var distanceScale = 1.0;
-${this.$s.map(
+${this.at.map(
         (name) => `  distanceScale = min(distanceScale, rnRaymarchDistanceScale(get_${name}(uniformDrawParameters.materialSid, 0u)));
 `
-      ).join("")}${this.at.map(
+      ).join("")}${this.bt.map(
         (name) => `  distanceScale = min(distanceScale, ${name});
 `
       ).join("")}  distanceScale = clamp(distanceScale, 0.0001, 1.0);
@@ -76,13 +76,13 @@ ${this.$s.map(
 `;
     }
     return `
-void ${this.Ar}(in float value, in float objectId) {
+void ${this.Br}(in float value, in float objectId) {
   ${this.getMaterialSIDForWebGL()}
   float distanceScale = 1.0;
-${this.$s.map(
+${this.at.map(
       (name) => `  distanceScale = min(distanceScale, rnRaymarchDistanceScale(get_${name}(materialSID, 0u)));
 `
-    ).join("")}${this.at.map(
+    ).join("")}${this.bt.map(
       (name) => `  distanceScale = min(distanceScale, ${name});
 `
     ).join("")}  distanceScale = clamp(distanceScale, 0.0001, 1.0);

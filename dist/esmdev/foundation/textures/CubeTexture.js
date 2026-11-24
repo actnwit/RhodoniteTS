@@ -21,7 +21,7 @@ var _CubeTexture = class _CubeTexture extends AbstractTexture {
    * @param uniqueName - A unique name for the texture used in logging
    * @private
    */
-  xB(textureResourceUid, uniqueName) {
+  yB(textureResourceUid, uniqueName) {
     this._textureResourceUid = textureResourceUid;
     _CubeTexture.managedRegistry.register(this, { textureResourceUid, engine: this.c, uniqueName }, this);
   }
@@ -52,7 +52,7 @@ var _CubeTexture = class _CubeTexture extends AbstractTexture {
     isNamePosNeg,
     hdriFormat
   }) {
-    this.qB = true;
+    this.rB = true;
     this.mipmapLevelNumber = mipmapLevelNumber;
     this.hdriFormat = hdriFormat;
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
@@ -63,17 +63,17 @@ var _CubeTexture = class _CubeTexture extends AbstractTexture {
       isNamePosNeg,
       hdriFormat
     );
-    this.xB(cubeTextureUid, this.uniqueName);
+    this.yB(cubeTextureUid, this.uniqueName);
     this._recommendedTextureSampler = sampler;
     this._samplerResourceUid = sampler._samplerResourceUid;
     this.dm = width;
-    this.Cy = height;
+    this.Dy = height;
     if (this.c.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = cgApiResourceRepository.createTextureViewCube(
         this._textureResourceUid
       );
     }
-    this.nB = true;
+    this.oB = true;
   }
   /**
    * Loads cube texture from Basis compressed texture data.
@@ -104,7 +104,7 @@ var _CubeTexture = class _CubeTexture extends AbstractTexture {
     wrapS = TextureParameter.Repeat,
     wrapT = TextureParameter.Repeat
   } = {}) {
-    this.qB = true;
+    this.rB = true;
     if (typeof BASIS === "undefined") {
       Logger.default.error("Failed to call BASIS() function. Please check to import basis_transcoder.js.");
     }
@@ -126,10 +126,10 @@ var _CubeTexture = class _CubeTexture extends AbstractTexture {
         wrapS,
         wrapT
       });
-      this.xB(resourceHandle, this.uniqueName);
+      this.yB(resourceHandle, this.uniqueName);
       this.dm = width;
-      this.Cy = height;
-      this.nB = true;
+      this.Dy = height;
+      this.oB = true;
       basisFile.close();
       basisFile.delete();
     });
@@ -175,15 +175,15 @@ var _CubeTexture = class _CubeTexture extends AbstractTexture {
       1,
       1
     );
-    this.xB(resourceUid, this.uniqueName);
+    this.yB(resourceUid, this.uniqueName);
     this._recommendedTextureSampler = sampler;
     this._samplerResourceUid = sampler._samplerResourceUid;
     this.dm = 1;
-    this.Cy = 1;
+    this.Dy = 1;
     if (this.c.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = cgApiResourceRepository.createTextureViewCube(this._textureResourceUid);
     }
-    this.nB = true;
+    this.oB = true;
   }
   /**
    * Generates a cube texture from typed arrays containing raw image data.
@@ -219,11 +219,11 @@ var _CubeTexture = class _CubeTexture extends AbstractTexture {
       baseLevelHeight
     );
     this._recommendedTextureSampler = sampler;
-    this.xB(resourceId, this.uniqueName);
+    this.yB(resourceId, this.uniqueName);
     this.dm = baseLevelWidth;
-    this.Cy = baseLevelHeight;
-    this.nB = true;
-    this.qB = true;
+    this.Dy = baseLevelHeight;
+    this.oB = true;
+    this.rB = true;
   }
   /**
    * Imports an existing WebGL texture directly into this CubeTexture instance.
@@ -242,12 +242,12 @@ var _CubeTexture = class _CubeTexture extends AbstractTexture {
    */
   importWebGLTextureDirectly(webGLTexture, width = 0, height = 0) {
     this.dm = width;
-    this.Cy = height;
+    this.Dy = height;
     const webGLResourceRepository = this.c.webglResourceRepository;
     const texture = webGLResourceRepository.setWebGLTextureDirectly(webGLTexture);
-    this.xB(texture, this.uniqueName);
-    this.qB = true;
-    this.nB = true;
+    this.yB(texture, this.uniqueName);
+    this.rB = true;
+    this.oB = true;
   }
   /**
    * Deletes the internal texture resource from the graphics API.
@@ -257,7 +257,7 @@ var _CubeTexture = class _CubeTexture extends AbstractTexture {
    * @param textureResourceUid - The unique identifier of the texture resource to delete
    * @private
    */
-  static yB(engine, textureResourceUid) {
+  static zB(engine, textureResourceUid) {
     const cgApiResourceRepository = engine.cgApiResourceRepository;
     cgApiResourceRepository.deleteTexture(textureResourceUid);
   }
@@ -267,14 +267,14 @@ var _CubeTexture = class _CubeTexture extends AbstractTexture {
    * After calling this method, the texture cannot be used for rendering until reloaded.
    */
   destroy3DAPIResources() {
-    _CubeTexture.yB(this.c, this._textureResourceUid);
+    _CubeTexture.zB(this.c, this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this._samplerResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     if (this._recommendedTextureSampler) {
       this._recommendedTextureSampler.destroy();
     }
-    this.nB = false;
-    this.qB = false;
+    this.oB = false;
+    this.rB = false;
   }
   /**
    * Implements the Disposable interface for automatic resource cleanup.
@@ -313,7 +313,7 @@ var _CubeTexture = class _CubeTexture extends AbstractTexture {
     const data = await cgApiResourceRepository.getCubeTexturePixelData(
       this._textureResourceUid,
       this.dm,
-      this.Cy,
+      this.Dy,
       faceIndex
     );
     return data;
@@ -399,7 +399,7 @@ _CubeTexture.managedRegistry = new FinalizationRegistry((texObj) => {
   Logger.default.info(
     `WebGL/WebGPU cube texture "${texObj.uniqueName}" was automatically released along with GC. But explicit release is recommended.`
   );
-  _CubeTexture.yB(texObj.engine, texObj.textureResourceUid);
+  _CubeTexture.zB(texObj.engine, texObj.textureResourceUid);
 });
 var CubeTexture = _CubeTexture;
 export {

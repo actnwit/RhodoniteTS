@@ -90,7 +90,7 @@ void main() {
    */
   getVertexPrerequisites(engine, shaderNodes) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      const varyingVariables = this.$E(shaderNodes);
+      const varyingVariables = this.aF(shaderNodes);
       let vertexShaderPrerequisites2 = "";
       vertexShaderPrerequisites2 += `
 /* shaderity: @{definitions} */
@@ -165,7 +165,7 @@ flat out uvec4 v_instanceIds;
    * @returns WGSL varying variables declaration string
    * @private
    */
-  $E(shaderNodes) {
+  aF(shaderNodes) {
     const varyings = [];
     const definedVaryings = /* @__PURE__ */ new Set();
     for (let i = 0; i < shaderNodes.length; i++) {
@@ -218,7 +218,7 @@ flat out uvec4 v_instanceIds;
    */
   getPixelPrerequisites(engine, shaderNodes) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      const varyingVariables = this.$E(shaderNodes);
+      const varyingVariables = this.aF(shaderNodes);
       let pixelShaderPrerequisites2 = "";
       pixelShaderPrerequisites2 += `
 /* shaderity: @{definitions} */

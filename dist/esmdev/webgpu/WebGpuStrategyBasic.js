@@ -22,25 +22,25 @@ import { isSkipDrawing } from "../foundation/renderer/RenderingCommonMethods.js"
 import { WebGpuLightClusterBuilder } from "./WebGpuLightClusterBuilder.js";
 var WebGpuStrategyBasic = class _WebGpuStrategyBasic {
   constructor(engine) {
-    this.sJ = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.tJ = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-    this.fE = -1;
+    this.uJ = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.gE = -1;
+    this.hE = -1;
     this.Ic = -1;
-    this.vJ = -1;
-    this.Hc = -1;
-    this.iE = -1;
-    this.uA = -1;
-    this.Jc = -1;
-    this.dE = -1;
-    this.eE = -1;
-    this.jE = -1;
-    this.XD = -1;
-    this.kE = -1;
-    this.ED = -1;
-    this.FD = -1;
     this.wJ = -1;
+    this.Hc = -1;
+    this.jE = -1;
+    this.vA = -1;
+    this.Jc = -1;
+    this.eE = -1;
+    this.fE = -1;
+    this.kE = -1;
+    this.YD = -1;
     this.lE = -1;
+    this.FD = -1;
+    this.GD = -1;
+    this.xJ = -1;
+    this.mE = -1;
     this.c = engine;
   }
   /**
@@ -200,7 +200,7 @@ var WebGpuStrategyBasic = class _WebGpuStrategyBasic {
   `;
     }
   }
-  static DE(engine) {
+  static EE(engine) {
     const morphUniformDataTargetNumbers = Primitive.getMorphUniformDataTargetNumbers();
     const morphUniformDataTargetNumbersStr = `
     const rnMorphUniformDataTargetNumbers: array<u32, ${morphUniformDataTargetNumbers.length}> = array<u32, ${morphUniformDataTargetNumbers.length}>(${morphUniformDataTargetNumbers.map((num) => `${num}u`).join(", ")});
@@ -256,7 +256,7 @@ var WebGpuStrategyBasic = class _WebGpuStrategyBasic {
    * @param info - Shader semantics information containing type and binding details
    * @returns WGSL shader code for the property accessor function
    */
-  static EE(engine, info) {
+  static FE(engine, info) {
     var _a, _b;
     const returnType = info.compositionType.toWGSLType(info.componentType);
     const methodName = info.semantic.replace(".", "_");
@@ -384,7 +384,7 @@ ${indexStr}
    * @param info - Shader semantics information containing type and binding details
    * @returns WGSL shader code for the property accessor function
    */
-  static FE(engine, materialTypeName, info) {
+  static GE(engine, materialTypeName, info) {
     var _a, _b;
     const returnType = info.compositionType.toWGSLType(info.componentType);
     const methodName = info.semantic.replace(".", "_");
@@ -550,39 +550,15 @@ ${indexStr}
    * Initializes morph target arrays and updates blend shape storage buffers when needed.
    */
   common_$load() {
-    this.GE();
+    this.HE();
   }
-  GE() {
+  HE() {
     const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
     const morphOffsetsUniformDataSize = Math.max(
       Math.ceil(morphUniformDataOffsets[morphUniformDataOffsets.length - 1] / 4) * 4 * 4,
       4
     );
-    if (morphOffsetsUniformDataSize !== this.XD) {
-      const webGpuResourceRepository = this.c.webGpuResourceRepository;
-      if (this.ED !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-        webGpuResourceRepository.flush();
-        webGpuResourceRepository.clearCache();
-        webGpuResourceRepository.deleteUniformBuffer(this.ED);
-        this.ED = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-      }
-      this.XD = morphOffsetsUniformDataSize;
-      if (this.ED === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-        const inputArrayOffsets = new Uint32Array(morphOffsetsUniformDataSize);
-        this.VD = inputArrayOffsets;
-        this.ED = webGpuResourceRepository.createUniformMorphOffsetsBuffer(
-          morphOffsetsUniformDataSize * 4
-        );
-        this.xJ();
-      }
-      this.XD = morphOffsetsUniformDataSize;
-    }
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(this.c);
-    const blendShapeWeightsUniformDataSize = Math.max(
-      Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4) * 4 * 4,
-      4
-    );
-    if (blendShapeWeightsUniformDataSize !== this.kE) {
+    if (morphOffsetsUniformDataSize !== this.YD) {
       const webGpuResourceRepository = this.c.webGpuResourceRepository;
       if (this.FD !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         webGpuResourceRepository.flush();
@@ -590,15 +566,39 @@ ${indexStr}
         webGpuResourceRepository.deleteUniformBuffer(this.FD);
         this.FD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
       }
+      this.YD = morphOffsetsUniformDataSize;
       if (this.FD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        const inputArrayOffsets = new Uint32Array(morphOffsetsUniformDataSize);
+        this.WD = inputArrayOffsets;
+        this.FD = webGpuResourceRepository.createUniformMorphOffsetsBuffer(
+          morphOffsetsUniformDataSize * 4
+        );
+        this.yJ();
+      }
+      this.YD = morphOffsetsUniformDataSize;
+    }
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(this.c);
+    const blendShapeWeightsUniformDataSize = Math.max(
+      Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4) * 4 * 4,
+      4
+    );
+    if (blendShapeWeightsUniformDataSize !== this.lE) {
+      const webGpuResourceRepository = this.c.webGpuResourceRepository;
+      if (this.GD !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        webGpuResourceRepository.flush();
+        webGpuResourceRepository.clearCache();
+        webGpuResourceRepository.deleteUniformBuffer(this.GD);
+        this.GD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      }
+      if (this.GD === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         const inputArrayWeights = new Float32Array(blendShapeWeightsUniformDataSize);
-        this.WD = inputArrayWeights;
-        this.FD = webGpuResourceRepository.createUniformMorphWeightsBuffer(
+        this.XD = inputArrayWeights;
+        this.GD = webGpuResourceRepository.createUniformMorphWeightsBuffer(
           blendShapeWeightsUniformDataSize * 4
         );
-        this.oE();
+        this.pE();
       }
-      this.kE = blendShapeWeightsUniformDataSize;
+      this.lE = blendShapeWeightsUniformDataSize;
     }
   }
   /**
@@ -607,7 +607,7 @@ ${indexStr}
    *
    * @param meshComponent - The mesh component containing primitives to setup
    */
-  DJ(meshComponent) {
+  EJ(meshComponent) {
     if (meshComponent.mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
@@ -639,9 +639,9 @@ ${indexStr}
         primitive,
         _WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(this.c, ShaderType.VertexShader),
         _WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(this.c, ShaderType.PixelShader),
-        _WebGpuStrategyBasic.EE,
         _WebGpuStrategyBasic.FE,
-        _WebGpuStrategyBasic.DE(this.c)
+        _WebGpuStrategyBasic.GE,
+        _WebGpuStrategyBasic.EE(this.c)
       );
       primitive._backupMaterial();
     } catch (e) {
@@ -652,9 +652,9 @@ ${indexStr}
         primitive,
         _WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(this.c, ShaderType.VertexShader),
         _WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(this.c, ShaderType.PixelShader),
-        _WebGpuStrategyBasic.EE,
         _WebGpuStrategyBasic.FE,
-        _WebGpuStrategyBasic.DE(this.c)
+        _WebGpuStrategyBasic.GE,
+        _WebGpuStrategyBasic.EE(this.c)
       );
     }
   }
@@ -686,33 +686,33 @@ ${indexStr}
    * This method should be called once per frame before any rendering operations.
    */
   prerender() {
-    if (AnimationComponent.getIsAnimating(this.c) || TransformComponent.getUpdateCount(this.c) !== this.Hc || SceneGraphComponent.getUpdateCount(this.c) !== this.iE || CameraComponent.getCurrentCameraUpdateCount(this.c) !== this.uA || _getCameraControllerUpdateCount(this.c) !== this.Jc || this.c.materialRepository.stateVersion !== this.fE || this.c.lightClusterSystem.dataVersion !== this.gE || LightComponent.getUpdateCount(this.c) !== this.Ic) {
-      const isStorageBufferRecreated = this.zJ();
+    if (AnimationComponent.getIsAnimating(this.c) || TransformComponent.getUpdateCount(this.c) !== this.Hc || SceneGraphComponent.getUpdateCount(this.c) !== this.jE || CameraComponent.getCurrentCameraUpdateCount(this.c) !== this.vA || _getCameraControllerUpdateCount(this.c) !== this.Jc || this.c.materialRepository.stateVersion !== this.gE || this.c.lightClusterSystem.dataVersion !== this.hE || LightComponent.getUpdateCount(this.c) !== this.Ic) {
+      const isStorageBufferRecreated = this.AJ();
       this.c.webGpuResourceRepository._markGpuCullingInputsDirty();
       const lightClusterDataVersion = this.c.lightClusterSystem.dataVersion;
-      if (isStorageBufferRecreated || lightClusterDataVersion !== this.vJ) {
-        this.AJ();
-        this.vJ = lightClusterDataVersion;
+      if (isStorageBufferRecreated || lightClusterDataVersion !== this.wJ) {
+        this.BJ();
+        this.wJ = lightClusterDataVersion;
       }
       this.Hc = TransformComponent.getUpdateCount(this.c);
-      this.iE = SceneGraphComponent.getUpdateCount(this.c);
-      this.uA = CameraComponent.getCurrentCameraUpdateCount(this.c);
+      this.jE = SceneGraphComponent.getUpdateCount(this.c);
+      this.vA = CameraComponent.getCurrentCameraUpdateCount(this.c);
       this.Jc = _getCameraControllerUpdateCount(this.c);
-      this.fE = this.c.materialRepository.stateVersion;
-      this.gE = this.c.lightClusterSystem.dataVersion;
+      this.gE = this.c.materialRepository.stateVersion;
+      this.hE = this.c.lightClusterSystem.dataVersion;
       this.Ic = LightComponent.getUpdateCount(this.c);
     }
     const morphMaxIndex = Primitive.getPrimitiveCountHasMorph();
-    if (morphMaxIndex !== this.eE) {
-      this.BJ();
-      this.eE = morphMaxIndex;
+    if (morphMaxIndex !== this.fE) {
+      this.CJ();
+      this.fE = morphMaxIndex;
       this.c.webGpuResourceRepository._markGpuCullingInputsDirty();
     }
-    if (BlendShapeComponent.updateCount !== this.dE || BlendShapeComponent.getCountOfBlendShapeComponents(this.c) !== this.lE) {
-      this.oE();
+    if (BlendShapeComponent.updateCount !== this.eE || BlendShapeComponent.getCountOfBlendShapeComponents(this.c) !== this.mE) {
+      this.pE();
       this.c.webGpuResourceRepository._markGpuCullingInputsDirty();
-      this.dE = BlendShapeComponent.updateCount;
-      this.lE = BlendShapeComponent.getCountOfBlendShapeComponents(this.c);
+      this.eE = BlendShapeComponent.updateCount;
+      this.mE = BlendShapeComponent.getCountOfBlendShapeComponents(this.c);
       this.c.materialRepository._makeShaderInvalidateToMorphMaterials();
     }
   }
@@ -728,12 +728,12 @@ ${indexStr}
    */
   common_$render(primitiveUids, renderPass, _renderPassTickCount, displayIdx) {
     if (renderPass.isBufferLessRenderingMode()) {
-      this.NE(renderPass);
+      this.OE(renderPass);
       return true;
     }
     let renderedSomething = false;
     const isZWrite = renderPass.isDepthTest && renderPass.depthWriteMask;
-    const useDepthPrepass = this.CJ(renderPass);
+    const useDepthPrepass = this.DJ(renderPass);
     if (useDepthPrepass) {
       for (let i = renderPass._lastOpaqueIndex; i >= 0; i--) {
         this.renderInner(primitiveUids[i], renderPass, true, displayIdx, { depthOnly: true });
@@ -777,12 +777,12 @@ ${indexStr}
    *
    * @param renderPass - The render pass containing the material and rendering configuration
    */
-  NE(renderPass) {
+  OE(renderPass) {
     const material = renderPass.material;
     const primitive = renderPass._dummyPrimitiveForBufferLessRendering;
     this._setupShaderProgram(material, primitive);
     const webGpuResourceRepository = this.c.webGpuResourceRepository;
-    const cameraSID = this.yJ(renderPass, 0, false);
+    const cameraSID = this.zJ(renderPass, 0, false);
     webGpuResourceRepository.setDrawParameters(material.materialSID, cameraSID, 0, 0);
     const isZWrite = renderPass.isDepthTest && renderPass.depthWriteMask;
     webGpuResourceRepository.draw(this.c, primitive, material, renderPass, cameraSID, isZWrite, 0);
@@ -791,7 +791,7 @@ ${indexStr}
    * Whether the depth prepass can run for the render pass: it must be enabled, draw the scene itself (render passes
    * with a material override such as shadow maps and post effects are excluded), and write depth.
    */
-  CJ(renderPass) {
+  DJ(renderPass) {
     const framebuffer = renderPass.getFramebuffer();
     return this.c.config.isDepthPrepassEnabled && renderPass.material == null && renderPass.isDepthTest && renderPass.depthWriteMask && (framebuffer == null || framebuffer.depthAttachment != null) && renderPass._toRenderOpaquePrimitives && renderPass._lastOpaqueIndex >= 0;
   }
@@ -824,7 +824,7 @@ ${indexStr}
     }
     const webGpuResourceRepository = this.c.webGpuResourceRepository;
     const webxrSystem = this.c._webXRSystemIfEnabled;
-    const cameraSID = this.yJ(
+    const cameraSID = this.zJ(
       renderPass,
       displayIdx,
       ((_a = webxrSystem == null ? void 0 : webxrSystem.isWebXRMode) != null ? _a : false) && renderPass.isVrRendering
@@ -853,34 +853,34 @@ ${indexStr}
    * This buffer holds transform matrices, material properties, and other per-instance data
    * required for rendering all objects in the scene.
    */
-  zJ() {
+  AJ() {
     const memoryManager = this.c.memoryManager;
     const gpuInstanceDataBuffers = memoryManager.getBuffers(BufferUse.GPUInstanceData);
     const gpuInstanceDataBufferCount = gpuInstanceDataBuffers.length;
     const webGpuResourceRepository = this.c.webGpuResourceRepository;
-    if (gpuInstanceDataBufferCount !== this.jE) {
-      this.jE = gpuInstanceDataBufferCount;
-      webGpuResourceRepository.destroyStorageBuffer(this.sJ);
-      this.sJ = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    if (gpuInstanceDataBufferCount !== this.kE) {
+      this.kE = gpuInstanceDataBufferCount;
+      webGpuResourceRepository.destroyStorageBuffer(this.tJ);
+      this.tJ = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
-    if (this.sJ !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+    if (this.tJ !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const lightClusterSystem = this.c.lightClusterSystem;
       webGpuResourceRepository.updateStorageBuffer(
-        this.sJ,
+        this.tJ,
         gpuInstanceDataBuffers,
         lightClusterSystem._getExcludedByteRanges()
       );
       const dirtyRanges = lightClusterSystem._takeDirtyByteRanges();
       if (dirtyRanges.length > 0) {
         webGpuResourceRepository.updateStorageBufferRanges(
-          this.sJ,
+          this.tJ,
           gpuInstanceDataBuffers,
           dirtyRanges
         );
       }
       return false;
     }
-    this.sJ = webGpuResourceRepository.createStorageBuffer(gpuInstanceDataBuffers);
+    this.tJ = webGpuResourceRepository.createStorageBuffer(gpuInstanceDataBuffers);
     this.c.lightClusterSystem._takeDirtyByteRanges();
     return true;
   }
@@ -888,7 +888,7 @@ ${indexStr}
    * Builds the Clustered Forward light cluster tables with compute shaders when the LightClusterSystem
    * builds them on the GPU. It must run after every upload of the GPU instance data, which overwrites the tables.
    */
-  AJ() {
+  BJ() {
     var _a, _b;
     const params = this.c.lightClusterSystem._getGpuBuildParams();
     if (params == null) {
@@ -899,27 +899,27 @@ ${indexStr}
     if (storageBuffer == null) {
       return;
     }
-    (_b = this[_a = "uJ"]) != null ? _b : this[_a] = new WebGpuLightClusterBuilder(
+    (_b = this[_a = "vJ"]) != null ? _b : this[_a] = new WebGpuLightClusterBuilder(
       webGpuResourceRepository.getWebGpuDeviceWrapper().gpuDevice
     );
     const gpuTimer = this.c.gpuTimerEnabled ? webGpuResourceRepository._getGpuTimer() : void 0;
-    this.uJ.build(storageBuffer, params, gpuTimer);
+    this.vJ.build(storageBuffer, params, gpuTimer);
   }
   /**
    * Creates or updates the storage buffer containing blend shape vertex data.
    * This buffer holds morph target positions and other vertex attributes needed for blend shape animation.
    */
-  BJ() {
+  CJ() {
     const memoryManager = this.c.memoryManager;
     const blendShapeDataBuffers = memoryManager.getBuffers(BufferUse.GPUVertexData);
     if (blendShapeDataBuffers.length === 0) {
       return;
     }
     const blendShapeDataBufferByteLength = blendShapeDataBuffers.reduce((acc, buffer) => acc + buffer.byteLength, 0);
-    if (blendShapeDataBufferByteLength !== this.wJ) {
-      this.c.webGpuResourceRepository.deleteStorageBlendShapeBuffer(this.tJ);
-      this.tJ = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-      this.wJ = blendShapeDataBufferByteLength;
+    if (blendShapeDataBufferByteLength !== this.xJ) {
+      this.c.webGpuResourceRepository.deleteStorageBlendShapeBuffer(this.uJ);
+      this.uJ = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      this.xJ = blendShapeDataBufferByteLength;
     }
     const webGpuResourceRepository = this.c.webGpuResourceRepository;
     const float32Array = new Float32Array(blendShapeDataBufferByteLength / 4);
@@ -929,19 +929,19 @@ ${indexStr}
       float32Array.set(new Float32Array(buffer.getArrayBuffer()), offset);
       offset += buffer.byteLength / 4;
     }
-    if (this.tJ !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+    if (this.uJ !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const componentSizeForDataTexture = blendShapeDataBufferByteLength / 4;
       webGpuResourceRepository.updateStorageBlendShapeBuffer(
-        this.tJ,
+        this.uJ,
         float32Array,
         componentSizeForDataTexture
       );
     } else {
-      this.tJ = webGpuResourceRepository.createStorageBlendShapeBuffer(float32Array);
+      this.uJ = webGpuResourceRepository.createStorageBlendShapeBuffer(float32Array);
     }
-    this.xJ();
+    this.yJ();
   }
-  xJ() {
+  yJ() {
     const webGpuResourceRepository = this.c.webGpuResourceRepository;
     const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
     for (let i = 0; i < Primitive.getPrimitiveCountHasMorph(); i++) {
@@ -954,20 +954,20 @@ ${indexStr}
             BufferUse.GPUVertexData,
             accessor.bufferView.buffer.indexOfTheBufferUsage
           );
-          this.VD[morphUniformDataOffsets[i] + j] = (byteOffsetOfExistingBuffer + accessor.byteOffsetInBuffer) / 4 / 4;
+          this.WD[morphUniformDataOffsets[i] + j] = (byteOffsetOfExistingBuffer + accessor.byteOffsetInBuffer) / 4 / 4;
         }
       } else {
         break;
       }
     }
     const elementNumToCopy = morphUniformDataOffsets[morphUniformDataOffsets.length - 1];
-    webGpuResourceRepository.updateUniformMorphOffsetsBuffer(this.VD, elementNumToCopy);
+    webGpuResourceRepository.updateUniformMorphOffsetsBuffer(this.WD, elementNumToCopy);
   }
   /**
    * Updates uniform buffers containing morph target weights for blend shape animation.
    * Copies weight values from blend shape components to GPU-accessible uniform buffers.
    */
-  oE() {
+  pE() {
     const memoryManager = this.c.memoryManager;
     const blendShapeDataBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
     if (blendShapeDataBuffer == null) {
@@ -984,13 +984,13 @@ ${indexStr}
       const blendShapeComponent = blendShapeComponents[i];
       const weights = blendShapeComponent != null ? blendShapeComponent.weights : [];
       for (let j = 0; j < weights.length; j++) {
-        this.WD[blendShapeUniformDataOffsets[i] + j] = weights[j];
+        this.XD[blendShapeUniformDataOffsets[i] + j] = weights[j];
       }
     }
     if (blendShapeComponents.length > 0) {
       const webGpuResourceRepository = this.c.webGpuResourceRepository;
       const elementNumToCopy = blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1];
-      webGpuResourceRepository.updateUniformMorphWeightsBuffer(this.WD, elementNumToCopy);
+      webGpuResourceRepository.updateUniformMorphWeightsBuffer(this.XD, elementNumToCopy);
     }
   }
   /**
@@ -1002,7 +1002,7 @@ ${indexStr}
    * @param isVRMainPass - Whether this is a VR main rendering pass
    * @returns The component SID of the appropriate camera, or -1 if no camera is available
    */
-  yJ(renderPass, displayIdx, isVRMainPass) {
+  zJ(renderPass, displayIdx, isVRMainPass) {
     if (isVRMainPass) {
       const webxrSystem = this.c._webXRSystemIfEnabled;
       let cameraComponentSid = -1;
@@ -1034,24 +1034,24 @@ ${indexStr}
   destroy() {
     var _a;
     const webGpuResourceRepository = this.c.webGpuResourceRepository;
-    (_a = this.uJ) == null ? void 0 : _a.destroy();
-    this.uJ = void 0;
+    (_a = this.vJ) == null ? void 0 : _a.destroy();
+    this.vJ = void 0;
     webGpuResourceRepository._destroyGpuCulling();
-    if (this.sJ !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      webGpuResourceRepository.destroyStorageBuffer(this.sJ);
-      this.sJ = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-    }
     if (this.tJ !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      webGpuResourceRepository.deleteStorageBlendShapeBuffer(this.tJ);
+      webGpuResourceRepository.destroyStorageBuffer(this.tJ);
       this.tJ = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
-    if (this.ED !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      webGpuResourceRepository.deleteUniformBuffer(this.ED);
-      this.ED = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    if (this.uJ !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      webGpuResourceRepository.deleteStorageBlendShapeBuffer(this.uJ);
+      this.uJ = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
     if (this.FD !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       webGpuResourceRepository.deleteUniformBuffer(this.FD);
       this.FD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
+    if (this.GD !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      webGpuResourceRepository.deleteUniformBuffer(this.GD);
+      this.GD = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
   }
 };

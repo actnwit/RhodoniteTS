@@ -60,6 +60,14 @@ export declare class DummyTextures {
     constructor(engine: Engine);
     static init(engine: Engine): Promise<DummyTextures>;
     /**
+     * Waits until the sheen LUT texture has its GPU resource.
+     *
+     * Model importers await this before creating materials for models with KHR_materials_sheen. A WebGPU bind
+     * group that is created while the texture has no resource keeps the placeholder binding even after the
+     * texture is generated, so the lazy background load is not enough for that path.
+     */
+    loadSheenLutTexture(): Promise<void>;
+    /**
      * Starts loading the sheen LUT texture in the background. The PBR module that contains the image data is
      * fetched only when this is called, so applications without sheen materials never download it.
      * The same Texture object is updated in place when the image arrives.

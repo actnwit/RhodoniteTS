@@ -15,10 +15,10 @@ var RaymarchHitDistanceShaderNode = class extends AbstractShaderNode {
       codeWGSL: RaymarchHitDistanceShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.Br.push(new Socket("outValue", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
+    this.Cr.push(new Socket("outValue", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
   }
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
 };
 export {

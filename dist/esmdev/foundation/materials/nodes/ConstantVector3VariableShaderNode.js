@@ -28,7 +28,7 @@ var ConstantVector3VariableShaderNode = class extends ConstantVariableShaderNode
    * ```
    */
   setDefaultInputValue(value) {
-    this.zr.setConstantValue(value);
+    this.Ar.setConstantValue(value);
   }
 };
 export {

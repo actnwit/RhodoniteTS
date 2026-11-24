@@ -9,7 +9,7 @@ var _IdentityMatrix33 = class _IdentityMatrix33 extends AbstractMatrix {
    */
   constructor() {
     super();
-    this._v = _IdentityMatrix33.At;
+    this._v = _IdentityMatrix33.Bt;
   }
   /**
    * Returns a string representation of the identity matrix in a readable format.
@@ -267,7 +267,7 @@ var _IdentityMatrix33 = class _IdentityMatrix33 extends AbstractMatrix {
   }
 };
 /** Shared Float32Array containing the identity matrix values [1,0,0,0,1,0,0,0,1] */
-_IdentityMatrix33.At = new Float32Array([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+_IdentityMatrix33.Bt = new Float32Array([1, 0, 0, 0, 1, 0, 0, 0, 1]);
 var IdentityMatrix33 = _IdentityMatrix33;
 export {
   IdentityMatrix33

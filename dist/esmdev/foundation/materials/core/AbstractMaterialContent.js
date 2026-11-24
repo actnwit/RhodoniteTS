@@ -28,19 +28,19 @@ var _AbstractMaterialContent = class _AbstractMaterialContent extends RnObject {
    */
   constructor(materialName, { isMorphing = false, isSkinning = false, isLighting = false } = {}, vertexShaderityObject, pixelShaderityObject, engine) {
     super();
-    this.mr = [];
-    this.er = "";
+    this.nr = [];
+    this.fr = "";
     this.shaderType = ShaderType.VertexAndPixelShader;
-    this.sr = "";
-    this.qr = "";
-    this.lr = materialName;
+    this.tr = "";
+    this.rr = "";
+    this.mr = materialName;
     if (engine) {
       this._engine = engine;
     }
-    this.Aq = isMorphing;
-    this.rr = isSkinning;
+    this.Bq = isMorphing;
+    this.sr = isSkinning;
     this.Zp = isLighting;
-    this.wr = _AbstractMaterialContent.vr++;
+    this.xr = _AbstractMaterialContent.wr++;
     this.setVertexShaderityObject(vertexShaderityObject, engine);
     this.setPixelShaderityObject(pixelShaderityObject, engine);
   }
@@ -56,18 +56,6 @@ var _AbstractMaterialContent = class _AbstractMaterialContent extends RnObject {
    * Gets the vertex shaderity object map for a specific engine.
    * Creates the map if it doesn't exist.
    */
-  static tr(engineUid) {
-    let map = _AbstractMaterialContent.nr.get(engineUid);
-    if (!map) {
-      map = /* @__PURE__ */ new Map();
-      _AbstractMaterialContent.nr.set(engineUid, map);
-    }
-    return map;
-  }
-  /**
-   * Gets the pixel shaderity object map for a specific engine.
-   * Creates the map if it doesn't exist.
-   */
   static ur(engineUid) {
     let map = _AbstractMaterialContent.or.get(engineUid);
     if (!map) {
@@ -77,14 +65,26 @@ var _AbstractMaterialContent = class _AbstractMaterialContent extends RnObject {
     return map;
   }
   /**
-   * Gets the reflected shader semantics info map for a specific engine.
+   * Gets the pixel shaderity object map for a specific engine.
    * Creates the map if it doesn't exist.
    */
-  static xr(engineUid) {
+  static vr(engineUid) {
     let map = _AbstractMaterialContent.pr.get(engineUid);
     if (!map) {
       map = /* @__PURE__ */ new Map();
       _AbstractMaterialContent.pr.set(engineUid, map);
+    }
+    return map;
+  }
+  /**
+   * Gets the reflected shader semantics info map for a specific engine.
+   * Creates the map if it doesn't exist.
+   */
+  static yr(engineUid) {
+    let map = _AbstractMaterialContent.qr.get(engineUid);
+    if (!map) {
+      map = /* @__PURE__ */ new Map();
+      _AbstractMaterialContent.qr.set(engineUid, map);
     }
     return map;
   }
@@ -97,8 +97,8 @@ var _AbstractMaterialContent = class _AbstractMaterialContent extends RnObject {
     if (vertexShaderityObject) {
       const engineToUse = engine != null ? engine : this._engine;
       if (engineToUse) {
-        const map = _AbstractMaterialContent.tr(engineToUse.objectUID);
-        map.set(this.lr, vertexShaderityObject);
+        const map = _AbstractMaterialContent.ur(engineToUse.objectUID);
+        map.set(this.mr, vertexShaderityObject);
       }
     }
   }
@@ -111,8 +111,8 @@ var _AbstractMaterialContent = class _AbstractMaterialContent extends RnObject {
     if (pixelShaderityObject) {
       const engineToUse = engine != null ? engine : this._engine;
       if (engineToUse) {
-        const map = _AbstractMaterialContent.ur(engineToUse.objectUID);
-        map.set(this.lr, pixelShaderityObject);
+        const map = _AbstractMaterialContent.vr(engineToUse.objectUID);
+        map.set(this.mr, pixelShaderityObject);
       }
     }
   }
@@ -122,11 +122,11 @@ var _AbstractMaterialContent = class _AbstractMaterialContent extends RnObject {
    */
   makeMaterialSemanticsVariantName() {
     let semantics = "";
-    for (const semantic of this.mr) {
+    for (const semantic of this.nr) {
       semantics += `${semantic.semantic}_`;
     }
-    this.qr = `semanticsVariation_${semantics}`;
-    this.sr = `${this.lr}_${this.qr}`;
+    this.rr = `semanticsVariation_${semantics}`;
+    this.tr = `${this.mr}_${this.rr}`;
   }
   /**
    * Gets the material semantics variant name for this material.
@@ -134,7 +134,7 @@ var _AbstractMaterialContent = class _AbstractMaterialContent extends RnObject {
    * @returns The unique variant name string
    */
   getMaterialSemanticsVariantName() {
-    return this.sr;
+    return this.tr;
   }
   /**
    * Gets the material variation identifier (without the base material name).
@@ -142,7 +142,7 @@ var _AbstractMaterialContent = class _AbstractMaterialContent extends RnObject {
    * @returns The variation identifier string
    */
   getMaterialVariationIdentifier() {
-    return this.qr;
+    return this.rr;
   }
   /**
    * Gets the base material name (e.g., "PbrUber", "ClassicUber").
@@ -150,7 +150,7 @@ var _AbstractMaterialContent = class _AbstractMaterialContent extends RnObject {
    * @returns The base material name string
    */
   getBaseMaterialName() {
-    return this.lr.replace(/__$/, "");
+    return this.mr.replace(/__$/, "");
   }
   /**
    * Gets the vertex shader object associated with this material.
@@ -158,8 +158,8 @@ var _AbstractMaterialContent = class _AbstractMaterialContent extends RnObject {
    */
   get vertexShaderityObject() {
     if (this._engine) {
-      const map = _AbstractMaterialContent.tr(this._engine.objectUID);
-      return map.get(this.lr);
+      const map = _AbstractMaterialContent.ur(this._engine.objectUID);
+      return map.get(this.mr);
     }
     return void 0;
   }
@@ -169,8 +169,8 @@ var _AbstractMaterialContent = class _AbstractMaterialContent extends RnObject {
    */
   get pixelShaderityObject() {
     if (this._engine) {
-      const map = _AbstractMaterialContent.ur(this._engine.objectUID);
-      return map.get(this.lr);
+      const map = _AbstractMaterialContent.vr(this._engine.objectUID);
+      return map.get(this.mr);
     }
     return void 0;
   }
@@ -179,7 +179,7 @@ var _AbstractMaterialContent = class _AbstractMaterialContent extends RnObject {
    * @returns The definitions string
    */
   getDefinitions() {
-    return this.er;
+    return this.fr;
   }
   /**
    * Retrieves a material node by its unique identifier.
@@ -194,21 +194,21 @@ var _AbstractMaterialContent = class _AbstractMaterialContent extends RnObject {
    * @returns Array of shader semantics information
    */
   get _semanticsInfoArray() {
-    return this.mr;
+    return this.nr;
   }
   /**
    * Checks if this material supports skeletal animation.
    * @returns True if skinning is enabled
    */
   get isSkinning() {
-    return this.rr;
+    return this.sr;
   }
   /**
    * Checks if this material supports morph target animation.
    * @returns True if morphing is enabled
    */
   get isMorphing() {
-    return this.Aq;
+    return this.Bq;
   }
   /**
    * Checks if this material supports lighting calculations.
@@ -257,7 +257,7 @@ var _AbstractMaterialContent = class _AbstractMaterialContent extends RnObject {
         }
       }
     });
-    this.mr = infoArray;
+    this.nr = infoArray;
     this.makeMaterialSemanticsVariantName();
   }
   /**
@@ -359,7 +359,7 @@ var _AbstractMaterialContent = class _AbstractMaterialContent extends RnObject {
    * @param blendShapeComponent - The blend shape component containing weights
    */
   setMorphInfo(shaderProgram, _meshComponent, primitive, _blendShapeComponent) {
-    if (!this.Aq) {
+    if (!this.Bq) {
       return;
     }
     if (primitive.targets.length === 0) {
@@ -416,8 +416,8 @@ var _AbstractMaterialContent = class _AbstractMaterialContent extends RnObject {
   doShaderReflection(engine, vertexShader, pixelShader, vertexShaderWebGpu, pixelShaderWebGpu, definitions) {
     this._engine = engine;
     const definitionsStr = definitions.join("");
-    const reflectedMap = _AbstractMaterialContent.xr(engine.objectUID);
-    const reflectedShaderSemanticsInfoArray = reflectedMap.get(this.lr + definitionsStr);
+    const reflectedMap = _AbstractMaterialContent.yr(engine.objectUID);
+    const reflectedShaderSemanticsInfoArray = reflectedMap.get(this.mr + definitionsStr);
     if (reflectedShaderSemanticsInfoArray != null) {
       return reflectedShaderSemanticsInfoArray.concat();
     }
@@ -461,7 +461,7 @@ var _AbstractMaterialContent = class _AbstractMaterialContent extends RnObject {
         shaderSemanticsInfoArray.push(pixelShaderSemanticsInfo);
       }
     }
-    reflectedMap.set(this.lr + definitionsStr, shaderSemanticsInfoArray);
+    reflectedMap.set(this.mr + definitionsStr, shaderSemanticsInfoArray);
     return shaderSemanticsInfoArray.concat();
   }
   /**
@@ -472,19 +472,19 @@ var _AbstractMaterialContent = class _AbstractMaterialContent extends RnObject {
    * @internal Called from Engine.destroy()
    */
   static _cleanupForEngine(engine) {
-    _AbstractMaterialContent.nr.delete(engine.objectUID);
     _AbstractMaterialContent.or.delete(engine.objectUID);
     _AbstractMaterialContent.pr.delete(engine.objectUID);
+    _AbstractMaterialContent.qr.delete(engine.objectUID);
   }
 };
 _AbstractMaterialContent.materialNodes = [];
-_AbstractMaterialContent._q = MutableVector4.zero();
-_AbstractMaterialContent.$q = MutableVector2.zero();
-_AbstractMaterialContent.vr = 0;
+_AbstractMaterialContent.$q = MutableVector4.zero();
+_AbstractMaterialContent.ar = MutableVector2.zero();
+_AbstractMaterialContent.wr = 0;
 /** Shader caches managed per-Engine. Key is Engine.objectUID */
-_AbstractMaterialContent.nr = /* @__PURE__ */ new Map();
 _AbstractMaterialContent.or = /* @__PURE__ */ new Map();
 _AbstractMaterialContent.pr = /* @__PURE__ */ new Map();
+_AbstractMaterialContent.qr = /* @__PURE__ */ new Map();
 var AbstractMaterialContent = _AbstractMaterialContent;
 export {
   AbstractMaterialContent

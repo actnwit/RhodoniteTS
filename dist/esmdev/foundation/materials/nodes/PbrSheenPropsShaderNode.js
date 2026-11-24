@@ -19,19 +19,19 @@ var PbrSheenPropsShaderNode = class extends AbstractShaderNode {
       codeGLSL: PbrSheenPropsShaderityObjectGLSL.code,
       codeWGSL: PbrSheenPropsShaderityObjectWGSL.code
     });
-    this.yr.push(
+    this.zr.push(
       new Socket("sheenColorFactor", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 0))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("sheenColorTexture", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("sheenRoughnessFactor", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("sheenRoughnessTexture", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.Br.push(new Socket("outSheenProps", CompositionType.SheenProps, ComponentType.Unknown));
+    this.Cr.push(new Socket("outSheenProps", CompositionType.SheenProps, ComponentType.Unknown));
   }
   /**
    * Gets the output socket that contains the result of the PBR sheen properties operation.
@@ -39,7 +39,7 @@ var PbrSheenPropsShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the PBR sheen properties result
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
 };
 export {

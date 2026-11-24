@@ -26,10 +26,10 @@ var BranchShaderNode = class extends AbstractShaderNode {
       codeGLSL: BranchShaderityObjectGLSL.code,
       codeWGSL: BranchShaderityObjectWGSL.code
     });
-    this.yr.push(new Socket("condition", CompositionType.Scalar, ComponentType.Bool));
-    this.yr.push(new Socket("ifTrue", compositionType, componentType, this.getDefaultValue(compositionType)));
-    this.yr.push(new Socket("ifFalse", compositionType, componentType, this.getDefaultValue(compositionType)));
-    this.Br.push(new Socket("outValue", compositionType, componentType));
+    this.zr.push(new Socket("condition", CompositionType.Scalar, ComponentType.Bool));
+    this.zr.push(new Socket("ifTrue", compositionType, componentType, this.getDefaultValue(compositionType)));
+    this.zr.push(new Socket("ifFalse", compositionType, componentType, this.getDefaultValue(compositionType)));
+    this.Cr.push(new Socket("outValue", compositionType, componentType));
   }
   /**
    * Returns the default value for a given composition type.
@@ -61,7 +61,7 @@ var BranchShaderNode = class extends AbstractShaderNode {
    * @returns The condition input socket
    */
   getSocketInputCondition() {
-    return this.yr[0];
+    return this.zr[0];
   }
   /**
    * Gets the ifTrue input socket.
@@ -70,7 +70,7 @@ var BranchShaderNode = class extends AbstractShaderNode {
    * @returns The ifTrue input socket
    */
   getSocketInputIfTrue() {
-    return this.yr[1];
+    return this.zr[1];
   }
   /**
    * Gets the ifFalse input socket.
@@ -79,7 +79,7 @@ var BranchShaderNode = class extends AbstractShaderNode {
    * @returns The ifFalse input socket
    */
   getSocketInputIfFalse() {
-    return this.yr[2];
+    return this.zr[2];
   }
   /**
    * Gets the output socket that contains the result of the branch operation.
@@ -87,7 +87,7 @@ var BranchShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the selected value
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
   /**
    * Generates the appropriate shader function name derivative based on the current
@@ -103,28 +103,28 @@ var BranchShaderNode = class extends AbstractShaderNode {
    */
   getShaderFunctionNameDerivative(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      const ifTrueSocket = this.yr[1];
+      const ifTrueSocket = this.zr[1];
       if (ifTrueSocket.compositionType === CompositionType.Scalar) {
         if (ifTrueSocket.componentType === ComponentType.Float) {
-          return `${this.Ar}F32`;
+          return `${this.Br}F32`;
         }
         if (ifTrueSocket.componentType === ComponentType.Int) {
-          return `${this.Ar}I32`;
+          return `${this.Br}I32`;
         }
         throw new Error("Not implemented");
       }
       if (ifTrueSocket.compositionType === CompositionType.Vec2) {
-        return `${this.Ar}Vec2f`;
+        return `${this.Br}Vec2f`;
       }
       if (ifTrueSocket.compositionType === CompositionType.Vec3) {
-        return `${this.Ar}Vec3f`;
+        return `${this.Br}Vec3f`;
       }
       if (ifTrueSocket.compositionType === CompositionType.Vec4) {
-        return `${this.Ar}Vec4f`;
+        return `${this.Br}Vec4f`;
       }
       throw new Error("Not implemented");
     }
-    return this.Ar;
+    return this.Br;
   }
 };
 export {

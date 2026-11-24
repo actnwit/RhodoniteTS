@@ -11,7 +11,7 @@ var RenderBuffer = class extends RnObject {
     /** The height of the render buffer in pixels */
     this.height = 0;
     /** The internal texture format of the render buffer */
-    this.uB = TextureFormat.Depth24;
+    this.vB = TextureFormat.Depth24;
     /** The unique identifier for the texture resource in the graphics API */
     this._textureResourceUid = -1;
     /** The unique identifier for the texture view resource */
@@ -19,9 +19,9 @@ var RenderBuffer = class extends RnObject {
     /** The unique identifier for the texture view used as a render target */
     this._textureViewAsRenderTargetResourceUid = -1;
     /** Flag indicating whether MSAA (Multi-Sample Anti-Aliasing) is enabled */
-    this.BB = false;
+    this.CB = false;
     /** The number of samples used for MSAA */
-    this.zB = 4;
+    this.AB = 4;
     this.c = engine;
   }
   /**
@@ -29,21 +29,21 @@ var RenderBuffer = class extends RnObject {
    * @param fbo - The frame buffer object to associate with this render buffer
    */
   set _fbo(fbo) {
-    this.AB = fbo;
+    this.BB = fbo;
   }
   /**
    * Gets the associated frame buffer object.
    * @returns The frame buffer object or undefined if not set
    */
   get fbo() {
-    return this.AB;
+    return this.BB;
   }
   /**
    * Gets the MSAA sample count for this render buffer.
    * @returns The number of samples used for multi-sample anti-aliasing
    */
   get sampleCount() {
-    return this.zB;
+    return this.AB;
   }
   /**
    * Creates and initializes the render buffer with the specified parameters.
@@ -56,12 +56,12 @@ var RenderBuffer = class extends RnObject {
    * @param options.isMSAA - Whether to enable multi-sample anti-aliasing (default: false)
    * @param options.sampleCountMSAA - The number of MSAA samples (default: current sample count)
    */
-  create(width, height, internalFormat, { isMSAA = false, sampleCountMSAA = this.zB } = {}) {
+  create(width, height, internalFormat, { isMSAA = false, sampleCountMSAA = this.AB } = {}) {
     this.width = width;
     this.height = height;
-    this.BB = isMSAA;
-    this.zB = sampleCountMSAA;
-    this.uB = internalFormat;
+    this.CB = isMSAA;
+    this.AB = sampleCountMSAA;
+    this.vB = internalFormat;
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
     this._textureResourceUid = cgApiResourceRepository.createRenderBuffer(
       width,
@@ -94,7 +94,7 @@ var RenderBuffer = class extends RnObject {
    */
   resize(width, height) {
     this.destroy3DAPIResources();
-    this.create(width, height, this.uB, { isMSAA: this.BB });
+    this.create(width, height, this.vB, { isMSAA: this.CB });
   }
   /**
    * Destroys all GPU resources associated with this render buffer.

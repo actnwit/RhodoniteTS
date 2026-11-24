@@ -61,10 +61,10 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
       isSkinning,
       isLighting
     });
-    this.gr = false;
-    this.cr = {};
-    this.fr = {};
+    this.hr = false;
     this.dr = {};
+    this.gr = {};
+    this.er = {};
     const shaderSemanticsInfoArray = this.doShaderReflection(
       engine,
       mToonSingleShaderVertex,
@@ -73,65 +73,65 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
       mToonSingleShaderFragmentWebGpu,
       definitions
     );
-    this.Vq = new Sampler(engine, {
+    this.Wq = new Sampler(engine, {
       minFilter: TextureParameter.Linear,
       magFilter: TextureParameter.Linear,
       wrapS: TextureParameter.ClampToEdge,
       wrapT: TextureParameter.ClampToEdge,
       wrapR: TextureParameter.ClampToEdge
     });
-    this.Uq = new Sampler(engine, {
+    this.Vq = new Sampler(engine, {
       minFilter: TextureParameter.LinearMipmapLinear,
       magFilter: TextureParameter.Linear,
       wrapS: TextureParameter.ClampToEdge,
       wrapT: TextureParameter.ClampToEdge,
       wrapR: TextureParameter.ClampToEdge
     });
+    if (!this.Wq.created) {
+      this.Wq.create();
+    }
     if (!this.Vq.created) {
       this.Vq.create();
     }
-    if (!this.Uq.created) {
-      this.Uq.create();
-    }
     if (materialProperties != null) {
-      this.cr = materialProperties.floatProperties;
-      this.fr = materialProperties.vectorProperties;
-      this.dr = JSON.parse(JSON.stringify(materialProperties.textureProperties));
+      this.dr = materialProperties.floatProperties;
+      this.gr = materialProperties.vectorProperties;
+      this.er = JSON.parse(JSON.stringify(materialProperties.textureProperties));
     } else {
-      this.cr._BlendMode = 0;
-      this.cr._BumpScale = 1;
-      this.cr._CullMode = 2;
-      this.cr._Cutoff = 0.5;
-      this.cr._DebugMode = 0;
-      this.cr._DstBlend = 0;
-      this.cr._IndirectLightIntensity = 0.1;
-      this.cr._LightColorAttenuation = 0;
-      this.cr._OutlineColorMode = 0;
-      this.cr._OutlineCullMode = 1;
-      this.cr._OutlineLightingMix = 1;
-      this.cr._OutlineScaledMaxDistance = 1;
-      this.cr._OutlineWidth = 0.5;
-      this.cr._OutlineWidthMode = 0;
-      this.cr._ReceiveShadowRate = 1;
-      this.cr._RimFresnelPower = 1;
-      this.cr._RimLift = 0;
-      this.cr._RimLightingMix = 0;
-      this.cr._ShadeShift = 0;
-      this.cr._ShadeToony = 0.9;
-      this.cr._ShadingGradeRate = 1;
-      this.cr._SrcBlend = 1;
-      this.cr._ZWrite = 1;
-      this.cr._UvAnimScrollX = 0;
-      this.cr._UvAnimScrollY = 0;
-      this.cr._UvAnimRotation = 0;
-      this.fr._Color = [1, 1, 1, 1];
-      this.fr._EmissionColor = [0, 0, 0];
-      this.fr._OutlineColor = [0, 0, 0, 1];
-      this.fr._ShadeColor = [0.97, 0.81, 0.86, 1];
-      this.fr._RimColor = [0, 0, 0];
+      this.dr._BlendMode = 0;
+      this.dr._BumpScale = 1;
+      this.dr._CullMode = 2;
+      this.dr._Cutoff = 0.5;
+      this.dr._DebugMode = 0;
+      this.dr._DstBlend = 0;
+      this.dr._IndirectLightIntensity = 0.1;
+      this.dr._LightColorAttenuation = 0;
+      this.dr._OutlineColorMode = 0;
+      this.dr._OutlineCullMode = 1;
+      this.dr._OutlineLightingMix = 1;
+      this.dr._OutlineScaledMaxDistance = 1;
+      this.dr._OutlineWidth = 0.5;
+      this.dr._OutlineWidthMode = 0;
+      this.dr._ReceiveShadowRate = 1;
+      this.dr._RimFresnelPower = 1;
+      this.dr._RimLift = 0;
+      this.dr._RimLightingMix = 0;
+      this.dr._ShadeShift = 0;
+      this.dr._ShadeToony = 0.9;
+      this.dr._ShadingGradeRate = 1;
+      this.dr._SrcBlend = 1;
+      this.dr._ZWrite = 1;
+      this.dr._UvAnimScrollX = 0;
+      this.dr._UvAnimScrollY = 0;
+      this.dr._UvAnimRotation = 0;
+      this.gr._Color = [1, 1, 1, 1];
+      this.gr._EmissionColor = [0, 0, 0];
+      this.gr._OutlineColor = [0, 0, 0, 1];
+      this.gr._ShadeColor = [0.97, 0.81, 0.86, 1];
+      this.gr._RimColor = [0, 0, 0];
     }
     if (debugMode) {
-      this.cr._DebugMode = debugMode;
+      this.dr._DebugMode = debugMode;
     }
     shaderSemanticsInfoArray.push(
       {
@@ -139,7 +139,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        initialValue: Scalar.fromCopyNumber(this.cr._Cutoff),
+        initialValue: Scalar.fromCopyNumber(this.dr._Cutoff),
         min: 0,
         max: 1
       },
@@ -148,7 +148,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec4,
         stage: ShaderType.PixelShader,
-        initialValue: Vector4.fromCopyArray(this.fr._Color),
+        initialValue: Vector4.fromCopyArray(this.gr._Color),
         min: 0,
         max: 1
       },
@@ -157,7 +157,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
-        initialValue: Vector3.fromCopyArray(this.fr._ShadeColor),
+        initialValue: Vector3.fromCopyArray(this.gr._ShadeColor),
         min: 0,
         max: 1
       },
@@ -166,7 +166,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        initialValue: Scalar.fromCopyNumber(this.cr._BumpScale),
+        initialValue: Scalar.fromCopyNumber(this.dr._BumpScale),
         min: 0,
         max: 1
       },
@@ -175,7 +175,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        initialValue: Scalar.fromCopyNumber(this.cr._ReceiveShadowRate),
+        initialValue: Scalar.fromCopyNumber(this.dr._ReceiveShadowRate),
         min: 0,
         max: 1
       },
@@ -184,7 +184,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        initialValue: Scalar.fromCopyNumber(this.cr._ShadingGradeRate),
+        initialValue: Scalar.fromCopyNumber(this.dr._ShadingGradeRate),
         min: 0,
         max: 1
       },
@@ -193,7 +193,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        initialValue: Scalar.fromCopyNumber(this.cr._ShadeShift),
+        initialValue: Scalar.fromCopyNumber(this.dr._ShadeShift),
         min: 0,
         max: 1
       },
@@ -202,7 +202,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        initialValue: Scalar.fromCopyNumber(this.cr._ShadeToony),
+        initialValue: Scalar.fromCopyNumber(this.dr._ShadeToony),
         min: 0,
         max: 1
       },
@@ -211,7 +211,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        initialValue: Scalar.fromCopyNumber(this.cr._LightColorAttenuation),
+        initialValue: Scalar.fromCopyNumber(this.dr._LightColorAttenuation),
         min: 0,
         max: 1
       },
@@ -220,7 +220,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        initialValue: Scalar.fromCopyNumber(this.cr._IndirectLightIntensity),
+        initialValue: Scalar.fromCopyNumber(this.dr._IndirectLightIntensity),
         min: 0,
         max: 1
       },
@@ -229,7 +229,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
-        initialValue: Vector3.fromCopyArray(this.fr._RimColor),
+        initialValue: Vector3.fromCopyArray(this.gr._RimColor),
         min: 0,
         max: 1
       },
@@ -238,7 +238,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        initialValue: Scalar.fromCopyNumber(this.cr._RimLightingMix),
+        initialValue: Scalar.fromCopyNumber(this.dr._RimLightingMix),
         min: 0,
         max: 1
       },
@@ -247,7 +247,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        initialValue: Scalar.fromCopyNumber(this.cr._RimFresnelPower),
+        initialValue: Scalar.fromCopyNumber(this.dr._RimFresnelPower),
         min: 0,
         max: 1
       },
@@ -256,7 +256,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        initialValue: Scalar.fromCopyNumber(this.cr._RimLift),
+        initialValue: Scalar.fromCopyNumber(this.dr._RimLift),
         min: 0,
         max: 1
       },
@@ -275,7 +275,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
-        initialValue: Vector3.fromCopyArray(this.fr._EmissionColor),
+        initialValue: Vector3.fromCopyArray(this.gr._EmissionColor),
         min: 0,
         max: 1
       },
@@ -285,7 +285,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        initialValue: Scalar.fromCopyNumber((_a = this.cr._UvAnimScrollX) != null ? _a : 0),
+        initialValue: Scalar.fromCopyNumber((_a = this.dr._UvAnimScrollX) != null ? _a : 0),
         min: 0,
         max: 1
       },
@@ -295,7 +295,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        initialValue: Scalar.fromCopyNumber((_b = this.cr._UvAnimScrollY) != null ? _b : 0),
+        initialValue: Scalar.fromCopyNumber((_b = this.dr._UvAnimScrollY) != null ? _b : 0),
         min: 0,
         max: 1
       },
@@ -305,7 +305,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        initialValue: Scalar.fromCopyNumber((_c = this.cr._UvAnimRotation) != null ? _c : 0),
+        initialValue: Scalar.fromCopyNumber((_c = this.dr._UvAnimRotation) != null ? _c : 0),
         min: 0,
         max: 1
       },
@@ -328,34 +328,34 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         initialValue: Scalar.fromCopyNumber(makeOutputSrgb ? 1 : 0)
       }
     );
-    switch (this.cr._DebugMode) {
+    switch (this.dr._DebugMode) {
       case 1:
-        this.er += "#define RN_MTOON_DEBUG_NORMAL\n";
+        this.fr += "#define RN_MTOON_DEBUG_NORMAL\n";
         break;
       case 2:
-        this.er += "#define RN_MTOON_DEBUG_LITSHADERATE\n";
+        this.fr += "#define RN_MTOON_DEBUG_LITSHADERATE\n";
         break;
     }
     if (isOutline) {
-      this.er += "#define RN_MTOON_IS_OUTLINE\n";
-      switch (this.cr._OutlineWidthMode) {
+      this.fr += "#define RN_MTOON_IS_OUTLINE\n";
+      switch (this.dr._OutlineWidthMode) {
         case 0:
-          this.er += "#define RN_MTOON_OUTLINE_NONE\n";
+          this.fr += "#define RN_MTOON_OUTLINE_NONE\n";
           break;
         case 1:
-          this.er += "#define RN_MTOON_OUTLINE_WIDTH_WORLD\n";
+          this.fr += "#define RN_MTOON_OUTLINE_WIDTH_WORLD\n";
           break;
         case 2:
-          this.er += "#define RN_MTOON_OUTLINE_WIDTH_SCREEN\n";
-          this.gr = true;
+          this.fr += "#define RN_MTOON_OUTLINE_WIDTH_SCREEN\n";
+          this.hr = true;
           break;
       }
-      switch (this.cr._OutlineColorMode) {
+      switch (this.dr._OutlineColorMode) {
         case 0:
-          this.er += "#define RN_MTOON_OUTLINE_COLOR_FIXED\n";
+          this.fr += "#define RN_MTOON_OUTLINE_COLOR_FIXED\n";
           break;
         case 1:
-          this.er += "#define RN_MTOON_OUTLINE_COLOR_MIXED\n";
+          this.fr += "#define RN_MTOON_OUTLINE_COLOR_MIXED\n";
           break;
       }
       shaderSemanticsInfoArray.push(
@@ -364,7 +364,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
           componentType: ComponentType.Float,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.VertexShader,
-          initialValue: Scalar.fromCopyNumber(this.cr._OutlineWidth),
+          initialValue: Scalar.fromCopyNumber(this.dr._OutlineWidth),
           min: 0,
           max: 1
         },
@@ -373,7 +373,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
           componentType: ComponentType.Float,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.VertexShader,
-          initialValue: Scalar.fromCopyNumber(this.cr._OutlineScaledMaxDistance),
+          initialValue: Scalar.fromCopyNumber(this.dr._OutlineScaledMaxDistance),
           min: 0,
           max: 1
         },
@@ -382,7 +382,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
           componentType: ComponentType.Float,
           compositionType: CompositionType.Vec3,
           stage: ShaderType.PixelShader,
-          initialValue: Vector4.fromCopyArray(this.fr._OutlineColor),
+          initialValue: Vector4.fromCopyArray(this.gr._OutlineColor),
           min: 0,
           max: 1
         },
@@ -391,7 +391,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
           componentType: ComponentType.Float,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.PixelShader,
-          initialValue: Scalar.fromCopyNumber(this.cr._OutlineLightingMix),
+          initialValue: Scalar.fromCopyNumber(this.dr._OutlineLightingMix),
           min: 0,
           max: 1
         },
@@ -409,35 +409,35 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
       );
     }
     if (isLighting) {
-      this.er += "#define RN_IS_LIGHTING\n";
+      this.fr += "#define RN_IS_LIGHTING\n";
     }
     if (isSkinning) {
-      this.er += "#define RN_IS_SKINNING\n";
+      this.fr += "#define RN_IS_SKINNING\n";
     }
     if (isMorphing) {
-      this.er += "#define RN_IS_MORPHING\n";
+      this.fr += "#define RN_IS_MORPHING\n";
     }
     if (useTangentAttribute) {
-      this.er += "#define RN_USE_TANGENT_ATTRIBUTE\n";
+      this.fr += "#define RN_USE_TANGENT_ATTRIBUTE\n";
     }
-    if (this.dr._BumpMap >= 0) {
-      this.er += "#define RN_MTOON_HAS_BUMPMAP\n";
+    if (this.er._BumpMap >= 0) {
+      this.fr += "#define RN_MTOON_HAS_BUMPMAP\n";
     }
-    if (this.dr._OutlineWidthTexture >= 0) {
-      this.er += "#define RN_MTOON_HAS_OUTLINE_WIDTH_TEXTURE\n";
+    if (this.er._OutlineWidthTexture >= 0) {
+      this.fr += "#define RN_MTOON_HAS_OUTLINE_WIDTH_TEXTURE\n";
     }
     textures = [engine.dummyTextures.dummyWhiteTexture, engine.dummyTextures.dummyBlackTexture];
-    this.dr._BumpMap = 0;
-    this.dr._EmissionMap = 1;
-    this.dr._MainTex = 0;
-    this.dr._OutlineWidthTexture = 0;
-    this.dr._UvAnimMaskTexture = 0;
-    this.dr._ReceiveShadowTexture = 0;
-    this.dr._RimTexture = 1;
-    this.dr._ShadeTexture = 0;
-    this.dr._ShadingGradeTexture = 0;
-    this.dr._SphereAdd = 1;
-    this.hr(textures, samplers, shaderSemanticsInfoArray, isOutline);
+    this.er._BumpMap = 0;
+    this.er._EmissionMap = 1;
+    this.er._MainTex = 0;
+    this.er._OutlineWidthTexture = 0;
+    this.er._UvAnimMaskTexture = 0;
+    this.er._ReceiveShadowTexture = 0;
+    this.er._RimTexture = 1;
+    this.er._ShadeTexture = 0;
+    this.er._ShadingGradeTexture = 0;
+    this.er._SphereAdd = 1;
+    this.ir(textures, samplers, shaderSemanticsInfoArray, isOutline);
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
   /**
@@ -451,14 +451,14 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
    * @param isOutline - Whether outline textures should be included
    * @private
    */
-  hr(textures, samplers, shaderSemanticsInfoArray, isOutline) {
+  ir(textures, samplers, shaderSemanticsInfoArray, isOutline) {
     shaderSemanticsInfoArray.push(
       {
         semantic: "litColorTexture",
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [1, textures[this.dr._MainTex], samplers[this.dr._MainTex]],
+        initialValue: [1, textures[this.er._MainTex], samplers[this.er._MainTex]],
         min: 0,
         max: Number.MAX_SAFE_INTEGER
       },
@@ -469,8 +469,8 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         stage: ShaderType.PixelShader,
         initialValue: [
           2,
-          textures[this.dr._ShadeTexture],
-          samplers[this.dr._ShadeTexture]
+          textures[this.er._ShadeTexture],
+          samplers[this.er._ShadeTexture]
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER
@@ -482,8 +482,8 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         stage: ShaderType.PixelShader,
         initialValue: [
           3,
-          textures[this.dr._ReceiveShadowTexture],
-          samplers[this.dr._ReceiveShadowTexture]
+          textures[this.er._ReceiveShadowTexture],
+          samplers[this.er._ReceiveShadowTexture]
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER
@@ -495,8 +495,8 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         stage: ShaderType.PixelShader,
         initialValue: [
           4,
-          textures[this.dr._ShadingGradeTexture],
-          samplers[this.dr._ShadingGradeTexture]
+          textures[this.er._ShadingGradeTexture],
+          samplers[this.er._ShadingGradeTexture]
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER
@@ -508,8 +508,8 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         stage: ShaderType.PixelShader,
         initialValue: [
           5,
-          textures[this.dr._RimTexture],
-          samplers[this.dr._RimTexture]
+          textures[this.er._RimTexture],
+          samplers[this.er._RimTexture]
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER
@@ -519,7 +519,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [9, textures[this.dr._SphereAdd], samplers[this.dr._SphereAdd]],
+        initialValue: [9, textures[this.er._SphereAdd], samplers[this.er._SphereAdd]],
         min: 0,
         max: Number.MAX_SAFE_INTEGER
       },
@@ -530,8 +530,8 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         stage: ShaderType.PixelShader,
         initialValue: [
           10,
-          textures[this.dr._EmissionMap],
-          samplers[this.dr._EmissionMap]
+          textures[this.er._EmissionMap],
+          samplers[this.er._EmissionMap]
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER
@@ -544,7 +544,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [11, textures[this.dr._BumpMap], samplers[this.dr._BumpMap]],
+        initialValue: [11, textures[this.er._BumpMap], samplers[this.er._BumpMap]],
         min: 0,
         max: Number.MAX_SAFE_INTEGER
       },
@@ -555,8 +555,8 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         stage: ShaderType.PixelShader,
         initialValue: [
           12,
-          textures[this.dr._UvAnimMaskTexture],
-          samplers[this.dr._UvAnimMaskTexture]
+          textures[this.er._UvAnimMaskTexture],
+          samplers[this.er._UvAnimMaskTexture]
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER
@@ -570,8 +570,8 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         stage: ShaderType.VertexShader,
         initialValue: [
           13,
-          textures[this.dr._OutlineWidthTexture],
-          samplers[this.dr._OutlineWidthTexture]
+          textures[this.er._OutlineWidthTexture],
+          samplers[this.er._OutlineWidthTexture]
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER
@@ -587,25 +587,25 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
    * @param isOutline - Whether this is an outline material
    */
   setMaterialParameters(engine, material, isOutline) {
-    if (this.cr._BlendMode !== 0) {
-      switch (this.cr._BlendMode) {
+    if (this.dr._BlendMode !== 0) {
+      switch (this.dr._BlendMode) {
         case 1:
-          this.er += "#define RN_ALPHATEST_ON\n";
+          this.fr += "#define RN_ALPHATEST_ON\n";
           material.alphaMode = AlphaMode.Mask;
           break;
         case 2:
-          this.er += "#define RN_ALPHABLEND_ON\n";
+          this.fr += "#define RN_ALPHABLEND_ON\n";
           material.alphaMode = AlphaMode.Blend;
           break;
         case 3:
-          this.er += "#define RN_ALPHABLEND_ON\n";
+          this.fr += "#define RN_ALPHABLEND_ON\n";
           material.alphaMode = AlphaMode.Blend;
           break;
       }
       const blendEquationMode = 32774;
-      const blendEquationModeAlpha = _MToon0xMaterialContent.ir(engine);
-      const blendFuncSrcFactor = _MToon0xMaterialContent.unityBlendEnumCorrespondence(this.cr._SrcBlend);
-      const blendFuncDstFactor = _MToon0xMaterialContent.unityBlendEnumCorrespondence(this.cr._DstBlend);
+      const blendEquationModeAlpha = _MToon0xMaterialContent.jr(engine);
+      const blendFuncSrcFactor = _MToon0xMaterialContent.unityBlendEnumCorrespondence(this.dr._SrcBlend);
+      const blendFuncDstFactor = _MToon0xMaterialContent.unityBlendEnumCorrespondence(this.dr._DstBlend);
       material.setBlendEquationMode(
         Blend.from(blendEquationMode),
         blendEquationModeAlpha != null ? Blend.from(blendEquationModeAlpha) : void 0
@@ -613,7 +613,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
       material.setBlendFuncFactor(Blend.from(blendFuncSrcFactor), Blend.from(blendFuncDstFactor));
     }
     if (isOutline) {
-      switch (this.cr._OutlineCullMode) {
+      switch (this.dr._OutlineCullMode) {
         case 0:
           material.cullFace = false;
           break;
@@ -627,7 +627,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
           break;
       }
     } else {
-      switch (this.cr._CullMode) {
+      switch (this.dr._CullMode) {
         case 0:
           material.cullFace = false;
           break;
@@ -641,7 +641,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
           break;
       }
     }
-    material.zWriteWhenBlend = this.cr._ZWrite === 1;
+    material.zWriteWhenBlend = this.dr._ZWrite === 1;
   }
   /**
    * Gets the usable blend equation mode for alpha blending.
@@ -652,7 +652,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
    * @returns The blend equation mode for alpha channel
    * @private
    */
-  static ir(engine) {
+  static jr(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return 32776;
     }
@@ -686,7 +686,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
       args.cameraComponentSid
     );
     material.setParameter("cameraUp", cameraComponent.upInner);
-    if (this.gr) {
+    if (this.hr) {
       material.setParameter("aspect", cameraComponent.aspect);
     }
     const {
@@ -696,14 +696,14 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
       specularHdriType,
       diffuseContribution,
       specularContribution
-    } = _MToon0xMaterialContent.Yq(args);
-    const tmp_vector4 = AbstractMaterialContent._q;
+    } = _MToon0xMaterialContent.Zq(args);
+    const tmp_vector4 = AbstractMaterialContent.$q;
     tmp_vector4.x = mipmapLevelNumber;
     tmp_vector4.y = diffuseContribution;
     tmp_vector4.z = specularContribution;
     tmp_vector4.w = meshRenderComponent.rotationOfCubeMap;
     material.setParameter("iblParameter", tmp_vector4);
-    const tmp_vector2 = AbstractMaterialContent.$q;
+    const tmp_vector2 = AbstractMaterialContent.ar;
     tmp_vector2.x = diffuseHdriType;
     tmp_vector2.y = specularHdriType;
     material.setParameter("hdriFormat", tmp_vector2);
@@ -745,7 +745,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
         webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
           diffuseEnvSlot,
           args.diffuseCube,
-          this.Vq
+          this.Wq
         ]);
       } else {
         webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
@@ -782,7 +782,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
       );
     }
     material.setParameter("cameraUp", cameraComponent.upInner);
-    if (this.gr) {
+    if (this.hr) {
       material.setParameter("aspect", cameraComponent.aspect);
     }
     const {
@@ -792,14 +792,14 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
       specularHdriType,
       diffuseContribution,
       specularContribution
-    } = _MToon0xMaterialContent.Yq(args);
-    const tmp_vector4 = AbstractMaterialContent._q;
+    } = _MToon0xMaterialContent.Zq(args);
+    const tmp_vector4 = AbstractMaterialContent.$q;
     tmp_vector4.x = mipmapLevelNumber;
     tmp_vector4.y = diffuseContribution;
     tmp_vector4.z = specularContribution;
     tmp_vector4.w = meshRenderComponent.rotationOfCubeMap;
     material.setParameter("iblParameter", tmp_vector4);
-    const tmp_vector2 = AbstractMaterialContent.$q;
+    const tmp_vector2 = AbstractMaterialContent.ar;
     tmp_vector2.x = diffuseHdriType;
     tmp_vector2.y = specularHdriType;
     material.setParameter("hdriFormat", tmp_vector2);
@@ -862,7 +862,7 @@ var _MToon0xMaterialContent = class _MToon0xMaterialContent extends AbstractMate
    * @returns Object containing HDRI parameters
    * @private
    */
-  static Yq(args) {
+  static Zq(args) {
     let mipmapLevelNumber = 1;
     if (args.specularCube) {
       mipmapLevelNumber = args.specularCube.mipmapLevelNumber;

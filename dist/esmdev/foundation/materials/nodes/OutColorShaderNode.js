@@ -16,7 +16,7 @@ var OutColorShaderNode = class extends AbstractShaderNode {
       commonPart: EndShader.getInstance()
     });
     this.setShaderStage("Fragment");
-    this.yr.push(new Socket("value", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(0, 0, 0, 1)));
+    this.zr.push(new Socket("value", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(0, 0, 0, 1)));
   }
   /**
    * Gets the input socket for connecting color values to this output node.
@@ -25,7 +25,7 @@ var OutColorShaderNode = class extends AbstractShaderNode {
    * @returns The input socket that accepts Vec4 color values
    */
   getSocketInput() {
-    return this.yr[0];
+    return this.zr[0];
   }
 };
 export {

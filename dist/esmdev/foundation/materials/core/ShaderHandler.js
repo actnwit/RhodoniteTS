@@ -114,7 +114,7 @@ function _createProgramAsSingleOperationWebGL(engine, material, componentDataAcc
   const webglResourceRepository = engine.webglResourceRepository;
   const webXRSystem = engine._webXRSystemIfEnabled;
   const isMultiViewVRRendering = Is.exist(webXRSystem) && (webXRSystem == null ? void 0 : webXRSystem.isWebXRMode) && webglResourceRepository.isSupportMultiViewVRRendering(engine);
-  const cacheQuery = Component.getStateVersion(engine) + engine.materialRepository._getBufferViewVersion(material.Ir) + material.Ir + material._materialContent.getMaterialSemanticsVariantName() + vertexAttributeDefines + material._getFingerPrint() + definitions + morphedPositionGetter + componentDataAccessMethodDefinitionsForVertexShader + componentDataAccessMethodDefinitionsForPixelShader + morphedPositionGetter + alphaMode + (isMultiViewVRRendering ? "WEBGL2_MULTI_VIEW" : "");
+  const cacheQuery = Component.getStateVersion(engine) + engine.materialRepository._getBufferViewVersion(material.Jr) + material.Jr + material._materialContent.getMaterialSemanticsVariantName() + vertexAttributeDefines + material._getFingerPrint() + definitions + morphedPositionGetter + componentDataAccessMethodDefinitionsForVertexShader + componentDataAccessMethodDefinitionsForPixelShader + morphedPositionGetter + alphaMode + (isMultiViewVRRendering ? "WEBGL2_MULTI_VIEW" : "");
   const shaderCache = engine.shaderProgramCache;
   let shaderProgramUid = shaderCache.get(cacheQuery);
   if (shaderProgramUid != null) {
@@ -125,9 +125,9 @@ function _createProgramAsSingleOperationWebGL(engine, material, componentDataAcc
     propertySetterOfGlobalDataRepository,
     propertySetterOfMaterial
   );
-  let vertexShader = _setupGlobalShaderDefinitionWebGL(engine, material.Ir, primitive);
+  let vertexShader = _setupGlobalShaderDefinitionWebGL(engine, material.Jr, primitive);
   vertexShader += "#define RN_IS_VERTEX_SHADER\n";
-  let pixelShader = _setupGlobalShaderDefinitionWebGL(engine, material.Ir, primitive);
+  let pixelShader = _setupGlobalShaderDefinitionWebGL(engine, material.Jr, primitive);
   pixelShader += "#define RN_IS_PIXEL_SHADER\n";
   const glslChunks = __getGlslCommonChunks();
   const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(
@@ -260,7 +260,7 @@ function _createProgramAsSingleOperationWebGpu(engine, material, primitive, comp
   if (material.isMask()) {
     alphaMode += "#define RN_IS_ALPHA_MODE_MASK\n";
   }
-  const cacheQuery = Component.getStateVersion(engine) + engine.materialRepository._getBufferViewVersion(material.Ir) + material.Ir + material._materialContent.getMaterialSemanticsVariantName() + vertexAttributeDefines + material._getFingerPrint() + definitions + componentDataAccessMethodDefinitionsForVertexShader + componentDataAccessMethodDefinitionsForPixelShader + morphedPositionGetter + alphaMode;
+  const cacheQuery = Component.getStateVersion(engine) + engine.materialRepository._getBufferViewVersion(material.Jr) + material.Jr + material._materialContent.getMaterialSemanticsVariantName() + vertexAttributeDefines + material._getFingerPrint() + definitions + componentDataAccessMethodDefinitionsForVertexShader + componentDataAccessMethodDefinitionsForPixelShader + morphedPositionGetter + alphaMode;
   const shaderCache = engine.shaderProgramCache;
   let shaderProgramUid = shaderCache.get(cacheQuery);
   if (shaderProgramUid != null) {

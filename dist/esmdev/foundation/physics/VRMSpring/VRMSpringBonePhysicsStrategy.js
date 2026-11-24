@@ -13,7 +13,7 @@ var _VRMSpringBonePhysicsStrategy = class _VRMSpringBonePhysicsStrategy {
    * @returns The parent's rotation quaternion, or identity quaternion if no parent exists
    */
   getParentRotation(head) {
-    return head.parent != null ? head.parent.getRotationTo(_VRMSpringBonePhysicsStrategy._w) : _VRMSpringBonePhysicsStrategy.$w;
+    return head.parent != null ? head.parent.getRotationTo(_VRMSpringBonePhysicsStrategy.$w) : _VRMSpringBonePhysicsStrategy.ax;
   }
   /**
    * Updates the spring bone physics simulation for the current frame.
@@ -22,7 +22,7 @@ var _VRMSpringBonePhysicsStrategy = class _VRMSpringBonePhysicsStrategy {
    * for all spring bones in the associated VRM spring system.
    */
   update(config) {
-    const spring = this.Fw;
+    const spring = this.Gw;
     if (Is.exist(spring)) {
       this.updateInner(config, spring.bones, spring);
     }
@@ -72,38 +72,38 @@ var _VRMSpringBonePhysicsStrategy = class _VRMSpringBonePhysicsStrategy {
     const dragForce = bone.dragForce;
     const stiffnessForce = bone.stiffnessForce * Time.intervalProcessBegin * config.physicsTimeIntervalScale;
     let inertia = MutableVector3.multiplyTo(
-      Vector3.subtractTo(bone.currentTail, bone.prevTail, _VRMSpringBonePhysicsStrategy.Gw),
+      Vector3.subtractTo(bone.currentTail, bone.prevTail, _VRMSpringBonePhysicsStrategy.Hw),
       1 - dragForce,
-      _VRMSpringBonePhysicsStrategy.Hw
+      _VRMSpringBonePhysicsStrategy.Iw
     );
     const currentTailWithInertiaInCenter = Vector3.addTo(
       bone.currentTail,
       inertia,
-      _VRMSpringBonePhysicsStrategy.Iw
+      _VRMSpringBonePhysicsStrategy.Jw
     );
-    const currentTailWithInertiaInWorld = center != null ? center.getWorldPositionOfTo(currentTailWithInertiaInCenter, _VRMSpringBonePhysicsStrategy.Jw) : currentTailWithInertiaInCenter;
+    const currentTailWithInertiaInWorld = center != null ? center.getWorldPositionOfTo(currentTailWithInertiaInCenter, _VRMSpringBonePhysicsStrategy.Kw) : currentTailWithInertiaInCenter;
     const rotation = Quaternion.multiplyTo(
       this.getParentRotation(bone.node.getSceneGraph()),
       bone.node.localRotationRestInner,
-      _VRMSpringBonePhysicsStrategy.Pw
+      _VRMSpringBonePhysicsStrategy.Qw
     );
-    const stiffnessAxis = rotation.transformVector3To(bone.boneAxis, _VRMSpringBonePhysicsStrategy.Kw);
+    const stiffnessAxis = rotation.transformVector3To(bone.boneAxis, _VRMSpringBonePhysicsStrategy.Lw);
     let nextTail = Vector3.addScaledVectorTo(
       Vector3.addScaledVectorTo(
         currentTailWithInertiaInWorld,
         stiffnessAxis,
         stiffnessForce,
-        _VRMSpringBonePhysicsStrategy.Lw
+        _VRMSpringBonePhysicsStrategy.Mw
       ),
       bone.gravityDir,
       bone.gravityPower * Time.intervalProcessBegin * config.physicsTimeIntervalScale,
-      _VRMSpringBonePhysicsStrategy.Mw
+      _VRMSpringBonePhysicsStrategy.Nw
     );
-    const worldSpacePosition = bone.node.getSceneGraph().getPositionTo(_VRMSpringBonePhysicsStrategy.Nw);
+    const worldSpacePosition = bone.node.getSceneGraph().getPositionTo(_VRMSpringBonePhysicsStrategy.Ow);
     nextTail = this.normalizeBoneLength(nextTail, worldSpacePosition, bone);
     nextTail = this.collision(collisionGroups, nextTail, bone.hitRadius, bone, worldSpacePosition);
     bone.prevTail.copyComponents(bone.currentTail);
-    const currentTail = center != null ? center.getLocalPositionOfTo(nextTail, _VRMSpringBonePhysicsStrategy.Ow) : nextTail;
+    const currentTail = center != null ? center.getLocalPositionOfTo(nextTail, _VRMSpringBonePhysicsStrategy.Pw) : nextTail;
     bone.currentTail.copyComponents(currentTail);
     const resultRotation = this.applyRotation(nextTail, bone, worldSpacePosition);
     bone.node.getTransform().localRotationWithoutPhysics = resultRotation;
@@ -125,14 +125,14 @@ var _VRMSpringBonePhysicsStrategy = class _VRMSpringBonePhysicsStrategy {
     const sub = Vector3.subtractTo(
       nextTail,
       worldSpacePosition,
-      _VRMSpringBonePhysicsStrategy.Qw
+      _VRMSpringBonePhysicsStrategy.Rw
     );
     const length = sub.length();
     return Vector3.addScaledVectorTo(
       worldSpacePosition,
       sub,
       bone.boneLength / length,
-      _VRMSpringBonePhysicsStrategy.Rw
+      _VRMSpringBonePhysicsStrategy.Sw
     );
   }
   /**
@@ -150,16 +150,16 @@ var _VRMSpringBonePhysicsStrategy = class _VRMSpringBonePhysicsStrategy {
     const sub = Vector3.subtractTo(
       nextTail,
       worldSpacePosition,
-      _VRMSpringBonePhysicsStrategy.Sw
+      _VRMSpringBonePhysicsStrategy.Tw
     );
     let to = Quaternion.invertTo(
       Quaternion.multiplyTo(
-        bone.node.parent.getRotationTo(_VRMSpringBonePhysicsStrategy.Zw),
+        bone.node.parent.getRotationTo(_VRMSpringBonePhysicsStrategy._w),
         bone.node.localRotationRestInner,
-        _VRMSpringBonePhysicsStrategy.Vw
+        _VRMSpringBonePhysicsStrategy.Ww
       ),
-      _VRMSpringBonePhysicsStrategy.Ww
-    ).transformVector3To(sub, _VRMSpringBonePhysicsStrategy.Tw);
+      _VRMSpringBonePhysicsStrategy.Xw
+    ).transformVector3To(sub, _VRMSpringBonePhysicsStrategy.Uw);
     let length = to.length();
     if (length < Number.EPSILON) {
       to = bone.boneAxis;
@@ -167,13 +167,13 @@ var _VRMSpringBonePhysicsStrategy = class _VRMSpringBonePhysicsStrategy {
     }
     const rot = Quaternion.fromToRotationTo(
       bone.boneAxis,
-      Vector3.divideTo(to, length, _VRMSpringBonePhysicsStrategy.Uw),
-      _VRMSpringBonePhysicsStrategy.Xw
+      Vector3.divideTo(to, length, _VRMSpringBonePhysicsStrategy.Vw),
+      _VRMSpringBonePhysicsStrategy.Yw
     );
     const result = Quaternion.multiplyTo(
       bone.node.localRotationRestInner,
       rot,
-      _VRMSpringBonePhysicsStrategy.Yw
+      _VRMSpringBonePhysicsStrategy.Zw
     );
     return result;
   }
@@ -200,7 +200,7 @@ var _VRMSpringBonePhysicsStrategy = class _VRMSpringBonePhysicsStrategy {
             nextTail,
             delta,
             1 / length * -distance,
-            _VRMSpringBonePhysicsStrategy.ax
+            _VRMSpringBonePhysicsStrategy.bx
           );
           nextTail = this.normalizeBoneLength(nextTail, worldSpacePosition, bone);
         }
@@ -212,7 +212,7 @@ var _VRMSpringBonePhysicsStrategy = class _VRMSpringBonePhysicsStrategy {
             nextTail,
             direction,
             -distance,
-            _VRMSpringBonePhysicsStrategy.bx
+            _VRMSpringBonePhysicsStrategy.cx
           );
           nextTail = this.normalizeBoneLength(nextTail, worldSpacePosition, bone);
         }
@@ -226,7 +226,7 @@ var _VRMSpringBonePhysicsStrategy = class _VRMSpringBonePhysicsStrategy {
    * @param sgs - The VRM spring system containing bones and configuration
    */
   setSpring(sgs) {
-    this.Fw = sgs;
+    this.Gw = sgs;
   }
   /**
    * Sets the visibility of all sphere colliders in this physics strategy.
@@ -235,7 +235,7 @@ var _VRMSpringBonePhysicsStrategy = class _VRMSpringBonePhysicsStrategy {
    * @param visible - Whether the colliders should be visible
    */
   setCollidersVisible(visible) {
-    const spring = this.Fw;
+    const spring = this.Gw;
     if (Is.not.exist(spring)) {
       return;
     }
@@ -249,42 +249,42 @@ var _VRMSpringBonePhysicsStrategy = class _VRMSpringBonePhysicsStrategy {
     }
   }
   getVrmSpring() {
-    return this.Fw;
+    return this.Gw;
   }
 };
-_VRMSpringBonePhysicsStrategy.Gw = MutableVector3.zero();
 _VRMSpringBonePhysicsStrategy.Hw = MutableVector3.zero();
 _VRMSpringBonePhysicsStrategy.Iw = MutableVector3.zero();
 _VRMSpringBonePhysicsStrategy.Jw = MutableVector3.zero();
 _VRMSpringBonePhysicsStrategy.Kw = MutableVector3.zero();
-_VRMSpringBonePhysicsStrategy.cx = MutableVector3.zero();
-_VRMSpringBonePhysicsStrategy.dx = MutableVector3.zero();
 _VRMSpringBonePhysicsStrategy.Lw = MutableVector3.zero();
+_VRMSpringBonePhysicsStrategy.dx = MutableVector3.zero();
+_VRMSpringBonePhysicsStrategy.ex = MutableVector3.zero();
 _VRMSpringBonePhysicsStrategy.Mw = MutableVector3.zero();
 _VRMSpringBonePhysicsStrategy.Nw = MutableVector3.zero();
 _VRMSpringBonePhysicsStrategy.Ow = MutableVector3.zero();
-_VRMSpringBonePhysicsStrategy.Pw = MutableQuaternion.identity();
-_VRMSpringBonePhysicsStrategy.Qw = MutableVector3.zero();
-_VRMSpringBonePhysicsStrategy.ex = MutableVector3.zero();
-_VRMSpringBonePhysicsStrategy.fx = MutableVector3.zero();
+_VRMSpringBonePhysicsStrategy.Pw = MutableVector3.zero();
+_VRMSpringBonePhysicsStrategy.Qw = MutableQuaternion.identity();
 _VRMSpringBonePhysicsStrategy.Rw = MutableVector3.zero();
+_VRMSpringBonePhysicsStrategy.fx = MutableVector3.zero();
 _VRMSpringBonePhysicsStrategy.gx = MutableVector3.zero();
-_VRMSpringBonePhysicsStrategy.hx = MutableVector3.zero();
 _VRMSpringBonePhysicsStrategy.Sw = MutableVector3.zero();
+_VRMSpringBonePhysicsStrategy.hx = MutableVector3.zero();
+_VRMSpringBonePhysicsStrategy.ix = MutableVector3.zero();
 _VRMSpringBonePhysicsStrategy.Tw = MutableVector3.zero();
 _VRMSpringBonePhysicsStrategy.Uw = MutableVector3.zero();
-_VRMSpringBonePhysicsStrategy.ix = MutableVector3.zero();
-_VRMSpringBonePhysicsStrategy.Vw = MutableQuaternion.identity();
+_VRMSpringBonePhysicsStrategy.Vw = MutableVector3.zero();
+_VRMSpringBonePhysicsStrategy.jx = MutableVector3.zero();
 _VRMSpringBonePhysicsStrategy.Ww = MutableQuaternion.identity();
 _VRMSpringBonePhysicsStrategy.Xw = MutableQuaternion.identity();
 _VRMSpringBonePhysicsStrategy.Yw = MutableQuaternion.identity();
 _VRMSpringBonePhysicsStrategy.Zw = MutableQuaternion.identity();
 _VRMSpringBonePhysicsStrategy._w = MutableQuaternion.identity();
 _VRMSpringBonePhysicsStrategy.$w = MutableQuaternion.identity();
-_VRMSpringBonePhysicsStrategy.ax = MutableVector3.zero();
+_VRMSpringBonePhysicsStrategy.ax = MutableQuaternion.identity();
 _VRMSpringBonePhysicsStrategy.bx = MutableVector3.zero();
-_VRMSpringBonePhysicsStrategy.jx = MutableVector3.zero();
+_VRMSpringBonePhysicsStrategy.cx = MutableVector3.zero();
 _VRMSpringBonePhysicsStrategy.kx = MutableVector3.zero();
+_VRMSpringBonePhysicsStrategy.lx = MutableVector3.zero();
 var VRMSpringBonePhysicsStrategy = _VRMSpringBonePhysicsStrategy;
 export {
   VRMSpringBonePhysicsStrategy

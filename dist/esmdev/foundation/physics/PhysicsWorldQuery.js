@@ -6,8 +6,8 @@ var PhysicsWorldQuery = class _PhysicsWorldQuery {
   }
   castRay(origin, direction, maxDistance, options = {}) {
     var _a, _b, _c, _d, _e, _f;
-    _PhysicsWorldQuery.Su(origin, "origin");
-    _PhysicsWorldQuery.Su(direction, "direction");
+    _PhysicsWorldQuery.Tu(origin, "origin");
+    _PhysicsWorldQuery.Tu(direction, "direction");
     if (!Number.isFinite(maxDistance) || maxDistance <= 0) {
       throw new Error(`Physics ray maxDistance must be a finite positive number: ${maxDistance}`);
     }
@@ -26,17 +26,17 @@ var PhysicsWorldQuery = class _PhysicsWorldQuery {
     });
   }
   castRaySegment(start, end, options = {}) {
-    _PhysicsWorldQuery.Su(start, "start");
-    _PhysicsWorldQuery.Su(end, "end");
+    _PhysicsWorldQuery.Tu(start, "start");
+    _PhysicsWorldQuery.Tu(end, "end");
     const direction = Vector3.subtract(end, start);
     return this.castRay(start, direction, direction.length(), options);
   }
   castSphere(origin, radius, direction, maxDistance, options = {}) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
-    _PhysicsWorldQuery.Su(origin, "origin");
-    _PhysicsWorldQuery.Su(direction, "direction");
-    _PhysicsWorldQuery.Tu(radius, "sphere radius");
-    _PhysicsWorldQuery.Tu(maxDistance, "maxDistance");
+    _PhysicsWorldQuery.Tu(origin, "origin");
+    _PhysicsWorldQuery.Tu(direction, "direction");
+    _PhysicsWorldQuery.Uu(radius, "sphere radius");
+    _PhysicsWorldQuery.Uu(maxDistance, "maxDistance");
     if (!Number.isFinite((_a = options.targetDistance) != null ? _a : 0) || ((_b = options.targetDistance) != null ? _b : 0) < 0) {
       throw new Error("Physics shape cast targetDistance must be a finite non-negative number.");
     }
@@ -56,12 +56,12 @@ var PhysicsWorldQuery = class _PhysicsWorldQuery {
       stopAtPenetration: (_j = options.stopAtPenetration) != null ? _j : true
     });
   }
-  static Su(vector, label) {
+  static Tu(vector, label) {
     if (!Number.isFinite(vector.x) || !Number.isFinite(vector.y) || !Number.isFinite(vector.z)) {
       throw new Error(`Physics ray ${label} must contain only finite values.`);
     }
   }
-  static Tu(value, label) {
+  static Uu(value, label) {
     if (!Number.isFinite(value) || value <= 0) {
       throw new Error(`Physics ${label} must be a finite positive number: ${value}`);
     }

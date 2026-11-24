@@ -26,9 +26,9 @@ var EqualShaderNode = class extends AbstractShaderNode {
       codeGLSL: EqualShaderityObjectGLSL.code,
       codeWGSL: EqualShaderityObjectWGSL.code
     });
-    this.yr.push(new Socket("lhs", CompositionType.Scalar, componentType));
-    this.yr.push(new Socket("rhs", CompositionType.Scalar, componentType));
-    this.Br.push(new Socket("outValue", CompositionType.Scalar, ComponentType.Bool));
+    this.zr.push(new Socket("lhs", CompositionType.Scalar, componentType));
+    this.zr.push(new Socket("rhs", CompositionType.Scalar, componentType));
+    this.Cr.push(new Socket("outValue", CompositionType.Scalar, ComponentType.Bool));
   }
   /**
    * Gets the input socket for the left-hand side value.
@@ -36,7 +36,7 @@ var EqualShaderNode = class extends AbstractShaderNode {
    * @returns The input socket for the left operand
    */
   getSocketInputLhs() {
-    return this.yr[0];
+    return this.zr[0];
   }
   /**
    * Gets the input socket for the right-hand side value.
@@ -44,7 +44,7 @@ var EqualShaderNode = class extends AbstractShaderNode {
    * @returns The input socket for the right operand
    */
   getSocketInputRhs() {
-    return this.yr[1];
+    return this.zr[1];
   }
   /**
    * Gets the output socket that provides the comparison result.
@@ -52,7 +52,7 @@ var EqualShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the boolean comparison result
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
   /**
    * Gets the appropriate shader function name based on the current rendering approach and input type.
@@ -65,18 +65,18 @@ var EqualShaderNode = class extends AbstractShaderNode {
    */
   getShaderFunctionNameDerivative(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      if (this.yr[0].componentType === ComponentType.Float) {
+      if (this.zr[0].componentType === ComponentType.Float) {
         return "_equalF32";
       }
-      if (this.yr[0].componentType === ComponentType.Int) {
+      if (this.zr[0].componentType === ComponentType.Int) {
         return "_equalI32";
       }
-      if (this.yr[0].componentType === ComponentType.UnsignedInt) {
+      if (this.zr[0].componentType === ComponentType.UnsignedInt) {
         return "_equalU32";
       }
       throw new Error("Not supported component type.");
     }
-    return this.Ar;
+    return this.Br;
   }
 };
 export {

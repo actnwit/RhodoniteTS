@@ -24,7 +24,7 @@ var WorldMatrixShaderNode = class extends AbstractShaderNode {
       codeWGSL: WorldMatrixShaderityObjectWGSL.code
     });
     this.setShaderStage("Vertex");
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Mat4,
       componentType: ComponentType.Float,
       name: "outValue"

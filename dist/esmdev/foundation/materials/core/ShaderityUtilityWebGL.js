@@ -70,7 +70,7 @@ var ShaderityUtilityWebGL = class {
    */
   static getAttributeReflection(shaderityObject) {
     const reflection = Shaderity.createReflectionObject(shaderityObject);
-    this.Ms(reflection);
+    this.Ns(reflection);
     reflection.reflect();
     const names = reflection.attributesNames;
     const semantics = reflection.attributesSemantics.map((semantic, i) => {
@@ -101,7 +101,7 @@ var ShaderityUtilityWebGL = class {
    * @param reflection - The reflection object to configure with semantic mappings
    * @private
    */
-  static Ms(reflection) {
+  static Ns(reflection) {
     const attributeSemanticsMap = /* @__PURE__ */ new Map();
     attributeSemanticsMap.set("instanceids", "INSTANCE");
     attributeSemanticsMap.set("barycentriccoord", "BARY_CENTRIC_COORD");
@@ -116,7 +116,7 @@ var ShaderityUtilityWebGL = class {
    * @returns An object containing an array of shader semantic info and a modified shader object with uniforms removed
    */
   static getShaderDataReflection(engine, shaderityObject) {
-    const copiedShaderityObject = this.Ns(shaderityObject);
+    const copiedShaderityObject = this.Os(shaderityObject);
     const splitCode = shaderityObject.code.split(/\r\n|\n/);
     const uniformOmittedShaderRows = [];
     const shaderSemanticsInfoArray = [];
@@ -127,11 +127,11 @@ var ShaderityUtilityWebGL = class {
         const type = matchUniformDeclaration[1];
         const variableName = matchUniformDeclaration[2];
         const info = matchUniformDeclaration[4];
-        if (this.Os(info)) {
+        if (this.Ps(info)) {
           uniformOmittedShaderRows.push(row);
           continue;
         }
-        const shaderSemanticsInfo = this.Ps(
+        const shaderSemanticsInfo = this.Qs(
           engine,
           type,
           variableName,
@@ -157,7 +157,7 @@ var ShaderityUtilityWebGL = class {
    * @returns A new ShaderityObject with the same properties as the input
    * @private
    */
-  static Ns(obj) {
+  static Os(obj) {
     const copiedObj = {
       code: obj.code,
       shaderStage: obj.shaderStage,
@@ -173,7 +173,7 @@ var ShaderityUtilityWebGL = class {
    * @returns True if the uniform should be ignored, false otherwise
    * @private
    */
-  static Os(info) {
+  static Ps(info) {
     const skipProcess = info.match(/skipProcess[\t ]*=[\t ]*(\w+)[,\t ]*/);
     if ((skipProcess == null ? void 0 : skipProcess[1]) === "true") {
       return true;
@@ -192,7 +192,7 @@ var ShaderityUtilityWebGL = class {
    * @returns A complete ShaderSemanticsInfo object for the uniform
    * @private
    */
-  static Ps(engine, type, variableName, info, isFragmentShader) {
+  static Qs(engine, type, variableName, info, isFragmentShader) {
     const componentType = ComponentType.fromGlslString(type);
     const compositionType = CompositionType.fromGlslString(type);
     const stage = isFragmentShader ? ShaderType.PixelShader : ShaderType.VertexShader;
@@ -207,7 +207,7 @@ var ShaderityUtilityWebGL = class {
       isInternalSetting: false,
       stage
     };
-    this.Qs(engine, shaderSemanticsInfo, info);
+    this.Rs(engine, shaderSemanticsInfo, info);
     return shaderSemanticsInfo;
   }
   /**
@@ -219,7 +219,7 @@ var ShaderityUtilityWebGL = class {
    * @param info - The comment string containing parameter definitions
    * @private
    */
-  static Qs(engine, shaderSemanticsInfo, info) {
+  static Rs(engine, shaderSemanticsInfo, info) {
     const soloDatum = info.match(/soloDatum[\t ]*=[\t ]*(\w+)[,\t ]*/);
     let isSoloDatumFlg = false;
     if ((soloDatum == null ? void 0 : soloDatum[1]) === "true") {
@@ -235,9 +235,9 @@ var ShaderityUtilityWebGL = class {
     const initialValue = info.match(/initialValue[\t ]*=[\t ]*(.+)[,\t ]*/);
     if (initialValue) {
       const initialValueText = initialValue[1];
-      shaderSemanticsInfo.initialValue = this.Rs(engine, shaderSemanticsInfo, initialValueText);
+      shaderSemanticsInfo.initialValue = this.Ss(engine, shaderSemanticsInfo, initialValueText);
     } else {
-      shaderSemanticsInfo.initialValue = this.Ss(engine, shaderSemanticsInfo);
+      shaderSemanticsInfo.initialValue = this.Ts(engine, shaderSemanticsInfo);
     }
     const needUniformInDataTextureMode = info.match(/needUniformInDataTextureMode[\t ]*=[\t ]*(.+)[,\t ]*/);
     if (needUniformInDataTextureMode) {
@@ -266,7 +266,7 @@ var ShaderityUtilityWebGL = class {
    * @returns The parsed initial value as the appropriate Rhodonite math type or texture array
    * @private
    */
-  static Rs(engine, shaderSemanticsInfo, initialValueText) {
+  static Ss(engine, shaderSemanticsInfo, initialValueText) {
     const tuple = initialValueText.match(/\(([\d\w., ]+)\)/);
     const checkCompositionNumber = (expected) => {
       if (shaderSemanticsInfo.compositionType !== expected) {
@@ -376,7 +376,7 @@ var ShaderityUtilityWebGL = class {
    * @returns The default initial value appropriate for the uniform's type
    * @private
    */
-  static Ss(engine, shaderSemanticsInfo) {
+  static Ts(engine, shaderSemanticsInfo) {
     if (shaderSemanticsInfo.compositionType === CompositionType.Scalar) {
       return new MutableScalar(new Float32Array([0]));
     }

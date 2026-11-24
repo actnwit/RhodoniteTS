@@ -6,24 +6,24 @@ import { Is } from "../../misc/Is.js";
 var _SphereCollider = class _SphereCollider {
   constructor(engine, position, radius, baseSceneGraph) {
     /** The local position of the sphere collider relative to its base scene graph node */
-    this.Gt = Vector3.zero();
+    this.Ht = Vector3.zero();
     /** The radius of the sphere collider */
-    this.Rt = 0;
-    this.Dw = MutableVector3.zero();
+    this.St = 0;
+    this.Ew = MutableVector3.zero();
     this.c = engine;
-    this.Gt = position;
-    this.Rt = radius;
-    this.Aw = baseSceneGraph;
+    this.Ht = position;
+    this.St = radius;
+    this.Bw = baseSceneGraph;
   }
   /**
    * Updates the cached world position of the collider.
    * Should be called once per frame before collision checks.
    */
   updateWorldState() {
-    const baseMatrix = this.Aw.matrixInner;
-    baseMatrix.multiplyVector3To(this.Gt, this.Dw);
-    if (Is.exist(this.xw) && this.xw.isVisible) {
-      this.xw._update();
+    const baseMatrix = this.Bw.matrixInner;
+    baseMatrix.multiplyVector3To(this.Ht, this.Ew);
+    if (Is.exist(this.yw) && this.yw.isVisible) {
+      this.yw._update();
     }
   }
   /**
@@ -36,9 +36,9 @@ var _SphereCollider = class _SphereCollider {
    *   - distance: The penetration distance (negative if penetrating, positive if separated)
    */
   collision(bonePosition, boneRadius) {
-    const delta = Vector3.subtractTo(bonePosition, this.Dw, _SphereCollider.Gg);
+    const delta = Vector3.subtractTo(bonePosition, this.Ew, _SphereCollider.Gg);
     const length = delta.length();
-    const radius = this.Rt + boneRadius;
+    const radius = this.St + boneRadius;
     const distance = length - radius;
     return { distance, delta, length };
   }
@@ -47,42 +47,42 @@ var _SphereCollider = class _SphereCollider {
    * @returns The local position vector
    */
   get position() {
-    return this.Gt;
+    return this.Ht;
   }
   /**
    * Gets the world position of the collider.
    * @returns The world position vector
    */
   get worldPosition() {
-    return this.Dw;
+    return this.Ew;
   }
   /**
    * Gets the radius of the collider.
    * @returns The radius value
    */
   get radius() {
-    return this.Rt;
+    return this.St;
   }
   /**
    * Gets the base scene graph component.
    * @returns The base scene graph component
    */
   get baseSceneGraph() {
-    return this.Aw;
+    return this.Bw;
   }
   /**
    * Gets the gizmo used to visualize this collider.
    * @returns The gizmo instance, or undefined if not set
    */
   get gizmo() {
-    return this.xw;
+    return this.yw;
   }
   /**
    * Sets the gizmo used to visualize this collider.
    * @param gizmo - The gizmo instance to set
    */
   set gizmo(gizmo) {
-    this.xw = gizmo;
+    this.yw = gizmo;
   }
   /**
    * Sets the visibility of the collider's gizmo.
@@ -90,11 +90,11 @@ var _SphereCollider = class _SphereCollider {
    * @param visible - Whether the gizmo should be visible
    */
   setGizmoVisible(visible) {
-    if (this.xw == null) {
-      this.xw = new (_getGizmoClass("sphereCollider"))(this.c, this);
-      this.xw._setup();
+    if (this.yw == null) {
+      this.yw = new (_getGizmoClass("sphereCollider"))(this.c, this);
+      this.yw._setup();
     }
-    this.xw.isVisible = visible;
+    this.yw.isVisible = visible;
   }
   /**
    * Gets whether the gizmo is currently visible.
@@ -102,15 +102,15 @@ var _SphereCollider = class _SphereCollider {
    */
   get isGizmoVisible() {
     var _a, _b;
-    return (_b = (_a = this.xw) == null ? void 0 : _a.isVisible) != null ? _b : false;
+    return (_b = (_a = this.yw) == null ? void 0 : _a.isVisible) != null ? _b : false;
   }
   /**
    * Destroys the gizmo if it exists.
    */
   destroyGizmo() {
-    if (this.xw != null) {
-      this.xw._destroy();
-      this.xw = void 0;
+    if (this.yw != null) {
+      this.yw._destroy();
+      this.yw = void 0;
     }
   }
 };

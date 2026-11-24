@@ -13,16 +13,16 @@ var _AbstractShaderNode = class _AbstractShaderNode extends RnObject {
    */
   constructor(shaderNodeName, shader) {
     super();
-    this.yr = [];
-    this.Br = [];
+    this.zr = [];
     this.Cr = [];
+    this.Dr = [];
     this._shaderStage = "Neutral";
-    this.Ar = shaderNodeName;
-    this.Fr = shader.codeGLSL;
-    this.Gr = shader.codeWGSL;
-    this.Er = ++_AbstractShaderNode.Dr;
-    _AbstractShaderNode._shaderNodes[_AbstractShaderNode.Dr] = this;
-    this.zr = shader.commonPart;
+    this.Br = shaderNodeName;
+    this.Gr = shader.codeGLSL;
+    this.Hr = shader.codeWGSL;
+    this.Fr = ++_AbstractShaderNode.Er;
+    _AbstractShaderNode._shaderNodes[_AbstractShaderNode.Er] = this;
+    this.Ar = shader.commonPart;
   }
   /**
    * Sets the shader stage for this node (Neutral, Vertex, or Fragment).
@@ -57,13 +57,13 @@ var _AbstractShaderNode = class _AbstractShaderNode extends RnObject {
    */
   addInputConnection(inputShaderNode, outputSocketOfInput, inputSocketOfThis) {
     let idx = -1;
-    for (let i = 0; i < this.yr.length; i++) {
-      if (this.yr[i].name === inputSocketOfThis.name) {
+    for (let i = 0; i < this.zr.length; i++) {
+      if (this.zr[i].name === inputSocketOfThis.name) {
         idx = i;
         break;
       }
     }
-    this.Cr[idx] = {
+    this.Dr[idx] = {
       shaderNodeUid: inputShaderNode.shaderNodeUid,
       outputNameOfPrev: outputSocketOfInput.name,
       inputNameOfThis: inputSocketOfThis.name
@@ -74,7 +74,7 @@ var _AbstractShaderNode = class _AbstractShaderNode extends RnObject {
    * @returns The function name used in shader code
    */
   get shaderFunctionName() {
-    return this.Ar;
+    return this.Br;
   }
   /**
    * Gets the derivative shader function name for this node.
@@ -82,7 +82,7 @@ var _AbstractShaderNode = class _AbstractShaderNode extends RnObject {
    * @returns The derivative function name used in shader code
    */
   getShaderFunctionNameDerivative(_engine) {
-    return this.Ar;
+    return this.Br;
   }
   /**
    * Retrieves the shader code for the specified shader stage.
@@ -92,23 +92,23 @@ var _AbstractShaderNode = class _AbstractShaderNode extends RnObject {
    * @returns The shader code string for the specified stage
    */
   getShaderCode(engine, shaderStage) {
-    if (this.zr != null) {
+    if (this.Ar != null) {
       if (shaderStage === ShaderType.VertexShader) {
-        return this.zr.getVertexShaderDefinitions(engine);
+        return this.Ar.getVertexShaderDefinitions(engine);
       }
-      return this.zr.getPixelShaderDefinitions(engine);
+      return this.Ar.getPixelShaderDefinitions(engine);
     }
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      return this.Gr;
+      return this.Hr;
     }
-    return this.Fr;
+    return this.Gr;
   }
   /**
    * Gets the unique identifier for this shader node.
    * @returns The unique node identifier
    */
   get shaderNodeUid() {
-    return this.Er;
+    return this.Fr;
   }
   /**
    * Finds and returns an input socket by name.
@@ -116,7 +116,7 @@ var _AbstractShaderNode = class _AbstractShaderNode extends RnObject {
    * @returns The input socket if found, undefined otherwise
    */
   getInput(name) {
-    for (const input of this.yr) {
+    for (const input of this.zr) {
       if (input.name === name) {
         return input;
       }
@@ -128,7 +128,7 @@ var _AbstractShaderNode = class _AbstractShaderNode extends RnObject {
    * @returns An array of all input sockets
    */
   getInputs() {
-    return this.yr;
+    return this.zr;
   }
   /**
    * Finds and returns an output socket by name.
@@ -136,7 +136,7 @@ var _AbstractShaderNode = class _AbstractShaderNode extends RnObject {
    * @returns The output socket if found, undefined otherwise
    */
   getOutput(name) {
-    for (const output of this.Br) {
+    for (const output of this.Cr) {
       if (output.name === name) {
         return output;
       }
@@ -148,14 +148,14 @@ var _AbstractShaderNode = class _AbstractShaderNode extends RnObject {
    * @returns An array of all output sockets
    */
   getOutputs() {
-    return this.Br;
+    return this.Cr;
   }
   /**
    * Gets all input connections for this node.
    * @returns An array of input connection configurations
    */
   get inputConnections() {
-    return this.Cr;
+    return this.Dr;
   }
   /**
    * Generates a function call statement for this shader node in the final shader code.
@@ -197,7 +197,7 @@ var _AbstractShaderNode = class _AbstractShaderNode extends RnObject {
   }
 };
 _AbstractShaderNode._shaderNodes = [];
-_AbstractShaderNode.Dr = -1;
+_AbstractShaderNode.Er = -1;
 var AbstractShaderNode = _AbstractShaderNode;
 export {
   AbstractShaderNode

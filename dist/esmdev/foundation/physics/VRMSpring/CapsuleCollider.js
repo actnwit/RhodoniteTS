@@ -7,33 +7,33 @@ import { Is } from "../../misc/Is.js";
 var _CapsuleCollider = class _CapsuleCollider {
   constructor(engine, position, radius, tail, baseSceneGraph) {
     /** The position of the capsule's head in local space */
-    this.Gt = Vector3.zero();
+    this.Ht = Vector3.zero();
     /** The radius of the capsule */
-    this.Rt = 0;
+    this.St = 0;
     /** The position of the capsule's tail in local space */
-    this.zw = Vector3.zero();
+    this.Aw = Vector3.zero();
     this.ef = MutableMatrix44.dummy();
-    this.Bw = MutableVector3.zero();
-    this.yw = MutableVector3.zero();
-    this.Cw = 0;
+    this.Cw = MutableVector3.zero();
+    this.zw = MutableVector3.zero();
+    this.Dw = 0;
     this.c = engine;
-    this.Gt = position;
-    this.Rt = radius;
-    this.zw = tail;
-    this.Aw = baseSceneGraph;
+    this.Ht = position;
+    this.St = radius;
+    this.Aw = tail;
+    this.Bw = baseSceneGraph;
   }
   /**
    * Updates cached world positions for the capsule.
    * Should be called once per frame before collision checks.
    */
   updateWorldState() {
-    this.ef = this.Aw.matrixInner;
-    this.ef.multiplyVector3To(this.Gt, this.Bw);
-    this.ef.multiplyVector3To(this.zw, this.yw);
-    Vector3.subtractTo(this.yw, this.Bw, this.yw);
-    this.Cw = this.yw.lengthSquared();
-    if (Is.exist(this.xw) && this.xw.isVisible) {
-      this.xw._update();
+    this.ef = this.Bw.matrixInner;
+    this.ef.multiplyVector3To(this.Ht, this.Cw);
+    this.ef.multiplyVector3To(this.Aw, this.zw);
+    Vector3.subtractTo(this.zw, this.Cw, this.zw);
+    this.Dw = this.zw.lengthSquared();
+    if (Is.exist(this.yw) && this.yw.isVisible) {
+      this.yw._update();
     }
   }
   /**
@@ -46,18 +46,18 @@ var _CapsuleCollider = class _CapsuleCollider {
    *          The direction points from the capsule surface towards the bone center.
    */
   collision(bonePosition, boneRadius) {
-    const spherePosWorld = this.Bw;
-    const tailPosWorld = this.yw;
+    const spherePosWorld = this.Cw;
+    const tailPosWorld = this.zw;
     let direction = Vector3.subtractTo(bonePosition, spherePosWorld, _CapsuleCollider.Fg);
     const dot = tailPosWorld.dot(direction);
     if (dot <= 0) {
-    } else if (this.Cw <= dot) {
+    } else if (this.Dw <= dot) {
       direction = Vector3.subtractTo(direction, tailPosWorld, _CapsuleCollider.Fg);
     } else {
-      Vector3.multiplyTo(tailPosWorld, dot / this.Cw, _CapsuleCollider.Gg);
+      Vector3.multiplyTo(tailPosWorld, dot / this.Dw, _CapsuleCollider.Gg);
       direction = Vector3.subtractTo(direction, _CapsuleCollider.Gg, _CapsuleCollider.Fg);
     }
-    const radius = this.Rt + boneRadius;
+    const radius = this.St + boneRadius;
     const distance = direction.length() - radius;
     direction = Vector3.normalizeTo(direction, direction);
     return { direction, distance };
@@ -67,42 +67,42 @@ var _CapsuleCollider = class _CapsuleCollider {
    * @returns The local position vector
    */
   get position() {
-    return this.Gt;
+    return this.Ht;
   }
   /**
    * Gets the local position of the capsule's tail.
    * @returns The local tail position vector
    */
   get tail() {
-    return this.zw;
+    return this.Aw;
   }
   /**
    * Gets the radius of the capsule.
    * @returns The radius value
    */
   get radius() {
-    return this.Rt;
+    return this.St;
   }
   /**
    * Gets the base scene graph component.
    * @returns The base scene graph component
    */
   get baseSceneGraph() {
-    return this.Aw;
+    return this.Bw;
   }
   /**
    * Gets the gizmo used to visualize this collider.
    * @returns The gizmo instance, or undefined if not set
    */
   get gizmo() {
-    return this.xw;
+    return this.yw;
   }
   /**
    * Sets the gizmo used to visualize this collider.
    * @param gizmo - The gizmo instance to set
    */
   set gizmo(gizmo) {
-    this.xw = gizmo;
+    this.yw = gizmo;
   }
   /**
    * Sets the visibility of the collider's gizmo.
@@ -110,11 +110,11 @@ var _CapsuleCollider = class _CapsuleCollider {
    * @param visible - Whether the gizmo should be visible
    */
   setGizmoVisible(visible) {
-    if (this.xw == null) {
-      this.xw = new (_getGizmoClass("capsuleCollider"))(this.c, this);
-      this.xw._setup();
+    if (this.yw == null) {
+      this.yw = new (_getGizmoClass("capsuleCollider"))(this.c, this);
+      this.yw._setup();
     }
-    this.xw.isVisible = visible;
+    this.yw.isVisible = visible;
   }
   /**
    * Gets whether the gizmo is currently visible.
@@ -122,15 +122,15 @@ var _CapsuleCollider = class _CapsuleCollider {
    */
   get isGizmoVisible() {
     var _a, _b;
-    return (_b = (_a = this.xw) == null ? void 0 : _a.isVisible) != null ? _b : false;
+    return (_b = (_a = this.yw) == null ? void 0 : _a.isVisible) != null ? _b : false;
   }
   /**
    * Destroys the gizmo if it exists.
    */
   destroyGizmo() {
-    if (this.xw != null) {
-      this.xw._destroy();
-      this.xw = void 0;
+    if (this.yw != null) {
+      this.yw._destroy();
+      this.yw = void 0;
     }
   }
 };

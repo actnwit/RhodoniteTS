@@ -9,20 +9,20 @@ import { Socket } from "../core/Socket.js";
 var Texture2DShaderNode = class extends AbstractShaderNode {
   constructor() {
     super("texture2D", {});
-    this.Ar += `_${this.Er}`;
-    this.zr = new Texture2DShader(this.Ar);
-    this.yr.push(new Socket("uv", CompositionType.Vec2, ComponentType.Float));
-    this.yr.push(new Socket("scale", CompositionType.Vec2, ComponentType.Float, Vector2.fromCopy2(1, 1)));
-    this.yr.push(new Socket("offset", CompositionType.Vec2, ComponentType.Float, Vector2.fromCopy2(0, 0)));
-    this.yr.push(new Socket("rotation", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
-    this.yr.push(new Socket("lod", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(-1)));
-    this.Br.push(new Socket("rgba", CompositionType.Vec4, ComponentType.Float));
-    this.Br.push(new Socket("rgb", CompositionType.Vec3, ComponentType.Float));
-    this.Br.push(new Socket("r", CompositionType.Scalar, ComponentType.Float));
-    this.Br.push(new Socket("g", CompositionType.Scalar, ComponentType.Float));
-    this.Br.push(new Socket("b", CompositionType.Scalar, ComponentType.Float));
-    this.Br.push(new Socket("a", CompositionType.Scalar, ComponentType.Float));
-    this.Br.push(new Socket("uvOut", CompositionType.Vec2, ComponentType.Float));
+    this.Br += `_${this.Fr}`;
+    this.Ar = new Texture2DShader(this.Br);
+    this.zr.push(new Socket("uv", CompositionType.Vec2, ComponentType.Float));
+    this.zr.push(new Socket("scale", CompositionType.Vec2, ComponentType.Float, Vector2.fromCopy2(1, 1)));
+    this.zr.push(new Socket("offset", CompositionType.Vec2, ComponentType.Float, Vector2.fromCopy2(0, 0)));
+    this.zr.push(new Socket("rotation", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
+    this.zr.push(new Socket("lod", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(-1)));
+    this.Cr.push(new Socket("rgba", CompositionType.Vec4, ComponentType.Float));
+    this.Cr.push(new Socket("rgb", CompositionType.Vec3, ComponentType.Float));
+    this.Cr.push(new Socket("r", CompositionType.Scalar, ComponentType.Float));
+    this.Cr.push(new Socket("g", CompositionType.Scalar, ComponentType.Float));
+    this.Cr.push(new Socket("b", CompositionType.Scalar, ComponentType.Float));
+    this.Cr.push(new Socket("a", CompositionType.Scalar, ComponentType.Float));
+    this.Cr.push(new Socket("uvOut", CompositionType.Vec2, ComponentType.Float));
   }
   /**
    * Sets sRGB flag for the texture
@@ -30,7 +30,7 @@ var Texture2DShaderNode = class extends AbstractShaderNode {
    * @param sRGB - The sRGB flag
    */
   setSrgbFlag(sRGB) {
-    this.zr.setSrgbFlag(sRGB);
+    this.Ar.setSrgbFlag(sRGB);
   }
   /**
    * Sets the texture variable name in the shader.
@@ -39,7 +39,7 @@ var Texture2DShaderNode = class extends AbstractShaderNode {
    * @param value - The variable name to use for the texture in the shader
    */
   setTextureName(value) {
-    this.zr.setVariableName(value);
+    this.Ar.setVariableName(value);
   }
 };
 export {

@@ -11,9 +11,9 @@ var OutUnionShader = class extends RaymarchingShaderPart {
    */
   constructor(shaderFunctionName, distanceCorrectionUniformNames = [], distanceScaleGlobalNames = []) {
     super();
-    this.Ar = shaderFunctionName;
-    this.$s = [...distanceCorrectionUniformNames];
-    this.at = [...distanceScaleGlobalNames];
+    this.Br = shaderFunctionName;
+    this.at = [...distanceCorrectionUniformNames];
+    this.bt = [...distanceScaleGlobalNames];
   }
   getVertexShaderDefinitions(_engine) {
     return "";
@@ -24,12 +24,12 @@ var OutUnionShader = class extends RaymarchingShaderPart {
   getPixelShaderDefinitions(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-fn ${this.Ar}(value: f32, objectId: f32) {
+fn ${this.Br}(value: f32, objectId: f32) {
   var distanceScale = 1.0;
-${this.$s.map(
+${this.at.map(
         (name) => `  distanceScale = min(distanceScale, rnRaymarchDistanceScale(get_${name}(uniformDrawParameters.materialSid, 0u)));
 `
-      ).join("")}${this.at.map(
+      ).join("")}${this.bt.map(
         (name) => `  distanceScale = min(distanceScale, ${name});
 `
       ).join("")}  distanceScale = clamp(distanceScale, 0.0001, 1.0);
@@ -42,13 +42,13 @@ ${this.$s.map(
 `;
     }
     return `
-void ${this.Ar}(in float value, in float objectId) {
+void ${this.Br}(in float value, in float objectId) {
   ${this.getMaterialSIDForWebGL()}
   float distanceScale = 1.0;
-${this.$s.map(
+${this.at.map(
       (name) => `  distanceScale = min(distanceScale, rnRaymarchDistanceScale(get_${name}(materialSID, 0u)));
 `
-    ).join("")}${this.at.map(
+    ).join("")}${this.bt.map(
       (name) => `  distanceScale = min(distanceScale, ${name});
 `
     ).join("")}  distanceScale = clamp(distanceScale, 0.0001, 1.0);

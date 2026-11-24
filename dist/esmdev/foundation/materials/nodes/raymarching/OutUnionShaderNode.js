@@ -13,13 +13,13 @@ var OutUnionShaderNode = class extends AbstractShaderNode {
    */
   constructor() {
     super("outUnion", {});
-    this.$s = [];
     this.at = [];
-    this.Ar += `_${this.Er}`;
-    this.zr = new OutUnionShader(this.Ar);
+    this.bt = [];
+    this.Br += `_${this.Fr}`;
+    this.Ar = new OutUnionShader(this.Br);
     this.setShaderStage("Fragment");
-    this.yr.push(new Socket("value", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
-    this.yr.push(new Socket("objectId", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
+    this.zr.push(new Socket("value", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
+    this.zr.push(new Socket("objectId", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
   }
   /**
    * Sets the per-component world matrix uniforms used to convert the local-space
@@ -27,8 +27,8 @@ var OutUnionShaderNode = class extends AbstractShaderNode {
    * @param uniformNames - Uniform names of the component's world matrices
    */
   setDistanceCorrectionUniformNames(uniformNames) {
-    this.$s = [...uniformNames];
-    this.bt();
+    this.at = [...uniformNames];
+    this.ct();
   }
   /**
    * Sets the per-`SdApplyTransform` scale globals of the transform nodes in this
@@ -36,14 +36,14 @@ var OutUnionShaderNode = class extends AbstractShaderNode {
    * @param globalNames - Global names written by the reachable transform nodes
    */
   setDistanceScaleGlobalNames(globalNames) {
-    this.at = [...globalNames];
-    this.bt();
+    this.bt = [...globalNames];
+    this.ct();
   }
-  bt() {
-    this.zr = new OutUnionShader(
-      this.Ar,
-      this.$s,
-      this.at
+  ct() {
+    this.Ar = new OutUnionShader(
+      this.Br,
+      this.at,
+      this.bt
     );
   }
   /**
@@ -53,7 +53,7 @@ var OutUnionShaderNode = class extends AbstractShaderNode {
    * @returns The input socket that accepts Vec4 color values
    */
   getSocketInput() {
-    return this.yr[0];
+    return this.zr[0];
   }
 };
 export {

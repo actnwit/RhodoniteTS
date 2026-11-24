@@ -15,7 +15,7 @@ var RaymarchHitPositionShaderNode = class extends AbstractShaderNode {
       codeWGSL: RaymarchHitPositionShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.Br.push(
+    this.Cr.push(
       new Socket("outPosition", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(0, 0, 0, 1))
     );
   }
@@ -23,7 +23,7 @@ var RaymarchHitPositionShaderNode = class extends AbstractShaderNode {
    * Gets the output socket that contains the hit position in world space.
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
 };
 export {

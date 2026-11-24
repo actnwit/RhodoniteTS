@@ -9,13 +9,13 @@ var WebGpuDeviceWrapper = class {
    * @param gpuDevice - The WebGPU device for executing GPU operations
    */
   constructor(canvas, gpuAdapter, gpuDevice) {
-    this.TF = canvas;
+    this.UF = canvas;
     this.a = canvas.getContext("webgpu");
-    this.UF = gpuAdapter;
-    this.SF = gpuDevice;
+    this.VF = gpuAdapter;
+    this.TF = gpuDevice;
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
     this.a.configure({
-      device: this.SF,
+      device: this.TF,
       format: presentationFormat,
       alphaMode: "premultiplied"
     });
@@ -26,7 +26,7 @@ var WebGpuDeviceWrapper = class {
    * @returns The canvas element used for WebGPU rendering
    */
   get canvas() {
-    return this.TF;
+    return this.UF;
   }
   /**
    * Gets the WebGPU adapter associated with this wrapper.
@@ -34,7 +34,7 @@ var WebGpuDeviceWrapper = class {
    * @returns The WebGPU adapter representing the graphics hardware
    */
   get gpuAdapter() {
-    return this.UF;
+    return this.VF;
   }
   /**
    * Gets the WebGPU device associated with this wrapper.
@@ -42,7 +42,7 @@ var WebGpuDeviceWrapper = class {
    * @returns The WebGPU device for executing GPU operations
    */
   get gpuDevice() {
-    return this.SF;
+    return this.TF;
   }
   /**
    * Gets the WebGPU canvas context associated with this wrapper.

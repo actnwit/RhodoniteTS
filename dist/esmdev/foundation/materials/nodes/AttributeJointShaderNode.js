@@ -20,7 +20,7 @@ var AttributeJointShaderNode = class extends AbstractShaderNode {
       codeWGSL: AttributeJointShaderityObjectWGSL.code
     });
     this.setShaderStage("Vertex");
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.UnsignedInt,
       name: "outValue"

@@ -15,16 +15,16 @@ var AnimatedScalar = class extends Scalar {
   constructor(animationSamplers, activeAnimationTrackName) {
     super(new Float32Array(1));
     this.pc = 0;
-    this.lt = new AnimatedValueEvaluationState();
+    this.mt = new AnimatedValueEvaluationState();
     this.isLoop = true;
-    this.mt = animationSamplers;
-    this.pt = activeAnimationTrackName;
+    this.nt = animationSamplers;
     this.qt = activeAnimationTrackName;
-    const animationSampler = this.mt.get(this.pt);
+    this.rt = activeAnimationTrackName;
+    const animationSampler = this.nt.get(this.qt);
     if (animationSampler === void 0) {
       throw new Error("Animation channel not found");
     }
-    this.ot = animationSampler;
+    this.pt = animationSampler;
   }
   /**
    * Returns the scalar value as an array of numbers.
@@ -37,13 +37,13 @@ var AnimatedScalar = class extends Scalar {
    * Drops the memoized interpolation result. Call this after mutating sampler data directly.
    */
   invalidateAnimationCache() {
-    this.lt.invalidate();
+    this.mt.invalidate();
   }
   /**
    * Number of actual interpolations performed. Intended for tests and benchmarks.
    */
   getEvaluationCount() {
-    return this.lt.evaluationCount;
+    return this.mt.evaluationCount;
   }
   /**
    * Gets the internal value array without allocating a copy. Do not mutate the returned array.
@@ -55,7 +55,7 @@ var AnimatedScalar = class extends Scalar {
    * Sets the time and blending ratio and evaluates the value at most once.
    */
   setTimeAndBlendingRatio(time, blendingRatio) {
-    this.tt = time;
+    this.ut = time;
     this.pc = blendingRatio;
     this.update();
   }
@@ -68,7 +68,7 @@ var AnimatedScalar = class extends Scalar {
       return;
     }
     this._v = array;
-    this.lt.invalidate();
+    this.mt.invalidate();
     this.update();
   }
   /**
@@ -76,7 +76,7 @@ var AnimatedScalar = class extends Scalar {
    * @param time - The time value to set for animation sampling
    */
   setTime(time) {
-    this.tt = time;
+    this.ut = time;
     this.update();
   }
   /**
@@ -84,7 +84,7 @@ var AnimatedScalar = class extends Scalar {
    * When used with AnimationComponent, the time will be set via setTime() during animation processing.
    */
   useGlobalTime() {
-    this.tt = void 0;
+    this.ut = void 0;
     this.update();
   }
   /**
@@ -117,12 +117,12 @@ var AnimatedScalar = class extends Scalar {
    */
   update() {
     var _a;
-    let time = (_a = this.tt) != null ? _a : 0;
+    let time = (_a = this.ut) != null ? _a : 0;
     if (this.isLoop) {
-      const firstDuration = this.ot.input[this.ot.input.length - 1];
+      const firstDuration = this.pt.input[this.pt.input.length - 1];
       let duration = firstDuration > 0 ? firstDuration : Number.POSITIVE_INFINITY;
-      if (this.nt !== void 0) {
-        const secondDuration = this.nt.input[this.nt.input.length - 1];
+      if (this.ot !== void 0) {
+        const secondDuration = this.ot.input[this.ot.input.length - 1];
         if (secondDuration > 0) {
           duration = Math.min(duration, secondDuration);
         }
@@ -131,38 +131,38 @@ var AnimatedScalar = class extends Scalar {
         time = time % duration;
       }
     }
-    const hasSecondSampler = this.nt !== void 0;
-    if (!this.lt.shouldEvaluate(time, this.pc, hasSecondSampler)) {
+    const hasSecondSampler = this.ot !== void 0;
+    if (!this.mt.shouldEvaluate(time, this.pc, hasSecondSampler)) {
       return;
     }
-    if (this.nt === void 0) {
+    if (this.ot === void 0) {
       __interpolateTo(
-        this.ot,
+        this.pt,
         time,
         AnimationAttribute.Scalar.index,
         this._v,
-        this.lt.firstCursor
+        this.mt.firstCursor
       );
     } else {
-      const evaluation = this.lt;
+      const evaluation = this.mt;
       evaluation.ensureScratch(
         Math.max(
           this._v.length,
-          this.ot.outputComponentN,
-          this.nt.outputComponentN
+          this.pt.outputComponentN,
+          this.ot.outputComponentN
         )
       );
       const firstValue = evaluation.scratchFirst;
       const secondValue = evaluation.scratchSecond;
       __interpolateTo(
-        this.ot,
+        this.pt,
         time,
         AnimationAttribute.Scalar.index,
         firstValue,
         evaluation.firstCursor
       );
       __interpolateTo(
-        this.nt,
+        this.ot,
         time,
         AnimationAttribute.Scalar.index,
         secondValue,
@@ -170,7 +170,7 @@ var AnimatedScalar = class extends Scalar {
       );
       this._v[0] = firstValue[0] * (1 - this.blendingRatio) + secondValue[0] * this.blendingRatio;
     }
-    this.lt.markEvaluated(time, this.pc);
+    this.mt.markEvaluated(time, this.pc);
   }
   /**
    * Sets the first active animation track by name.
@@ -178,14 +178,14 @@ var AnimatedScalar = class extends Scalar {
    */
   setFirstActiveAnimationTrackName(animationTrackName) {
     AnimationStateRepository.markAnimationBindingChanged();
-    this.lt.invalidate();
-    this.pt = animationTrackName;
-    const animationSampler = this.mt.get(this.pt);
+    this.mt.invalidate();
+    this.qt = animationTrackName;
+    const animationSampler = this.nt.get(this.qt);
     if (animationSampler === void 0) {
       Logger.default.info("Animation channel not found");
     } else {
-      this.ot = animationSampler;
-      this.qt = animationTrackName;
+      this.pt = animationSampler;
+      this.rt = animationTrackName;
     }
   }
   /**
@@ -194,14 +194,14 @@ var AnimatedScalar = class extends Scalar {
    */
   setSecondActiveAnimationTrackName(animationTrackName) {
     AnimationStateRepository.markAnimationBindingChanged();
-    this.lt.invalidate();
-    this.rt = animationTrackName;
-    const animationSampler = this.mt.get(this.rt);
+    this.mt.invalidate();
+    this.st = animationTrackName;
+    const animationSampler = this.nt.get(this.st);
     if (animationSampler === void 0) {
       Logger.default.info("Animation channel not found");
     } else {
-      this.nt = animationSampler;
-      this.st = animationTrackName;
+      this.ot = animationSampler;
+      this.tt = animationTrackName;
     }
   }
   /**
@@ -209,20 +209,20 @@ var AnimatedScalar = class extends Scalar {
    * @returns The name of the first active animation track
    */
   getFirstActiveAnimationTrackName() {
-    return this.pt;
+    return this.qt;
   }
   getFirstActiveAnimationSamplerTrackName() {
-    return this.qt;
+    return this.rt;
   }
   /**
    * Gets the name of the second active animation track.
    * @returns The name of the second active animation track, or undefined if not set
    */
   getSecondActiveAnimationTrackName() {
-    return this.rt;
+    return this.st;
   }
   getSecondActiveAnimationSamplerTrackName() {
-    return this.st;
+    return this.tt;
   }
   /**
    * Gets the minimum start time from the input keyframes of the specified animation track.
@@ -231,7 +231,7 @@ var AnimatedScalar = class extends Scalar {
    * @throws {Error} If the specified animation track is not found
    */
   getMinStartInputTime(trackName) {
-    const animationSampler = this.mt.get(trackName);
+    const animationSampler = this.nt.get(trackName);
     if (animationSampler === void 0) {
       throw new Error("Animation channel not found");
     }
@@ -244,7 +244,7 @@ var AnimatedScalar = class extends Scalar {
    * @throws {Error} If the specified animation track is not found
    */
   getMaxEndInputTime(trackName) {
-    const animationSampler = this.mt.get(trackName);
+    const animationSampler = this.nt.get(trackName);
     if (animationSampler === void 0) {
       throw new Error("Animation channel not found");
     }
@@ -255,7 +255,7 @@ var AnimatedScalar = class extends Scalar {
    * @returns An array containing all animation track names
    */
   getAllTrackNames() {
-    return Array.from(this.mt.keys());
+    return Array.from(this.nt.keys());
   }
   /**
    * Gets the animation sampler for the specified track name.
@@ -264,7 +264,7 @@ var AnimatedScalar = class extends Scalar {
    * @throws {Error} If the specified animation track is not found
    */
   getAnimationSampler(trackName) {
-    const animationSampler = this.mt.get(trackName);
+    const animationSampler = this.nt.get(trackName);
     if (animationSampler === void 0) {
       throw new Error("Animation channel not found");
     }
@@ -276,8 +276,8 @@ var AnimatedScalar = class extends Scalar {
    */
   deleteAnimationSampler(trackName) {
     AnimationStateRepository.markAnimationBindingChanged();
-    this.lt.invalidate();
-    this.mt.delete(trackName);
+    this.mt.invalidate();
+    this.nt.delete(trackName);
   }
   /**
    * Sets or updates an animation sampler for the specified track name.
@@ -286,16 +286,16 @@ var AnimatedScalar = class extends Scalar {
    */
   setAnimationSampler(animationTrackName, animationSampler) {
     AnimationStateRepository.markAnimationBindingChanged();
-    this.mt.set(animationTrackName, animationSampler);
-    if (animationTrackName === this.qt || animationTrackName === this.pt) {
+    this.nt.set(animationTrackName, animationSampler);
+    if (animationTrackName === this.rt || animationTrackName === this.qt) {
+      this.pt = animationSampler;
+      this.rt = animationTrackName;
+    }
+    if (animationTrackName === this.tt || animationTrackName === this.st) {
       this.ot = animationSampler;
-      this.qt = animationTrackName;
+      this.tt = animationTrackName;
     }
-    if (animationTrackName === this.st || animationTrackName === this.rt) {
-      this.nt = animationSampler;
-      this.st = animationTrackName;
-    }
-    this.lt.invalidate();
+    this.mt.invalidate();
   }
 };
 export {

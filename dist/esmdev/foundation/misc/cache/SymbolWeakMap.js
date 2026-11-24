@@ -2,7 +2,7 @@
 import { Is } from "../Is.js";
 var SymbolWeakMap = class {
   constructor() {
-    this.Qu = /* @__PURE__ */ new WeakMap();
+    this.Ru = /* @__PURE__ */ new WeakMap();
   }
   /**
    * set key and value
@@ -11,11 +11,11 @@ var SymbolWeakMap = class {
    * @returns true: succeed to set value, false: not set (already exists)
    */
   set(symbol, value) {
-    const isExist = this.Qu.has(symbol);
+    const isExist = this.Ru.has(symbol);
     if (isExist) {
       return false;
     }
-    this.Qu.set(symbol, value);
+    this.Ru.set(symbol, value);
     return true;
   }
   /**
@@ -24,7 +24,7 @@ var SymbolWeakMap = class {
    * @returns Whether it have the key or not.
    */
   has(symbol) {
-    const isExist = this.Qu.has(symbol);
+    const isExist = this.Ru.has(symbol);
     if (isExist) {
       return true;
     }
@@ -43,11 +43,11 @@ var SymbolWeakMap = class {
    * @returns the value in the cache by the key
    */
   get(symbol) {
-    const keyObj = this.Qu.get(symbol);
+    const keyObj = this.Ru.get(symbol);
     if (Is.not.exist(keyObj)) {
       return void 0;
     }
-    const val = this.Qu.get(symbol);
+    const val = this.Ru.get(symbol);
     return val;
   }
   /**
@@ -56,11 +56,11 @@ var SymbolWeakMap = class {
    * @returns the flag of the deletion was succeed or not
    */
   delete(symbol) {
-    const isExist = this.Qu.has(symbol);
+    const isExist = this.Ru.has(symbol);
     if (!isExist) {
       return false;
     }
-    this.Qu.delete(symbol);
+    this.Ru.delete(symbol);
     return true;
   }
 };

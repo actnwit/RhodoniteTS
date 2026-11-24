@@ -2,18 +2,18 @@
 var MAX_PENDING_QUERIES = 4;
 var WebGLGpuTimer = class {
   constructor(gl) {
-    this.UC = [];
     this.VC = [];
-    this.lC = gl;
-    this.TC = gl.getExtension("EXT_disjoint_timer_query_webgl2");
+    this.WC = [];
+    this.mC = gl;
+    this.UC = gl.getExtension("EXT_disjoint_timer_query_webgl2");
   }
   /** Whether the context supports GPU timer queries. */
   get isSupported() {
-    return this.TC != null;
+    return this.UC != null;
   }
   /** The GPU time of the latest measured frame in milliseconds, or undefined if none is available yet. */
   get lastGpuTimeMilliseconds() {
-    return this.WC;
+    return this.XC;
   }
   /**
    * Starts measuring the GL commands issued until end().
@@ -21,41 +21,41 @@ var WebGLGpuTimer = class {
    */
   begin() {
     var _a;
-    const ext = this.TC;
-    if (ext == null || this.SC != null || this.UC.length >= MAX_PENDING_QUERIES) {
+    const ext = this.UC;
+    if (ext == null || this.TC != null || this.VC.length >= MAX_PENDING_QUERIES) {
       return;
     }
-    const gl = this.lC;
-    const query = (_a = this.VC.pop()) != null ? _a : gl.createQuery();
+    const gl = this.mC;
+    const query = (_a = this.WC.pop()) != null ? _a : gl.createQuery();
     if (query == null) {
       return;
     }
     gl.beginQuery(ext.TIME_ELAPSED_EXT, query);
-    this.SC = query;
+    this.TC = query;
   }
   /**
    * Ends the measurement started by begin() and collects the results that have become available.
    */
   end() {
-    const ext = this.TC;
+    const ext = this.UC;
     if (ext == null) {
       return;
     }
-    const gl = this.lC;
-    if (this.SC != null) {
+    const gl = this.mC;
+    if (this.TC != null) {
       gl.endQuery(ext.TIME_ELAPSED_EXT);
-      this.UC.push(this.SC);
-      this.SC = void 0;
+      this.VC.push(this.TC);
+      this.TC = void 0;
     }
-    this.XC();
+    this.YC();
   }
-  XC() {
-    const gl = this.lC;
-    const pending = this.UC;
+  YC() {
+    const gl = this.mC;
+    const pending = this.VC;
     if (pending.length === 0 || !gl.getQueryParameter(pending[0], gl.QUERY_RESULT_AVAILABLE)) {
       return;
     }
-    const disjoint = gl.getParameter(this.TC.GPU_DISJOINT_EXT);
+    const disjoint = gl.getParameter(this.UC.GPU_DISJOINT_EXT);
     let collected = 0;
     while (collected < pending.length) {
       const query = pending[collected];
@@ -64,9 +64,9 @@ var WebGLGpuTimer = class {
       }
       if (!disjoint) {
         const nanoseconds = gl.getQueryParameter(query, gl.QUERY_RESULT);
-        this.WC = nanoseconds / 1e6;
+        this.XC = nanoseconds / 1e6;
       }
-      this.VC.push(query);
+      this.WC.push(query);
       collected++;
     }
     if (collected > 0) {
@@ -75,20 +75,20 @@ var WebGLGpuTimer = class {
   }
   /** Deletes the queries. The timer must not be used afterwards. */
   destroy() {
-    const gl = this.lC;
-    if (this.SC != null && this.TC != null) {
-      gl.endQuery(this.TC.TIME_ELAPSED_EXT);
-      gl.deleteQuery(this.SC);
-      this.SC = void 0;
-    }
-    for (const query of this.UC) {
-      gl.deleteQuery(query);
+    const gl = this.mC;
+    if (this.TC != null && this.UC != null) {
+      gl.endQuery(this.UC.TIME_ELAPSED_EXT);
+      gl.deleteQuery(this.TC);
+      this.TC = void 0;
     }
     for (const query of this.VC) {
       gl.deleteQuery(query);
     }
-    this.UC.length = 0;
+    for (const query of this.WC) {
+      gl.deleteQuery(query);
+    }
     this.VC.length = 0;
+    this.WC.length = 0;
   }
 };
 export {

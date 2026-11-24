@@ -3,7 +3,7 @@ import { RnObject } from "../core/RnObject.js";
 var Expression = class _Expression extends RnObject {
   constructor() {
     super(...arguments);
-    this.lx = [];
+    this.mx = [];
   }
   /**
    * Creates a deep copy of this Expression instance.
@@ -15,7 +15,7 @@ var Expression = class _Expression extends RnObject {
     const exp = new _Expression();
     exp.tryToSetUniqueName(`${this.uniqueName}_cloned`, true);
     const renderPasses = [];
-    for (const renderPass of this.lx) {
+    for (const renderPass of this.mx) {
       renderPasses.push(renderPass.clone());
     }
     exp.addRenderPasses(renderPasses);
@@ -29,7 +29,7 @@ var Expression = class _Expression extends RnObject {
    */
   addRenderPasses(renderPasses) {
     for (const renderPass of renderPasses) {
-      this.lx.push(renderPass);
+      this.mx.push(renderPass);
     }
   }
   /**
@@ -37,7 +37,7 @@ var Expression = class _Expression extends RnObject {
    * This effectively resets the expression to an empty state.
    */
   clearRenderPasses() {
-    this.lx.length = 0;
+    this.mx.length = 0;
   }
   /**
    * Gets a read-only reference to the array of render passes in this expression.
@@ -46,7 +46,7 @@ var Expression = class _Expression extends RnObject {
    * @returns Array of RenderPass instances in execution order
    */
   get renderPasses() {
-    return this.lx;
+    return this.mx;
   }
   /**
    * Sets the viewport dimensions for all render passes in this expression.
@@ -55,7 +55,7 @@ var Expression = class _Expression extends RnObject {
    * @param viewport - Vector4 containing viewport coordinates (x, y, width, height)
    */
   setViewport(viewport) {
-    for (const renderPass of this.lx) {
+    for (const renderPass of this.mx) {
       renderPass.setViewport(viewport);
     }
   }

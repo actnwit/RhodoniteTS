@@ -24,24 +24,24 @@ var Buffer = class {
     bufferUsage,
     indexOfTheBufferUsage
   }) {
-    this.ju = 0;
     this.ku = 0;
-    this.iu = 0;
-    this.lu = "";
-    this.ks = [];
-    this.nu = BufferUse.CPUGeneric;
-    this.ou = 0;
-    this.lu = name;
-    this.ju = byteLength;
-    this.mu = byteAlign;
-    this.nu = bufferUsage;
-    this.ou = indexOfTheBufferUsage;
+    this.lu = 0;
+    this.ju = 0;
+    this.mu = "";
+    this.ls = [];
+    this.ou = BufferUse.CPUGeneric;
+    this.pu = 0;
+    this.mu = name;
+    this.ku = byteLength;
+    this.nu = byteAlign;
+    this.ou = bufferUsage;
+    this.pu = indexOfTheBufferUsage;
     if (buffer instanceof Uint8Array) {
       if (!(buffer.buffer instanceof ArrayBuffer)) {
         throw new Error("SharedArrayBuffer is not supported in this code path.");
       }
       this.Ej = buffer.buffer;
-      this.ku = buffer.byteOffset;
+      this.lu = buffer.byteOffset;
     } else {
       this.Ej = buffer;
     }
@@ -52,7 +52,7 @@ var Buffer = class {
    * @param str - The new name for the buffer
    */
   set name(str) {
-    this.lu = str;
+    this.mu = str;
   }
   /**
    * Gets the name of the buffer.
@@ -60,7 +60,7 @@ var Buffer = class {
    * @returns The current name of the buffer
    */
   get name() {
-    return this.lu;
+    return this.mu;
   }
   /**
    * Gets the underlying ArrayBuffer.
@@ -78,7 +78,7 @@ var Buffer = class {
    * @returns The number of padding bytes needed
    * @private
    */
-  pu(byteLengthToNeed, byteAlign) {
+  qu(byteLengthToNeed, byteAlign) {
     const paddingSize = DataUtil.calcPaddingBytes(byteLengthToNeed, byteAlign);
     if (paddingSize > 0) {
       Logger.default.info("Padding bytes added to takenBytesIndex.");
@@ -110,10 +110,10 @@ var Buffer = class {
    */
   takeBufferView({ byteLengthToNeed, byteStride }) {
     const byteSizeToTake = byteLengthToNeed;
-    if (byteSizeToTake + this.iu > this.byteLength) {
+    if (byteSizeToTake + this.ju > this.byteLength) {
       const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.
 Buffer.byteLength: ${this.byteLength}, Buffer.takenSizeInByte: ${this.takenSizeInByte},
-byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${this.ju - this.iu}`;
+byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${this.ku - this.ju}`;
       return new Err({
         message,
         error: {
@@ -124,14 +124,14 @@ byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${this.ju
     }
     const bufferView = new BufferView({
       buffer: this,
-      byteOffsetInBuffer: this.iu,
+      byteOffsetInBuffer: this.ju,
       defaultByteStride: byteStride,
       byteLength: byteSizeToTake,
       raw: this.Ej
     });
-    this.iu += byteSizeToTake;
-    this.iu = DataUtil.addPaddingBytes(this.iu, this.mu);
-    this.ks.push(bufferView);
+    this.ju += byteSizeToTake;
+    this.ju = DataUtil.addPaddingBytes(this.ju, this.nu);
+    this.ls.push(bufferView);
     return new Ok(bufferView);
   }
   /**
@@ -164,7 +164,7 @@ byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${this.ju
     if (byteSizeToTake + byteOffset > this.byteLength) {
       const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.
 Buffer.byteLength: ${this.byteLength}, Buffer.takenSizeInByte: ${this.takenSizeInByte},
-byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.ju - this.iu}`;
+byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.ku - this.ju}`;
       return new Err({
         message,
         error: void 0
@@ -178,10 +178,10 @@ byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.
       raw: this.Ej
     });
     const takenBytesIndex = Uint8Array.BYTES_PER_ELEMENT * byteLengthToNeed + byteOffset;
-    if (this.iu < takenBytesIndex) {
-      this.iu = takenBytesIndex;
+    if (this.ju < takenBytesIndex) {
+      this.ju = takenBytesIndex;
     }
-    this.ks.push(bufferView);
+    this.ls.push(bufferView);
     return new Ok(bufferView);
   }
   /**
@@ -192,7 +192,7 @@ byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.
    * @internal
    */
   _addTakenByteIndex(value) {
-    this.iu += value;
+    this.ju += value;
   }
   /**
    * Gets the total byte length of the buffer.
@@ -200,7 +200,7 @@ byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.
    * @returns The total capacity of the buffer in bytes
    */
   get byteLength() {
-    return this.ju;
+    return this.ku;
   }
   /**
    * Gets the number of bytes currently allocated from this buffer.
@@ -208,7 +208,7 @@ byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.
    * @returns The number of bytes that have been taken from the buffer
    */
   get takenSizeInByte() {
-    return this.iu;
+    return this.ju;
   }
   /**
    * Gets the byte offset of this buffer within the raw ArrayBuffer.
@@ -217,7 +217,7 @@ byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.
    * @returns The byte offset within the raw ArrayBuffer
    */
   get byteOffsetInRawArrayBuffer() {
-    return this.ku;
+    return this.lu;
   }
   /**
    * Creates a typed array view into the buffer at a specific offset.
@@ -247,9 +247,9 @@ byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.
       Logger.default.warn("componentType is Invalid");
     }
     if (CompositionType.isArray(compositionType)) {
-      ret = new typedArray(this.Ej, this.ku + offset4bytesUnit * 4, length);
+      ret = new typedArray(this.Ej, this.lu + offset4bytesUnit * 4, length);
     } else {
-      ret = new typedArray(this.Ej, this.ku + offset4bytesUnit * 4, 1);
+      ret = new typedArray(this.Ej, this.lu + offset4bytesUnit * 4, 1);
     }
     return ret;
   }
@@ -274,10 +274,10 @@ byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.
     return this.Ej === buffer.Ej;
   }
   get indexOfTheBufferUsage() {
-    return this.ou;
+    return this.pu;
   }
   get bufferUsage() {
-    return this.nu;
+    return this.ou;
   }
 };
 export {

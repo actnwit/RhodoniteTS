@@ -15,13 +15,13 @@ var RaymarchObjectIdShaderNode = class extends AbstractShaderNode {
       codeWGSL: RaymarchObjectIdShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.Br.push(new Socket("outValue", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
+    this.Cr.push(new Socket("outValue", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
   }
   /**
    * Gets the output socket that contains the hit object id.
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
 };
 export {

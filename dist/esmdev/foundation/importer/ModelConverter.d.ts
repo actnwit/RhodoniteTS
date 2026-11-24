@@ -69,6 +69,17 @@ export declare class ModelConverter {
      */
     static preloadRaymarchingSupport(gltfModel: RnM2): Promise<void>;
     /**
+     * Loads the sheen LUT before materials are created when the model uses KHR_materials_sheen.
+     *
+     * A WebGPU bind group created while the LUT texture has no GPU resource keeps the placeholder binding, so
+     * the importer waits for the texture instead of relying on the lazy background load in the material factory.
+     *
+     * @param engine - The engine instance
+     * @param gltfModel - The glTF model data to inspect
+     * @internal
+     */
+    private static __preloadSheenLutTexture;
+    /**
      * Sets up textures from the glTF model asynchronously
      * @param gltfModel - The glTF model data
      * @returns Promise resolving to array of Rhodonite textures

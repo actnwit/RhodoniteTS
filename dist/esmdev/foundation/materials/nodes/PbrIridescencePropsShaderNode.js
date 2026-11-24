@@ -18,19 +18,19 @@ var PbrIridescencePropsShaderNode = class extends AbstractShaderNode {
       codeGLSL: PbrIridescencePropsShaderityObjectGLSL.code,
       codeWGSL: PbrIridescencePropsShaderityObjectWGSL.code
     });
-    this.yr.push(
+    this.zr.push(
       new Socket("iridescenceFactor", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("iridescenceTexture", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("iridescenceThicknessMinimum", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(100))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("iridescenceThicknessMaximum", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(400))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket(
         "iridescenceThicknessTexture",
         CompositionType.Vec4,
@@ -38,10 +38,10 @@ var PbrIridescencePropsShaderNode = class extends AbstractShaderNode {
         Vector4.fromCopy4(1, 1, 1, 1)
       )
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("iridescenceIor", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1.3))
     );
-    this.Br.push(new Socket("outIridescenceProps", CompositionType.IridescenceProps, ComponentType.Unknown));
+    this.Cr.push(new Socket("outIridescenceProps", CompositionType.IridescenceProps, ComponentType.Unknown));
   }
   /**
    * Gets the output socket that contains the result of the PBR sheen properties operation.
@@ -49,7 +49,7 @@ var PbrIridescencePropsShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the PBR sheen properties result
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
 };
 export {

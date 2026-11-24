@@ -12,10 +12,10 @@ var ConstantVariableShader = class extends StandardShaderPart {
    */
   constructor(__functionName, __compositionType, __componentType) {
     super();
-    this.aF = __functionName;
-    this.Xs = __compositionType;
-    this.Zs = __componentType;
-    this.bF = "";
+    this.bF = __functionName;
+    this.Ys = __compositionType;
+    this._s = __componentType;
+    this.cF = "";
   }
   /**
    * Sets the constant value that will be output by the generated shader function.
@@ -38,16 +38,16 @@ var ConstantVariableShader = class extends StandardShaderPart {
    */
   setConstantValue(value) {
     let constant = "";
-    if (this.Zs.isFloatingPoint()) {
+    if (this._s.isFloatingPoint()) {
       constant = value.glslStrAsFloat;
-    } else if (this.Zs.isInteger()) {
+    } else if (this._s.isInteger()) {
       constant = value.glslStrAsInt;
-    } else if (this.Zs.isUnsignedInteger()) {
+    } else if (this._s.isUnsignedInteger()) {
       constant = value.glslStrAsUint;
-    } else if (this.Zs === ComponentType.Bool) {
+    } else if (this._s === ComponentType.Bool) {
       constant = value.x ? "true" : "false";
     }
-    this.bF = constant;
+    this.cF = constant;
   }
   /**
    * Generates the vertex shader function definition that outputs the constant value.
@@ -74,16 +74,16 @@ var ConstantVariableShader = class extends StandardShaderPart {
   getVertexShaderDefinitions(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-      fn ${this.aF}(
-        outValue: ptr<function, ${this.Xs.toWGSLType(this.Zs)}>) {
-        *outValue = ${this.bF};
+      fn ${this.bF}(
+        outValue: ptr<function, ${this.Ys.toWGSLType(this._s)}>) {
+        *outValue = ${this.cF};
       }
       `;
     }
     return `
-      void ${this.aF}(
-        out ${this.Xs.getGlslStr(this.Zs)} outValue) {
-        outValue = ${this.bF};
+      void ${this.bF}(
+        out ${this.Ys.getGlslStr(this._s)} outValue) {
+        outValue = ${this.cF};
       }
       `;
   }
@@ -113,16 +113,16 @@ var ConstantVariableShader = class extends StandardShaderPart {
   getPixelShaderDefinitions(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-      fn ${this.aF}(
-        outValue: ptr<function, ${this.Xs.toWGSLType(this.Zs)}>) {
-        *outValue = ${this.bF};
+      fn ${this.bF}(
+        outValue: ptr<function, ${this.Ys.toWGSLType(this._s)}>) {
+        *outValue = ${this.cF};
       }
       `;
     }
     return `
-      void ${this.aF}(
-        out ${this.Xs.getGlslStr(this.Zs)} outValue) {
-        outValue = ${this.bF};
+      void ${this.bF}(
+        out ${this.Ys.getGlslStr(this._s)} outValue) {
+        outValue = ${this.cF};
       }
       `;
   }

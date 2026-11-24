@@ -19,13 +19,13 @@ var PbrDiffuseTransmissionPropsShaderNode = class extends AbstractShaderNode {
       codeGLSL: PbrDiffuseTransmissionPropsShaderityObjectGLSL.code,
       codeWGSL: PbrDiffuseTransmissionPropsShaderityObjectWGSL.code
     });
-    this.yr.push(
+    this.zr.push(
       new Socket("diffuseTransmissionFactor", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("diffuseTransmissionTexture", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket(
         "diffuseTransmissionColorFactor",
         CompositionType.Vec3,
@@ -33,7 +33,7 @@ var PbrDiffuseTransmissionPropsShaderNode = class extends AbstractShaderNode {
         Vector3.fromCopy3(1, 1, 1)
       )
     );
-    this.yr.push(
+    this.zr.push(
       new Socket(
         "diffuseTransmissionColorTexture",
         CompositionType.Vec4,
@@ -41,7 +41,7 @@ var PbrDiffuseTransmissionPropsShaderNode = class extends AbstractShaderNode {
         Vector4.fromCopy4(1, 1, 1, 1)
       )
     );
-    this.Br.push(
+    this.Cr.push(
       new Socket("outDiffuseTransmissionProps", CompositionType.DiffuseTransmissionProps, ComponentType.Unknown)
     );
   }
@@ -51,7 +51,7 @@ var PbrDiffuseTransmissionPropsShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the diffuse transmission properties result
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
 };
 export {

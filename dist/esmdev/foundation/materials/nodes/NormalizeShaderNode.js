@@ -18,12 +18,12 @@ var NormalizeShaderNode = class extends AbstractShaderNode {
       codeGLSL: NormalizeShaderityObjectGLSL.code,
       codeWGSL: NormalizeShaderityObjectWGSL.code
     });
-    this.yr.push({
+    this.zr.push({
       compositionType,
       componentType,
       name: "value"
     });
-    this.Br.push({
+    this.Cr.push({
       compositionType,
       componentType,
       name: "outValue"
@@ -39,18 +39,18 @@ var NormalizeShaderNode = class extends AbstractShaderNode {
    */
   getShaderFunctionNameDerivative(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      if (this.yr[0].compositionType === CompositionType.Vec2) {
-        return `${this.Ar}Vec2f`;
+      if (this.zr[0].compositionType === CompositionType.Vec2) {
+        return `${this.Br}Vec2f`;
       }
-      if (this.yr[0].compositionType === CompositionType.Vec3) {
-        return `${this.Ar}Vec3f`;
+      if (this.zr[0].compositionType === CompositionType.Vec3) {
+        return `${this.Br}Vec3f`;
       }
-      if (this.yr[0].compositionType === CompositionType.Vec4) {
-        return `${this.Ar}Vec4f`;
+      if (this.zr[0].compositionType === CompositionType.Vec4) {
+        return `${this.Br}Vec4f`;
       }
       throw new Error("Not supported composition type.");
     }
-    return this.Ar;
+    return this.Br;
   }
 };
 export {

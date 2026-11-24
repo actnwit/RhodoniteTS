@@ -15,7 +15,7 @@ var DiscardShaderNode = class extends AbstractShaderNode {
       commonPart: DiscardShader.getInstance()
     });
     this.setShaderStage("Fragment");
-    this.yr.push(new Socket("condition", CompositionType.Scalar, ComponentType.Bool));
+    this.zr.push(new Socket("condition", CompositionType.Scalar, ComponentType.Bool));
   }
   /**
    * Gets the input socket for connecting the discard condition.
@@ -24,7 +24,7 @@ var DiscardShaderNode = class extends AbstractShaderNode {
    * @returns The input socket that accepts a boolean condition
    */
   getSocketInput() {
-    return this.yr[0];
+    return this.zr[0];
   }
 };
 export {

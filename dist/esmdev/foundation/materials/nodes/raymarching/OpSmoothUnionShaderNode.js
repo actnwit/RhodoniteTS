@@ -15,17 +15,17 @@ var OpSmoothUnionShaderNode = class extends AbstractShaderNode {
       codeWGSL: OpSmoothUnionShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.yr.push(new Socket("lhs", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
-    this.yr.push(new Socket("rhs", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
-    this.yr.push(
+    this.zr.push(new Socket("lhs", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
+    this.zr.push(new Socket("rhs", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
+    this.zr.push(
       new Socket("smoothness", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.1))
     );
-    this.Br.push(
+    this.Cr.push(
       new Socket("outValue", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
   }
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
 };
 export {

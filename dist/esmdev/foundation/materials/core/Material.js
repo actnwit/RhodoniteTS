@@ -37,16 +37,16 @@ var Material = class extends RnObject {
     this._autoTextureFieldVariablesOnly = /* @__PURE__ */ new Map();
     this._autoUniformFieldVariablesOnly = /* @__PURE__ */ new Map();
     this._allFieldsInfo = /* @__PURE__ */ new Map();
-    this.Vr = /* @__PURE__ */ new Map();
+    this.Wr = /* @__PURE__ */ new Map();
     // Ids
     this._shaderProgramUidMap = /* @__PURE__ */ new Map();
     // Tracks component buffer layout version per primitive to invalidate shaders when new BufferViews are added
     this._shaderProgramComponentStateVersionMap = /* @__PURE__ */ new Map();
-    this.Wr = -1;
-    this.Yr = -1;
+    this.Xr = -1;
+    this.Zr = -1;
     // material serial Id in the material type
     // Common Rendering States
-    this.Zr = AlphaMode.Opaque;
+    this._r = AlphaMode.Opaque;
     this.zWriteWhenBlend = false;
     this.colorWriteMask = [true, true, true, true];
     this.isTranslucent = false;
@@ -55,40 +55,40 @@ var Material = class extends RnObject {
     this.cullFrontFaceCCW = true;
     this.cullFaceBack = true;
     // if true, cull back face. if false, cull front face
-    this._r = false;
-    this.Kr = Blend.EquationFuncAdd;
-    // gl.FUNC_ADD
+    this.$r = false;
     this.Lr = Blend.EquationFuncAdd;
     // gl.FUNC_ADD
-    this.Mr = Blend.One;
+    this.Mr = Blend.EquationFuncAdd;
+    // gl.FUNC_ADD
+    this.Nr = Blend.One;
     // Not SrcAlpha. Because In Rhodonite, premultiplied alpha is used
-    this.Nr = Blend.OneMinusSrcAlpha;
+    this.Or = Blend.OneMinusSrcAlpha;
     // gl.ONE_MINUS_SRC_ALPHA
-    this.Or = Blend.One;
+    this.Pr = Blend.One;
     // gl.ONE
-    this.Pr = Blend.OneMinusSrcAlpha;
+    this.Qr = Blend.OneMinusSrcAlpha;
     // gl.ONE_MINUS_SRC_ALPHA
     this.Fi = 0;
     // Incremented only when the render pipeline configuration changes (shader
     // program, blend state, cull mode, ...). Uniform value updates do not need a
     // new pipeline, so they must not bump this version.
-    this.$r = 0;
+    this.as = 0;
     // Incremented only when texture/sampler bindings change. WebGPU bind groups
     // must be recreated for these changes, while uniform updates are written to
     // the storage buffer and leave the bind groups untouched.
-    this.Qr = 0;
+    this.Rr = 0;
     this.Xd = "";
-    this.Jr = /* @__PURE__ */ new Set();
-    this.cs = "";
-    this.ds = -1;
-    this.Tr = "";
+    this.Kr = /* @__PURE__ */ new Set();
+    this.ds = "";
     this.es = -1;
+    this.Ur = "";
+    this.fs = -1;
     this.c = engine;
     this._materialContent = materialNode;
-    this.Xr = materialTid;
-    this.Wr = materialUid;
-    this.Yr = materialSid;
-    this.Ir = materialTypeName;
+    this.Yr = materialTid;
+    this.Xr = materialUid;
+    this.Zr = materialSid;
+    this.Jr = materialTypeName;
   }
   /**
    * Adds a shader define directive that will be included in shader compilation.
@@ -96,7 +96,7 @@ var Material = class extends RnObject {
    * @param define - The define directive to add (e.g., "USE_NORMAL_MAPPING")
    */
   addShaderDefine(define) {
-    this.Jr.add(define);
+    this.Kr.add(define);
     this.makeShadersInvalidate();
   }
   /**
@@ -105,7 +105,7 @@ var Material = class extends RnObject {
    * @param define - The define directive to remove
    */
   removeShaderDefine(define) {
-    this.Jr.delete(define);
+    this.Kr.delete(define);
     this.makeShadersInvalidate();
   }
   /**
@@ -113,7 +113,7 @@ var Material = class extends RnObject {
    * @returns A Set containing all shader defines
    */
   getShaderDefines() {
-    return this.Jr;
+    return this.Kr;
   }
   /**
    * Checks if a specific shader define directive is set on this material.
@@ -121,7 +121,7 @@ var Material = class extends RnObject {
    * @returns True if the define is set, false otherwise
    */
   isShaderDefine(define) {
-    return this.Jr.has(define);
+    return this.Kr.has(define);
   }
   /**
    * Calculates and updates the material's fingerprint based on current state.
@@ -142,11 +142,11 @@ var Material = class extends RnObject {
     str += this.cullFaceBack ? "1" : "0";
     if (str !== this.Xd) {
       this.Xd = str;
-      this.Sr();
+      this.Tr();
     }
   }
-  Sr() {
-    this.$r++;
+  Tr() {
+    this.as++;
     this.c.materialRepository._incrementBindingStateVersion();
   }
   /**
@@ -165,8 +165,8 @@ var Material = class extends RnObject {
    */
   _getTextureBindingSignature() {
     var _a, _b, _c, _d, _e;
-    if (this.ds === this.Fi) {
-      return this.cs;
+    if (this.es === this.Fi) {
+      return this.ds;
     }
     let str = "";
     for (const [semantic, field] of this._autoTextureFieldVariablesOnly) {
@@ -178,8 +178,8 @@ var Material = class extends RnObject {
       const raw = (_e = value == null ? void 0 : value._v) != null ? _e : value;
       str += `${semantic}:${Array.isArray(raw) || ArrayBuffer.isView(raw) ? Array.from(raw).join(",") : String(raw)};`;
     }
-    this.cs = str;
-    this.ds = this.Fi;
+    this.ds = str;
+    this.es = this.Fi;
     return str;
   }
   /**
@@ -189,14 +189,14 @@ var Material = class extends RnObject {
    * @internal
    */
   _getMultiDrawStateKey() {
-    if (this.es === this.Fi) {
-      return this.Tr;
+    if (this.fs === this.Fi) {
+      return this.Ur;
     }
-    this.Tr = `${this.Ir}|${this._materialContent.getMaterialSemanticsVariantName()}|${[
-      ...this.Jr
+    this.Ur = `${this.Jr}|${this._materialContent.getMaterialSemanticsVariantName()}|${[
+      ...this.Kr
     ].sort().join(",")}|${this.Xd}|${this._getTextureBindingSignature()}`;
-    this.es = this.Fi;
-    return this.Tr;
+    this.fs = this.Fi;
+    return this.Ur;
   }
   ///
   /// Parameter Setters
@@ -220,7 +220,7 @@ var Material = class extends RnObject {
     if (info != null) {
       let valueObj;
       if (info.soloDatum) {
-        valueObj = this.c.materialRepository._soloDatumFields.get(this.Ir).get(shaderSemanticName);
+        valueObj = this.c.materialRepository._soloDatumFields.get(this.Jr).get(shaderSemanticName);
       } else {
         valueObj = this._allFieldVariables.get(shaderSemanticName);
       }
@@ -282,7 +282,7 @@ var Material = class extends RnObject {
         }
       }
       this.Fi++;
-      this.Qr++;
+      this.Rr++;
       this.c.materialRepository._incrementStateVersion();
       this.c.materialRepository._incrementBindingStateVersion();
       this.calcFingerPrint();
@@ -331,7 +331,7 @@ var Material = class extends RnObject {
         }
       }
       this.Fi++;
-      this.Qr++;
+      this.Rr++;
       this.c.materialRepository._incrementStateVersion();
       this.c.materialRepository._incrementBindingStateVersion();
       this.calcFingerPrint();
@@ -347,7 +347,7 @@ var Material = class extends RnObject {
     const info = this._allFieldsInfo.get(shaderSemantic);
     if (info != null) {
       if (info.soloDatum) {
-        return (_a = this.c.materialRepository._soloDatumFields.get(this.Ir).get(shaderSemantic)) == null ? void 0 : _a.value;
+        return (_a = this.c.materialRepository._soloDatumFields.get(this.Jr).get(shaderSemantic)) == null ? void 0 : _a.value;
       }
       return (_b = this._allFieldVariables.get(shaderSemantic)) == null ? void 0 : _b.value;
     }
@@ -399,14 +399,14 @@ var Material = class extends RnObject {
    * @param primitive - The primitive to add
    */
   _addBelongPrimitive(primitive) {
-    this.Vr.set(primitive.primitiveUid, primitive);
+    this.Wr.set(primitive.primitiveUid, primitive);
   }
   /**
    * Gets all primitives that belong to this material.
    * @returns A Map of primitive UIDs to Primitive objects
    */
   getBelongPrimitives() {
-    return this.Vr;
+    return this.Wr;
   }
   /**
    * Creates a WebGL shader program for this material and the given primitive.
@@ -536,7 +536,7 @@ var Material = class extends RnObject {
     firstTime,
     args
   }) {
-    this.fs(firstTime, shaderProgram);
+    this.gs(firstTime, shaderProgram);
     this._materialContent._setInternalSettingParametersToGpuWebGLPerMaterial({
       engine,
       material,
@@ -544,7 +544,7 @@ var Material = class extends RnObject {
       firstTime,
       args
     });
-    this.gs({
+    this.hs({
       shaderProgram,
       firstTime
     });
@@ -593,8 +593,8 @@ var Material = class extends RnObject {
     shaderProgram,
     firstTime
   }) {
-    this.fs(firstTime, shaderProgram);
-    this.gs({
+    this.gs(firstTime, shaderProgram);
+    this.hs({
       shaderProgram,
       firstTime
     });
@@ -610,10 +610,10 @@ var Material = class extends RnObject {
     let pixelPropertiesStr = "";
     this._allFieldsInfo.forEach((info) => {
       if (info.stage === ShaderType.VertexShader || info.stage === ShaderType.VertexAndPixelShader) {
-        vertexPropertiesStr += propertySetterOfMaterial(engine, this.Ir, info);
+        vertexPropertiesStr += propertySetterOfMaterial(engine, this.Jr, info);
       }
       if (info.stage === ShaderType.PixelShader || info.stage === ShaderType.VertexAndPixelShader) {
-        pixelPropertiesStr += propertySetterOfMaterial(engine, this.Ir, info);
+        pixelPropertiesStr += propertySetterOfMaterial(engine, this.Jr, info);
       }
     });
     const globalDataRepository = engine.globalDataRepository;
@@ -630,7 +630,7 @@ var Material = class extends RnObject {
    * @param firstTime - Whether this is the first time setting parameters
    * @param shaderProgram - The WebGL shader program
    */
-  fs(firstTime, shaderProgram) {
+  gs(firstTime, shaderProgram) {
     const webglResourceRepository = this.c.webglResourceRepository;
     for (const [, value] of this._autoTextureFieldVariablesOnly) {
       const info = value.info;
@@ -652,12 +652,12 @@ var Material = class extends RnObject {
    * @private
    * @param params - Object containing rendering parameters
    */
-  gs({
+  hs({
     shaderProgram,
     firstTime
   }) {
     const webglResourceRepository = this.c.webglResourceRepository;
-    const materialTypeName = this.Ir;
+    const materialTypeName = this.Jr;
     const map = this.c.materialRepository._soloDatumFields.get(materialTypeName);
     if (map == null) return;
     const values = map.values();
@@ -681,9 +681,9 @@ var Material = class extends RnObject {
    * @param blendEquationModeAlpha - Optional separate blend equation mode for alpha channel
    */
   setBlendEquationMode(blendEquationMode, blendEquationModeAlpha) {
-    this.Kr = blendEquationMode;
-    this.Lr = blendEquationModeAlpha != null ? blendEquationModeAlpha : blendEquationMode;
-    this.Ur();
+    this.Lr = blendEquationMode;
+    this.Mr = blendEquationModeAlpha != null ? blendEquationModeAlpha : blendEquationMode;
+    this.Vr();
     this.Fi++;
     this.c.materialRepository._incrementStateVersion();
     this.calcFingerPrint();
@@ -692,14 +692,14 @@ var Material = class extends RnObject {
    * Handles special cases for Min/Max blend equations due to WebGPU limitations.
    * @private
    */
-  Ur() {
-    if (this.Kr === Blend.Min || this.Kr === Blend.Max) {
-      this.Nr = Blend.One;
-      this.Mr = Blend.One;
-    }
+  Vr() {
     if (this.Lr === Blend.Min || this.Lr === Blend.Max) {
-      this.Pr = Blend.One;
       this.Or = Blend.One;
+      this.Nr = Blend.One;
+    }
+    if (this.Mr === Blend.Min || this.Mr === Blend.Max) {
+      this.Qr = Blend.One;
+      this.Pr = Blend.One;
     }
   }
   /**
@@ -711,11 +711,11 @@ var Material = class extends RnObject {
    * @param blendFuncAlphaDstFactor - Destination blend factor for alpha
    */
   setBlendFuncSeparateFactor(blendFuncSrcFactor, blendFuncDstFactor, blendFuncAlphaSrcFactor, blendFuncAlphaDstFactor) {
-    this.Mr = blendFuncSrcFactor;
-    this.Nr = blendFuncDstFactor;
-    this.Or = blendFuncAlphaSrcFactor;
-    this.Pr = blendFuncAlphaDstFactor;
-    this.Ur();
+    this.Nr = blendFuncSrcFactor;
+    this.Or = blendFuncDstFactor;
+    this.Pr = blendFuncAlphaSrcFactor;
+    this.Qr = blendFuncAlphaDstFactor;
+    this.Vr();
     this.Fi++;
     this.c.materialRepository._incrementStateVersion();
     this.calcFingerPrint();
@@ -727,11 +727,11 @@ var Material = class extends RnObject {
    * @param blendFuncDstFactor - Destination blend factor
    */
   setBlendFuncFactor(blendFuncSrcFactor, blendFuncDstFactor) {
-    this.Mr = blendFuncSrcFactor;
-    this.Nr = blendFuncDstFactor;
-    this.Or = blendFuncSrcFactor;
-    this.Pr = blendFuncDstFactor;
-    this.Ur();
+    this.Nr = blendFuncSrcFactor;
+    this.Or = blendFuncDstFactor;
+    this.Pr = blendFuncSrcFactor;
+    this.Qr = blendFuncDstFactor;
+    this.Vr();
     this.Fi++;
     this.c.materialRepository._incrementStateVersion();
     this.calcFingerPrint();
@@ -799,7 +799,7 @@ var Material = class extends RnObject {
         "If you set alphaToCoverage = true on a material whose AlphaMode is Translucent, you may get drawing problems."
       );
     }
-    this._r = alphaToCoverage;
+    this.$r = alphaToCoverage;
     this.makeShadersInvalidate();
     this.calcFingerPrint();
   }
@@ -808,14 +808,14 @@ var Material = class extends RnObject {
    * @returns True if alpha-to-coverage is enabled, false otherwise
    */
   get alphaToCoverage() {
-    return this._r;
+    return this.$r;
   }
   /**
    * Gets the material type ID.
    * @returns The material type ID
    */
   get materialTID() {
-    return this.Xr;
+    return this.Yr;
   }
   /**
    * Gets an array of all field information for this material.
@@ -829,49 +829,49 @@ var Material = class extends RnObject {
    * @returns The blend equation mode
    */
   get blendEquationMode() {
-    return this.Kr;
+    return this.Lr;
   }
   /**
    * Gets the blend equation mode for the alpha channel.
    * @returns The alpha blend equation mode
    */
   get blendEquationModeAlpha() {
-    return this.Lr;
+    return this.Mr;
   }
   /**
    * Gets the source blend factor for RGB channels.
    * @returns The source blend factor
    */
   get blendFuncSrcFactor() {
-    return this.Mr;
+    return this.Nr;
   }
   /**
    * Gets the destination blend factor for RGB channels.
    * @returns The destination blend factor
    */
   get blendFuncDstFactor() {
-    return this.Nr;
+    return this.Or;
   }
   /**
    * Gets the source blend factor for the alpha channel.
    * @returns The alpha source blend factor
    */
   get blendFuncAlphaSrcFactor() {
-    return this.Or;
+    return this.Pr;
   }
   /**
    * Gets the destination blend factor for the alpha channel.
    * @returns The alpha destination blend factor
    */
   get blendFuncAlphaDstFactor() {
-    return this.Pr;
+    return this.Qr;
   }
   /**
    * Gets the current alpha mode of the material.
    * @returns The alpha mode
    */
   get alphaMode() {
-    return this.Zr;
+    return this._r;
   }
   /**
    * Sets the alpha mode of the material.
@@ -879,7 +879,7 @@ var Material = class extends RnObject {
    * @param mode - The alpha mode to set
    */
   set alphaMode(mode) {
-    this.Zr = mode;
+    this._r = mode;
     this.calcFingerPrint();
     this.makeShadersInvalidate();
   }
@@ -888,14 +888,14 @@ var Material = class extends RnObject {
    * @returns The material UID
    */
   get materialUID() {
-    return this.Wr;
+    return this.Xr;
   }
   /**
    * Gets the material serial ID within the material type.
    * @returns The material SID
    */
   get materialSID() {
-    return this.Yr;
+    return this.Zr;
   }
   /**
    * Checks if this material supports skinning.
@@ -924,7 +924,7 @@ var Material = class extends RnObject {
    * @returns The material type name
    */
   get materialTypeName() {
-    return this.Ir;
+    return this.Jr;
   }
   /**
    * Gets the base material name without variation identifier.
@@ -958,12 +958,12 @@ var Material = class extends RnObject {
     this._shaderProgramUidMap.clear();
     this._shaderProgramComponentStateVersionMap.clear();
     this.Fi++;
-    this.Sr();
+    this.Tr();
     this.c.materialRepository._incrementStateVersion();
   }
   updateStateVersion() {
     this.Fi++;
-    this.Sr();
+    this.Tr();
     this.c.materialRepository._incrementStateVersion();
   }
   /**
@@ -973,7 +973,7 @@ var Material = class extends RnObject {
    * @returns The pipeline state version number
    */
   get pipelineStateVersion() {
-    return this.$r;
+    return this.as;
   }
   /**
    * Gets the version that is bumped only when texture or sampler bindings
@@ -981,7 +981,7 @@ var Material = class extends RnObject {
    * @returns The texture binding state version number
    */
   get textureStateVersion() {
-    return this.Qr;
+    return this.Rr;
   }
   /**
    * Gets the shader node JSON data for node-based materials.
@@ -989,7 +989,7 @@ var Material = class extends RnObject {
    * @returns The shader node JSON data, or undefined if not a node-based material
    */
   get shaderNodeJson() {
-    return this.Rr;
+    return this.Sr;
   }
   /**
    * Sets the shader node JSON data for node-based materials.
@@ -997,28 +997,28 @@ var Material = class extends RnObject {
    * @param json - The shader node JSON data
    */
   set shaderNodeJson(json) {
-    this.Rr = json;
+    this.Sr = json;
   }
   /**
    * Gets the uniform values for node-based materials.
    * @returns The uniform values object, or undefined if not set
    */
   get shaderNodeUniforms() {
-    return this.as;
+    return this.bs;
   }
   /**
    * Sets the uniform values for node-based materials.
    * @param uniforms - The uniform values object
    */
   set shaderNodeUniforms(uniforms) {
-    this.as = uniforms;
+    this.bs = uniforms;
   }
   /**
    * Checks if this material is a node-based custom shader material.
    * @returns True if this is a node-based material (has shaderNodeJson set)
    */
   get isNodeBasedMaterial() {
-    return this.Rr != null;
+    return this.Sr != null;
   }
   /**
    * Gets the shader node file name for export.
@@ -1026,14 +1026,14 @@ var Material = class extends RnObject {
    * @returns The shader node file name, or undefined if not set
    */
   get shaderNodeFileName() {
-    return this.bs;
+    return this.cs;
   }
   /**
    * Sets the shader node file name for export.
    * @param fileName - The .rmn file name to use in the RHODONITE_materials_node extension
    */
   set shaderNodeFileName(fileName) {
-    this.bs = fileName;
+    this.cs = fileName;
   }
 };
 export {

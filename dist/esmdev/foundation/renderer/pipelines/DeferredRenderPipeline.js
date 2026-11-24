@@ -4,12 +4,12 @@ var DeferredRenderPipeline = class extends RnObject {
   constructor() {
     super(...arguments);
     this.dm = 0;
-    this.Cy = 0;
+    this.Dy = 0;
     this.gi = [];
   }
   async setup(canvasWidth, canvasHeight) {
     this.dm = canvasWidth;
-    this.Cy = canvasHeight;
+    this.Dy = canvasHeight;
   }
   setExpressions(expressions) {
     this.gi = expressions;

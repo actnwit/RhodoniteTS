@@ -4,7 +4,7 @@ var RnPromise = class _RnPromise extends Promise {
     super((_resolve, _reject) => {
     });
     this.name = "";
-    this.Eu = {
+    this.Fu = {
       promiseAllNum: 0,
       resolvedNum: 0,
       rejectedNum: 0,
@@ -12,9 +12,9 @@ var RnPromise = class _RnPromise extends Promise {
       processedPromises: []
     };
     if (arg instanceof Promise) {
-      this.Fu = arg;
+      this.Gu = arg;
     } else {
-      this.Fu = new Promise(arg);
+      this.Gu = new Promise(arg);
     }
   }
   static resolve(arg) {
@@ -56,8 +56,8 @@ var RnPromise = class _RnPromise extends Promise {
       };
       for (const promise of promises) {
         const rnPromise = _RnPromise.resolve(promise);
-        rnPromise.Gu = callback;
-        rnPromise.Eu = callbackObj;
+        rnPromise.Hu = callback;
+        rnPromise.Fu = callbackObj;
         rnPromises.push(rnPromise);
       }
       return new _RnPromise(Promise.all(rnPromises));
@@ -85,18 +85,18 @@ var RnPromise = class _RnPromise extends Promise {
     let onFulfilledWrapper;
     if (onfulfilled) {
       onFulfilledWrapper = (value) => {
-        if (this.Eu.promiseAllNum !== 0 && this.Eu.processedPromises.indexOf(this) === -1) {
-          this.Eu.pendingNum--;
-          this.Eu.resolvedNum++;
-          this.Eu.processedPromises.push(this);
+        if (this.Fu.promiseAllNum !== 0 && this.Fu.processedPromises.indexOf(this) === -1) {
+          this.Fu.pendingNum--;
+          this.Fu.resolvedNum++;
+          this.Fu.processedPromises.push(this);
         }
-        if (this.Gu) {
-          this.Gu(this.Eu);
+        if (this.Hu) {
+          this.Hu(this.Fu);
         }
         return onfulfilled(value);
       };
     }
-    return this.Fu.then(onFulfilledWrapper, onrejected);
+    return this.Gu.then(onFulfilledWrapper, onrejected);
   }
   /**
    * Attaches a callback for only the rejection of the Promise.
@@ -105,7 +105,7 @@ var RnPromise = class _RnPromise extends Promise {
    * @returns A Promise for the completion of the callback
    */
   catch(onRejected) {
-    return new _RnPromise(this.Fu.catch(onRejected));
+    return new _RnPromise(this.Gu.catch(onRejected));
   }
   /**
    * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected).
@@ -115,7 +115,7 @@ var RnPromise = class _RnPromise extends Promise {
    * @returns A Promise for the completion of the callback
    */
   finally(onFinally) {
-    return this.Fu.finally(onFinally);
+    return this.Gu.finally(onFinally);
   }
   /**
    * Creates a Promise that is rejected with the given error.

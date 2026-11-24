@@ -22,7 +22,7 @@ var TimeShaderNode = class extends AbstractShaderNode {
       codeGLSL: TimeShaderityObjectGLSL.code,
       codeWGSL: TimeShaderityObjectWGSL.code
     });
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Scalar,
       componentType: ComponentType.Float,
       name: "outValue"

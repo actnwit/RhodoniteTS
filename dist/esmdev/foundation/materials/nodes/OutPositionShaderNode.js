@@ -14,7 +14,7 @@ var OutPositionShaderNode = class extends AbstractShaderNode {
     super("outPosition", {
       commonPart: EndShader.getInstance()
     });
-    this.yr.push(new Socket("value", CompositionType.Vec4, ComponentType.Float));
+    this.zr.push(new Socket("value", CompositionType.Vec4, ComponentType.Float));
   }
   /**
    * Gets the input socket for this position output node.
@@ -22,7 +22,7 @@ var OutPositionShaderNode = class extends AbstractShaderNode {
    * @returns The input socket that accepts Vec4 position values
    */
   getSocketInput() {
-    return this.yr[0];
+    return this.zr[0];
   }
 };
 export {

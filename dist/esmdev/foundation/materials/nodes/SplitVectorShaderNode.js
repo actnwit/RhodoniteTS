@@ -30,53 +30,53 @@ var SplitVectorShaderNode = class extends AbstractShaderNode {
       codeGLSL: SplitVectorShaderityObjectGLSL.code,
       codeWGSL: SplitVectorShaderityObjectWGSL.code
     });
-    this.Zs = componentType;
-    this.yr.push({
+    this._s = componentType;
+    this.zr.push({
       compositionType: CompositionType.Vec4,
       componentType,
       name: "xyzw"
     });
-    this.yr.push({
+    this.zr.push({
       compositionType: CompositionType.Vec3,
       componentType,
       name: "xyz"
     });
-    this.yr.push({
+    this.zr.push({
       compositionType: CompositionType.Vec2,
       componentType,
       name: "xy"
     });
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Vec3,
       componentType,
       name: "xyz"
     });
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Vec2,
       componentType,
       name: "xy"
     });
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Vec2,
       componentType,
       name: "zw"
     });
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Scalar,
       componentType,
       name: "x"
     });
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Scalar,
       componentType,
       name: "y"
     });
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Scalar,
       componentType,
       name: "z"
     });
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Scalar,
       componentType,
       name: "w"
@@ -94,27 +94,27 @@ var SplitVectorShaderNode = class extends AbstractShaderNode {
   getShaderFunctionNameDerivative(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       let typeSuffix = "";
-      if (this.Zs === ComponentType.Int) {
+      if (this._s === ComponentType.Int) {
         typeSuffix = "I32";
-      } else if (this.Zs === ComponentType.UnsignedInt) {
+      } else if (this._s === ComponentType.UnsignedInt) {
         typeSuffix = "U32";
       }
       for (const inputConnection of this.inputConnections) {
         if (inputConnection != null) {
           if (inputConnection.inputNameOfThis === "xyzw") {
-            return `${this.Ar}XYZW${typeSuffix}`;
+            return `${this.Br}XYZW${typeSuffix}`;
           }
           if (inputConnection.inputNameOfThis === "xyz") {
-            return `${this.Ar}XYZ${typeSuffix}`;
+            return `${this.Br}XYZ${typeSuffix}`;
           }
           if (inputConnection.inputNameOfThis === "xy") {
-            return `${this.Ar}XY${typeSuffix}`;
+            return `${this.Br}XY${typeSuffix}`;
           }
         }
       }
       throw new Error("Not implemented");
     }
-    return this.Ar;
+    return this.Br;
   }
   /**
    * Generates shader code for calling the split vector function with appropriate input and output handling.

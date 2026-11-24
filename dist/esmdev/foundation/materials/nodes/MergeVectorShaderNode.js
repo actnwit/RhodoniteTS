@@ -22,58 +22,58 @@ var MergeVectorShaderNode = class extends AbstractShaderNode {
       codeGLSL: MergeVectorShaderityObjectGLSL.code,
       codeWGSL: MergeVectorShaderityObjectWGSL.code
     });
-    this.Zs = componentType;
-    this.yr.push({
+    this._s = componentType;
+    this.zr.push({
       compositionType: CompositionType.Vec3,
       componentType,
       name: "xyz"
     });
-    this.yr.push({
+    this.zr.push({
       compositionType: CompositionType.Vec2,
       componentType,
       name: "xy"
     });
-    this.yr.push({
+    this.zr.push({
       compositionType: CompositionType.Vec2,
       componentType,
       name: "zw"
     });
-    this.yr.push({
+    this.zr.push({
       compositionType: CompositionType.Scalar,
       componentType,
       name: "x"
     });
-    this.yr.push({
+    this.zr.push({
       compositionType: CompositionType.Scalar,
       componentType,
       name: "y"
     });
-    this.yr.push({
+    this.zr.push({
       compositionType: CompositionType.Scalar,
       componentType,
       name: "z"
     });
-    this.yr.push({
+    this.zr.push({
       compositionType: CompositionType.Scalar,
       componentType,
       name: "w"
     });
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Vec4,
       componentType,
       name: "xyzw"
     });
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Vec3,
       componentType,
       name: "xyz"
     });
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Vec2,
       componentType,
       name: "xy"
     });
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Vec2,
       componentType,
       name: "zw"
@@ -101,26 +101,26 @@ var MergeVectorShaderNode = class extends AbstractShaderNode {
   getShaderFunctionNameDerivative(engine) {
     let typeSuffix = "";
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      if (this.Zs === ComponentType.Int) {
+      if (this._s === ComponentType.Int) {
         typeSuffix = "I32";
-      } else if (this.Zs === ComponentType.UnsignedInt) {
+      } else if (this._s === ComponentType.UnsignedInt) {
         typeSuffix = "U32";
       }
     }
     if (this.inputConnections[0] != null && this.inputConnections[6] != null) {
-      return `${this.Ar}XYZ_W${typeSuffix}`;
+      return `${this.Br}XYZ_W${typeSuffix}`;
     }
     if (this.inputConnections[1] != null && this.inputConnections[2] != null) {
-      return `${this.Ar}XY_ZW${typeSuffix}`;
+      return `${this.Br}XY_ZW${typeSuffix}`;
     }
     if (this.inputConnections[1] != null && this.inputConnections[5] != null && this.inputConnections[6] != null) {
-      return `${this.Ar}XY_Z_W${typeSuffix}`;
+      return `${this.Br}XY_Z_W${typeSuffix}`;
     }
     if (this.inputConnections[2] != null && this.inputConnections[3] != null && this.inputConnections[4] != null) {
-      return `${this.Ar}ZW_X_Y${typeSuffix}`;
+      return `${this.Br}ZW_X_Y${typeSuffix}`;
     }
     if (this.inputConnections[3] != null && this.inputConnections[4] != null && this.inputConnections[5] != null && this.inputConnections[6] != null) {
-      return `${this.Ar}X_Y_Z_W${typeSuffix}`;
+      return `${this.Br}X_Y_Z_W${typeSuffix}`;
     }
     throw new Error("Not implemented");
   }

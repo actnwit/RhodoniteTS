@@ -10,18 +10,18 @@ var _Time = class _Time {
    * since the last process began, and initializes the system start time if needed.
    */
   static _processBegin(engine) {
-    _Time.Hu = performance.now();
-    _Time.Nu = _Time.Hu - _Time.Mu;
+    _Time.Iu = performance.now();
+    _Time.Ou = _Time.Iu - _Time.Nu;
     if (engine != null) {
-      const lastProcessBeginTime = _Time.Ou.get(engine);
-      const interval = lastProcessBeginTime == null ? _Time.Lu : Math.max(_Time.Hu - lastProcessBeginTime, 0);
-      _Time.Ou.set(engine, _Time.Hu);
-      _Time.Pu.set(engine, interval);
+      const lastProcessBeginTime = _Time.Pu.get(engine);
+      const interval = lastProcessBeginTime == null ? _Time.Mu : Math.max(_Time.Iu - lastProcessBeginTime, 0);
+      _Time.Pu.set(engine, _Time.Iu);
+      _Time.Qu.set(engine, interval);
     }
-    if (_Time.Ku === 0) {
-      _Time.Ku = _Time.Hu;
+    if (_Time.Lu === 0) {
+      _Time.Lu = _Time.Iu;
     }
-    _Time.Mu = _Time.Hu;
+    _Time.Nu = _Time.Iu;
   }
   /**
    * Marks the end of a process cycle and calculates the processing duration.
@@ -33,8 +33,8 @@ var _Time = class _Time {
    * of the current processing cycle (tick time interval).
    */
   static _processEnd() {
-    _Time.Iu = performance.now();
-    _Time.Ju = _Time.Iu - _Time.Hu;
+    _Time.Ju = performance.now();
+    _Time.Ku = _Time.Ju - _Time.Iu;
   }
   /**
    * Gets the timestamp when the current process cycle began.
@@ -43,7 +43,7 @@ var _Time = class _Time {
    * @readonly
    */
   static get timeAtProcessBeginMilliseconds() {
-    return _Time.Hu;
+    return _Time.Iu;
   }
   /**
    * Gets the timestamp when the last process cycle ended.
@@ -52,7 +52,7 @@ var _Time = class _Time {
    * @readonly
    */
   static get timeAtProcessEndMilliseconds() {
-    return _Time.Iu;
+    return _Time.Ju;
   }
   /**
    * Gets the elapsed time since the system started.
@@ -64,7 +64,7 @@ var _Time = class _Time {
    * for animations, timing calculations, and performance measurements.
    */
   static get timeFromSystemStart() {
-    return (performance.now() - _Time.Ku) / 1e3;
+    return (performance.now() - _Time.Lu) / 1e3;
   }
   /**
    * Gets the duration of the last completed processing cycle.
@@ -76,7 +76,7 @@ var _Time = class _Time {
    * used for frame-rate independent animations and physics calculations.
    */
   static get lastTickTimeInterval() {
-    return _Time.Ju / 1e3;
+    return _Time.Ku / 1e3;
   }
   /**
    * Gets the time interval between the start of consecutive process cycles.
@@ -88,7 +88,7 @@ var _Time = class _Time {
    * cycles started, which can be useful for measuring frame rate consistency.
    */
   static get intervalProcessBegin() {
-    return _Time.Nu / 1e3;
+    return _Time.Ou / 1e3;
   }
   /**
    * Gets the interval between consecutive process starts for one Engine.
@@ -96,7 +96,7 @@ var _Time = class _Time {
    */
   static getIntervalProcessBegin(engine) {
     var _a;
-    return ((_a = _Time.Pu.get(engine)) != null ? _a : _Time.Lu) / 1e3;
+    return ((_a = _Time.Qu.get(engine)) != null ? _a : _Time.Mu) / 1e3;
   }
   /**
    * Gets the duration of the last completed processing cycle in milliseconds.
@@ -108,18 +108,18 @@ var _Time = class _Time {
    * Useful when higher precision timing is needed.
    */
   static get lastTimeTimeIntervalInMilliseconds() {
-    return _Time.Ju;
+    return _Time.Ku;
   }
 };
-_Time.Lu = 1e3 / 60;
-_Time.Hu = 0;
-_Time.Mu = 0;
+_Time.Mu = 1e3 / 60;
 _Time.Iu = 0;
+_Time.Nu = 0;
 _Time.Ju = 0;
 _Time.Ku = 0;
-_Time.Nu = 0;
-_Time.Ou = /* @__PURE__ */ new WeakMap();
+_Time.Lu = 0;
+_Time.Ou = 0;
 _Time.Pu = /* @__PURE__ */ new WeakMap();
+_Time.Qu = /* @__PURE__ */ new WeakMap();
 var Time = _Time;
 export {
   Time

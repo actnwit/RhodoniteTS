@@ -19,11 +19,11 @@ var SdSphereShaderNode = class extends AbstractShaderNode {
       codeWGSL: SdSphereShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.yr.push(
+    this.zr.push(
       new Socket("position", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 0))
     );
-    this.yr.push(new Socket("radius", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1)));
-    this.Br.push(
+    this.zr.push(new Socket("radius", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1)));
+    this.Cr.push(
       new Socket("outDistance", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
   }

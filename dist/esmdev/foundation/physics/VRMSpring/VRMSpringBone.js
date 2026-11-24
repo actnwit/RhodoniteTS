@@ -89,14 +89,14 @@ var _VRMSpringBone = class _VRMSpringBone extends RnObject {
   _calcWorldSpaceBoneLength() {
     const mat = this.node.getSceneGraph().matrixInner;
     const v3A = mat.getTranslateTo(_VRMSpringBone.Fg);
-    let v3B = _VRMSpringBone.Ew;
+    let v3B = _VRMSpringBone.Fw;
     const children = this.node.getSceneGraph().children;
     if (children.length > 0) {
       v3B = children[0].matrixInner.getTranslateTo(_VRMSpringBone.Gg);
     } else {
-      v3B = Vector3.multiplyMatrix4To(this.initialLocalChildPosition, mat, _VRMSpringBone.Et);
+      v3B = Vector3.multiplyMatrix4To(this.initialLocalChildPosition, mat, _VRMSpringBone.Ft);
     }
-    this.boneLength = Vector3.subtractTo(v3A, v3B, _VRMSpringBone.Ft).length();
+    this.boneLength = Vector3.subtractTo(v3A, v3B, _VRMSpringBone.Gt).length();
   }
 };
 /** Temporary vector for internal calculations */
@@ -104,11 +104,11 @@ _VRMSpringBone.Fg = MutableVector3.zero();
 /** Temporary vector for internal calculations */
 _VRMSpringBone.Gg = MutableVector3.zero();
 /** Temporary zero vector for internal calculations */
-_VRMSpringBone.Ew = Vector3.zero();
-/** Temporary vector for internal calculations */
-_VRMSpringBone.Et = MutableVector3.zero();
+_VRMSpringBone.Fw = Vector3.zero();
 /** Temporary vector for internal calculations */
 _VRMSpringBone.Ft = MutableVector3.zero();
+/** Temporary vector for internal calculations */
+_VRMSpringBone.Gt = MutableVector3.zero();
 var VRMSpringBone = _VRMSpringBone;
 export {
   VRMSpringBone

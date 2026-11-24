@@ -18,16 +18,16 @@ var Random_HashPRNGShaderNode = class extends AbstractShaderNode {
       codeGLSL: Random_HashPRNGShaderityObjectGLSL.code,
       codeWGSL: Random_HashPRNGShaderityObjectWGSL.code
     });
-    this.yr.push(new Socket("seed", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 0)));
-    this.Br.push(new Socket("outXYZW", CompositionType.Vec4, ComponentType.Float));
-    this.Br.push(new Socket("outXYZ1", CompositionType.Vec4, ComponentType.Float));
-    this.Br.push(new Socket("outXYZ", CompositionType.Vec3, ComponentType.Float));
-    this.Br.push(new Socket("outXY", CompositionType.Vec2, ComponentType.Float));
-    this.Br.push(new Socket("outZW", CompositionType.Vec2, ComponentType.Float));
-    this.Br.push(new Socket("outX", CompositionType.Scalar, ComponentType.Float));
-    this.Br.push(new Socket("outY", CompositionType.Scalar, ComponentType.Float));
-    this.Br.push(new Socket("outZ", CompositionType.Scalar, ComponentType.Float));
-    this.Br.push(new Socket("outW", CompositionType.Scalar, ComponentType.Float));
+    this.zr.push(new Socket("seed", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 0)));
+    this.Cr.push(new Socket("outXYZW", CompositionType.Vec4, ComponentType.Float));
+    this.Cr.push(new Socket("outXYZ1", CompositionType.Vec4, ComponentType.Float));
+    this.Cr.push(new Socket("outXYZ", CompositionType.Vec3, ComponentType.Float));
+    this.Cr.push(new Socket("outXY", CompositionType.Vec2, ComponentType.Float));
+    this.Cr.push(new Socket("outZW", CompositionType.Vec2, ComponentType.Float));
+    this.Cr.push(new Socket("outX", CompositionType.Scalar, ComponentType.Float));
+    this.Cr.push(new Socket("outY", CompositionType.Scalar, ComponentType.Float));
+    this.Cr.push(new Socket("outZ", CompositionType.Scalar, ComponentType.Float));
+    this.Cr.push(new Socket("outW", CompositionType.Scalar, ComponentType.Float));
   }
   /**
    * Determines the minimum number of random_f32() calls needed based on connected outputs.
@@ -45,7 +45,7 @@ var Random_HashPRNGShaderNode = class extends AbstractShaderNode {
    * @param varOutputNames - Array of output variable names (dummy* prefix indicates unconnected)
    * @returns The minimum number of random_f32() calls needed (1-4)
    */
-  _s(varOutputNames) {
+  $s(varOutputNames) {
     const requiredCallsMap = [
       4,
       // 0: outXYZW
@@ -92,7 +92,7 @@ var Random_HashPRNGShaderNode = class extends AbstractShaderNode {
   makeCallStatement(engine, i, _shaderNode, _functionName, varInputNames, varOutputNames) {
     let str = "";
     if (varInputNames[i].length > 0 && varOutputNames[i].length > 0) {
-      const requiredCalls = this._s(varOutputNames[i]);
+      const requiredCalls = this.$s(varOutputNames[i]);
       const optimizedFunctionName = `random_HashPRNG${requiredCalls}`;
       const outputArguments = [...varOutputNames[i]];
       if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {

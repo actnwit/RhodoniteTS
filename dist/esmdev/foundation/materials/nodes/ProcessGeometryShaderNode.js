@@ -14,94 +14,94 @@ var ProcessGeometryShaderNode = class extends AbstractShaderNode {
       codeGLSL: "/* shaderity: @{processGeometry} */",
       codeWGSL: "/* shaderity: @{processGeometry} */"
     });
-    this.yr.push(new Socket("worldMatrix", CompositionType.Mat4, ComponentType.Float));
-    this.yr.push(new Socket("normalMatrix", CompositionType.Mat3, ComponentType.Float));
-    this.yr.push(new Socket("viewMatrix", CompositionType.Mat4, ComponentType.Float));
-    this.yr.push(new Socket("position", CompositionType.Vec4, ComponentType.Float));
-    this.yr.push(new Socket("normal", CompositionType.Vec3, ComponentType.Float));
-    this.yr.push(new Socket("joint", CompositionType.Vec4, ComponentType.UnsignedInt));
-    this.yr.push(new Socket("weight", CompositionType.Vec4, ComponentType.Float));
-    this.yr.push(new Socket("isBillboard", CompositionType.Scalar, ComponentType.Bool, Scalar.fromCopyNumber(0)));
-    this.Br.push(new Socket("outNormalMatrix", CompositionType.Mat3, ComponentType.Float));
-    this.Br.push(new Socket("outPositionInWorld", CompositionType.Vec4, ComponentType.Float));
-    this.Br.push(new Socket("outNormalInWorld", CompositionType.Vec3, ComponentType.Float));
+    this.zr.push(new Socket("worldMatrix", CompositionType.Mat4, ComponentType.Float));
+    this.zr.push(new Socket("normalMatrix", CompositionType.Mat3, ComponentType.Float));
+    this.zr.push(new Socket("viewMatrix", CompositionType.Mat4, ComponentType.Float));
+    this.zr.push(new Socket("position", CompositionType.Vec4, ComponentType.Float));
+    this.zr.push(new Socket("normal", CompositionType.Vec3, ComponentType.Float));
+    this.zr.push(new Socket("joint", CompositionType.Vec4, ComponentType.UnsignedInt));
+    this.zr.push(new Socket("weight", CompositionType.Vec4, ComponentType.Float));
+    this.zr.push(new Socket("isBillboard", CompositionType.Scalar, ComponentType.Bool, Scalar.fromCopyNumber(0)));
+    this.Cr.push(new Socket("outNormalMatrix", CompositionType.Mat3, ComponentType.Float));
+    this.Cr.push(new Socket("outPositionInWorld", CompositionType.Vec4, ComponentType.Float));
+    this.Cr.push(new Socket("outNormalInWorld", CompositionType.Vec3, ComponentType.Float));
   }
   /**
    * Gets the input socket for the world transformation matrix.
    * @returns The world matrix input socket
    */
   getSocketInputWorldMatrix() {
-    return this.yr[0];
+    return this.zr[0];
   }
   /**
    * Gets the input socket for the normal transformation matrix.
    * @returns The normal matrix input socket
    */
   getSocketInputNormalMatrix() {
-    return this.yr[1];
+    return this.zr[1];
   }
   /**
    * Gets the input socket for the view transformation matrix.
    * @returns The view matrix input socket
    */
   getSocketInputViewMatrix() {
-    return this.yr[2];
+    return this.zr[2];
   }
   /**
    * Gets the input socket for vertex position data.
    * @returns The position input socket
    */
   getSocketInputPosition() {
-    return this.yr[3];
+    return this.zr[3];
   }
   /**
    * Gets the input socket for vertex normal data.
    * @returns The normal input socket
    */
   getSocketInputNormal() {
-    return this.yr[4];
+    return this.zr[4];
   }
   /**
    * Gets the input socket for skeletal animation joint indices.
    * @returns The joint input socket
    */
   getSocketInputJoint() {
-    return this.yr[5];
+    return this.zr[5];
   }
   /**
    * Gets the input socket for skeletal animation joint weights.
    * @returns The weight input socket
    */
   getSocketInputWeight() {
-    return this.yr[6];
+    return this.zr[6];
   }
   /**
    * Gets the input socket for billboard rendering flag.
    * @returns The billboard flag input socket
    */
   getSocketInputIsBillboard() {
-    return this.yr[7];
+    return this.zr[7];
   }
   /**
    * Gets the output socket for the processed normal matrix.
    * @returns The normal matrix output socket
    */
   getSocketOutputNormalMatrix() {
-    return this.Br[0];
+    return this.Cr[0];
   }
   /**
    * Gets the output socket for the transformed position in world space.
    * @returns The world position output socket
    */
   getSocketOutputPositionInWorld() {
-    return this.Br[1];
+    return this.Cr[1];
   }
   /**
    * Gets the output socket for the transformed normal in world space.
    * @returns The world normal output socket
    */
   getSocketOutputNormalInWorld() {
-    return this.Br[2];
+    return this.Cr[2];
   }
 };
 export {

@@ -19,16 +19,16 @@ var PbrAnisotropyPropsShaderNode = class extends AbstractShaderNode {
       codeGLSL: PbrAnisotropyPropsShaderityObjectGLSL.code,
       codeWGSL: PbrAnisotropyPropsShaderityObjectWGSL.code
     });
-    this.yr.push(
+    this.zr.push(
       new Socket("anisotropyStrength", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("anisotropyRotation", CompositionType.Vec2, ComponentType.Float, Vector2.fromCopy2(1, 0))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("anisotropyTexture", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.Br.push(new Socket("outAnisotropyProps", CompositionType.AnisotropyProps, ComponentType.Unknown));
+    this.Cr.push(new Socket("outAnisotropyProps", CompositionType.AnisotropyProps, ComponentType.Unknown));
   }
   /**
    * Gets the output socket that contains the result of the anisotropy properties operation.
@@ -36,7 +36,7 @@ var PbrAnisotropyPropsShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the anisotropy properties result
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
 };
 export {

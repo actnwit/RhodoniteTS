@@ -23,9 +23,9 @@ var OrShaderNode = class extends AbstractShaderNode {
       codeGLSL: OrShaderityObjectGLSL.code,
       codeWGSL: OrShaderityObjectWGSL.code
     });
-    this.yr.push(new Socket("lhs", CompositionType.Scalar, ComponentType.Bool));
-    this.yr.push(new Socket("rhs", CompositionType.Scalar, ComponentType.Bool));
-    this.Br.push(new Socket("outValue", CompositionType.Scalar, ComponentType.Bool));
+    this.zr.push(new Socket("lhs", CompositionType.Scalar, ComponentType.Bool));
+    this.zr.push(new Socket("rhs", CompositionType.Scalar, ComponentType.Bool));
+    this.Cr.push(new Socket("outValue", CompositionType.Scalar, ComponentType.Bool));
   }
   /**
    * Gets the input socket for the left-hand side boolean value.
@@ -33,7 +33,7 @@ var OrShaderNode = class extends AbstractShaderNode {
    * @returns The input socket for the left operand
    */
   getSocketInputLhs() {
-    return this.yr[0];
+    return this.zr[0];
   }
   /**
    * Gets the input socket for the right-hand side boolean value.
@@ -41,7 +41,7 @@ var OrShaderNode = class extends AbstractShaderNode {
    * @returns The input socket for the right operand
    */
   getSocketInputRhs() {
-    return this.yr[1];
+    return this.zr[1];
   }
   /**
    * Gets the output socket that provides the OR result.
@@ -49,7 +49,7 @@ var OrShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the boolean OR result
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
 };
 export {

@@ -10,15 +10,15 @@ var WebGpuBufferArena = class {
    * @param chunkSize - The size of a chunk in bytes. Larger data gets a dedicated chunk.
    */
   constructor(device, usage, chunkSize = DEFAULT_CHUNK_SIZE) {
-    this.OF = [];
-    this.Xx = new Uint8Array(0);
-    this.PF = device;
-    this.QF = usage | GPUBufferUsage.COPY_DST;
-    this.RF = Math.min(chunkSize, device.limits.maxBufferSize);
+    this.PF = [];
+    this.Yx = new Uint8Array(0);
+    this.QF = device;
+    this.RF = usage | GPUBufferUsage.COPY_DST;
+    this.SF = Math.min(chunkSize, device.limits.maxBufferSize);
   }
   /** The number of GPU buffers owned by the arena. */
   get chunkCount() {
-    return this.OF.length;
+    return this.PF.length;
   }
   /**
    * Allocates a range and uploads the data into it.
@@ -30,20 +30,20 @@ var WebGpuBufferArena = class {
     const allocatedSize = Math.max(Math.ceil(size / WRITE_ALIGNMENT) * WRITE_ALIGNMENT, WRITE_ALIGNMENT);
     let chunk;
     let offset = -1;
-    for (let i = 0; i < this.OF.length; i++) {
-      offset = this.OF[i].allocator.allocate(allocatedSize, RANGE_ALIGNMENT);
+    for (let i = 0; i < this.PF.length; i++) {
+      offset = this.PF[i].allocator.allocate(allocatedSize, RANGE_ALIGNMENT);
       if (offset >= 0) {
-        chunk = this.OF[i];
+        chunk = this.PF[i];
         break;
       }
     }
     if (chunk == null) {
-      const capacity = Math.max(this.RF, Math.ceil(allocatedSize / RANGE_ALIGNMENT) * RANGE_ALIGNMENT);
+      const capacity = Math.max(this.SF, Math.ceil(allocatedSize / RANGE_ALIGNMENT) * RANGE_ALIGNMENT);
       chunk = {
-        buffer: this.PF.createBuffer({ size: capacity, usage: this.QF }),
+        buffer: this.QF.createBuffer({ size: capacity, usage: this.RF }),
         allocator: new RangeAllocator(capacity)
       };
-      this.OF.push(chunk);
+      this.PF.push(chunk);
       offset = chunk.allocator.allocate(allocatedSize, RANGE_ALIGNMENT);
     }
     const range = { buffer: chunk.buffer, offset, size, allocatedSize, chunk };
@@ -63,14 +63,14 @@ var WebGpuBufferArena = class {
     const writeSize = Math.ceil(size / WRITE_ALIGNMENT) * WRITE_ALIGNMENT;
     let source = data;
     if (writeSize !== size || !(data.buffer instanceof ArrayBuffer)) {
-      if (this.Xx.byteLength < writeSize) {
-        this.Xx = new Uint8Array(writeSize);
+      if (this.Yx.byteLength < writeSize) {
+        this.Yx = new Uint8Array(writeSize);
       }
-      source = this.Xx.subarray(0, writeSize);
+      source = this.Yx.subarray(0, writeSize);
       source.set(data.subarray(0, size));
       source.fill(0, size);
     }
-    this.PF.queue.writeBuffer(range.buffer, range.offset, source, 0, writeSize);
+    this.QF.queue.writeBuffer(range.buffer, range.offset, source, 0, writeSize);
   }
   /**
    * Releases a range. A chunk without any range left is destroyed, except the last one, which is kept
@@ -82,20 +82,20 @@ var WebGpuBufferArena = class {
   release(range) {
     const chunk = range.chunk;
     chunk.allocator.release(range.offset, range.allocatedSize);
-    if (chunk.allocator.isEmpty && this.OF.length > 1) {
-      const index = this.OF.indexOf(chunk);
+    if (chunk.allocator.isEmpty && this.PF.length > 1) {
+      const index = this.PF.indexOf(chunk);
       if (index >= 0) {
-        this.OF.splice(index, 1);
+        this.PF.splice(index, 1);
       }
       chunk.buffer.destroy();
     }
   }
   /** Destroys all the chunks. */
   destroy() {
-    for (const chunk of this.OF) {
+    for (const chunk of this.PF) {
       chunk.buffer.destroy();
     }
-    this.OF.length = 0;
+    this.PF.length = 0;
   }
 };
 export {

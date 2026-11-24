@@ -18,13 +18,13 @@ var PbrTransmissionPropsShaderNode = class extends AbstractShaderNode {
       codeGLSL: PbrTransmissionPropsShaderityObjectGLSL.code,
       codeWGSL: PbrTransmissionPropsShaderityObjectWGSL.code
     });
-    this.yr.push(
+    this.zr.push(
       new Socket("transmissionFactor", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("transmissionTexture", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.Br.push(new Socket("outTransmission", CompositionType.Scalar, ComponentType.Float));
+    this.Cr.push(new Socket("outTransmission", CompositionType.Scalar, ComponentType.Float));
   }
   /**
    * Gets the output socket that contains the result of the transmission properties operation.
@@ -32,7 +32,7 @@ var PbrTransmissionPropsShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the transmission properties result
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
 };
 export {

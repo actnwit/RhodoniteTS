@@ -10,9 +10,9 @@ var BlockEndShader = class extends StandardShaderPart {
    */
   constructor(__functionName, __valueInputs, __valueOutputs) {
     super();
-    this.aF = __functionName;
-    this.Vs = __valueInputs;
-    this.Ws = __valueOutputs;
+    this.bF = __functionName;
+    this.Ws = __valueInputs;
+    this.Xs = __valueOutputs;
   }
   /**
    * Generates the vertex shader function definition.
@@ -21,21 +21,21 @@ var BlockEndShader = class extends StandardShaderPart {
    * @returns The GLSL function definition string for vertex shaders
    */
   getVertexShaderDefinitions(_engine) {
-    let funcStr = `void ${this.aF}(`;
-    for (let i = 0; i < this.Vs.length; i++) {
-      const input = this.Vs[i];
+    let funcStr = `void ${this.bF}(`;
+    for (let i = 0; i < this.Ws.length; i++) {
+      const input = this.Ws[i];
       const type = input.compositionType.getGlslStr(input.componentType);
       funcStr += `
         in ${type} value${i},`;
     }
-    for (let i = 0; i < this.Ws.length; i++) {
-      const output = this.Ws[i];
+    for (let i = 0; i < this.Xs.length; i++) {
+      const output = this.Xs[i];
       const type = output.compositionType.getGlslStr(output.componentType);
       funcStr += `
-        out ${type} outValue${i}${i === this.Ws.length - 1 ? "" : ","}`;
+        out ${type} outValue${i}${i === this.Xs.length - 1 ? "" : ","}`;
     }
     funcStr += ") {\n";
-    for (let i = 0; i < this.Ws.length; i++) {
+    for (let i = 0; i < this.Xs.length; i++) {
       funcStr += `
       outValue${i} = value${i};
 `;

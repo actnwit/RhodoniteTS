@@ -5,8 +5,8 @@ var _Frame = class _Frame extends RnObject {
   constructor() {
     super(...arguments);
     this.gi = [];
-    this.mx = [];
     this.nx = [];
+    this.ox = [];
   }
   /**
    * Adds a rendering expression to this frame with optional input dependencies and output configurations.
@@ -58,7 +58,7 @@ var _Frame = class _Frame extends RnObject {
       expression,
       inputRenderPasses: Is.exist(inputRenderPasses) ? inputRenderPasses : []
     });
-    this.mx.push(expression);
+    this.nx.push(expression);
   }
   /**
    * Retrieves a color attachment render target texture from an input render pass of the specified expression.
@@ -99,7 +99,7 @@ var _Frame = class _Frame extends RnObject {
           return renderTargetTexture;
         }
         const generator = generatorFunc();
-        this.nx.push([
+        this.ox.push([
           inputFrom,
           renderPassArg.renderPass,
           renderPassArg.colorAttachmentIndex,
@@ -134,7 +134,7 @@ var _Frame = class _Frame extends RnObject {
    * ```
    */
   resolve() {
-    for (const [exp, renderPassArg, colorAttachmentIndex, generator, frameBufferType] of this.nx) {
+    for (const [exp, renderPassArg, colorAttachmentIndex, generator, frameBufferType] of this.ox) {
       for (const expData of this.gi) {
         if (exp === expData.expression) {
           let renderPassObj = renderPassArg.instance;
@@ -179,7 +179,7 @@ var _Frame = class _Frame extends RnObject {
    */
   clearExpressions() {
     this.gi.length = 0;
-    this.mx.length = 0;
+    this.nx.length = 0;
   }
   /**
    * Gets a read-only array of all expressions currently registered in this frame.
@@ -193,7 +193,7 @@ var _Frame = class _Frame extends RnObject {
    * ```
    */
   get expressions() {
-    return this.mx;
+    return this.nx;
   }
   /**
    * Sets the viewport for all expressions in this frame.

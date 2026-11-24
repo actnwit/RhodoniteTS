@@ -16,9 +16,9 @@ var ConstantVariableShaderNode = class extends AbstractShaderNode {
    */
   constructor(nodeName, compositionType, componentType) {
     super(nodeName, {});
-    this.Ar += `_${this.Er}`;
-    this.zr = new ConstantVariableShader(this.Ar, compositionType, componentType);
-    this.Br.push(new Socket("outValue", compositionType, componentType));
+    this.Br += `_${this.Fr}`;
+    this.Ar = new ConstantVariableShader(this.Br, compositionType, componentType);
+    this.Cr.push(new Socket("outValue", compositionType, componentType));
   }
   /**
    * Sets the default input value for this constant variable node.
@@ -41,7 +41,7 @@ var ConstantVariableShaderNode = class extends AbstractShaderNode {
    * ```
    */
   setDefaultInputValue(value) {
-    this.zr.setConstantValue(value);
+    this.Ar.setConstantValue(value);
   }
   /**
    * Retrieves the output socket of this constant variable node.
@@ -54,7 +54,7 @@ var ConstantVariableShaderNode = class extends AbstractShaderNode {
    * and component types specified during construction.
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
 };
 export {

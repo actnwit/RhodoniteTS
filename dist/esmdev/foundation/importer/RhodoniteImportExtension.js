@@ -55,9 +55,9 @@ var RhodoniteImportExtension = class {
     if (usesNodeBasedMaterial !== true) {
       return;
     }
-    await this.Nq();
+    await this.Oq();
   }
-  static async Nq() {
+  static async Oq() {
     if (createNodeBasedCustomMaterialImpl != null) {
       return;
     }
@@ -106,7 +106,7 @@ var RhodoniteImportExtension = class {
     }
     const newMaterial = result.material;
     if (extension.uniforms) {
-      this.Oq(newMaterial, extension.uniforms, gltfModel, rnTextures, rnSamplers);
+      this.Pq(newMaterial, extension.uniforms, gltfModel, rnTextures, rnSamplers);
     }
     return newMaterial;
   }
@@ -129,7 +129,7 @@ var RhodoniteImportExtension = class {
    * @param value - The value to check
    * @returns True if the value is a texture uniform reference
    */
-  static Pq(value) {
+  static Qq(value) {
     return typeof value === "object" && value !== null && "index" in value && typeof value.index === "number";
   }
   /**
@@ -141,11 +141,11 @@ var RhodoniteImportExtension = class {
    * @param rnTextures - Array of loaded Rhodonite textures
    * @param rnSamplers - Array of loaded Rhodonite samplers
    */
-  static Oq(material, uniforms, gltfModel, rnTextures, rnSamplers) {
+  static Pq(material, uniforms, gltfModel, rnTextures, rnSamplers) {
     var _a;
     for (const [name, value] of Object.entries(uniforms)) {
       try {
-        if (this.Pq(value)) {
+        if (this.Qq(value)) {
           const textureIndex = value.index;
           const gltfTexture = (_a = gltfModel.textures) == null ? void 0 : _a[textureIndex];
           if (gltfTexture != null) {

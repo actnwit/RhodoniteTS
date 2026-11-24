@@ -14,11 +14,11 @@ var _RenderPass = class _RenderPass extends RnObject {
   constructor(engine) {
     super();
     this.Si = [];
-    this.Ex = [];
-    this.vx = [];
-    this.xx = [];
+    this.Fx = [];
+    this.wx = [];
     this.yx = [];
-    this.Ax = /* @__PURE__ */ new Map();
+    this.zx = [];
+    this.Bx = /* @__PURE__ */ new Map();
     // Public RenderPass Settings
     /** Whether to clear the color buffer before rendering */
     this.toClearColorBuffer = false;
@@ -92,7 +92,7 @@ var _RenderPass = class _RenderPass extends RnObject {
     this.toRenderEffekseerEffects = false;
     this.c = engine;
     this._dummyPrimitiveForBufferLessRendering = new Primitive(engine);
-    this.Hx = ++_RenderPass.il;
+    this.Ix = ++_RenderPass.il;
   }
   /**
    * Sets whether to render opaque primitives in this render pass.
@@ -100,7 +100,7 @@ var _RenderPass = class _RenderPass extends RnObject {
    */
   setToRenderOpaquePrimitives(toRender) {
     this._toRenderOpaquePrimitives = toRender;
-    this.Dx();
+    this.Ex();
   }
   /**
    * Sets whether to render blend without Z-write primitives in this render pass.
@@ -108,7 +108,7 @@ var _RenderPass = class _RenderPass extends RnObject {
    */
   setToRenderBlendWithoutZWritePrimitives(toRender) {
     this._toRenderBlendWithoutZWritePrimitives = toRender;
-    this.Dx();
+    this.Ex();
   }
   /**
    * Sets whether to render blend with Z-write primitives in this render pass.
@@ -116,7 +116,7 @@ var _RenderPass = class _RenderPass extends RnObject {
    */
   setToRenderBlendWithZWritePrimitives(toRender) {
     this._toRenderBlendWithZWritePrimitives = toRender;
-    this.Dx();
+    this.Ex();
   }
   /**
    * Sets whether to render translucent primitives in this render pass.
@@ -124,7 +124,7 @@ var _RenderPass = class _RenderPass extends RnObject {
    */
   setToRenderTranslucentPrimitives(toRender) {
     this._toRenderTranslucentPrimitives = toRender;
-    this.Dx();
+    this.Ex();
   }
   /**
    * Checks if this render pass is in buffer-less rendering mode.
@@ -173,14 +173,14 @@ var _RenderPass = class _RenderPass extends RnObject {
     const renderPass = new _RenderPass(this.c);
     renderPass.tryToSetUniqueName(`${this.uniqueName}_cloned`, true);
     renderPass.Si = this.Si.concat();
-    renderPass.Ex = this.Ex.concat();
-    renderPass.vx = this.vx.concat();
-    renderPass.xx = this.xx.concat();
+    renderPass.Fx = this.Fx.concat();
+    renderPass.wx = this.wx.concat();
     renderPass.yx = this.yx.concat();
-    renderPass.wx = this.wx;
-    renderPass.tx = this.tx;
+    renderPass.zx = this.zx.concat();
+    renderPass.xx = this.xx;
     renderPass.ux = this.ux;
-    renderPass.zx = (_a = this.zx) == null ? void 0 : _a.clone();
+    renderPass.vx = this.vx;
+    renderPass.Ax = (_a = this.Ax) == null ? void 0 : _a.clone();
     renderPass.toClearColorBuffer = this.toClearColorBuffer;
     renderPass.toClearDepthBuffer = this.toClearDepthBuffer;
     renderPass.toClearStencilBuffer = this.toClearStencilBuffer;
@@ -190,15 +190,15 @@ var _RenderPass = class _RenderPass extends RnObject {
     renderPass.clearStencil = this.clearStencil;
     renderPass.cameraComponent = this.cameraComponent;
     renderPass.Hl = this.Hl;
-    renderPass.Ax = new Map(this.Ax);
+    renderPass.Bx = new Map(this.Bx);
     renderPass.isVrRendering = this.isVrRendering;
     renderPass.isOutputForVr = this.isOutputForVr;
     renderPass._toRenderOpaquePrimitives = this._toRenderOpaquePrimitives;
     renderPass._toRenderTranslucentPrimitives = this._toRenderTranslucentPrimitives;
     renderPass._toRenderBlendWithoutZWritePrimitives = this._toRenderBlendWithoutZWritePrimitives;
-    renderPass.Bx = this.Bx;
     renderPass.Cx = this.Cx;
-    renderPass.Fx = (_b = this.Fx) == null ? void 0 : _b.concat();
+    renderPass.Dx = this.Dx;
+    renderPass.Gx = (_b = this.Gx) == null ? void 0 : _b.concat();
     renderPass._lastOpaqueIndex = this._lastOpaqueIndex;
     renderPass._lastTranslucentIndex = this._lastTranslucentIndex;
     renderPass._lastBlendWithZWriteIndex = this._lastBlendWithZWriteIndex;
@@ -218,7 +218,7 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @param func - The function to call before rendering
    */
   setPreRenderFunction(func) {
-    this.Bx = func;
+    this.Cx = func;
   }
   /**
    * Sets a function to be called after each render operation.
@@ -227,7 +227,7 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @param func - The function to call after rendering
    */
   setPostRenderFunction(func) {
-    this.Cx = func;
+    this.Dx = func;
   }
   /**
    * Executes the pre-render function if one has been set.
@@ -236,8 +236,8 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @internal
    */
   doPreRender() {
-    if (this.Bx != null) {
-      this.Bx();
+    if (this.Cx != null) {
+      this.Cx();
     }
   }
   /**
@@ -247,8 +247,8 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @internal
    */
   doPostRender() {
-    if (this.Cx != null) {
-      this.Cx();
+    if (this.Dx != null) {
+      this.Dx();
     }
   }
   /**
@@ -264,7 +264,7 @@ var _RenderPass = class _RenderPass extends RnObject {
         continue;
       }
       const sceneGraphComponent = entity.getSceneGraph();
-      this.Ex.push(sceneGraphComponent);
+      this.Fx.push(sceneGraphComponent);
       const collectedSgComponents = flattenHierarchy(sceneGraphComponent, false);
       const collectedEntities = collectedSgComponents.map((sg) => sg.entity).filter((e) => e != null);
       const map = this.Si.concat(collectedEntities).reduce((map2, entity2) => {
@@ -273,9 +273,9 @@ var _RenderPass = class _RenderPass extends RnObject {
       }, /* @__PURE__ */ new Map());
       this.Si = Array.from(map.values());
     }
-    this.Dx();
-    this.vx = [];
-    this.Kx();
+    this.Ex();
+    this.wx = [];
+    this.Lx();
   }
   /**
    * Recalculates and updates the mesh components collections.
@@ -283,10 +283,10 @@ var _RenderPass = class _RenderPass extends RnObject {
    *
    * @private
    */
-  Dx() {
-    this.xx = [];
+  Ex() {
     this.yx = [];
-    this.Lx();
+    this.zx = [];
+    this.Mx();
   }
   /**
    * Gets the list of all entities in this render pass.
@@ -300,9 +300,9 @@ var _RenderPass = class _RenderPass extends RnObject {
    * This effectively empties the render pass of all renderable content.
    */
   clearEntities() {
-    this.xx = [];
     this.yx = [];
-    this.vx = [];
+    this.zx = [];
+    this.wx = [];
     this.Si = [];
   }
   /**
@@ -311,18 +311,18 @@ var _RenderPass = class _RenderPass extends RnObject {
    *
    * @private
    */
-  Kx() {
+  Lx() {
     const goToTopLevel = (sg) => {
       if (sg.parent) {
         goToTopLevel(sg.parent);
       }
       return sg;
     };
-    this.vx = this.Ex.map((sg) => {
+    this.wx = this.Fx.map((sg) => {
       return goToTopLevel(sg);
     });
-    const set = new Set(this.vx);
-    this.vx = Array.from(set);
+    const set = new Set(this.wx);
+    this.wx = Array.from(set);
   }
   /**
    * Collects mesh components from entities and creates optimized collections.
@@ -330,13 +330,13 @@ var _RenderPass = class _RenderPass extends RnObject {
    *
    * @private
    */
-  Lx() {
-    this.xx = [];
+  Mx() {
     this.yx = [];
+    this.zx = [];
     for (const entity of this.Si) {
       const meshComponent = entity.getComponentByComponentTID(WellKnownComponentTIDs.MeshComponentTID);
       if (meshComponent != null && meshComponent.mesh != null) {
-        this.xx.push(meshComponent);
+        this.yx.push(meshComponent);
         if (!this._toRenderOpaquePrimitives && meshComponent.mesh.isExistOpaque()) {
           continue;
         }
@@ -349,7 +349,7 @@ var _RenderPass = class _RenderPass extends RnObject {
         if (!this._toRenderBlendWithoutZWritePrimitives && meshComponent.mesh.isExistBlendWithoutZWrite()) {
           continue;
         }
-        this.yx.push(meshComponent);
+        this.zx.push(meshComponent);
       }
     }
   }
@@ -360,7 +360,7 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @returns An array of all mesh components
    */
   get meshComponents() {
-    return this.xx;
+    return this.yx;
   }
   /**
    * Gets the optimized mesh components collection for rendering.
@@ -370,7 +370,7 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @internal
    */
   get _optimizedMeshComponents() {
-    return this.yx;
+    return this.zx;
   }
   /**
    * Gets all top-level scene graph components in this render pass.
@@ -379,7 +379,7 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @returns An array of top-level scene graph components
    */
   get sceneTopLevelGraphComponents() {
-    return this.vx;
+    return this.wx;
   }
   /**
    * Sets the target framebuffer for this render pass.
@@ -389,11 +389,11 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @param framebuffer - The framebuffer to render to, or undefined to render to the default framebuffer
    */
   setFramebuffer(framebuffer) {
-    this.wx = framebuffer;
+    this.xx = framebuffer;
     if (framebuffer != null) {
       this.setViewport(Vector4.fromCopyArray([0, 0, framebuffer.width, framebuffer.height]));
     } else {
-      this.zx = void 0;
+      this.Ax = void 0;
     }
   }
   /**
@@ -403,28 +403,28 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @param indeces - Array of render buffer target enums, or undefined to use default targets
    */
   setRenderTargetColorAttachments(indeces) {
-    this.Fx = indeces;
+    this.Gx = indeces;
   }
   /**
    * Gets the current render target color attachments.
    * @returns Array of render buffer target enums, or undefined if using defaults
    */
   getRenderTargetColorAttachments() {
-    return this.Fx;
+    return this.Gx;
   }
   /**
    * Gets the current framebuffer assigned to this render pass.
    * @returns The framebuffer, or undefined if rendering to the default framebuffer
    */
   getFramebuffer() {
-    return this.wx;
+    return this.xx;
   }
   /**
    * Removes the current framebuffer assignment.
    * After calling this, the render pass will render to the default framebuffer.
    */
   removeFramebuffer() {
-    this.wx = void 0;
+    this.xx = void 0;
   }
   /**
    * Sets the viewport for this render pass.
@@ -433,10 +433,10 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @param vec - A Vector4 containing (x, y, width, height) of the viewport
    */
   setViewport(vec) {
-    if (this.zx != null) {
-      this.zx.copyComponents(vec);
+    if (this.Ax != null) {
+      this.Ax.copyComponents(vec);
     } else {
-      this.zx = MutableVector4.fromCopyArray([vec.x, vec.y, vec.z, vec.w]);
+      this.Ax = MutableVector4.fromCopyArray([vec.x, vec.y, vec.z, vec.w]);
     }
   }
   /**
@@ -444,9 +444,9 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @returns A Vector4 containing (x, y, width, height) of the viewport, or undefined if not set
    */
   getViewport() {
-    let viewport = this.zx;
+    let viewport = this.Ax;
     if (viewport != null) {
-      viewport = _RenderPass.Jx.copyComponents(viewport);
+      viewport = _RenderPass.Kx.copyComponents(viewport);
     }
     return viewport;
   }
@@ -461,10 +461,10 @@ var _RenderPass = class _RenderPass extends RnObject {
    */
   setScissorRect(rect) {
     if (rect == null) {
-      this.Gx = void 0;
+      this.Hx = void 0;
       return;
     }
-    this.Gx = {
+    this.Hx = {
       x: Math.floor(rect.x),
       y: Math.floor(rect.y),
       width: Math.max(0, Math.floor(rect.width)),
@@ -476,7 +476,7 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @returns The scissor rectangle, or undefined when the whole target is rendered
    */
   getScissorRect() {
-    return this.Gx;
+    return this.Hx;
   }
   /**
    * Sets the resolve framebuffer for multisampling.
@@ -485,14 +485,14 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @param framebuffer - The resolve framebuffer, or undefined to disable resolving
    */
   setResolveFramebuffer(framebuffer) {
-    this.tx = framebuffer;
+    this.ux = framebuffer;
   }
   /**
    * Gets the current resolve framebuffer.
    * @returns The resolve framebuffer, or undefined if not set
    */
   getResolveFramebuffer() {
-    return this.tx;
+    return this.ux;
   }
   /**
    * Sets the secondary resolve framebuffer.
@@ -501,14 +501,14 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @param framebuffer - The secondary resolve framebuffer, or undefined to disable
    */
   setResolveFramebuffer2(framebuffer) {
-    this.ux = framebuffer;
+    this.vx = framebuffer;
   }
   /**
    * Gets the current secondary resolve framebuffer.
    * @returns The secondary resolve framebuffer, or undefined if not set
    */
   getResolveFramebuffer2() {
-    return this.ux;
+    return this.vx;
   }
   /**
    * Copies the main framebuffer content to both resolve framebuffers using WebGL.
@@ -517,8 +517,8 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @internal
    */
   _copyFramebufferToResolveFramebuffersWebGL() {
-    this.Ix(this.tx);
-    this.Ix(this.ux);
+    this.Jx(this.ux);
+    this.Jx(this.vx);
   }
   /**
    * Internal helper method for copying framebuffer content to a resolve framebuffer.
@@ -526,12 +526,12 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @param resolveFrameBuffer - The target resolve framebuffer
    * @private
    */
-  Ix(resolveFrameBuffer) {
+  Jx(resolveFrameBuffer) {
     if (resolveFrameBuffer == null) {
       return;
     }
     const repo = this.c.webglResourceRepository;
-    const webGLResourceFrameBuffer = repo.getWebGLResource(this.wx.cgApiResourceUid);
+    const webGLResourceFrameBuffer = repo.getWebGLResource(this.xx.cgApiResourceUid);
     const webGLResourceResolveFramebuffer = repo.getWebGLResource(
       resolveFrameBuffer.cgApiResourceUid
     );
@@ -545,8 +545,8 @@ var _RenderPass = class _RenderPass extends RnObject {
     gl.blitFramebuffer(
       0,
       0,
-      this.wx.width,
-      this.wx.height,
+      this.xx.width,
+      this.xx.height,
       0,
       0,
       resolveFrameBuffer.width,
@@ -564,17 +564,17 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @internal
    */
   _copyResolve1ToResolve2WebGpu() {
-    if (this.tx == null || this.ux == null) {
+    if (this.ux == null || this.vx == null) {
       return;
     }
     const webGpuResourceRepository = this.c.webGpuResourceRepository;
-    for (let i = 0; i < this.tx.colorAttachments.length; i++) {
-      if (this.tx.colorAttachments[i] == null || this.ux.colorAttachments[i] == null || this.tx.colorAttachments[i]._textureResourceUid === -1 || this.ux.colorAttachments[i]._textureResourceUid === -1) {
+    for (let i = 0; i < this.ux.colorAttachments.length; i++) {
+      if (this.ux.colorAttachments[i] == null || this.vx.colorAttachments[i] == null || this.ux.colorAttachments[i]._textureResourceUid === -1 || this.vx.colorAttachments[i]._textureResourceUid === -1) {
         continue;
       }
       webGpuResourceRepository.copyTextureData(
-        this.tx.colorAttachments[i]._textureResourceUid,
-        this.ux.colorAttachments[i]._textureResourceUid
+        this.ux.colorAttachments[i]._textureResourceUid,
+        this.vx.colorAttachments[i]._textureResourceUid
       );
     }
   }
@@ -587,7 +587,7 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @param primitive - The target primitive to override the material for
    */
   setMaterialForPrimitive(material, primitive) {
-    this.Ax.set(primitive.objectUID, new WeakRef(material));
+    this.Bx.set(primitive.objectUID, new WeakRef(material));
   }
   /**
    * Sets a default material for all primitives in this render pass.
@@ -615,7 +615,7 @@ var _RenderPass = class _RenderPass extends RnObject {
    */
   _getMaterialOf(primitive) {
     var _a;
-    return (_a = this.Ax.get(primitive.objectUID)) == null ? void 0 : _a.deref();
+    return (_a = this.Bx.get(primitive.objectUID)) == null ? void 0 : _a.deref();
   }
   /**
    * Determines the appropriate material to use for rendering a primitive.
@@ -628,7 +628,7 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @returns The material that should be used for rendering the primitive
    */
   getAppropriateMaterial(primitive) {
-    let material = this.Ax.size !== 0 ? this._getMaterialOf(primitive) : void 0;
+    let material = this.Bx.size !== 0 ? this._getMaterialOf(primitive) : void 0;
     if (material != null) {
     } else if (this.Hl != null) {
       material = this.Hl;
@@ -642,11 +642,11 @@ var _RenderPass = class _RenderPass extends RnObject {
    * @returns The render pass UID
    */
   get renderPassUID() {
-    return this.Hx;
+    return this.Ix;
   }
 };
 /** @internal Temporary Vector4 for internal calculations */
-_RenderPass.Jx = MutableVector4.zero();
+_RenderPass.Kx = MutableVector4.zero();
 /** @internal Static counter for generating unique mesh UIDs */
 _RenderPass.il = -1;
 var RenderPass = _RenderPass;

@@ -29,7 +29,7 @@ var VideoTexture = class extends AbstractTexture {
    * @returns A canvas element containing the resized image
    * @private
    */
-  WB(image, maxSize) {
+  XB(image, maxSize) {
     const canvas = document.createElement("canvas");
     const potWidth = DataUtil.getNearestPowerOfTwo(image.width);
     const potHeight = DataUtil.getNearestPowerOfTwo(image.height);
@@ -48,17 +48,17 @@ var VideoTexture = class extends AbstractTexture {
     const ctx = canvas.getContext("2d");
     ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, dstWidth, dstHeight);
     if (this.autoDetectTransparency) {
-      this.VB = ctx.getImageData(0, 0, dstWidth, dstHeight);
+      this.WB = ctx.getImageData(0, 0, dstWidth, dstHeight);
       for (let y = 0; y < dstHeight; y++) {
         for (let x = 0; x < dstWidth; x++) {
-          const alpha = this.VB.data[(x + y * dstWidth) * 4 + 3];
+          const alpha = this.WB.data[(x + y * dstWidth) * 4 + 3];
           if (alpha < 1) {
-            this.oB = true;
+            this.pB = true;
             return canvas;
           }
         }
       }
-      this.oB = false;
+      this.pB = false;
     }
     return canvas;
   }
@@ -92,7 +92,7 @@ var VideoTexture = class extends AbstractTexture {
     generateMipmap = false,
     mutedAutoPlay = true
   } = {}) {
-    this.qB = true;
+    this.rB = true;
     __privateSet(this, _htmlVideoElement, video);
     if (mutedAutoPlay) {
       video.autoplay = true;
@@ -100,21 +100,21 @@ var VideoTexture = class extends AbstractTexture {
     }
     const img = video;
     this.dm = img.videoWidth;
-    this.Cy = img.videoHeight;
+    this.Dy = img.videoHeight;
     const webGLResourceRepository = this.c.webglResourceRepository;
     const textureHandle = await webGLResourceRepository.createTextureFromImageBitmapData(img, {
       // level: level,
       internalFormat,
       width: this.dm,
-      height: this.Cy,
+      height: this.Dy,
       // border: 0,
       format,
       type,
       generateMipmap
     });
     this._textureResourceUid = textureHandle;
-    this.nB = true;
-    this.rB = video.src;
+    this.oB = true;
+    this.sB = video.src;
   }
   /**
    * Generates a texture from a video file URI.
@@ -150,26 +150,26 @@ var VideoTexture = class extends AbstractTexture {
     mutedAutoPlay = true,
     playButtonDomElement = void 0
   } = {}) {
-    this.rB = videoUri;
-    this.qB = true;
+    this.sB = videoUri;
+    this.rB = true;
     return new Promise((resolve, _reject) => {
       const button = playButtonDomElement;
       const setupTexture = async () => {
         this.dm = video.videoWidth;
-        this.Cy = video.videoHeight;
+        this.Dy = video.videoHeight;
         const webGLResourceRepository = this.c.webglResourceRepository;
         const textureHandle = await webGLResourceRepository.createTextureFromImageBitmapData(video, {
           // level: level,
           internalFormat,
           width: this.dm,
-          height: this.Cy,
+          height: this.Dy,
           // border: 0,
           format,
           type,
           generateMipmap
         });
         this._textureResourceUid = textureHandle;
-        this.nB = true;
+        this.oB = true;
         resolve();
       };
       button == null ? void 0 : button.addEventListener(
@@ -224,13 +224,13 @@ var VideoTexture = class extends AbstractTexture {
    */
   updateTexture() {
     const webGLResourceRepository = this.c.webglResourceRepository;
-    if (this.nB && __privateGet(this, _htmlVideoElement)) {
+    if (this.oB && __privateGet(this, _htmlVideoElement)) {
       webGLResourceRepository.updateTexture(this._textureResourceUid, __privateGet(this, _htmlVideoElement), {
         level: 0,
         offsetX: 0,
         offsetY: 0,
         width: this.dm,
-        height: this.Cy,
+        height: this.Dy,
         format: PixelFormat.RGBA,
         type: ComponentType.UnsignedByte
       });
@@ -255,7 +255,7 @@ var VideoTexture = class extends AbstractTexture {
   getCurrentFramePixelData() {
     let pixel;
     const webGLResourceRepository = this.c.webglResourceRepository;
-    if (this.nB && __privateGet(this, _htmlVideoElement)) {
+    if (this.oB && __privateGet(this, _htmlVideoElement)) {
       pixel = webGLResourceRepository.getPixelDataFromTexture(this._textureResourceUid, 0, 0, this.width, this.height);
     }
     return [pixel, this.width, this.height];
@@ -316,7 +316,7 @@ var VideoTexture = class extends AbstractTexture {
   }
 };
 _htmlVideoElement = new WeakMap();
-VideoTexture.QB = false;
+VideoTexture.RB = false;
 export {
   VideoTexture
 };

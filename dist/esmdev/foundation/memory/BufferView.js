@@ -19,15 +19,15 @@ var BufferView = class {
     byteLength,
     raw
   }) {
-    this.su = 0;
-    this.qu = 0;
-    this.wu = 0;
+    this.tu = 0;
+    this.ru = 0;
+    this.xu = 0;
     this.Gi = [];
-    this.ru = buffer;
-    this.tu = byteOffsetInBuffer;
-    this.Xt = buffer.byteOffsetInRawArrayBuffer + byteOffsetInBuffer;
-    this.ju = byteLength;
-    this.su = defaultByteStride;
+    this.su = buffer;
+    this.uu = byteOffsetInBuffer;
+    this.Yt = buffer.byteOffsetInRawArrayBuffer + byteOffsetInBuffer;
+    this.ku = byteLength;
+    this.tu = defaultByteStride;
     this.Ej = raw;
   }
   /**
@@ -37,7 +37,7 @@ var BufferView = class {
    * @returns The default byte stride in bytes
    */
   get defaultByteStride() {
-    return this.su;
+    return this.tu;
   }
   /**
    * Gets the total byte length of this BufferView.
@@ -45,7 +45,7 @@ var BufferView = class {
    * @returns The byte length of this BufferView
    */
   get byteLength() {
-    return this.ju;
+    return this.ku;
   }
   /**
    * Gets the byte offset of this BufferView within its parent Buffer.
@@ -54,7 +54,7 @@ var BufferView = class {
    * @returns The byte offset within the parent Buffer
    */
   get byteOffsetInBuffer() {
-    return this.Xt - this.ru.byteOffsetInRawArrayBuffer;
+    return this.Yt - this.su.byteOffsetInRawArrayBuffer;
   }
   /**
    * Gets the absolute byte offset in the raw ArrayBuffer.
@@ -63,7 +63,7 @@ var BufferView = class {
    * @returns The absolute byte offset in the raw ArrayBuffer
    */
   get byteOffsetInRawArrayBufferOfBuffer() {
-    return this.Xt;
+    return this.Yt;
   }
   /**
    * Gets the parent Buffer that this BufferView references.
@@ -71,7 +71,7 @@ var BufferView = class {
    * @returns The parent Buffer instance
    */
   get buffer() {
-    return this.ru;
+    return this.su;
   }
   /**
    * Checks if this BufferView uses Structure of Arrays (SoA) layout.
@@ -103,7 +103,7 @@ var BufferView = class {
    * @returns A Uint8Array representing the BufferView's memory area
    */
   getUint8Array() {
-    return new Uint8Array(this.Ej, this.Xt, this.ju);
+    return new Uint8Array(this.Ej, this.Yt, this.ku);
   }
   /**
    * Creates and allocates a new Accessor within this BufferView.
@@ -130,7 +130,7 @@ var BufferView = class {
     arrayLength = 1,
     normalized = false
   }) {
-    const accessor = this.uu({
+    const accessor = this.vu({
       compositionType,
       componentType,
       count,
@@ -167,7 +167,7 @@ var BufferView = class {
     min,
     normalized = false
   }) {
-    const accessor = this.vu({
+    const accessor = this.wu({
       compositionType,
       componentType,
       count,
@@ -187,7 +187,7 @@ var BufferView = class {
    * @returns A Result containing the created Accessor on success, or an error on failure
    * @private
    */
-  uu({
+  vu({
     compositionType,
     componentType,
     count,
@@ -197,15 +197,15 @@ var BufferView = class {
     arrayLength,
     normalized
   }) {
-    const byteOffsetInBufferView = this.qu;
+    const byteOffsetInBufferView = this.ru;
     let actualByteStride = byteStride;
     if (actualByteStride === 0) {
       actualByteStride = compositionType.getNumberOfComponents() * componentType.getSizeInBytes() * arrayLength;
     }
-    if (this.qu + actualByteStride * (count - 1) + componentType.getSizeInBytes() * compositionType.getNumberOfComponents() > this.byteLength) {
+    if (this.ru + actualByteStride * (count - 1) + componentType.getSizeInBytes() * compositionType.getNumberOfComponents() > this.byteLength) {
       const message = `The size of the Accessor you are trying to take exceeds the byte length left in the BufferView.
-BufferView.byteLength: ${this.byteLength}, BufferView.takenSizeInByte: ${this.qu}, Accessor.byteStride: ${byteStride}, Accessor.count: ${count};
-byteSizeToTake: ${actualByteStride * count}, the byte length left in the Buffer: ${this.byteLength - this.qu}`;
+BufferView.byteLength: ${this.byteLength}, BufferView.takenSizeInByte: ${this.ru}, Accessor.byteStride: ${byteStride}, Accessor.count: ${count};
+byteSizeToTake: ${actualByteStride * count}, the byte length left in the Buffer: ${this.byteLength - this.ru}`;
       return new Err({
         message,
         error: void 0
@@ -225,7 +225,7 @@ byteSizeToTake: ${actualByteStride * count}, the byte length left in the Buffer:
       normalized
     });
     this.Gi.push(accessor);
-    this.qu += actualByteStride * count;
+    this.ru += actualByteStride * count;
     return new Ok(accessor);
   }
   /**
@@ -236,7 +236,7 @@ byteSizeToTake: ${actualByteStride * count}, the byte length left in the Buffer:
    * @returns A Result containing the created Accessor on success, or an error on failure
    * @private
    */
-  vu({
+  wu({
     compositionType,
     componentType,
     count,
@@ -246,10 +246,10 @@ byteSizeToTake: ${actualByteStride * count}, the byte length left in the Buffer:
     min,
     normalized
   }) {
-    if (this.qu + byteStride * (count - 1) + componentType.getSizeInBytes() * compositionType.getNumberOfComponents() > this.byteLength) {
+    if (this.ru + byteStride * (count - 1) + componentType.getSizeInBytes() * compositionType.getNumberOfComponents() > this.byteLength) {
       const message = `The size of the Accessor you are trying to take exceeds the byte length left in the BufferView.
-BufferView.byteLength: ${this.byteLength}, BufferView.takenSizeInByte: ${this.qu}, Accessor.byteStride: ${byteStride}, Accessor.count: ${count};
-byteSizeToTake: ${byteStride * count}, the byte length left in the Buffer: ${this.byteLength - this.qu}`;
+BufferView.byteLength: ${this.byteLength}, BufferView.takenSizeInByte: ${this.ru}, Accessor.byteStride: ${byteStride}, Accessor.count: ${count};
+byteSizeToTake: ${byteStride * count}, the byte length left in the Buffer: ${this.byteLength - this.ru}`;
       return new Err({
         message,
         error: void 0

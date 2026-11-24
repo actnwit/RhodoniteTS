@@ -20,7 +20,7 @@ var AttributeNormalShaderNode = class extends AbstractShaderNode {
       codeWGSL: AttributeNormalShaderityObjectWGSL.code
     });
     this.setShaderStage("Vertex");
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Vec3,
       componentType: ComponentType.Float,
       name: "outValue"

@@ -14,22 +14,22 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
   constructor(engine) {
     super();
     this.dm = 0;
-    this.Cy = 0;
-    this.sB = 0;
-    this.tB = 1;
-    this.uB = TextureFormat.RGBA8;
-    this.vB = PixelFormat.RGBA;
+    this.Dy = 0;
+    this.tB = 0;
+    this.uB = 1;
+    this.vB = TextureFormat.RGBA8;
+    this.wB = PixelFormat.RGBA;
     this.Cc = ComponentType.UnsignedByte;
+    this.pB = false;
+    this.mB = false;
     this.oB = false;
-    this.lB = false;
-    this.nB = false;
-    this.qB = false;
-    this.lu = "untitled";
+    this.rB = false;
+    this.mu = "untitled";
     this._textureResourceUid = -1;
     this._samplerResourceUid = -1;
     this._textureViewResourceUid = -1;
     this._textureViewAsRenderTargetResourceUid = -1;
-    this.mB = ++_AbstractTexture.pB;
+    this.nB = ++_AbstractTexture.qB;
     this.c = engine;
   }
   /**
@@ -38,7 +38,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns The unique texture UID
    */
   get textureUID() {
-    return this.mB;
+    return this.nB;
   }
   /**
    * Gets the width of the texture in pixels.
@@ -64,7 +64,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns The height at the specified mip level (minimum 1 pixel)
    */
   getHeightAtMipLevel(mipLevel) {
-    return Math.max(1, Math.floor(this.Cy / 2 ** mipLevel));
+    return Math.max(1, Math.floor(this.Dy / 2 ** mipLevel));
   }
   /**
    * Sets the width of the texture in pixels.
@@ -80,7 +80,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns The texture height
    */
   get height() {
-    return this.Cy;
+    return this.Dy;
   }
   /**
    * Sets the height of the texture in pixels.
@@ -88,7 +88,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @param val - The new height value
    */
   set height(val) {
-    this.Cy = val;
+    this.Dy = val;
   }
   /**
    * Checks if the texture is ready for use.
@@ -96,7 +96,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns True if the texture is ready, false otherwise
    */
   get isTextureReady() {
-    return this.nB;
+    return this.oB;
   }
   /**
    * Checks if the texture has started loading.
@@ -104,7 +104,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns True if loading has started, false otherwise
    */
   get startedToLoad() {
-    return this.qB;
+    return this.rB;
   }
   /**
    * Checks whether this texture is marked as a dummy (placeholder) texture.
@@ -112,7 +112,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns True if the texture is marked as dummy, false otherwise
    */
   get isDummyTexture() {
-    return this.lB;
+    return this.mB;
   }
   /**
    * Marks this texture as a dummy (placeholder) texture.
@@ -120,7 +120,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @param isDummy - Whether to mark the texture as dummy (default: true)
    */
   markAsDummyTexture(isDummy = true) {
-    this.lB = isDummy;
+    this.mB = isDummy;
   }
   /**
    * Gets the HTML image element associated with this texture.
@@ -128,7 +128,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns The HTML image element or undefined if not available
    */
   get htmlImageElement() {
-    return this.iB;
+    return this.jB;
   }
   /**
    * Gets or creates an HTML canvas element with the texture content.
@@ -139,13 +139,13 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
   get htmlCanvasElement() {
     const canvas = document.createElement("canvas");
     const ctx = canvas == null ? void 0 : canvas.getContext("2d");
-    this.jB = canvas;
-    if (Is.exist(ctx) && Is.exist(this.iB)) {
-      canvas.width = this.iB.width;
-      canvas.height = this.iB.height;
-      ctx.drawImage(this.iB, 0, 0, this.iB.width, this.iB.height);
+    this.kB = canvas;
+    if (Is.exist(ctx) && Is.exist(this.jB)) {
+      canvas.width = this.jB.width;
+      canvas.height = this.jB.height;
+      ctx.drawImage(this.jB, 0, 0, this.jB.width, this.jB.height);
     }
-    return this.jB;
+    return this.kB;
   }
   /**
    * Gets the URI/URL of the texture source.
@@ -153,7 +153,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns The texture URI or undefined if not set
    */
   get uri() {
-    return this.rB;
+    return this.sB;
   }
   /**
    * Sets the name of the texture.
@@ -161,7 +161,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @param name - The new texture name
    */
   set name(name) {
-    this.lu = name;
+    this.mu = name;
   }
   /**
    * Gets the name of the texture.
@@ -169,7 +169,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns The texture name
    */
   get name() {
-    return this.lu;
+    return this.mu;
   }
   /**
    * Retrieves image data from a rectangular region of the texture.
@@ -182,10 +182,10 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns ImageData object containing the pixel data
    */
   getImageData(x, y, width, height) {
-    if (this.kB === void 0) {
+    if (this.lB === void 0) {
       this.createInternalCanvasContext();
     }
-    return this.kB.getImageData(x, y, width, height);
+    return this.lB.getImageData(x, y, width, height);
   }
   /**
    * Gets a single pixel value at the specified coordinates as a specific type.
@@ -232,7 +232,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
     for (let i = 0; i < numberOfComponents; i++) {
       data[i] = value.at(i);
     }
-    this.kB.putImageData(pixel, x, y);
+    this.lB.putImageData(pixel, x, y);
   }
   /**
    * Sets a specific channel value for a pixel at the given coordinates.
@@ -247,7 +247,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
     const pixel = this.getImageData(x, y, 1, 1);
     const data = pixel.data;
     data[channelIdx] = value;
-    this.kB.putImageData(pixel, x, y);
+    this.lB.putImageData(pixel, x, y);
   }
   /**
    * Checks if the texture contains transparent pixels.
@@ -255,7 +255,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns True if the texture has transparency, false otherwise
    */
   get isTransparent() {
-    return this.oB;
+    return this.pB;
   }
   /**
    * Creates an internal canvas context for pixel manipulation operations.
@@ -263,15 +263,15 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    */
   createInternalCanvasContext() {
     let canvas;
-    if (this.jB != null) {
-      canvas = this.jB;
+    if (this.kB != null) {
+      canvas = this.kB;
     } else {
       canvas = document.createElement("canvas");
       canvas.width = this.width;
       canvas.height = this.height;
     }
-    this.jB = canvas;
-    this.kB = canvas.getContext("2d");
+    this.kB = canvas;
+    this.lB = canvas.getContext("2d");
   }
   /**
    * Converts the texture data to a TextureDataFloat object with the specified number of channels.
@@ -302,7 +302,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    *          or undefined if the texture is not ready or reading fails
    */
   async getTexturePixelDataFromGPU() {
-    if (!this.nB || this._textureResourceUid < 0 || this.dm <= 0 || this.Cy <= 0) {
+    if (!this.oB || this._textureResourceUid < 0 || this.dm <= 0 || this.Dy <= 0) {
       return void 0;
     }
     try {
@@ -312,7 +312,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
         0,
         0,
         this.dm,
-        this.Cy
+        this.Dy
       );
       return pixels;
     } catch (e) {
@@ -335,18 +335,18 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
     }
     const canvas = document.createElement("canvas");
     canvas.width = this.dm;
-    canvas.height = this.Cy;
+    canvas.height = this.Dy;
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       return void 0;
     }
-    const imageData = new ImageData(new Uint8ClampedArray(pixels), this.dm, this.Cy);
+    const imageData = new ImageData(new Uint8ClampedArray(pixels), this.dm, this.Dy);
     ctx.putImageData(imageData, 0, 0);
     return canvas;
   }
 };
 _AbstractTexture.InvalidTextureUid = -1;
-_AbstractTexture.pB = _AbstractTexture.InvalidTextureUid;
+_AbstractTexture.qB = _AbstractTexture.InvalidTextureUid;
 var AbstractTexture = _AbstractTexture;
 export {
   AbstractTexture

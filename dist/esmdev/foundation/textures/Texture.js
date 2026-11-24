@@ -19,7 +19,7 @@ var _Texture = class _Texture extends AbstractTexture {
    * @param textureResourceUid - The texture resource handle from the graphics API
    * @param uniqueName - Unique name for debugging and logging purposes
    */
-  xB(textureResourceUid, uniqueName) {
+  yB(textureResourceUid, uniqueName) {
     this._textureResourceUid = textureResourceUid;
     _Texture.managedRegistry.register(this, { textureResourceUid, engine: this.c, uniqueName }, this);
   }
@@ -45,46 +45,46 @@ var _Texture = class _Texture extends AbstractTexture {
    */
   async generateTextureFromBasis(uint8Array, options) {
     var _a;
-    this.qB = true;
+    this.rB = true;
     if (typeof BASIS === "undefined") {
       Logger.default.error("Failed to call BASIS() function. Please check to import basis_transcoder.js.");
     }
-    if (!_Texture.QB) {
-      _Texture.QB = true;
-      _Texture.MB = new Promise((resolve) => {
+    if (!_Texture.RB) {
+      _Texture.RB = true;
+      _Texture.NB = new Promise((resolve) => {
         BASIS().then((basisTransCoder) => {
           const { initializeBasis } = basisTransCoder;
           initializeBasis();
-          _Texture.NB = basisTransCoder.BasisFile;
-          this.PB(uint8Array, options);
+          _Texture.OB = basisTransCoder.BasisFile;
+          this.QB(uint8Array, options);
           resolve();
         });
       });
     } else {
-      if (_Texture.NB) {
-        this.PB(uint8Array, options);
+      if (_Texture.OB) {
+        this.QB(uint8Array, options);
       } else {
-        (_a = _Texture.MB) == null ? void 0 : _a.then(() => {
-          this.PB(uint8Array, options);
+        (_a = _Texture.NB) == null ? void 0 : _a.then(() => {
+          this.QB(uint8Array, options);
         });
       }
     }
-    await _Texture.MB;
+    await _Texture.NB;
   }
   /**
    * Internal method to set up a Basis texture with the transcoder.
    * @param uint8Array - The Basis Universal compressed data
    * @param options - Texture generation options with defaults
    */
-  PB(uint8Array, {
+  QB(uint8Array, {
     _level = 0,
     _internalFormat = TextureFormat.RGBA8,
     format = PixelFormat.RGBA,
     type = ComponentType.UnsignedByte,
     _generateMipmap = true
   } = {}) {
-    this.qB = true;
-    const basisFile = new _Texture.NB(uint8Array);
+    this.rB = true;
+    const basisFile = new _Texture.OB(uint8Array);
     if (!basisFile.startTranscoding()) {
       Logger.default.error("failed to start transcoding.");
       basisFile.close();
@@ -97,8 +97,8 @@ var _Texture = class _Texture extends AbstractTexture {
       format,
       type
     });
-    this.xB(texture, this.uniqueName);
-    this.nB = true;
+    this.yB(texture, this.uniqueName);
+    this.oB = true;
     basisFile.close();
     basisFile.delete();
   }
@@ -117,11 +117,11 @@ var _Texture = class _Texture extends AbstractTexture {
    * ```
    */
   async generateTextureFromKTX2(uint8Array) {
-    this.qB = true;
+    this.rB = true;
     const { KTX2TextureLoader } = await import("../../webgl/textureLoader/KTX2TextureLoader.js");
     const transcodedData = await KTX2TextureLoader.getInstance().transcode(this.c, uint8Array);
     this.dm = transcodedData.width;
-    this.Cy = transcodedData.height;
+    this.Dy = transcodedData.height;
     await this.generateCompressedTextureWithMipmapFromTypedArray(
       transcodedData.mipmapData,
       transcodedData.compressionTextureType
@@ -153,14 +153,14 @@ var _Texture = class _Texture extends AbstractTexture {
     type = ComponentType.UnsignedByte,
     generateMipmap = true
   } = {}) {
-    this.qB = true;
-    this.iB = image;
+    this.rB = true;
+    this.jB = image;
     let img = image;
     if (this.autoDetectTransparency) {
-      this.oB = DataUtil.detectTransparentPixelExistence(img);
+      this.pB = DataUtil.detectTransparentPixelExistence(img);
     }
     this.dm = img.width;
-    this.Cy = img.height;
+    this.Dy = img.height;
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
     let texture;
     if (img instanceof HTMLImageElement) {
@@ -168,7 +168,7 @@ var _Texture = class _Texture extends AbstractTexture {
         level,
         internalFormat,
         width: this.dm,
-        height: this.Cy,
+        height: this.Dy,
         border: 0,
         format,
         type,
@@ -177,14 +177,14 @@ var _Texture = class _Texture extends AbstractTexture {
     } else {
       throw new Error("Unsupported image type.");
     }
-    this.xB(texture, this.uniqueName);
+    this.yB(texture, this.uniqueName);
     if (this.c.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = cgApiResourceRepository.createTextureView2d(
         this._textureResourceUid
       );
     }
-    this.nB = true;
-    this.rB = image.src;
+    this.oB = true;
+    this.sB = image.src;
   }
   /**
    * Generates a texture by loading an image from a URL.
@@ -212,21 +212,21 @@ var _Texture = class _Texture extends AbstractTexture {
     type = ComponentType.UnsignedByte,
     generateMipmap = true
   } = {}) {
-    this.rB = imageUri;
-    this.qB = true;
+    this.sB = imageUri;
+    this.rB = true;
     return new Promise((resolve, _reject) => {
-      this.wB = new Image();
+      this.xB = new Image();
       if (!imageUri.match(/^data:/)) {
-        this.wB.crossOrigin = "Anonymous";
+        this.xB.crossOrigin = "Anonymous";
       }
-      this.wB.onload = () => {
-        this.iB = this.wB;
-        let img = this.wB;
+      this.xB.onload = () => {
+        this.jB = this.xB;
+        let img = this.xB;
         if (this.autoDetectTransparency) {
-          this.oB = DataUtil.detectTransparentPixelExistence(img);
+          this.pB = DataUtil.detectTransparentPixelExistence(img);
         }
         this.dm = img.width;
-        this.Cy = img.height;
+        this.Dy = img.height;
         const cgApiResourceRepository = this.c.cgApiResourceRepository;
         let texture = CGAPIResourceRepository.InvalidCGAPIResourceUid;
         (async () => {
@@ -235,7 +235,7 @@ var _Texture = class _Texture extends AbstractTexture {
               level,
               internalFormat,
               width: this.dm,
-              height: this.Cy,
+              height: this.Dy,
               border: 0,
               format,
               type,
@@ -244,15 +244,15 @@ var _Texture = class _Texture extends AbstractTexture {
           } else {
             throw new Error("Unsupported image type");
           }
-          this.xB(texture, this.uniqueName);
+          this.yB(texture, this.uniqueName);
           if (this.c.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
             this._textureViewResourceUid = cgApiResourceRepository.createTextureView2d(this._textureResourceUid);
           }
-          this.nB = true;
+          this.oB = true;
           resolve();
         })();
       };
-      this.wB.src = imageUri;
+      this.xB.src = imageUri;
     });
   }
   /**
@@ -273,7 +273,7 @@ var _Texture = class _Texture extends AbstractTexture {
     canvas.width = 1;
     canvas.height = 1;
     this.dm = 1;
-    this.Cy = 1;
+    this.Dy = 1;
     const ctx = canvas.getContext("2d");
     if (ctx == null) {
       Logger.default.error("Failed to get canvas context.");
@@ -292,11 +292,11 @@ var _Texture = class _Texture extends AbstractTexture {
       type: ComponentType.UnsignedByte,
       generateMipmap: false
     });
-    this.xB(textureHandle, this.uniqueName);
+    this.yB(textureHandle, this.uniqueName);
     if (this.c.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = cgApiResourceRepository.createTextureView2d(this._textureResourceUid);
     }
-    this.nB = true;
+    this.oB = true;
   }
   /**
    * Generates a sheen lookup table texture from embedded data URI.
@@ -306,15 +306,15 @@ var _Texture = class _Texture extends AbstractTexture {
    * @returns Promise that resolves when texture is ready
    */
   async generateSheenLutTextureFromDataUri() {
-    if (this.nB) {
+    if (this.oB) {
       return;
     }
-    if (this.OB == null) {
-      this.OB = this.RB();
+    if (this.PB == null) {
+      this.PB = this.SB();
     }
-    await this.OB;
+    await this.PB;
   }
-  async RB() {
+  async SB() {
     const moduleName = "pbr";
     const moduleManager = ModuleManager.getInstance();
     const pbrModule = await moduleManager.loadModule(moduleName);
@@ -331,13 +331,13 @@ var _Texture = class _Texture extends AbstractTexture {
       type: ComponentType.UnsignedByte,
       generateMipmap: false
     });
-    this.xB(textureHandle, this.uniqueName);
+    this.yB(textureHandle, this.uniqueName);
     if (this.c.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = cgApiResourceRepository.createTextureView2d(
         this._textureResourceUid
       );
     }
-    this.nB = true;
+    this.oB = true;
   }
   /**
    * Allocates an empty texture with specified dimensions and format.
@@ -369,16 +369,16 @@ var _Texture = class _Texture extends AbstractTexture {
       height: desc.height,
       format: desc.format
     });
-    this.xB(texture, this.uniqueName);
+    this.yB(texture, this.uniqueName);
     if (this.c.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = cgApiResourceRepository.createTextureView2d(
         this._textureResourceUid
       );
     }
     this.dm = desc.width;
-    this.Cy = desc.height;
-    this.tB = desc.mipLevelCount;
-    this.uB = desc.format;
+    this.Dy = desc.height;
+    this.uB = desc.mipLevelCount;
+    this.vB = desc.format;
   }
   /**
    * Loads image data to a specific mip level of an allocated texture.
@@ -406,7 +406,7 @@ var _Texture = class _Texture extends AbstractTexture {
     await webGLResourceRepository.loadImageToMipLevelOfTexture2D({
       mipLevel: desc.mipLevel,
       textureUid: this._textureResourceUid,
-      format: this.uB,
+      format: this.vB,
       type: desc.type,
       xOffset: desc.xOffset,
       yOffset: desc.yOffset,
@@ -416,7 +416,7 @@ var _Texture = class _Texture extends AbstractTexture {
       data: desc.data
     });
     if (desc.mipLevel === 0) {
-      this.nB = true;
+      this.oB = true;
     }
   }
   /**
@@ -441,7 +441,7 @@ var _Texture = class _Texture extends AbstractTexture {
    */
   async generateCompressedTextureFromTypedArray(typedArray, width, height, compressionTextureType) {
     this.dm = width;
-    this.Cy = height;
+    this.Dy = height;
     const textureData = {
       level: 0,
       width,
@@ -450,13 +450,13 @@ var _Texture = class _Texture extends AbstractTexture {
     };
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
     const textureHandle = await cgApiResourceRepository.createCompressedTexture([textureData], compressionTextureType);
-    this.xB(textureHandle, this.uniqueName);
+    this.yB(textureHandle, this.uniqueName);
     if (this.c.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = cgApiResourceRepository.createTextureView2d(
         this._textureResourceUid
       );
     }
-    this.nB = true;
+    this.oB = true;
   }
   /**
    * Generates a compressed texture with mipmaps from an array of texture data.
@@ -487,19 +487,19 @@ var _Texture = class _Texture extends AbstractTexture {
       throw new Error("texture data with level 0 is not found");
     }
     this.dm = originalTextureData.width;
-    this.Cy = originalTextureData.height;
+    this.Dy = originalTextureData.height;
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
     const textureHandle = await cgApiResourceRepository.createCompressedTexture(
       textureDataArray,
       compressionTextureType
     );
-    this.xB(textureHandle, this.uniqueName);
+    this.yB(textureHandle, this.uniqueName);
     if (this.c.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = cgApiResourceRepository.createTextureView2d(
         this._textureResourceUid
       );
     }
-    this.nB = true;
+    this.oB = true;
   }
   /**
    * Generates mipmaps for the texture automatically.
@@ -514,7 +514,7 @@ var _Texture = class _Texture extends AbstractTexture {
    */
   generateMipmaps() {
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
-    cgApiResourceRepository.generateMipmaps2d(this._textureResourceUid, this.dm, this.Cy);
+    cgApiResourceRepository.generateMipmaps2d(this._textureResourceUid, this.dm, this.Dy);
   }
   /**
    * Imports an existing WebGL texture directly without copying data.
@@ -534,12 +534,12 @@ var _Texture = class _Texture extends AbstractTexture {
    */
   importWebGLTextureDirectly(webGLTexture, width = 0, height = 0) {
     this.dm = width;
-    this.Cy = height;
+    this.Dy = height;
     const webGLResourceRepository = this.c.webglResourceRepository;
     const texture = webGLResourceRepository.setWebGLTextureDirectly(webGLTexture);
-    this.xB(texture, this.uniqueName);
-    this.qB = true;
-    this.nB = true;
+    this.yB(texture, this.uniqueName);
+    this.rB = true;
+    this.oB = true;
   }
   /**
    * Destroys the 3D API resources associated with this texture.
@@ -548,21 +548,21 @@ var _Texture = class _Texture extends AbstractTexture {
    * @returns Always returns true
    */
   destroy3DAPIResources() {
-    _Texture.yB(this.c, this._textureResourceUid);
+    _Texture.zB(this.c, this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this._samplerResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     if (this._recommendedTextureSampler) {
       this._recommendedTextureSampler.destroy();
     }
-    this.nB = false;
-    this.qB = false;
+    this.oB = false;
+    this.rB = false;
     return true;
   }
   /**
    * Internal method to delete a texture resource from the graphics API.
    * @param textureResourceUid - The texture resource handle to delete
    */
-  static yB(engine, textureResourceUid) {
+  static zB(engine, textureResourceUid) {
     const cgApiResourceRepository = engine.cgApiResourceRepository;
     cgApiResourceRepository.deleteTexture(textureResourceUid);
   }
@@ -623,12 +623,12 @@ var _Texture = class _Texture extends AbstractTexture {
     return texture;
   }
 };
-_Texture.QB = false;
+_Texture.RB = false;
 _Texture.managedRegistry = new FinalizationRegistry((texObj) => {
   Logger.default.info(
     `WebGL/WebGPU 2D texture "${texObj.uniqueName}" was automatically released along with GC. But explicit release is recommended.`
   );
-  _Texture.yB(texObj.engine, texObj.textureResourceUid);
+  _Texture.zB(texObj.engine, texObj.textureResourceUid);
 });
 var Texture = _Texture;
 export {

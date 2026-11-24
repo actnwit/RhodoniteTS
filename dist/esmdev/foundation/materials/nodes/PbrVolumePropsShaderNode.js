@@ -19,19 +19,19 @@ var PbrVolumePropsShaderNode = class extends AbstractShaderNode {
       codeGLSL: PbrVolumePropsShaderityObjectGLSL.code,
       codeWGSL: PbrVolumePropsShaderityObjectWGSL.code
     });
-    this.yr.push(
+    this.zr.push(
       new Socket("thicknessFactor", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("thicknessTexture", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("attenuationDistance", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1e20))
     );
-    this.yr.push(
+    this.zr.push(
       new Socket("attenuationColor", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(1, 1, 1))
     );
-    this.Br.push(new Socket("outVolumeProps", CompositionType.VolumeProps, ComponentType.Unknown));
+    this.Cr.push(new Socket("outVolumeProps", CompositionType.VolumeProps, ComponentType.Unknown));
   }
   /**
    * Gets the output socket that contains the result of the volume properties operation.
@@ -39,7 +39,7 @@ var PbrVolumePropsShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the volume properties result
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
 };
 export {

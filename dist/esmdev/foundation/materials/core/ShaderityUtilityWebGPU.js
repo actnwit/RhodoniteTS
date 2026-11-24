@@ -44,7 +44,7 @@ var ShaderityUtilityWebGPU = class {
    * @returns Object containing array of shader semantics info and processed shader object
    */
   static getShaderDataReflection(engine, shaderityObject) {
-    const copiedShaderityObject = this.Ns(shaderityObject);
+    const copiedShaderityObject = this.Os(shaderityObject);
     const textureMap = /* @__PURE__ */ new Map();
     const splitCode = shaderityObject.code.split(/\r\n|\n/);
     const uniformOmittedShaderRows = [];
@@ -60,7 +60,7 @@ var ShaderityUtilityWebGPU = class {
         const type = matchUniformDeclaration[2];
         const variableName = matchUniformDeclaration[1];
         const info = matchUniformDeclaration[4];
-        const shaderSemanticsInfo = this.Ps(
+        const shaderSemanticsInfo = this.Qs(
           engine,
           type,
           variableName,
@@ -73,7 +73,7 @@ var ShaderityUtilityWebGPU = class {
         const variableName = matchTextureDeclaration[2];
         const type = matchTextureDeclaration[3];
         const info = matchTextureDeclaration[4];
-        const shaderSemanticsInfo = this.Ts(
+        const shaderSemanticsInfo = this.Us(
           engine,
           type,
           variableName,
@@ -120,7 +120,7 @@ var ShaderityUtilityWebGPU = class {
    * @param isFragmentShader - Whether this is for a fragment shader
    * @returns A configured ShaderSemanticsInfo object for the texture
    */
-  static Ts(engine, type, variableName, binding, info, isFragmentShader) {
+  static Us(engine, type, variableName, binding, info, isFragmentShader) {
     const componentType = ComponentType.Int;
     let compositionType = CompositionType.Texture2D;
     if (type.indexOf("texture_2d") !== -1) {
@@ -141,14 +141,14 @@ var ShaderityUtilityWebGPU = class {
     const initialValue = info.match(/initialValue[\t ]*=[\t ]*(.+)[,\t ]*/);
     if (initialValue) {
       const initialValueText = initialValue[1];
-      shaderSemanticsInfo.initialValue = this.Us(
+      shaderSemanticsInfo.initialValue = this.Vs(
         engine,
         shaderSemanticsInfo,
         binding,
         initialValueText
       );
     } else {
-      shaderSemanticsInfo.initialValue = this.Ss(engine, shaderSemanticsInfo);
+      shaderSemanticsInfo.initialValue = this.Ts(engine, shaderSemanticsInfo);
     }
     return shaderSemanticsInfo;
   }
@@ -162,7 +162,7 @@ var ShaderityUtilityWebGPU = class {
    * @param isFragmentShader - Whether this is for a fragment shader
    * @returns A configured ShaderSemanticsInfo object for the uniform
    */
-  static Ps(engine, type, variableName, info, isFragmentShader) {
+  static Qs(engine, type, variableName, info, isFragmentShader) {
     const componentType = ComponentType.fromWgslString(type);
     const compositionType = CompositionType.fromWgslString(type);
     const stage = isFragmentShader ? ShaderType.PixelShader : ShaderType.VertexShader;
@@ -175,7 +175,7 @@ var ShaderityUtilityWebGPU = class {
       isInternalSetting: false,
       stage
     };
-    this.Qs(engine, shaderSemanticsInfo, info);
+    this.Rs(engine, shaderSemanticsInfo, info);
     return shaderSemanticsInfo;
   }
   /**
@@ -186,7 +186,7 @@ var ShaderityUtilityWebGPU = class {
    * @param shaderSemanticsInfo - The ShaderSemanticsInfo object to modify
    * @param info - The parameter information string to parse
    */
-  static Qs(engine, shaderSemanticsInfo, info) {
+  static Rs(engine, shaderSemanticsInfo, info) {
     const soloDatum = info.match(/soloDatum[\t ]*=[\t ]*(\w+)[,\t ]*/);
     let isSoloDatumFlg = false;
     if ((soloDatum == null ? void 0 : soloDatum[1]) === "true") {
@@ -202,9 +202,9 @@ var ShaderityUtilityWebGPU = class {
     const initialValue = info.match(/initialValue[\t ]*=[\t ]*(.+)[,\t ]*/);
     if (initialValue) {
       const initialValueText = initialValue[1];
-      shaderSemanticsInfo.initialValue = this.Rs(shaderSemanticsInfo, initialValueText);
+      shaderSemanticsInfo.initialValue = this.Ss(shaderSemanticsInfo, initialValueText);
     } else {
-      shaderSemanticsInfo.initialValue = this.Ss(engine, shaderSemanticsInfo);
+      shaderSemanticsInfo.initialValue = this.Ts(engine, shaderSemanticsInfo);
     }
     const needUniformInDataTextureMode = info.match(/needUniformInDataTextureMode[\t ]*=[\t ]*(.+)[,\t ]*/);
     if (needUniformInDataTextureMode) {
@@ -232,7 +232,7 @@ var ShaderityUtilityWebGPU = class {
    * @param initialValueText - The text containing the initial value specification
    * @returns An array containing binding, texture, and sampler objects
    */
-  static Us(engine, shaderSemanticsInfo, binding, initialValueText) {
+  static Vs(engine, shaderSemanticsInfo, binding, initialValueText) {
     let initialValue;
     const sampler = new Sampler(engine, {
       magFilter: TextureParameter.Linear,
@@ -260,7 +260,7 @@ var ShaderityUtilityWebGPU = class {
    * @param initialValueText - The text containing the initial value specification
    * @returns A mathematical object representing the initial value
    */
-  static Rs(shaderSemanticsInfo, initialValueText) {
+  static Ss(shaderSemanticsInfo, initialValueText) {
     const tuple = initialValueText.match(/\(([\d\w., ]+)\)/);
     const checkCompositionNumber = (expected) => {
       if (shaderSemanticsInfo.compositionType !== expected) {
@@ -361,7 +361,7 @@ var ShaderityUtilityWebGPU = class {
    * @param shaderSemanticsInfo - The ShaderSemanticsInfo object to get default value for
    * @returns A default initial value appropriate for the given composition type
    */
-  static Ss(engine, shaderSemanticsInfo) {
+  static Ts(engine, shaderSemanticsInfo) {
     if (shaderSemanticsInfo.compositionType === CompositionType.Scalar) {
       return new MutableScalar(new Float32Array([0]));
     }
@@ -402,7 +402,7 @@ var ShaderityUtilityWebGPU = class {
    * @param obj - The ShaderityObject to copy
    * @returns A new ShaderityObject with copied properties
    */
-  static Ns(obj) {
+  static Os(obj) {
     const copiedObj = {
       code: obj.code,
       shaderStage: obj.shaderStage,

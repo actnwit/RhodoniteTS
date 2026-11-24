@@ -26,8 +26,8 @@ var LengthShaderNode = class extends AbstractShaderNode {
       codeGLSL: LengthShaderityObjectGLSL.code,
       codeWGSL: LengthShaderityObjectWGSL.code
     });
-    this.yr.push(new Socket("value", compositionType, componentType));
-    this.Br.push(new Socket("outValue", CompositionType.Scalar, ComponentType.Float));
+    this.zr.push(new Socket("value", compositionType, componentType));
+    this.Cr.push(new Socket("outValue", CompositionType.Scalar, ComponentType.Float));
   }
   /**
    * Gets the input socket for the vector value to compute the length of.
@@ -36,7 +36,7 @@ var LengthShaderNode = class extends AbstractShaderNode {
    * @returns The input socket that accepts the vector for length computation
    */
   getSocketInputValue() {
-    return this.yr[0];
+    return this.zr[0];
   }
   /**
    * Gets the output socket that provides the computed length value.
@@ -45,7 +45,7 @@ var LengthShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the length computation result
    */
   getSocketOutput() {
-    return this.Br[0];
+    return this.Cr[0];
   }
   /**
    * Gets the appropriate shader function name based on the current rendering approach and input type.
@@ -62,23 +62,23 @@ var LengthShaderNode = class extends AbstractShaderNode {
   getShaderFunctionNameDerivative(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       let suffix = "f";
-      if (this.yr[0].componentType === ComponentType.Int) {
+      if (this.zr[0].componentType === ComponentType.Int) {
         suffix = "i";
-      } else if (this.yr[0].componentType === ComponentType.UnsignedInt) {
+      } else if (this.zr[0].componentType === ComponentType.UnsignedInt) {
         suffix = "u";
       }
-      if (this.yr[0].compositionType === CompositionType.Vec2) {
-        return `${this.Ar}Vec2${suffix}`;
+      if (this.zr[0].compositionType === CompositionType.Vec2) {
+        return `${this.Br}Vec2${suffix}`;
       }
-      if (this.yr[0].compositionType === CompositionType.Vec3) {
-        return `${this.Ar}Vec3${suffix}`;
+      if (this.zr[0].compositionType === CompositionType.Vec3) {
+        return `${this.Br}Vec3${suffix}`;
       }
-      if (this.yr[0].compositionType === CompositionType.Vec4) {
-        return `${this.Ar}Vec4${suffix}`;
+      if (this.zr[0].compositionType === CompositionType.Vec4) {
+        return `${this.Br}Vec4${suffix}`;
       }
       throw new Error("Not supported composition type.");
     }
-    return this.Ar;
+    return this.Br;
   }
 };
 export {

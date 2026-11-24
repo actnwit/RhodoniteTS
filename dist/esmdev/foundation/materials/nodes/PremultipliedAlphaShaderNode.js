@@ -18,12 +18,12 @@ var PremultipliedAlphaShaderNode = class extends AbstractShaderNode {
       codeGLSL: PremultipliedAlphaShaderityObjectGLSL.code,
       codeWGSL: PremultipliedAlphaShaderityObjectWGSL.code
     });
-    this.yr.push({
+    this.zr.push({
       compositionType: CompositionType.Vec4,
       componentType,
       name: "value"
     });
-    this.Br.push({
+    this.Cr.push({
       compositionType: CompositionType.Vec4,
       componentType,
       name: "outValue"
@@ -38,9 +38,9 @@ var PremultipliedAlphaShaderNode = class extends AbstractShaderNode {
    */
   getShaderFunctionNameDerivative(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      return `${this.Ar}Vec4f`;
+      return `${this.Br}Vec4f`;
     }
-    return this.Ar;
+    return this.Br;
   }
 };
 export {

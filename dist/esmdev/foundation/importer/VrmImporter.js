@@ -41,7 +41,7 @@ var VrmImporter = class _VrmImporter {
       defaultMaterialHelperArgumentArray[0].samplers = (_e = defaultMaterialHelperArgumentArray[0].samplers) != null ? _e : samplers;
       defaultMaterialHelperArgumentArray[0].isLighting = (_f = defaultMaterialHelperArgumentArray[0].isLighting) != null ? _f : true;
     }
-    const existOutline = this.Tq(gltfModel, textures.length);
+    const existOutline = this.Uq(gltfModel, textures.length);
     let rootGroup;
     if (existOutline) {
       renderPasses[1] = (_g = renderPasses[1]) != null ? _g : new RenderPass(engine);
@@ -264,12 +264,12 @@ var VrmImporter = class _VrmImporter {
         if (spring.center != null && spring.center !== -1) {
           vrmSpring.center = gltfModel.asset.extras.rnEntities[spring.center].getSceneGraph();
         }
-        this.Rq(vrmSpring, jointRootEntity, addedEntities);
+        this.Sq(vrmSpring, jointRootEntity, addedEntities);
         springs.push(vrmSpring);
       }
     }
     for (const spring of springs) {
-      this.Sq(spring, spring.rootBone);
+      this.Tq(spring, spring.rootBone);
     }
   }
   /**
@@ -280,7 +280,7 @@ var VrmImporter = class _VrmImporter {
    * @param entity - The current entity to process
    * @param addedEntities - Array of entities that have already been processed
    */
-  static Rq(vrmSpring, entity, addedEntities) {
+  static Sq(vrmSpring, entity, addedEntities) {
     const sg = entity.getSceneGraph();
     const children = sg.children;
     if (!addedEntities.includes(entity)) {
@@ -289,7 +289,7 @@ var VrmImporter = class _VrmImporter {
       addedEntities.push(entity);
     }
     for (const child of children) {
-      this.Rq(vrmSpring, child.entity, addedEntities);
+      this.Sq(vrmSpring, child.entity, addedEntities);
     }
   }
   /**
@@ -299,7 +299,7 @@ var VrmImporter = class _VrmImporter {
    * @param spring - The VRM spring configuration
    * @param sg - The scene graph component to add physics to
    */
-  static Sq(spring, sg) {
+  static Tq(spring, sg) {
     const entity = sg.entity;
     const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
     const physicsComponent = newEntity.getPhysics();
@@ -366,7 +366,7 @@ var VrmImporter = class _VrmImporter {
    * @param texturesLength - The number of textures in the model
    * @returns True if any material requires outline rendering, false otherwise
    */
-  static Tq(gltfModel, _texturesLength) {
+  static Uq(gltfModel, _texturesLength) {
     var _a;
     let isOutline = false;
     for (const material of gltfModel.materials) {
