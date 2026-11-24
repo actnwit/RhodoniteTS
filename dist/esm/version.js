@@ -1,1 +1,1 @@
-var e={version:"v0.24.0-21-g786a2557e-dirty",branch:"feat/tree-shaking-phase3"};var o=e;export{o as VERSION};
+var r={version:"v0.25.0-0-gcead735b6-dirty",branch:"main"};var t=r;export{t as VERSION};
