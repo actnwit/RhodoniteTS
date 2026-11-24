@@ -14,12 +14,15 @@ samples/test_e2e/TreeShaking/bundle/
 samples/test_e2e/TreeShaking/bundle-gltf/
 samples/test_e2e/TreeShaking/bundle-pbr/
 samples/test_e2e/TreeShaking/bundle-optional/
+samples/test_e2e/TreeShaking/bundle-webgpu/
 samples/test_e2e/TreeShaking/mainGltf.js
 samples/test_e2e/TreeShaking/mainGltf.js.map
 samples/test_e2e/TreeShaking/mainPbr.js
 samples/test_e2e/TreeShaking/mainPbr.js.map
 samples/test_e2e/TreeShaking/mainOptional.js
 samples/test_e2e/TreeShaking/mainOptional.js.map
+samples/test_e2e/TreeShaking/mainWebGpu.js
+samples/test_e2e/TreeShaking/mainWebGpu.js.map
 # Temporary package files created by scripts/build-tree-shaking-sample.mjs.
 samples/test_e2e/TreeShaking/package.json
 samples/test_e2e/PointLightShadowMap/PointShadowMap.js

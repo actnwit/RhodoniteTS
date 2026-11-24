@@ -38,7 +38,8 @@ import { _getPhysicsBackend } from '../physics/PhysicsBackend';
 import { CGAPIResourceRepository, type ICGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { Expression } from '../renderer/Expression';
 import { Frame } from '../renderer/Frame';
-import { LightClusterSystem } from '../renderer/lightCluster/LightClusterSystem';
+import type { ILightClusterSystem } from '../renderer/lightCluster/LightClusterSystemStub';
+import { LightClusterSystemStub } from '../renderer/lightCluster/LightClusterSystemStub';
 import { RenderPass } from '../renderer/RenderPass';
 import { EngineState } from './EngineState';
 import { ModuleManager } from './ModuleManager';
@@ -127,7 +128,10 @@ export class Engine extends RnObject {
   private __memoryManager?: MemoryManager;
   private __materialRepository: MaterialRepository;
   private __globalDataRepository: GlobalDataRepository;
-  private __lightClusterSystem: LightClusterSystem;
+  private __lightClusterSystem: ILightClusterSystem = new LightClusterSystemStub();
+  private __lightClusterSystemPromise?: Promise<void>;
+  private __isLightClusterSystemLoaded = false;
+  private __isDestroyed = false;
   private __config: Config;
   private __logger: Logger;
   private __dummyTextures?: DummyTextures;
@@ -168,7 +172,6 @@ export class Engine extends RnObject {
       this.__initXRSystems(rnXRModule);
     }
     this.__globalDataRepository = GlobalDataRepository.init(this);
-    this.__lightClusterSystem = new LightClusterSystem(this);
     Engine.__engineCount++;
   }
 
@@ -232,6 +235,8 @@ export class Engine extends RnObject {
    * Called after the render loop has fully stopped.
    */
   private __destroyResources(): void {
+    this.__isDestroyed = true;
+
     // Invalidate all shader caches in materials before deleting entities
     // This ensures shaders will be recompiled with new WebGL resources on next engine init
     this.__materialRepository._makeShaderInvalidateToAllMaterials();
@@ -462,6 +467,9 @@ export class Engine extends RnObject {
     }
     Time._processBegin(this);
     this.__processComponentRuntimeHooksBeginFrame();
+    if (!this.__isLightClusterSystemLoaded && LightComponent.getUpdateCount(this) > 0) {
+      this._requestLightClusterSystem();
+    }
     let expressions: Expression[] = value;
     if (value instanceof Frame) {
       expressions = value.expressions;
@@ -1412,9 +1420,41 @@ export class Engine extends RnObject {
   }
 
   /**
+   * Starts loading the light cluster system. Called when the first light is added; applications without lights
+   * never download it.
+   * @internal
+   */
+  _requestLightClusterSystem(): void {
+    if (this.__isDestroyed || this.__lightClusterSystemPromise != null) {
+      return;
+    }
+    this.__lightClusterSystemPromise = import('../renderer/lightCluster/LightClusterSystem')
+      .then(({ LightClusterSystem }) => {
+        if (this.__isDestroyed) {
+          return;
+        }
+        this.__lightClusterSystem = new LightClusterSystem(this);
+        this.__isLightClusterSystemLoaded = true;
+      })
+      .catch(error => {
+        Logger.default.warn(`Failed to load the light cluster system: ${error}`);
+      });
+  }
+
+  /**
+   * Waits for the real light cluster system. Tests and applications that need it immediately call this.
+   * @internal
+   */
+  async _ensureLightClusterSystem(): Promise<ILightClusterSystem> {
+    this._requestLightClusterSystem();
+    await this.__lightClusterSystemPromise;
+    return this.__lightClusterSystem;
+  }
+
+  /**
    * The system that builds the light lists of Clustered Forward rendering.
    */
-  public get lightClusterSystem() {
+  public get lightClusterSystem(): ILightClusterSystem {
     return this.__lightClusterSystem;
   }
 

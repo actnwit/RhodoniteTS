@@ -57,16 +57,17 @@ async function createLocalPackage() {
 }
 
 const entries = [
-  { entry: 'main.ts', outDir: 'bundle' },
-  { entry: 'mainGltf.ts', outDir: 'bundle-gltf' },
-  { entry: 'mainPbr.ts', outDir: 'bundle-pbr' },
-  { entry: 'mainOptional.ts', outDir: 'bundle-optional' },
+  { entry: 'main.ts', outDir: 'bundle', define: { __RN_WEBGPU__: 'false' } },
+  { entry: 'mainGltf.ts', outDir: 'bundle-gltf', define: { __RN_WEBGPU__: 'false' } },
+  { entry: 'mainPbr.ts', outDir: 'bundle-pbr', define: { __RN_WEBGPU__: 'false' } },
+  { entry: 'mainOptional.ts', outDir: 'bundle-optional', define: { __RN_WEBGPU__: 'false' } },
+  { entry: 'mainWebGpu.ts', outDir: 'bundle-webgpu', define: { __RN_WEBGL__: 'false' } },
 ];
 
 const disposeLocalPackage = await createLocalPackage();
 
 try {
-  for (const { entry, outDir } of entries) {
+  for (const { entry, outDir, define } of entries) {
     const outdir = path.join(sampleDir, outDir);
     await rm(outdir, { recursive: true, force: true });
 
@@ -80,7 +81,7 @@ try {
       minify: true,
       target: 'es2022',
       platform: 'browser',
-      define: { __RN_WEBGPU__: 'false' },
+      define,
       metafile: true,
       logLevel: 'warning',
     });

@@ -82,6 +82,8 @@ export class LightComponent extends Component {
 
     this.submitToAllocation(engine.config.lightComponentCountPerBufferView, isReUse);
     LightComponent.__incrementUpdateCount(engine);
+    // The light cluster system is needed only when the scene has lights; load it before the render loop starts.
+    engine._requestLightClusterSystem();
   }
 
   /**

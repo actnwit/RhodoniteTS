@@ -10,12 +10,14 @@ const readGltfMetafile = () => JSON.parse(readFileSync('./samples/test_e2e/TreeS
 const readPbrMetafile = () => JSON.parse(readFileSync('./samples/test_e2e/TreeShaking/bundle-pbr/meta.json', 'utf8'));
 const readOptionalMetafile = () =>
   JSON.parse(readFileSync('./samples/test_e2e/TreeShaking/bundle-optional/meta.json', 'utf8'));
+const readWebGpuMetafile = () =>
+  JSON.parse(readFileSync('./samples/test_e2e/TreeShaking/bundle-webgpu/meta.json', 'utf8'));
 
 /**
- * The source modules that the entry chunk and its static imports contain, i.e. what loads before the sample runs.
+ * The chunks that the entry chunk statically imports, i.e. what loads before the sample runs.
  * The metafile also lists the lazy chunks as entry points, so the sample entry is selected by its path.
  */
-const staticallyLoadedModules = (metafile, entrySuffix) => {
+const staticClosureChunks = (metafile, entrySuffix) => {
   const outputs = metafile.outputs;
   const entry = Object.keys(outputs).find(path => outputs[path].entryPoint?.endsWith(entrySuffix));
   const chunks = new Set();
@@ -32,8 +34,14 @@ const staticallyLoadedModules = (metafile, entrySuffix) => {
       }
     }
   }
+  return chunks;
+};
+
+/** The source modules that the entry chunk and its static imports contain. */
+const staticallyLoadedModules = (metafile, entrySuffix) => {
+  const outputs = metafile.outputs;
   const modules = [];
-  for (const chunk of chunks) {
+  for (const chunk of staticClosureChunks(metafile, entrySuffix)) {
     for (const [path, input] of Object.entries(outputs[chunk].inputs)) {
       if (input.bytesInOutput > 0) {
         modules.push(path);
@@ -41,6 +49,16 @@ const staticallyLoadedModules = (metafile, entrySuffix) => {
     }
   }
   return modules;
+};
+
+/** The total size of the static closure, used as a regression budget. */
+const staticallyLoadedBytes = (metafile, entrySuffix) => {
+  const outputs = metafile.outputs;
+  let bytes = 0;
+  for (const chunk of staticClosureChunks(metafile, entrySuffix)) {
+    bytes += outputs[chunk].bytes;
+  }
+  return bytes;
 };
 
 test('regression test TreeShaking', async () => {
@@ -52,6 +70,8 @@ test('TreeShaking bundle leaves out what the sample does not use', () => {
 
   // Sanity check: the bundle is built from the unbundled ESM output.
   expect(modules.some(path => path.endsWith('dist/esmdev/foundation/system/Engine.js'))).toBe(true);
+  // Regression budget, with headroom over the current size (about 517KB).
+  expect(staticallyLoadedBytes(readMetafile(), 'samples/test_e2e/TreeShaking/main.ts')).toBeLessThan(550 * 1024);
 
   const unexpected = modules.filter(
     path =>
@@ -72,6 +92,9 @@ test('TreeShaking bundle leaves out what the sample does not use', () => {
       /\/foundation\/geometry\/shapes\/(?!Plane\.js$|IShape\.js$)[^/]+\.js$/.test(path) ||
       // __RN_WEBGPU__ = false drops the WebGPU shader utility as well as the WGSL shaders.
       path.endsWith('/foundation/materials/core/ShaderityUtilityWebGPU.js') ||
+      // The light cluster system is loaded when the first light is added (the stub and layout stay in the core).
+      path.endsWith('/renderer/lightCluster/LightClusterSystem.js') ||
+      path.endsWith('/renderer/lightCluster/LightClusterBuilder.js') ||
       // KTX2 (Zstandard decoder, ktx-parse) and Rapier are loaded only when they are used.
       /KTX2TextureLoader\.js$|_deps\/(zstddec|ktx-parse)\.js$|RapierPhysicsStrategy\.js$/.test(path)
   );
@@ -93,6 +116,8 @@ test('TreeShaking glTF bundle keeps optional material implementations lazy', () 
 
   // The glTF importer and the PBR material are part of this application.
   expect(modules.some(path => path.endsWith('dist/esmdev/foundation/importer/ModelConverter.js'))).toBe(true);
+  // Regression budget, with headroom over the current size (about 714KB).
+  expect(staticallyLoadedBytes(metafile, 'samples/test_e2e/TreeShaking/mainGltf.ts')).toBeLessThan(745 * 1024);
 
   const unexpected = modules.filter(
     path =>
@@ -112,7 +137,10 @@ test('TreeShaking glTF bundle keeps optional material implementations lazy', () 
       // The importer does not pull the camera controller implementation either.
       path.endsWith('/components/CameraController/CameraControllerComponent.js') ||
       path.endsWith('/cameras/OrbitCameraController.js') ||
-      path.endsWith('/cameras/WalkThroughCameraController.js')
+      path.endsWith('/cameras/WalkThroughCameraController.js') ||
+      // The light cluster system is loaded when the first light is added.
+      path.endsWith('/renderer/lightCluster/LightClusterSystem.js') ||
+      path.endsWith('/renderer/lightCluster/LightClusterBuilder.js')
   );
   expect(unexpected).toEqual([]);
 
@@ -124,6 +152,7 @@ test('TreeShaking glTF bundle keeps optional material implementations lazy', () 
   expect([...allInputs].some(path => path.endsWith('/DrcPointCloudImporter.js'))).toBe(true);
   expect([...allInputs].some(path => path.endsWith('/RaymarchingComponent.js'))).toBe(true);
   expect([...allInputs].some(path => path.endsWith('/RaymarchingSdfEvaluator.js'))).toBe(true);
+  expect([...allInputs].some(path => path.endsWith('/LightClusterSystem.js'))).toBe(true);
 });
 
 test('TreeShaking PBR bundle does not include optional material implementations', () => {
@@ -132,6 +161,8 @@ test('TreeShaking PBR bundle does not include optional material implementations'
 
   // The PBR material factory and its shader are the only material implementation this application uses.
   expect(modules.some(path => path.endsWith('/helpers/materials/createPbrUberMaterial.js'))).toBe(true);
+  // Regression budget, with headroom over the current size (about 552KB).
+  expect(staticallyLoadedBytes(metafile, 'samples/test_e2e/TreeShaking/mainPbr.ts')).toBeLessThan(590 * 1024);
   expect(modules.some(path => path.endsWith('/webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag.js'))).toBe(
     true
   );
@@ -150,12 +181,33 @@ test('TreeShaking PBR bundle does not include optional material implementations'
       path.endsWith('/components/CameraController/CameraControllerComponent.js') ||
       path.endsWith('/components/Raymarching/RaymarchingComponent.js') ||
       path.endsWith('/components/Raymarching/RaymarchingSdfEvaluator.js') ||
+      path.endsWith('/renderer/lightCluster/LightClusterSystem.js') ||
+      path.endsWith('/renderer/lightCluster/LightClusterBuilder.js') ||
       path.endsWith('/cameras/OrbitCameraController.js') ||
       path.endsWith('/cameras/WalkThroughCameraController.js') ||
       path.endsWith('/foundation/helpers/MeshHelperObject.js') ||
       /\/geometry\/shapes\/(?!Plane\.js$|IShape\.js$)[^/]+\.js$/.test(path)
   );
   expect(unexpected).toEqual([]);
+});
+
+test('TreeShaking WebGPU bundle drops the WebGL backend', () => {
+  const metafile = readWebGpuMetafile();
+  const modules = staticallyLoadedModules(metafile, 'samples/test_e2e/TreeShaking/mainWebGpu.ts');
+
+  // WGSL shaders stay; GLSL shaders and the WebGL shader utility are dropped.
+  expect(modules.some(path => /\/webgpu\/shaderity_shaders\//.test(path))).toBe(true);
+  expect(modules.some(path => /\/webgl\/shaderity_shaders\//.test(path))).toBe(false);
+  expect(modules.some(path => path.endsWith('/materials/core/ShaderityUtilityWebGL.js'))).toBe(false);
+
+  const webglChunk = Object.entries(metafile.outputs).find(([, output]) =>
+    output.entryPoint?.endsWith('dist/esmdev/webgl/main.js')
+  );
+  // __RN_WEBGL__ = false removes the dynamic import itself, so the chunk is not emitted at all.
+  expect(webglChunk).toBeUndefined();
+
+  // Regression budget, with headroom over the current size.
+  expect(staticallyLoadedBytes(metafile, 'samples/test_e2e/TreeShaking/mainWebGpu.ts')).toBeLessThan(600 * 1024);
 });
 
 test('TreeShaking optional-materials subpath provides the optional factories', () => {
@@ -184,6 +236,26 @@ test('TreeShaking sample does not download the PBR sheen LUT at runtime', async 
   await page.close();
 
   expect(requestedFiles).not.toContain(pbrChunkFileName);
+});
+
+test('TreeShaking sample does not download the light cluster system at runtime', async () => {
+  const metafile = readMetafile();
+  const chunk = Object.entries(metafile.outputs).find(([, output]) =>
+    output.entryPoint?.endsWith('dist/esmdev/foundation/renderer/lightCluster/LightClusterSystem.js')
+  )?.[0];
+  // The system stays a lazy chunk; the sample has no lights, so it must not be requested.
+  expect(chunk).toBeDefined();
+  const chunkFileName = chunk.split('/').pop();
+
+  const page = await browser.newPage();
+  const requestedFiles = [];
+  page.on('request', request => requestedFiles.push(request.url().split('/').pop()));
+  await page.setDefaultNavigationTimeout(2000000);
+  await page.goto(setURL);
+  await page.waitForFunction(() => window._rendered, { timeout: 2000000 });
+  await page.close();
+
+  expect(requestedFiles).not.toContain(chunkFileName);
 });
 
 test('TreeShaking sample does not download the XR module at runtime', async () => {

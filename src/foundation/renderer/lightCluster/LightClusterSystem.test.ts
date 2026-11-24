@@ -35,6 +35,8 @@ async function createScene(config: Rn.Config, lightDescs: TestLightDesc[]) {
     if (desc.position != null) entity.localPosition = Rn.Vector3.fromCopyArray(desc.position);
     return light;
   });
+  // Light components request the lazy light cluster system; wait for it before using it directly.
+  await engine._ensureLightClusterSystem();
 
   const cameraEntity = Rn.createCameraEntity(engine, true);
   const camera = cameraEntity.getCamera();
