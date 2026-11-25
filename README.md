@@ -114,12 +114,46 @@ If you get an error like "webxr-input-profiles not found" when building a projec
 
 There are two package versions of Rhodonite: ESModule and IIFE.
 
-#### Using ESModule package
+#### Using the ESModule package
 
-You don't need any bundler.
+##### With a bundler
+
+Import the package by its name. The bundler resolves `rhodonite` to `dist/esm/index.js` through the `exports` field of
+`package.json`.
+
+```typescript
+// main.ts
+import Rn from 'rhodonite';
+// import Rn from 'rhodonite/dist/esmdev/index.js'; // use this if you want to display the source map or step through the library
+
+// Init Rhodonite
+const engine = await Rn.Engine.init({
+  approach: Rn.ProcessApproach.WebGL2,
+  canvas: document.getElementById('world') as HTMLCanvasElement,
+});
+
+// create a Plane mesh
+const planeEntity = Rn.MeshHelper.createPlane(engine);
+planeEntity.eulerAngles = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
+
+// Render Loop
+engine.startRenderLoop(() => {
+  engine.processAuto();
+});
+```
+
+The `esmdev` build is not minified and carries inline source maps, so keep it for development and switch back to
+`rhodonite` for production builds.
+
+The default export `Rn` references every export, so it always bundles the whole library. To keep only what you use in
+the bundle, import the functions by name instead. See [Tree shaking](#tree-shaking).
+
+##### Without a bundler
+
+A browser cannot resolve the bare specifier `rhodonite` by itself, so import the built file directly.
 
 ```html
-<script type="module" src="main.js">
+<script type="module" src="main.js"></script>
 ```
 
 ```typescript
@@ -143,6 +177,23 @@ engine.startRenderLoop(() => {
 });
 ```
 
+Alternatively, keep the bare specifier with an
+[import map](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap). It has to be declared
+before any module script:
+
+```html
+<script type="importmap">
+{
+  "imports": {
+    "rhodonite": "./node_modules/rhodonite/dist/esm/index.js"
+  }
+}
+</script>
+<script type="module" src="main.js"></script>
+```
+
+Either way, `tsconfig.json` looks like this:
+
 ```
 // tsconfig.json
 {
@@ -155,12 +206,6 @@ engine.startRenderLoop(() => {
   }
   ...
 }
-```
-
-If you use bundler, you can simply import rhodonite, like
-
-```
-import Rn from 'rhodonite';
 ```
 
 #### Tree shaking
