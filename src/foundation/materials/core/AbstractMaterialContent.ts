@@ -301,11 +301,28 @@ export abstract class AbstractMaterialContent extends RnObject {
 
   /**
    * Sets the shader semantics information array for this material.
+   *
+   * A semantic name may arrive more than once: a custom shader can reflect a
+   * parameter from its own `// #param` declaration while the material factory
+   * declares the same parameter explicitly (for example, the raymarching
+   * Uniform nodes). The material's field maps and the buffer view accessors are
+   * keyed by the semantic name, so a duplicate leaves a JS-side field pointing
+   * at another parameter's memory while the shader reads the first entry's
+   * slot, and `setParameter` then updates a value no shader reads. Keep a single
+   * definition per semantic: the later definition wins (the explicit factory
+   * one over the reflected one) at the position of its first appearance.
+   *
    * @param shaderSemanticsInfoArray - Array of shader semantics information to set
    */
   setShaderSemanticsInfoArray(shaderSemanticsInfoArray: ShaderSemanticsInfo[]) {
-    const infoArray: ShaderSemanticsInfo[] = [];
+    const uniqueInfoArray = new Map<string, ShaderSemanticsInfo>();
     for (const info of shaderSemanticsInfoArray) {
+      // Map.set on an existing key keeps the first insertion position and
+      // replaces the value, which is the wanted "later definition wins" rule.
+      uniqueInfoArray.set(info.semantic, info);
+    }
+    const infoArray: ShaderSemanticsInfo[] = [];
+    for (const info of uniqueInfoArray.values()) {
       infoArray.push(info);
     }
 

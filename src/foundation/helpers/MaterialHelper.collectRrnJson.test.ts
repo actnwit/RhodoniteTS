@@ -3,6 +3,7 @@ import { createRaymarchingEntity } from '../components/Raymarching/createRaymarc
 import { CompositionType } from '../definitions/CompositionType';
 import { ProcessApproach } from '../definitions/ProcessApproach';
 import { SdfShapeType } from '../definitions/SdfShapeType';
+import { Vector3 } from '../math/Vector3';
 import { Engine } from '../system/Engine';
 import { MaterialHelper } from './MaterialHelper';
 
@@ -195,4 +196,32 @@ test('declares Uniform node semantics on a per-component raymarching material', 
   expect(info!.compositionType).toBe(CompositionType.Vec3);
   const code: string = (material as any)._materialContent.pixelShaderityObject.code;
   expect(code).toContain('get_sizeUniform(');
+
+  // The shader reflects the same uniform from its "#param" declaration and the
+  // material factory declares it explicitly. The material must keep one
+  // definition per semantic: duplicates leave the JS-side field pointing at
+  // another parameter's memory, so setParameter() updates a slot the shader
+  // does not read (the editor's uniform sliders appeared to revert).
+  const semantics = material.fieldsInfoArray.map(fieldInfo => fieldInfo.semantic);
+  expect(semantics.filter(semantic => semantic === 'sizeUniform')).toHaveLength(1);
+  expect(new Set(semantics).size).toBe(semantics.length);
+
+  // Every declared parameter must own a distinct region of the material buffer.
+  const byteOffsetToSemantic = new Map<number, string>();
+  for (const fieldInfo of material.fieldsInfoArray) {
+    const value = material.getParameter(fieldInfo.semantic as any);
+    const byteOffset = value?._v?.byteOffset;
+    if (byteOffset == null) {
+      continue;
+    }
+    expect(byteOffsetToSemantic.get(byteOffset) ?? fieldInfo.semantic).toBe(fieldInfo.semantic);
+    byteOffsetToSemantic.set(byteOffset, fieldInfo.semantic);
+  }
+
+  // A runtime update goes to the value the shader reads, not to raymarchAabbMin.
+  material.setParameter('sizeUniform', Vector3.fromCopy3(3, 3, 3));
+  const sizeUniformValue = material.getParameter('sizeUniform');
+  expect([sizeUniformValue._v[0], sizeUniformValue._v[1], sizeUniformValue._v[2]]).toEqual([3, 3, 3]);
+  const aabbMinValue = material.getParameter('raymarchAabbMin');
+  expect(aabbMinValue._v[0]).not.toBe(3);
 });
