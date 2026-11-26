@@ -1,572 +1,246 @@
 # RhodoniteTS API Overview
 
-**Comprehensive API Reference and Usage Patterns**
+A short tour of the public API. Every example below follows code that exists in `samples/`; when in doubt, the
+samples and the generated [TypeDoc](./api/) are the reference. All examples use the default `Rn` namespace. With
+named imports (`import { Engine, ... } from 'rhodonite'`), the names are the same; see the README's
+"Tree shaking" section for what changes.
 
-> 🎯 **Quick Navigation**: [System](#system-api) | [ECS](#entity-component-system) | [Math](#mathematical-apis) | [Rendering](#rendering-apis) | [Assets](#asset-apis) | [Materials](#material-apis)
+> Most APIs take the `engine` instance as their first argument. Several engines can live in one page, so there are
+> no global singletons to initialize.
 
----
-
-## 🔧 System API
-
-### System Initialization
+## Engine
 
 ```typescript
 import Rn from 'rhodonite';
 
-// Basic initialization
-await Rn.Engine.init({
-  approach: Rn.ProcessApproach.WebGL2,
-  canvas: document.getElementById('canvas') as HTMLCanvasElement,
-});
-
-// Advanced initialization with WebGPU
-await Rn.Engine.init({
-  approach: Rn.ProcessApproach.WebGL2,
-  canvas: canvas,
-  webgpuOptions: {
-    requiredFeatures: ['texture-compression-bc'],
-  },
+const engine = await Rn.Engine.init({
+  approach: Rn.ProcessApproach.WebGL2, // or Rn.ProcessApproach.WebGPU
+  canvas: document.getElementById('world') as HTMLCanvasElement,
+  config: new Rn.Config({ logLevel: Rn.LogLevel.Info }), // optional
+  // webglOption: { ... },  // WebGLContextAttributes (WebGL2 only)
+  // xr: true,              // load the WebXR/WebAR support (default: true with the `Rn` default export)
 });
 ```
 
-### Core System Methods
+| Member | Purpose |
+|---|---|
+| `engine.startRenderLoop(fn)` / `stopRenderLoop()` | Run `fn` every animation frame |
+| `engine.process(expressions)` / `engine.process(frame)` | Render one frame from `Expression`s, or from a `Frame` given by `ForwardRenderPipeline` |
+| `engine.processAuto()` | Render every entity with the current camera; for quick tests |
+| `engine.resizeCanvas(w, h)` | Resize the canvas and the backbuffer |
+| `engine.entityRepository`, `engine.componentRepository`, `engine.materialRepository` | Per-engine repositories |
+| `engine.config` | The `Config` the engine was created with |
+| `engine.gpuTimerEnabled`, `engine.gpuTimeMilliseconds`, `engine.gpuPassTimesMilliseconds` | GPU timing (see [design-notes/performance-measurement.md](./design-notes/performance-measurement.md)) |
+| `await engine.enableXR()` | Load the XR support after init |
+| `engine.destroy()` | Release the engine |
 
-| Method | Purpose | Usage |
-|--------|---------|-------|
-| `System.init()` | Initialize Rhodonite | Required before any operations |
-| `System.startRenderLoop()` | Begin rendering | Pass render function |
-| `System.processAuto()` | Automatic processing | Call in render loop |
-| `System.process()` | Manual processing | For custom control |
+### Config
 
----
+`Config` holds the engine-wide settings. Pass it at init; most fields are read every frame. Rendering feature
+switches:
 
-## 🏗️ Entity-Component-System
+| Field | Default | Note |
+|---|---|---|
+| `isClusteredForwardEnabled`, `clusteredForward*` | `true` | [Clustered Forward](./design-notes/clustered-forward.md) |
+| `lightAutoRangeThreshold`, `lightRangeScale` | `0`, `1` | Let range-less lights be culled / trade reach for speed |
+| `maxLightNumber` | `6` | Lights that can cast shadows at the same time (0 disables shadow slots) |
+| `isMultiDrawEnabled` | `true` | WebGL2 [multi-draw](./design-notes/webgl-multidraw.md) |
+| `isGpuCullingEnabled`, `isComputeSkinningEnabled` | `true` | WebGPU [GPU culling](./design-notes/webgpu-gpu-culling.md) |
+| `isDepthPrepassEnabled` | `false` | WebGPU [depth prepass](./design-notes/webgpu-depth-prepass.md) |
+| `cacheWebGpuRenderBundles` | `true` | WebGPU render bundle caching |
+| `logLevel`, `cgApiDebugConsoleOutput` | `Warn`, `false` | Logging |
 
-### Entity Management
+The doc comment of each field in `src/foundation/core/Config.ts` explains its trade-offs.
+
+## Entities and components
+
+Entities are created by helper functions; each one adds the components it needs.
 
 ```typescript
-// Create entities
-const entity = Rn.EntityRepository.createEntity();
-const meshEntity = Rn.MeshHelper.createPlane(); // Helper with components
+const group = Rn.createGroupEntity(engine);          // Transform + SceneGraph
+const meshEntity = Rn.createMeshEntity(engine);       // + Mesh + MeshRenderer
+const light = Rn.createLightEntity(engine);           // + Light
+const camera = Rn.createCameraEntity(engine, true);   // + Camera (true: make it the current camera)
+const controlled = Rn.createCameraControllerEntity(engine, true); // + CameraController (mouse/touch control)
 
-// Entity hierarchy
-const parent = Rn.EntityRepository.createEntity();
-const child = Rn.EntityRepository.createEntity();
-parent.getSceneGraph().addChild(child.getSceneGraph());
+group.addChild(meshEntity.getSceneGraph());
+
+meshEntity.localPosition = Rn.Vector3.fromCopy3(1, 2, 3);
+meshEntity.localEulerAngles = Rn.Vector3.fromCopy3(0, Math.PI, 0);
+meshEntity.localScale = Rn.Vector3.fromCopy3(2, 2, 2);
 ```
 
-### Component System
+Other helpers: `createLightWithCameraEntity` (a light with a synchronized camera, for shadows),
+`createTransformEntity`, `createSkeletalEntity`, `createPhysicsEntity`, `createShapeEntity`,
+`createRaymarchingEntity`, `createCharacterControllerEntity`.
 
-#### Core Components
-
-```typescript
-// Transform Component
-const transform = entity.getTransform();
-transform.localPosition = Rn.Vector3.fromCopy3(1, 2, 3);
-transform.localEulerAngles = Rn.Vector3.fromCopy3(0, Math.PI, 0);
-transform.localScale = Rn.Vector3.fromCopy3(2, 2, 2);
-
-// Mesh Component
-const mesh = entity.getMesh();
-mesh.setMesh(primitive);
-
-// Camera Component
-const camera = entity.getCamera();
-camera.type = Rn.CameraType.Perspective;
-camera.fovy = Math.PI / 4;
-camera.aspect = canvas.width / canvas.height;
-camera.zNear = 0.1;
-camera.zFar = 1000.0;
-```
-
-#### Component Registration
+To add a component to an existing entity, pass the class (or, for the core components, the TID):
 
 ```typescript
-// Custom component registration
-class CustomComponent extends Rn.Component {
-  constructor(entityUid: number, componentSid: number, entityRepository: Rn.EntityRepository) {
-    super(entityUid, componentSid, entityRepository);
-  }
-
-  // Implement required methods
-  $load(): void { /* ... */ }
-  $logic(): void { /* ... */ }
-}
-
-// Register component type
-Rn.ComponentRepository.registerComponentClass(CustomComponent);
-```
-
----
-
-## 🧮 Mathematical APIs
-
-### Vector Operations
-
-```typescript
-// Vector3 - Immutable
-const v1 = Rn.Vector3.fromCopy3(1, 2, 3);
-const v2 = Rn.Vector3.fromCopy3(4, 5, 6);
-const result = v1.add(v2); // Returns new Vector3
-
-// MutableVector3 - Mutable
-const mv = Rn.MutableVector3.fromCopy3(1, 2, 3);
-mv.addSelf(v2); // Modifies mv directly
-
-// Common operations
-const length = v1.length();
-const normalized = v1.normalize();
-const dot = v1.dot(v2);
-const cross = v1.cross(v2);
-```
-
-### Matrix Operations
-
-```typescript
-// Matrix44 creation
-const identity = Rn.Matrix44.identity();
-const translation = Rn.Matrix44.translate(Rn.Vector3.fromCopy3(1, 2, 3));
-const rotation = Rn.Matrix44.rotateY(Math.PI / 4);
-const scale = Rn.Matrix44.scale(Rn.Vector3.fromCopy3(2, 2, 2));
-
-// Matrix composition
-const transform = translation.multiply(rotation).multiply(scale);
-
-// View and projection matrices
-const view = Rn.Matrix44.lookAt(
-  Rn.Vector3.fromCopy3(0, 0, 5), // eye
-  Rn.Vector3.fromCopy3(0, 0, 0), // target
-  Rn.Vector3.fromCopy3(0, 1, 0)  // up
-);
-
-const projection = Rn.Matrix44.perspective(
-  Math.PI / 4, // fovy
-  aspect,      // aspect ratio
-  0.1,         // near
-  1000.0       // far
+const withLight = engine.entityRepository.tryToAddComponentToEntityByTID(
+  Rn.WellKnownComponentTIDs.LightComponentTID,
+  meshEntity
 );
 ```
 
-### Quaternion Operations
+Component classes are registered when they are first added to an entity. `tryToAddComponentToEntityByTID` finds only
+the core classes (Transform, SceneGraph, Mesh, MeshRenderer, Camera, CameraController, Light, Animation) and classes
+added before; use `engine.entityRepository.addComponentToEntity(ComponentClass, entity)` for the others.
+
+## Meshes and materials
 
 ```typescript
-// Quaternion creation
-const q1 = Rn.Quaternion.fromAxisAngle(Rn.Vector3.fromCopy3(0, 1, 0), Math.PI / 2);
-const q2 = Rn.Quaternion.fromEulerAngles(Rn.Vector3.fromCopy3(0, Math.PI / 4, 0));
+const material = Rn.MaterialHelper.createPbrUberMaterial(engine, { isLighting: true, isShadow: true });
+material.setParameter('baseColorFactor', Rn.Vector4.fromCopy4(0.9, 0.3, 0.2, 1));
+material.setParameter('metallicRoughnessFactor', Rn.Vector2.fromCopy2(1.0, 0.15));
 
-// Quaternion operations
-const combined = Rn.Quaternion.multiply(q1, q2);
-const interpolated = Rn.Quaternion.qlerp(q1, q2, 0.5);
-
-// Vector transformation
-const vector = Rn.Vector3.fromCopy3(1, 0, 0);
-const rotated = q1.transformVector3(vector);
+const plane = Rn.MeshHelper.createPlane(engine, { width: 12, height: 12, uSpan: 1, vSpan: 1, material });
+const cube = Rn.MeshHelper.createCube(engine, { widthVector: Rn.Vector3.fromCopy3(0.5, 0.5, 0.5), material });
+const sphere = Rn.MeshHelper.createSphere(engine, { radius: 0.6, widthSegments: 32, heightSegments: 24, material });
 ```
 
----
+- Material factories also exist as named exports (`createPbrUberMaterial`, `createClassicUberMaterial`,
+  `createMatCapMaterial`, ... in `src/foundation/helpers/materials/`). Prefer them in applications that care about
+  bundle size: the `MaterialHelper` object references every material.
+- Node-based materials, raymarching materials and MToon come from the `rhodonite/optional-materials` subpath
+  (`createNodeBasedCustomMaterial`, `createMToon0xMaterial`, `createMToon1Material`, ...).
+- For hand-written shaders, see `samples/test_e2e/CustomShader` (it has its own README).
 
-## 🎨 Rendering APIs
+## Rendering
 
-### Render Pipeline
-
-```typescript
-// Create render pass
-const renderPass = new Rn.RenderPass();
-renderPass.cameraComponent = cameraEntity.getCamera();
-renderPass.clearColor = Rn.Vector4.fromCopy4(0.2, 0.2, 0.2, 1.0);
-renderPass.clearDepth = 1.0;
-
-// Add entities to render
-renderPass.addEntities([meshEntity1, meshEntity2]);
-
-// Execute render pass
-Rn.Engine.process([renderPass]);
-```
-
-### Frame Buffer Management
+### Expressions and render passes
 
 ```typescript
-// Create render target
-const frameBuffer = Rn.RenderableHelper.createFrameBuffer({
-  width: 1024,
-  height: 1024,
-  textureNum: 1,
-  colorAttachmentFormats: [Rn.TextureFormat.RGBA8],
-  depthAttachmentFormat: Rn.TextureFormat.Depth32F,
-});
+const renderPass = new Rn.RenderPass(engine);
+renderPass.cameraComponent = camera.getCamera();
+renderPass.clearColor = Rn.Vector4.fromCopy4(0.05, 0.06, 0.08, 1);
+renderPass.toClearColorBuffer = true;
+renderPass.toClearDepthBuffer = true;
+renderPass.addEntities([plane, cube, sphere]);
 
-// Use as render target
-renderPass.setFramebuffer(frameBuffer);
-```
+const expression = new Rn.Expression();
+expression.addRenderPasses([renderPass]);
 
-### Multi-API Support
-
-```typescript
-// Check API availability
-const isWebGPUSupported = Rn.Config.cgApiDebugMode === 'webgpu';
-const isWebGL2Supported = Rn.Config.cgApiDebugMode === 'webgl2';
-
-// API-specific configuration
-if (isWebGPUSupported) {
-  // WebGPU-specific setup
-  await Rn.Engine.init({
-    approach: Rn.ProcessApproach.WebGL2,
-    canvas: canvas,
-    webgpuOptions: { /* WebGPU options */ }
-  });
-} else {
-  // WebGL2 fallback
-  await Rn.Engine.init({
-    approach: Rn.ProcessApproach.WebGL2,
-    canvas: canvas,
-  });
-}
-```
-
----
-
-## 📦 Asset APIs
-
-### glTF/VRM Loading
-
-```typescript
-// Load glTF file
-const gltfImporter = Rn.GltfImporter.getInstance();
-const expression = await gltfImporter.import('path/to/model.gltf', {
-  files: files, // FileList from drag & drop
-  cameraComponent: cameraEntity.getCamera(),
-  defaultMaterialHelperArgumentArray: [{
-    makeOutputSrgb: false,
-  }],
-});
-
-// Load VRM file
-const vrmImporter = Rn.VrmImporter.getInstance();
-const vrmExpression = await vrmImporter.import('path/to/avatar.vrm', {
-  files: files,
-  cameraComponent: cameraEntity.getCamera(),
+engine.startRenderLoop(() => {
+  engine.process([expression]);
 });
 ```
 
-### Texture Loading
+Render targets are created with `Rn.RenderableHelper.createFrameBuffer(engine, { ... })` and set with
+`renderPass.setFramebuffer(frameBuffer)`.
+
+### ForwardRenderPipeline
+
+`ForwardRenderPipeline` builds the usual passes around your expressions: shadows, MSAA or TAA, transmission,
+bloom, IBL and tone mapping.
 
 ```typescript
-// Load texture from URL
-const texture = await Rn.TextureLoader.loadTexture('path/to/texture.jpg');
-
-// Load KTX2 compressed texture
-const ktx2Texture = await Rn.KTX2TextureLoader.loadTexture('path/to/texture.ktx2');
-
-// Create texture from ImageData
-const canvas = document.createElement('canvas');
-const ctx = canvas.getContext('2d')!;
-// ... draw to canvas
-const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-const texture = Rn.TextureHelper.createTextureFromImageData(imageData);
-```
-
-### Asset Management
-
-```typescript
-// Asset loader with extension detection
-const assetLoader = Rn.AssetLoader.getInstance();
-assetLoader.loadAsset('path/to/asset.gltf', {
-  // Loader options
-}).then((asset) => {
-  // Handle loaded asset
+const pipeline = new Rn.ForwardRenderPipeline(engine);
+await pipeline.setup(canvas.width, canvas.height, {
+  isShadow: true,      // shadow maps for lights with castShadow
+  isBloom: false,
+  shadowMapSize: 1024,
+  isSimple: false,     // true: no post effects
+  isTemporalAA: false, // true: TAA instead of 4x MSAA (see design-notes/temporal-aa.md)
 });
-
-// Memory management
-Rn.MemoryManager.freeMemoryIfNoEntity(); // Cleanup unused resources
-```
-
----
-
-## 🎭 Material APIs
-
-### PBR Materials
-
-```typescript
-// Create PBR material
-const material = Rn.MaterialHelper.createPbrUberMaterial();
-
-// Set PBR properties
-material.setParameter('baseColorFactor', Rn.Vector4.fromCopy4(1, 0, 0, 1));
-material.setParameter('metallicFactor', 0.0);
-material.setParameter('roughnessFactor', 0.5);
-
-// Set textures
-material.setTextureParameter('baseColorTexture', baseColorTexture);
-material.setTextureParameter('normalTexture', normalTexture);
-material.setTextureParameter('metallicRoughnessTexture', mrTexture);
-```
-
-### Custom Materials
-
-```typescript
-// Create custom material content
-class CustomMaterialContent extends Rn.AbstractMaterialContent {
-  constructor(materialTypeName: string) {
-    super(null, materialTypeName, {}, '');
-  }
-
-  // Implement vertex shader
-  _getVertexShaderMethodDefinitions() {
-    return `
-      vec4 getWorldPosition(vec3 position_inLocal) {
-        return worldMatrix * vec4(position_inLocal, 1.0);
-      }
-    `;
-  }
-
-  // Implement fragment shader
-  _getPixelShaderMethodDefinitions() {
-    return `
-      vec4 getBaseColor() {
-        return vec4(1.0, 0.0, 0.0, 1.0);
-      }
-    `;
-  }
-}
-
-// Register and use custom material
-Rn.MaterialRepository.registerMaterial('CustomMaterial', CustomMaterialContent);
-const customMaterial = Rn.MaterialHelper.createMaterial('CustomMaterial');
-```
-
-### Shader Nodes
-
-```typescript
-// Create shader node material
-const material = Rn.MaterialHelper.createShaderGraphMaterial();
-
-// Add shader nodes
-const baseColorNode = new Rn.ConstantVector4VariableShaderNode('baseColor');
-const normalNode = new Rn.AttributeNormalShaderNode();
-const outputNode = new Rn.OutColorShaderNode();
-
-// Connect nodes
-material.addShaderNode(baseColorNode);
-material.addShaderNode(normalNode);
-material.addShaderNode(outputNode);
-
-// Define connections
-material.connectShaderNodes(baseColorNode, 'output', outputNode, 'color');
-```
-
----
-
-## 🎮 Animation APIs
-
-### Keyframe Animation
-
-```typescript
-// Get animation component
-const animationComponent = entity.getAnimation();
-
-// Load animation from glTF
-const animationImporter = new Rn.AnimationImporter();
-const animations = await animationImporter.import(gltfAsset);
-
-// Play animation
-animationComponent.setAnimation(animations[0]);
-animationComponent.play();
-
-// Animation control
-animationComponent.setPlaybackRate(2.0); // 2x speed
-animationComponent.setCurrentTime(5.0);  // Seek to 5 seconds
-animationComponent.pause();
-animationComponent.resume();
-```
-
-### Skeletal Animation
-
-```typescript
-// Skeletal component for bone animation
-const skeletalComponent = entity.getSkeletal();
-
-// Set up bone hierarchy
-const rootJoint = new Rn.Joint();
-rootJoint.setRestPose(restPoseMatrix);
-skeletalComponent.setJoints([rootJoint, ...childJoints]);
-
-// Bind to mesh
-const meshComponent = entity.getMesh();
-meshComponent.setJoints(skeletalComponent.joints);
-```
-
-### Blend Shapes (Morph Targets)
-
-```typescript
-// Blend shape component for morph targets
-const blendShapeComponent = entity.getBlendShape();
-
-// Set morph weights
-blendShapeComponent.setWeight(0, 0.5); // 50% weight for first target
-blendShapeComponent.setWeight(1, 0.3); // 30% weight for second target
-
-// Animate weights over time
-const startWeight = 0.0;
-const endWeight = 1.0;
-const duration = 2.0; // seconds
-// Use animation system or manual interpolation
-```
-
----
-
-## 🔧 Helper Functions
-
-### Mesh Helpers
-
-```typescript
-// Create primitive meshes
-const planeEntity = Rn.MeshHelper.createPlane();
-const cubeEntity = Rn.MeshHelper.createCube();
-const sphereEntity = Rn.MeshHelper.createSphere();
-
-// Create mesh with custom geometry
-const primitive = new Rn.Primitive();
-primitive.setIndicesAccessor(indicesAccessor);
-primitive.setAttribute('POSITION', positionAccessor);
-primitive.setAttribute('NORMAL', normalAccessor);
-primitive.setAttribute('TEXCOORD_0', texCoordAccessor);
-
-const meshEntity = Rn.MeshHelper.createMeshEntity();
-meshEntity.getMesh().setMesh(primitive);
-```
-
-### Camera Helpers
-
-```typescript
-// Create camera entity with controller
-const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
-const cameraController = cameraEntity.getCameraController();
-
-// Orbit controller
-cameraController.setControllerType(Rn.CameraControllerType.Orbit);
-cameraController.dolly = 10.0;
-cameraController.setTarget(Rn.Vector3.fromCopy3(0, 0, 0));
-
-// Walk-through controller
-cameraController.setControllerType(Rn.CameraControllerType.WalkThrough);
-cameraController.setWalkThrough(Rn.Vector3.fromCopy3(0, 0, 5));
-```
-
-### Light Helpers
-
-```typescript
-// Create directional light
-const lightEntity = Rn.LightHelper.createDirectionalLight();
-const light = lightEntity.getLight();
-light.intensity = 2.0;
-light.color = Rn.Vector3.fromCopy3(1, 1, 1);
-
-// Create point light
-const pointLightEntity = Rn.LightHelper.createPointLight();
-pointLightEntity.getTransform().localPosition = Rn.Vector3.fromCopy3(0, 5, 0);
-
-// Create spot light
-const spotLightEntity = Rn.LightHelper.createSpotLight();
-const spotLight = spotLightEntity.getLight();
-spotLight.outerConeAngle = Math.PI / 4;
-spotLight.innerConeAngle = Math.PI / 6;
-```
-
----
-
-## 🚨 Error Handling
-
-### Result Pattern
-
-```typescript
-import { Result, Ok, Err } from 'rhodonite';
-
-// Functions return Result<T, Error>
-const result = Rn.SomeAPI.tryOperation();
-
-if (result.isOk()) {
-  const value = result.get(); // Success value
-  // Handle success
-} else {
-  const error = result.getErr(); // Error information
-  console.error('Operation failed:', error.message);
-}
-
-// Chain operations
-const finalResult = result
-  .andThen(value => Rn.AnotherAPI.processValue(value))
-  .andThen(processed => Rn.YetAnotherAPI.finalStep(processed));
-```
-
-### Exception Handling
-
-```typescript
-try {
-  await Rn.Engine.init(config);
-} catch (error) {
-  if (error instanceof Rn.RnException) {
-    console.error('Rhodonite error:', error.message);
-    console.error('Error code:', error.error);
-  } else {
-    console.error('Unexpected error:', error);
-  }
-}
-```
-
----
-
-## 🔍 Debugging & Performance
-
-### Debug Information
-
-```typescript
-// Enable debug mode
-Rn.Config.cgApiDebugMode = 'webgl2'; // or 'webgpu'
-Rn.Config.isDebugMode = true;
-
-// Memory usage
-const memoryInfo = Rn.MemoryManager.getMemoryInfo();
-console.log('Memory usage:', memoryInfo);
-
-// Performance monitoring
-const stats = Rn.Engine.getPerformanceStats();
-console.log('Frame time:', stats.frameTime);
-console.log('Draw calls:', stats.drawCalls);
-```
-
-### Memory Management
-
-```typescript
-// Manual memory cleanup
-entity.tryToDestroy(); // Destroy entity and components
-Rn.MaterialRepository.destroyMaterial(material);
-Rn.TextureRepository.destroyTexture(texture);
-
-// Automatic cleanup
-Rn.MemoryManager.freeMemoryIfNoEntity();
-```
-
----
-
-## 📱 WebXR Integration
-
-### VR Setup
-
-```typescript
-// Initialize WebXR
-const webXRSystem = Rn.WebXRSystem.getInstance();
-await webXRSystem.setupWebXRSession({
-  sessionMode: 'immersive-vr',
-  canvas: canvas,
+pipeline.setExpressions([expression]);
+
+const diffuse = await Rn.CubeTexture.loadFromUrl(engine, {
+  baseUrl: './assets/ibl/papermill/diffuse/diffuse',
+  mipmapLevelNumber: 1,
+  isNamePosNeg: true,
+  hdriFormat: Rn.HdriFormat.RGBE_PNG,
 });
+// ... load `specular` the same way (with its mip count) ...
+pipeline.setIBLTextures(diffuse, specular);
 
-// XR render loop
-webXRSystem.startRenderLoop(() => {
-  // XR-specific rendering
-  Rn.Engine.processAuto();
+pipeline.startRenderLoop(frame => {
+  engine.process(frame);
 });
 ```
 
----
+Other members: `resize(w, h)`, `setToneMappingType(type)`, `setDiffuseIBLContribution(v)`,
+`setSpecularIBLContribution(v)`, `setIBLRotation(radian)`, `resetTemporalAAHistory()`.
 
-**Last Updated**: Generated by /sc:index | **Version**: 0.17.4 | **TypeScript**: ES2019+ | **APIs**: WebGL2 + WebGPU
+### Lights and shadows without the pipeline
+
+```typescript
+const sun = Rn.createLightWithCameraEntity(engine);
+sun.getLight().type = Rn.LightType.Directional;
+sun.getLight().intensity = 2.5;
+sun.getLight().castShadow = true;
+
+const point = Rn.createLightEntity(engine);
+point.getLight().type = Rn.LightType.Point;
+point.getLight().range = 2; // a range lets Clustered Forward cull the light
+
+const shadowSystem = new Rn.ShadowSystem(engine, 1024);
+const shadowExpressions = shadowSystem.getExpressions(entities);
+engine.startRenderLoop(() => {
+  shadowSystem.setDepthBiasPV(entities);
+  engine.process([...shadowExpressions, expression]);
+});
+```
+
+## Loading assets
+
+```typescript
+// glTF / GLB / VRM (format detected automatically). Returns an Expression.
+const modelExpression = await Rn.GltfImporter.importFromUrl(engine, './model.glb', {
+  cameraComponent: camera.getCamera(),
+});
+
+// Textures
+const texture = await Rn.Texture.loadFromUrl(engine, './albedo.png');
+```
+
+`Rn.Gltf2Importer.importFromUrl(url)` returns the parsed glTF (`RnM2`) without creating entities;
+`Rn.ModelConverter.convertToRhodoniteObject(engine, gltfModel)` converts it. `Rn.VrmaImporter` loads VRMA
+animations. To load many promises with a concurrency limit, timeouts and retries, see [AssetLoader.md](./AssetLoader.md).
+
+## Animation
+
+```typescript
+Rn.AnimationComponent.setActiveAnimationForAll(engine, trackName); // choose the track of every animated entity
+Rn.AnimationComponent.setGlobalTime(engine, seconds);               // drive the time yourself
+entity.tryToGetAnimation()?.setIsAnimating(false);                  // pause one entity
+```
+
+Blend shape weights: `entity.tryToGetBlendShape()?.setWeightByIndex(0, 0.5)` or `.weights = [...]`.
+
+## Math
+
+Immutable classes (`Vector3`, `Matrix44`, `Quaternion`, ...) have static operations that return new objects, and
+`To` variants that write into a mutable output. Mutable classes (`MutableVector3`, ...) also have in-place instance
+methods.
+
+```typescript
+const a = Rn.Vector3.fromCopy3(1, 2, 3);
+const b = Rn.Vector3.fromCopy3(4, 5, 6);
+const sum = Rn.Vector3.add(a, b);
+const dot = a.dot(b);
+const cross = Rn.Vector3.cross(a, b);
+const unit = Rn.Vector3.normalize(a);
+
+const m = Rn.MutableVector3.fromCopy3(1, 2, 3);
+m.add(b); // in place
+
+const q = Rn.Quaternion.fromAxisAngle(Rn.Vector3.fromCopy3(0, 1, 0), Math.PI / 2);
+const rotated = q.transformVector3(a);
+const mid = Rn.Quaternion.qlerp(q, Rn.Quaternion.identity(), 0.5);
+
+const t = Rn.Matrix44.translate(Rn.Vector3.fromCopy3(1, 2, 3));
+const r = Rn.Matrix44.rotateY(Math.PI / 4);
+const tr = Rn.Matrix44.multiply(t, r);
+```
+
+## Errors
+
+Some APIs return `Result<T, E>` (`Ok` / `Err` in `src/foundation/misc/Result.ts`): check `isOk()`, then `get()`, or
+`getRnError()` on failure. Errors thrown by the engine are `RnException` instances.
+
+## WebXR
+
+With the default `Rn` export, or `Engine.init({ xr: true })`, or after `await engine.enableXR()`, the XR systems are
+available as `engine.webXRSystem` and `engine.webARSystem` (`src/xr/WebXRSystem.ts`, `src/xr/WebARSystem.ts`).
+Without XR support, reading `engine.webXRSystem` throws an error that says how to enable it.

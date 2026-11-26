@@ -40,10 +40,10 @@ const DEFAULT_FAILURE_THRESHOLD = 0;
 
 // The reference images are generated in the CI environment (Ubuntu + Mesa
 // llvmpipe/lavapipe, see config/e2e/Dockerfile). Runs on that platform compare
-// against them. GitHub's hosted runners use a different CPU/instance than a
-// local container, and a few numerically sensitive samples (anisotropy,
-// clearcoat, IBL) plus the mouse-interaction samples differ by up to ~3.5%
-// between machines, so CI sets E2E_REFERENCE_FAILURE_THRESHOLD as a floor.
+// against them. CI (ubuntu-24.04-arm, the same architecture as the container)
+// compares strictly: the workflow does not set E2E_REFERENCE_FAILURE_THRESHOLD.
+// If a hosted runner ever renders differently from the machine that generated
+// the references, that variable raises the floor for the reference environment.
 // Other platforms (macOS with a real GPU) render differently again and keep
 // their own floor.
 const IS_REFERENCE_ENVIRONMENT = process.env.E2E_REFERENCE_ENVIRONMENT !== '0' && process.platform === 'linux';

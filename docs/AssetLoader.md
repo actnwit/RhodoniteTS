@@ -12,6 +12,8 @@ AssetLoaderは、Rhodoniteで様々なPromiseを型安全に読み込むため�
 
 ## 基本的な使用方法
 
+以下の例の `engine` は `await Rn.Engine.init({...})` で作成した `Engine` インスタンスです。実際に動くコードは `samples/test_e2e/AssetLoader-Example` を参照してください。
+
 ### インスタンスの作成
 
 ```typescript
@@ -37,19 +39,19 @@ const noTimeoutLoader = new Rn.AssetLoader({
 ```typescript
 // オブジェクト形式でPromiseを読み込み
 const assets = await assetLoader.load({
-  environment: Rn.CubeTexture.fromUrl({
+  environment: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: '/assets/ibl/environment/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.HDR_LINEAR,
   }),
-  specular: Rn.CubeTexture.fromUrl({
+  specular: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: '/assets/ibl/specular/specular',
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
   }),
-  diffuse: Rn.CubeTexture.fromUrl({
+  diffuse: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: '/assets/ibl/diffuse/diffuse',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
@@ -68,24 +70,20 @@ console.log(assets.diffuse);     // CubeTexture
 ```typescript
 // 異なる型のアセットを一括読み込み
 const mixedAssets = await assetLoader.load({
-  cubeTexture: Rn.CubeTexture.fromUrl({
+  cubeTexture: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: '/assets/ibl/environment/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.HDR_LINEAR,
   }),
-  texture: (async () => {
-    const tex = new Rn.Texture();
-    await tex.generateTextureFromUri('/assets/textures/albedo.jpg');
-    return tex;
-  })(),
-  model: Rn.Gltf2Importer.importFromUri('/assets/models/model.gltf')
+  texture: Rn.Texture.loadFromUrl(engine, '/assets/textures/albedo.jpg'),
+  model: Rn.Gltf2Importer.importFromUrl('/assets/models/model.gltf')
 });
 
 // 型推論により、各プロパティの型が正確に推論される
 console.log(mixedAssets.cubeTexture); // CubeTexture
 console.log(mixedAssets.texture);     // Texture
-console.log(mixedAssets.model);       // Gltf2
+console.log(mixedAssets.model);       // RnM2（パース済みのglTF。エンティティ化は ModelConverter で行う）
 ```
 
 ### その他のAPI
@@ -94,7 +92,7 @@ console.log(mixedAssets.model);       // Gltf2
 
 ```typescript
 const texture = await assetLoader.loadSingle(
-  Rn.CubeTexture.fromUrl({
+  Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: '/assets/ibl/environment/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
@@ -108,14 +106,14 @@ const texture = await assetLoader.loadSingle(
 ```typescript
 const texture = await assetLoader.loadWithRetrySingle([
   // 最初の試行
-  () => Rn.CubeTexture.fromUrl({
+  () => Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: 'https://main-server.com/assets/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.HDR_LINEAR,
   }),
   // 1回目のリトライ
-  () => Rn.CubeTexture.fromUrl({
+  () => Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: 'https://backup-server.com/assets/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
@@ -128,19 +126,19 @@ const texture = await assetLoader.loadWithRetrySingle([
 
 ```typescript
 const [texture1, texture2, texture3] = await assetLoader.loadArray([
-  Rn.CubeTexture.fromUrl({
+  Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: '/assets/ibl/environment/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.HDR_LINEAR,
   }),
-  Rn.CubeTexture.fromUrl({
+  Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: '/assets/ibl/specular/specular',
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
   }),
-  Rn.CubeTexture.fromUrl({
+  Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: '/assets/ibl/diffuse/diffuse',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
@@ -156,21 +154,21 @@ const [texture1, texture2, texture3] = await assetLoader.loadArray([
 const textures = await assetLoader.loadWithRetryArray([
   [
     // 最初の試行: メインサーバー
-    () => Rn.CubeTexture.fromUrl({
+    () => Rn.CubeTexture.loadFromUrl(engine, {
       baseUrl: 'https://main-server.com/assets/environment',
       mipmapLevelNumber: 1,
       isNamePosNeg: true,
       hdriFormat: Rn.HdriFormat.HDR_LINEAR,
     }),
     // 1回目のリトライ: バックアップサーバー
-    () => Rn.CubeTexture.fromUrl({
+    () => Rn.CubeTexture.loadFromUrl(engine, {
       baseUrl: 'https://backup-server.com/assets/environment',
       mipmapLevelNumber: 1,
       isNamePosNeg: true,
       hdriFormat: Rn.HdriFormat.HDR_LINEAR,
     }),
     // 2回目のリトライ: 異なるフォーマット
-    () => Rn.CubeTexture.fromUrl({
+    () => Rn.CubeTexture.loadFromUrl(engine, {
       baseUrl: 'https://main-server.com/assets/environment',
       mipmapLevelNumber: 1,
       isNamePosNeg: true,
@@ -179,14 +177,14 @@ const textures = await assetLoader.loadWithRetryArray([
   ],
   [
     // specularテクスチャの戦略
-    () => Rn.CubeTexture.fromUrl({
+    () => Rn.CubeTexture.loadFromUrl(engine, {
       baseUrl: 'https://main-server.com/assets/specular',
       mipmapLevelNumber: 10,
       isNamePosNeg: true,
       hdriFormat: Rn.HdriFormat.RGBE_PNG,
     }),
     // リトライ: 低解像度版を試行
-    () => Rn.CubeTexture.fromUrl({
+    () => Rn.CubeTexture.loadFromUrl(engine, {
       baseUrl: 'https://main-server.com/assets/specular_low',
       mipmapLevelNumber: 5,
       isNamePosNeg: true,
@@ -203,14 +201,14 @@ const textures = await assetLoader.loadWithRetryArray([
 const assets = await assetLoader.loadWithRetry({
   environment: [
     // 最初の試行
-    () => Rn.CubeTexture.fromUrl({
+    () => Rn.CubeTexture.loadFromUrl(engine, {
       baseUrl: 'https://main-server.com/assets/environment',
       mipmapLevelNumber: 1,
       isNamePosNeg: true,
       hdriFormat: Rn.HdriFormat.HDR_LINEAR,
     }),
     // リトライ1: バックアップサーバー
-    () => Rn.CubeTexture.fromUrl({
+    () => Rn.CubeTexture.loadFromUrl(engine, {
       baseUrl: 'https://backup-server.com/assets/environment',
       mipmapLevelNumber: 1,
       isNamePosNeg: true,
@@ -219,21 +217,21 @@ const assets = await assetLoader.loadWithRetry({
   ],
   specular: [
     // 最初の試行
-    () => Rn.CubeTexture.fromUrl({
+    () => Rn.CubeTexture.loadFromUrl(engine, {
       baseUrl: 'https://main-server.com/assets/specular',
       mipmapLevelNumber: 10,
       isNamePosNeg: true,
       hdriFormat: Rn.HdriFormat.RGBE_PNG,
     }),
     // リトライ1: 低解像度版
-    () => Rn.CubeTexture.fromUrl({
+    () => Rn.CubeTexture.loadFromUrl(engine, {
       baseUrl: 'https://main-server.com/assets/specular_low',
       mipmapLevelNumber: 5,
       isNamePosNeg: true,
       hdriFormat: Rn.HdriFormat.RGBE_PNG,
     }),
     // リトライ2: 異なるフォーマット
-    () => Rn.CubeTexture.fromUrl({
+    () => Rn.CubeTexture.loadFromUrl(engine, {
       baseUrl: 'https://main-server.com/assets/specular',
       mipmapLevelNumber: 10,
       isNamePosNeg: true,
@@ -254,13 +252,13 @@ console.log(assets.specular);    // CubeTexture
 ```typescript
 // 型安全性がなく、any型として扱われる
 const promises = [];
-promises.push(Rn.CubeTexture.fromUrl({
+promises.push(Rn.CubeTexture.loadFromUrl(engine, {
   baseUrl: '/assets/ibl/environment/environment',
   mipmapLevelNumber: 1,
   isNamePosNeg: true,
   hdriFormat: Rn.HdriFormat.HDR_LINEAR,
 }));
-promises.push(Rn.CubeTexture.fromUrl({
+promises.push(Rn.CubeTexture.loadFromUrl(engine, {
   baseUrl: '/assets/ibl/specular/specular',
   mipmapLevelNumber: 10,
   isNamePosNeg: true,
@@ -277,13 +275,13 @@ const [envTexture, specTexture] = await Promise.all(promises);
 ```typescript
 // 型安全で、適切な型が推論される
 const assets = await assetLoader.load({
-  environment: Rn.CubeTexture.fromUrl({
+  environment: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: '/assets/ibl/environment/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.HDR_LINEAR,
   }),
-  specular: Rn.CubeTexture.fromUrl({
+  specular: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: '/assets/ibl/specular/specular',
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
@@ -304,19 +302,19 @@ console.log(assets.specular);    // CubeTexture
 ```typescript
 // 元のコード
 const promises = [];
-promises.push(Rn.CubeTexture.fromUrl({
+promises.push(Rn.CubeTexture.loadFromUrl(engine, {
   baseUrl: basePathIBL + '/environment/environment',
   mipmapLevelNumber: 1,
   isNamePosNeg: true,
   hdriFormat: Rn.HdriFormat.HDR_LINEAR,
 }));
-promises.push(Rn.CubeTexture.fromUrl({
+promises.push(Rn.CubeTexture.loadFromUrl(engine, {
   baseUrl: basePathIBL + '/specular/specular',
   mipmapLevelNumber: 10,
   isNamePosNeg: true,
   hdriFormat: Rn.HdriFormat.RGBE_PNG,
 }));
-promises.push(Rn.CubeTexture.fromUrl({
+promises.push(Rn.CubeTexture.loadFromUrl(engine, {
   baseUrl: basePathIBL + '/diffuse/diffuse',
   mipmapLevelNumber: 1,
   isNamePosNeg: true,
@@ -327,19 +325,19 @@ const [cubeTextureEnvironment, cubeTextureSpecular, cubeTextureDiffuse] = await 
 // AssetLoaderを使った置き換え
 const assetLoader = new Rn.AssetLoader();
 const assets = await assetLoader.load({
-  environment: Rn.CubeTexture.fromUrl({
+  environment: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: basePathIBL + '/environment/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.HDR_LINEAR,
   }),
-  specular: Rn.CubeTexture.fromUrl({
+  specular: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: basePathIBL + '/specular/specular',
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
   }),
-  diffuse: Rn.CubeTexture.fromUrl({
+  diffuse: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: basePathIBL + '/diffuse/diffuse',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
@@ -374,15 +372,15 @@ console.log('すべての読み込みが完了しました');
 ```typescript
 // 複数のロード処理を同時に開始（awaitしない）
 const loadPromise1 = assetLoader.load({
-  env1: Rn.CubeTexture.fromUrl({...})
+  env1: Rn.CubeTexture.loadFromUrl(engine, {...})
 });
 
 const loadPromise2 = assetLoader.load({
-  env2: Rn.CubeTexture.fromUrl({...})
+  env2: Rn.CubeTexture.loadFromUrl(engine, {...})
 });
 
 const loadPromise3 = assetLoader.load({
-  env3: Rn.CubeTexture.fromUrl({...})
+  env3: Rn.CubeTexture.loadFromUrl(engine, {...})
 });
 
 // 個別の結果を待つ代わりに、すべての処理が完了するまで待つ
@@ -395,9 +393,9 @@ console.log('すべてのロード処理が完了しました');
 
 ```typescript
 // ロード結果は使わないが、完了を確認したい
-assetLoader.load({ texture1: Rn.CubeTexture.fromUrl({...}) });
-assetLoader.load({ texture2: Rn.CubeTexture.fromUrl({...}) });
-assetLoader.load({ texture3: Rn.CubeTexture.fromUrl({...}) });
+assetLoader.load({ texture1: Rn.CubeTexture.loadFromUrl(engine, {...}) });
+assetLoader.load({ texture2: Rn.CubeTexture.loadFromUrl(engine, {...}) });
+assetLoader.load({ texture3: Rn.CubeTexture.loadFromUrl(engine, {...}) });
 
 // 結果は必要ないが、すべて完了してから次の処理に進みたい
 await assetLoader.waitForAllLoads();
@@ -424,7 +422,7 @@ class GameManager {
   private loadCharacterAssets() {
     // 結果は内部で保存するため、awaitしない
     this.assetLoader.load({
-      character1: Rn.Gltf2Importer.importFromUri('/assets/character1.gltf')
+      character1: Rn.GltfImporter.importFromUrl(engine, '/assets/character1.gltf')
     }).then(assets => {
       this.characters.character1 = assets.character1;
     });
@@ -432,7 +430,7 @@ class GameManager {
 
   private loadEnvironmentAssets() {
     this.assetLoader.load({
-      skybox: Rn.CubeTexture.fromUrl({...})
+      skybox: Rn.CubeTexture.loadFromUrl(engine, {...})
     }).then(assets => {
       this.environment.skybox = assets.skybox;
     });
@@ -440,7 +438,7 @@ class GameManager {
 
   private loadUIAssets() {
     this.assetLoader.load({
-      button: Rn.Texture.fromUri('/assets/ui/button.png')
+      button: Rn.Texture.loadFromUrl(engine, '/assets/ui/button.png')
     }).then(assets => {
       this.ui.button = assets.button;
     });
@@ -495,13 +493,13 @@ class AssetManager {
 ```typescript
 // パターン1: 結果が必要な場合
 const assets = await assetLoader.load({
-  texture: Rn.CubeTexture.fromUrl({...})
+  texture: Rn.CubeTexture.loadFromUrl(engine, {...})
 });
 console.log(assets.texture); // 実際のテクスチャオブジェクト
 
 // パターン2: 完了だけを知りたい場合
 assetLoader.load({
-  texture: Rn.CubeTexture.fromUrl({...})
+  texture: Rn.CubeTexture.loadFromUrl(engine, {...})
 }).then(assets => {
   // 結果は別の場所で処理
   this.storeTexture(assets.texture);
@@ -548,7 +546,7 @@ const largeFileLoader = new Rn.AssetLoader({
 ```typescript
 try {
   const assets = await assetLoader.load({
-    environment: Rn.CubeTexture.fromUrl({
+    environment: Rn.CubeTexture.loadFromUrl(engine, {
       baseUrl: '/invalid/path',
       mipmapLevelNumber: 1,
       isNamePosNeg: true,
@@ -557,7 +555,7 @@ try {
   });
 } catch (error) {
   console.error('読み込みに失敗しました:', error);
-  // 自動的にリトライが実行された後のエラー
+  // load() はリトライしない（リトライが必要なら loadWithRetry() を使う）。タイムアウト時は 'Load timeout' エラー
 }
 ```
 
@@ -570,7 +568,7 @@ import Rn from 'rhodonite';
 
 // デフォルトインスタンスを使用
 const assets = await Rn.defaultAssetLoader.load({
-  environment: Rn.CubeTexture.fromUrl({
+  environment: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: '/assets/ibl/environment/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
@@ -647,7 +645,7 @@ AssetLoaderのリトライ機能は非常にシンプルです：
 ```typescript
 // リトライ関数を提供しない場合 = リトライしない
 const assets = await assetLoader.load({
-  environment: Rn.CubeTexture.fromUrl({...}) // 失敗したらそのまま失敗
+  environment: Rn.CubeTexture.loadFromUrl(engine, {...}) // 失敗したらそのまま失敗
 });
 
 // リトライ関数を1個提供 = 1回リトライ
