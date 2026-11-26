@@ -215,3 +215,27 @@ describe('MeshRendererComponent.__appendPrimitivesOfCulledInstancedMeshes', () =
     expect(outPrimitives.length).toBe(0);
   });
 });
+
+describe('MeshRendererComponent.__cullingWithViewFrustum', () => {
+  function createCullingScratch() {
+    return {
+      cullTick: 0,
+      culledEntityStamp: new Uint32Array(8),
+      handledEntityStamp: new Uint32Array(8),
+      meshCullTick: new WeakMap(),
+      meshAppendTick: new WeakMap(),
+      culledEntityCount: 0,
+      culledInstancedMeshComponents: [],
+      cullingId: 0,
+    };
+  }
+
+  test('skips a dead mesh component whose entity was removed from the repository', () => {
+    // A render pass keeps its mesh components until it is rebuilt. Deleting a gizmo entity leaves
+    // its destroyed MeshComponent in the pass for a moment, with no entity to look up.
+    const scratch = createCullingScratch();
+    const deadComponent = { _isAlive: false, entity: undefined, entityUID: 0, mesh: undefined };
+
+    expect(() => helpers.__cullingWithViewFrustum(null, [deadComponent], [], scratch, false)).not.toThrow();
+  });
+});

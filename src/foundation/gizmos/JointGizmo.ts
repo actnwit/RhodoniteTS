@@ -121,9 +121,7 @@ export class JointGizmo extends Gizmo {
   }
 
   _destroy(): void {
-    if (Is.exist(this.__topEntity)) {
-      this.__topEntity._destroy();
-    }
+    this.__destroyTopEntity();
     this.__jointVisuals = [];
   }
 

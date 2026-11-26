@@ -904,9 +904,7 @@ export class TranslationGizmo extends Gizmo {
    * @internal
    */
   _destroy(): void {
-    if (Is.exist(this.__topEntity)) {
-      this.__topEntity._destroy();
-    }
+    this.__destroyTopEntity();
   }
 
   /**
