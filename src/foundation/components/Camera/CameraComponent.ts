@@ -12,11 +12,14 @@ import { ProcessStage } from '../../definitions/ProcessStage';
 import { ShaderType } from '../../definitions/ShaderType';
 import { Frustum } from '../../geometry/Frustum';
 import type { ICameraEntity } from '../../helpers/EntityHelper';
+import type { IVector2 } from '../../math/IVector';
 import { MathUtil } from '../../math/MathUtil';
 import { Matrix44 } from '../../math/Matrix44';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { MutableVector4 } from '../../math/MutableVector4';
+import type { Vector2 } from '../../math/Vector2';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { Is } from '../../misc/Is';
@@ -57,6 +60,11 @@ export class CameraComponent extends Component {
   private __type: CameraTypeEnum = CameraType.Perspective;
 
   private _projectionMatrix: MutableMatrix44 = MutableMatrix44.dummy();
+  // The projection matrix before the temporal anti-aliasing jitter is applied (not uploaded to the GPU).
+  private __projectionMatrixWithoutJitter: MutableMatrix44 = MutableMatrix44.identity();
+  private __hasProjectionMatrixWithoutJitter = false;
+  // NDC offset of the temporal anti-aliasing jitter.
+  private __jitterOffset: MutableVector2 = MutableVector2.zero();
   private _viewMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _viewPosition: MutableVector3 = MutableVector3.dummy();
   // x: the vec4 index of the light cluster view region of this camera in the GPU data (-1: none). Written by
@@ -964,7 +972,76 @@ export class CameraComponent extends Component {
       }
     }
 
+    this.__projectionMatrixWithoutJitter.copyComponents(this._projectionMatrix);
+    this.__hasProjectionMatrixWithoutJitter = true;
+    this.__applyJitterToProjectionMatrix();
+
     return this._projectionMatrix;
+  }
+
+  /**
+   * Writes the jittered projection matrix (`__projectionMatrixWithoutJitter` offset by `__jitterOffset`)
+   * into `_projectionMatrix`.
+   *
+   * @remarks
+   * Offsetting the NDC position by (jx, jy) is the clip space translation `x' = x + jx * w`, so the
+   * w row (row 3) is added, scaled, to the x and y rows. This works for every projection type.
+   */
+  private __applyJitterToProjectionMatrix() {
+    const jx = this.__jitterOffset.x;
+    const jy = this.__jitterOffset.y;
+    const src = this.__projectionMatrixWithoutJitter;
+    const dst = this._projectionMatrix;
+    if (jx === 0 && jy === 0) {
+      dst.copyComponents(src);
+      return;
+    }
+    dst.copyComponents(src);
+    dst.m00 = src.m00 + jx * src.m30;
+    dst.m01 = src.m01 + jx * src.m31;
+    dst.m02 = src.m02 + jx * src.m32;
+    dst.m03 = src.m03 + jx * src.m33;
+    dst.m10 = src.m10 + jy * src.m30;
+    dst.m11 = src.m11 + jy * src.m31;
+    dst.m12 = src.m12 + jy * src.m32;
+    dst.m13 = src.m13 + jy * src.m33;
+  }
+
+  /**
+   * The sub-pixel offset added to the projected position, in NDC units (2 / width is one pixel).
+   *
+   * @remarks
+   * Used by temporal anti-aliasing. The offset is applied to the projection matrix uploaded to the GPU
+   * and to {@link CameraComponent.projectionMatrix}; {@link CameraComponent.projectionMatrixWithoutJitter}
+   * keeps the matrix without it. Setting the offset does not count as a camera update (it does not
+   * re-run the logic stage of the components); it rewrites the projection matrix in place and requests
+   * an upload of the GPU instance data. It is not applied to WebXR eye cameras.
+   */
+  get jitterOffset(): Vector2 {
+    return this.__jitterOffset;
+  }
+
+  set jitterOffset(offset: IVector2) {
+    if (this.__jitterOffset.x === offset.x && this.__jitterOffset.y === offset.y) {
+      return;
+    }
+    this.__jitterOffset.setComponents(offset.x, offset.y);
+    if (this._xrLeft || this._xrRight || !this.__hasProjectionMatrixWithoutJitter) {
+      return;
+    }
+    this.__applyJitterToProjectionMatrix();
+    this.__engine._markGpuInstanceDataDirty();
+  }
+
+  /**
+   * The projection matrix without the jitter offset of temporal anti-aliasing.
+   *
+   * @remarks
+   * Equal to {@link CameraComponent.projectionMatrix} when the jitter offset is zero.
+   * Not defined for WebXR eye cameras.
+   */
+  get projectionMatrixWithoutJitter(): Matrix44 {
+    return this.__projectionMatrixWithoutJitter;
   }
 
   /**
@@ -1054,7 +1131,9 @@ export class CameraComponent extends Component {
    * @param projectionMatrix - The projection matrix to set
    */
   set projectionMatrix(projectionMatrix: Matrix44) {
-    this._projectionMatrix.copyComponents(projectionMatrix);
+    this.__projectionMatrixWithoutJitter.copyComponents(projectionMatrix);
+    this.__hasProjectionMatrixWithoutJitter = true;
+    this.__applyJitterToProjectionMatrix();
     this.__updateCount++;
   }
 

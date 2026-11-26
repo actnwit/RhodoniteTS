@@ -59,6 +59,9 @@ export class SceneGraphComponent extends Component {
   private _worldMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _worldMatrixRest: MutableMatrix44 = MutableMatrix44.identity();
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
+  // The world matrix of the previous frame. Written by the temporal anti-aliasing (TemporalAASystem) only;
+  // the motion vector pass reads it from the GPU instance data.
+  private _previousWorldMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _worldRotation: MutableQuaternion = MutableQuaternion.identity();
   private __isWorldMatrixUpToDate = false;
   /**
@@ -511,6 +514,27 @@ export class SceneGraphComponent extends Component {
    */
   get worldMatrixVersion(): number {
     return this.__worldMatrixVersion;
+  }
+
+  /**
+   * The world matrix of the previous frame, used by the motion vectors of temporal anti-aliasing.
+   * It is part of the GPU instance data (`get_previousWorldMatrix` in the shaders) and is only kept up to date
+   * while temporal anti-aliasing is enabled.
+   *
+   * @internal
+   */
+  get _previousWorldMatrixInner(): MutableMatrix44 {
+    return this._previousWorldMatrix;
+  }
+
+  /**
+   * The world matrix as it was last computed (the value in the GPU instance data), without recomputing a dirty
+   * matrix.
+   *
+   * @internal
+   */
+  get _lastComputedWorldMatrixInner(): MutableMatrix44 {
+    return this._worldMatrix;
   }
 
   /**
@@ -1803,6 +1827,7 @@ export class SceneGraphComponent extends Component {
     this.__gizmoChildren = component.__gizmoChildren.concat();
     this.__isGizmoChild = component.__isGizmoChild;
     this._worldMatrix.copyComponents(component._worldMatrix);
+    this._previousWorldMatrix.copyComponents(component._previousWorldMatrix);
     this._worldMatrixRest.copyComponents(component._worldMatrixRest);
     this._normalMatrix.copyComponents(component._normalMatrix);
     this.__isWorldMatrixUpToDate = false;
@@ -2085,4 +2110,14 @@ SceneGraphComponent.registerMember({
   componentType: ComponentType.Float,
   initValues: [0],
   convertToBool: true,
+});
+// Registered last so that the layout of the other members does not change.
+SceneGraphComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'previousWorldMatrix',
+  dataClassType: MutableMatrix44,
+  shaderType: ShaderType.VertexShader,
+  compositionType: CompositionType.Mat4,
+  componentType: ComponentType.Float,
+  initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
 });

@@ -113,6 +113,7 @@ export class WebGLStrategyWebGL2 implements CGAPIStrategy, WebGLStrategy {
   private __lastMaterialsUpdateCount = -1;
   private __lastLightClusterDataVersion = -1;
   private __lastLightComponentsUpdateCount = -1;
+  private __lastGpuInstanceDataVersion = -1;
   private __lastTotalSizeOfGPUShaderDataStorageExceptMorphData = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastSceneGraphComponentsUpdateCount = -1;
@@ -1276,6 +1277,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       this.__engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount ||
       this.__engine.lightClusterSystem.dataVersion !== this.__lastLightClusterDataVersion ||
       LightComponent.getUpdateCount(this.__engine) !== this.__lastLightComponentsUpdateCount ||
+      this.__engine._gpuInstanceDataVersion !== this.__lastGpuInstanceDataVersion ||
       this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
     ) {
       // Setup GPU Storage (Data Texture & UBO)
@@ -1288,6 +1290,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       this.__lastMaterialsUpdateCount = this.__engine.materialRepository.stateVersion;
       this.__lastLightClusterDataVersion = this.__engine.lightClusterSystem.dataVersion;
       this.__lastLightComponentsUpdateCount = LightComponent.getUpdateCount(this.__engine);
+      this.__lastGpuInstanceDataVersion = this.__engine._gpuInstanceDataVersion;
     }
 
     if (

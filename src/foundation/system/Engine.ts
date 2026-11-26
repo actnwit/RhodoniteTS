@@ -139,6 +139,7 @@ export class Engine extends RnObject {
   private __lastTransformComponentsUpdateCount = -1;
   private __lastPrimitiveCount = -1;
   private __lastLightComponentsUpdateCount = -1;
+  private __gpuInstanceDataVersion = 0;
   /** Shader program cache map for this engine instance. Maps shader text to program UIDs. */
   private __shaderProgramCache: Map<string, number> = new Map();
   private __gpuTimerEnabled = false;
@@ -1484,6 +1485,27 @@ export class Engine extends RnObject {
 
   public get config() {
     return this.__config;
+  }
+
+  /**
+   * A version that is incremented when the GPU instance data was written outside the component update
+   * counts that the rendering strategies compare (e.g. the jitter of temporal anti-aliasing or the previous
+   * world matrices it keeps). The strategies re-upload the GPU instance data when it changed.
+   *
+   * @internal
+   */
+  get _gpuInstanceDataVersion(): number {
+    return this.__gpuInstanceDataVersion;
+  }
+
+  /**
+   * Requests an upload of the GPU instance data in the next prerender stage. Unlike a component update, it does
+   * not re-run the logic stage of the components.
+   *
+   * @internal
+   */
+  _markGpuInstanceDataDirty(): void {
+    this.__gpuInstanceDataVersion++;
   }
 
   public get logger() {
