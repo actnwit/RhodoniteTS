@@ -49,6 +49,7 @@ import { Expression } from '../Expression';
 import { Frame } from '../Frame';
 import type { FrameBuffer } from '../FrameBuffer';
 import { RenderPass } from '../RenderPass';
+import { _getTemporalAACamera, TemporalAASystem } from '../TemporalAA/TemporalAASystem';
 
 type DrawFunc = (frame: Frame) => void;
 
@@ -111,6 +112,8 @@ export class ForwardRenderPipeline extends RnObject {
   private __isShadow = false;
   private __isBloom = false;
   private __isSimple = false;
+  private __isTemporalAA = false;
+  private __temporalAA?: TemporalAASystem;
   private __shadowMapSize = 1024;
   private __frame?: Frame;
   private __frameBufferMultiView?: FrameBuffer;
@@ -205,6 +208,10 @@ export class ForwardRenderPipeline extends RnObject {
       this.__frameBufferResolveForReference = undefined;
     }
     this.__bloomHelper.destroy3DAPIResources();
+    if (this.__temporalAA != null) {
+      this.__temporalAA.destroy3DAPIResources();
+      this.__temporalAA = undefined;
+    }
     this.__frame = undefined;
     this.__generateMipmapsExpression = undefined;
     this.__multiViewBlitExpression = undefined;
@@ -233,6 +240,9 @@ export class ForwardRenderPipeline extends RnObject {
    * @param options.isBloom - Whether to enable bloom post-processing effect (default: false)
    * @param options.shadowMapSize - Size of the shadow map texture in pixels (default: 1024)
    * @param options.isSimple - Whether to use simplified rendering without post-processing (default: false)
+   * @param options.isTemporalAA - Whether to enable temporal anti-aliasing (default: false). It replaces the 4x MSAA
+   *   of the main render target: the camera projection is jittered by a sub-pixel offset every frame, and the frames
+   *   are accumulated with motion vectors. Ignored in the simple mode and for WebXR multi-view rendering.
    *
    * @returns A Result indicating success or failure of the setup operation
    *
@@ -259,13 +269,14 @@ export class ForwardRenderPipeline extends RnObject {
   async setup(
     canvasWidth: number,
     canvasHeight: number,
-    { isShadow = false, isBloom = false, shadowMapSize = 1024, isSimple = false } = {}
+    { isShadow = false, isBloom = false, shadowMapSize = 1024, isSimple = false, isTemporalAA = false } = {}
   ) {
     this.__width = canvasWidth;
     this.__height = canvasHeight;
     this.__isBloom = isBloom;
     this.__isShadow = isShadow;
     this.__isSimple = isSimple;
+    this.__isTemporalAA = isTemporalAA;
     this.__shadowMapSize = shadowMapSize;
     if (this.__frame != null) {
       return new Err({
@@ -311,11 +322,20 @@ export class ForwardRenderPipeline extends RnObject {
       let toneMappingTargetRenderTargetTexture: RenderTargetTexture =
         mainFrameBufferResolve.getColorAttachedRenderTargetTexture(0)!;
 
+      // Temporal anti-aliasing (not for multi-view rendering, whose targets are texture arrays)
+      if (this.__isTemporalAAActive()) {
+        this.__temporalAA = new TemporalAASystem(
+          this.__engine,
+          canvasWidth,
+          canvasHeight,
+          mainFrameBufferResolve.getColorAttachedRenderTargetTexture(0)!
+        );
+        toneMappingTargetRenderTargetTexture = this.__temporalAA.outputTexture;
+      }
+
       // Bloom Expression
       if (isBloom) {
-        const textureToBloom = mainFrameBufferResolve.getColorAttachedRenderTargetTexture(
-          0
-        ) as unknown as RenderTargetTexture;
+        const textureToBloom = toneMappingTargetRenderTargetTexture;
         const { bloomExpression, bloomedRenderTarget } = this.__bloomHelper.createBloomExpression({
           textureToBloom,
           parameters: {},
@@ -384,7 +404,20 @@ export class ForwardRenderPipeline extends RnObject {
     if (this.__frameBufferMultiView != null) {
       return this.__frameBufferMultiView;
     }
-    return this.__frameBufferMsaa;
+    // Without MSAA (temporal anti-aliasing), the scene is rendered into the resolve target directly.
+    return this.__frameBufferMsaa ?? this.__frameBufferResolve;
+  }
+
+  /**
+   * Whether temporal anti-aliasing is used: requested in setup, not in the simple mode, and not in WebXR mode
+   * (the eye cameras are not jittered, and stereo rendering keeps MSAA).
+   */
+  private __isTemporalAAActive(): boolean {
+    if (!this.__isTemporalAA || this.__isSimple) {
+      return false;
+    }
+    // Read on use: the XR support may be enabled after the pipeline was set up (resize() runs setup again).
+    return !this.__engine._webXRSystemIfEnabled?.isWebXRMode;
   }
 
   /**
@@ -504,6 +537,7 @@ export class ForwardRenderPipeline extends RnObject {
       // WebGPU uploads material values in the prerender stage, so the SDF shadow caster
       // parameters must be current before Engine.process runs.
       this.__syncRaymarchingShadowMaterialParameters();
+      this.__prepareTemporalAAFrame();
       func(this.__frame!);
     });
 
@@ -524,7 +558,48 @@ export class ForwardRenderPipeline extends RnObject {
    * ```
    */
   draw() {
+    this.__prepareTemporalAAFrame();
     this.__drawFunc!(this.__frame!);
+  }
+
+  /**
+   * Whether temporal anti-aliasing is enabled (requested in setup and supported by the current render targets).
+   */
+  get isTemporalAA(): boolean {
+    return this.__temporalAA != null;
+  }
+
+  /**
+   * Discards the accumulated history of temporal anti-aliasing, so that the next frame does not blend with the
+   * previous frames. Call it when the view changes discontinuously (e.g. a camera cut).
+   */
+  resetTemporalAAHistory() {
+    this.__temporalAA?.resetHistory();
+  }
+
+  /**
+   * The weight of the current frame in the temporal anti-aliasing blend (0-1, default 0.1). Larger values react
+   * faster to changes and smooth less.
+   */
+  set temporalAACurrentFrameWeight(weight: number) {
+    if (this.__temporalAA != null) {
+      this.__temporalAA.currentFrameWeight = weight;
+    }
+  }
+
+  get temporalAACurrentFrameWeight(): number {
+    return this.__temporalAA?.currentFrameWeight ?? 0.1;
+  }
+
+  /**
+   * Jitters the camera and keeps the previous frame state for temporal anti-aliasing. Runs before Engine.process.
+   */
+  private __prepareTemporalAAFrame() {
+    if (this.__temporalAA == null) {
+      return;
+    }
+    const renderPasses = this.__expressions.flatMap(expression => expression.renderPasses);
+    this.__temporalAA.prepareFrame(_getTemporalAACamera(this.__engine, renderPasses));
   }
 
   /**
@@ -614,6 +689,7 @@ export class ForwardRenderPipeline extends RnObject {
       isBloom: this.__isBloom,
       shadowMapSize: this.__shadowMapSize,
       isSimple: this.__isSimple,
+      isTemporalAA: this.__isTemporalAA,
     });
 
     // Restore raymarching material after setup
@@ -868,6 +944,11 @@ export class ForwardRenderPipeline extends RnObject {
             if (this.__frameBufferMsaa != null) {
               rp.setResolveFramebuffer(this.__frameBufferResolve!);
               rp.setResolveFramebuffer2(this.__frameBufferResolveForReference!);
+            } else if (this.__frameBufferMultiView == null) {
+              // No MSAA (temporal anti-aliasing): the render target is copied into the back buffer that the
+              // transmission pass samples.
+              rp.setResolveFramebuffer(undefined);
+              rp.setResolveFramebuffer2(this.__frameBufferResolveForReference);
             }
           }
         }
@@ -905,8 +986,11 @@ export class ForwardRenderPipeline extends RnObject {
         // rp.depthWriteMask = false;
         if (!this.__isSimple) {
           rp.setFramebuffer(this.__getMainFrameBuffer()!);
-          if (this.__frameBufferResolve != null) {
+          // Without MSAA, the main render target is the resolve target itself.
+          if (this.__frameBufferMsaa != null) {
             rp.setResolveFramebuffer(this.__frameBufferResolve);
+          } else {
+            rp.setResolveFramebuffer(undefined);
           }
           for (const entity of rp.entities) {
             const meshComponent = entity.tryToGetMesh();
@@ -1061,16 +1145,19 @@ export class ForwardRenderPipeline extends RnObject {
       this.__frameBufferResolveForReference = undefined;
     } else {
       console.log(`canvasWidth: ${canvasWidth}, canvasHeight: ${canvasHeight}`);
-      // MSAA depth
-      const framebufferMsaa = RenderableHelper.createFrameBufferMSAA(this.__engine, {
-        width: canvasWidth,
-        height: canvasHeight,
-        colorBufferNum: 1,
-        colorFormats: [this.__isBloom ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
-        sampleCountMSAA: 4,
-        depthBufferFormat: TextureFormat.Depth32F,
-      });
-      framebufferMsaa.tryToSetUniqueName('FramebufferTargetOfToneMappingMsaa', true);
+      // MSAA depth. Temporal anti-aliasing replaces MSAA: the scene is rendered into the resolve target directly.
+      let framebufferMsaa: FrameBuffer | undefined;
+      if (!this.__isTemporalAAActive()) {
+        framebufferMsaa = RenderableHelper.createFrameBufferMSAA(this.__engine, {
+          width: canvasWidth,
+          height: canvasHeight,
+          colorBufferNum: 1,
+          colorFormats: [this.__isBloom ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
+          sampleCountMSAA: 4,
+          depthBufferFormat: TextureFormat.Depth32F,
+        });
+        framebufferMsaa.tryToSetUniqueName('FramebufferTargetOfToneMappingMsaa', true);
+      }
 
       // Resolve Color 1
       const framebufferResolve = RenderableHelper.createFrameBuffer(this.__engine, {
@@ -1393,7 +1480,8 @@ export class ForwardRenderPipeline extends RnObject {
       renderPass.setResolveFramebuffer2(this.__frameBufferResolveForReference ?? undefined);
     } else {
       renderPass.setResolveFramebuffer(undefined);
-      renderPass.setResolveFramebuffer2(undefined);
+      // Without MSAA (temporal anti-aliasing), the render target is copied into the back buffer directly.
+      renderPass.setResolveFramebuffer2(mainFrameBuffer != null ? this.__frameBufferResolveForReference : undefined);
     }
   }
 
@@ -2470,6 +2558,17 @@ export class ForwardRenderPipeline extends RnObject {
       frame.addExpression(this.__gizmoExpression);
     }
 
+    const entities = this.__expressions.flatMap(expression =>
+      expression.renderPasses.flatMap(renderPass => renderPass.entities)
+    ) as ISceneGraphEntity[];
+    this.__entitiesForShadow = entities;
+
+    // temporal anti-aliasing: motion vectors and the resolve with the history
+    if (this.__temporalAA != null) {
+      this.__temporalAA.setEntities(entities);
+      frame.addExpression(this.__temporalAA.expression);
+    }
+
     // multi-view blitting for VR rendering
     if (!this.__isSimple && this.__multiViewBlitExpression != null) {
       frame.addExpression(this.__multiViewBlitExpression);
@@ -2484,10 +2583,5 @@ export class ForwardRenderPipeline extends RnObject {
     if (!this.__isSimple && this.__toneMappingExpression != null) {
       frame.addExpression(this.__toneMappingExpression);
     }
-
-    const entities = this.__expressions.flatMap(expression =>
-      expression.renderPasses.flatMap(renderPass => renderPass.entities)
-    ) as ISceneGraphEntity[];
-    this.__entitiesForShadow = entities;
   }
 }

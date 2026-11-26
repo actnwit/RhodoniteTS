@@ -705,15 +705,20 @@ export class RenderPass extends RnObject {
    * @internal
    */
   _copyResolve1ToResolve2WebGpu() {
-    if (this.__resolveFrameBuffer == null || this.__resolveFrameBuffer2 == null) {
+    // Without a (MSAA) resolve target, the render target itself is copied, as in WebGL
+    // (_copyFramebufferToResolveFramebuffersWebGL blits the render target into the second resolve target).
+    const source = this.__resolveFrameBuffer ?? this.__frameBuffer;
+    if (source == null || this.__resolveFrameBuffer2 == null) {
       return;
     }
     const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
-    for (let i = 0; i < this.__resolveFrameBuffer.colorAttachments.length; i++) {
+    for (let i = 0; i < source.colorAttachments.length; i++) {
       if (
-        this.__resolveFrameBuffer.colorAttachments[i] == null ||
+        source.colorAttachments[i] == null ||
         this.__resolveFrameBuffer2.colorAttachments[i] == null ||
-        this.__resolveFrameBuffer.colorAttachments[i]._textureResourceUid === -1 ||
+        !(source.colorAttachments[i]._textureResourceUid >= 0) ||
+        // A multisampled attachment cannot be copied (it needs a resolve target).
+        ((source.colorAttachments[i] as { sampleCount?: number }).sampleCount ?? 1) > 1 ||
         this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid === -1
       ) {
         continue;
@@ -725,7 +730,7 @@ export class RenderPass extends RnObject {
       //   )
       // ) {
       webGpuResourceRepository.copyTextureData(
-        this.__resolveFrameBuffer.colorAttachments[i]._textureResourceUid,
+        source.colorAttachments[i]._textureResourceUid,
         this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid
       );
       // } else {

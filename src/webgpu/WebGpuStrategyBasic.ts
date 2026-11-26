@@ -68,6 +68,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __lastMaterialsUpdateCount = -1;
   private __lastLightClusterDataVersion = -1;
   private __lastLightComponentsUpdateCount = -1;
+  private __lastGpuInstanceDataVersion = -1;
   private __lightClusterBuilder?: WebGpuLightClusterBuilder;
   private __lastLightClusterBuildDataVersion = -1;
   private __lastTransformComponentsUpdateCount = -1;
@@ -821,7 +822,8 @@ ${indexStr}
       _getCameraControllerUpdateCount(this.__engine) !== this.__lastCameraControllerComponentsUpdateCount ||
       this.__engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount ||
       this.__engine.lightClusterSystem.dataVersion !== this.__lastLightClusterDataVersion ||
-      LightComponent.getUpdateCount(this.__engine) !== this.__lastLightComponentsUpdateCount
+      LightComponent.getUpdateCount(this.__engine) !== this.__lastLightComponentsUpdateCount ||
+      this.__engine._gpuInstanceDataVersion !== this.__lastGpuInstanceDataVersion
     ) {
       const isStorageBufferRecreated = this.__createAndUpdateStorageBuffer();
       // The GPU culling reads the transforms and the visibility of the instances from the GPU instance data.
@@ -842,6 +844,7 @@ ${indexStr}
       this.__lastMaterialsUpdateCount = this.__engine.materialRepository.stateVersion;
       this.__lastLightClusterDataVersion = this.__engine.lightClusterSystem.dataVersion;
       this.__lastLightComponentsUpdateCount = LightComponent.getUpdateCount(this.__engine);
+      this.__lastGpuInstanceDataVersion = this.__engine._gpuInstanceDataVersion;
     }
 
     const morphMaxIndex = Primitive.getPrimitiveCountHasMorph();
