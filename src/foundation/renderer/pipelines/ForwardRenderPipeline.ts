@@ -1,6 +1,5 @@
 import type { Size } from '../../../types';
 import type { ShaderNodeJson } from '../../../types/ShaderNodeJson';
-import type { WebXRSystem } from '../../../xr/WebXRSystem';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { RaymarchingComponent } from '../../components/Raymarching/RaymarchingComponent';
 import { RnObject } from '../../core/RnObject';
@@ -77,32 +76,33 @@ type RaymarchingAabb = {
  * @example
  * ```typescript
  * const expressions = [...];
- * const matrix = [...];
  *
  * // Create and setup the render pipeline
- * const forwardRenderPipeline = new Rn.ForwardRenderPipeline();
+ * const forwardRenderPipeline = new Rn.ForwardRenderPipeline(engine);
  * await forwardRenderPipeline.setup(1024, 1024, {isShadow: true, isBloom: true});
  *
  * // Configure expressions and IBL
  * forwardRenderPipeline.setExpressions(expressions);
  *
- * const diffuseCubeTexture = new Rn.CubeTexture();
- * diffuseCubeTexture.baseUriToLoad = './../../../assets/ibl/papermill/diffuse/diffuse';
- * diffuseCubeTexture.isNamePosNeg = true;
- * diffuseCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
- * diffuseCubeTexture.mipmapLevelNumber = 1;
+ * const diffuseCubeTexture = await Rn.CubeTexture.loadFromUrl(engine, {
+ *   baseUrl: './../../../assets/ibl/papermill/diffuse/diffuse',
+ *   mipmapLevelNumber: 1,
+ *   isNamePosNeg: true,
+ *   hdriFormat: Rn.HdriFormat.RGBE_PNG,
+ * });
  *
- * const specularCubeTexture = new Rn.CubeTexture();
- * specularCubeTexture.baseUriToLoad = './../../../assets/ibl/papermill/specular/specular';
- * specularCubeTexture.isNamePosNeg = true;
- * specularCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
- * specularCubeTexture.mipmapLevelNumber = 10;
+ * const specularCubeTexture = await Rn.CubeTexture.loadFromUrl(engine, {
+ *   baseUrl: './../../../assets/ibl/papermill/specular/specular',
+ *   mipmapLevelNumber: 10,
+ *   isNamePosNeg: true,
+ *   hdriFormat: Rn.HdriFormat.RGBE_PNG,
+ * });
  *
  * forwardRenderPipeline.setIBLTextures(diffuseCubeTexture, specularCubeTexture);
  *
  * // Start the render loop
  * forwardRenderPipeline.startRenderLoop((frame) => {
- *   Rn.Engine.process(frame);
+ *   engine.process(frame);
  * });
  * ```
  */
@@ -493,7 +493,7 @@ export class ForwardRenderPipeline extends RnObject {
    * ```typescript
    * const result = pipeline.startRenderLoop((frame) => {
    *   // Update scene
-   *   Rn.Engine.process(frame);
+   *   engine.process(frame);
    *
    *   // Custom per-frame logic
    *   updateAnimations();
@@ -501,7 +501,7 @@ export class ForwardRenderPipeline extends RnObject {
    * });
    *
    * if (result.isErr()) {
-   *   console.error('Failed to start render loop:', result.getErr());
+   *   console.error('Failed to start render loop:', result.getRnError());
    * }
    * ```
    */

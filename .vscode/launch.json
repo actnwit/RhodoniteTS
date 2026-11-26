@@ -5,50 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node",
-      "request": "launch",
-      "name": "Jest All",
-      "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": [
-        "--runInBand",
-        "--config",
-        "config/test/jest.config.js"
-      ],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "disableOptimisticBPs": true,
-      "windows": {
-        "program": "${workspaceFolder}/node_modules/jest/bin/jest",
-      },
-      "runtimeExecutable": "/Users/emadurandal/.nodenv/shims/node"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Jest Current File",
-      "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": [
-        "${fileBasenameNoExtension}",
-        "--config",
-        "config/test/jest.config.js"
-      ],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "disableOptimisticBPs": true,
-      "windows": {
-        "program": "${workspaceFolder}/node_modules/jest/bin/jest",
-      },
-      "runtimeExecutable": "/Users/emadurandal/.nodenv/shims/node"
-    },
-    {
-      // You need the "Debugger for Chrome" VSCode Extension
+      // Uses VSCode's built-in JavaScript debugger. Start the server with `pnpm start` first.
       "name": "Launch Chrome to debug Rhodonite samples",
       "request": "launch",
       "type": "chrome",
       "webRoot": "${workspaceFolder}",
       "url": "http://localhost:8082/samples/",
       "skipFiles": ["<node_internals>/**"],
-      // "preLaunchTask": "npm: build-umd-dev",
       // "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "sourceMaps": true,
       "smartStep": true,
