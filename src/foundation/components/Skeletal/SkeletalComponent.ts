@@ -73,6 +73,22 @@ export class SkeletalComponent extends Component {
    * w = bone data type index (used by shaders to select the decoding path).
    */
   private _boneDataInfo = MutableVector4.dummy();
+  /**
+   * The bone data of the previous frame, for the motion vectors of temporal anti-aliasing (same layout as
+   * `_boneData`). It holds a single vec4 until `_enablePreviousBoneData` is called, so that applications without
+   * temporal anti-aliasing do not pay for it.
+   */
+  private _previousBoneData = VectorN.dummy();
+  /**
+   * The location of `_previousBoneData` in the GPU data (written by the memory allocation of Component).
+   */
+  private _previousBoneDataLocation = MutableVector4.dummy();
+  /**
+   * The bone data info of the previous frame. w is -1 while `_previousBoneData` has not received the bone data
+   * of a frame yet (the shaders then use the current bone data).
+   */
+  private _previousBoneDataInfo = MutableVector4.dummy();
+  private __isPreviousBoneDataEnabled = false;
   private __boneDataUint32?: Uint32Array;
   private __boneDataType: BoneDataTypeEnum = BoneDataType.Vec4x2;
   /** Whether __boneDataType was chosen automatically (an automatic Vec4x1 may be switched to Vec4x2) */
@@ -145,6 +161,7 @@ export class SkeletalComponent extends Component {
       this.isSkinning = true;
       this.__boneDataType = BoneDataType.Vec4x2;
       this.__isBoneDataTypeAutoSelected = false;
+      this.__isPreviousBoneDataEnabled = false;
       this.__hasWarnedNonUniformScale = false;
       this.__allocatedBoneDataType = undefined;
       this.__boneDataArrayLength = 0;
@@ -172,6 +189,27 @@ export class SkeletalComponent extends Component {
     // Reset to dummy object for re-binding
     this._boneData = VectorN.dummy();
     this.__boneDataUint32 = undefined;
+    this.__resetPreviousBoneData();
+  }
+
+  /**
+   * Releases the view of the previous bone data so that it is re-allocated with the current length.
+   */
+  private __resetPreviousBoneData() {
+    if (!this._previousBoneData.isDummy()) {
+      this._previousBoneData._v.fill(0);
+    }
+    this._previousBoneData = VectorN.dummy();
+    this.__invalidatePreviousBoneData();
+  }
+
+  /**
+   * Marks the previous bone data as not received yet (the shaders use the current bone data instead).
+   */
+  private __invalidatePreviousBoneData() {
+    if (!this._previousBoneDataInfo.isDummy()) {
+      this._previousBoneDataInfo._v[3] = -1;
+    }
   }
 
   /**
@@ -296,6 +334,9 @@ export class SkeletalComponent extends Component {
     if (memberName === 'boneData' && this.__boneDataArrayLength > 0) {
       return this.__boneDataArrayLength;
     }
+    if (memberName === 'previousBoneData') {
+      return this.__isPreviousBoneDataEnabled && this.__boneDataArrayLength > 0 ? this.__boneDataArrayLength : 1;
+    }
     return undefined;
   }
 
@@ -366,6 +407,80 @@ export class SkeletalComponent extends Component {
    */
   get boneDataInfo() {
     return this._boneDataInfo;
+  }
+
+  /**
+   * Allocates the bone data of the previous frame (used by the motion vectors of temporal anti-aliasing).
+   * Until the first `_updatePreviousBoneData`, the shaders use the current bone data.
+   *
+   * @internal
+   */
+  _enablePreviousBoneData() {
+    if (this.__isPreviousBoneDataEnabled) {
+      return;
+    }
+    this.__isPreviousBoneDataEnabled = true;
+    if (this._boneData.isDummy()) {
+      // Allocated with the bone data in setJoints.
+      return;
+    }
+    this.__resetPreviousBoneData();
+    this.submitToAllocation(this.__engine.config.skeletalComponentCountPerBufferView, this.__isReUse);
+    this.__invalidatePreviousBoneData();
+  }
+
+  /**
+   * Copies the bone data into the previous bone data if they differ.
+   *
+   * @remarks
+   * Called once per frame before the logic stage, when the bone data still holds the previous frame. A skeleton
+   * that stopped is copied once more in the frame after it stopped and then not any more.
+   *
+   * @returns Whether the previous bone data was written (the GPU instance data has to be uploaded)
+   * @internal
+   */
+  _updatePreviousBoneData(): boolean {
+    if (!this.__isPreviousBoneDataEnabled || this._boneData.isDummy() || this._previousBoneData.isDummy()) {
+      return false;
+    }
+    const current = this._boneData._v;
+    const previous = this._previousBoneData._v;
+    if (previous.length !== current.length) {
+      return false;
+    }
+    const currentInfo = this._boneDataInfo._v;
+    const previousInfo = this._previousBoneDataInfo._v;
+    let isSame =
+      previousInfo[0] === currentInfo[0] &&
+      previousInfo[1] === currentInfo[1] &&
+      previousInfo[2] === currentInfo[2] &&
+      previousInfo[3] === currentInfo[3];
+    if (isSame) {
+      // Compare the raw bits: the bone data also stores packed integers in its floats.
+      const currentBits = new Uint32Array(current.buffer, current.byteOffset, current.length);
+      const previousBits = new Uint32Array(previous.buffer, previous.byteOffset, previous.length);
+      for (let i = 0; i < currentBits.length; i++) {
+        if (currentBits[i] !== previousBits[i]) {
+          isSame = false;
+          break;
+        }
+      }
+    }
+    if (isSame) {
+      return false;
+    }
+    previous.set(current);
+    previousInfo.set(currentInfo);
+    return true;
+  }
+
+  /**
+   * The bone data of the previous frame (allocated by `_enablePreviousBoneData`).
+   *
+   * @internal
+   */
+  get _previousBoneDataArray(): Float32Array {
+    return this._previousBoneData._v as Float32Array;
   }
 
   /**
@@ -1003,6 +1118,25 @@ export class SkeletalComponent extends Component {
       initValues: new VectorN(new Float32Array(0)),
       isVariableLength: true,
     });
+    SkeletalComponent.registerMember({
+      bufferUse: BufferUse.GPUInstanceData,
+      memberName: 'previousBoneDataLocation',
+      dataClassType: MutableVector4,
+      shaderType: ShaderType.VertexShader,
+      compositionType: CompositionType.Vec4,
+      componentType: ComponentType.Float,
+      initValues: [0, 0, 0, 0],
+    });
+    SkeletalComponent.registerMember({
+      bufferUse: BufferUse.GPUInstanceData,
+      memberName: 'previousBoneData',
+      dataClassType: VectorN,
+      shaderType: ShaderType.VertexShader,
+      compositionType: CompositionType.Vec4Array,
+      componentType: ComponentType.Float,
+      initValues: new VectorN(new Float32Array(0)),
+      isVariableLength: true,
+    });
   }
 
   /**
@@ -1017,6 +1151,15 @@ export class SkeletalComponent extends Component {
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       initValues: [1, 1, 1, BoneDataType.Vec4x2.index],
+    });
+    SkeletalComponent.registerMember({
+      bufferUse: BufferUse.GPUInstanceData,
+      memberName: 'previousBoneDataInfo',
+      dataClassType: MutableVector4,
+      shaderType: ShaderType.VertexShader,
+      compositionType: CompositionType.Vec4,
+      componentType: ComponentType.Float,
+      initValues: [1, 1, 1, -1],
     });
   }
 

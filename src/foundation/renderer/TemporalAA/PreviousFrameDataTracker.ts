@@ -9,18 +9,20 @@ type PreviousWorldMatrixState = {
 };
 
 /**
- * Keeps `previousWorldMatrix` (the world matrix of the previous frame, in the GPU instance data) of a set of
- * entities up to date for the motion vectors of temporal anti-aliasing.
+ * Keeps the previous frame data of a set of entities (in the GPU instance data) up to date for the motion vectors
+ * of temporal anti-aliasing: `previousWorldMatrix` of their scene graph and the previous bone data of their
+ * skeleton.
  *
  * @remarks
- * `update` runs once per frame before the logic stage, when the world matrices in the GPU instance data are still
- * those of the previous frame. An entity whose world matrix version changed is written in this frame and once more
- * in the next frame: a change made between two frames (after rendering) is only computed in the next frame, so its
- * previous world matrix is only known one frame later. Entities that do not move are not written.
+ * `update` runs once per frame before the logic stage, when the world matrices and the bone data in the GPU instance
+ * data are still those of the previous frame. An entity whose world matrix version changed is written in this frame
+ * and once more in the next frame: a change made between two frames (after rendering) is only computed in the next
+ * frame, so its previous world matrix is only known one frame later. Entities that do not move are not written.
+ * The previous bone data is copied whenever it differs from the bone data, which gives the same result.
  *
  * @internal
  */
-export class PreviousWorldMatrixTracker {
+export class PreviousFrameDataTracker {
   private __entities: readonly ISceneGraphEntity[] = [];
   private __states: Map<SceneGraphComponent, PreviousWorldMatrixState> = new Map();
 
@@ -43,13 +45,20 @@ export class PreviousWorldMatrixTracker {
   }
 
   /**
-   * Writes the previous world matrices of the tracked entities that moved.
+   * Writes the previous world matrices and bone data of the tracked entities that moved.
    *
    * @returns Whether a previous world matrix was written (the GPU instance data has to be uploaded)
    */
   update(): boolean {
     let isWritten = false;
     for (const entity of this.__entities) {
+      const skeletal = entity.tryToGetSkeletal();
+      if (skeletal != null) {
+        skeletal._enablePreviousBoneData();
+        if (skeletal._updatePreviousBoneData()) {
+          isWritten = true;
+        }
+      }
       const sceneGraph = entity.getSceneGraph();
       const state = this.__states.get(sceneGraph);
       if (state == null) {

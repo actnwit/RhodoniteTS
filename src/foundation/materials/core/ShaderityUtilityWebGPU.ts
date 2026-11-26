@@ -62,10 +62,9 @@ export class ShaderityUtilityWebGPU {
     const step1 = Shaderity.fillTemplate(shaderityObject, args);
 
     const morphUniformDataOffsets = (primitive.constructor as typeof Primitive).getMorphUniformDataOffsets();
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(engine);
     const templateObject = {
       maxMorphOffsetsDataNumber: `${Math.max(Math.ceil(morphUniformDataOffsets[morphUniformDataOffsets.length - 1] / 4), 1)}`,
-      maxMorphWeightsDataNumber: `${Math.max(Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4), 1)}`,
+      maxMorphWeightsDataNumber: `${BlendShapeComponent._getMorphWeightsVec4Count(engine)}`,
     } as unknown as TemplateObject;
 
     return Shaderity.fillTemplate(step1, templateObject);

@@ -84,14 +84,13 @@ export class ShaderityUtilityWebGL {
     const dataTextureWidth = glw.getMaxTextureSize();
 
     const morphUniformDataOffsets = (primitive.constructor as typeof Primitive).getMorphUniformDataOffsets();
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(engine);
     const templateObject = {
       WellKnownComponentTIDs,
       widthOfDataTexture: `const int widthOfDataTexture = ${dataTextureWidth};`,
       dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
       dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
       maxMorphOffsetsDataNumber: `${Math.max(Math.ceil(morphUniformDataOffsets[morphUniformDataOffsets.length - 1] / 4), 1)}`,
-      maxMorphWeightsDataNumber: `${Math.max(Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4), 1)}`,
+      maxMorphWeightsDataNumber: `${BlendShapeComponent._getMorphWeightsVec4Count(engine)}`,
     } as unknown as TemplateObject;
 
     return Shaderity.fillTemplate(step1, templateObject);

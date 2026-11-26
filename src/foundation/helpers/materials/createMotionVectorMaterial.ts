@@ -30,8 +30,9 @@ const MotionVectorShaderVertexWebGpu =
  * The material is used as the override material of a render pass. For each pixel, it outputs
  * xy: the motion from the previous frame in the texture coordinates of the render target,
  * z: the depth of the surface, w: 1.
- * The previous position of a vertex is the previous world matrix of its entity (`previousWorldMatrix`, kept by the
- * temporal anti-aliasing) applied to its current local position, projected by `previousViewProjectionMatrix`.
+ * The previous position of a vertex is the vertex deformed by the blend shape weights and the bone data of the
+ * previous frame (`get_previousMorphedPosition`, `previousBoneData`), transformed by the previous world matrix of
+ * its entity (`previousWorldMatrix`) and projected by `previousViewProjectionMatrix`.
  * The current position is projected by the camera of the render pass, without `currentJitter`.
  *
  * @param engine - The engine instance
@@ -72,15 +73,19 @@ export function createMotionVectorMaterial(
     name: materialName,
     isSkinning: true,
     isLighting: false,
-    isMorphing: false,
+    // Sets the morph uniforms (u_currentPrimitiveIdx in WebGL2) for primitives with morph targets.
+    isMorphing: true,
     vertexShader: MotionVectorShaderVertex,
     pixelShader: MotionVectorShaderFragment,
     vertexShaderWebGpu: MotionVectorShaderVertexWebGpu,
     pixelShaderWebGpu: MotionVectorShaderFragmentWebGpu,
     additionalShaderSemanticInfo,
+    // Reflects the uniforms declared for skinning and morphing (as createPbrUberMaterial does).
+    definitions: ['RN_IS_SKINNING', 'RN_IS_MORPHING'],
   });
   const material = createMaterial(engine, materialContent, maxInstancesNumber);
   material.addShaderDefine('RN_IS_SKINNING');
+  material.addShaderDefine('RN_IS_MORPHING');
 
   return material;
 }

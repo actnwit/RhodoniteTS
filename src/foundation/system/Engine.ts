@@ -140,6 +140,7 @@ export class Engine extends RnObject {
   private __lastPrimitiveCount = -1;
   private __lastLightComponentsUpdateCount = -1;
   private __gpuInstanceDataVersion = 0;
+  private __isPreviousMorphWeightsEnabled = false;
   /** Shader program cache map for this engine instance. Maps shader text to program UIDs. */
   private __shaderProgramCache: Map<string, number> = new Map();
   private __gpuTimerEnabled = false;
@@ -1506,6 +1507,29 @@ export class Engine extends RnObject {
    */
   _markGpuInstanceDataDirty(): void {
     this.__gpuInstanceDataVersion++;
+  }
+
+  /**
+   * Whether the morph weights uniform buffer also holds the blend shape weights of the previous frame (for the
+   * motion vectors of temporal anti-aliasing). See `BlendShapeComponent._getMorphWeightsVec4Count`.
+   *
+   * @internal
+   */
+  get _isPreviousMorphWeightsEnabled(): boolean {
+    return this.__isPreviousMorphWeightsEnabled;
+  }
+
+  /**
+   * Makes the morph weights uniform buffer hold the blend shape weights of the previous frame as well.
+   *
+   * @remarks
+   * This cannot be turned off again: the shaders compiled afterwards declare the larger buffer, and they must keep
+   * working with it.
+   *
+   * @internal
+   */
+  _enablePreviousMorphWeights(): void {
+    this.__isPreviousMorphWeightsEnabled = true;
   }
 
   public get logger() {
