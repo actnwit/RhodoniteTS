@@ -101,6 +101,11 @@ mainRenderPass.addEntities(entities);
 const mainExpression = new Rn.Expression();
 mainExpression.addRenderPasses([mainRenderPass]);
 
+// The light cluster system is loaded asynchronously when the first light is used, and the frames rendered
+// before it is ready have no lights. Temporal anti-aliasing accumulates the frames, so their number (which
+// depends on the timing) would change the result. Wait for it so that every rendered frame is lit.
+await engine._ensureLightClusterSystem();
+
 const forwardRenderPipeline = new Rn.ForwardRenderPipeline(engine);
 await forwardRenderPipeline.setup(canvas.width, canvas.height, { isTemporalAA });
 forwardRenderPipeline.setExpressions([mainExpression]);
