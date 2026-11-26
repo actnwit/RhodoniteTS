@@ -13,9 +13,6 @@
 uniform float u_pointSize; // initialValue=30
 uniform vec3 u_pointDistanceAttenuation; // initialValue=(0,0.1,0.01)
 
-// BiasMatrix * LightProjectionMatrix * LightViewMatrix, See: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/#basic-shader
-uniform mat4 u_depthBiasPV; // initialValue=(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)
-
 #pragma shaderity: require(../common/morphVariables.glsl)
 
 /* shaderity: @{prerequisites} */
