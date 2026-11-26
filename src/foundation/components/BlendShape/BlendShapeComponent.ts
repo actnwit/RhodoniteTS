@@ -208,6 +208,117 @@ export class BlendShapeComponent extends Component {
     return offsets;
   }
 
+  /**
+   * The number of vec4 of the blend shape weights in the morph weights uniform buffer of the shaders.
+   *
+   * @remarks
+   * With `Engine._isPreviousMorphWeightsEnabled` (temporal anti-aliasing), the buffer also holds the weights of the
+   * previous frame after the current ones (at `getPreviousMorphWeightsOffset`), which doubles it.
+   *
+   * @param engine - The engine instance
+   * @returns The array length (in vec4) of the morph weights uniform buffer
+   * @internal
+   */
+  static _getMorphWeightsVec4Count(engine: Engine): number {
+    const offsets = BlendShapeComponent.getOffsetsInUniform(engine);
+    const vec4Count = Math.max(Math.ceil(offsets[offsets.length - 1] / 4), 1);
+    return engine._isPreviousMorphWeightsEnabled ? vec4Count * 2 : vec4Count;
+  }
+
+  /**
+   * The offset (in floats) of the weights of the previous frame in the morph weights uniform buffer.
+   * Only meaningful when `Engine._isPreviousMorphWeightsEnabled` is true.
+   *
+   * @param engine - The engine instance
+   * @returns The offset in floats
+   * @internal
+   */
+  static _getPreviousMorphWeightsOffset(engine: Engine): number {
+    const offsets = BlendShapeComponent.getOffsetsInUniform(engine);
+    return Math.max(Math.ceil(offsets[offsets.length - 1] / 4), 1) * 4;
+  }
+
+  /**
+   * The size (in floats) of the morph weights uniform buffer allocated by the rendering strategies.
+   *
+   * @param engine - The engine instance
+   * @returns The number of floats
+   * @internal
+   */
+  static _getMorphWeightsUniformBufferFloatCount(engine: Engine): number {
+    const offsets = BlendShapeComponent.getOffsetsInUniform(engine);
+    const floatCount = Math.max(Math.ceil(offsets[offsets.length - 1] / 4) * 4 * 4, 4);
+    return engine._isPreviousMorphWeightsEnabled ? floatCount * 2 : floatCount;
+  }
+
+  /**
+   * Writes the blend shape weights of all components into the data of the morph weights uniform buffer.
+   *
+   * @remarks
+   * With `Engine._isPreviousMorphWeightsEnabled`, the weights written by the previous call (the weights of the
+   * previous frame) are first moved to the previous weights section. For a new buffer (`isNewBuffer`), the previous
+   * weights are the current ones (no motion).
+   *
+   * @param engine - The engine instance
+   * @param array - The data of the morph weights uniform buffer
+   * @param isNewBuffer - Whether the buffer was just created
+   * @returns The number of floats to upload from the beginning of the array
+   * @internal
+   */
+  static _writeMorphWeightsUniformArray(engine: Engine, array: Float32Array, isNewBuffer: boolean): number {
+    const offsets = BlendShapeComponent.getOffsetsInUniform(engine);
+    const elementCount = offsets[offsets.length - 1];
+    const isPreviousEnabled = engine._isPreviousMorphWeightsEnabled;
+    const previousOffset = BlendShapeComponent._getPreviousMorphWeightsOffset(engine);
+    if (isPreviousEnabled && !isNewBuffer) {
+      array.copyWithin(previousOffset, 0, elementCount);
+    }
+    const blendShapeComponents = engine.componentRepository.getComponentsWithTypeWithoutFiltering(
+      BlendShapeComponent
+    ) as (BlendShapeComponent | undefined)[];
+    for (let i = 0; i < blendShapeComponents.length; i++) {
+      const blendShapeComponent = blendShapeComponents[i];
+      const weights = blendShapeComponent != null ? blendShapeComponent.weights : [];
+      for (let j = 0; j < weights.length; j++) {
+        array[offsets[i] + j] = weights[j];
+      }
+    }
+    if (isPreviousEnabled && isNewBuffer) {
+      array.copyWithin(previousOffset, 0, elementCount);
+    }
+    return isPreviousEnabled ? previousOffset + elementCount : elementCount;
+  }
+
+  /**
+   * Makes the previous weights section equal to the current weights, in the frame after the weights stopped
+   * changing (until then, it still holds the weights of two frames ago).
+   *
+   * @param engine - The engine instance
+   * @param array - The data of the morph weights uniform buffer
+   * @returns The number of floats to upload, or 0 if nothing changed
+   * @internal
+   */
+  static _settlePreviousMorphWeights(engine: Engine, array: Float32Array): number {
+    if (!engine._isPreviousMorphWeightsEnabled) {
+      return 0;
+    }
+    const offsets = BlendShapeComponent.getOffsetsInUniform(engine);
+    const elementCount = offsets[offsets.length - 1];
+    const previousOffset = BlendShapeComponent._getPreviousMorphWeightsOffset(engine);
+    let isSame = true;
+    for (let i = 0; i < elementCount; i++) {
+      if (array[previousOffset + i] !== array[i]) {
+        isSame = false;
+        break;
+      }
+    }
+    if (isSame) {
+      return 0;
+    }
+    array.copyWithin(previousOffset, 0, elementCount);
+    return previousOffset + elementCount;
+  }
+
   static getCountOfBlendShapeComponents(engine: Engine) {
     // Called from the per-frame prerender path, so avoid allocating a filtered
     // component array just to read its length.

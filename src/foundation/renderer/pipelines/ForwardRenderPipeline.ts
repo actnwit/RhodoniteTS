@@ -592,6 +592,19 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   /**
+   * Sets the size of the variance clipping box of the temporal anti-aliasing history in standard deviations
+   * (default 1). A large value effectively disables the clipping, which makes wrong motion vectors visible as
+   * trails. For debugging.
+   *
+   * @internal
+   */
+  _setTemporalAAVarianceClipGamma(gamma: number) {
+    if (this.__temporalAA != null) {
+      this.__temporalAA.varianceClipGamma = gamma;
+    }
+  }
+
+  /**
    * Jitters the camera and keeps the previous frame state for temporal anti-aliasing. Runs before Engine.process.
    */
   private __prepareTemporalAAFrame() {

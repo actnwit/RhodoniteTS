@@ -108,6 +108,7 @@ export class WebGLStrategyWebGL2 implements CGAPIStrategy, WebGLStrategy {
 
   private __uniformMorphOffsetsTypedArray?: Uint32Array;
   private __uniformMorphWeightsTypedArray?: Float32Array;
+  private __isPreviousMorphWeightsSettled = true;
   private __lastBlendShapeComponentsUpdateCountForWeights = -1;
   private __lastMorphMaxIndex = -1;
   private __lastMaterialsUpdateCount = -1;
@@ -337,6 +338,28 @@ export class WebGLStrategyWebGL2 implements CGAPIStrategy, WebGLStrategy {
     const int rnBlendShapeUniformDataOffsets[${blendShapeUniformDataOffsets.length}] = int[${blendShapeUniformDataOffsets.length}](${blendShapeUniformDataOffsets.join(', ')});
     `;
 
+    // The morphed position with the weights of the previous frame (motion vectors of temporal anti-aliasing).
+    const previousMorphedPositionStr = engine._isPreviousMorphWeightsEnabled
+      ? `
+      vec3 get_previousMorphedPosition(uint vertexId, vec3 basePosition, uint blendShapeComponentSID) {
+        int currentPrimitiveIdx = u_currentPrimitiveIdx;
+        int offsetInUniform = rnMorphUniformDataOffsets[currentPrimitiveIdx];
+        int offsetInUniform2 = rnBlendShapeUniformDataOffsets[blendShapeComponentSID] + ${BlendShapeComponent._getPreviousMorphWeightsOffset(engine)};
+        vec3 position = basePosition;
+        int scalar_idx = 3 * int(vertexId);
+        for (int i=0; i<rnMorphUniformDataTargetNumbers[currentPrimitiveIdx]; i++) {
+          int idx = offsetInUniform + i;
+          ivec4 offsets = uniformMorphOffsets.data[ idx / 4];
+          int offsetPosition = offsets[idx % 4];
+          int basePosIn4bytes = offsetPosition * 4 + scalar_idx;
+          vec3 addPos = fetchVec3No16BytesAligned(basePosIn4bytes);
+          int idx2 = offsetInUniform2 + i;
+          vec4 morphWeights = uniformMorphWeights.data[ idx2 / 4];
+          position += addPos * morphWeights[idx2 % 4];
+        }
+        return position;
+      }`
+      : '';
     const morphingStr = `
     #ifdef RN_IS_VERTEX_SHADER
       #ifdef RN_IS_MORPHING
@@ -366,6 +389,7 @@ export class WebGLStrategyWebGL2 implements CGAPIStrategy, WebGLStrategy {
 
         return position;
       }
+      ${previousMorphedPositionStr}
       #endif
     #endif
     `;
@@ -938,11 +962,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       needsRebindMorphUniformBuffers = true;
     }
 
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(this.__engine);
-    const blendShapeWeightsUniformDataSize = Math.max(
-      Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4) * 4 * 4,
-      4
-    );
+    const blendShapeWeightsUniformDataSize = BlendShapeComponent._getMorphWeightsUniformBufferFloatCount(this.__engine);
 
     if (blendShapeWeightsUniformDataSize !== this.__lastMorphWeightsUniformDataSize) {
       // delete the old morph weights uniform buffer
@@ -957,7 +977,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
         this.__uniformMorphWeightsTypedArray = inputArrayWeights;
         this.__morphWeightsUniformBufferUid =
           this.__engine.webglResourceRepository.createUniformBufferWithBufferView(inputArrayWeights);
-        this.__updateMorphWeightsUniformBuffer();
+        this.__updateMorphWeightsUniformBuffer(true);
       }
 
       this.__lastMorphWeightsUniformDataSize = blendShapeWeightsUniformDataSize;
@@ -1301,6 +1321,8 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
       this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents(this.__engine);
       this.__engine.materialRepository._makeShaderInvalidateToMorphMaterials();
+    } else {
+      this.__settlePreviousMorphWeights();
     }
 
     this.__updateMorphOffsetsUniformBuffers();
@@ -1314,7 +1336,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    * Updates uniform buffers containing morph target weights for blend shape animation.
    * Copies weight values from blend shape components to GPU-accessible uniform buffers.
    */
-  private __updateMorphWeightsUniformBuffer() {
+  private __updateMorphWeightsUniformBuffer(isNewBuffer = false) {
     const memoryManager = this.__engine.memoryManager;
     const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
     if (blendShapeDataBuffer == null) {
@@ -1324,25 +1346,41 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
       return;
     }
 
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(this.__engine);
-    const blendShapeComponents = this.__engine.componentRepository.getComponentsWithTypeWithoutFiltering(
-      BlendShapeComponent
-    ) as (BlendShapeComponent | undefined)[];
-    for (let i = 0; i < blendShapeComponents.length; i++) {
-      const blendShapeComponent = blendShapeComponents[i];
-      const weights = blendShapeComponent != null ? blendShapeComponent!.weights : [];
-      for (let j = 0; j < weights.length; j++) {
-        this.__uniformMorphWeightsTypedArray![blendShapeUniformDataOffsets[i] + j] = weights[j];
-      }
+    const elementNumToCopy = BlendShapeComponent._writeMorphWeightsUniformArray(
+      this.__engine,
+      this.__uniformMorphWeightsTypedArray!,
+      isNewBuffer
+    );
+    this.__isPreviousMorphWeightsSettled = false;
+    if (elementNumToCopy > 0) {
+      this.__uploadMorphWeights(elementNumToCopy);
     }
-    if (blendShapeComponents.length > 0) {
-      const elementNumToCopy = blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1];
-      this.__engine.webglResourceRepository.updateUniformBuffer(
-        this.__morphWeightsUniformBufferUid,
-        this.__uniformMorphWeightsTypedArray!,
-        0,
-        elementNumToCopy
-      );
+  }
+
+  private __uploadMorphWeights(elementNumToCopy: number) {
+    this.__engine.webglResourceRepository.updateUniformBuffer(
+      this.__morphWeightsUniformBufferUid,
+      this.__uniformMorphWeightsTypedArray!,
+      0,
+      elementNumToCopy
+    );
+  }
+
+  /**
+   * Makes the weights of the previous frame in the morph weights uniform buffer equal to the current weights once
+   * the weights stopped changing (temporal anti-aliasing only).
+   */
+  private __settlePreviousMorphWeights() {
+    if (this.__isPreviousMorphWeightsSettled || this.__uniformMorphWeightsTypedArray == null) {
+      return;
+    }
+    this.__isPreviousMorphWeightsSettled = true;
+    const elementNumToCopy = BlendShapeComponent._settlePreviousMorphWeights(
+      this.__engine,
+      this.__uniformMorphWeightsTypedArray
+    );
+    if (elementNumToCopy > 0) {
+      this.__uploadMorphWeights(elementNumToCopy);
     }
   }
 

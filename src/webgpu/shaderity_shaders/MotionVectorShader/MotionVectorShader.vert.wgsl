@@ -7,9 +7,38 @@
 /* shaderity: @{matricesGetters} */
 /* shaderity: @{processGeometry} */
 
-fn isSameMatrix(a: mat4x4<f32>, b: mat4x4<f32>) -> bool {
-  return all(a[0] == b[0]) && all(a[1] == b[1]) && all(a[2] == b[2]) && all(a[3] == b[3]);
+#ifdef RN_IS_SKINNING
+// The matrix of one joint decoded from the bone data of the previous frame (see getBoneMatrix in processGeometry)
+fn getPreviousBoneMatrix(skeletalComponentSID: u32, jointIdx: u32, boneDataType: i32, boneDataInfo: vec4<f32>) -> mat4x4<f32> {
+  let chunkCount = boneDataChunkCountOfJoint(boneDataType);
+  let base = jointIdx * chunkCount;
+  let c0 = get_previousBoneData(skeletalComponentSID, base);
+  var c1 = vec4<f32>(0.0);
+  var c2 = vec4<f32>(0.0);
+  if (chunkCount >= 2u) {
+    c1 = get_previousBoneData(skeletalComponentSID, base + 1u);
+  }
+  if (chunkCount >= 3u) {
+    c2 = get_previousBoneData(skeletalComponentSID, base + 2u);
+  }
+  return decodeBoneMatrix(boneDataType, c0, c1, c2, boneDataInfo);
 }
+
+// The skinning matrix of the previous frame. The previous bone data info has w = -1 until the skeleton has
+// previous bone data; the current skinning matrix is used then.
+fn getPreviousSkinMatrix(skeletalComponentSID: u32, joint: vec4<u32>, weight: vec4<f32>) -> mat4x4<f32> {
+  let boneDataInfo = get_previousBoneDataInfo(skeletalComponentSID);
+  if (boneDataInfo.w < 0.0) {
+    return getSkinMatrix(skeletalComponentSID, joint, weight);
+  }
+  let boneDataType = i32(boneDataInfo.w + 0.5);
+  var skinMat: mat4x4<f32> = weight.x * getPreviousBoneMatrix(skeletalComponentSID, joint.x, boneDataType, boneDataInfo);
+  skinMat += weight.y * getPreviousBoneMatrix(skeletalComponentSID, joint.y, boneDataType, boneDataInfo);
+  skinMat += weight.z * getPreviousBoneMatrix(skeletalComponentSID, joint.z, boneDataType, boneDataInfo);
+  skinMat += weight.w * getPreviousBoneMatrix(skeletalComponentSID, joint.w, boneDataType, boneDataInfo);
+  return skinMat;
+}
+#endif
 
 @vertex
 fn main(
@@ -75,11 +104,27 @@ fn main(
   let currentJitter = get_currentJitter(materialSID, 0);
   output.position_inWorld = position_inClip - vec4<f32>(currentJitter * position_inClip.w, 0.0, 0.0);
 
-  // The previous world position applies the world matrix of the previous frame to the current local
-  // (skinned or morphed) position. Deformation by skinning or blend shapes alone does not move it.
-  var previousPosition_inWorld = position_inWorld;
-  if (!isSameMatrix(previousWorldMatrix, worldMatrix)) {
+  // The previous world position: the vertex deformed by the blend shape weights and the bone data of the previous
+  // frame, transformed by the world matrix of the previous frame. It is computed from the vertex attributes even
+  // when the current position comes from the vertices deformed by the compute shader of the GPU culling.
+  var previousPosition_inWorld: vec4<f32>;
+  if (isBillboard) {
+    // A billboard faces the camera of each frame: only the motion of its world matrix is considered.
     previousPosition_inWorld = previousWorldMatrix * (inverse4x4(worldMatrix) * position_inWorld);
+  } else {
+    var previousPosition_inLocal = position.xyz;
+#ifdef RN_IS_MORPHING
+    if (uniformDrawParameters.morphTargetNumber != 0u) {
+      previousPosition_inLocal = get_previousMorphedPosition(u32(a_baryCentricCoord.w), position.xyz, blendShapeComponentSID);
+    }
+#endif
+    var previousLocalToWorld = previousWorldMatrix;
+#ifdef RN_IS_SKINNING
+    if (instanceIds.y != INVALID_ID) {
+      previousLocalToWorld = previousWorldMatrix * getPreviousSkinMatrix(instanceIds.y, joint, weight);
+    }
+#endif
+    previousPosition_inWorld = previousLocalToWorld * vec4<f32>(previousPosition_inLocal, 1.0);
   }
   output.color_0 = get_previousViewProjectionMatrix(materialSID, 0) * previousPosition_inWorld;
 

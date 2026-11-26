@@ -6,7 +6,7 @@ import { Vector2 } from '../../math/Vector2';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { Engine } from '../../system/Engine';
-import { PreviousWorldMatrixTracker } from './PreviousWorldMatrixTracker';
+import { PreviousFrameDataTracker } from './PreviousFrameDataTracker';
 import { getTemporalAAJitter, halton } from './TemporalAASystem';
 
 async function createEngine() {
@@ -92,10 +92,10 @@ describe('CameraComponent.jitterOffset', () => {
   });
 });
 
-describe('PreviousWorldMatrixTracker', () => {
+describe('PreviousFrameDataTracker', () => {
   // One frame: prepare (tracker.update) runs before the logic stage, in which the transform marks the world
   // matrix dirty and the scene graph computes it.
-  function frame(tracker: PreviousWorldMatrixTracker, entity: ReturnType<typeof createGroupEntity>, move?: Vector3) {
+  function frame(tracker: PreviousFrameDataTracker, entity: ReturnType<typeof createGroupEntity>, move?: Vector3) {
     const isWritten = tracker.update();
     if (move != null) {
       entity.localPosition = move;
@@ -109,7 +109,7 @@ describe('PreviousWorldMatrixTracker', () => {
     const engine = await createEngine();
     const entity = createGroupEntity(engine);
     const sceneGraph = entity.getSceneGraph();
-    const tracker = new PreviousWorldMatrixTracker();
+    const tracker = new PreviousFrameDataTracker();
     tracker.setEntities([entity]);
 
     const translationOfPrevious = () => sceneGraph._previousWorldMatrixInner.getTranslate().x;
@@ -146,7 +146,7 @@ describe('PreviousWorldMatrixTracker', () => {
     const engine = await createEngine();
     const entityA = createGroupEntity(engine);
     const entityB = createGroupEntity(engine);
-    const tracker = new PreviousWorldMatrixTracker();
+    const tracker = new PreviousFrameDataTracker();
     tracker.setEntities([entityA, entityB]);
     tracker.update();
     tracker.update();

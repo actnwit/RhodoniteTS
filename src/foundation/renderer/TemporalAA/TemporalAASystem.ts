@@ -16,7 +16,7 @@ import { Sampler } from '../../textures/Sampler';
 import { Expression } from '../Expression';
 import type { FrameBuffer } from '../FrameBuffer';
 import { RenderPass } from '../RenderPass';
-import { PreviousWorldMatrixTracker } from './PreviousWorldMatrixTracker';
+import { PreviousFrameDataTracker } from './PreviousFrameDataTracker';
 
 /** The number of jitter positions before the sequence repeats. */
 const JITTER_SEQUENCE_LENGTH = 8;
@@ -63,15 +63,16 @@ export function getTemporalAAJitter(frameIndex: number, width: number, height: n
  * @remarks
  * Every frame:
  * 1. `prepareFrame` (before `Engine.process`) moves the projection of the camera by a sub-pixel jitter, and keeps
- *    the world matrices and the view projection matrix of the previous frame for the motion vectors.
+ *    the world matrices, the bone data of the skeletons and the view projection matrix of the previous frame for
+ *    the motion vectors (the strategies keep the blend shape weights of the previous frame).
  * 2. The motion vector pass renders the opaque primitives with the motion vector material into an RGBA16F target
  *    (xy: the motion in texture coordinates, z: the depth).
  * 3. The resolve pass blends the current frame with the history reprojected by the motion vectors
  *    (Catmull-Rom history sampling, variance clipping in YCoCg, inverse luminance weighting), writes the result
  *    into the output target and copies it into the history target.
  *
- * The motion of skinned and morphed vertices that is not caused by the world matrix of their entity is not part of
- * the motion vectors yet; the variance clipping limits the ghosting it causes.
+ * The motion vectors include the motion of skinned and morphed vertices: the motion vector material deforms each
+ * vertex a second time with the bone data and the blend shape weights of the previous frame.
  *
  * @internal
  */
@@ -89,7 +90,7 @@ export class TemporalAASystem {
   private __motionVectorRenderPass: RenderPass;
   private __resolveRenderPass: RenderPass;
   private __expression: Expression;
-  private __previousWorldMatrixTracker = new PreviousWorldMatrixTracker();
+  private __previousFrameDataTracker = new PreviousFrameDataTracker();
   private __frameIndex = 0;
   private __isHistoryValid = false;
   private __lastCamera?: CameraComponent;
@@ -105,6 +106,8 @@ export class TemporalAASystem {
    */
   constructor(engine: Engine, width: number, height: number, currentColorTexture: RenderTargetTexture) {
     this.__engine = engine;
+    // The morph weights uniform buffer keeps the weights of the previous frame from now on.
+    engine._enablePreviousMorphWeights();
     this.__width = width;
     this.__height = height;
 
@@ -229,6 +232,14 @@ export class TemporalAASystem {
     return this.__resolveMaterial.getParameter('currentFrameWeight')._v[0];
   }
 
+  /**
+   * The size of the variance clipping box of the history in standard deviations (default 1). A large value
+   * effectively disables the clipping, which makes wrong motion vectors visible as trails (for debugging).
+   */
+  set varianceClipGamma(gamma: number) {
+    this.__resolveMaterial.setParameter('varianceClipGamma', gamma);
+  }
+
   /** The number of frames prepared since the creation or the last reset of the history. */
   get frameIndex(): number {
     return this.__frameIndex;
@@ -242,7 +253,7 @@ export class TemporalAASystem {
   setEntities(entities: ISceneGraphEntity[]) {
     this.__motionVectorRenderPass.clearEntities();
     this.__motionVectorRenderPass.addEntities(entities);
-    this.__previousWorldMatrixTracker.setEntities(entities);
+    this.__previousFrameDataTracker.setEntities(entities);
   }
 
   /**
@@ -285,7 +296,7 @@ export class TemporalAASystem {
     this.__motionVectorMaterial.setParameter('currentJitter', jitter);
     this.__frameIndex++;
 
-    if (this.__previousWorldMatrixTracker.update()) {
+    if (this.__previousFrameDataTracker.update()) {
       this.__engine._markGpuInstanceDataDirty();
     }
 
@@ -304,7 +315,7 @@ export class TemporalAASystem {
     this.__motionVectorFramebuffer.destroy3DAPIResources();
     this.__outputFramebuffer.destroy3DAPIResources();
     this.__historyFramebuffer.destroy3DAPIResources();
-    this.__previousWorldMatrixTracker.clear();
+    this.__previousFrameDataTracker.clear();
   }
 }
 
