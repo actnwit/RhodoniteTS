@@ -80,10 +80,7 @@ export class ShapeGizmo extends Gizmo {
   }
 
   _destroy(): void {
-    if (this.__topEntity != null) {
-      this.__engine.entityRepository.deleteEntityRecursively(this.__topEntity.entityUID);
-    }
-    this.__topEntity = undefined;
+    this.__destroyTopEntity();
     this.__shapeEntities.length = 0;
     this.__material = undefined;
   }

@@ -103,6 +103,30 @@ export abstract class Gizmo extends RnObject {
   abstract _destroy(): void;
 
   /**
+   * Deletes the top entity of this gizmo from the scene and the EntityRepository, and clears
+   * this gizmo's reference to it.
+   *
+   * `Entity._destroy()` alone leaves the entity registered in the repository, where it is still
+   * returned by tag searches such as `searchByTags({ Being: 'gizmo' })`. The editor collects the
+   * gizmo entities that way, so a destroyed but still registered gizmo would be added to the gizmo
+   * render pass again on the next rebuild. Deleting the entity from the repository also detaches
+   * it from the target's gizmo children and releases its GPU resources.
+   *
+   * @internal
+   */
+  protected __destroyTopEntity(): void {
+    const topEntity = this.__topEntity;
+    this.__topEntity = undefined;
+    if (topEntity == null) {
+      return;
+    }
+    // The entity can already be gone when every entity of the engine is being deleted.
+    if (this.__engine.entityRepository.getEntity(topEntity.entityUID) != null) {
+      this.__engine.entityRepository.deleteEntityRecursively(topEntity.entityUID);
+    }
+  }
+
+  /**
    * Determines whether the gizmo setup should be skipped
    * @returns True if setup should be skipped, false otherwise
    */

@@ -4,7 +4,6 @@ import { VertexAttribute } from '../definitions/VertexAttribute';
 import { Mesh } from '../geometry/Mesh';
 import { Primitive } from '../geometry/Primitive';
 import { Vector3 } from '../math/Vector3';
-import { Is } from '../misc/Is';
 import type { Engine } from '../system/Engine';
 import { Gizmo } from './Gizmo';
 
@@ -176,9 +175,7 @@ export class AABBGizmo extends Gizmo {
    * @internal
    */
   _destroy(): void {
-    if (Is.exist(this.__topEntity)) {
-      this.__topEntity._destroy();
-    }
+    this.__destroyTopEntity();
   }
 
   /**

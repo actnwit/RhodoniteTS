@@ -603,10 +603,16 @@ export class MeshRendererComponent extends Component {
 
     for (let i = 0; i < meshComponents.length; i++) {
       const meshComponent = meshComponents[i];
-      const sceneGraph = meshComponent.entity.getSceneGraph();
       if (!meshComponent._isAlive) {
         continue;
       }
+      // A render pass keeps its mesh components until it is rebuilt, so the entity of a component can
+      // already be gone from the EntityRepository when a gizmo entity is deleted.
+      const entity = meshComponent.entity;
+      if (entity == null) {
+        continue;
+      }
+      const sceneGraph = entity.getSceneGraph();
       scratch.handledEntityStamp = MeshRendererComponent.__stampEntity(
         scratch.handledEntityStamp,
         meshComponent.entityUID,
