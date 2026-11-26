@@ -154,6 +154,17 @@ export declare abstract class AbstractMaterialContent extends RnObject {
     get isLighting(): boolean;
     /**
      * Sets the shader semantics information array for this material.
+     *
+     * A semantic name may arrive more than once: a custom shader can reflect a
+     * parameter from its own `// #param` declaration while the material factory
+     * declares the same parameter explicitly (for example, the raymarching
+     * Uniform nodes). The material's field maps and the buffer view accessors are
+     * keyed by the semantic name, so a duplicate leaves a JS-side field pointing
+     * at another parameter's memory while the shader reads the first entry's
+     * slot, and `setParameter` then updates a value no shader reads. Keep a single
+     * definition per semantic: the later definition wins (the explicit factory
+     * one over the reflected one) at the position of its first appearance.
+     *
      * @param shaderSemanticsInfoArray - Array of shader semantics information to set
      */
     setShaderSemanticsInfoArray(shaderSemanticsInfoArray: ShaderSemanticsInfo[]): void;
