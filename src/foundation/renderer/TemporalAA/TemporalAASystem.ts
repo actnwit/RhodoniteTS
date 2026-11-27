@@ -21,6 +21,9 @@ import { PreviousFrameDataTracker } from './PreviousFrameDataTracker';
 /** The number of jitter positions before the sequence repeats. */
 const JITTER_SEQUENCE_LENGTH = 8;
 
+/** The cap of the number of frames accumulated in the history (see `historyFrameCount` of the resolve material). */
+const MAX_HISTORY_FRAME_COUNT = 1024;
+
 /**
  * Returns the element of the Halton low-discrepancy sequence with the given index and base.
  *
@@ -67,9 +70,10 @@ export function getTemporalAAJitter(frameIndex: number, width: number, height: n
  *    the motion vectors (the strategies keep the blend shape weights of the previous frame).
  * 2. The motion vector pass renders the opaque primitives with the motion vector material into an RGBA16F target
  *    (xy: the motion in texture coordinates, z: the depth).
- * 3. The resolve pass blends the current frame with the history reprojected by the motion vectors
- *    (Catmull-Rom history sampling, variance clipping in YCoCg, inverse luminance weighting), writes the result
- *    into the output target and copies it into the history target.
+ * 3. The resolve pass blends the current frame, reconstructed from its 3x3 neighborhood with a filter centered on
+ *    each pixel, with the history reprojected by the motion vectors (Catmull-Rom history sampling, variance
+ *    clipping in YCoCg, inverse luminance weighting, a smaller weight of the current frame for pixels that do not
+ *    move), writes the result into the output target and copies it into the history target.
  *
  * The motion vectors include the motion of skinned and morphed vertices: the motion vector material deforms each
  * vertex a second time with the bone data and the blend shape weights of the previous frame.
@@ -93,6 +97,7 @@ export class TemporalAASystem {
   private __previousFrameDataTracker = new PreviousFrameDataTracker();
   private __frameIndex = 0;
   private __isHistoryValid = false;
+  private __historyFrameCount = 0;
   private __lastCamera?: CameraComponent;
   private __previousViewProjectionMatrix = MutableMatrix44.identity();
 
@@ -223,13 +228,29 @@ export class TemporalAASystem {
     return this.__motionVectorFramebuffer.getColorAttachedRenderTargetTexture(0)!;
   }
 
-  /** The weight of the current frame in the exponential blend (0-1, default 0.1). */
+  /**
+   * The weight of the current frame in the exponential blend for pixels that move by a pixel per frame or more
+   * (0-1, default 0.1).
+   */
   set currentFrameWeight(weight: number) {
     this.__resolveMaterial.setParameter('currentFrameWeight', weight);
   }
 
   get currentFrameWeight(): number {
     return this.__resolveMaterial.getParameter('currentFrameWeight')._v[0];
+  }
+
+  /**
+   * The weight of the current frame in the exponential blend for pixels that do not move (0-1, default 0.04).
+   * Slower pixels interpolate between this weight and `currentFrameWeight`; a value above `currentFrameWeight`
+   * is clamped to it.
+   */
+  set staticFrameWeight(weight: number) {
+    this.__resolveMaterial.setParameter('staticFrameWeight', weight);
+  }
+
+  get staticFrameWeight(): number {
+    return this.__resolveMaterial.getParameter('staticFrameWeight')._v[0];
   }
 
   /**
@@ -294,14 +315,26 @@ export class TemporalAASystem {
     const jitter = getTemporalAAJitter(this.__frameIndex, this.__width, this.__height);
     camera.jitterOffset = jitter;
     this.__motionVectorMaterial.setParameter('currentJitter', jitter);
+    this.__resolveMaterial.setParameter('currentJitter', jitter);
     this.__frameIndex++;
 
     if (this.__previousFrameDataTracker.update()) {
       this.__engine._markGpuInstanceDataDirty();
     }
 
+    if (!this.__isHistoryValid) {
+      this.__historyFrameCount = 0;
+    }
     this.__resolveMaterial.setParameter('isHistoryValid', this.__isHistoryValid);
+    this.__resolveMaterial.setParameter('historyFrameCount', this.__historyFrameCount);
     this.__isHistoryValid = true;
+    // Only the weight floor 1 / (n + 1) uses the count, and it is below the blend weights long before this cap.
+    this.__historyFrameCount = Math.min(this.__historyFrameCount + 1, MAX_HISTORY_FRAME_COUNT);
+  }
+
+  /** The number of frames accumulated in the history, as passed to the resolve material in the last frame. */
+  get historyFrameCount(): number {
+    return this.__resolveMaterial.getParameter('historyFrameCount')._v[0];
   }
 
   /**

@@ -11,10 +11,12 @@ declare const window: any;
 // URL parameters (for comparing the results manually):
 //   taa=off      renders with the default 4x MSAA instead
 //   frames=N     the number of frames to render (default 24); 0 keeps rendering
+//   move=off     keeps the cube still (a static scene, to check that the edges do not flicker)
 
 const params = new URLSearchParams(window.location.search);
 const isTemporalAA = params.get('taa') !== 'off';
 const frameCountToRender = params.has('frames') ? Number(params.get('frames')) : 24;
+const isCubeMoving = params.get('move') !== 'off';
 
 const p = document.createElement('p');
 document.body.appendChild(p);
@@ -122,7 +124,9 @@ forwardRenderPipeline.startRenderLoop(frame => {
     }
     return;
   }
-  moveCube(count);
+  if (isCubeMoving) {
+    moveCube(count);
+  }
   engine.process(frame);
   count++;
 });
