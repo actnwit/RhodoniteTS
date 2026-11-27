@@ -32,9 +32,16 @@ const TemporalAAResolveShaderVertexWebGpu =
  * - `historyTexture`: the result of the previous frame
  * - `velocityTexture`: the output of the motion vector material
  * - `framebufferSize`: the size of the textures in pixels
- * - `currentFrameWeight`: the weight of the current frame in the exponential blend (default 0.1)
+ * - `currentJitter`: the jitter of the current frame in NDC units (see `getTemporalAAJitter`), for the
+ *   reconstruction filter of the current frame
+ * - `currentFrameWeight`: the weight of the current frame in the exponential blend for pixels that move by a pixel
+ *   per frame or more (default 0.1)
+ * - `staticFrameWeight`: the weight of the current frame for pixels that do not move (default 0.04). Slower
+ *   pixels interpolate between the two weights
  * - `varianceClipGamma`: the size of the variance clipping box in standard deviations (default 1)
  * - `isHistoryValid`: false outputs the current frame (e.g. on the first frame after a reset)
+ * - `historyFrameCount`: the number of frames accumulated in the history since the last reset. The weight of the
+ *   current frame is at least `1 / (historyFrameCount + 1)`, so that the first frames are averaged evenly
  *
  * @param engine - The engine instance
  * @param options - Configuration object for the material
@@ -87,6 +94,15 @@ export function createTemporalAAResolveMaterial(
       max: Number.MAX_SAFE_INTEGER,
     },
     {
+      semantic: 'currentJitter',
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.Vec2,
+      stage: ShaderType.PixelShader,
+      initialValue: Vector2.fromCopy2(0, 0),
+      min: -1,
+      max: 1,
+    },
+    {
       semantic: 'currentFrameWeight',
       componentType: ComponentType.Float,
       compositionType: CompositionType.Scalar,
@@ -94,6 +110,24 @@ export function createTemporalAAResolveMaterial(
       initialValue: Scalar.fromCopyNumber(0.1),
       min: 0,
       max: 1,
+    },
+    {
+      semantic: 'staticFrameWeight',
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.Scalar,
+      stage: ShaderType.PixelShader,
+      initialValue: Scalar.fromCopyNumber(0.04),
+      min: 0,
+      max: 1,
+    },
+    {
+      semantic: 'historyFrameCount',
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.Scalar,
+      stage: ShaderType.PixelShader,
+      initialValue: Scalar.fromCopyNumber(0),
+      min: 0,
+      max: Number.MAX_SAFE_INTEGER,
     },
     {
       semantic: 'varianceClipGamma',

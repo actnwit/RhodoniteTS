@@ -578,8 +578,8 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   /**
-   * The weight of the current frame in the temporal anti-aliasing blend (0-1, default 0.1). Larger values react
-   * faster to changes and smooth less.
+   * The weight of the current frame in the temporal anti-aliasing blend for pixels that move by a pixel per frame
+   * or more (0-1, default 0.1). Larger values react faster to changes and smooth less.
    */
   set temporalAACurrentFrameWeight(weight: number) {
     if (this.__temporalAA != null) {
@@ -589,6 +589,21 @@ export class ForwardRenderPipeline extends RnObject {
 
   get temporalAACurrentFrameWeight(): number {
     return this.__temporalAA?.currentFrameWeight ?? 0.1;
+  }
+
+  /**
+   * The weight of the current frame in the temporal anti-aliasing blend for pixels that do not move (0-1, default
+   * 0.04). Smaller values average more frames of the jitter sequence, which steadies the edges of still images;
+   * slower pixels interpolate between this weight and {@link ForwardRenderPipeline.temporalAACurrentFrameWeight}.
+   */
+  set temporalAAStaticFrameWeight(weight: number) {
+    if (this.__temporalAA != null) {
+      this.__temporalAA.staticFrameWeight = weight;
+    }
+  }
+
+  get temporalAAStaticFrameWeight(): number {
+    return this.__temporalAA?.staticFrameWeight ?? 0.04;
   }
 
   /**
