@@ -19,6 +19,9 @@ https://librn.com/
 * Physically-based Rendering with Image-based Lighting
 * Clustered Forward Rendering
 * GPU frustum culling (including skinned and morph meshes)
+* Temporal anti-aliasing (with motion vectors of skinned and morphed meshes)
+* WebGL2 multi-draw batching
+* Tree-shakeable ES modules
 * Node-based Shader System
 * Node-based Raymarching System (with integration to polygon rendering)
 * Support loading the following 3D model files: [glTF2](https://github.com/KhronosGroup/glTF), glTF1, [VRM](https://vrm.dev/en/)
@@ -70,10 +73,6 @@ You can install Rhodonite easily.
 ```bash
 $ npm install rhodonite
 ```
-
-### Note
-
-If you get an error like "webxr-input-profiles not found" when building a project using Rhodonite, Try "npm install" or "pnpm install" again.
 
 ## Migration to WebGL2 mode
 
@@ -200,7 +199,7 @@ Either way, `tsconfig.json` looks like this:
   ...
   "compilerOptions": {
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     ...
   }
@@ -208,11 +207,15 @@ Either way, `tsconfig.json` looks like this:
 }
 ```
 
+`"moduleResolution": "bundler"` (or `"node16"` / `"nodenext"`) is needed for TypeScript to read the `exports` field
+of `package.json`, which the `rhodonite/optional-materials` subpath relies on.
+
 #### Tree shaking
 
-The ESModule packages (`dist/esm`, `dist/esmdev`) keep one file per source module, and the package is marked
-`"sideEffects": false`. With a bundler (Vite, Rollup, Rolldown, webpack, esbuild, ...), import what you use by name
-and the bundler leaves the rest of Rhodonite out of your bundle:
+The ESModule packages (`dist/esm`, `dist/esmdev`) keep one file per source module, and `package.json` marks every
+module except the shared dependency chunks (`_deps/chunk-*.js`) as free of side effects. With a bundler (Vite,
+Rollup, Rolldown, webpack, esbuild, ...), import what you use by name and the bundler leaves the rest of Rhodonite
+out of your bundle:
 
 ```typescript
 import { Engine, MeshHelper, ProcessApproach, Vector3 } from 'rhodonite';
@@ -228,6 +231,15 @@ planeEntity.eulerAngles = Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
 The default export `Rn` references every export, so `import Rn from 'rhodonite'` always bundles the whole library.
 Likewise, `MaterialHelper.createXxxMaterial()` bundles every material; import the functions instead
 (`import { createPbrUberMaterial } from 'rhodonite'`).
+
+The node-based material, raymarching and MToon factories are not exported from the package root, because they
+pull in the whole shader node library. Import them from the `rhodonite/optional-materials` subpath:
+
+```typescript
+import { createMToon1Material, createNodeBasedCustomMaterial } from 'rhodonite/optional-materials';
+```
+
+The glTF/VRM importer loads what it needs from there by itself.
 
 An application that uses only one rendering backend can drop the shaders of the other one by defining a flag in its
 bundler. Without the flags, the shaders of both backends are kept.
@@ -332,7 +344,7 @@ $ E2E_WEBGPU_SMOKE=1 pnpm run test-e2e
 
 With `E2E_WEBGPU_SMOKE=1` the WebGPU samples only have to reach their render loop; no screenshot comparison is performed.
 
-The E2E runner passes the Mesa-specific flags automatically on Linux. Set `E2E_SOFTWARE_RENDERING=0` to opt out, or `PUPPETEER_EXECUTABLE_PATH` to use a specific Chrome binary. `E2E_REFERENCE_FAILURE_THRESHOLD` (percent, default `0`) is a tolerance floor for the reference environment; CI sets it to `5` because GitHub's hosted runners use a different CPU/instance than the machine that generated the reference images (a few sensitive samples differ by up to ~3.5%). `E2E_NON_REFERENCE_FAILURE_THRESHOLD` (default `2`, percent) is the floor used outside the reference environment; `E2E_REFERENCE_ENVIRONMENT=0` forces that floor on Linux too.
+The E2E runner passes the Mesa-specific flags automatically on Linux. Set `E2E_SOFTWARE_RENDERING=0` to opt out, or `PUPPETEER_EXECUTABLE_PATH` to use a specific Chrome binary. `E2E_REFERENCE_FAILURE_THRESHOLD` (percent, default `0`) is a tolerance floor for the reference environment (any Linux run); the CI workflow does not set it, so CI compares strictly. `E2E_NON_REFERENCE_FAILURE_THRESHOLD` (default `2`, percent) is the floor used outside the reference environment; `E2E_REFERENCE_ENVIRONMENT=0` forces that floor on Linux too.
 
 You can execute a part of tests like this.
 
@@ -352,9 +364,19 @@ $ pnpm run test-unit-part -- ./src/foundation/core/Entity.test.ts
 $ pnpm run test-e2e-part -- ./samples/test_e2e/DataTextureInstancedDrawing
 ```
 
+The E2E tests run the compiled samples, so run `pnpm run build-samples` first.
+
+`pnpm run test-e2e-update` rewrites the reference images that currently fail, in the current environment. To regenerate the reference images of one sample in the reference environment, open the container shell (`pnpm test-e2e:docker:shell`) and run:
+
+```bash
+$ npx vitest run --config ./config/test/vitest.config.e2e.ts ./samples/test_e2e/<Sample> --update=all
+```
+
+(`--update` takes an optional value, so `--update ./samples/<Sample>` would swallow the path and update the whole suite.)
+
 ### Running the E2E suite in the CI environment (Docker)
 
-The E2E job runs on `ubuntu-latest` with Mesa's software stack (llvmpipe for GL, lavapipe for Vulkan). To reproduce exactly the same environment on any machine with Docker:
+The E2E job runs on `ubuntu-24.04-arm` with Mesa's software stack (llvmpipe for GL, lavapipe for Vulkan). To reproduce exactly the same environment on any machine with Docker:
 
 ```bash
 $ pnpm test-e2e:docker          # run the full E2E suite in the container
@@ -380,11 +402,16 @@ After a new dev container window opens, You can work in the Debian Linux contain
 
 ## Debugging inside VSCode (Step execution in VSCode Debug tab)
 
-1. Install the "Debugger for Chrome" VSCode Extension.
+1. Use VSCode's built-in JavaScript debugger (the old "Debugger for Chrome" extension is deprecated and no longer needed).
 2. Start the local server with `$ pnpm start`.
 3. Push the run icon by choosing "Launch Chrome to debug Rhodonite samples" in the RUN tab of VSCode's left pane to start debugging.
 
 If you use the VSCode devcontainer environment, You should open another RhodoniteTS VSCode window locally and do debug ops on it instead of the devcontainer VSCode window.
+
+## Documentation
+
+- [docs/](docs/README.md): architecture, API tour and developer workflow
+- [docs/design-notes/](docs/design-notes/README.md): why the rendering and performance features (Clustered Forward, GPU culling, TAA, multi-draw, tree shaking, ...) are built the way they are, with the measurements behind their defaults
 
 ## Contributing
 

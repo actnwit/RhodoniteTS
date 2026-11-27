@@ -95,7 +95,7 @@ interface EngineInitDescription {
  * ... (create something) ...
  *
  * engine.startRenderLoop((time, _myArg1, _myArg2) => {
- *   Rn.Engine.process([expression]);
+ *   engine.process([expression]);
  * }, myArg1, myArg2);
  * ```
  */
@@ -324,8 +324,8 @@ export class Engine extends RnObject {
    *
    * @example
    * ```
-   * Rn.Engine.startRenderLoop((time, _myArg1, _myArg2) => {
-   *   Rn.Engine.process([expression]);
+   * engine.startRenderLoop((time, _myArg1, _myArg2) => {
+   *   engine.process([expression]);
    * }, myArg1, myArg2);
    * ```
    *

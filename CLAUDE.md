@@ -29,27 +29,35 @@ pnpm test                  # Run all tests (unit + E2E visual regression)
 pnpm test-unit             # Unit tests only (Vitest)
 pnpm test-e2e              # E2E visual tests only (Puppeteer)
 pnpm test-coverage         # Test with coverage report
-pnpm test-e2e-update       # Update E2E test snapshots
+pnpm test-e2e-update       # Rewrite the E2E snapshots that currently fail (in the current environment)
+pnpm test-e2e:docker       # Strict E2E run in the CI container (reference environment)
+pnpm test-e2e:docker:update # Regenerate all E2E reference images in the CI container
 ```
 
 ### Code Quality
 ```bash
 pnpm lint                  # Lint code using Biome
-pnpm lint:fix              # Auto-fix linting issues
-pnpm format                # Format code using Biome
-pnpm format:fix            # Auto-format code
+pnpm lint-fix              # Auto-fix linting issues
+pnpm format                # Check formatting using Biome
+pnpm format-fix            # Auto-format code
 pnpm check                 # Run both linting and formatting checks
-pnpm check:fix             # Auto-fix both linting and formatting issues
+pnpm check-fix             # Auto-fix both linting and formatting issues
 pnpm doc                   # Generate TypeDoc API documentation
 ```
 
 ### Important Notes
 - **Node.js 22+** is strictly required
-- E2E tests are GPU-dependent; CI runs them on `ubuntu-latest` with Mesa's
+- E2E tests are GPU-dependent; CI runs them on `ubuntu-24.04-arm` with Mesa's
   llvmpipe + lavapipe and Chromium's WebGPU-on-Vulkan-via-GL-interop path, so
   WebGL2 and WebGPU screenshots are both compared there
 - Always run `pnpm build && pnpm build-samples && pnpm test` before submitting PRs
-- Main development branch is `develop`, not `main`
+- The default branch is `main`; pull requests target `main`. PR titles must follow Conventional Commits
+  (`feat: ...`, `fix(scope): ...`), which the `Lint PR` workflow checks
+- Some unit tests import `dist/esm` instead of `src` (e.g. `Entity.test.ts`, `LightClusterSystem.test.ts`),
+  so rebuild `dist` before running unit tests after a source change
+- Design notes (why features are built the way they are, measured trade-offs, rejected alternatives) are in
+  `docs/design-notes/`. Read the relevant note before changing Clustered Forward, shadows, multi-draw,
+  GPU culling, the depth prepass, TAA, the scene graph update or the tree-shaking setup
 
 ## Core Architecture
 
@@ -79,8 +87,9 @@ pnpm doc                   # Generate TypeDoc API documentation
 src/foundation/
 ├── components/           # ECS components (Transform, Mesh, Camera, Light, etc.)
 ├── core/                # Core systems (Entity, Component, Repository, Memory)
-├── system/              # System-level management (System, ModuleManager, Time)
-├── renderer/            # Rendering pipeline (RenderPass, RenderPipeline, FrameBuffer)
+├── system/              # Engine (entry point, frame processing), ModuleManager, InputManager
+├── renderer/            # RenderPass, Expression, FrameBuffer, pipelines/ (ForwardRenderPipeline),
+│                        #   lightCluster/ (Clustered Forward), TemporalAA/
 ├── materials/           # Material system (Material, MaterialContent, shader nodes)
 ├── math/               # Mathematical primitives (Vector, Matrix, Quaternion, Color)
 ├── geometry/           # Mesh and primitive geometry (Primitive, Buffer, Accessor)
@@ -101,8 +110,12 @@ src/xr/                 # WebXR support
 - **ESM Dev** (`dist/esmdev/`): Development build with inline source maps, one file per source module
 - **ESM Prod** (`dist/esm/`): Minified production build, one file per source module
 - The ESM builds are unbundled (`config/esbuild/unbundled.mjs`) so that applications can tree-shake them;
-  `package.json` declares `"sideEffects": false`. Imports that leave `src/` (npm packages, `vendor/*.js`) are
-  bundled once into `dist/<target>/_deps/`, so the output also runs in browsers without an import map.
+  `package.json` lists only the shared `dist/*/_deps/chunk-*.js` files in `"sideEffects"`, so every other module
+  is side-effect free. Imports that leave `src/` (npm packages, `vendor/*.js`) are bundled once into
+  `dist/<target>/_deps/`, so the output also runs in browsers without an import map.
+- **Property mangling**: `__`-prefixed properties are mangled in every build (`mangleProps` in
+  `config/esbuild/build.mjs`, with one shared `mangleCache` across the unbundled entry points). Names read across
+  package boundaries (e.g. `__importedType`, read by RhodoniteEditor2) must be added to `reserveProps`.
 - **Tree-shaking rules**: no module may do work at import time that another module relies on (e.g. registering
   classes into a shared registry). Component classes are registered lazily by
   `EntityRepository.addComponentToEntity`; the core ones by `Engine.init`. Avoid value-import cycles: a cycle
@@ -159,13 +172,19 @@ src/xr/                 # WebXR support
 - **TreeShaking sample**: `samples/test_e2e/TreeShaking` is the only sample that is bundled. `pnpm build-samples`
   runs `scripts/build-tree-shaking-sample.mjs` (esbuild, named imports, `__RN_WEBGPU__: false`) after `tsc`, and the
   test checks the bundle's metafile (no gizmos, XR, WGSL, MaterialHelper, KTX2, Rapier) as well as the rendering.
-  If it fails after a change, something in the core path started importing an optional feature again.
+  The other scenarios (`mainGltf.ts`, `mainPbr.ts`, `mainOptional.ts`, `mainWebGpu.ts` with `__RN_WEBGL__: false`)
+  are bundled for their metafiles only, and each one has a static-size budget.
+  If it fails after a change, something in the core path started importing an optional feature again
+  (see `docs/design-notes/tree-shaking.md`).
 
 ## Development Patterns
 
 ### Component Development
 - Components extend base `Component` class and implement required interfaces
-- Use `ComponentRepository` for registration and lifecycle management
+- Component classes are registered with `ComponentRepository` lazily, when they are first added to an entity
+  (`EntityRepository.addComponentToEntity`); never register them at module top level
+- Behavior that `Engine` must call for an optional component goes through `registerComponentRuntimeHooks`
+  (`core/ComponentRuntimeHooks.ts`) instead of an import from `Engine`
 - Follow established patterns in existing components for consistency
 
 ### Memory Allocation
@@ -186,9 +205,13 @@ src/xr/                 # WebXR support
   material factory. The `MaterialHelper` object still includes them for compatibility.
 
 ### Asset Loading
-- Use `AssetLoader` with appropriate extension loaders
-- Support format detection via file extension and magic numbers
-- Handle async loading patterns consistently
+- `GltfImporter.importFromUrl` / `importFromArrayBuffers` detect glTF, GLB, VRM and Draco by extension and
+  content, and return an `Expression`
+- Optional importer support (node-based and MToon materials, raymarching, `KHR_physics`, Draco point clouds,
+  the sheen LUT) is dynamically imported and preloaded from the async `ModelConverter.convertToRhodoniteObject`;
+  keep new optional features on that pattern
+- `AssetLoader` (`helpers/AssetLoader.ts`) is a typed promise queue (concurrency limit, timeout, retry factories),
+  not a format loader
 
 ### Rendering Integration
 - Use `RenderPass` system for organizing rendering operations
