@@ -164,9 +164,11 @@ src/xr/                 # WebXR support
 - **Same environment locally**: `pnpm test-e2e:docker` (strict run) and
   `pnpm test-e2e:docker:update` (regenerate reference images) use the CI
   container, so local and CI compare against the same rendering
-- **Filtered reference updates**: to regenerate only one sample, run
+- **Filtered reference updates**: to update only one sample, run
   `npx vitest run --config ./config/test/vitest.config.e2e.ts ./samples/test_e2e/<Sample> --update=all`
-  (in the container shell: `bash config/e2e/run-in-docker.sh shell`). `--update` takes an
+  (in the container shell: `bash config/e2e/run-in-docker.sh shell`). This rewrites only the snapshots that fail;
+  prefix `E2E_UPDATE_ALL_SNAPSHOTS=1` to regenerate every reference image of that sample
+  (`samples/test_e2e/common/testFunc.js`). `--update` takes an
   optional value, so `--update ./samples/<Sample>` swallows the path and updates the whole suite.
 - **Snapshots**: Image comparison with automatic snapshot updating
 - **TreeShaking sample**: `samples/test_e2e/TreeShaking` is the only sample that is bundled. `pnpm build-samples`
@@ -185,7 +187,6 @@ src/xr/                 # WebXR support
   (`EntityRepository.addComponentToEntity`); never register them at module top level
 - Behavior that `Engine` must call for an optional component goes through `registerComponentRuntimeHooks`
   (`core/ComponentRuntimeHooks.ts`) instead of an import from `Engine`
-- Follow established patterns in existing components for consistency
 
 ### Memory Allocation
 - Use `MemoryManager` for efficient memory pool allocation
@@ -216,7 +217,6 @@ src/xr/                 # WebXR support
 ### Rendering Integration
 - Use `RenderPass` system for organizing rendering operations
 - Support both WebGL and WebGPU rendering strategies
-- Follow established patterns for resource management
 
 ### Shader Sources (GLSL / WGSL)
 - **Never use backticks in `src/webgl/shaderity_shaders/**` or `src/webgpu/shaderity_shaders/**`, not even in comments.**
@@ -246,10 +246,10 @@ src/xr/                 # WebXR support
 
 ### Key Dev Dependencies
 - **@biomejs/biome**: Fast linter and formatter for consistent code quality
-- **typedoc**: API documentation generation
+- **typedoc**: API documentation generation; not a devDependency - `pnpm doc` runs a pinned version through `pnpm dlx`
 - **vitest**: Fast unit testing framework
 - **puppeteer**: Automated browser testing for E2E
 
 ## Other Notes
 
-- Think in English deeply, and respond to user in Japanese.
+- Think in English, and respond to the user in Japanese.

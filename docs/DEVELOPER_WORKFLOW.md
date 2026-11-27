@@ -80,9 +80,10 @@ pnpm test-e2e:docker:shell                       # shell inside the container
 
 - The reference images come from the container (Linux, Mesa llvmpipe/lavapipe). Native runs on other machines apply a
   2% tolerance floor; the container and CI compare strictly.
-- To regenerate one sample in the container: `npx vitest run --config ./config/test/vitest.config.e2e.ts
-  ./samples/test_e2e/<Sample> --update=all` from the container shell. Do not write `--update ./samples/...`: the
-  flag swallows the path and updates the whole suite.
+- To update one sample in the container: `npx vitest run --config ./config/test/vitest.config.e2e.ts
+  ./samples/test_e2e/<Sample> --update=all` from the container shell. This rewrites only the reference images that
+  fail; prefix `E2E_UPDATE_ALL_SNAPSHOTS=1` to regenerate every reference image of that sample. Do not write
+  `--update ./samples/...`: the flag swallows the path and updates the whole suite.
 - A rendering change that moves references in samples you did not expect is a signal, not noise: for example, the
   directional shadow fit affects every sample with a shadow-casting directional light
   ([design-notes/shadows.md](./design-notes/shadows.md)).
