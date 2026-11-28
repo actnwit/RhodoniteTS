@@ -366,11 +366,13 @@ $ pnpm run test-e2e-part -- ./samples/test_e2e/DataTextureInstancedDrawing
 
 The E2E tests run the compiled samples, so run `pnpm run build-samples` first.
 
-`pnpm run test-e2e-update` rewrites the reference images that currently fail, in the current environment. To regenerate the reference images of one sample in the reference environment, open the container shell (`pnpm test-e2e:docker:shell`) and run:
+`pnpm run test-e2e-update` rewrites the reference images that currently fail, in the current environment. To update the reference images of one sample in the reference environment, open the container shell (`pnpm test-e2e:docker:shell`) and run:
 
 ```bash
 $ npx vitest run --config ./config/test/vitest.config.e2e.ts ./samples/test_e2e/<Sample> --update=all
 ```
+
+This rewrites only the reference images that fail. To regenerate every reference image of that sample, prefix the command with `E2E_UPDATE_ALL_SNAPSHOTS=1`.
 
 (`--update` takes an optional value, so `--update ./samples/<Sample>` would swallow the path and update the whole suite.)
 
