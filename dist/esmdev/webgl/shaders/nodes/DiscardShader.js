@@ -16,10 +16,10 @@ var _DiscardShader = class _DiscardShader extends StandardShaderPart {
    * @returns The singleton DiscardShader instance
    */
   static getInstance() {
-    if (!this.Yi) {
-      this.Yi = new _DiscardShader();
+    if (!this.dj) {
+      this.dj = new _DiscardShader();
     }
-    return this.Yi;
+    return this.dj;
   }
   /**
    * Gets the vertex shader function definitions.

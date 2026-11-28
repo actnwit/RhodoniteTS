@@ -15,8 +15,8 @@ var GaussianBlur = class {
    * @param engine - The engine instance to use for creating the Gaussian blur effect
    */
   constructor(engine) {
-    this.Yn = /* @__PURE__ */ new Map();
-    this._n = /* @__PURE__ */ new Map();
+    this.fo = /* @__PURE__ */ new Map();
+    this.ho = /* @__PURE__ */ new Map();
     this.c = engine;
   }
   /**
@@ -51,7 +51,7 @@ var GaussianBlur = class {
       outputFrameBufferLayerIndex = 0
     }
   }) {
-    const renderPassesBlurred = this.ho(
+    const renderPassesBlurred = this.po(
       textureToBlur,
       blurPassLevel,
       gaussianKernelSize,
@@ -61,7 +61,7 @@ var GaussianBlur = class {
       isReduceBuffer,
       textureFormat
     );
-    const renderPassSynthesizeImage = this.go(
+    const renderPassSynthesizeImage = this.oo(
       textureToBlur,
       renderPassesBlurred,
       synthesizeCoefficient,
@@ -92,14 +92,14 @@ var GaussianBlur = class {
    *
    * @returns Array of render passes for horizontal and vertical blur operations
    */
-  ho(frameBufferToBlur, blurPassLevel, gaussianKernelSize, gaussianVariance, maxResolutionWidth, maxResolutionHeight, isReduceBuffer, textureFormat) {
+  po(frameBufferToBlur, blurPassLevel, gaussianKernelSize, gaussianVariance, maxResolutionWidth, maxResolutionHeight, isReduceBuffer, textureFormat) {
     const renderPasses = [];
     for (let i = 0; i < blurPassLevel; i++) {
       const resolutionWidthBlur = isReduceBuffer ? Math.max(maxResolutionWidth >> i + 1, 1) : maxResolutionWidth;
       const resolutionHeightBlur = isReduceBuffer ? Math.max(maxResolutionHeight >> i + 1, 1) : maxResolutionHeight;
       let renderPassBlurH;
       if (i === 0) {
-        renderPassBlurH = this.$n(
+        renderPassBlurH = this.io(
           frameBufferToBlur,
           gaussianKernelSize,
           gaussianVariance,
@@ -109,7 +109,7 @@ var GaussianBlur = class {
           textureFormat
         );
       } else {
-        renderPassBlurH = this.$n(
+        renderPassBlurH = this.io(
           renderPasses[renderPasses.length - 1].getFramebuffer().getColorAttachedRenderTargetTexture(0),
           gaussianKernelSize,
           gaussianVariance,
@@ -120,7 +120,7 @@ var GaussianBlur = class {
         );
       }
       renderPassBlurH.tryToSetUniqueName(`renderPassBlurH_${i}`, true);
-      const renderPassBlurHV = this.$n(
+      const renderPassBlurHV = this.io(
         renderPassBlurH.getFramebuffer().getColorAttachedRenderTargetTexture(0),
         gaussianKernelSize,
         gaussianVariance,
@@ -148,7 +148,7 @@ var GaussianBlur = class {
    *
    * @returns Render pass that performs the synthesis operation
    */
-  go(texture, renderPassesBlurredHighLuminance, synthesizeCoefficient, textureFormat, outputFrameBuffer, outputFrameBufferLayerIndex) {
+  oo(texture, renderPassesBlurredHighLuminance, synthesizeCoefficient, textureFormat, outputFrameBuffer, outputFrameBufferLayerIndex) {
     const texturesSynthesize = [texture];
     for (let i = 1; i < renderPassesBlurredHighLuminance.length; i += 2) {
       texturesSynthesize.push(
@@ -172,7 +172,7 @@ var GaussianBlur = class {
     let framebufferSynthesizeImages = outputFrameBuffer;
     if (framebufferSynthesizeImages == null) {
       const key = `${texture.width}x${texture.height}_${textureFormat.str}`;
-      framebufferSynthesizeImages = this._n.get(key);
+      framebufferSynthesizeImages = this.ho.get(key);
       if (framebufferSynthesizeImages == null) {
         framebufferSynthesizeImages = RenderableHelper.createFrameBuffer(this.c, {
           width: texture.width,
@@ -181,7 +181,7 @@ var GaussianBlur = class {
           textureFormats: [textureFormat],
           createDepthBuffer: false
         });
-        this._n.set(key, framebufferSynthesizeImages);
+        this.ho.set(key, framebufferSynthesizeImages);
       }
     }
     renderPassSynthesizeBlur.setFramebuffer(framebufferSynthesizeImages);
@@ -212,7 +212,7 @@ var GaussianBlur = class {
    *
    * @returns Configured render pass for Gaussian blur operation
    */
-  $n(textureToBlur, gaussianKernelSize, gaussianVariance, isHorizontal, resolutionWidthBlur, resolutionHeightBlur, textureFormat) {
+  io(textureToBlur, gaussianKernelSize, gaussianVariance, isHorizontal, resolutionWidthBlur, resolutionHeightBlur, textureFormat) {
     const material = createGaussianBlurMaterial(this.c);
     const gaussianDistributionRatio = MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
       kernelSize: gaussianKernelSize,
@@ -230,7 +230,7 @@ var GaussianBlur = class {
       textureToBlur
     );
     const key = `${resolutionWidthBlur}x${resolutionHeightBlur}_${textureFormat.str}_${isHorizontal}`;
-    let framebuffer = this.Yn.get(key);
+    let framebuffer = this.fo.get(key);
     if (framebuffer == null) {
       framebuffer = RenderableHelper.createFrameBuffer(this.c, {
         width: resolutionWidthBlur,
@@ -239,7 +239,7 @@ var GaussianBlur = class {
         textureFormats: [textureFormat],
         createDepthBuffer: false
       });
-      this.Yn.set(key, framebuffer);
+      this.fo.set(key, framebuffer);
     }
     renderPass.setFramebuffer(framebuffer);
     return renderPass;
@@ -250,14 +250,14 @@ var GaussianBlur = class {
    * to prevent memory leaks. Should be called when the GaussianBlur instance is no longer needed.
    */
   destroy3DAPIResources() {
-    this.Yn.forEach((framebuffer) => {
+    this.fo.forEach((framebuffer) => {
       framebuffer.destroy3DAPIResources();
     });
-    this._n.forEach((framebuffer) => {
+    this.ho.forEach((framebuffer) => {
       framebuffer.destroy3DAPIResources();
     });
-    this.Yn.clear();
-    this._n.clear();
+    this.fo.clear();
+    this.ho.clear();
   }
 };
 export {

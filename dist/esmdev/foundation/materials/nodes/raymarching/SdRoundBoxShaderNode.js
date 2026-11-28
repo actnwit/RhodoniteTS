@@ -16,12 +16,12 @@ var SdRoundBoxShaderNode = class extends AbstractShaderNode {
       codeWGSL: SdRoundBoxShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.zr.push(
+    this.Hr.push(
       new Socket("position", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 0))
     );
-    this.zr.push(new Socket("size", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(1, 1, 1)));
-    this.zr.push(new Socket("radius", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.25)));
-    this.Cr.push(
+    this.Hr.push(new Socket("size", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(1, 1, 1)));
+    this.Hr.push(new Socket("radius", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.25)));
+    this.Kr.push(
       new Socket("outDistance", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
   }

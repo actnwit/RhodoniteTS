@@ -57,7 +57,7 @@ var VarianceShadowMapDecodeClassicMaterialContent = class extends AbstractMateri
     if (depthCameraComponent == null) {
       Logger.default.warn("need to set depth camera component");
     } else {
-      this.lr = depthCameraComponent;
+      this.tr = depthCameraComponent;
     }
     for (const encodedDepthRenderPass of encodedDepthRenderPasses) {
       const viewport = encodedDepthRenderPass.getViewport();
@@ -316,7 +316,7 @@ var VarianceShadowMapDecodeClassicMaterialContent = class extends AbstractMateri
         CameraComponent.getCurrent(engine)
       );
     }
-    const encodedDepthCameraComponent = (_a = this.lr) != null ? _a : args.renderPass.cameraComponent;
+    const encodedDepthCameraComponent = (_a = this.tr) != null ? _a : args.renderPass.cameraComponent;
     material.setParameter("zNearInner", encodedDepthCameraComponent.zNearInner);
     material.setParameter("zFarInner", encodedDepthCameraComponent.zFarInner);
     material.setParameter("lightViewProjectionMatrix", encodedDepthCameraComponent.viewProjectionMatrix);
@@ -342,7 +342,7 @@ var VarianceShadowMapDecodeClassicMaterialContent = class extends AbstractMateri
    * into light space for shadow map lookup operations.
    */
   set depthCameraComponent(depthCameraComponent) {
-    this.lr = depthCameraComponent;
+    this.tr = depthCameraComponent;
   }
 };
 VarianceShadowMapDecodeClassicMaterialContent.IsPointLight = new ShaderSemanticsClass({ str: "isPointLight" });
@@ -367,8 +367,8 @@ VarianceShadowMapDecodeClassicMaterialContent.zFarInner = new ShaderSemanticsCla
 VarianceShadowMapDecodeClassicMaterialContent.DebugColorFactor = new ShaderSemanticsClass({
   str: "debugColorFactor"
 });
-VarianceShadowMapDecodeClassicMaterialContent.br = 0;
-VarianceShadowMapDecodeClassicMaterialContent.cr = 0;
+VarianceShadowMapDecodeClassicMaterialContent.jr = 0;
+VarianceShadowMapDecodeClassicMaterialContent.kr = 0;
 export {
   VarianceShadowMapDecodeClassicMaterialContent
 };

@@ -33,7 +33,7 @@ var GltfImporter = class {
     const promise = new Promise((resolve, reject) => {
       (async () => {
         var _a;
-        options = this.Jp(options);
+        options = this.Rp(options);
         const renderPasses = ((_a = options.expression) == null ? void 0 : _a.renderPasses) || [];
         if (renderPasses.length === 0) {
           renderPasses.push(new RenderPass(engine));
@@ -44,13 +44,13 @@ var GltfImporter = class {
           return;
         }
         options.files[url] = r_arrayBuffer.get();
-        await this.Kp(engine, url, renderPasses, options, url, callback);
+        await this.Sp(engine, url, renderPasses, options, url, callback);
         if (options == null ? void 0 : options.cameraComponent) {
           for (const renderPass of renderPasses) {
             renderPass.cameraComponent = options.cameraComponent;
           }
         }
-        const expression = this.Lp(renderPasses, options);
+        const expression = this.Tp(renderPasses, options);
         resolve(expression);
       })().catch(reject);
     });
@@ -72,15 +72,15 @@ var GltfImporter = class {
     const promise = new Promise((resolve, reject) => {
       (async () => {
         var _a;
-        options = this.Jp(options);
+        options = this.Rp(options);
         const renderPasses = ((_a = options.expression) == null ? void 0 : _a.renderPasses) || [];
         if (renderPasses.length === 0) {
           renderPasses.push(new RenderPass(engine));
         }
         for (const fileName in files) {
           const fileExtension = DataUtil.getExtension(fileName);
-          if (this.Mp(fileExtension)) {
-            await this.Kp(engine, fileName, renderPasses, options, fileName, callback);
+          if (this.Up(fileExtension)) {
+            await this.Sp(engine, fileName, renderPasses, options, fileName, callback);
           }
         }
         if (options == null ? void 0 : options.cameraComponent) {
@@ -88,7 +88,7 @@ var GltfImporter = class {
             renderPass.cameraComponent = options.cameraComponent;
           }
         }
-        const expression = this.Lp(renderPasses, options);
+        const expression = this.Tp(renderPasses, options);
         resolve(expression);
       })().catch(reject);
     });
@@ -102,7 +102,7 @@ var GltfImporter = class {
    * @returns A fully initialized GltfLoadOption object with all required properties
    * @private
    */
-  static Jp(options) {
+  static Rp(options) {
     if (options == null) {
       options = DataUtil.createDefaultGltfOptions();
     } else {
@@ -139,7 +139,7 @@ var GltfImporter = class {
    * @returns The expression object with render passes configured
    * @private
    */
-  static Lp(renderPasses, options) {
+  static Tp(renderPasses, options) {
     var _a;
     const expression = (_a = options.expression) != null ? _a : new Expression();
     if (expression.renderPasses !== renderPasses) {
@@ -155,7 +155,7 @@ var GltfImporter = class {
    * @returns True if the extension is supported (gltf, glb, vrm, drc), false otherwise
    * @private
    */
-  static Mp(fileExtension) {
+  static Up(fileExtension) {
     if (fileExtension === "gltf" || fileExtension === "glb" || fileExtension === "rnb" || fileExtension === "vrm" || fileExtension === "drc") {
       return true;
     }
@@ -169,7 +169,7 @@ var GltfImporter = class {
    * @returns True if the buffer contains GLB data, false otherwise
    * @private
    */
-  static Op(arrayBuffer) {
+  static Wp(arrayBuffer) {
     const dataView = new DataView(arrayBuffer, 0, 20);
     const isLittleEndian = true;
     const magic = dataView.getUint32(0, isLittleEndian);
@@ -186,7 +186,7 @@ var GltfImporter = class {
    * @returns The glTF version number (typically 1 or 2)
    * @private
    */
-  static Pp(glbArrayBuffer) {
+  static Xp(glbArrayBuffer) {
     const dataView = new DataView(glbArrayBuffer, 0, 20);
     const isLittleEndian = true;
     const glbVer = dataView.getUint32(4, isLittleEndian);
@@ -200,7 +200,7 @@ var GltfImporter = class {
    * @returns 2 for glTF 2.0, 1 for glTF 1.0 or older versions
    * @private
    */
-  static Qp(gltfJson) {
+  static Yp(gltfJson) {
     var _a, _b;
     if (((_b = (_a = gltfJson.asset) == null ? void 0 : _a.version) == null ? void 0 : _b.charAt(0)) === "2") {
       return 2;
@@ -219,11 +219,11 @@ var GltfImporter = class {
    * @returns A Result indicating success or failure of the import operation
    * @private
    */
-  static async Kp(engine, fileName, renderPasses, options, uri, callback) {
+  static async Sp(engine, fileName, renderPasses, options, uri, callback) {
     const optionalFileType = options.fileType;
-    const fileType = this.Np(fileName, options, optionalFileType);
+    const fileType = this.Vp(fileName, options, optionalFileType);
     const fileArrayBuffer = options.files[fileName];
-    options.Ip = false;
+    options.Qp = false;
     switch (fileType) {
       case FileType.Gltf: {
         const gotText = DataUtil.arrayBufferToString(fileArrayBuffer);
@@ -259,18 +259,18 @@ var GltfImporter = class {
         return new Ok();
       }
       case FileType.VRM: {
-        options.Ip = true;
+        options.Qp = true;
         const result = await Gltf2Importer._importGltfOrGlbFromArrayBuffers(fileArrayBuffer, options.files, options);
         if (result.isOk()) {
           const gltfModel = result.get();
           if (gltfModel.extensionsUsed.indexOf("VRMC_vrm") >= 0) {
-            options.Ip = false;
-            gltfModel.asset.extras.rnLoaderOptions.Ip = false;
+            options.Qp = false;
+            gltfModel.asset.extras.rnLoaderOptions.Qp = false;
             options.__importedType = "vrm1";
-            await VrmImporter.Rp(engine, gltfModel, renderPasses);
+            await VrmImporter.Zp(engine, gltfModel, renderPasses);
           } else if (gltfModel.extensionsUsed.indexOf("VRM") >= 0) {
             options.__importedType = "vrm0x";
-            await Vrm0xImporter.Sp(engine, gltfModel, renderPasses);
+            await Vrm0xImporter._p(engine, gltfModel, renderPasses);
           }
           return new Ok();
         }
@@ -297,7 +297,7 @@ var GltfImporter = class {
    * @returns The detected or specified FileType
    * @private
    */
-  static Np(fileName, options, optionalFileType) {
+  static Vp(fileName, options, optionalFileType) {
     if (optionalFileType != null) {
       return FileType.fromString(optionalFileType);
     }

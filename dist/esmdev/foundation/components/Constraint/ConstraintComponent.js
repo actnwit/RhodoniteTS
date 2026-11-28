@@ -49,8 +49,8 @@ var ConstraintComponent = class extends Component {
    * updates the associated VRM constraint if one is set.
    */
   $logic() {
-    if (this.md) {
-      this.md.update();
+    if (this.qd) {
+      this.qd.update();
     }
   }
   /**
@@ -60,7 +60,7 @@ var ConstraintComponent = class extends Component {
    * @param constraint - The VRM constraint to be managed by this component
    */
   setConstraint(constraint) {
-    this.md = constraint;
+    this.qd = constraint;
   }
   /**
    * Cleans up resources when the component is destroyed.
@@ -70,7 +70,7 @@ var ConstraintComponent = class extends Component {
    */
   _destroy() {
     super._destroy();
-    this.md = void 0;
+    this.qd = void 0;
   }
   /**
    * Adds constraint-specific functionality to an entity class through mixin composition.

@@ -19,7 +19,7 @@ var AttributePositionShaderNode = class extends AbstractShaderNode {
       codeWGSL: AttributePositionShaderityObjectWGSL.code
     });
     this.setShaderStage("Vertex");
-    this.Cr.push(new Socket("outValue", CompositionType.Vec4, ComponentType.Float));
+    this.Kr.push(new Socket("outValue", CompositionType.Vec4, ComponentType.Float));
   }
   /**
    * Gets the output socket of this attribute position node.
@@ -28,7 +28,7 @@ var AttributePositionShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the position attribute data
    */
   getSocketOutput() {
-    return this.Cr[0];
+    return this.Kr[0];
   }
 };
 export {

@@ -13,23 +13,23 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    */
   constructor(engine) {
     super();
-    this.dm = 0;
-    this.Dy = 0;
-    this.tB = 0;
-    this.uB = 1;
-    this.vB = TextureFormat.RGBA8;
-    this.wB = PixelFormat.RGBA;
-    this.Cc = ComponentType.UnsignedByte;
-    this.pB = false;
-    this.mB = false;
-    this.oB = false;
-    this.rB = false;
-    this.mu = "untitled";
+    this.km = 0;
+    this.iy = 0;
+    this.YB = 0;
+    this.ZB = 1;
+    this._B = TextureFormat.RGBA8;
+    this.$B = PixelFormat.RGBA;
+    this.Gc = ComponentType.UnsignedByte;
+    this.UB = false;
+    this.RB = false;
+    this.TB = false;
+    this.WB = false;
+    this.uu = "untitled";
     this._textureResourceUid = -1;
     this._samplerResourceUid = -1;
     this._textureViewResourceUid = -1;
     this._textureViewAsRenderTargetResourceUid = -1;
-    this.nB = ++_AbstractTexture.qB;
+    this.SB = ++_AbstractTexture.VB;
     this.c = engine;
   }
   /**
@@ -38,7 +38,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns The unique texture UID
    */
   get textureUID() {
-    return this.nB;
+    return this.SB;
   }
   /**
    * Gets the width of the texture in pixels.
@@ -46,7 +46,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns The texture width
    */
   get width() {
-    return this.dm;
+    return this.km;
   }
   /**
    * Calculates the width of the texture at a specific mip level.
@@ -55,7 +55,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns The width at the specified mip level (minimum 1 pixel)
    */
   getWidthAtMipLevel(mipLevel) {
-    return Math.max(1, Math.floor(this.dm / 2 ** mipLevel));
+    return Math.max(1, Math.floor(this.km / 2 ** mipLevel));
   }
   /**
    * Calculates the height of the texture at a specific mip level.
@@ -64,7 +64,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns The height at the specified mip level (minimum 1 pixel)
    */
   getHeightAtMipLevel(mipLevel) {
-    return Math.max(1, Math.floor(this.Dy / 2 ** mipLevel));
+    return Math.max(1, Math.floor(this.iy / 2 ** mipLevel));
   }
   /**
    * Sets the width of the texture in pixels.
@@ -72,7 +72,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @param val - The new width value
    */
   set width(val) {
-    this.dm = val;
+    this.km = val;
   }
   /**
    * Gets the height of the texture in pixels.
@@ -80,7 +80,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns The texture height
    */
   get height() {
-    return this.Dy;
+    return this.iy;
   }
   /**
    * Sets the height of the texture in pixels.
@@ -88,7 +88,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @param val - The new height value
    */
   set height(val) {
-    this.Dy = val;
+    this.iy = val;
   }
   /**
    * Checks if the texture is ready for use.
@@ -96,7 +96,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns True if the texture is ready, false otherwise
    */
   get isTextureReady() {
-    return this.oB;
+    return this.TB;
   }
   /**
    * Checks if the texture has started loading.
@@ -104,7 +104,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns True if loading has started, false otherwise
    */
   get startedToLoad() {
-    return this.rB;
+    return this.WB;
   }
   /**
    * Checks whether this texture is marked as a dummy (placeholder) texture.
@@ -112,7 +112,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns True if the texture is marked as dummy, false otherwise
    */
   get isDummyTexture() {
-    return this.mB;
+    return this.RB;
   }
   /**
    * Marks this texture as a dummy (placeholder) texture.
@@ -120,7 +120,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @param isDummy - Whether to mark the texture as dummy (default: true)
    */
   markAsDummyTexture(isDummy = true) {
-    this.mB = isDummy;
+    this.RB = isDummy;
   }
   /**
    * Gets the HTML image element associated with this texture.
@@ -128,7 +128,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns The HTML image element or undefined if not available
    */
   get htmlImageElement() {
-    return this.jB;
+    return this.OB;
   }
   /**
    * Gets or creates an HTML canvas element with the texture content.
@@ -139,13 +139,13 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
   get htmlCanvasElement() {
     const canvas = document.createElement("canvas");
     const ctx = canvas == null ? void 0 : canvas.getContext("2d");
-    this.kB = canvas;
-    if (Is.exist(ctx) && Is.exist(this.jB)) {
-      canvas.width = this.jB.width;
-      canvas.height = this.jB.height;
-      ctx.drawImage(this.jB, 0, 0, this.jB.width, this.jB.height);
+    this.PB = canvas;
+    if (Is.exist(ctx) && Is.exist(this.OB)) {
+      canvas.width = this.OB.width;
+      canvas.height = this.OB.height;
+      ctx.drawImage(this.OB, 0, 0, this.OB.width, this.OB.height);
     }
-    return this.kB;
+    return this.PB;
   }
   /**
    * Gets the URI/URL of the texture source.
@@ -153,7 +153,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns The texture URI or undefined if not set
    */
   get uri() {
-    return this.sB;
+    return this.XB;
   }
   /**
    * Sets the name of the texture.
@@ -161,7 +161,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @param name - The new texture name
    */
   set name(name) {
-    this.mu = name;
+    this.uu = name;
   }
   /**
    * Gets the name of the texture.
@@ -169,7 +169,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns The texture name
    */
   get name() {
-    return this.mu;
+    return this.uu;
   }
   /**
    * Retrieves image data from a rectangular region of the texture.
@@ -182,10 +182,10 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns ImageData object containing the pixel data
    */
   getImageData(x, y, width, height) {
-    if (this.lB === void 0) {
+    if (this.QB === void 0) {
       this.createInternalCanvasContext();
     }
-    return this.lB.getImageData(x, y, width, height);
+    return this.QB.getImageData(x, y, width, height);
   }
   /**
    * Gets a single pixel value at the specified coordinates as a specific type.
@@ -232,7 +232,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
     for (let i = 0; i < numberOfComponents; i++) {
       data[i] = value.at(i);
     }
-    this.lB.putImageData(pixel, x, y);
+    this.QB.putImageData(pixel, x, y);
   }
   /**
    * Sets a specific channel value for a pixel at the given coordinates.
@@ -247,7 +247,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
     const pixel = this.getImageData(x, y, 1, 1);
     const data = pixel.data;
     data[channelIdx] = value;
-    this.lB.putImageData(pixel, x, y);
+    this.QB.putImageData(pixel, x, y);
   }
   /**
    * Checks if the texture contains transparent pixels.
@@ -255,7 +255,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    * @returns True if the texture has transparency, false otherwise
    */
   get isTransparent() {
-    return this.pB;
+    return this.UB;
   }
   /**
    * Creates an internal canvas context for pixel manipulation operations.
@@ -263,15 +263,15 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    */
   createInternalCanvasContext() {
     let canvas;
-    if (this.kB != null) {
-      canvas = this.kB;
+    if (this.PB != null) {
+      canvas = this.PB;
     } else {
       canvas = document.createElement("canvas");
       canvas.width = this.width;
       canvas.height = this.height;
     }
-    this.kB = canvas;
-    this.lB = canvas.getContext("2d");
+    this.PB = canvas;
+    this.QB = canvas.getContext("2d");
   }
   /**
    * Converts the texture data to a TextureDataFloat object with the specified number of channels.
@@ -302,7 +302,7 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
    *          or undefined if the texture is not ready or reading fails
    */
   async getTexturePixelDataFromGPU() {
-    if (!this.oB || this._textureResourceUid < 0 || this.dm <= 0 || this.Dy <= 0) {
+    if (!this.TB || this._textureResourceUid < 0 || this.km <= 0 || this.iy <= 0) {
       return void 0;
     }
     try {
@@ -311,8 +311,8 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
         this._textureResourceUid,
         0,
         0,
-        this.dm,
-        this.Dy
+        this.km,
+        this.iy
       );
       return pixels;
     } catch (e) {
@@ -334,19 +334,19 @@ var _AbstractTexture = class _AbstractTexture extends RnObject {
       return void 0;
     }
     const canvas = document.createElement("canvas");
-    canvas.width = this.dm;
-    canvas.height = this.Dy;
+    canvas.width = this.km;
+    canvas.height = this.iy;
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       return void 0;
     }
-    const imageData = new ImageData(new Uint8ClampedArray(pixels), this.dm, this.Dy);
+    const imageData = new ImageData(new Uint8ClampedArray(pixels), this.km, this.iy);
     ctx.putImageData(imageData, 0, 0);
     return canvas;
   }
 };
 _AbstractTexture.InvalidTextureUid = -1;
-_AbstractTexture.qB = _AbstractTexture.InvalidTextureUid;
+_AbstractTexture.VB = _AbstractTexture.InvalidTextureUid;
 var AbstractTexture = _AbstractTexture;
 export {
   AbstractTexture

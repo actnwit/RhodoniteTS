@@ -19,10 +19,10 @@ var ClampShaderNode = class extends AbstractShaderNode {
       codeGLSL: ClampShaderityObjectGLSL.code,
       codeWGSL: ClampShaderityObjectWGSL.code
     });
-    this.zr.push(new Socket("value", compositionType, componentType));
-    this.zr.push(new Socket("min", compositionType, componentType));
-    this.zr.push(new Socket("max", compositionType, componentType));
-    this.Cr.push(new Socket("outValue", compositionType, componentType));
+    this.Hr.push(new Socket("value", compositionType, componentType));
+    this.Hr.push(new Socket("min", compositionType, componentType));
+    this.Hr.push(new Socket("max", compositionType, componentType));
+    this.Kr.push(new Socket("outValue", compositionType, componentType));
   }
   /**
    * Gets the input socket for the value parameter of the clamp function.
@@ -32,7 +32,7 @@ var ClampShaderNode = class extends AbstractShaderNode {
    * @returns The input socket for the value parameter
    */
   getSocketInputValue() {
-    return this.zr[0];
+    return this.Hr[0];
   }
   /**
    * Gets the output socket that contains the result of the clamp operation.
@@ -42,7 +42,7 @@ var ClampShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the clamp result
    */
   getSocketOutput() {
-    return this.Cr[0];
+    return this.Kr[0];
   }
   /**
    * Gets the appropriate shader function name based on the current process approach and composition type.
@@ -56,21 +56,21 @@ var ClampShaderNode = class extends AbstractShaderNode {
    */
   getShaderFunctionNameDerivative(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      if (this.zr[0].compositionType === CompositionType.Scalar) {
-        return `${this.Br}F32`;
+      if (this.Hr[0].compositionType === CompositionType.Scalar) {
+        return `${this.Jr}F32`;
       }
-      if (this.zr[0].compositionType === CompositionType.Vec2) {
-        return `${this.Br}Vec2f`;
+      if (this.Hr[0].compositionType === CompositionType.Vec2) {
+        return `${this.Jr}Vec2f`;
       }
-      if (this.zr[0].compositionType === CompositionType.Vec3) {
-        return `${this.Br}Vec3f`;
+      if (this.Hr[0].compositionType === CompositionType.Vec3) {
+        return `${this.Jr}Vec3f`;
       }
-      if (this.zr[0].compositionType === CompositionType.Vec4) {
-        return `${this.Br}Vec4f`;
+      if (this.Hr[0].compositionType === CompositionType.Vec4) {
+        return `${this.Jr}Vec4f`;
       }
       throw new Error("Not implemented");
     }
-    return this.Br;
+    return this.Jr;
   }
 };
 export {

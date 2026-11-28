@@ -2,8 +2,8 @@
 import { LightClusterLayout } from "./LightClusterLayout.js";
 var LightClusterSystemStub = class {
   constructor() {
-    this.uy = new Float32Array(LightClusterLayout.viewHeaderVec4Count * 4 + 4);
-    this.uy[LightClusterLayout.viewHeaderVec4Count * 4] = -1;
+    this.Uy = new Float32Array(LightClusterLayout.viewHeaderVec4Count * 4 + 4);
+    this.Uy[LightClusterLayout.viewHeaderVec4Count * 4] = -1;
   }
   get dataVersion() {
     return 0;
@@ -23,7 +23,7 @@ var LightClusterSystemStub = class {
     return [];
   }
   _getViewUniformData(_cameraSid) {
-    return this.uy;
+    return this.Uy;
   }
 };
 export {

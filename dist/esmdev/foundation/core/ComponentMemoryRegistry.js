@@ -8,39 +8,39 @@ var ComponentMemoryRegistry = class {
      * Stores accessors using composite keys.
      * Key format: "ComponentTID:MemberName:IndexOfBufferView"
      */
-    this.Gi = /* @__PURE__ */ new Map();
+    this.Ni = /* @__PURE__ */ new Map();
     /**
      * Tracks which accessor keys exist for each component class and member name.
      * This enables efficient iteration over all buffer view indices for a given member.
      */
-    this.Bi = /* @__PURE__ */ new Map();
+    this.Ii = /* @__PURE__ */ new Map();
     /**
      * Stores the number of components per buffer view for each component class.
      */
-    this.Di = /* @__PURE__ */ new Map();
+    this.Ki = /* @__PURE__ */ new Map();
     /**
      * Stores byte offsets using composite keys.
      * Key format: "ComponentTID:MemberName:IndexOfBufferView"
      */
-    this.Hi = /* @__PURE__ */ new Map();
+    this.Oi = /* @__PURE__ */ new Map();
     /**
      * Tracks which byte offset keys exist for each component class and member name.
      */
-    this.Ci = /* @__PURE__ */ new Map();
+    this.Ji = /* @__PURE__ */ new Map();
     /**
      * Chunks of variable-length array members, per component SID.
      * Key format: "ComponentTID:MemberName:ComponentSID"
      */
-    this.Ii = /* @__PURE__ */ new Map();
+    this.Pi = /* @__PURE__ */ new Map();
     /**
      * Chunks of variable-length array members which are no longer used, per member.
      * Key format: "ComponentTID:MemberName"
      */
-    this.Ei = /* @__PURE__ */ new Map();
+    this.Li = /* @__PURE__ */ new Map();
     /**
      * The state version, incremented when component memory layout changes.
      */
-    this.Fi = 0;
+    this.Mi = 0;
   }
   // ==================== Accessor Methods ====================
   /**
@@ -53,7 +53,7 @@ var ComponentMemoryRegistry = class {
    */
   getAccessor(componentClass, memberName, indexOfBufferView) {
     const key = createAccessorKey(componentClass, memberName, indexOfBufferView);
-    return this.Gi.get(key);
+    return this.Ni.get(key);
   }
   /**
    * Sets an accessor for a specific component member and buffer view index.
@@ -65,16 +65,16 @@ var ComponentMemoryRegistry = class {
    */
   setAccessor(componentClass, memberName, indexOfBufferView, accessor) {
     const key = createAccessorKey(componentClass, memberName, indexOfBufferView);
-    this.Gi.set(key, accessor);
-    if (!this.Bi.has(componentClass)) {
-      this.Bi.set(componentClass, /* @__PURE__ */ new Map());
+    this.Ni.set(key, accessor);
+    if (!this.Ii.has(componentClass)) {
+      this.Ii.set(componentClass, /* @__PURE__ */ new Map());
     }
-    const memberMap = this.Bi.get(componentClass);
+    const memberMap = this.Ii.get(componentClass);
     if (!memberMap.has(memberName)) {
       memberMap.set(memberName, /* @__PURE__ */ new Set());
     }
     memberMap.get(memberName).add(indexOfBufferView);
-    this.Fi++;
+    this.Mi++;
   }
   /**
    * Gets all accessors for a specific component member across all buffer view indices.
@@ -85,7 +85,7 @@ var ComponentMemoryRegistry = class {
    */
   getAccessorsForMember(componentClass, memberName) {
     const result = /* @__PURE__ */ new Map();
-    const memberMap = this.Bi.get(componentClass);
+    const memberMap = this.Ii.get(componentClass);
     if (memberMap == null) {
       return result;
     }
@@ -108,7 +108,7 @@ var ComponentMemoryRegistry = class {
    * @returns True if accessors exist for the component class
    */
   hasAccessorsForComponent(componentClass) {
-    return this.Bi.has(componentClass);
+    return this.Ii.has(componentClass);
   }
   /**
    * Ensures accessor tracking maps are initialized for a component class.
@@ -116,8 +116,8 @@ var ComponentMemoryRegistry = class {
    * @param componentClass - The component class
    */
   ensureAccessorMapsForComponent(componentClass) {
-    if (!this.Bi.has(componentClass)) {
-      this.Bi.set(componentClass, /* @__PURE__ */ new Map());
+    if (!this.Ii.has(componentClass)) {
+      this.Ii.set(componentClass, /* @__PURE__ */ new Map());
     }
   }
   // ==================== Component Count Methods ====================
@@ -128,7 +128,7 @@ var ComponentMemoryRegistry = class {
    * @returns The count or undefined if not set
    */
   getComponentCountPerBufferView(componentClass) {
-    return this.Di.get(componentClass);
+    return this.Ki.get(componentClass);
   }
   /**
    * Sets the number of components per buffer view for a component class.
@@ -137,7 +137,7 @@ var ComponentMemoryRegistry = class {
    * @param count - The number of components per buffer view
    */
   setComponentCountPerBufferView(componentClass, count) {
-    this.Di.set(componentClass, count);
+    this.Ki.set(componentClass, count);
   }
   /**
    * Gets all component count per buffer view entries.
@@ -145,7 +145,7 @@ var ComponentMemoryRegistry = class {
    * @returns A copy of the component count map
    */
   getAllComponentCountPerBufferView() {
-    return new Map(this.Di);
+    return new Map(this.Ki);
   }
   // ==================== Byte Offset Methods ====================
   /**
@@ -158,7 +158,7 @@ var ComponentMemoryRegistry = class {
    */
   getByteOffset(componentClass, memberName, indexOfBufferView) {
     const key = createAccessorKey(componentClass, memberName, indexOfBufferView);
-    return this.Hi.get(key);
+    return this.Oi.get(key);
   }
   /**
    * Sets the byte offset for a specific component member and buffer view index.
@@ -170,11 +170,11 @@ var ComponentMemoryRegistry = class {
    */
   setByteOffset(componentClass, memberName, indexOfBufferView, byteOffset) {
     const key = createAccessorKey(componentClass, memberName, indexOfBufferView);
-    this.Hi.set(key, byteOffset);
-    if (!this.Ci.has(componentClass)) {
-      this.Ci.set(componentClass, /* @__PURE__ */ new Map());
+    this.Oi.set(key, byteOffset);
+    if (!this.Ji.has(componentClass)) {
+      this.Ji.set(componentClass, /* @__PURE__ */ new Map());
     }
-    const memberMap = this.Ci.get(componentClass);
+    const memberMap = this.Ji.get(componentClass);
     if (!memberMap.has(memberName)) {
       memberMap.set(memberName, /* @__PURE__ */ new Set());
     }
@@ -189,7 +189,7 @@ var ComponentMemoryRegistry = class {
    */
   getByteOffsetsForMember(componentClass, memberName) {
     const result = /* @__PURE__ */ new Map();
-    const memberMap = this.Ci.get(componentClass);
+    const memberMap = this.Ji.get(componentClass);
     if (memberMap == null) {
       return void 0;
     }
@@ -212,7 +212,7 @@ var ComponentMemoryRegistry = class {
    * @returns True if byte offset data exists
    */
   hasByteOffsetsForComponent(componentClass) {
-    return this.Ci.has(componentClass);
+    return this.Ji.has(componentClass);
   }
   // ==================== Variable-Length Chunk Methods ====================
   /**
@@ -224,7 +224,7 @@ var ComponentMemoryRegistry = class {
    * @returns The chunk or undefined if not allocated yet
    */
   getVariableLengthChunk(componentClass, memberName, componentSID) {
-    return this.Ii.get(`${componentClass.componentTID}:${memberName}:${componentSID}`);
+    return this.Pi.get(`${componentClass.componentTID}:${memberName}:${componentSID}`);
   }
   /**
    * Sets the chunk of a variable-length array member of a component.
@@ -236,7 +236,7 @@ var ComponentMemoryRegistry = class {
    * @param chunk - The chunk to set
    */
   setVariableLengthChunk(componentClass, memberName, componentSID, chunk) {
-    this.Ii.set(`${componentClass.componentTID}:${memberName}:${componentSID}`, chunk);
+    this.Pi.set(`${componentClass.componentTID}:${memberName}:${componentSID}`, chunk);
   }
   /**
    * Puts a chunk which is no longer used into the free list so that it can be reused.
@@ -247,10 +247,10 @@ var ComponentMemoryRegistry = class {
    */
   releaseVariableLengthChunk(componentClass, memberName, chunk) {
     const key = `${componentClass.componentTID}:${memberName}`;
-    let freeChunks = this.Ei.get(key);
+    let freeChunks = this.Li.get(key);
     if (freeChunks == null) {
       freeChunks = [];
-      this.Ei.set(key, freeChunks);
+      this.Li.set(key, freeChunks);
     }
     freeChunks.push(chunk);
   }
@@ -263,7 +263,7 @@ var ComponentMemoryRegistry = class {
    * @returns The chunk, or undefined if there is no suitable free chunk
    */
   takeFreeVariableLengthChunk(componentClass, memberName, byteLength) {
-    const freeChunks = this.Ei.get(`${componentClass.componentTID}:${memberName}`);
+    const freeChunks = this.Li.get(`${componentClass.componentTID}:${memberName}`);
     if (freeChunks == null) {
       return void 0;
     }
@@ -287,7 +287,7 @@ var ComponentMemoryRegistry = class {
    * @returns The current state version
    */
   getStateVersion() {
-    return this.Fi;
+    return this.Mi;
   }
   /**
    * Increments and returns the new state version.
@@ -295,21 +295,21 @@ var ComponentMemoryRegistry = class {
    * @returns The new state version
    */
   incrementStateVersion() {
-    return ++this.Fi;
+    return ++this.Mi;
   }
   /**
    * Clears all stored data and resets the registry to its initial state.
    * Should be called when the engine is being destroyed.
    */
   destroy() {
-    this.Gi.clear();
-    this.Bi.clear();
-    this.Di.clear();
-    this.Hi.clear();
-    this.Ci.clear();
+    this.Ni.clear();
     this.Ii.clear();
-    this.Ei.clear();
-    this.Fi = 0;
+    this.Ki.clear();
+    this.Oi.clear();
+    this.Ji.clear();
+    this.Pi.clear();
+    this.Li.clear();
+    this.Mi = 0;
   }
 };
 export {

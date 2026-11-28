@@ -11,11 +11,11 @@ var VrmRollConstraint = class {
    * @param dstEntity - The destination entity that will receive the constrained rotation
    */
   constructor(srcEntity, rollAxis, weight, dstEntity) {
-    this.Sg = srcEntity;
-    this.si = rollAxis;
-    this.ri = weight;
-    this.pi = dstEntity;
-    this.pi.getTransform()._backupTransformAsRest();
+    this.Wg = srcEntity;
+    this.zi = rollAxis;
+    this.yi = weight;
+    this.wi = dstEntity;
+    this.wi.getTransform()._backupTransformAsRest();
   }
   /**
    * Gets the unit vector for the specified roll axis.
@@ -49,29 +49,29 @@ var VrmRollConstraint = class {
    */
   update() {
     const deltaSrcQuat = Quaternion.multiply(
-      Quaternion.invert(this.Sg.localRotationRestInner),
-      this.Sg.localRotationInner
+      Quaternion.invert(this.Wg.localRotationRestInner),
+      this.Wg.localRotationInner
     );
     const deltaSrcQuatInParent = Quaternion.multiply(
-      Quaternion.multiply(this.Sg.localRotationRestInner, deltaSrcQuat),
-      Quaternion.invert(this.Sg.localRotationRestInner)
+      Quaternion.multiply(this.Wg.localRotationRestInner, deltaSrcQuat),
+      Quaternion.invert(this.Wg.localRotationRestInner)
     );
     const deltaSrcQuatInDst = Quaternion.multiply(
-      Quaternion.multiply(Quaternion.invert(this.pi.localRotationRestInner), deltaSrcQuatInParent),
-      this.pi.localRotationRestInner
+      Quaternion.multiply(Quaternion.invert(this.wi.localRotationRestInner), deltaSrcQuatInParent),
+      this.wi.localRotationRestInner
     );
-    const rollAxis = this.getAxisVector(this.si);
+    const rollAxis = this.getAxisVector(this.zi);
     const toVec = deltaSrcQuatInDst.transformVector3(rollAxis);
     const fromToQuat = Quaternion.fromToRotation(rollAxis, toVec);
     const targetQuat = Quaternion.lerp(
-      this.pi.localRotationRestInner,
+      this.wi.localRotationRestInner,
       Quaternion.multiply(
-        Quaternion.multiply(this.pi.localRotationRestInner, Quaternion.invert(fromToQuat)),
+        Quaternion.multiply(this.wi.localRotationRestInner, Quaternion.invert(fromToQuat)),
         deltaSrcQuatInDst
       ),
-      this.ri
+      this.yi
     );
-    this.pi.localRotation = targetQuat;
+    this.wi.localRotation = targetQuat;
   }
 };
 export {

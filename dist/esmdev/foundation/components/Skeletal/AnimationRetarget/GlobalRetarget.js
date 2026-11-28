@@ -8,14 +8,14 @@ var GlobalRetarget = class {
    * @param srcEntity - The source entity to retarget animations from
    */
   constructor(srcEntity) {
-    this.Sg = srcEntity;
+    this.Wg = srcEntity;
   }
   /**
    * Gets the source entity for retargeting.
    * @returns The source scene graph entity
    */
   getEntity() {
-    return this.Sg;
+    return this.Wg;
   }
   /**
    * Gets the parent's global rest quaternion for the source entity.
@@ -60,7 +60,7 @@ var GlobalRetarget = class {
    * @returns The retargeted local rotation quaternion for the destination entity
    */
   retargetQuaternion(dstEntity) {
-    const srcEntity = this.Sg;
+    const srcEntity = this.Wg;
     const srcPoseQ = srcEntity.getTransform().localRotationInner;
     const srcRestQ = srcEntity.getTransform().localRotationRestInner;
     const srcPGRestQ = this.getSrcPGRestQ(srcEntity);
@@ -84,7 +84,7 @@ var GlobalRetarget = class {
    * @returns The retargeted local position vector for the destination entity
    */
   retargetTranslate(dstEntity) {
-    const srcEntity = this.Sg;
+    const srcEntity = this.Wg;
     const srcPoseT = srcEntity.getTransform().localPositionInner;
     const srcRestT = srcEntity.getTransform().localPositionRestInner;
     const srcPGRestQ = this.getSrcPGRestQ(srcEntity);
@@ -104,7 +104,7 @@ var GlobalRetarget = class {
    * @returns The source entity's local scale vector
    */
   retargetScale(_dstEntity) {
-    const srcEntity = this.Sg;
+    const srcEntity = this.Wg;
     return srcEntity.getTransform().localScaleInner;
   }
 };

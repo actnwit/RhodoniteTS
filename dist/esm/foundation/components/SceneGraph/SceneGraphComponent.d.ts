@@ -40,6 +40,7 @@ export declare class SceneGraphComponent extends Component {
     private _worldMatrix;
     private _worldMatrixRest;
     private _normalMatrix;
+    private _previousWorldMatrix;
     private _worldRotation;
     private __isWorldMatrixUpToDate;
     /**
@@ -266,6 +267,21 @@ export declare class SceneGraphComponent extends Component {
      * @returns The world matrix version
      */
     get worldMatrixVersion(): number;
+    /**
+     * The world matrix of the previous frame, used by the motion vectors of temporal anti-aliasing.
+     * It is part of the GPU instance data (`get_previousWorldMatrix` in the shaders) and is only kept up to date
+     * while temporal anti-aliasing is enabled.
+     *
+     * @internal
+     */
+    get _previousWorldMatrixInner(): MutableMatrix44;
+    /**
+     * The world matrix as it was last computed (the value in the GPU instance data), without recomputing a dirty
+     * matrix.
+     *
+     * @internal
+     */
+    get _lastComputedWorldMatrixInner(): MutableMatrix44;
     /**
      * Marks the world matrix as dirty and propagates changes up the hierarchy.
      */

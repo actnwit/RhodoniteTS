@@ -11,23 +11,23 @@ var SdApplyTransformShaderNode = class extends AbstractShaderNode {
    */
   constructor() {
     super("sdApplyTransform", {});
-    this.Br += `_${this.Fr}`;
-    this.dt = `g_sdApplyTransformScale_${this.Fr}`;
-    this.Ar = new SdApplyTransformShader(this.Br, this.dt);
+    this.Jr += `_${this.Nr}`;
+    this.lt = `g_sdApplyTransformScale_${this.Nr}`;
+    this.Ir = new SdApplyTransformShader(this.Jr, this.lt);
     this.setShaderStage("Fragment");
-    this.zr.push(
+    this.Hr.push(
       new Socket("position", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 0))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("translation", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 0))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("xyzEulerAngles", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 0))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("scale", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(1, 1, 1))
     );
-    this.Cr.push(
+    this.Kr.push(
       new Socket("outTransformedPosition", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 0))
     );
   }
@@ -36,7 +36,7 @@ var SdApplyTransformShaderNode = class extends AbstractShaderNode {
    * terminal nodes multiply the distances of their subtree by it.
    */
   get distanceScaleGlobalName() {
-    return this.dt;
+    return this.lt;
   }
 };
 export {

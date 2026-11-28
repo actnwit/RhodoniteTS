@@ -7,30 +7,30 @@ var ComplexVertexAttribute = class {
    * @param attributes - A map of attribute names to their corresponding accessors
    */
   constructor(semanticAttribute, attributes) {
-    this.Zh = [];
-    this.sk = [];
-    this.tk = semanticAttribute;
-    this.sk = [];
-    this.Zh = [];
+    this.ei = [];
+    this.zk = [];
+    this.Ak = semanticAttribute;
+    this.zk = [];
+    this.ei = [];
     for (const [joinedString, accessor] of attributes) {
       const split = joinedString.split(",");
       for (let i = 0; i < split.length; i++) {
         const attributeComponentName = split[i];
         if (attributeComponentName === semanticAttribute.X) {
-          this.sk[0] = i;
-          this.Zh[0] = accessor;
+          this.zk[0] = i;
+          this.ei[0] = accessor;
         }
         if (attributeComponentName === semanticAttribute.Y) {
-          this.sk[1] = i;
-          this.Zh[1] = accessor;
+          this.zk[1] = i;
+          this.ei[1] = accessor;
         }
         if (attributeComponentName === semanticAttribute.Z) {
-          this.sk[2] = i;
-          this.Zh[2] = accessor;
+          this.zk[2] = i;
+          this.ei[2] = accessor;
         }
         if (attributeComponentName === semanticAttribute.W) {
-          this.sk[3] = i;
-          this.Zh[3] = accessor;
+          this.zk[3] = i;
+          this.ei[3] = accessor;
         }
       }
     }
@@ -41,7 +41,7 @@ var ComplexVertexAttribute = class {
    * @returns The vertex attribute semantic enum
    */
   get semantic() {
-    return this.tk;
+    return this.Ak;
   }
   /**
    * Retrieves a single scalar value as a 1-element array from the vertex attribute at the specified index.
@@ -51,7 +51,7 @@ var ComplexVertexAttribute = class {
    * @returns A 1-element array containing the scalar value
    */
   getScalarAsArray(i, option) {
-    return [this.Zh[0].getScalarAt(i, this.sk[0], option)];
+    return [this.ei[0].getScalarAt(i, this.zk[0], option)];
   }
   /**
    * Retrieves a 2-component vector (Vec2) as an array from the vertex attribute at the specified index.
@@ -62,8 +62,8 @@ var ComplexVertexAttribute = class {
    */
   getVec2AsArray(i, option) {
     return [
-      this.Zh[0].getScalarAt(i, this.sk[0], option),
-      this.Zh[1].getScalarAt(i, this.sk[1], option)
+      this.ei[0].getScalarAt(i, this.zk[0], option),
+      this.ei[1].getScalarAt(i, this.zk[1], option)
     ];
   }
   /**
@@ -75,9 +75,9 @@ var ComplexVertexAttribute = class {
    */
   getVec3AsArray(i, option) {
     return [
-      this.Zh[0].getScalarAt(i, this.sk[0], option),
-      this.Zh[1].getScalarAt(i, this.sk[1], option),
-      this.Zh[2].getScalarAt(i, this.sk[2], option)
+      this.ei[0].getScalarAt(i, this.zk[0], option),
+      this.ei[1].getScalarAt(i, this.zk[1], option),
+      this.ei[2].getScalarAt(i, this.zk[2], option)
     ];
   }
   /**
@@ -89,10 +89,10 @@ var ComplexVertexAttribute = class {
    */
   getVec4AsArray(i, option) {
     return [
-      this.Zh[0].getScalarAt(i, this.sk[0], option),
-      this.Zh[1].getScalarAt(i, this.sk[1], option),
-      this.Zh[2].getScalarAt(i, this.sk[2], option),
-      this.Zh[3].getScalarAt(i, this.sk[3], option)
+      this.ei[0].getScalarAt(i, this.zk[0], option),
+      this.ei[1].getScalarAt(i, this.zk[1], option),
+      this.ei[2].getScalarAt(i, this.zk[2], option),
+      this.ei[3].getScalarAt(i, this.zk[3], option)
     ];
   }
 };

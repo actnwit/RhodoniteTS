@@ -41,7 +41,7 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
       for (const fileName in options.files) {
         const fileExtension = DataUtil.getExtension(fileName);
         if (fileExtension === "drc") {
-          const rnm22 = await this.qp(options.files[fileName], defaultOptions, basePath, options);
+          const rnm22 = await this.yp(options.files[fileName], defaultOptions, basePath, options);
           return new Ok(rnm22);
         }
       }
@@ -53,7 +53,7 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
         error: r_arrayBuffer
       });
     }
-    const rnm2 = await this.qp(r_arrayBuffer.get(), defaultOptions, basePath, options);
+    const rnm2 = await this.yp(r_arrayBuffer.get(), defaultOptions, basePath, options);
     return new Ok(rnm2);
   }
   /**
@@ -75,7 +75,7 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
   importArrayBuffer(uri, arrayBuffer, options) {
     const basePath = `${uri.substring(0, uri.lastIndexOf("/"))}/`;
     const defaultOptions = DataUtil.createDefaultGltfOptions();
-    return this.qp(arrayBuffer, defaultOptions, basePath, options).catch((err) => {
+    return this.yp(arrayBuffer, defaultOptions, basePath, options).catch((err) => {
       Logger.default.error(`__loadFromArrayBuffer error: ${err}`);
     });
   }
@@ -90,7 +90,7 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
    * @returns A Promise that resolves to the processed glTF JSON
    * @private
    */
-  async Dp(arrayBuffer, defaultOptions, basePath, options) {
+  async Lp(arrayBuffer, defaultOptions, basePath, options) {
     const dataView = new DataView(arrayBuffer, 0, 20);
     const isLittleEndian = true;
     const magic = dataView.getUint32(0, isLittleEndian);
@@ -634,10 +634,10 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
    * @returns The singleton instance of DrcPointCloudImporter
    */
   static getInstance() {
-    if (!this.Yi) {
-      this.Yi = new _DrcPointCloudImporter();
+    if (!this.dj) {
+      this.dj = new _DrcPointCloudImporter();
     }
-    return this.Yi;
+    return this.dj;
   }
   /**
    * Decodes a Draco compressed file and converts it to glTF2 format.
@@ -650,8 +650,8 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
    * @returns A Promise that resolves to the glTF2 JSON object
    * @private
    */
-  qp(arrayBuffer, defaultOptions, basePath, options) {
-    return this.sp(arrayBuffer).then((json) => {
+  yp(arrayBuffer, defaultOptions, basePath, options) {
+    return this.Ap(arrayBuffer).then((json) => {
       const gotText = JSON.stringify(json);
       const gltfJson = JSON.parse(gotText);
       return this._loadAsTextJson(gltfJson, options, defaultOptions, basePath).catch((err) => {
@@ -667,10 +667,10 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
    * @returns A Promise that resolves to the decoded geometry data as JSON
    * @private
    */
-  sp(arrayBuffer) {
+  Ap(arrayBuffer) {
     const draco = new DracoDecoderModule();
     const decoder = new draco.Decoder();
-    const dracoGeometry = this.rp(draco, decoder, arrayBuffer);
+    const dracoGeometry = this.zp(draco, decoder, arrayBuffer);
     if (dracoGeometry == null) {
       throw new Error("invalid dracoGeometry.");
     }
@@ -730,7 +730,7 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
     }
     draco.destroy(decoder);
     draco.destroy(dracoGeometry);
-    return this.tp(buffer, numPoints, attributeNames, attributeComponents);
+    return this.Bp(buffer, numPoints, attributeNames, attributeComponents);
   }
   /**
    * Converts decoded Draco buffer data to glTF2 JSON format.
@@ -743,7 +743,7 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
    * @returns A Promise that resolves to the glTF2 JSON object
    * @private
    */
-  async tp(buffer, numPoints, attributeNames, attributeComponents) {
+  async Bp(buffer, numPoints, attributeNames, attributeComponents) {
     const json = {
       asset: {
         version: "2.0"
@@ -773,9 +773,9 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
         }
       ]
     };
-    await this.up(buffer.buffer, json);
-    this.vp(numPoints, attributeNames, attributeComponents, json);
-    this.wp(attributeNames, json);
+    await this.Cp(buffer.buffer, json);
+    this.Dp(numPoints, attributeNames, attributeComponents, json);
+    this.Ep(attributeNames, json);
     return new Promise((resolve, _reject) => {
       resolve(json);
     });
@@ -788,8 +788,8 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
    * @returns A Promise that resolves when the buffer is set
    * @private
    */
-  up(buffer, json) {
-    return this.xp(buffer).then((uri) => {
+  Cp(buffer, json) {
+    return this.Fp(buffer).then((uri) => {
       json.buffers = [
         {
           name: "input",
@@ -808,7 +808,7 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
    * @returns A Promise that resolves to the data URI string
    * @private
    */
-  xp(arrayBuffer) {
+  Fp(arrayBuffer) {
     return new Promise((resolve, reject) => {
       const blob = new Blob([arrayBuffer], { type: "application/octet-stream" });
       const fr = new FileReader();
@@ -831,7 +831,7 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
    * @param json - The glTF JSON object to modify
    * @private
    */
-  vp(numPoints, attributeNames, attributeComponents, json) {
+  Dp(numPoints, attributeNames, attributeComponents, json) {
     const accessors = [];
     const bufferViews = [];
     let byteOffsetOfBufferView = 0;
@@ -887,7 +887,7 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
    * @param json - The glTF JSON object to modify
    * @private
    */
-  wp(attributeNames, json) {
+  Ep(attributeNames, json) {
     const attributes = {};
     for (let i = 0; i < attributeNames.length; i++) {
       if (attributeNames[i] === "TEX_COORD") {
@@ -926,7 +926,7 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
    */
   async importPointCloudToPrimitive(engine, uri) {
     const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    return this.yp(engine, r_arrayBuffer.unwrapForce());
+    return this.Gp(engine, r_arrayBuffer.unwrapForce());
   }
   /**
    * Decodes a Draco compressed ArrayBuffer directly to a Rhodonite Primitive.
@@ -937,10 +937,10 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
    * @returns The decoded Rhodonite Primitive
    * @private
    */
-  yp(engine, arrayBuffer) {
+  Gp(engine, arrayBuffer) {
     const draco = new DracoDecoderModule();
     const decoder = new draco.Decoder();
-    const dracoGeometry = this.rp(draco, decoder, arrayBuffer);
+    const dracoGeometry = this.zp(draco, decoder, arrayBuffer);
     if (dracoGeometry == null) {
       throw new Error("invalid dracoGeometry.");
     }
@@ -950,10 +950,10 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
     const attributeCompositionTypes = [];
     const attributeSemantics = [];
     const attributes = [];
-    this.zp(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes);
-    this.Ap(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes);
-    this.Bp(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes);
-    this.Cp(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes);
+    this.Hp(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes);
+    this.Ip(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes);
+    this.Jp(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes);
+    this.Kp(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes);
     const primitive = Primitive.createPrimitive(engine, {
       attributeSemantics,
       attributes,
@@ -977,7 +977,7 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
    * @returns The decoded Draco geometry object, or undefined if decoding fails
    * @private
    */
-  rp(draco, decoder, arrayBuffer) {
+  zp(draco, decoder, arrayBuffer) {
     const buffer = new draco.DecoderBuffer();
     buffer.Init(new Int8Array(arrayBuffer), arrayBuffer.byteLength);
     const geometryType = decoder.GetEncodedGeometryType(buffer);
@@ -1018,7 +1018,7 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
    * @returns The extracted position data as Float32Array
    * @private
    */
-  zp(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes) {
+  Hp(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes) {
     const posAttId = decoder.GetAttributeId(dracoGeometry, draco.POSITION);
     if (posAttId === -1) {
       draco.destroy(decoder);
@@ -1053,7 +1053,7 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
    * @returns The extracted color data as Float32Array, or null if not present
    * @private
    */
-  Ap(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes) {
+  Ip(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes) {
     const colorAttId = decoder.GetAttributeId(dracoGeometry, draco.COLOR);
     if (colorAttId === -1) {
       return null;
@@ -1094,7 +1094,7 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
    * @returns The extracted normal data as Float32Array, or null if not present
    * @private
    */
-  Bp(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes) {
+  Jp(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes) {
     const normalAttId = decoder.GetAttributeId(dracoGeometry, draco.NORMAL);
     if (normalAttId === -1) {
       return null;
@@ -1127,7 +1127,7 @@ var DrcPointCloudImporter = class _DrcPointCloudImporter {
    * @returns The extracted texture coordinate data as Float32Array, or null if not present
    * @private
    */
-  Cp(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes) {
+  Kp(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes) {
     const texCoordAttId = decoder.GetAttributeId(dracoGeometry, draco.TEX_COORD);
     if (texCoordAttId === -1) {
       return null;

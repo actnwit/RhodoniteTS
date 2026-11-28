@@ -18,9 +18,9 @@ var _Entity = class _Entity extends RnObject {
     super();
     this._myLatestCopyEntityUID = _Entity.invalidEntityUID;
     this.c = engine;
-    this.Ri = entityUID;
+    this.Yi = entityUID;
     this._isAlive = isAlive;
-    this.Zh = Is.exist(components) ? components : /* @__PURE__ */ new Map();
+    this.ei = Is.exist(components) ? components : /* @__PURE__ */ new Map();
   }
   /**
    * Gets the engine instance.
@@ -34,7 +34,7 @@ var _Entity = class _Entity extends RnObject {
    * @returns The entity's unique ID
    */
   get entityUID() {
-    return this.Ri;
+    return this.Yi;
   }
   /**
    * Sets a component on this entity.
@@ -49,7 +49,7 @@ var _Entity = class _Entity extends RnObject {
    * @internal
    */
   _setComponent(componentType, component) {
-    this.Zh.set(componentType.componentTID, component);
+    this.ei.set(componentType.componentTID, component);
   }
   /**
    * Checks whether this entity has a component of the specified type.
@@ -58,7 +58,7 @@ var _Entity = class _Entity extends RnObject {
    * @returns True if the entity has a component of the specified type, false otherwise
    */
   hasComponent(componentType) {
-    return this.Zh.has(componentType.componentTID);
+    return this.ei.has(componentType.componentTID);
   }
   /**
    * Retrieves a component of the specified type from this entity.
@@ -67,7 +67,7 @@ var _Entity = class _Entity extends RnObject {
    * @returns The component instance if found, undefined if the entity doesn't have this component type
    */
   getComponent(componentType) {
-    return this.Zh.get(componentType.componentTID);
+    return this.ei.get(componentType.componentTID);
   }
   /**
    * Retrieves a component by its unique component type identifier.
@@ -76,7 +76,7 @@ var _Entity = class _Entity extends RnObject {
    * @returns The component instance if found, undefined otherwise
    */
   getComponentByComponentTID(componentTID) {
-    return this.Zh.get(componentTID);
+    return this.ei.get(componentTID);
   }
   /**
    * Removes a component from this entity by its component type identifier.
@@ -86,7 +86,7 @@ var _Entity = class _Entity extends RnObject {
    * @internal
    */
   _removeComponent(componentTID) {
-    this.Zh.delete(componentTID);
+    this.ei.delete(componentTID);
   }
   ///
   /// tryToGet methods
@@ -305,7 +305,7 @@ var _Entity = class _Entity extends RnObject {
    * should not be used.
    */
   _destroy() {
-    this.Zh.forEach((component) => {
+    this.ei.forEach((component) => {
       component._destroy();
     });
     this.unregister();

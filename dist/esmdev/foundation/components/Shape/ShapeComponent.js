@@ -11,8 +11,8 @@ import { WellKnownComponentTIDs } from "../WellKnownComponentTIDs.js";
 var ShapeComponent = class extends Component {
   constructor(engine, entityUid, componentSid, entityRepository, isReUse) {
     super(engine, entityUid, componentSid, entityRepository, isReUse);
-    this.Pg = /* @__PURE__ */ new Map();
-    this.Qg = 0;
+    this.Tg = /* @__PURE__ */ new Map();
+    this.Ug = 0;
     this.moveStageTo(ProcessStage.Logic);
   }
   static get componentTID() {
@@ -23,10 +23,10 @@ var ShapeComponent = class extends Component {
   }
   addShape(descriptor, localTransform = {}) {
     var _a;
-    const instance = this.Rg(descriptor, localTransform);
-    const index = this.Qg++;
-    this.Pg.set(index, instance);
-    (_a = this.Og) == null ? void 0 : _a.rebuild();
+    const instance = this.Vg(descriptor, localTransform);
+    const index = this.Ug++;
+    this.Tg.set(index, instance);
+    (_a = this.Sg) == null ? void 0 : _a.rebuild();
     return index;
   }
   /**
@@ -42,14 +42,14 @@ var ShapeComponent = class extends Component {
    */
   updateShape(index, descriptor, localTransform = {}) {
     var _a;
-    if (!this.Pg.has(index)) {
+    if (!this.Tg.has(index)) {
       return false;
     }
-    this.Pg.set(index, this.Rg(descriptor, localTransform));
-    (_a = this.Og) == null ? void 0 : _a.rebuild();
+    this.Tg.set(index, this.Vg(descriptor, localTransform));
+    (_a = this.Sg) == null ? void 0 : _a.rebuild();
     return true;
   }
-  Rg(descriptor, localTransform) {
+  Vg(descriptor, localTransform) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n;
     const shape = normalizeShapeDescriptor(descriptor);
     const positionX = (_b = (_a = localTransform.position) == null ? void 0 : _a.x) != null ? _b : 0;
@@ -134,62 +134,62 @@ var ShapeComponent = class extends Component {
     );
   }
   getShape(index = 0) {
-    return this.Pg.get(index);
+    return this.Tg.get(index);
   }
   removeShape(index) {
     var _a;
-    if (!Number.isInteger(index) || index < 0 || !this.Pg.delete(index)) {
+    if (!Number.isInteger(index) || index < 0 || !this.Tg.delete(index)) {
       return false;
     }
-    (_a = this.Og) == null ? void 0 : _a.rebuild();
+    (_a = this.Sg) == null ? void 0 : _a.rebuild();
     return true;
   }
   clearShapes() {
     var _a;
-    this.Pg.clear();
-    (_a = this.Og) == null ? void 0 : _a.rebuild();
+    this.Tg.clear();
+    (_a = this.Sg) == null ? void 0 : _a.rebuild();
   }
   get shapeCount() {
-    return this.Pg.size;
+    return this.Tg.size;
   }
   /** @internal Iterates stable shape indices and their instances. */
   _getShapeEntries() {
-    return this.Pg.entries();
+    return this.Tg.entries();
   }
   $logic() {
     var _a;
-    if ((_a = this.Og) == null ? void 0 : _a.isVisible) {
-      this.Og._update();
+    if ((_a = this.Sg) == null ? void 0 : _a.isVisible) {
+      this.Sg._update();
     }
   }
   set isShapeGizmoVisible(visible) {
-    if (visible && this.Og == null) {
-      this.Og = new (_getGizmoClass("shape"))(this.c, this);
-      this.Og._setup();
+    if (visible && this.Sg == null) {
+      this.Sg = new (_getGizmoClass("shape"))(this.c, this);
+      this.Sg._setup();
     }
-    if (this.Og != null) {
-      this.Og.isVisible = visible;
+    if (this.Sg != null) {
+      this.Sg.isVisible = visible;
     }
   }
   get isShapeGizmoVisible() {
     var _a, _b;
-    return (_b = (_a = this.Og) == null ? void 0 : _a.isVisible) != null ? _b : false;
+    return (_b = (_a = this.Sg) == null ? void 0 : _a.isVisible) != null ? _b : false;
   }
   get shapeGizmo() {
-    return this.Og;
+    return this.Sg;
   }
   /** @internal Copies immutable ShapeInstances while preserving their stable indices. */
   _shallowCopyFrom(component_) {
     const component = component_;
-    this.Pg = new Map(component.Pg);
-    this.Qg = component.Qg;
+    this.Tg = new Map(component.Tg);
+    this.Ug = component.Ug;
   }
   _destroy() {
     var _a;
-    (_a = this.Og) == null ? void 0 : _a._destroy();
-    this.Og = void 0;
+    (_a = this.Sg) == null ? void 0 : _a._destroy();
+    this.Sg = void 0;
     this.clearShapes();
-    this.Qg = 0;
+    this.Ug = 0;
     super._destroy();
   }
   addThisComponentToEntity(base, _componentClass) {

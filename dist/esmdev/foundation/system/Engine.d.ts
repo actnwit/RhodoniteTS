@@ -49,7 +49,7 @@ interface EngineInitDescription {
  * ... (create something) ...
  *
  * engine.startRenderLoop((time, _myArg1, _myArg2) => {
- *   Rn.Engine.process([expression]);
+ *   engine.process([expression]);
  * }, myArg1, myArg2);
  * ```
  */
@@ -92,6 +92,8 @@ export declare class Engine extends RnObject {
     private __lastTransformComponentsUpdateCount;
     private __lastPrimitiveCount;
     private __lastLightComponentsUpdateCount;
+    private __gpuInstanceDataVersion;
+    private __isPreviousMorphWeightsEnabled;
     /** Shader program cache map for this engine instance. Maps shader text to program UIDs. */
     private __shaderProgramCache;
     private __gpuTimerEnabled;
@@ -149,8 +151,8 @@ export declare class Engine extends RnObject {
      *
      * @example
      * ```
-     * Rn.Engine.startRenderLoop((time, _myArg1, _myArg2) => {
-     *   Rn.Engine.process([expression]);
+     * engine.startRenderLoop((time, _myArg1, _myArg2) => {
+     *   engine.process([expression]);
      * }, myArg1, myArg2);
      * ```
      *
@@ -347,6 +349,38 @@ export declare class Engine extends RnObject {
     get dummyTextures(): DummyTextures;
     get engineState(): EngineState;
     get config(): Config;
+    /**
+     * A version that is incremented when the GPU instance data was written outside the component update
+     * counts that the rendering strategies compare (e.g. the jitter of temporal anti-aliasing or the previous
+     * world matrices it keeps). The strategies re-upload the GPU instance data when it changed.
+     *
+     * @internal
+     */
+    get _gpuInstanceDataVersion(): number;
+    /**
+     * Requests an upload of the GPU instance data in the next prerender stage. Unlike a component update, it does
+     * not re-run the logic stage of the components.
+     *
+     * @internal
+     */
+    _markGpuInstanceDataDirty(): void;
+    /**
+     * Whether the morph weights uniform buffer also holds the blend shape weights of the previous frame (for the
+     * motion vectors of temporal anti-aliasing). See `BlendShapeComponent._getMorphWeightsVec4Count`.
+     *
+     * @internal
+     */
+    get _isPreviousMorphWeightsEnabled(): boolean;
+    /**
+     * Makes the morph weights uniform buffer hold the blend shape weights of the previous frame as well.
+     *
+     * @remarks
+     * This cannot be turned off again: the shaders compiled afterwards declare the larger buffer, and they must keep
+     * working with it.
+     *
+     * @internal
+     */
+    _enablePreviousMorphWeights(): void;
     get logger(): Logger;
     /**
      * Gets the shader program cache for this engine instance.

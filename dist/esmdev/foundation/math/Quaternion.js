@@ -245,7 +245,7 @@ var Quaternion_ = class extends AbstractQuaternion {
    * @returns True if the quaternion could be extracted, false otherwise
    * @private
    */
-  static Et(mat, outV) {
+  static Mt(mat, outV) {
     const sxRaw = Math.hypot(mat.m00, mat.m10, mat.m20);
     const sy = Math.hypot(mat.m01, mat.m11, mat.m21);
     const sz = Math.hypot(mat.m02, mat.m12, mat.m22);
@@ -306,7 +306,7 @@ var Quaternion_ = class extends AbstractQuaternion {
    */
   static tryFromMatrix(mat) {
     const outV = new this._type(4);
-    if (!this.Et(mat, outV)) {
+    if (!this.Mt(mat, outV)) {
       return null;
     }
     return this.fromCopy4(outV[0], outV[1], outV[2], outV[3]);
@@ -342,7 +342,7 @@ var Quaternion_ = class extends AbstractQuaternion {
    * @returns True if the quaternion could be extracted, false otherwise
    */
   static tryFromMatrixTo(mat, out) {
-    return this.Et(mat, out._v);
+    return this.Mt(mat, out._v);
   }
   /**
    * Creates a quaternion from a 4x4 rotation matrix and stores it in the output parameter.
@@ -387,10 +387,10 @@ var Quaternion_ = class extends AbstractQuaternion {
    * @returns A quaternion representing the look rotation, or null if the direction is degenerate
    */
   static tryLookForward(forward) {
-    if (this.Ct == null) {
-      this.Ct = new forward.constructor(0, 1, 0);
+    if (this.Kt == null) {
+      this.Kt = new forward.constructor(0, 1, 0);
     }
-    return this.tryLookForwardAccordingToThisUp(forward, this.Ct);
+    return this.tryLookForwardAccordingToThisUp(forward, this.Kt);
   }
   /**
    * Creates a quaternion that looks in the specified forward direction using default up vector (0, 1, 0).
@@ -934,7 +934,7 @@ var Quaternion_ = class extends AbstractQuaternion {
    * @returns A new transformed vector
    */
   transformVector3(v) {
-    const u = Quaternion.Dt;
+    const u = Quaternion.Lt;
     u.setComponents(this._v[0], this._v[1], this._v[2]);
     const uv = Vector3.cross(u, v);
     const uuv = Vector3.cross(u, uv);
@@ -950,13 +950,13 @@ var Quaternion_ = class extends AbstractQuaternion {
    * @returns The output vector containing the transformed result
    */
   transformVector3To(v, out) {
-    const u = Quaternion.Dt;
+    const u = Quaternion.Lt;
     u.setComponents(this._v[0], this._v[1], this._v[2]);
-    const uv = Vector3.crossTo(u, v, Quaternion.Fg);
-    const uuv = Vector3.crossTo(u, uv, Quaternion.Gg);
-    const uvw = Vector3.multiplyTo(uv, this._v[3], Quaternion.Hg);
-    const uuv_uvw = Vector3.addTo(uuv, uvw, Quaternion.Ft);
-    const uuv_uvw_2 = Vector3.multiplyTo(uuv_uvw, 2, Quaternion.Gt);
+    const uv = Vector3.crossTo(u, v, Quaternion.Jg);
+    const uuv = Vector3.crossTo(u, uv, Quaternion.Kg);
+    const uvw = Vector3.multiplyTo(uv, this._v[3], Quaternion.Lg);
+    const uuv_uvw = Vector3.addTo(uuv, uvw, Quaternion.Nt);
+    const uuv_uvw_2 = Vector3.multiplyTo(uuv_uvw, 2, Quaternion.Ot);
     return Vector3.addTo(v, uuv_uvw_2, out);
   }
   /**
@@ -1113,13 +1113,13 @@ var Quaternion_ = class extends AbstractQuaternion {
 };
 /** The typed array constructor used for newly created quaternions. */
 Quaternion_._type = Float32Array;
-Quaternion_.Ct = void 0;
-Quaternion_.Fg = MutableVector3.zero();
-Quaternion_.Gg = MutableVector3.zero();
-Quaternion_.Hg = MutableVector3.zero();
-Quaternion_.Ft = MutableVector3.zero();
-Quaternion_.Gt = MutableVector3.zero();
-Quaternion_.Dt = MutableVector3.zero();
+Quaternion_.Kt = void 0;
+Quaternion_.Jg = MutableVector3.zero();
+Quaternion_.Kg = MutableVector3.zero();
+Quaternion_.Lg = MutableVector3.zero();
+Quaternion_.Nt = MutableVector3.zero();
+Quaternion_.Ot = MutableVector3.zero();
+Quaternion_.Lt = MutableVector3.zero();
 var Quaternion = class extends Quaternion_ {
   /**
    * Creates a new Quaternion instance.

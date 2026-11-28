@@ -5,25 +5,25 @@ var _EnumClass = class _EnumClass {
     str,
     noCheckStrUnique
   }) {
-    if (_EnumClass.zu.get(this.constructor) == null) {
-      _EnumClass.zu.set(this.constructor, []);
+    if (_EnumClass.Hu.get(this.constructor) == null) {
+      _EnumClass.Hu.set(this.constructor, []);
     }
-    if (_EnumClass.Au.get(this.constructor) == null) {
-      _EnumClass.Au.set(this.constructor, []);
+    if (_EnumClass.Iu.get(this.constructor) == null) {
+      _EnumClass.Iu.set(this.constructor, []);
     }
-    if (_EnumClass.zu.get(this.constructor).indexOf(index) !== -1) {
+    if (_EnumClass.Hu.get(this.constructor).indexOf(index) !== -1) {
       throw new Error("Dont use duplicate index.");
     }
     if (noCheckStrUnique !== true) {
-      if (_EnumClass.Au.get(this.constructor).indexOf(str) !== -1) {
+      if (_EnumClass.Iu.get(this.constructor).indexOf(str) !== -1) {
         throw new Error("Dont use duplicate str.");
       }
     }
     this.index = index;
     this.str = str;
     this.symbol = Symbol(str);
-    _EnumClass.zu.get(this.constructor).push(index);
-    _EnumClass.Au.get(this.constructor).push(str);
+    _EnumClass.Hu.get(this.constructor).push(index);
+    _EnumClass.Iu.get(this.constructor).push(str);
   }
   toString() {
     return this.str;
@@ -32,8 +32,8 @@ var _EnumClass = class _EnumClass {
     return this.index;
   }
 };
-_EnumClass.zu = /* @__PURE__ */ new Map();
-_EnumClass.Au = /* @__PURE__ */ new Map();
+_EnumClass.Hu = /* @__PURE__ */ new Map();
+_EnumClass.Iu = /* @__PURE__ */ new Map();
 var EnumClass = _EnumClass;
 function _from({ typeList, index }) {
   const match = typeList.find((type) => type.index === index);

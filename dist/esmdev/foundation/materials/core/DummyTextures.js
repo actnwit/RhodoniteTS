@@ -13,7 +13,7 @@ var DummyTextures = class _DummyTextures {
    */
   constructor(engine) {
     /** Whether the sheen LUT texture has been requested (it is loaded only when a material uses sheen). */
-    this.Ir = false;
+    this.Qr = false;
     this.dummyWhiteTexture = new Texture(engine);
     this.dummyBlueTexture = new Texture(engine);
     this.dummyBlackTexture = new Texture(engine);
@@ -61,7 +61,7 @@ var DummyTextures = class _DummyTextures {
    * texture is generated, so the lazy background load is not enough for that path.
    */
   async loadSheenLutTexture() {
-    this.Ir = true;
+    this.Qr = true;
     await this.sheenLutTexture.generateSheenLutTextureFromDataUri();
   }
   /**
@@ -70,7 +70,7 @@ var DummyTextures = class _DummyTextures {
    * The same Texture object is updated in place when the image arrives.
    */
   requestSheenLutTexture() {
-    if (this.Ir) {
+    if (this.Qr) {
       return;
     }
     void this.loadSheenLutTexture().catch((error) => {

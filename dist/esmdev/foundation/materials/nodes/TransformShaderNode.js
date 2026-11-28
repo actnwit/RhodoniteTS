@@ -30,17 +30,17 @@ var TransformShaderNode = class extends AbstractShaderNode {
     } else if (lhsCompositionType === CompositionType.Mat2 && rhsCompositionType === CompositionType.Vec2) {
       outValueCompositionType = CompositionType.Vec2;
     }
-    this.zr.push({
+    this.Hr.push({
       compositionType: lhsCompositionType,
       componentType: lhsComponentType,
       name: "lhs"
     });
-    this.zr.push({
+    this.Hr.push({
       compositionType: rhsCompositionType,
       componentType: rhsComponentType,
       name: "rhs"
     });
-    this.Cr.push({
+    this.Kr.push({
       compositionType: outValueCompositionType,
       componentType: lhsComponentType,
       name: "outValue"
@@ -57,18 +57,18 @@ var TransformShaderNode = class extends AbstractShaderNode {
    */
   getShaderFunctionNameDerivative(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      if (this.zr[0].compositionType === CompositionType.Mat2 && this.zr[1].compositionType === CompositionType.Vec2) {
-        return `${this.Br}Mat2x2fVec2f`;
+      if (this.Hr[0].compositionType === CompositionType.Mat2 && this.Hr[1].compositionType === CompositionType.Vec2) {
+        return `${this.Jr}Mat2x2fVec2f`;
       }
-      if (this.zr[0].compositionType === CompositionType.Mat3 && this.zr[1].compositionType === CompositionType.Vec3) {
-        return `${this.Br}Mat3x3fVec3f`;
+      if (this.Hr[0].compositionType === CompositionType.Mat3 && this.Hr[1].compositionType === CompositionType.Vec3) {
+        return `${this.Jr}Mat3x3fVec3f`;
       }
-      if (this.zr[0].compositionType === CompositionType.Mat4 && this.zr[1].compositionType === CompositionType.Vec4) {
-        return `${this.Br}Mat4x4fVec4f`;
+      if (this.Hr[0].compositionType === CompositionType.Mat4 && this.Hr[1].compositionType === CompositionType.Vec4) {
+        return `${this.Jr}Mat4x4fVec4f`;
       }
       throw new Error("Not implemented");
     }
-    return this.Br;
+    return this.Jr;
   }
 };
 export {

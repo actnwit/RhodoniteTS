@@ -282,29 +282,29 @@ var ChunkByteSize = 8;
 var InitialCapacities = { instances: 8192, groups: 2048, draws: 4096, chunks: 4096 };
 var WebGpuGpuCulling = class {
   constructor(device) {
-    this.LG = new Uint32Array(ParamsByteSize / 4);
-    this.$F = 0;
-    this.DG = new Float32Array(0);
-    this.EG = new Float32Array(0);
-    this.uG = new DirtyRange();
-    this.gG = new DirtyRange();
-    this.hG = new DirtyRange();
-    this.zG = new DirtyRange();
-    this.iG = new DirtyRange();
+    this.sH = new Uint32Array(ParamsByteSize / 4);
+    this.IG = 0;
+    this.kH = new Float32Array(0);
+    this.lH = new Float32Array(0);
+    this.bH = new DirtyRange();
+    this.PG = new DirtyRange();
+    this.QG = new DirtyRange();
+    this.gH = new DirtyRange();
+    this.RG = new DirtyRange();
     /**
      * The live group of each group slot, with the vertex buffer range of its visible instances and the source of its
      * records. `positionUpdateCount` is the mesh's `primitivePositionUpdateCount` the local AABB was written for.
      */
-    this.aG = [];
-    this.AG = [];
-    this.FG = /* @__PURE__ */ new Map();
-    this.jG = true;
+    this.JG = [];
+    this.hH = [];
+    this.mH = /* @__PURE__ */ new Map();
+    this.SG = true;
     /** `Mesh._primitivePositionUpdateVersion` when the records were last revalidated. */
-    this.GG = -1;
-    this.HG = -1;
-    this.QF = device;
-    this.WF = new GpuCullingRegistry(InitialCapacities);
-    this.XF = new WebGpuVertexDeformer(device);
+    this.nH = -1;
+    this.oH = -1;
+    this.xG = device;
+    this.DG = new GpuCullingRegistry(InitialCapacities);
+    this.EG = new WebGpuVertexDeformer(device);
     const createStage = (label, code, entryPoint, types) => {
       const layout = device.createBindGroupLayout({
         label: `GpuCulling.${label}`,
@@ -320,57 +320,57 @@ var WebGpuGpuCulling = class {
     const r = "read-only-storage";
     const w = "storage";
     const u = "uniform";
-    this.lG = {
+    this.UG = {
       cull: createStage("cullChunks", cullChunksWgsl, "cullChunks", [r, u, r, r, r, r, w, w, r]),
       prefix: createStage("prefixGroups", prefixGroupsWgsl, "prefixGroups", [u, r, r, w, w]),
       scatter: createStage("scatter", scatterWgsl, "scatter", [u, r, r, r, r, r, w]),
       finalize: createStage("finalize", finalizeWgsl, "finalize", [u, r, r, w])
     };
-    this.YF = device.createBuffer({
+    this.FG = device.createBuffer({
       label: "GpuCulling.params",
       size: ParamsByteSize,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
     });
-    this.IG(InitialCapacities);
+    this.pH(InitialCapacities);
   }
   /** The bookkeeping of the allocations (exposed for tests and statistics). */
   get registry() {
-    return this.WF;
+    return this.DG;
   }
   /** The vertex deformation of the deformed meshes (exposed for tests and statistics). */
   get deformer() {
-    return this.XF;
+    return this.EG;
   }
   /** The deformed vertices, bound at group 0, binding 4 of the draws (see processGeometry). */
   get deformedVerticesBuffer() {
-    return this.XF.deformedVerticesBuffer;
+    return this.EG.deformedVerticesBuffer;
   }
   /** Starts a render bundle recording. See GpuCullingRegistry.beginRecording. */
   beginRecording() {
-    this.WF.beginRecording();
+    this.DG.beginRecording();
   }
   /** Whether a render bundle recording is in progress. */
   get isRecording() {
-    return this.WF.isRecording;
+    return this.DG.isRecording;
   }
   /** Finishes a render bundle recording. See GpuCullingRegistry.finishRecording. */
   finishRecording(bundleKey) {
-    this.WF.finishRecording(bundleKey);
+    this.DG.finishRecording(bundleKey);
   }
   /** Drops the render bundle recording in progress. See GpuCullingRegistry.abortRecording. */
   abortRecording() {
-    this.WF.abortRecording();
+    this.DG.abortRecording();
   }
   /** Retires the allocations of all the cached render bundles (the bundle cache is cleared). */
   retireAllBundles() {
-    this.WF.retireAllBundles();
+    this.DG.retireAllBundles();
   }
   /**
    * Marks the inputs of the culling (the GPU instance data: transforms, visibility, cameras) as changed, so the
    * next `encode` dispatches the culling.
    */
   markInputsDirty() {
-    this.jG = true;
+    this.SG = true;
   }
   /**
    * Registers an indirect draw of a primitive of `mesh` in the render bundle being recorded.
@@ -383,7 +383,7 @@ var WebGpuGpuCulling = class {
    * @returns The draw, or undefined when the draw cannot be culled on the GPU (draw it without culling)
    */
   registerDraw(engine, mesh, primitive, cameraSID, elementCount) {
-    const registry = this.WF;
+    const registry = this.DG;
     if (!registry.isRecording) {
       return void 0;
     }
@@ -392,7 +392,7 @@ var WebGpuGpuCulling = class {
     if (entityInfo === void 0 || entityInfo.length !== instanceCount * 4 || instanceCount === 0) {
       return void 0;
     }
-    const viewIndex = this.MG(engine, cameraSID);
+    const viewIndex = this.tH(engine, cameraSID);
     if (viewIndex < 0) {
       return void 0;
     }
@@ -400,14 +400,14 @@ var WebGpuGpuCulling = class {
     if (group === void 0) {
       return void 0;
     }
-    let groupEntry = this.aG[group.index];
+    let groupEntry = this.JG[group.index];
     if (groupEntry === void 0 || groupEntry.group !== group) {
       const needsDeformation = mesh._needsComputeDeformation;
-      const deform = needsDeformation ? this.XF.acquire(engine, mesh, entityInfo) : void 0;
+      const deform = needsDeformation ? this.EG.acquire(engine, mesh, entityInfo) : void 0;
       groupEntry = {
         group,
         range: {
-          buffer: this.nG,
+          buffer: this.WG,
           offset: group.rangeBase * InstanceByteSize,
           size: instanceCount * InstanceByteSize
         },
@@ -418,15 +418,15 @@ var WebGpuGpuCulling = class {
         deform,
         isDeformFailed: needsDeformation && deform === void 0
       };
-      this.aG[group.index] = groupEntry;
-      this.JG(engine, mesh, group, entityInfo, deform);
+      this.JG[group.index] = groupEntry;
+      this.qH(engine, mesh, group, entityInfo, deform);
     }
     if (groupEntry.isDeformFailed) {
       return void 0;
     }
     let deformedVertexOffset;
     if (groupEntry.deform !== void 0) {
-      deformedVertexOffset = this.XF.getPrimitiveOffset(groupEntry.deform, primitive);
+      deformedVertexOffset = this.EG.getPrimitiveOffset(groupEntry.deform, primitive);
       if (deformedVertexOffset === void 0) {
         return void 0;
       }
@@ -435,19 +435,19 @@ var WebGpuGpuCulling = class {
     if (slot < 0) {
       return void 0;
     }
-    const args = this.yG;
+    const args = this.fH;
     const argsBase = slot * ArgsWordSize;
     args[argsBase] = elementCount;
     args[argsBase + 1] = 0;
     args[argsBase + 2] = 0;
     args[argsBase + 3] = 0;
     args[argsBase + 4] = 0;
-    this.zG.add(slot, slot + 1);
-    this.tG[slot] = group.index;
-    this.hG.add(slot, slot + 1);
+    this.gH.add(slot, slot + 1);
+    this.aH[slot] = group.index;
+    this.QG.add(slot, slot + 1);
     return {
       instanceVertexBuffer: groupEntry.range,
-      indirectBuffer: this.cG,
+      indirectBuffer: this.LG,
       indirectOffset: slot * GpuCullingArgsByteSize,
       deformedVertexOffset
     };
@@ -467,77 +467,77 @@ var WebGpuGpuCulling = class {
    */
   encode(storageBuffer, gpuTimer, morphBuffers = {}) {
     var _a, _b, _c, _d, _e, _f;
-    const registry = this.WF;
+    const registry = this.DG;
     const groupCount = registry.groupHighWater;
     const drawCount = registry.drawHighWater;
     if (storageBuffer == null || groupCount === 0) {
       return void 0;
     }
-    const viewsChanged = this.NG();
+    const viewsChanged = this.uH();
     const positionUpdateVersion = Mesh._primitivePositionUpdateVersion;
-    if (positionUpdateVersion !== this.GG) {
-      this.GG = positionUpdateVersion;
-      this.OG();
+    if (positionUpdateVersion !== this.nH) {
+      this.nH = positionUpdateVersion;
+      this.vH();
     }
-    const deformer = this.XF;
+    const deformer = this.EG;
     deformer.refresh();
-    const needsDeformation = deformer.hasEntries && (this.jG || deformer.isChanged || this.bG !== storageBuffer);
-    if (!this.jG && !needsDeformation && this.uG.isEmpty && !viewsChanged && registry.version === this.HG && this.bG === storageBuffer) {
+    const needsDeformation = deformer.hasEntries && (this.SG || deformer.isChanged || this.KG !== storageBuffer);
+    if (!this.SG && !needsDeformation && this.bH.isEmpty && !viewsChanged && registry.version === this.oH && this.KG === storageBuffer) {
       return void 0;
     }
-    this.jG = false;
-    this.HG = registry.version;
-    const device = this.QF;
-    this.kG(this.mG, this.xG, this.uG, RecordWordSize);
-    this.kG(this._F, this.sG, this.gG, GroupByteSize / 4);
-    this.kG(this.dG, this.fG, this.iG, ChunkByteSize / 4);
-    this.kG(this.pG, this.tG, this.hG, 1);
-    this.kG(this.cG, this.yG, this.zG, ArgsWordSize);
+    this.SG = false;
+    this.oH = registry.version;
+    const device = this.xG;
+    this.TG(this.VG, this.eH, this.bH, RecordWordSize);
+    this.TG(this.HG, this.$G, this.PG, GroupByteSize / 4);
+    this.TG(this.MG, this.OG, this.RG, ChunkByteSize / 4);
+    this.TG(this.YG, this.aH, this.QG, 1);
+    this.TG(this.LG, this.fH, this.gH, ArgsWordSize);
     const chunkCount = registry.chunkHighWater;
     const chunksPerRow = Math.max(1, Math.min(chunkCount, MaxWorkgroupsPerDimension));
-    const params = this.LG;
+    const params = this.sH;
     params[0] = groupCount;
     params[1] = drawCount;
     params[2] = chunkCount;
     params[3] = chunksPerRow;
-    device.queue.writeBuffer(this.YF, 0, params);
-    const passes = this.lG;
-    if (passes.cull.bindGroup == null || this.bG !== storageBuffer || this.BG !== deformer.boundsBuffer) {
-      passes.cull.bindGroup = this.vG(passes.cull, [
+    device.queue.writeBuffer(this.FG, 0, params);
+    const passes = this.UG;
+    if (passes.cull.bindGroup == null || this.KG !== storageBuffer || this.iH !== deformer.boundsBuffer) {
+      passes.cull.bindGroup = this.cH(passes.cull, [
         storageBuffer,
-        this.YF,
-        this.mG,
-        this._F,
-        this.ZF,
-        this.dG,
-        this.rG,
-        this.eG,
+        this.FG,
+        this.VG,
+        this.HG,
+        this.GG,
+        this.MG,
+        this._G,
+        this.NG,
         deformer.boundsBuffer
       ]);
-      this.bG = storageBuffer;
-      this.BG = deformer.boundsBuffer;
+      this.KG = storageBuffer;
+      this.iH = deformer.boundsBuffer;
     }
-    (_b = (_a = passes.prefix).bindGroup) != null ? _b : _a.bindGroup = this.vG(passes.prefix, [
-      this.YF,
-      this._F,
-      this.eG,
-      this.qG,
-      this.oG
+    (_b = (_a = passes.prefix).bindGroup) != null ? _b : _a.bindGroup = this.cH(passes.prefix, [
+      this.FG,
+      this.HG,
+      this.NG,
+      this.ZG,
+      this.XG
     ]);
-    (_d = (_c = passes.scatter).bindGroup) != null ? _d : _c.bindGroup = this.vG(passes.scatter, [
-      this.YF,
-      this._F,
-      this.dG,
-      this.eG,
-      this.qG,
-      this.rG,
-      this.nG
+    (_d = (_c = passes.scatter).bindGroup) != null ? _d : _c.bindGroup = this.cH(passes.scatter, [
+      this.FG,
+      this.HG,
+      this.MG,
+      this.NG,
+      this.ZG,
+      this._G,
+      this.WG
     ]);
-    (_f = (_e = passes.finalize).bindGroup) != null ? _f : _e.bindGroup = this.vG(passes.finalize, [
-      this.YF,
-      this.oG,
-      this.pG,
-      this.cG
+    (_f = (_e = passes.finalize).bindGroup) != null ? _f : _e.bindGroup = this.cH(passes.finalize, [
+      this.FG,
+      this.XG,
+      this.YG,
+      this.LG
     ]);
     const encoder = device.createCommandEncoder({ label: "GpuCulling" });
     if (needsDeformation) {
@@ -571,8 +571,8 @@ var WebGpuGpuCulling = class {
     pass.end();
     return encoder.finish();
   }
-  vG(stage, buffers) {
-    return this.QF.createBindGroup({
+  cH(stage, buffers) {
+    return this.xG.createBindGroup({
       label: stage.pipeline.label,
       layout: stage.layout,
       entries: buffers.map((buffer, binding) => ({ binding, resource: { buffer } }))
@@ -585,60 +585,60 @@ var WebGpuGpuCulling = class {
    * @returns True when the tables were recreated: every render bundle recorded before must be dropped
    */
   afterSubmit() {
-    const registry = this.WF;
+    const registry = this.DG;
     const released = registry.releaseRetired();
     if (released !== void 0) {
-      const groups = this.sG;
+      const groups = this.$G;
       for (const group of released.groups) {
         groups[group.index * 4 + 1] = 0;
-        this.gG.add(group.index, group.index + 1);
-        const chunks = this.fG;
+        this.PG.add(group.index, group.index + 1);
+        const chunks = this.OG;
         for (let k = 0; k < group.chunkCount; k++) {
           chunks[(group.chunkBase + k) * 2] = InvalidGroup;
           chunks[(group.chunkBase + k) * 2 + 1] = 0;
         }
-        this.iG.add(group.chunkBase, group.chunkBase + group.chunkCount);
-        const groupEntry = this.aG[group.index];
+        this.RG.add(group.chunkBase, group.chunkBase + group.chunkCount);
+        const groupEntry = this.JG[group.index];
         if ((groupEntry == null ? void 0 : groupEntry.group) === group) {
           if (groupEntry.deform !== void 0) {
-            this.XF.release(groupEntry.deform);
+            this.EG.release(groupEntry.deform);
           }
-          this.aG[group.index] = void 0;
+          this.JG[group.index] = void 0;
         }
       }
-      const drawGroups = this.tG;
+      const drawGroups = this.aH;
       for (const draw of released.draws) {
         drawGroups[draw] = InvalidGroup;
-        this.hG.add(draw, draw + 1);
+        this.QG.add(draw, draw + 1);
       }
     }
-    const deformer = this.XF;
-    const cullingCapacities = this.PG();
+    const deformer = this.EG;
+    const cullingCapacities = this.wH();
     const deformCapacities = deformer.getGrownCapacities();
     if (cullingCapacities === void 0 && deformCapacities === void 0 && !deformer.isResetRequested) {
       return false;
     }
     const capacities = cullingCapacities != null ? cullingCapacities : { ...registry.capacities };
-    this.KG();
-    this.IG(capacities);
+    this.rH();
+    this.pH(capacities);
     registry.reset(capacities);
     deformer.reset(deformCapacities != null ? deformCapacities : { ...deformer.capacities });
-    this.aG.length = 0;
-    this.jG = true;
+    this.JG.length = 0;
+    this.SG = true;
     return true;
   }
   /**
    * The capacities the culling tables must grow to after an allocation failed, or undefined when they did not
    * overflow or cannot grow (the device limits are reached).
    */
-  PG() {
-    const registry = this.WF;
+  wH() {
+    const registry = this.DG;
     if (!registry.isOverflowed) {
       return void 0;
     }
     const required = registry.requiredCapacities;
     const current = registry.capacities;
-    const limits = this.QF.limits;
+    const limits = this.xG.limits;
     const maxBytes = Math.min(limits.maxStorageBufferBindingSize, limits.maxBufferSize);
     const grow = (capacity, needed, bytesPerSlot) => {
       let next = capacity;
@@ -663,150 +663,150 @@ var WebGpuGpuCulling = class {
    */
   destroy() {
     var _a;
-    this.KG();
-    this.XF.destroy();
-    this.YF.destroy();
-    (_a = this.ZF) == null ? void 0 : _a.destroy();
-    this.ZF = void 0;
+    this.rH();
+    this.EG.destroy();
+    this.FG.destroy();
+    (_a = this.GG) == null ? void 0 : _a.destroy();
+    this.GG = void 0;
   }
-  IG(capacities) {
-    const device = this.QF;
+  pH(capacities) {
+    const device = this.xG;
     const usage = GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST;
-    this.mG = device.createBuffer({
+    this.VG = device.createBuffer({
       label: "GpuCulling.records",
       size: capacities.instances * RecordByteSize,
       usage
     });
-    this._F = device.createBuffer({
+    this.HG = device.createBuffer({
       label: "GpuCulling.groups",
       size: capacities.groups * GroupByteSize,
       usage
     });
-    this.oG = device.createBuffer({
+    this.XG = device.createBuffer({
       label: "GpuCulling.visibleCounts",
       size: capacities.groups * 4,
       usage: GPUBufferUsage.STORAGE
     });
-    this.pG = device.createBuffer({
+    this.YG = device.createBuffer({
       label: "GpuCulling.drawGroups",
       size: capacities.draws * 4,
       usage
     });
-    this.nG = device.createBuffer({
+    this.WG = device.createBuffer({
       label: "GpuCulling.visibleIds",
       size: capacities.instances * InstanceByteSize,
       usage: GPUBufferUsage.VERTEX | GPUBufferUsage.STORAGE
     });
-    this.dG = device.createBuffer({
+    this.MG = device.createBuffer({
       label: "GpuCulling.chunks",
       size: capacities.chunks * ChunkByteSize,
       usage
     });
-    this.eG = device.createBuffer({
+    this.NG = device.createBuffer({
       label: "GpuCulling.chunkCounts",
       size: capacities.chunks * 4,
       usage: GPUBufferUsage.STORAGE
     });
-    this.qG = device.createBuffer({
+    this.ZG = device.createBuffer({
       label: "GpuCulling.chunkOffsets",
       size: capacities.chunks * 4,
       usage: GPUBufferUsage.STORAGE
     });
-    this.rG = device.createBuffer({
+    this._G = device.createBuffer({
       label: "GpuCulling.scratchIds",
       size: capacities.instances * InstanceByteSize,
       usage: GPUBufferUsage.STORAGE
     });
-    this.cG = device.createBuffer({
+    this.LG = device.createBuffer({
       label: "GpuCulling.args",
       size: capacities.draws * GpuCullingArgsByteSize,
       // COPY_SRC lets tests and tools read back the culled instance counts.
       usage: GPUBufferUsage.INDIRECT | GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC
     });
-    this.wG = new ArrayBuffer(capacities.instances * RecordByteSize);
-    this.xG = new Uint32Array(this.wG);
-    this.CG = new Float32Array(this.wG);
-    this.sG = new Uint32Array(capacities.groups * 4);
-    this.tG = new Uint32Array(capacities.draws).fill(InvalidGroup);
-    this.yG = new Uint32Array(capacities.draws * ArgsWordSize);
-    this.fG = new Uint32Array(capacities.chunks * 2);
+    this.dH = new ArrayBuffer(capacities.instances * RecordByteSize);
+    this.eH = new Uint32Array(this.dH);
+    this.jH = new Float32Array(this.dH);
+    this.$G = new Uint32Array(capacities.groups * 4);
+    this.aH = new Uint32Array(capacities.draws).fill(InvalidGroup);
+    this.fH = new Uint32Array(capacities.draws * ArgsWordSize);
+    this.OG = new Uint32Array(capacities.chunks * 2);
     for (let i = 0; i < capacities.chunks; i++) {
-      this.fG[i * 2] = InvalidGroup;
+      this.OG[i * 2] = InvalidGroup;
     }
-    this.uG.clear();
-    this.gG.clear();
-    this.gG.add(0, capacities.groups);
-    this.hG.clear();
-    this.hG.add(0, capacities.draws);
-    this.zG.clear();
-    this.iG.clear();
-    this.iG.add(0, capacities.chunks);
-    this.QG();
+    this.bH.clear();
+    this.PG.clear();
+    this.PG.add(0, capacities.groups);
+    this.QG.clear();
+    this.QG.add(0, capacities.draws);
+    this.gH.clear();
+    this.RG.clear();
+    this.RG.add(0, capacities.chunks);
+    this.xH();
   }
-  QG() {
-    const passes = this.lG;
+  xH() {
+    const passes = this.UG;
     passes.cull.bindGroup = void 0;
     passes.prefix.bindGroup = void 0;
     passes.scatter.bindGroup = void 0;
     passes.finalize.bindGroup = void 0;
-    this.bG = void 0;
+    this.KG = void 0;
   }
-  KG() {
+  rH() {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
-    (_a = this.mG) == null ? void 0 : _a.destroy();
-    (_b = this._F) == null ? void 0 : _b.destroy();
-    (_c = this.oG) == null ? void 0 : _c.destroy();
-    (_d = this.pG) == null ? void 0 : _d.destroy();
-    (_e = this.nG) == null ? void 0 : _e.destroy();
-    (_f = this.cG) == null ? void 0 : _f.destroy();
-    (_g = this.dG) == null ? void 0 : _g.destroy();
-    (_h = this.eG) == null ? void 0 : _h.destroy();
-    (_i = this.qG) == null ? void 0 : _i.destroy();
-    (_j = this.rG) == null ? void 0 : _j.destroy();
+    (_a = this.VG) == null ? void 0 : _a.destroy();
+    (_b = this.HG) == null ? void 0 : _b.destroy();
+    (_c = this.XG) == null ? void 0 : _c.destroy();
+    (_d = this.YG) == null ? void 0 : _d.destroy();
+    (_e = this.WG) == null ? void 0 : _e.destroy();
+    (_f = this.LG) == null ? void 0 : _f.destroy();
+    (_g = this.MG) == null ? void 0 : _g.destroy();
+    (_h = this.NG) == null ? void 0 : _h.destroy();
+    (_i = this.ZG) == null ? void 0 : _i.destroy();
+    (_j = this._G) == null ? void 0 : _j.destroy();
   }
-  kG(buffer, mirror, dirty, wordsPerSlot) {
+  TG(buffer, mirror, dirty, wordsPerSlot) {
     if (dirty.isEmpty) {
       return;
     }
     const begin = dirty.min * wordsPerSlot;
     const end = Math.min(dirty.max * wordsPerSlot, mirror.length);
-    this.QF.queue.writeBuffer(buffer, begin * 4, mirror, begin, end - begin);
+    this.xG.queue.writeBuffer(buffer, begin * 4, mirror, begin, end - begin);
     dirty.clear();
   }
   /**
    * Rewrites the records of the groups whose mesh vertex positions were updated after the records were written
    * (the local AABB changed while the render bundles stayed valid).
    */
-  OG() {
-    const entries = this.aG;
+  vH() {
+    const entries = this.JG;
     for (let i = 0; i < entries.length; i++) {
       const entry = entries[i];
       if (entry === void 0 || entry.mesh.primitivePositionUpdateCount === entry.positionUpdateCount) {
         continue;
       }
       entry.positionUpdateCount = entry.mesh.primitivePositionUpdateCount;
-      this.JG(entry.engine, entry.mesh, entry.group, entry.entityInfo, entry.deform);
+      this.qH(entry.engine, entry.mesh, entry.group, entry.entityInfo, entry.deform);
     }
   }
   /**
    * Writes the group table entry and the per-instance records of a group.
    * The records of a deformed group point to the deformed vertices (instance ids w) and bounding box of each instance.
    */
-  JG(engine, mesh, group, entityInfo, deform) {
+  qH(engine, mesh, group, entityInfo, deform) {
     var _a, _b, _c, _d, _e;
-    const groups = this.sG;
+    const groups = this.$G;
     const g = group.index * 4;
     groups[g] = group.rangeBase;
     groups[g + 1] = group.instanceCount;
     groups[g + 2] = group.viewIndex;
     groups[g + 3] = group.chunkBase;
-    this.gG.add(group.index, group.index + 1);
-    const chunks = this.fG;
+    this.PG.add(group.index, group.index + 1);
+    const chunks = this.OG;
     for (let k = 0; k < group.chunkCount; k++) {
       chunks[(group.chunkBase + k) * 2] = group.index;
       chunks[(group.chunkBase + k) * 2 + 1] = k * GpuCullingChunkSize;
     }
-    this.iG.add(group.chunkBase, group.chunkBase + group.chunkCount);
+    this.RG.add(group.chunkBase, group.chunkBase + group.chunkCount);
     const countPerBufferView = (_a = Component.getComponentCountPerBufferView(engine).get(SceneGraphComponent)) != null ? _a : 1;
     const worldMatrixOffsets = Component.getLocationOffsetOfMemberOfComponent(
       engine,
@@ -829,10 +829,10 @@ var WebGpuGpuCulling = class {
     const ex = (maxPoint[0] - minPoint[0]) * 0.5;
     const ey = (maxPoint[1] - minPoint[1]) * 0.5;
     const ez = (maxPoint[2] - minPoint[2]) * 0.5;
-    const u32 = this.xG;
-    const f32 = this.CG;
+    const u32 = this.eH;
+    const f32 = this.jH;
     const entities = mesh.meshEntitiesInner;
-    const deformer = this.XF;
+    const deformer = this.EG;
     for (let i = 0; i < group.instanceCount; i++) {
       const r = (group.rangeBase + i) * RecordWordSize;
       const sid = entityInfo[4 * i];
@@ -861,9 +861,9 @@ var WebGpuGpuCulling = class {
       }
       u32[r + 15] = 0;
     }
-    this.uG.add(group.rangeBase, group.rangeBase + group.instanceCount);
+    this.bH.add(group.rangeBase, group.rangeBase + group.instanceCount);
   }
-  MG(engine, cameraSID) {
+  tH(engine, cameraSID) {
     if (cameraSID < 0) {
       return -1;
     }
@@ -871,11 +871,11 @@ var WebGpuGpuCulling = class {
     if (camera == null) {
       return -1;
     }
-    let viewIndex = this.FG.get(camera);
+    let viewIndex = this.mH.get(camera);
     if (viewIndex === void 0) {
-      viewIndex = this.AG.length;
-      this.AG.push({ camera });
-      this.FG.set(camera, viewIndex);
+      viewIndex = this.hH.length;
+      this.hH.push({ camera });
+      this.mH.set(camera, viewIndex);
     }
     return viewIndex;
   }
@@ -883,28 +883,28 @@ var WebGpuGpuCulling = class {
    * Computes the frusta of the views from their cameras and uploads them when they changed.
    * @returns True when a view changed
    */
-  NG() {
+  uH() {
     var _a;
-    const views = this.AG;
+    const views = this.hH;
     const viewCount = views.length;
     if (viewCount === 0) {
       return false;
     }
     let resized = false;
-    if (this.ZF == null || this.$F < viewCount) {
-      (_a = this.ZF) == null ? void 0 : _a.destroy();
-      this.$F = Math.max(8, this.$F * 2, viewCount);
-      this.ZF = this.QF.createBuffer({
+    if (this.GG == null || this.IG < viewCount) {
+      (_a = this.GG) == null ? void 0 : _a.destroy();
+      this.IG = Math.max(8, this.IG * 2, viewCount);
+      this.GG = this.xG.createBuffer({
         label: "GpuCulling.views",
-        size: this.$F * ViewByteSize,
+        size: this.IG * ViewByteSize,
         usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
       });
-      this.DG = new Float32Array(this.$F * ViewWordSize);
-      this.EG = new Float32Array(this.$F * ViewWordSize);
-      this.lG.cull.bindGroup = void 0;
+      this.kH = new Float32Array(this.IG * ViewWordSize);
+      this.lH = new Float32Array(this.IG * ViewWordSize);
+      this.UG.cull.bindGroup = void 0;
       resized = true;
     }
-    const data = this.DG;
+    const data = this.kH;
     for (let v = 0; v < viewCount; v++) {
       const camera = views[v].camera;
       const base = v * ViewWordSize;
@@ -937,7 +937,7 @@ var WebGpuGpuCulling = class {
       }
     }
     const usedLength = viewCount * ViewWordSize;
-    const uploaded = this.EG;
+    const uploaded = this.lH;
     let changed = resized;
     if (!changed) {
       for (let i = 0; i < usedLength; i++) {
@@ -948,7 +948,7 @@ var WebGpuGpuCulling = class {
       }
     }
     if (changed) {
-      this.QF.queue.writeBuffer(this.ZF, 0, data, 0, usedLength);
+      this.xG.queue.writeBuffer(this.GG, 0, data, 0, usedLength);
       uploaded.set(data.subarray(0, usedLength));
     }
     return changed;

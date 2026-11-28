@@ -3,36 +3,36 @@ var MAX_TIMESTAMPS = 512;
 var MAX_READBACK_BUFFERS = 8;
 var WebGpuGpuTimer = class {
   constructor(device) {
-    this.VG = [];
-    this.ZG = 0;
+    this.CH = [];
+    this.GH = 0;
     /** Timestamps written by passes recorded into the current command encoder. */
-    this.TG = 0;
+    this.AH = 0;
     /** The labels of the passes recorded into the current command encoder, one per pass. */
-    this.XG = [];
-    this._G = [];
-    this.QF = device;
+    this.EH = [];
+    this.HH = [];
+    this.xG = device;
   }
   /** Whether the device supports timestamp queries. */
   get isSupported() {
-    return this.QF.features.has("timestamp-query");
+    return this.xG.features.has("timestamp-query");
   }
   /** The GPU time of the latest measured frame in milliseconds, or undefined if none is available yet. */
   get lastGpuTimeMilliseconds() {
-    return this.XC;
+    return this.AD;
   }
   /**
    * The GPU time of each pass of the latest measured frame in milliseconds, keyed by the pass label.
    * Undefined until a complete frame is available.
    */
   get lastPassGpuTimesMilliseconds() {
-    return this.YG;
+    return this.FH;
   }
   /** Starts measuring the render and compute passes begun from now on. */
   beginFrame() {
     if (!this.isSupported) {
       return;
     }
-    this.WG = {
+    this.DH = {
       sumNanoseconds: 0,
       passNanoseconds: /* @__PURE__ */ new Map(),
       pendingReadbacks: 0,
@@ -42,13 +42,13 @@ var WebGpuGpuTimer = class {
   }
   /** Stops measuring. The frame's time is published once all of its timestamps have been read back. */
   endFrame() {
-    const frame = this.WG;
+    const frame = this.DH;
     if (frame == null) {
       return;
     }
     frame.ended = true;
-    this.WG = void 0;
-    this.$G(frame);
+    this.DH = void 0;
+    this.IH(frame);
   }
   /**
    * Returns the timestamp writes to set on a render or compute pass descriptor, or undefined when the
@@ -58,31 +58,31 @@ var WebGpuGpuTimer = class {
    *   {@link WebGpuGpuTimer.lastPassGpuTimesMilliseconds}. Passes with the same label are summed.
    */
   getTimestampWrites(label) {
-    const frame = this.WG;
+    const frame = this.DH;
     if (frame == null) {
       return void 0;
     }
-    if (this.UG != null && this.UG !== frame) {
+    if (this.BH != null && this.BH !== frame) {
       frame.isComplete = false;
       return void 0;
     }
-    if (this.TG + 2 > MAX_TIMESTAMPS) {
+    if (this.AH + 2 > MAX_TIMESTAMPS) {
       frame.isComplete = false;
       return void 0;
     }
-    if (this.RG == null) {
-      this.RG = this.QF.createQuerySet({ type: "timestamp", count: MAX_TIMESTAMPS });
-      this.SG = this.QF.createBuffer({
+    if (this.yH == null) {
+      this.yH = this.xG.createQuerySet({ type: "timestamp", count: MAX_TIMESTAMPS });
+      this.zH = this.xG.createBuffer({
         size: MAX_TIMESTAMPS * 8,
         usage: GPUBufferUsage.QUERY_RESOLVE | GPUBufferUsage.COPY_SRC
       });
     }
-    const index = this.TG;
-    this.TG += 2;
-    this.XG.push(label);
-    this.UG = frame;
+    const index = this.AH;
+    this.AH += 2;
+    this.EH.push(label);
+    this.BH = frame;
     return {
-      querySet: this.RG,
+      querySet: this.yH,
       beginningOfPassWriteIndex: index,
       endOfPassWriteIndex: index + 1
     };
@@ -92,41 +92,41 @@ var WebGpuGpuTimer = class {
    * Call this before finishing the encoder, and call afterSubmit() after submitting it.
    */
   encodeResolve(encoder) {
-    const timestampCount = this.TG;
-    const labels = this.XG;
-    const frame = this.UG;
-    this.TG = 0;
-    this.XG = [];
-    this.UG = void 0;
+    const timestampCount = this.AH;
+    const labels = this.EH;
+    const frame = this.BH;
+    this.AH = 0;
+    this.EH = [];
+    this.BH = void 0;
     if (timestampCount === 0 || frame == null) {
       return;
     }
-    let buffer = this.VG.pop();
+    let buffer = this.CH.pop();
     if (buffer == null) {
-      if (this.ZG >= MAX_READBACK_BUFFERS) {
+      if (this.GH >= MAX_READBACK_BUFFERS) {
         frame.isComplete = false;
         return;
       }
-      buffer = this.QF.createBuffer({
+      buffer = this.xG.createBuffer({
         size: MAX_TIMESTAMPS * 8,
         usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ
       });
-      this.ZG++;
+      this.GH++;
     }
-    encoder.resolveQuerySet(this.RG, 0, timestampCount, this.SG, 0);
-    encoder.copyBufferToBuffer(this.SG, 0, buffer, 0, timestampCount * 8);
+    encoder.resolveQuerySet(this.yH, 0, timestampCount, this.zH, 0);
+    encoder.copyBufferToBuffer(this.zH, 0, buffer, 0, timestampCount * 8);
     frame.pendingReadbacks++;
-    this._G.push({ buffer, timestampCount, labels, frame });
+    this.HH.push({ buffer, timestampCount, labels, frame });
   }
   /** Starts reading back the timestamps resolved by the encoder that has just been submitted. */
   afterSubmit() {
-    const readbacks = this._G;
+    const readbacks = this.HH;
     for (let i = 0; i < readbacks.length; i++) {
-      this.aH(readbacks[i]);
+      this.JH(readbacks[i]);
     }
     readbacks.length = 0;
   }
-  aH(readback) {
+  JH(readback) {
     const { buffer, timestampCount, labels, frame } = readback;
     const byteLength = timestampCount * 8;
     buffer.mapAsync(GPUMapMode.READ, 0, byteLength).then(() => {
@@ -143,36 +143,36 @@ var WebGpuGpuTimer = class {
         }
       }
       buffer.unmap();
-      this.VG.push(buffer);
+      this.CH.push(buffer);
     }).catch(() => {
       frame.isComplete = false;
     }).finally(() => {
       frame.pendingReadbacks--;
-      this.$G(frame);
+      this.IH(frame);
     });
   }
-  $G(frame) {
+  IH(frame) {
     if (frame.ended && frame.pendingReadbacks === 0 && frame.isComplete) {
-      this.XC = frame.sumNanoseconds / 1e6;
+      this.AD = frame.sumNanoseconds / 1e6;
       const passTimes = /* @__PURE__ */ new Map();
       for (const [label, nanoseconds] of frame.passNanoseconds) {
         passTimes.set(label, nanoseconds / 1e6);
       }
-      this.YG = passTimes;
+      this.FH = passTimes;
     }
   }
   /** Destroys the GPU resources. The timer must not be used afterwards. */
   destroy() {
     var _a, _b;
-    (_a = this.RG) == null ? void 0 : _a.destroy();
-    (_b = this.SG) == null ? void 0 : _b.destroy();
-    for (const buffer of this.VG) {
+    (_a = this.yH) == null ? void 0 : _a.destroy();
+    (_b = this.zH) == null ? void 0 : _b.destroy();
+    for (const buffer of this.CH) {
       buffer.destroy();
     }
-    this.VG.length = 0;
-    this.RG = void 0;
-    this.SG = void 0;
-    this.YG = void 0;
+    this.CH.length = 0;
+    this.yH = void 0;
+    this.zH = void 0;
+    this.FH = void 0;
   }
 };
 export {

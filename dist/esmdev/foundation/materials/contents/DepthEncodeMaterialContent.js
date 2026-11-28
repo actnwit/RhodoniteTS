@@ -30,9 +30,9 @@ var DepthEncodeMaterialContent = class extends AbstractMaterialContent {
       engine
     );
     /** Cached value of the last z-near plane to avoid unnecessary uniform updates */
-    this.br = 0;
+    this.jr = 0;
     /** Cached value of the last z-far plane to avoid unnecessary uniform updates */
-    this.cr = 0;
+    this.kr = 0;
     const shaderSemanticsInfoArray = [
       {
         semantic: "zNearInner",

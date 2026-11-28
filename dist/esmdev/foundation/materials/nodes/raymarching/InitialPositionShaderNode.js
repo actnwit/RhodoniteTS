@@ -20,7 +20,7 @@ var InitialPositionShaderNode = class extends AbstractShaderNode {
       codeWGSL: InitialPositionShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.Cr.push(
+    this.Kr.push(
       new Socket("outPosition", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 0))
     );
   }

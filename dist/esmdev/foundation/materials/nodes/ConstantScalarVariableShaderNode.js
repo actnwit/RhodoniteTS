@@ -17,7 +17,7 @@ var ConstantScalarVariableShaderNode = class extends ConstantVariableShaderNode 
    * @param value - The scalar value to set as the constant input value
    */
   setDefaultInputValue(value) {
-    this.Ar.setConstantValue(value);
+    this.Ir.setConstantValue(value);
   }
 };
 export {

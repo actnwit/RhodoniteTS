@@ -21,7 +21,7 @@ var AttributeTangentShaderNode = class extends AbstractShaderNode {
       codeWGSL: AttributeTangentShaderityObjectWGSL.code
     });
     this.setShaderStage("Vertex");
-    this.Cr.push({
+    this.Kr.push({
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       name: "outValue"

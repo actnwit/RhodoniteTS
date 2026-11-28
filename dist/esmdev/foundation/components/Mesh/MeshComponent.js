@@ -15,7 +15,7 @@ import { WellKnownComponentTIDs } from "../WellKnownComponentTIDs.js";
 var _MeshComponent = class _MeshComponent extends Component {
   constructor() {
     super(...arguments);
-    this.Od = -Number.MAX_VALUE;
+    this.Sd = -Number.MAX_VALUE;
     this.isPickable = true;
   }
   /**
@@ -38,13 +38,13 @@ var _MeshComponent = class _MeshComponent extends Component {
    */
   setMesh(mesh) {
     var _a;
-    if (this.Nd === mesh) {
+    if (this.Rd === mesh) {
       return;
     }
-    if (this.Nd) {
-      this.Nd._removeMeshComponent(this);
+    if (this.Rd) {
+      this.Rd._removeMeshComponent(this);
     }
-    this.Nd = mesh;
+    this.Rd = mesh;
     mesh._belongToMeshComponent(this);
     (_a = this.entity.tryToGetSceneGraph()) == null ? void 0 : _a.setWorldAABBDirtyParentRecursively();
   }
@@ -54,11 +54,11 @@ var _MeshComponent = class _MeshComponent extends Component {
    */
   unsetMesh() {
     var _a;
-    if (this.Nd == null) {
+    if (this.Rd == null) {
       return false;
     }
-    this.Nd._removeMeshComponent(this);
-    this.Nd = void 0;
+    this.Rd._removeMeshComponent(this);
+    this.Rd = void 0;
     (_a = this.entity.tryToGetSceneGraph()) == null ? void 0 : _a.setWorldAABBDirtyParentRecursively();
     return true;
   }
@@ -67,7 +67,7 @@ var _MeshComponent = class _MeshComponent extends Component {
    * @returns The mesh instance, or undefined if no mesh is set
    */
   get mesh() {
-    return this.Nd;
+    return this.Rd;
   }
   /**
    * Calculates the view depth of the mesh center from the given camera's perspective.
@@ -76,30 +76,30 @@ var _MeshComponent = class _MeshComponent extends Component {
    * @returns The depth value in view space (negative Z value), or Number.MAX_VALUE if no mesh is set
    */
   calcViewDepth(cameraComponent) {
-    if (Is.not.exist(this.Nd)) {
+    if (Is.not.exist(this.Rd)) {
       return Number.MAX_VALUE;
     }
-    const centerPosition_inLocal = this.Nd.AABB.centerPoint;
+    const centerPosition_inLocal = this.Rd.AABB.centerPoint;
     const skeletal = this.entity.tryToGetSkeletal();
     if (Is.exist(skeletal) && Is.exist(skeletal._bindShapeMatrix)) {
-      skeletal._bindShapeMatrix.multiplyVector3To(this.Nd.AABB.centerPoint, centerPosition_inLocal);
+      skeletal._bindShapeMatrix.multiplyVector3To(this.Rd.AABB.centerPoint, centerPosition_inLocal);
     }
     const worldMatrixInner = this.entity.getSceneGraph().matrixInner;
     const centerPosition_inWorld = worldMatrixInner.multiplyVector3To(
       centerPosition_inLocal,
-      _MeshComponent.Dc
+      _MeshComponent.Hc
     );
     const viewMatrix = cameraComponent.viewMatrix;
-    const centerPosition_inView = viewMatrix.multiplyVector3To(centerPosition_inWorld, _MeshComponent.Ac);
-    this.Od = centerPosition_inView.z;
-    return this.Od;
+    const centerPosition_inView = viewMatrix.multiplyVector3To(centerPosition_inWorld, _MeshComponent.Dc);
+    this.Sd = centerPosition_inView.z;
+    return this.Sd;
   }
   /**
    * Gets the cached view depth value.
    * @returns The current view depth value
    */
   get viewDepth() {
-    return this.Od;
+    return this.Sd;
   }
   /**
    * Logs a debug message when no mesh is set on a MeshComponent.
@@ -116,7 +116,7 @@ var _MeshComponent = class _MeshComponent extends Component {
    * @returns Ray casting result with intersection information
    */
   castRay(srcPointInWorld, directionInWorld, dotThreshold = 0) {
-    if (this.Nd) {
+    if (this.Rd) {
       let srcPointInLocal = srcPointInWorld;
       let directionInLocal = directionInWorld;
       const sceneGraphComponent = this.entity.tryToGetSceneGraph();
@@ -130,7 +130,7 @@ var _MeshComponent = class _MeshComponent extends Component {
           invWorldMatrix.multiplyVector(Vector4.fromCopyVector3(distVecInWorld))
         );
         directionInLocal = Vector3.normalize(Vector3.subtract(distVecInLocal, srcPointInLocal));
-        const result = this.Nd.castRay(srcPointInLocal, directionInLocal, dotThreshold);
+        const result = this.Rd.castRay(srcPointInLocal, directionInLocal, dotThreshold);
         let intersectPositionInWorld = null;
         if (Is.defined(result.data) && result.data.t >= 0) {
           intersectPositionInWorld = Vector3.fromCopyVector4(
@@ -162,22 +162,22 @@ var _MeshComponent = class _MeshComponent extends Component {
    * @returns Ray casting result with intersection information in local space
    */
   castRayFromScreenInLocal(x, y, camera, viewport, dotThreshold = 0) {
-    if (this.Nd) {
+    if (this.Rd) {
       const sceneGraphComponent = this.entity.tryToGetSceneGraph();
       if (sceneGraphComponent != null) {
         const invPVW = MutableMatrix44.multiplyTo(
           camera.projectionMatrix,
           camera.viewMatrix,
-          _MeshComponent.yc
+          _MeshComponent.zc
         ).multiply(sceneGraphComponent.matrixInner).invert();
-        const srcPointInLocal = MathClassUtil.unProjectTo(x, y, 0, invPVW, viewport, _MeshComponent.Dc);
-        const distVecInLocal = MathClassUtil.unProjectTo(x, y, 1, invPVW, viewport, _MeshComponent.Ac);
+        const srcPointInLocal = MathClassUtil.unProjectTo(x, y, 0, invPVW, viewport, _MeshComponent.Hc);
+        const distVecInLocal = MathClassUtil.unProjectTo(x, y, 1, invPVW, viewport, _MeshComponent.Dc);
         const directionInLocal = MutableVector3.subtractTo(
           distVecInLocal,
           srcPointInLocal,
-          _MeshComponent.Bc
+          _MeshComponent.Ec
         ).normalize();
-        const result = this.Nd.castRay(srcPointInLocal, directionInLocal, dotThreshold);
+        const result = this.Rd.castRay(srcPointInLocal, directionInLocal, dotThreshold);
         if (Is.defined(result.data) && result.data.t >= 0) {
           return {
             result: true,
@@ -207,11 +207,11 @@ var _MeshComponent = class _MeshComponent extends Component {
   castRayFromScreenInWorld(x, y, camera, viewport, dotThreshold = 0) {
     const result = this.castRayFromScreenInLocal(x, y, camera, viewport, dotThreshold);
     const sceneGraphComponent = this.entity.tryToGetSceneGraph();
-    if (this.Nd && sceneGraphComponent != null && result.result) {
+    if (this.Rd && sceneGraphComponent != null && result.result) {
       assertExist(result.data);
       const intersectedPositionInWorld = sceneGraphComponent.matrixInner.multiplyVector3To(
         result.data.position,
-        _MeshComponent.Pd
+        _MeshComponent.Td
       );
       return {
         result: true,
@@ -231,14 +231,14 @@ var _MeshComponent = class _MeshComponent extends Component {
    * if blend shapes are present, then moves to the Logic processing stage.
    */
   $load() {
-    if (this.Nd == null) {
+    if (this.Rd == null) {
       return;
     }
-    this.Nd._calcTangents();
-    this.Nd._calcFaceNormalsIfNonNormal();
+    this.Rd._calcTangents();
+    this.Rd._calcFaceNormalsIfNonNormal();
     const blendShapeComponent = this.entity.tryToGetBlendShape();
     if (blendShapeComponent != null && blendShapeComponent.weights.length > 0) {
-      this.Nd._calcBaryCentricCoord();
+      this.Rd._calcBaryCentricCoord();
     }
     this.moveStageTo(ProcessStage.Logic);
   }
@@ -247,10 +247,10 @@ var _MeshComponent = class _MeshComponent extends Component {
    * This is called internally when vertex data needs to be refreshed.
    * @private
    */
-  Qd() {
-    if (this.Nd != null) {
-      this.Nd.delete3DAPIVertexData();
-      this.Nd._updateVBOAndVAO();
+  Ud() {
+    if (this.Rd != null) {
+      this.Rd.delete3DAPIVertexData();
+      this.Rd._updateVBOAndVAO();
     }
   }
   /**
@@ -259,13 +259,13 @@ var _MeshComponent = class _MeshComponent extends Component {
    * the 3D API vertex data afterwards.
    */
   calcBaryCentricCoord() {
-    if (this.Nd != null) {
-      for (const primitive of this.Nd.primitives) {
+    if (this.Rd != null) {
+      for (const primitive of this.Rd.primitives) {
         primitive.convertToUnindexedGeometry();
       }
-      this.Nd._calcBaryCentricCoord();
+      this.Rd._calcBaryCentricCoord();
     }
-    this.Qd();
+    this.Ud();
   }
   /**
    * Logic processing stage method. Currently empty but can be overridden
@@ -280,9 +280,9 @@ var _MeshComponent = class _MeshComponent extends Component {
    */
   _shallowCopyFrom(component_) {
     const component = component_;
-    this.Od = component.Od;
-    if (Is.exist(component.Nd)) {
-      this.setMesh(component.Nd);
+    this.Sd = component.Sd;
+    if (Is.exist(component.Rd)) {
+      this.setMesh(component.Rd);
     }
     this.isPickable = component.isPickable;
   }
@@ -293,15 +293,15 @@ var _MeshComponent = class _MeshComponent extends Component {
    */
   _destroy() {
     super._destroy();
-    if (this.Nd) {
-      const mesh = this.Nd;
+    if (this.Rd) {
+      const mesh = this.Rd;
       mesh._removeMeshComponent(this);
       const isShared = mesh.meshEntitiesInner.length > 0;
       if (!isShared) {
         mesh.delete3DAPIVertexData();
         mesh.deleteVAO();
       }
-      this.Nd = void 0;
+      this.Rd = void 0;
     }
   }
   /**
@@ -330,12 +330,12 @@ var _MeshComponent = class _MeshComponent extends Component {
     return base;
   }
 };
+_MeshComponent.Hc = MutableVector3.zero();
 _MeshComponent.Dc = MutableVector3.zero();
-_MeshComponent.Ac = MutableVector3.zero();
-_MeshComponent.Bc = MutableVector3.zero();
-_MeshComponent.Pd = MutableVector3.zero();
-_MeshComponent.yc = MutableMatrix44.zero();
-_MeshComponent.Rd = 0;
+_MeshComponent.Ec = MutableVector3.zero();
+_MeshComponent.Td = MutableVector3.zero();
+_MeshComponent.zc = MutableMatrix44.zero();
+_MeshComponent.Vd = 0;
 var MeshComponent = _MeshComponent;
 export {
   MeshComponent

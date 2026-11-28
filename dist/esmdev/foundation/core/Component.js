@@ -21,15 +21,15 @@ var _Component = class _Component extends RnObject {
   constructor(engine, entityUid, componentSid, entityRepository, isReUse) {
     super();
     this._isAlive = true;
-    this.Rh = false;
-    this.vi = ProcessStage.Load;
+    this.Mh = false;
+    this.Ci = ProcessStage.Load;
     this.c = engine;
     this.Qb = entityUid;
     this._component_sid = componentSid;
-    this.wi = engine.memoryManager;
-    this.Se = entityRepository;
+    this.Di = engine.memoryManager;
+    this.We = entityRepository;
     if (isReUse) {
-      this.Rh = true;
+      this.Mh = true;
     }
   }
   /**
@@ -39,7 +39,7 @@ var _Component = class _Component extends RnObject {
    * @param processStage - The target stage to move to
    */
   moveStageTo(processStage) {
-    this.vi = processStage;
+    this.Ci = processStage;
   }
   /**
    * Gets the Type ID of the Component class.
@@ -83,7 +83,7 @@ var _Component = class _Component extends RnObject {
    * @returns The current process stage
    */
   get currentProcessStage() {
-    return this.vi;
+    return this.Ci;
   }
   /**
    * Checks whether the specified ProcessStage method exists in the given Component class.
@@ -133,7 +133,7 @@ var _Component = class _Component extends RnObject {
       if (component == null) {
         continue;
       }
-      if (processStage === component.vi) {
+      if (processStage === component.Ci) {
         component[methodName]();
       }
     }
@@ -174,7 +174,7 @@ var _Component = class _Component extends RnObject {
    * @param componentCountPerBufferView - The number of components per buffer view
    * @returns null on success
    */
-  xi(memberName, dataClassType, initValues, _isReUse, componentSid, componentCountPerBufferView) {
+  Ei(memberName, dataClassType, initValues, _isReUse, componentSid, componentCountPerBufferView) {
     const current = this[`_${memberName}`];
     if (current != null && !current.isDummy()) {
       return;
@@ -204,7 +204,7 @@ var _Component = class _Component extends RnObject {
    * @param info - The member info of the variable-length array member
    * @param componentSid - The component scoped ID
    */
-  yi(info, componentSid) {
+  Fi(info, componentSid) {
     var _a, _b, _c, _d;
     const memberName = info.memberName;
     const current = this[`_${memberName}`];
@@ -214,7 +214,7 @@ var _Component = class _Component extends RnObject {
     const componentClass = this.constructor;
     const registry = this._componentMemoryRegistry;
     const arrayLength = Math.max(
-      (_c = (_b = this._getArrayLengthForAllocation(memberName)) != null ? _b : (_a = _Component.ui.get(componentClass)) == null ? void 0 : _a.get(memberName)) != null ? _c : 1,
+      (_c = (_b = this._getArrayLengthForAllocation(memberName)) != null ? _b : (_a = _Component.Bi.get(componentClass)) == null ? void 0 : _a.get(memberName)) != null ? _c : 1,
       1
     );
     const elementCount = info.compositionType.getNumberOfComponents() * arrayLength;
@@ -224,7 +224,7 @@ var _Component = class _Component extends RnObject {
       if (chunk != null) {
         registry.releaseVariableLengthChunk(componentClass, memberName, chunk);
       }
-      chunk = (_d = registry.takeFreeVariableLengthChunk(componentClass, memberName, byteLength)) != null ? _d : _Component.zi(this.c, info.bufferUse, byteLength);
+      chunk = (_d = registry.takeFreeVariableLengthChunk(componentClass, memberName, byteLength)) != null ? _d : _Component.Gi(this.c, info.bufferUse, byteLength);
       registry.setVariableLengthChunk(componentClass, memberName, componentSid, chunk);
     }
     const bufferView = chunk.bufferView;
@@ -251,7 +251,7 @@ var _Component = class _Component extends RnObject {
    * @param byteLength - The byte length of the chunk
    * @returns The created chunk
    */
-  static zi(engine, bufferUse, byteLength) {
+  static Gi(engine, bufferUse, byteLength) {
     let bufferViewResult;
     let requireBufferLayerIndex = 0;
     do {
@@ -302,7 +302,7 @@ var _Component = class _Component extends RnObject {
    * @param arrayLength - The array length
    * @returns Result containing the accessor or an error
    */
-  static Ai(engine, bufferUse, memberName, componentClass, compositionType, componentType, indexOfTheBufferView, componentCountPerBufferView, arrayLength) {
+  static Hi(engine, bufferUse, memberName, componentClass, compositionType, componentType, indexOfTheBufferView, componentCountPerBufferView, arrayLength) {
     const registry = engine.componentMemoryRegistry;
     const bytes = calcAlignedByteLength();
     const existingAccessor = registry.getAccessor(componentClass, memberName, indexOfTheBufferView);
@@ -379,10 +379,10 @@ var _Component = class _Component extends RnObject {
     convertToBool,
     isVariableLength
   }) {
-    if (!_Component.ti.has(this)) {
-      _Component.ti.set(this, /* @__PURE__ */ new Map());
+    if (!_Component.Ai.has(this)) {
+      _Component.Ai.set(this, /* @__PURE__ */ new Map());
     }
-    const memberInfoArray = _Component.ti.get(this);
+    const memberInfoArray = _Component.Ai.get(this);
     if (isVariableLength === true) {
       if (compositionType !== CompositionType.Vec4Array && compositionType !== CompositionType.Mat4Array && compositionType !== CompositionType.Mat4x3Array) {
         throw new Error(`Variable-length member ${memberName} must be Vec4Array, Mat4Array or Mat4x3Array.`);
@@ -409,10 +409,10 @@ var _Component = class _Component extends RnObject {
       isVariableLength
     });
     if (arrayLength != null && componentSID != null) {
-      if (!_Component.ui.has(this)) {
-        _Component.ui.set(this, /* @__PURE__ */ new Map());
+      if (!_Component.Bi.has(this)) {
+        _Component.Bi.set(this, /* @__PURE__ */ new Map());
       }
-      const arrayLengthMap = _Component.ui.get(this);
+      const arrayLengthMap = _Component.Bi.get(this);
       const currentLength = arrayLengthMap.get(memberName);
       if (currentLength == null || arrayLength > currentLength) {
         arrayLengthMap.set(memberName, arrayLength);
@@ -431,7 +431,7 @@ var _Component = class _Component extends RnObject {
     const componentClass = this.constructor;
     const registry = this._componentMemoryRegistry;
     registry.setComponentCountPerBufferView(componentClass, componentCountPerBufferView);
-    const memberInfoArray = _Component.ti.get(componentClass);
+    const memberInfoArray = _Component.Ai.get(componentClass);
     const engine = this.c;
     const indexOfTheBufferView = Math.floor(this._component_sid / componentCountPerBufferView);
     if (this._component_sid % componentCountPerBufferView === 0 || hasMissingAccessor(indexOfTheBufferView)) {
@@ -441,7 +441,7 @@ var _Component = class _Component extends RnObject {
       if (info.isVariableLength === true) {
         return;
       }
-      this.xi(
+      this.Ei(
         info.memberName,
         info.dataClassType,
         info.initValues,
@@ -452,7 +452,7 @@ var _Component = class _Component extends RnObject {
     });
     memberInfoArray.forEach((info) => {
       if (info.isVariableLength === true) {
-        this.yi(info, this._component_sid);
+        this.Fi(info, this._component_sid);
       }
     });
     function hasMissingAccessor(indexOfTheBufferView2) {
@@ -469,8 +469,8 @@ var _Component = class _Component extends RnObject {
         if (info.isVariableLength === true) {
           return;
         }
-        const arrayLength = (_a = _Component.ui.get(componentClass)) == null ? void 0 : _a.get(info.memberName);
-        const accessorResult = _Component.Ai(
+        const arrayLength = (_a = _Component.Bi.get(componentClass)) == null ? void 0 : _a.get(info.memberName);
+        const accessorResult = _Component.Hi(
           engine,
           info.bufferUse,
           info.memberName,
@@ -512,7 +512,7 @@ var _Component = class _Component extends RnObject {
    * @returns The entity instance that owns this component
    */
   get entity() {
-    return this.Se.getEntity(this.Qb);
+    return this.We.getEntity(this.Qb);
   }
   /**
    * Gets the pixel location offset in the buffer for a specific member of a component type.
@@ -613,7 +613,7 @@ var _Component = class _Component extends RnObject {
    * @returns The CompositionType of the member or undefined if not found
    */
   static getCompositionTypeOfMember(_engine, memberName, componentClass) {
-    const memberInfoArray = _Component.ti.get(componentClass);
+    const memberInfoArray = _Component.Ai.get(componentClass);
     const info = memberInfoArray.get(memberName);
     if (info != null) {
       return info.compositionType;
@@ -629,7 +629,7 @@ var _Component = class _Component extends RnObject {
    * @returns The ComponentType of the member or undefined if not found
    */
   static getComponentTypeOfMember(_engine, memberName, componentClass) {
-    const memberInfoArray = _Component.ti.get(componentClass);
+    const memberInfoArray = _Component.Ai.get(componentClass);
     const info = memberInfoArray.get(memberName);
     if (info != null) {
       return info.componentType;
@@ -643,7 +643,7 @@ var _Component = class _Component extends RnObject {
    * @returns The member info of the component
    */
   static getMemberInfo(_engine) {
-    return new Map(_Component.ti);
+    return new Map(_Component.Ai);
   }
   /**
    * Gets the number of components per buffer view for the component.
@@ -657,7 +657,7 @@ var _Component = class _Component extends RnObject {
    * @returns The array length map of the component
    */
   static getArrayLengthOfMember(_engine) {
-    return new Map(_Component.ui);
+    return new Map(_Component.Bi);
   }
   /**
    * Marks this component as destroyed and no longer alive.
@@ -691,12 +691,12 @@ var _Component = class _Component extends RnObject {
  * Stores member metadata for each component class.
  * This is class-level static data that doesn't depend on Engine instances.
  */
-_Component.ti = /* @__PURE__ */ new Map();
+_Component.Ai = /* @__PURE__ */ new Map();
 /**
  * Stores array length information for each component class member.
  * This is class-level static data that doesn't depend on Engine instances.
  */
-_Component.ui = /* @__PURE__ */ new Map();
+_Component.Bi = /* @__PURE__ */ new Map();
 _Component._processStages = [
   // ProcessStage.Create,
   ProcessStage.Load,

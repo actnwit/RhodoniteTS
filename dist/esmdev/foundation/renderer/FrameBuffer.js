@@ -9,11 +9,11 @@ import { CGAPIResourceRepository } from "./CGAPIResourceRepository.js";
 var FrameBuffer = class extends RnObject {
   constructor(engine) {
     super();
-    this.px = [];
+    this.xx = [];
     this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.width = 0;
     this.height = 0;
-    this.rx = /* @__PURE__ */ new Map();
+    this.zx = /* @__PURE__ */ new Map();
     this.c = engine;
   }
   /**
@@ -21,35 +21,35 @@ var FrameBuffer = class extends RnObject {
    * @returns Array of render buffer target enums for color attachments
    */
   get colorAttachmentsRenderBufferTargets() {
-    return Array.from(this.rx.keys());
+    return Array.from(this.zx.keys());
   }
   /**
    * Gets all color attachments as an array of renderable objects.
    * @returns Array of color attachment renderables
    */
   get colorAttachments() {
-    return this.px;
+    return this.xx;
   }
   /**
    * Gets the depth attachment if one is set.
    * @returns The depth attachment renderable or undefined
    */
   get depthAttachment() {
-    return this.qx;
+    return this.yx;
   }
   /**
    * Gets the stencil attachment if one is set.
    * @returns The stencil attachment renderable or undefined
    */
   get stencilAttachment() {
-    return this.sx;
+    return this.Ax;
   }
   /**
    * Gets the depth-stencil attachment if one is set.
    * @returns The depth-stencil attachment renderable or undefined
    */
   get depthStencilAttachment() {
-    return this.tx;
+    return this.Bx;
   }
   /**
    * Gets the render target texture attached to the specified color attachment index.
@@ -57,18 +57,18 @@ var FrameBuffer = class extends RnObject {
    * @returns The render target texture or undefined if not found or not a render target texture
    */
   getColorAttachedRenderTargetTexture(index) {
-    if (this.px[index] == null || !(this.px[index] instanceof RenderTargetTexture || this.px[index] instanceof RenderTargetTexture2DArray || this.px[index] instanceof RenderTargetTextureCube)) {
+    if (this.xx[index] == null || !(this.xx[index] instanceof RenderTargetTexture || this.xx[index] instanceof RenderTargetTexture2DArray || this.xx[index] instanceof RenderTargetTextureCube)) {
       return void 0;
     }
-    return this.px[index];
+    return this.xx[index];
   }
   /**
    * Gets the render target texture attached as the depth attachment.
    * @returns The depth render target texture or undefined if not found or not a render target texture
    */
   getDepthAttachedRenderTargetTexture() {
-    if (this.qx instanceof RenderTargetTexture || this.qx instanceof RenderTargetTexture2DArray || this.qx instanceof RenderTargetTextureCube) {
-      return this.qx;
+    if (this.yx instanceof RenderTargetTexture || this.yx instanceof RenderTargetTexture2DArray || this.yx instanceof RenderTargetTextureCube) {
+      return this.yx;
     }
     return void 0;
   }
@@ -102,10 +102,10 @@ var FrameBuffer = class extends RnObject {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
     }
-    this.px[index] = renderable;
+    this.xx[index] = renderable;
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
     cgApiResourceRepository.attachColorBufferToFrameBufferObject(this, index, renderable);
-    this.rx.set(RenderBufferTarget.from(index), renderable);
+    this.zx.set(RenderBufferTarget.from(index), renderable);
     return true;
   }
   /**
@@ -120,7 +120,7 @@ var FrameBuffer = class extends RnObject {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
     }
-    this.px[index] = renderable;
+    this.xx[index] = renderable;
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
     if (this.c.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (renderable instanceof RenderTargetTexture2DArray) {
@@ -129,7 +129,7 @@ var FrameBuffer = class extends RnObject {
     } else {
       cgApiResourceRepository.attachColorBufferLayerToFrameBufferObject(this, index, renderable, layerIndex, mipLevel);
     }
-    this.rx.set(RenderBufferTarget.from(index), renderable);
+    this.zx.set(RenderBufferTarget.from(index), renderable);
     return true;
   }
   /**
@@ -144,7 +144,7 @@ var FrameBuffer = class extends RnObject {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
     }
-    this.px[attachmentIndex] = renderable;
+    this.xx[attachmentIndex] = renderable;
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
     cgApiResourceRepository.attachColorBufferCubeToFrameBufferObject(
       this,
@@ -154,7 +154,7 @@ var FrameBuffer = class extends RnObject {
       renderable
     );
     renderable.createCubeTextureViewAsRenderTarget(faceIndex, mipLevel);
-    this.rx.set(RenderBufferTarget.from(attachmentIndex), renderable);
+    this.zx.set(RenderBufferTarget.from(attachmentIndex), renderable);
     return true;
   }
   /**
@@ -166,7 +166,7 @@ var FrameBuffer = class extends RnObject {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
     }
-    this.qx = renderable;
+    this.yx = renderable;
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
     cgApiResourceRepository.attachDepthBufferToFrameBufferObject(this, renderable);
     return true;
@@ -180,7 +180,7 @@ var FrameBuffer = class extends RnObject {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
     }
-    this.sx = renderable;
+    this.Ax = renderable;
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
     cgApiResourceRepository.attachStencilBufferToFrameBufferObject(this, renderable);
     return true;
@@ -194,7 +194,7 @@ var FrameBuffer = class extends RnObject {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
     }
-    this.tx = renderable;
+    this.Bx = renderable;
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
     cgApiResourceRepository.attachDepthStencilBufferToFrameBufferObject(this, renderable);
     return true;
@@ -242,20 +242,20 @@ var FrameBuffer = class extends RnObject {
     this.height = 0;
     if (this.depthAttachment) {
       this.depthAttachment.destroy3DAPIResources();
-      this.qx = void 0;
+      this.yx = void 0;
     }
     if (this.depthStencilAttachment) {
       this.depthStencilAttachment.destroy3DAPIResources();
-      this.tx = void 0;
+      this.Bx = void 0;
     }
     if (this.stencilAttachment) {
       this.stencilAttachment.destroy3DAPIResources();
-      this.sx = void 0;
+      this.Ax = void 0;
     }
     for (const colorAttachment of this.colorAttachments) {
       colorAttachment.destroy3DAPIResources();
     }
-    this.rx = /* @__PURE__ */ new Map();
+    this.zx = /* @__PURE__ */ new Map();
   }
   /**
    * Finds the index of the specified renderable in the color attachments array.
@@ -263,7 +263,7 @@ var FrameBuffer = class extends RnObject {
    * @returns The index of the renderable in color attachments, or -1 if not found
    */
   whichColorAttachment(renderable) {
-    return this.px.indexOf(renderable);
+    return this.xx.indexOf(renderable);
   }
 };
 export {

@@ -22,32 +22,33 @@ import { Frame } from '../Frame';
  * @example
  * ```typescript
  * const expressions = [...];
- * const matrix = [...];
  *
  * // Create and setup the render pipeline
- * const forwardRenderPipeline = new Rn.ForwardRenderPipeline();
+ * const forwardRenderPipeline = new Rn.ForwardRenderPipeline(engine);
  * await forwardRenderPipeline.setup(1024, 1024, {isShadow: true, isBloom: true});
  *
  * // Configure expressions and IBL
  * forwardRenderPipeline.setExpressions(expressions);
  *
- * const diffuseCubeTexture = new Rn.CubeTexture();
- * diffuseCubeTexture.baseUriToLoad = './../../../assets/ibl/papermill/diffuse/diffuse';
- * diffuseCubeTexture.isNamePosNeg = true;
- * diffuseCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
- * diffuseCubeTexture.mipmapLevelNumber = 1;
+ * const diffuseCubeTexture = await Rn.CubeTexture.loadFromUrl(engine, {
+ *   baseUrl: './../../../assets/ibl/papermill/diffuse/diffuse',
+ *   mipmapLevelNumber: 1,
+ *   isNamePosNeg: true,
+ *   hdriFormat: Rn.HdriFormat.RGBE_PNG,
+ * });
  *
- * const specularCubeTexture = new Rn.CubeTexture();
- * specularCubeTexture.baseUriToLoad = './../../../assets/ibl/papermill/specular/specular';
- * specularCubeTexture.isNamePosNeg = true;
- * specularCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
- * specularCubeTexture.mipmapLevelNumber = 10;
+ * const specularCubeTexture = await Rn.CubeTexture.loadFromUrl(engine, {
+ *   baseUrl: './../../../assets/ibl/papermill/specular/specular',
+ *   mipmapLevelNumber: 10,
+ *   isNamePosNeg: true,
+ *   hdriFormat: Rn.HdriFormat.RGBE_PNG,
+ * });
  *
  * forwardRenderPipeline.setIBLTextures(diffuseCubeTexture, specularCubeTexture);
  *
  * // Start the render loop
  * forwardRenderPipeline.startRenderLoop((frame) => {
- *   Rn.Engine.process(frame);
+ *   engine.process(frame);
  * });
  * ```
  */
@@ -57,6 +58,8 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __isShadow;
     private __isBloom;
     private __isSimple;
+    private __isTemporalAA;
+    private __temporalAA?;
     private __shadowMapSize;
     private __frame?;
     private __frameBufferMultiView?;
@@ -132,6 +135,9 @@ export declare class ForwardRenderPipeline extends RnObject {
      * @param options.isBloom - Whether to enable bloom post-processing effect (default: false)
      * @param options.shadowMapSize - Size of the shadow map texture in pixels (default: 1024)
      * @param options.isSimple - Whether to use simplified rendering without post-processing (default: false)
+     * @param options.isTemporalAA - Whether to enable temporal anti-aliasing (default: false). It replaces the 4x MSAA
+     *   of the main render target: the camera projection is jittered by a sub-pixel offset every frame, and the frames
+     *   are accumulated with motion vectors. Ignored in the simple mode and for WebXR multi-view rendering.
      *
      * @returns A Result indicating success or failure of the setup operation
      *
@@ -155,10 +161,11 @@ export declare class ForwardRenderPipeline extends RnObject {
      * }
      * ```
      */
-    setup(canvasWidth: number, canvasHeight: number, { isShadow, isBloom, shadowMapSize, isSimple }?: {
+    setup(canvasWidth: number, canvasHeight: number, { isShadow, isBloom, shadowMapSize, isSimple, isTemporalAA }?: {
         isBloom?: boolean | undefined;
         isShadow?: boolean | undefined;
         isSimple?: boolean | undefined;
+        isTemporalAA?: boolean | undefined;
         shadowMapSize?: number | undefined;
     }): Promise<Err<unknown, undefined> | Ok<unknown, unknown>>;
     /**
@@ -185,6 +192,11 @@ export declare class ForwardRenderPipeline extends RnObject {
      * @internal
      */
     private __getMainFrameBuffer;
+    /**
+     * Whether temporal anti-aliasing is used: requested in setup, not in the simple mode, and not in WebXR mode
+     * (the eye cameras are not jittered, and stereo rendering keeps MSAA).
+     */
+    private __isTemporalAAActive;
     /**
      * Sets the expressions to be rendered by the pipeline.
      *
@@ -227,7 +239,7 @@ export declare class ForwardRenderPipeline extends RnObject {
      * ```typescript
      * const result = pipeline.startRenderLoop((frame) => {
      *   // Update scene
-     *   Rn.Engine.process(frame);
+     *   engine.process(frame);
      *
      *   // Custom per-frame logic
      *   updateAnimations();
@@ -235,7 +247,7 @@ export declare class ForwardRenderPipeline extends RnObject {
      * });
      *
      * if (result.isErr()) {
-     *   console.error('Failed to start render loop:', result.getErr());
+     *   console.error('Failed to start render loop:', result.getRnError());
      * }
      * ```
      */
@@ -254,6 +266,40 @@ export declare class ForwardRenderPipeline extends RnObject {
      * ```
      */
     draw(): void;
+    /**
+     * Whether temporal anti-aliasing is enabled (requested in setup and supported by the current render targets).
+     */
+    get isTemporalAA(): boolean;
+    /**
+     * Discards the accumulated history of temporal anti-aliasing, so that the next frame does not blend with the
+     * previous frames. Call it when the view changes discontinuously (e.g. a camera cut).
+     */
+    resetTemporalAAHistory(): void;
+    /**
+     * The weight of the current frame in the temporal anti-aliasing blend for pixels that move by a pixel per frame
+     * or more (0-1, default 0.1). Larger values react faster to changes and smooth less.
+     */
+    set temporalAACurrentFrameWeight(weight: number);
+    get temporalAACurrentFrameWeight(): number;
+    /**
+     * The weight of the current frame in the temporal anti-aliasing blend for pixels that do not move (0-1, default
+     * 0.04). Smaller values average more frames of the jitter sequence, which steadies the edges of still images;
+     * slower pixels interpolate between this weight and {@link ForwardRenderPipeline.temporalAACurrentFrameWeight}.
+     */
+    set temporalAAStaticFrameWeight(weight: number);
+    get temporalAAStaticFrameWeight(): number;
+    /**
+     * Sets the size of the variance clipping box of the temporal anti-aliasing history in standard deviations
+     * (default 1). A large value effectively disables the clipping, which makes wrong motion vectors visible as
+     * trails. For debugging.
+     *
+     * @internal
+     */
+    _setTemporalAAVarianceClipGamma(gamma: number): void;
+    /**
+     * Jitters the camera and keeps the previous frame state for temporal anti-aliasing. Runs before Engine.process.
+     */
+    private __prepareTemporalAAFrame;
     /**
      * Requests a refresh of the shadow map expressions on the next frame.
      * This is useful when materials with shadow support have been changed or added

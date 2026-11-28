@@ -8,33 +8,33 @@ var _RnObject = class _RnObject {
   constructor() {
     /// members
     /** Unique identifier for this object instance */
-    this.fj = _RnObject.currentMaxObjectCount++;
+    this.mj = _RnObject.currentMaxObjectCount++;
     /** Collection of tags associated with this object */
     this._tags = {};
     // Tag string allows alphabet, digit and underscore (_) only
     /** Combined string representation of all tags for efficient searching */
-    this.ij = "";
-    this.ej = `${this.constructor.name}__uid_${this.fj}`;
-    this.kj(this.ej);
+    this.pj = "";
+    this.lj = `${this.constructor.name}__uid_${this.mj}`;
+    this.rj(this.lj);
   }
   /**
    * Updates the internal object tracking information
    * @param uniqueName - The unique name to register for this object
    * @private
    */
-  kj(uniqueName) {
-    _RnObject.gj[this.fj] = uniqueName;
-    _RnObject.jj[this.fj] = new WeakRef(this);
-    _RnObject.hj.set(this.ej, new WeakRef(this));
+  rj(uniqueName) {
+    _RnObject.nj[this.mj] = uniqueName;
+    _RnObject.qj[this.mj] = new WeakRef(this);
+    _RnObject.oj.set(this.lj, new WeakRef(this));
   }
   /**
    * Unregisters this object from all tracking collections.
    * Should be called when the object is being destroyed.
    */
   unregister() {
-    delete _RnObject.jj[this.fj];
-    delete _RnObject.gj[this.fj];
-    _RnObject.hj.delete(this.ej);
+    delete _RnObject.qj[this.mj];
+    delete _RnObject.nj[this.mj];
+    _RnObject.oj.delete(this.lj);
   }
   /**
    * Searches for the first object that has a specific tag with the given value
@@ -44,7 +44,7 @@ var _RnObject = class _RnObject {
    */
   static searchByTag(tag, value) {
     var _a;
-    for (const obj of _RnObject.jj) {
+    for (const obj of _RnObject.qj) {
       if (((_a = obj.deref()) == null ? void 0 : _a.getTagValue(tag)) === value) {
         return obj;
       }
@@ -56,7 +56,7 @@ var _RnObject = class _RnObject {
    * @returns The object's UID
    */
   get objectUID() {
-    return this.fj;
+    return this.mj;
   }
   /**
    * Retrieves an RnObject instance by its unique identifier
@@ -65,7 +65,7 @@ var _RnObject = class _RnObject {
    */
   static getRnObject(objectUid) {
     var _a;
-    return (_a = _RnObject.jj[objectUid]) == null ? void 0 : _a.deref();
+    return (_a = _RnObject.qj[objectUid]) == null ? void 0 : _a.deref();
   }
   /**
    * Retrieves an RnObject instance by its unique name
@@ -74,7 +74,7 @@ var _RnObject = class _RnObject {
    */
   static getRnObjectByName(uniqueName) {
     var _a;
-    return (_a = _RnObject.hj.get(uniqueName)) == null ? void 0 : _a.deref();
+    return (_a = _RnObject.oj.get(uniqueName)) == null ? void 0 : _a.deref();
   }
   /**
    * Attempts to set a unique name for this object
@@ -83,22 +83,22 @@ var _RnObject = class _RnObject {
    * @returns True if the name was successfully set, false if there was a conflict and toAddNameIfConflict was false
    */
   tryToSetUniqueName(name, toAddNameIfConflict) {
-    if (_RnObject.gj.indexOf(name) !== -1) {
+    if (_RnObject.nj.indexOf(name) !== -1) {
       if (toAddNameIfConflict) {
-        const newName = `${name}_(${this.fj})`;
-        if (_RnObject.gj.indexOf(newName) === -1) {
-          _RnObject.hj.delete(this.ej);
-          this.ej = newName;
-          _RnObject.gj[this.fj] = this.ej;
-          _RnObject.hj.set(this.ej, new WeakRef(this));
+        const newName = `${name}_(${this.mj})`;
+        if (_RnObject.nj.indexOf(newName) === -1) {
+          _RnObject.oj.delete(this.lj);
+          this.lj = newName;
+          _RnObject.nj[this.mj] = this.lj;
+          _RnObject.oj.set(this.lj, new WeakRef(this));
           return true;
         }
       }
       return false;
     }
-    this.ej = name;
-    _RnObject.gj[this.fj] = this.ej;
-    _RnObject.hj.set(this.ej, new WeakRef(this));
+    this.lj = name;
+    _RnObject.nj[this.mj] = this.lj;
+    _RnObject.oj.set(this.lj, new WeakRef(this));
     return true;
   }
   /**
@@ -124,7 +124,7 @@ var _RnObject = class _RnObject {
         this.removeTag(tag.tag);
       }
       this._tags[tag.tag] = tag.value;
-      this.ij += `${tag.tag}:${tag.value} `;
+      this.pj += `${tag.tag}:${tag.value} `;
       return true;
     }
     return false;
@@ -166,7 +166,7 @@ var _RnObject = class _RnObject {
    */
   removeTag(tagName) {
     const strToDelete = `${tagName}:${this._tags[tagName]} `;
-    this.ij = this.ij.replace(strToDelete, "");
+    this.pj = this.pj.replace(strToDelete, "");
     delete this._tags[tagName];
   }
   /**
@@ -193,7 +193,7 @@ var _RnObject = class _RnObject {
       regExpStr += `(?=.*${stringArray[i]})`;
     }
     const reg = new RegExp(regExpStr);
-    if (reg.test(this.ij)) {
+    if (reg.test(this.pj)) {
       return true;
     }
     return false;
@@ -209,7 +209,7 @@ var _RnObject = class _RnObject {
       regExpStr += `(?=.*${[tagName]}:${tags[tagName]})`;
     }
     const reg = new RegExp(regExpStr);
-    if (reg.test(this.ij)) {
+    if (reg.test(this.pj)) {
       return true;
     }
     return false;
@@ -219,7 +219,7 @@ var _RnObject = class _RnObject {
    * @returns The unique name string
    */
   get uniqueName() {
-    return this.ej;
+    return this.lj;
   }
   /**
    * Resets all static object tracking data. Used primarily for testing.
@@ -227,9 +227,9 @@ var _RnObject = class _RnObject {
    */
   static _reset() {
     this.currentMaxObjectCount = 0;
-    this.gj = [];
-    this.hj = /* @__PURE__ */ new Map();
-    this.jj = [];
+    this.nj = [];
+    this.oj = /* @__PURE__ */ new Map();
+    this.qj = [];
   }
   /**
    * Copies tag data from another RnObject instance to this object
@@ -238,7 +238,7 @@ var _RnObject = class _RnObject {
    */
   _copyFrom(rnObject) {
     this._tags = deepCopyUsingJsonStringify(rnObject._tags);
-    this.ij = rnObject.ij;
+    this.pj = rnObject.pj;
   }
 };
 /// static members
@@ -247,11 +247,11 @@ _RnObject.InvalidObjectUID = -1;
 /** Current maximum object count for UID generation */
 _RnObject.currentMaxObjectCount = 0;
 /** Array storing all unique names */
-_RnObject.gj = [];
+_RnObject.nj = [];
 /** Map for quick object lookup by name */
-_RnObject.hj = /* @__PURE__ */ new Map();
+_RnObject.oj = /* @__PURE__ */ new Map();
 /** Array storing weak references to all objects */
-_RnObject.jj = [];
+_RnObject.qj = [];
 var RnObject = _RnObject;
 export {
   RnObject

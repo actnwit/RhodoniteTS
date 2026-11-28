@@ -12,7 +12,7 @@ var _MultiDrawGroup = class _MultiDrawGroup {
     this.totalVertexCount = 0;
     this.totalIndexCount = 0;
     this.version = 0;
-    this.uid = ++_MultiDrawGroup.fC;
+    this.uid = ++_MultiDrawGroup.KC;
     this.key = key;
     this.sourceBuffer = sourceBuffer;
     this.indexed = indexed;
@@ -20,7 +20,7 @@ var _MultiDrawGroup = class _MultiDrawGroup {
     this.attributes = attributes;
   }
 };
-_MultiDrawGroup.fC = 0;
+_MultiDrawGroup.KC = 0;
 var MultiDrawGroup = _MultiDrawGroup;
 var __bufferIds = /* @__PURE__ */ new WeakMap();
 var __bufferIdCount = 0;

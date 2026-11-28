@@ -68,27 +68,27 @@ var Gltf2Exporter = class {
     entities: void 0,
     type: GLTF2_EXPORT_GLB
   }) {
-    const { collectedEntities, topLevelEntities } = this.Rj(engine, option);
-    this.Gj.clear();
-    this.Ij.clear();
-    this.Jj.clear();
-    this.Kj.clear();
-    this.Lj.clear();
-    const { json, fileName } = this.Sj(filename);
-    this.Tj(json, collectedEntities);
-    this.Uj(json, collectedEntities, topLevelEntities);
-    await this.Vj(json, collectedEntities, option);
-    await this.Wj(json, option);
-    this.Xj(json, collectedEntities);
+    const { collectedEntities, topLevelEntities } = this.Yj(engine, option);
+    this.Nj.clear();
+    this.Pj.clear();
+    this.Qj.clear();
+    this.Rj.clear();
+    this.Sj.clear();
+    const { json, fileName } = this.Zj(filename);
+    this._j(json, collectedEntities);
+    this.$j(json, collectedEntities, topLevelEntities);
+    await this.ak(json, collectedEntities, option);
+    await this.bk(json, option);
+    this.ck(json, collectedEntities);
     createEffekseer(json, collectedEntities);
     __removeUnusedAccessorsAndBufferViews(json);
-    const arraybuffer = this.Yj(json);
+    const arraybuffer = this.dk(json);
     __deleteEmptyArrays(json);
     const glbArrayBuffer = generateGlbArrayBuffer(json, arraybuffer);
     if (option.type === GLTF2_EXPORT_GLB) {
-      this.Zj(json, fileName, glbArrayBuffer);
+      this.ek(json, fileName, glbArrayBuffer);
     } else if (option.type === GLTF2_EXPORT_GLTF) {
-      this._j(json, fileName, arraybuffer);
+      this.fk(json, fileName, arraybuffer);
     }
     return glbArrayBuffer;
   }
@@ -102,7 +102,7 @@ var Gltf2Exporter = class {
    * @param option - Export configuration options containing entity filters
    * @returns Object containing collected entities and top-level entities
    */
-  static Rj(engine, option) {
+  static Yj(engine, option) {
     const checkPassOrNotWithTags = (entity) => {
       if (Is.exist(option) && Is.exist(option.excludeTags)) {
         for (const tag of option.excludeTags) {
@@ -173,7 +173,7 @@ var Gltf2Exporter = class {
    * @param filename - Target output filename for generating URIs
    * @returns Object containing the initialized JSON structure and processed filename
    */
-  static Sj(filename) {
+  static Zj(filename) {
     const fileName = filename ? filename : `Rhodonite_${Date.now()}`;
     const json = {
       asset: {
@@ -213,7 +213,7 @@ var Gltf2Exporter = class {
    * @param json - The glTF2 JSON document to populate
    * @param entities - Array of entities to process for buffer creation
    */
-  static Tj(json, entities) {
+  static _j(json, entities) {
     const existingUniqueRnBuffers = [];
     const existingUniqueRnBufferViews = [];
     const existingUniqueRnAccessors = [];
@@ -232,9 +232,9 @@ var Gltf2Exporter = class {
       existingUniqueRnAccessors
     );
   }
-  static Xj(json, entities) {
+  static ck(json, entities) {
     const animationOptions = {
-      resolveAnimationTarget: ({ channel, trackName }) => this.$j(json, channel, trackName)
+      resolveAnimationTarget: ({ channel, trackName }) => this.gk(json, channel, trackName)
     };
     __createBufferViewsAndAccessorsOfAnimation(json, entities, animationOptions);
   }
@@ -249,7 +249,7 @@ var Gltf2Exporter = class {
    * @param entities - All entities to convert to nodes
    * @param topLevelEntities - Root-level entities for the scene
    */
-  static Uj(json, entities, topLevelEntities) {
+  static $j(json, entities, topLevelEntities) {
     json.nodes = [];
     json.scenes = [{ nodes: [] }];
     const scene = json.scenes[0];
@@ -300,7 +300,7 @@ var Gltf2Exporter = class {
         node.extensions.KHR_node_visibility = {
           visible: localVisible
         };
-        this.Fj(json, "KHR_node_visibility");
+        this.Mj(json, "KHR_node_visibility");
       }
       const transform = entity.getTransform();
       const normalizedQuaternion = Quaternion.normalize(transform.localRotationInner);
@@ -370,10 +370,10 @@ var Gltf2Exporter = class {
         }
         json.cameras.push(glTF2Camera);
         node.camera = json.cameras.length - 1;
-        this.Jj.set(cameraComponent, node.camera);
+        this.Qj.set(cameraComponent, node.camera);
       }
-      this.ak(json, entity, node);
-      this.bk(json, entity, node);
+      this.hk(json, entity, node);
+      this.ik(json, entity, node);
     }
     for (const nodeIndex of skinnedMeshNodeIndices) {
       const node = json.nodes[nodeIndex];
@@ -414,7 +414,7 @@ var Gltf2Exporter = class {
       }
     });
   }
-  static ak(json, entity, node) {
+  static hk(json, entity, node) {
     var _a, _b;
     const lightComponent = (_a = entity.tryToGetLight) == null ? void 0 : _a.call(entity);
     if (Is.not.exist(lightComponent) || lightComponent.enable !== true) {
@@ -475,11 +475,11 @@ var Gltf2Exporter = class {
       ...(_b = gltfLight.extras) != null ? _b : {},
       rhodonite: rhodoniteExtras
     };
-    const lightsExtension = this.ck(json);
+    const lightsExtension = this.jk(json);
     const lightIndex = lightsExtension.lights.length;
     lightsExtension.lights.push(gltfLight);
-    this.Ij.set(lightComponent, lightIndex);
-    this.Fj(json, "KHR_lights_punctual");
+    this.Pj.set(lightComponent, lightIndex);
+    this.Mj(json, "KHR_lights_punctual");
     if (Is.not.exist(node.extensions)) {
       node.extensions = {};
     }
@@ -487,7 +487,7 @@ var Gltf2Exporter = class {
       light: lightIndex
     };
   }
-  static ck(json) {
+  static jk(json) {
     if (Is.not.exist(json.extensions)) {
       json.extensions = {};
     }
@@ -508,7 +508,7 @@ var Gltf2Exporter = class {
    * @param entity - The entity to export
    * @param node - The glTF node of the entity
    */
-  static bk(json, entity, node) {
+  static ik(json, entity, node) {
     var _a, _b;
     const raymarchingComponent = (_a = entity.tryToGetRaymarching) == null ? void 0 : _a.call(entity);
     if (Is.not.exist(raymarchingComponent)) {
@@ -523,29 +523,29 @@ var Gltf2Exporter = class {
       isPickable: raymarchingComponent.isPickable,
       castShadow: raymarchingComponent.castShadow
     };
-    this.Fj(json, "RHODONITE_raymarching");
+    this.Mj(json, "RHODONITE_raymarching");
   }
-  static Fj(json, extensionName) {
+  static Mj(json, extensionName) {
     if (json.extensionsUsed.indexOf(extensionName) === -1) {
       json.extensionsUsed.push(extensionName);
     }
   }
-  static Mj(rnMaterial, materialIndex) {
+  static Tj(rnMaterial, materialIndex) {
     if (Is.not.exist(rnMaterial)) {
       return;
     }
-    let indices = this.Gj.get(rnMaterial);
+    let indices = this.Nj.get(rnMaterial);
     if (Is.not.exist(indices)) {
       indices = [];
-      this.Gj.set(rnMaterial, indices);
+      this.Nj.set(rnMaterial, indices);
     }
     indices.push(materialIndex);
   }
-  static Hj(trackName, pointer) {
-    let exportedPointers = this.Kj.get(trackName);
+  static Oj(trackName, pointer) {
+    let exportedPointers = this.Rj.get(trackName);
     if (Is.not.exist(exportedPointers)) {
       exportedPointers = /* @__PURE__ */ new Set();
-      this.Kj.set(trackName, exportedPointers);
+      this.Rj.set(trackName, exportedPointers);
     }
     if (exportedPointers.has(pointer)) {
       return false;
@@ -553,7 +553,7 @@ var Gltf2Exporter = class {
     exportedPointers.add(pointer);
     return true;
   }
-  static $j(json, channel, trackName) {
+  static gk(json, channel, trackName) {
     const pathName = channel.target.pathName;
     if (typeof pathName !== "string") {
       return void 0;
@@ -563,20 +563,20 @@ var Gltf2Exporter = class {
     }
     if (pathName.startsWith("material/")) {
       const semantic = pathName.substring("material/".length);
-      return this.dk(json, channel, semantic, trackName);
+      return this.kk(json, channel, semantic, trackName);
     }
     if (pathName.startsWith("light_")) {
-      return this.ek(json, channel, pathName, trackName);
+      return this.lk(json, channel, pathName, trackName);
     }
     if (pathName.startsWith("camera_")) {
-      return this.fk(json, channel, pathName, trackName);
+      return this.mk(json, channel, pathName, trackName);
     }
     if (pathName === "visibility") {
-      return this.gk(json, channel, trackName);
+      return this.nk(json, channel, trackName);
     }
     return void 0;
   }
-  static gk(json, channel, trackName) {
+  static nk(json, channel, trackName) {
     var _a;
     const nodeIndex = channel.target.entity.gltfNodeIndex;
     if (Is.not.exist(nodeIndex)) {
@@ -594,11 +594,11 @@ var Gltf2Exporter = class {
       visible: typeof localVisible === "boolean" ? localVisible : channel.target.entity.getSceneGraph().isVisible
     };
     const pointer = `/nodes/${nodeIndex}/extensions/KHR_node_visibility/visible`;
-    if (!this.Hj(trackName, pointer)) {
+    if (!this.Oj(trackName, pointer)) {
       return null;
     }
-    this.Fj(json, "KHR_animation_pointer");
-    this.Fj(json, "KHR_node_visibility");
+    this.Mj(json, "KHR_animation_pointer");
+    this.Mj(json, "KHR_node_visibility");
     return {
       path: "pointer",
       extensions: {
@@ -608,22 +608,22 @@ var Gltf2Exporter = class {
       }
     };
   }
-  static dk(json, channel, semantic, trackName) {
-    const indices = this.hk(semantic, channel.animatedValue);
+  static kk(json, channel, semantic, trackName) {
+    const indices = this.ok(semantic, channel.animatedValue);
     if (indices.length === 0) {
-      this.Nj(semantic, true);
+      this.Uj(semantic, true);
       return null;
     }
-    const pointerSuffix = this.ik(semantic);
+    const pointerSuffix = this.pk(semantic);
     if (Is.not.exist(pointerSuffix)) {
-      this.Nj(semantic, false);
+      this.Uj(semantic, false);
       return null;
     }
-    this.Fj(json, "KHR_animation_pointer");
+    this.Mj(json, "KHR_animation_pointer");
     const targets = [];
     for (const materialIndex of indices) {
       const pointer = `/materials/${materialIndex}${pointerSuffix}`;
-      if (!this.Hj(trackName, pointer)) {
+      if (!this.Oj(trackName, pointer)) {
         continue;
       }
       targets.push({
@@ -637,9 +637,9 @@ var Gltf2Exporter = class {
     }
     return targets.length > 0 ? targets : null;
   }
-  static hk(semantic, animatedValue) {
+  static ok(semantic, animatedValue) {
     const indices = [];
-    for (const [rnMaterial, gltfIndices] of this.Gj.entries()) {
+    for (const [rnMaterial, gltfIndices] of this.Nj.entries()) {
       const parameter = rnMaterial.getParameter(semantic);
       if (parameter === animatedValue) {
         indices.push(...gltfIndices);
@@ -647,13 +647,13 @@ var Gltf2Exporter = class {
     }
     return Array.from(new Set(indices));
   }
-  static ek(json, channel, pathName, trackName) {
+  static lk(json, channel, pathName, trackName) {
     var _a, _b;
     const lightComponent = (_b = (_a = channel.target.entity).tryToGetLight) == null ? void 0 : _b.call(_a);
     if (Is.not.exist(lightComponent)) {
       return null;
     }
-    const lightIndex = this.Ij.get(lightComponent);
+    const lightIndex = this.Pj.get(lightComponent);
     if (Is.not.exist(lightIndex)) {
       return null;
     }
@@ -662,10 +662,10 @@ var Gltf2Exporter = class {
       return null;
     }
     const pointer = `/extensions/KHR_lights_punctual/lights/${lightIndex}${suffix}`;
-    if (!this.Hj(trackName, pointer)) {
+    if (!this.Oj(trackName, pointer)) {
       return null;
     }
-    this.Fj(json, "KHR_animation_pointer");
+    this.Mj(json, "KHR_animation_pointer");
     return {
       path: "pointer",
       extensions: {
@@ -675,25 +675,25 @@ var Gltf2Exporter = class {
       }
     };
   }
-  static fk(json, channel, pathName, trackName) {
+  static mk(json, channel, pathName, trackName) {
     var _a, _b;
     const cameraComponent = (_b = (_a = channel.target.entity).tryToGetCamera) == null ? void 0 : _b.call(_a);
     if (Is.not.exist(cameraComponent)) {
       return null;
     }
-    const cameraIndex = this.Jj.get(cameraComponent);
+    const cameraIndex = this.Qj.get(cameraComponent);
     if (Is.not.exist(cameraIndex)) {
       return null;
     }
-    const suffix = this.jk(pathName, cameraComponent);
+    const suffix = this.qk(pathName, cameraComponent);
     if (Is.not.exist(suffix)) {
       return null;
     }
     const pointer = `/cameras/${cameraIndex}${suffix}`;
-    if (!this.Hj(trackName, pointer)) {
+    if (!this.Oj(trackName, pointer)) {
       return null;
     }
-    this.Fj(json, "KHR_animation_pointer");
+    this.Mj(json, "KHR_animation_pointer");
     return {
       path: "pointer",
       extensions: {
@@ -703,7 +703,7 @@ var Gltf2Exporter = class {
       }
     };
   }
-  static ik(semantic) {
+  static pk(semantic) {
     const direct = MATERIAL_POINTER_SUFFIX_MAP[semantic];
     if (Is.exist(direct)) {
       return direct;
@@ -721,18 +721,18 @@ var Gltf2Exporter = class {
     }
     return void 0;
   }
-  static Nj(semantic, missingMaterial) {
-    if (this.Lj.has(semantic)) {
+  static Uj(semantic, missingMaterial) {
+    if (this.Sj.has(semantic)) {
       return;
     }
-    this.Lj.add(semantic);
+    this.Sj.add(semantic);
     if (missingMaterial) {
       Logger.default.warn(`KHR_animation_pointer: No material parameter found for semantic "${semantic}".`);
     } else {
       Logger.default.warn(`KHR_animation_pointer: Unsupported material semantic "${semantic}". Animation skipped.`);
     }
   }
-  static jk(pathName, cameraComponent) {
+  static qk(pathName, cameraComponent) {
     const type = cameraComponent.type;
     switch (pathName) {
       case "camera_znear":
@@ -761,7 +761,7 @@ var Gltf2Exporter = class {
    * @param option - Export options affecting material processing
    * @returns Promise that resolves when all materials and textures are processed
    */
-  static async Vj(json, entities, option) {
+  static async ak(json, entities, option) {
     let countMesh = 0;
     const promises = [];
     const variantNameToIndex = /* @__PURE__ */ new Map();
@@ -772,7 +772,7 @@ var Gltf2Exporter = class {
       const meshComponent = entity.tryToGetMesh();
       if (meshComponent == null ? void 0 : meshComponent.mesh) {
         const gltf2Mesh = json.meshes[countMesh++];
-        await this.kk(
+        await this.rk(
           json,
           meshComponent.mesh,
           gltf2Mesh,
@@ -785,19 +785,19 @@ var Gltf2Exporter = class {
     }
     return Promise.all(promises);
   }
-  static async kk(json, mesh, gltf2Mesh, promises, bufferIdx, option, variantNameToIndex) {
+  static async rk(json, mesh, gltf2Mesh, promises, bufferIdx, option, variantNameToIndex) {
     const primitiveCount = mesh.getPrimitiveNumber();
     for (let j = 0; j < primitiveCount; j++) {
       const rnPrimitive = mesh.getPrimitiveAt(j);
       const primitive = gltf2Mesh.primitives[j];
       const rnMaterial = rnPrimitive.material;
-      const material = await this.Oj(json, rnMaterial, promises, bufferIdx, option);
+      const material = await this.Vj(json, rnMaterial, promises, bufferIdx, option);
       const materialIndex = json.materials.length;
       json.materials.push(material);
       primitive.material = materialIndex;
-      this.Mj(rnMaterial, materialIndex);
+      this.Tj(rnMaterial, materialIndex);
       __pruneUnusedVertexAttributes(primitive, material);
-      await this.lk(
+      await this.sk(
         json,
         rnPrimitive,
         primitive,
@@ -809,7 +809,7 @@ var Gltf2Exporter = class {
       );
     }
   }
-  static async lk(json, rnPrimitive, primitive, promises, bufferIdx, option, variantNameToIndex, baseMaterialIndex) {
+  static async sk(json, rnPrimitive, primitive, promises, bufferIdx, option, variantNameToIndex, baseMaterialIndex) {
     var _a;
     const variantNames = rnPrimitive.getVariantNames();
     if (variantNames.length === 0) {
@@ -826,7 +826,7 @@ var Gltf2Exporter = class {
       }
       let materialIndex = baseMaterialIndex;
       if (variantMaterial !== rnPrimitive.material) {
-        const gltfVariantMaterial = await this.Oj(
+        const gltfVariantMaterial = await this.Vj(
           json,
           variantMaterial,
           promises,
@@ -835,9 +835,9 @@ var Gltf2Exporter = class {
         );
         materialIndex = json.materials.length;
         json.materials.push(gltfVariantMaterial);
-        this.Mj(variantMaterial, materialIndex);
+        this.Tj(variantMaterial, materialIndex);
       }
-      const variantIndex = this.mk(json, variantName, variantNameToIndex);
+      const variantIndex = this.tk(json, variantName, variantNameToIndex);
       mappings.push({
         material: materialIndex,
         variants: [variantIndex]
@@ -855,14 +855,14 @@ var Gltf2Exporter = class {
         mappings
       };
     }
-    this.Fj(json, "KHR_materials_variants");
+    this.Mj(json, "KHR_materials_variants");
   }
-  static mk(json, variantName, variantNameToIndex) {
+  static tk(json, variantName, variantNameToIndex) {
     let variantIndex = variantNameToIndex.get(variantName);
     if (variantIndex !== void 0) {
       return variantIndex;
     }
-    const materialVariantsExtension = this.nk(json);
+    const materialVariantsExtension = this.uk(json);
     variantIndex = materialVariantsExtension.variants.length;
     materialVariantsExtension.variants.push({
       name: variantName
@@ -870,7 +870,7 @@ var Gltf2Exporter = class {
     variantNameToIndex.set(variantName, variantIndex);
     return variantIndex;
   }
-  static nk(json) {
+  static uk(json) {
     if (Is.not.exist(json.extensions)) {
       json.extensions = {};
     }
@@ -882,7 +882,7 @@ var Gltf2Exporter = class {
     }
     return rootExtensions.KHR_materials_variants;
   }
-  static async Oj(json, rnMaterial, promises, bufferIdx, option) {
+  static async Vj(json, rnMaterial, promises, bufferIdx, option) {
     const material = {
       pbrMetallicRoughness: {
         metallicFactor: 1,
@@ -891,9 +891,9 @@ var Gltf2Exporter = class {
     };
     if (Is.exist(rnMaterial)) {
       if (rnMaterial.isNodeBasedMaterial && rnMaterial.shaderNodeJson != null) {
-        await this.ok(material, rnMaterial, json, promises, bufferIdx, option);
+        await this.vk(material, rnMaterial, json, promises, bufferIdx, option);
       } else {
-        await this.pk(material, rnMaterial, json, promises, bufferIdx, option);
+        await this.wk(material, rnMaterial, json, promises, bufferIdx, option);
       }
     }
     return material;
@@ -908,7 +908,7 @@ var Gltf2Exporter = class {
    * @param bufferIdx - The buffer index for texture data
    * @param option - Export options
    */
-  static async ok(material, rnMaterial, json, promises, bufferIdx, option) {
+  static async vk(material, rnMaterial, json, promises, bufferIdx, option) {
     var _a;
     const EXTENSION_NAME = "RHODONITE_materials_node";
     if (!material.extensions) {
@@ -921,7 +921,7 @@ var Gltf2Exporter = class {
     if (rnMaterial.shaderNodeUniforms != null) {
       extensionData.uniforms = { ...rnMaterial.shaderNodeUniforms };
     }
-    const textureUniforms = await this.Pj(
+    const textureUniforms = await this.Wj(
       rnMaterial,
       json,
       promises,
@@ -935,7 +935,7 @@ var Gltf2Exporter = class {
       Object.assign(extensionData.uniforms, textureUniforms);
     }
     material.extensions[EXTENSION_NAME] = extensionData;
-    this.Fj(json, EXTENSION_NAME);
+    this.Mj(json, EXTENSION_NAME);
   }
   /**
    * Processes texture parameters from a node-based material and exports them to glTF format.
@@ -947,7 +947,7 @@ var Gltf2Exporter = class {
    * @param option - Export options
    * @returns Object mapping texture names to their glTF texture indices
    */
-  static async Pj(rnMaterial, json, promises, bufferIdx, option, semanticFilter = () => true) {
+  static async Wj(rnMaterial, json, promises, bufferIdx, option, semanticFilter = () => true) {
     const textureUniforms = {};
     const existedImages = [];
     const processSampler = (rnSampler) => {
@@ -1074,17 +1074,17 @@ var Gltf2Exporter = class {
    * @param json - The output glTF JSON
    * @param option - Export options, including the raymarching material to export
    */
-  static async Wj(json, option) {
+  static async bk(json, option) {
     const componentMaterials = option.raymarchingComponentMaterials;
     if (componentMaterials != null && componentMaterials.length > 0) {
-      await this.qk(json, componentMaterials, option);
+      await this.xk(json, componentMaterials, option);
       return;
     }
     const raymarchingMaterial = option.raymarchingMaterial;
     if (raymarchingMaterial == null) {
       return;
     }
-    const textures = await this.Qj(json, raymarchingMaterial, option);
+    const textures = await this.Xj(json, raymarchingMaterial, option);
     if (textures == null) {
       return;
     }
@@ -1094,7 +1094,7 @@ var Gltf2Exporter = class {
     json.extensions.RHODONITE_raymarching_materials = {
       textures
     };
-    this.Fj(json, "RHODONITE_raymarching_materials");
+    this.Mj(json, "RHODONITE_raymarching_materials");
   }
   /**
    * Exports each component's raymarching textures into its `RHODONITE_raymarching` node
@@ -1108,7 +1108,7 @@ var Gltf2Exporter = class {
    * @param componentMaterials - The per-component materials to export
    * @param option - Export options
    */
-  static async qk(json, componentMaterials, option) {
+  static async xk(json, componentMaterials, option) {
     var _a;
     for (const { entity, material } of componentMaterials) {
       const nodeIndex = entity.gltfNodeIndex;
@@ -1119,7 +1119,7 @@ var Gltf2Exporter = class {
       if (node == null) {
         continue;
       }
-      const textures = await this.Qj(json, material, option);
+      const textures = await this.Xj(json, material, option);
       if (textures == null) {
         continue;
       }
@@ -1133,7 +1133,7 @@ var Gltf2Exporter = class {
         extensions.RHODONITE_raymarching = raymarchingExtension;
       }
       raymarchingExtension.textures = textures;
-      this.Fj(json, "RHODONITE_raymarching");
+      this.Mj(json, "RHODONITE_raymarching");
     }
   }
   /**
@@ -1148,7 +1148,7 @@ var Gltf2Exporter = class {
    * @param option - Export options
    * @returns The semantic to texture-index map, or undefined when the material has none
    */
-  static async Qj(json, material, option) {
+  static async Xj(json, material, option) {
     var _a, _b, _c;
     const shaderNodeJson = material.shaderNodeJson;
     const userTextureSemantics = /* @__PURE__ */ new Set();
@@ -1166,7 +1166,7 @@ var Gltf2Exporter = class {
     const promises = [];
     json.extras.bufferViewByteLengthAccumulatedArray.push(0);
     const bufferIdx = json.extras.bufferViewByteLengthAccumulatedArray.length - 1;
-    const textures = await this.Pj(
+    const textures = await this.Wj(
       material,
       json,
       promises,
@@ -1177,7 +1177,7 @@ var Gltf2Exporter = class {
     await Promise.all(promises);
     return Object.keys(textures).length > 0 ? textures : void 0;
   }
-  static async pk(material, rnMaterial, json, promises, bufferIdx, option) {
+  static async wk(material, rnMaterial, json, promises, bufferIdx, option) {
     const existedImages = [];
     const processSampler = (rnSampler) => {
       const gltf2TextureSampler = {
@@ -1262,9 +1262,9 @@ var Gltf2Exporter = class {
       }
       return json.textures.indexOf(gltf2Texture);
     };
-    this.rk(json, material, rnMaterial, processTexture);
+    this.yk(json, material, rnMaterial, processTexture);
   }
-  static rk(json, material, rnMaterial, processTexture) {
+  static yk(json, material, rnMaterial, processTexture) {
     const ensureExtensionUsed = (extensionName) => {
       if (json.extensionsUsed.indexOf(extensionName) === -1) {
         json.extensionsUsed.push(extensionName);
@@ -1476,7 +1476,7 @@ var Gltf2Exporter = class {
    * @param json - The glTF2 JSON document containing buffer view definitions
    * @returns ArrayBuffer containing the consolidated binary data
    */
-  static Yj(json) {
+  static dk(json) {
     if (Is.undefined(json.accessors) || Is.undefined(json.bufferViews)) {
       return new ArrayBuffer(0);
     }
@@ -1522,7 +1522,7 @@ var Gltf2Exporter = class {
    * @param filename - Base filename for the download
    * @param arraybuffer - Binary data buffer containing the .glb file
    */
-  static Zj(_json, filename, arraybuffer) {
+  static ek(_json, filename, arraybuffer) {
     {
       const a = document.createElement("a");
       a.download = `${filename}.glb`;
@@ -1551,7 +1551,7 @@ var Gltf2Exporter = class {
    * @param filename - Base filename for the downloads
    * @param arraybuffer - Binary data buffer for the .bin file
    */
-  static _j(json, filename, arraybuffer) {
+  static fk(json, filename, arraybuffer) {
     {
       const a = document.createElement("a");
       a.download = `${filename}.gltf`;
@@ -1571,11 +1571,11 @@ var Gltf2Exporter = class {
     }
   }
 };
-Gltf2Exporter.Gj = /* @__PURE__ */ new Map();
-Gltf2Exporter.Ij = /* @__PURE__ */ new Map();
-Gltf2Exporter.Jj = /* @__PURE__ */ new Map();
-Gltf2Exporter.Kj = /* @__PURE__ */ new Map();
-Gltf2Exporter.Lj = /* @__PURE__ */ new Set();
+Gltf2Exporter.Nj = /* @__PURE__ */ new Map();
+Gltf2Exporter.Pj = /* @__PURE__ */ new Map();
+Gltf2Exporter.Qj = /* @__PURE__ */ new Map();
+Gltf2Exporter.Rj = /* @__PURE__ */ new Map();
+Gltf2Exporter.Sj = /* @__PURE__ */ new Set();
 var MATERIAL_POINTER_SUFFIX_MAP = {
   baseColorFactor: "/pbrMetallicRoughness/baseColorFactor",
   metallicFactor: "/pbrMetallicRoughness/metallicFactor",

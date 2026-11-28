@@ -620,7 +620,7 @@ fn rnRayAabbInterval(rayOrigin: vec3f, rayDirection: vec3f, boundsMin: vec3f, bo
   return interval;
 }
 `;
-      pixelShaderPrerequisites2 += _RaymarchingShaderPart.UE();
+      pixelShaderPrerequisites2 += _RaymarchingShaderPart.BF();
       return pixelShaderPrerequisites2;
     }
     let pixelShaderPrerequisites = "";
@@ -782,14 +782,14 @@ bool rnRayAabbInterval(vec3 rayOrigin, vec3 rayDirection, vec3 boundsMin, vec3 b
   return tExit >= 0.0;
 }
 `;
-    pixelShaderPrerequisites += _RaymarchingShaderPart.VE();
+    pixelShaderPrerequisites += _RaymarchingShaderPart.CF();
     return pixelShaderPrerequisites;
   }
   /**
    * Returns the PBR shading function definitions shared with the PBR material
    * plus the raymarching PBR wrapper used by the fragment shader.
    */
-  static UE() {
+  static BF() {
     return `
 #ifdef RN_USE_PBR
 ${PbrShaderityObjectWGSL.code}
@@ -839,7 +839,7 @@ fn raymarchingPbr(positionInWorld: vec3f, normalInWorld: vec3f) -> vec4f {
 #endif // RN_USE_PBR
 `;
   }
-  static VE() {
+  static CF() {
     return `
 #ifdef RN_USE_PBR
 ${PbrShaderityObjectGLSL.code}

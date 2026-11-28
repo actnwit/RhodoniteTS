@@ -164,67 +164,67 @@ function findAttribute(primitive, name) {
 }
 var AttributeReader = class {
   constructor(accessor) {
-    this.QJ = 0;
-    this.RJ = 4;
-    this.Jt = 1;
-    this.MJ = false;
-    this.GJ = false;
-    this.Zl = accessor;
+    this.xK = 0;
+    this.yK = 4;
+    this.Rt = 1;
+    this.tK = false;
+    this.nK = false;
+    this.em = accessor;
     if (accessor === void 0) {
       return;
     }
-    this.QJ = Math.min(accessor.numberOfComponents, 4);
-    this.RJ = accessor.componentSizeInBytes;
+    this.xK = Math.min(accessor.numberOfComponents, 4);
+    this.yK = accessor.componentSizeInBytes;
     const componentType = accessor.componentType;
     const hasNormalizedFormat = accessor.numberOfComponents === 2 || accessor.numberOfComponents === 4;
     if (accessor.normalized && hasNormalizedFormat) {
       if (componentType === ComponentType.UnsignedByte) {
-        this.GJ = true;
-        this.Jt = 255;
+        this.nK = true;
+        this.Rt = 255;
       } else if (componentType === ComponentType.Byte) {
-        this.GJ = true;
-        this.Jt = 127;
-        this.MJ = true;
+        this.nK = true;
+        this.Rt = 127;
+        this.tK = true;
       } else if (componentType === ComponentType.UnsignedShort) {
-        this.GJ = true;
-        this.Jt = 65535;
+        this.nK = true;
+        this.Rt = 65535;
       } else if (componentType === ComponentType.Short) {
-        this.GJ = true;
-        this.Jt = 32767;
-        this.MJ = true;
+        this.nK = true;
+        this.Rt = 32767;
+        this.tK = true;
       }
     }
   }
   get exists() {
-    return this.Zl !== void 0;
+    return this.em !== void 0;
   }
   /** Reads the component `c` of the element `i`. */
   read(i, c) {
-    const accessor = this.Zl;
-    if (accessor === void 0 || c >= this.QJ) {
+    const accessor = this.em;
+    if (accessor === void 0 || c >= this.xK) {
       return c === 3 ? 1 : 0;
     }
-    const value = accessor.getScalarAt(i, c * this.RJ, EmptyAccessOption);
-    if (!this.GJ) {
+    const value = accessor.getScalarAt(i, c * this.yK, EmptyAccessOption);
+    if (!this.nK) {
       return value;
     }
-    const normalized = value / this.Jt;
-    return this.MJ ? Math.max(normalized, -1) : normalized;
+    const normalized = value / this.Rt;
+    return this.tK ? Math.max(normalized, -1) : normalized;
   }
 };
 var WebGpuVertexDeformer = class {
   constructor(device) {
-    this.LG = new Uint32Array(ParamsByteSize / 4);
-    this.OJ = new DirtyRange();
-    this.iG = new DirtyRange();
-    this.FJ = /* @__PURE__ */ new Map();
-    this.eu = 0;
-    this.TJ = -1;
-    this.PJ = false;
+    this.sH = new Uint32Array(ParamsByteSize / 4);
+    this.vK = new DirtyRange();
+    this.RG = new DirtyRange();
+    this.mK = /* @__PURE__ */ new Map();
+    this.mu = 0;
+    this.AK = -1;
+    this.wK = false;
     /** `Mesh._primitivePositionUpdateVersion` when the sources were last revalidated. */
-    this.GG = -1;
-    this.QF = device;
-    this.WF = new GpuDeformRegistry(InitialCapacities);
+    this.nH = -1;
+    this.xG = device;
+    this.DG = new GpuDeformRegistry(InitialCapacities);
     const r = "read-only-storage";
     const types = [r, "uniform", r, r, r, r, r, "storage", "storage"];
     const layout = device.createBindGroupLayout({
@@ -239,53 +239,53 @@ var WebGpuVertexDeformer = class {
         entryPoint: "deform"
       }
     });
-    this.JJ = { layout, pipeline, bindGroupBuffers: [] };
-    this.YF = device.createBuffer({
+    this.qK = { layout, pipeline, bindGroupBuffers: [] };
+    this.FG = device.createBuffer({
       label: "GpuSkinning.params",
       size: ParamsByteSize,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
     });
-    this.HJ = device.createBuffer({
+    this.oK = device.createBuffer({
       label: "GpuSkinning.dummy",
       size: 16,
       usage: GPUBufferUsage.STORAGE
     });
-    this.IG(InitialCapacities);
+    this.pH(InitialCapacities);
   }
   /** The bookkeeping of the allocations (exposed for tests and statistics). */
   get registry() {
-    return this.WF;
+    return this.DG;
   }
   /** The deformed vertices, read by the vertex shaders (group 0, binding 4). */
   get deformedVerticesBuffer() {
-    return this.LJ;
+    return this.sK;
   }
   /** The bounding boxes of the deformed instances, read by the culling. */
   get boundsBuffer() {
-    return this.IJ;
+    return this.pK;
   }
   /** Whether any entry is alive. */
   get hasEntries() {
-    return this.WF.entryCount > 0;
+    return this.DG.entryCount > 0;
   }
   /** Whether the tables changed since the last dispatch (the deformation must run again). */
   get isChanged() {
-    return this.eu !== this.TJ;
+    return this.mu !== this.AK;
   }
   /** Whether an allocation failed since the last reset (the tables must grow). */
   get isOverflowed() {
-    return this.WF.isOverflowed;
+    return this.DG.isOverflowed;
   }
   /**
    * Whether the entries can no longer be updated in place (the vertex counts of a mesh changed): every entry must be
    * dropped with `reset`.
    */
   get isResetRequested() {
-    return this.PJ;
+    return this.wK;
   }
   /** The current capacities of the tables. */
   get capacities() {
-    return this.WF.capacities;
+    return this.DG.capacities;
   }
   /**
    * Gets the deformation of the instances of a mesh, allocating and writing its tables on first use.
@@ -309,7 +309,7 @@ var WebGpuVertexDeformer = class {
       primitives.push(primitive);
       vertexCounts.push(position.elementCount);
     }
-    const result = this.WF.acquire(entityInfo, vertexCounts, entityInfo.length / 4);
+    const result = this.DG.acquire(entityInfo, vertexCounts, entityInfo.length / 4);
     if (result === void 0) {
       return void 0;
     }
@@ -323,10 +323,10 @@ var WebGpuVertexDeformer = class {
         morphPrimitiveCount: -1,
         blendShapeOffsets: []
       };
-      this.FJ.set(result.entry, info);
-      this.UJ(result.entry, info);
-      this.VJ(result.entry, info);
-      this.eu++;
+      this.mK.set(result.entry, info);
+      this.BK(result.entry, info);
+      this.CK(result.entry, info);
+      this.mu++;
     }
     return result.entry;
   }
@@ -334,23 +334,23 @@ var WebGpuVertexDeformer = class {
    * Removes the reference of a cull group to an entry (after the commands that used it were submitted).
    */
   release(entry) {
-    if (!this.WF.release(entry)) {
+    if (!this.DG.release(entry)) {
       return;
     }
-    this.FJ.delete(entry);
-    const chunks = this.fG;
+    this.mK.delete(entry);
+    const chunks = this.OG;
     for (let k = 0; k < entry.chunkCount; k++) {
       chunks[(entry.chunkBase + k) * ChunkWordSize + 1] = 0;
     }
-    this.iG.add(entry.chunkBase, entry.chunkBase + entry.chunkCount);
-    this.eu++;
+    this.RG.add(entry.chunkBase, entry.chunkBase + entry.chunkCount);
+    this.mu++;
   }
   /**
    * The index of the first deformed vertex of a primitive among the deformed vertices of an instance
    * (`UniformDrawParameters.deformedVertexOffset`), or undefined when the primitive is not one of the entry's mesh.
    */
   getPrimitiveOffset(entry, primitive) {
-    const info = this.FJ.get(entry);
+    const info = this.mK.get(entry);
     if (info === void 0) {
       return void 0;
     }
@@ -372,11 +372,11 @@ var WebGpuVertexDeformer = class {
    */
   refresh() {
     const positionUpdateVersion = Mesh._primitivePositionUpdateVersion;
-    if (positionUpdateVersion !== this.GG) {
-      this.GG = positionUpdateVersion;
-      this.WJ();
+    if (positionUpdateVersion !== this.nH) {
+      this.nH = positionUpdateVersion;
+      this.DK();
     }
-    this.XJ();
+    this.EK();
   }
   /**
    * Records the deformation compute pass (after clearing the bounding boxes) when there is anything to deform.
@@ -389,30 +389,30 @@ var WebGpuVertexDeformer = class {
    */
   encode(encoder, storageBuffer, morphBuffers, gpuTimer) {
     var _a, _b, _c;
-    const registry = this.WF;
+    const registry = this.DG;
     if (registry.entryCount === 0) {
       return false;
     }
-    const device = this.QF;
-    this.kG(this.KJ, this.NJ, this.OJ, SourceVertexWordSize);
-    this.kG(this.dG, this.fG, this.iG, ChunkWordSize);
+    const device = this.xG;
+    this.TG(this.rK, this.uK, this.vK, SourceVertexWordSize);
+    this.TG(this.MG, this.OG, this.RG, ChunkWordSize);
     const chunkCount = registry.chunkHighWater;
     const chunksPerRow = Math.max(1, Math.min(chunkCount, MaxWorkgroupsPerDimension));
-    const params = this.LG;
+    const params = this.sH;
     params[0] = chunkCount;
     params[1] = chunksPerRow;
-    device.queue.writeBuffer(this.YF, 0, params);
-    const stage = this.JJ;
+    device.queue.writeBuffer(this.FG, 0, params);
+    const stage = this.qK;
     const buffers = [
       storageBuffer,
-      this.YF,
-      this.KJ,
-      this.dG,
-      (_a = morphBuffers.blendShapeData) != null ? _a : this.HJ,
-      (_b = morphBuffers.morphOffsets) != null ? _b : this.HJ,
-      (_c = morphBuffers.morphWeights) != null ? _c : this.HJ,
-      this.LJ,
-      this.IJ
+      this.FG,
+      this.rK,
+      this.MG,
+      (_a = morphBuffers.blendShapeData) != null ? _a : this.oK,
+      (_b = morphBuffers.morphOffsets) != null ? _b : this.oK,
+      (_c = morphBuffers.morphWeights) != null ? _c : this.oK,
+      this.sK,
+      this.pK
     ];
     let isBindGroupValid = stage.bindGroup != null;
     for (let i = 0; i < buffers.length && isBindGroupValid; i++) {
@@ -426,7 +426,7 @@ var WebGpuVertexDeformer = class {
       });
       stage.bindGroupBuffers = buffers;
     }
-    encoder.clearBuffer(this.IJ, 0, registry.boundsHighWater * DeformBoundsByteSize);
+    encoder.clearBuffer(this.pK, 0, registry.boundsHighWater * DeformBoundsByteSize);
     const passDescriptor = { label: "GpuSkinning" };
     const timestampWrites = gpuTimer == null ? void 0 : gpuTimer.getTimestampWrites("GpuSkinning");
     if (timestampWrites != null) {
@@ -439,7 +439,7 @@ var WebGpuVertexDeformer = class {
       pass.dispatchWorkgroups(chunksPerRow, Math.ceil(chunkCount / chunksPerRow));
     }
     pass.end();
-    this.TJ = this.eu;
+    this.AK = this.mu;
     return true;
   }
   /**
@@ -447,13 +447,13 @@ var WebGpuVertexDeformer = class {
    * cannot grow (the device limits are reached; the failed draws stay unculled).
    */
   getGrownCapacities() {
-    const registry = this.WF;
+    const registry = this.DG;
     if (!registry.isOverflowed) {
       return void 0;
     }
     const required = registry.requiredCapacities;
     const current = registry.capacities;
-    const limits = this.QF.limits;
+    const limits = this.xG.limits;
     const maxBytes = Math.min(limits.maxStorageBufferBindingSize, limits.maxBufferSize);
     const grow = (capacity, needed, bytesPerSlot) => {
       let next = capacity;
@@ -478,74 +478,74 @@ var WebGpuVertexDeformer = class {
    * and the render bundles that bound the deformed vertex buffer.
    */
   reset(capacities) {
-    this.KG();
-    this.IG(capacities);
-    this.WF.reset(capacities);
-    this.FJ.clear();
-    this.PJ = false;
-    this.eu++;
+    this.rH();
+    this.pH(capacities);
+    this.DG.reset(capacities);
+    this.mK.clear();
+    this.wK = false;
+    this.mu++;
   }
   /** Releases the GPU resources. */
   destroy() {
-    this.KG();
-    this.YF.destroy();
-    this.HJ.destroy();
+    this.rH();
+    this.FG.destroy();
+    this.oK.destroy();
   }
-  IG(capacities) {
-    const device = this.QF;
-    this.KJ = device.createBuffer({
+  pH(capacities) {
+    const device = this.xG;
+    this.rK = device.createBuffer({
       label: "GpuSkinning.sources",
       size: capacities.sourceVertices * SourceVertexByteSize,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
     });
-    this.dG = device.createBuffer({
+    this.MG = device.createBuffer({
       label: "GpuSkinning.chunks",
       size: capacities.chunks * ChunkByteSize,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
     });
-    this.LJ = device.createBuffer({
+    this.sK = device.createBuffer({
       label: "GpuSkinning.deformedVertices",
       size: capacities.deformedVertices * DeformedVertexByteSize,
       // COPY_SRC lets tests and tools read back the deformed vertices.
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC
     });
-    this.IJ = device.createBuffer({
+    this.pK = device.createBuffer({
       label: "GpuSkinning.bounds",
       size: capacities.bounds * DeformBoundsByteSize,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC
     });
     const sources = new ArrayBuffer(capacities.sourceVertices * SourceVertexByteSize);
-    this.NJ = new Uint32Array(sources);
-    this.SJ = new Float32Array(sources);
-    this.fG = new Uint32Array(capacities.chunks * ChunkWordSize);
-    this.OJ.clear();
-    this.iG.clear();
-    this.iG.add(0, capacities.chunks);
-    this.JJ.bindGroup = void 0;
-    this.JJ.bindGroupBuffers = [];
+    this.uK = new Uint32Array(sources);
+    this.zK = new Float32Array(sources);
+    this.OG = new Uint32Array(capacities.chunks * ChunkWordSize);
+    this.vK.clear();
+    this.RG.clear();
+    this.RG.add(0, capacities.chunks);
+    this.qK.bindGroup = void 0;
+    this.qK.bindGroupBuffers = [];
   }
-  KG() {
+  rH() {
     var _a, _b, _c, _d;
-    (_a = this.KJ) == null ? void 0 : _a.destroy();
-    (_b = this.dG) == null ? void 0 : _b.destroy();
-    (_c = this.LJ) == null ? void 0 : _c.destroy();
-    (_d = this.IJ) == null ? void 0 : _d.destroy();
+    (_a = this.rK) == null ? void 0 : _a.destroy();
+    (_b = this.MG) == null ? void 0 : _b.destroy();
+    (_c = this.sK) == null ? void 0 : _c.destroy();
+    (_d = this.pK) == null ? void 0 : _d.destroy();
   }
-  kG(buffer, mirror, dirty, wordsPerSlot) {
+  TG(buffer, mirror, dirty, wordsPerSlot) {
     if (dirty.isEmpty) {
       return;
     }
     const begin = dirty.min * wordsPerSlot;
     const end = Math.min(dirty.max * wordsPerSlot, mirror.length);
-    this.QF.queue.writeBuffer(buffer, begin * 4, mirror, begin, end - begin);
+    this.xG.queue.writeBuffer(buffer, begin * 4, mirror, begin, end - begin);
     dirty.clear();
   }
   /**
    * Writes the undeformed vertices of the primitives of an entry's mesh.
    */
-  UJ(entry, info) {
-    const u32 = this.NJ;
-    const f32 = this.SJ;
+  BK(entry, info) {
+    const u32 = this.uK;
+    const f32 = this.zK;
     for (let p = 0; p < info.primitives.length; p++) {
       const primitive = info.primitives[p];
       const position = new AttributeReader(findAttribute(primitive, "POSITION"));
@@ -577,13 +577,13 @@ var WebGpuVertexDeformer = class {
         }
       }
     }
-    this.OJ.add(entry.sourceBase, entry.sourceBase + entry.vertexCount);
+    this.vK.add(entry.sourceBase, entry.sourceBase + entry.vertexCount);
   }
   /**
    * Writes the chunks of an entry: the source and destination ranges, the skeleton and the morph targets applied to
    * each primitive of each instance.
    */
-  VJ(entry, info) {
+  CK(entry, info) {
     var _a, _b, _c, _d;
     const engine = info.engine;
     const entityInfo = info.entityInfo;
@@ -598,7 +598,7 @@ var WebGpuVertexDeformer = class {
       Component._getVariableLengthLocationMemberName("boneData")
     );
     const infoOffsets = Component.getLocationOffsetOfMemberOfComponent(engine, SkeletalComponent, "boneDataInfo");
-    const chunks = this.fG;
+    const chunks = this.OG;
     for (let i = 0; i < entry.instanceCount; i++) {
       const skeletalSID = entityInfo[4 * i + 1];
       const blendShapeSID = entityInfo[4 * i + 2];
@@ -649,14 +649,14 @@ var WebGpuVertexDeformer = class {
         }
       }
     }
-    this.iG.add(entry.chunkBase, entry.chunkBase + entry.chunkCount);
+    this.RG.add(entry.chunkBase, entry.chunkBase + entry.chunkCount);
   }
   /**
    * Rewrites the sources of the meshes whose vertex positions were updated. When the vertex counts changed, the entry
    * layout is no longer valid and a reset is requested.
    */
-  WJ() {
-    for (const [entry, info] of this.FJ) {
+  DK() {
+    for (const [entry, info] of this.mK) {
       const mesh = info.mesh;
       if (mesh.primitivePositionUpdateCount === info.positionUpdateCount) {
         continue;
@@ -669,25 +669,25 @@ var WebGpuVertexDeformer = class {
         isLayoutValid = primitive === info.primitives[p] && position !== void 0 && position.elementCount === entry.primitiveVertexCounts[p];
       }
       if (!isLayoutValid) {
-        this.PJ = true;
+        this.wK = true;
         continue;
       }
-      this.UJ(entry, info);
-      this.eu++;
+      this.BK(entry, info);
+      this.mu++;
     }
   }
   /**
    * Rewrites the chunks of the entries when the morph target or blend shape weight layouts changed (primitives with
    * morph targets or blend shape components were created or destroyed).
    */
-  XJ() {
+  EK() {
     const morphPrimitiveCount = Primitive.getPrimitiveCountHasMorph();
-    for (const [entry, info] of this.FJ) {
+    for (const [entry, info] of this.mK) {
       if (info.morphPrimitiveCount === morphPrimitiveCount && info.blendShapeOffsets === BlendShapeComponent.getOffsetsInUniform(info.engine)) {
         continue;
       }
-      this.VJ(entry, info);
-      this.eu++;
+      this.CK(entry, info);
+      this.mu++;
     }
   }
 };

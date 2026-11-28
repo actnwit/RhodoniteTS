@@ -15,12 +15,12 @@ var BendYXShaderNode = class extends AbstractShaderNode {
       codeWGSL: BendYXShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.zr.push(new Socket("position", CompositionType.Vec3, ComponentType.Float));
-    this.zr.push(new Socket("strength", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.5)));
-    this.Cr.push(new Socket("outPosition", CompositionType.Vec3, ComponentType.Float));
+    this.Hr.push(new Socket("position", CompositionType.Vec3, ComponentType.Float));
+    this.Hr.push(new Socket("strength", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.5)));
+    this.Kr.push(new Socket("outPosition", CompositionType.Vec3, ComponentType.Float));
   }
   getSocketOutput() {
-    return this.Cr[0];
+    return this.Kr[0];
   }
 };
 export {

@@ -23,10 +23,10 @@ var initialMotionState = {
 var CharacterControllerComponent = class extends Component {
   constructor(engine, entityUid, componentSid, entityRepository, isReUse) {
     super(engine, entityUid, componentSid, entityRepository, isReUse);
-    this.kd = Vector3.zero();
+    this.od = Vector3.zero();
     this.Kb = new EventPubSub();
-    this.fd = initialMotionState;
-    this.jd = false;
+    this.jd = initialMotionState;
+    this.nd = false;
     this.moveStageTo(ProcessStage.Logic);
   }
   static get componentTID() {
@@ -47,11 +47,11 @@ var CharacterControllerComponent = class extends Component {
     );
   }
   $logic() {
-    if (this.ed == null || !this.ed.enabled) {
+    if (this.id == null || !this.id.enabled) {
       return;
     }
-    const current = this.ed.motionState;
-    const previous = this.fd;
+    const current = this.id.motionState;
+    const previous = this.jd;
     if (current.state !== previous.state) {
       this.Kb.publishSync("stateChanged", {
         type: "stateChanged",
@@ -70,11 +70,11 @@ var CharacterControllerComponent = class extends Component {
         });
       }
     }
-    this.fd = current;
+    this.jd = current;
   }
   setup(strategy, options = {}) {
     var _a, _b;
-    if (this.ed != null) {
+    if (this.id != null) {
       throw new Error("CharacterControllerComponent has already been set up.");
     }
     const entity = this.entity;
@@ -119,57 +119,57 @@ var CharacterControllerComponent = class extends Component {
       }
       throw error;
     }
-    this.ed = strategy;
+    this.id = strategy;
     if (generatedShapeIndex != null) {
-      this.hd = shapeComponent;
-      this.id = generatedShapeIndex;
-      this.jd = addedShapeComponent;
+      this.ld = shapeComponent;
+      this.md = generatedShapeIndex;
+      this.nd = addedShapeComponent;
     }
-    this.fd = strategy.motionState;
+    this.jd = strategy.motionState;
   }
   setDesiredHorizontalVelocity(velocity) {
     var _a;
-    this.gd = Math.hypot(velocity.x, velocity.z);
-    (_a = this.ed) == null ? void 0 : _a.setDesiredHorizontalVelocity(velocity);
+    this.kd = Math.hypot(velocity.x, velocity.z);
+    (_a = this.id) == null ? void 0 : _a.setDesiredHorizontalVelocity(velocity);
   }
   /**
    * Horizontal speed requested through {@link setDesiredHorizontalVelocity}, before
    * collision and step correction. It is undefined until a desired velocity is supplied.
    */
   get desiredHorizontalSpeed() {
-    return this.gd;
+    return this.kd;
   }
   requestJump() {
     var _a;
-    (_a = this.ed) == null ? void 0 : _a.requestJump();
+    (_a = this.id) == null ? void 0 : _a.requestJump();
   }
   teleport(position) {
-    if (this.ed == null) {
+    if (this.id == null) {
       throw new Error("CharacterControllerComponent.setup() must be called before teleport().");
     }
-    this.ed.teleport(position);
+    this.id.teleport(position);
   }
   get isGrounded() {
     var _a, _b;
-    return (_b = (_a = this.ed) == null ? void 0 : _a.isGrounded) != null ? _b : false;
+    return (_b = (_a = this.id) == null ? void 0 : _a.isGrounded) != null ? _b : false;
   }
   get computedMovement() {
     var _a, _b;
-    return (_b = (_a = this.ed) == null ? void 0 : _a.computedMovement) != null ? _b : this.kd;
+    return (_b = (_a = this.id) == null ? void 0 : _a.computedMovement) != null ? _b : this.od;
   }
   /** Detailed ground information from the controller's foot probe. */
   get groundContact() {
     var _a;
-    return (_a = this.ed) == null ? void 0 : _a.groundContact;
+    return (_a = this.id) == null ? void 0 : _a.groundContact;
   }
   /** True during a frame where obstacle-stuck recovery adjusted movement. */
   get isRecovering() {
     var _a, _b;
-    return (_b = (_a = this.ed) == null ? void 0 : _a.isRecovering) != null ? _b : false;
+    return (_b = (_a = this.id) == null ? void 0 : _a.isRecovering) != null ? _b : false;
   }
   get motionState() {
     var _a, _b;
-    return (_b = (_a = this.ed) == null ? void 0 : _a.motionState) != null ? _b : initialMotionState;
+    return (_b = (_a = this.id) == null ? void 0 : _a.motionState) != null ? _b : initialMotionState;
   }
   subscribe(type, handler) {
     return this.Kb.subscribe(type, handler);
@@ -178,32 +178,32 @@ var CharacterControllerComponent = class extends Component {
     this.Kb.unsubscribe(type, index);
   }
   set enabled(value) {
-    if (this.ed != null) {
-      this.ed.enabled = value;
+    if (this.id != null) {
+      this.id.enabled = value;
     }
   }
   get enabled() {
     var _a, _b;
-    return (_b = (_a = this.ed) == null ? void 0 : _a.enabled) != null ? _b : false;
+    return (_b = (_a = this.id) == null ? void 0 : _a.enabled) != null ? _b : false;
   }
   _destroy() {
     var _a;
-    (_a = this.ed) == null ? void 0 : _a.destroy();
-    this.ed = void 0;
-    this.ld();
+    (_a = this.id) == null ? void 0 : _a.destroy();
+    this.id = void 0;
+    this.pd();
     this.Kb.unsubscribeAll("stateChanged");
     this.Kb.unsubscribeAll("landed");
-    this.fd = initialMotionState;
-    this.gd = void 0;
+    this.jd = initialMotionState;
+    this.kd = void 0;
     super._destroy();
   }
-  ld() {
-    const shapeComponent = this.hd;
-    const shapeIndex = this.id;
-    const ownsShapeComponent = this.jd;
-    this.hd = void 0;
-    this.id = void 0;
-    this.jd = false;
+  pd() {
+    const shapeComponent = this.ld;
+    const shapeIndex = this.md;
+    const ownsShapeComponent = this.nd;
+    this.ld = void 0;
+    this.md = void 0;
+    this.nd = false;
     if (shapeComponent == null || shapeIndex == null) {
       return;
     }

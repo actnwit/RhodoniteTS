@@ -33,7 +33,7 @@ var ConstantVector2VariableShaderNode = class extends ConstantVariableShaderNode
    * ```
    */
   setDefaultInputValue(value) {
-    this.Ar.setConstantValue(value);
+    this.Ir.setConstantValue(value);
   }
 };
 export {

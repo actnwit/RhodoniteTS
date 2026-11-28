@@ -16,12 +16,12 @@ var Bloom = class {
    * @param engine - The engine instance to use for creating the bloom effect
    */
   constructor(engine) {
-    this.ao = /* @__PURE__ */ new Map();
-    this.bo = /* @__PURE__ */ new Map();
-    this.co = /* @__PURE__ */ new Map();
-    this.Yn = /* @__PURE__ */ new Map();
-    this.Zn = /* @__PURE__ */ new Map();
-    this._n = /* @__PURE__ */ new Map();
+    this.jo = /* @__PURE__ */ new Map();
+    this.ko = /* @__PURE__ */ new Map();
+    this.lo = /* @__PURE__ */ new Map();
+    this.fo = /* @__PURE__ */ new Map();
+    this.go = /* @__PURE__ */ new Map();
+    this.ho = /* @__PURE__ */ new Map();
     this.c = engine;
   }
   /**
@@ -60,11 +60,11 @@ var Bloom = class {
       // synthesizeCoefficient = [1.0 / 2, 1.0 / 4, 1.0 / 8, 1.0 / 16, 1.0 / 32, 1.0 / 64],
     }
   }) {
-    const renderPassDetectHighLuminance = this.eo(
+    const renderPassDetectHighLuminance = this.mo(
       textureToBloom,
       luminanceCriterion
     );
-    const renderPassesBlurredHighLuminance = this.fo(
+    const renderPassesBlurredHighLuminance = this.no(
       renderPassDetectHighLuminance,
       gaussianBlurLevelHighLuminance,
       gaussianKernelSize,
@@ -72,7 +72,7 @@ var Bloom = class {
       textureToBloom.width,
       textureToBloom.height
     );
-    const renderPassSynthesizeImage = this.go(
+    const renderPassSynthesizeImage = this.oo(
       textureToBloom,
       renderPassesBlurredHighLuminance,
       synthesizeCoefficient
@@ -99,16 +99,16 @@ var Bloom = class {
    * @returns A render pass configured to detect high luminance areas
    * @private
    */
-  eo(texture, luminanceCriterion) {
+  mo(texture, luminanceCriterion) {
     const materialKey = `${texture.width}_${texture.height}`;
-    let materialDetectHighLuminance = this.ao.get(materialKey);
+    let materialDetectHighLuminance = this.jo.get(materialKey);
     if (materialDetectHighLuminance == null) {
       materialDetectHighLuminance = createDetectHighLuminanceMaterial(
         this.c,
         { maxInstancesNumber: 1 },
         texture
       );
-      this.ao.set(materialKey, materialDetectHighLuminance);
+      this.jo.set(materialKey, materialDetectHighLuminance);
     } else {
       materialDetectHighLuminance.setTextureParameter("baseColorTexture", texture);
     }
@@ -119,7 +119,7 @@ var Bloom = class {
     );
     renderPassDetectHighLuminance.tryToSetUniqueName("renderPassDetectHighLuminance", true);
     const key = `${texture.width}_${texture.height}`;
-    let framebufferDetectHighLuminance = this.Zn.get(key);
+    let framebufferDetectHighLuminance = this.go.get(key);
     if (framebufferDetectHighLuminance == null) {
       framebufferDetectHighLuminance = RenderableHelper.createFrameBuffer(this.c, {
         width: texture.width,
@@ -128,7 +128,7 @@ var Bloom = class {
         textureFormats: [TextureFormat.RGBA8],
         createDepthBuffer: false
       });
-      this.Zn.set(key, framebufferDetectHighLuminance);
+      this.go.set(key, framebufferDetectHighLuminance);
     }
     renderPassDetectHighLuminance.setFramebuffer(framebufferDetectHighLuminance);
     return renderPassDetectHighLuminance;
@@ -149,14 +149,14 @@ var Bloom = class {
    * @returns Array of render passes for multi-level Gaussian blur
    * @private
    */
-  fo(renderPassHighLuminance, gaussianBlurLevelHighLuminance, gaussianKernelSize, gaussianVariance, maxResolutionWidth, maxResolutionHeight) {
+  no(renderPassHighLuminance, gaussianBlurLevelHighLuminance, gaussianKernelSize, gaussianVariance, maxResolutionWidth, maxResolutionHeight) {
     const renderPasses = [];
     for (let i = 0; i < gaussianBlurLevelHighLuminance; i++) {
       const resolutionWidthBlur = Math.max(maxResolutionWidth >> i + 1, 1);
       const resolutionHeightBlur = Math.max(maxResolutionHeight >> i + 1, 1);
       let renderPassBlurH;
       if (i === 0) {
-        renderPassBlurH = this.$n(
+        renderPassBlurH = this.io(
           renderPassHighLuminance,
           gaussianKernelSize,
           gaussianVariance,
@@ -165,7 +165,7 @@ var Bloom = class {
           resolutionHeightBlur
         );
       } else {
-        renderPassBlurH = this.$n(
+        renderPassBlurH = this.io(
           renderPasses[renderPasses.length - 1],
           gaussianKernelSize,
           gaussianVariance,
@@ -175,7 +175,7 @@ var Bloom = class {
         );
       }
       renderPassBlurH.tryToSetUniqueName(`renderPassBlurH_${i}`, true);
-      const renderPassBlurHV = this.$n(
+      const renderPassBlurHV = this.io(
         renderPassBlurH,
         gaussianKernelSize,
         gaussianVariance,
@@ -204,12 +204,12 @@ var Bloom = class {
    * @returns A configured Gaussian blur render pass
    * @private
    */
-  $n(renderPassBlurTarget, gaussianKernelSize, gaussianVariance, isHorizontal, resolutionWidthBlur, resolutionHeightBlur) {
+  io(renderPassBlurTarget, gaussianKernelSize, gaussianVariance, isHorizontal, resolutionWidthBlur, resolutionHeightBlur) {
     const materialKey = `${resolutionWidthBlur}_${resolutionHeightBlur}_${isHorizontal}`;
-    let material = this.bo.get(materialKey);
+    let material = this.ko.get(materialKey);
     if (material == null) {
       material = createGaussianBlurMaterial(this.c);
-      this.bo.set(materialKey, material);
+      this.ko.set(materialKey, material);
     }
     const gaussianDistributionRatio = MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
       kernelSize: gaussianKernelSize,
@@ -229,7 +229,7 @@ var Bloom = class {
       TextureTarget
     );
     const key = `${resolutionWidthBlur}_${resolutionHeightBlur}_${isHorizontal}`;
-    let framebuffer = this.Yn.get(key);
+    let framebuffer = this.fo.get(key);
     if (framebuffer == null) {
       framebuffer = RenderableHelper.createFrameBuffer(this.c, {
         width: resolutionWidthBlur,
@@ -238,7 +238,7 @@ var Bloom = class {
         textureFormats: [TextureFormat.RGBA8],
         createDepthBuffer: false
       });
-      this.Yn.set(key, framebuffer);
+      this.fo.set(key, framebuffer);
     }
     renderPass.setFramebuffer(framebuffer);
     return renderPass;
@@ -256,7 +256,7 @@ var Bloom = class {
    * @returns A render pass that produces the final bloomed image
    * @private
    */
-  go(texture, renderPassesBlurredHighLuminance, synthesizeCoefficient) {
+  oo(texture, renderPassesBlurredHighLuminance, synthesizeCoefficient) {
     const texturesSynthesize = [texture];
     for (let i = 1; i < renderPassesBlurredHighLuminance.length; i += 2) {
       texturesSynthesize.push(
@@ -265,7 +265,7 @@ var Bloom = class {
       );
     }
     const materialKey = `${texture.width}_${texture.height}_${texturesSynthesize.length}`;
-    let materialSynthesizeTextures = this.co.get(materialKey);
+    let materialSynthesizeTextures = this.lo.get(materialKey);
     if (materialSynthesizeTextures == null) {
       materialSynthesizeTextures = createSynthesizeHDRMaterial(
         this.c,
@@ -274,7 +274,7 @@ var Bloom = class {
         },
         texturesSynthesize
       );
-      this.co.set(materialKey, materialSynthesizeTextures);
+      this.lo.set(materialKey, materialSynthesizeTextures);
     } else {
       texturesSynthesize.forEach((tex, idx) => {
         materialSynthesizeTextures.setTextureParameter(`synthesize${idx}Texture`, tex);
@@ -287,7 +287,7 @@ var Bloom = class {
     );
     renderPassSynthesizeGlare.tryToSetUniqueName("renderPassSynthesizeGlare", true);
     const key = `${texture.width}_${texture.height}`;
-    let framebufferSynthesizeImages = this._n.get(key);
+    let framebufferSynthesizeImages = this.ho.get(key);
     if (framebufferSynthesizeImages == null) {
       framebufferSynthesizeImages = RenderableHelper.createFrameBuffer(this.c, {
         width: texture.width,
@@ -296,7 +296,7 @@ var Bloom = class {
         textureFormats: [TextureFormat.R11F_G11F_B10F],
         createDepthBuffer: false
       });
-      this._n.set(key, framebufferSynthesizeImages);
+      this.ho.set(key, framebufferSynthesizeImages);
     }
     renderPassSynthesizeGlare.setFramebuffer(framebufferSynthesizeImages);
     return renderPassSynthesizeGlare;
@@ -311,18 +311,18 @@ var Bloom = class {
    * @public
    */
   destroy3DAPIResources() {
-    this.Yn.forEach((framebuffer) => {
+    this.fo.forEach((framebuffer) => {
       framebuffer.destroy3DAPIResources();
     });
-    this.Zn.forEach((framebuffer) => {
+    this.go.forEach((framebuffer) => {
       framebuffer.destroy3DAPIResources();
     });
-    this._n.forEach((framebuffer) => {
+    this.ho.forEach((framebuffer) => {
       framebuffer.destroy3DAPIResources();
     });
-    this.Yn.clear();
-    this.Zn.clear();
-    this._n.clear();
+    this.fo.clear();
+    this.go.clear();
+    this.ho.clear();
   }
 };
 export {

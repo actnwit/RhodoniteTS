@@ -8,14 +8,14 @@ var _GlobalRetargetReverse = class _GlobalRetargetReverse {
    * @param srcEntity - The source entity from which animation data will be retargeted
    */
   constructor(srcEntity) {
-    this.Sg = srcEntity;
+    this.Wg = srcEntity;
   }
   /**
    * Gets the source entity used for retargeting.
    * @returns The source scene graph entity
    */
   getEntity() {
-    return this.Sg;
+    return this.Wg;
   }
   /**
    * Gets the parent global rest quaternion for the source entity.
@@ -64,7 +64,7 @@ var _GlobalRetargetReverse = class _GlobalRetargetReverse {
    * @returns The retargeted quaternion with reverse rotation applied
    */
   retargetQuaternion(dstEntity) {
-    const srcEntity = this.Sg;
+    const srcEntity = this.Wg;
     const srcPoseQ = srcEntity.getTransform().localRotationInner;
     const srcRestQ = srcEntity.getTransform().localRotationRestInner;
     const srcPGRestQ = this.getSrcPGRestQ(srcEntity);
@@ -79,8 +79,8 @@ var _GlobalRetargetReverse = class _GlobalRetargetReverse {
       Quaternion.multiply(animQ, Quaternion.multiply(dstPgRestQ, dstRestQ))
     );
     const tgtPoseQRev = Quaternion.multiply(
-      Quaternion.multiply(_GlobalRetargetReverse.Tg, tgtPoseQ),
-      Quaternion.invert(_GlobalRetargetReverse.Tg)
+      Quaternion.multiply(_GlobalRetargetReverse.Xg, tgtPoseQ),
+      Quaternion.invert(_GlobalRetargetReverse.Xg)
     );
     return tgtPoseQRev;
   }
@@ -93,7 +93,7 @@ var _GlobalRetargetReverse = class _GlobalRetargetReverse {
    * @returns The retargeted translation vector with reverse rotation applied
    */
   retargetTranslate(dstEntity) {
-    const srcEntity = this.Sg;
+    const srcEntity = this.Wg;
     const srcPoseT = srcEntity.getTransform().localPositionInner;
     const srcRestT = srcEntity.getTransform().localPositionRestInner;
     const srcPGRestQ = this.getSrcPGRestQ(srcEntity);
@@ -104,7 +104,7 @@ var _GlobalRetargetReverse = class _GlobalRetargetReverse {
     const scale = getTranslationScale(srcEntity, dstEntity, srcRestT, dstRestT);
     const scaledAnimT = Vector3.multiply(AnimT, scale);
     const dstPoseT = Vector3.add(dstPgRestQ.transformVector3Inverse(scaledAnimT), dstRestT);
-    const dstPoseTRev = _GlobalRetargetReverse.Tg.transformVector3(dstPoseT);
+    const dstPoseTRev = _GlobalRetargetReverse.Xg.transformVector3(dstPoseT);
     return dstPoseTRev;
   }
   /**
@@ -115,11 +115,11 @@ var _GlobalRetargetReverse = class _GlobalRetargetReverse {
    * @returns The source entity's local scale vector
    */
   retargetScale(_dstEntity) {
-    const srcEntity = this.Sg;
+    const srcEntity = this.Wg;
     return srcEntity.getTransform().localScaleInner;
   }
 };
-_GlobalRetargetReverse.Tg = Quaternion.fromAxisAngle(Vector3.fromCopy3(0, 1, 0), Math.PI);
+_GlobalRetargetReverse.Xg = Quaternion.fromAxisAngle(Vector3.fromCopy3(0, 1, 0), Math.PI);
 var GlobalRetargetReverse = _GlobalRetargetReverse;
 export {
   GlobalRetargetReverse

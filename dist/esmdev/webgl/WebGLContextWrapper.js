@@ -11,103 +11,103 @@ var WebGLContextWrapper = class {
    * @param canvas - The HTML canvas element associated with the context
    */
   constructor(config, gl, canvas) {
-    this.BC = 1;
+    this.eD = 1;
     this.width = 0;
     this.height = 0;
-    this.CC = -1;
-    this.uC = [];
-    this.vC = [];
-    this.wC = [];
-    this.oC = /* @__PURE__ */ new Map();
-    this.DC = /* @__PURE__ */ new Map();
-    this.xC = 0;
-    this.yC = 0;
-    this.rC = 0;
-    this.sC = 0;
-    this.LC = 0;
-    this.MC = 0;
-    this.EC = 0;
-    this.FC = 0;
-    this.GC = INVALID_SIZE;
-    this.HC = INVALID_SIZE;
-    this.IC = INVALID_SIZE;
-    this.JC = INVALID_SIZE;
-    this.NC = INVALID_SIZE;
-    this.OC = INVALID_SIZE;
-    this.zC = INVALID_SIZE;
-    this.PC = INVALID_SIZE;
-    this.KC = INVALID_SIZE;
+    this.fD = -1;
+    this.ZC = [];
+    this._C = [];
+    this.$C = [];
+    this.TC = /* @__PURE__ */ new Map();
+    this.gD = /* @__PURE__ */ new Map();
+    this.aD = 0;
+    this.bD = 0;
+    this.WC = 0;
+    this.XC = 0;
+    this.oD = 0;
+    this.pD = 0;
+    this.hD = 0;
+    this.iD = 0;
+    this.jD = INVALID_SIZE;
+    this.kD = INVALID_SIZE;
+    this.lD = INVALID_SIZE;
+    this.mD = INVALID_SIZE;
+    this.qD = INVALID_SIZE;
+    this.rD = INVALID_SIZE;
+    this.cD = INVALID_SIZE;
+    this.sD = INVALID_SIZE;
+    this.nD = INVALID_SIZE;
     this._isWebXRMode = false;
     /**
      * Cached results of getExtension / vendor-prefixed getExtension.
      * Values are WebGL extension API objects (distinct from WebGLResource: buffers, textures, programs, etc.).
      */
-    this.tC = /* @__PURE__ */ new Map();
-    this.mC = gl;
+    this.YC = /* @__PURE__ */ new Map();
+    this.RC = gl;
     this.width = canvas.width;
     this.height = canvas.height;
     this.canvas = canvas;
-    this.rC = this.EC = this.width;
-    this.sC = this.FC = this.height;
-    this.AC = true;
-    if (this.mC.constructor.name === "WebGL2RenderingContext") {
-      this.BC = 2;
-      this.webgl2ExtTFL = this.nC(config, WebGLExtension.TextureFloatLinear);
-      this.webgl2ExtTHFL = this.nC(config, WebGLExtension.TextureHalfFloatLinear);
-      this.webgl2ExtTFA = this.nC(config, WebGLExtension.TextureFilterAnisotropic);
-      this.webgl2ExtCBF = this.nC(config, WebGLExtension.ColorBufferFloatWebGL2);
-      this.webgl2ExtCBHF = this.nC(config, WebGLExtension.ColorBufferHalfFloatWebGL2);
-      this.webgl2ExtCTAstc = this.qC(config, WebGLExtension.CompressedTextureAstc);
-      this.webgl2ExtCTS3tc = this.qC(config, WebGLExtension.CompressedTextureS3tc);
-      this.webgl2ExtCTPvrtc = this.qC(config, WebGLExtension.CompressedTexturePvrtc);
-      this.webgl2ExtCTAtc = this.qC(config, WebGLExtension.CompressedTextureAtc);
-      this.webgl2ExtCTEtc = this.qC(config, WebGLExtension.CompressedTextureEtc);
-      this.webgl2ExtCTEtc1 = this.qC(config, WebGLExtension.CompressedTextureEtc1);
-      this.webgl2ExtCTBptc = this.qC(config, WebGLExtension.CompressedTextureBptc);
-      this.webgl2ExtMLTVIEW = this.nC(config, WebGLExtension.OculusMultiview);
+    this.WC = this.hD = this.width;
+    this.XC = this.iD = this.height;
+    this.dD = true;
+    if (this.RC.constructor.name === "WebGL2RenderingContext") {
+      this.eD = 2;
+      this.webgl2ExtTFL = this.SC(config, WebGLExtension.TextureFloatLinear);
+      this.webgl2ExtTHFL = this.SC(config, WebGLExtension.TextureHalfFloatLinear);
+      this.webgl2ExtTFA = this.SC(config, WebGLExtension.TextureFilterAnisotropic);
+      this.webgl2ExtCBF = this.SC(config, WebGLExtension.ColorBufferFloatWebGL2);
+      this.webgl2ExtCBHF = this.SC(config, WebGLExtension.ColorBufferHalfFloatWebGL2);
+      this.webgl2ExtCTAstc = this.VC(config, WebGLExtension.CompressedTextureAstc);
+      this.webgl2ExtCTS3tc = this.VC(config, WebGLExtension.CompressedTextureS3tc);
+      this.webgl2ExtCTPvrtc = this.VC(config, WebGLExtension.CompressedTexturePvrtc);
+      this.webgl2ExtCTAtc = this.VC(config, WebGLExtension.CompressedTextureAtc);
+      this.webgl2ExtCTEtc = this.VC(config, WebGLExtension.CompressedTextureEtc);
+      this.webgl2ExtCTEtc1 = this.VC(config, WebGLExtension.CompressedTextureEtc1);
+      this.webgl2ExtCTBptc = this.VC(config, WebGLExtension.CompressedTextureBptc);
+      this.webgl2ExtMLTVIEW = this.SC(config, WebGLExtension.OculusMultiview);
       if (this.webgl2ExtMLTVIEW) {
         this.webgl2ExtMLTVIEW.is_multisample = true;
       } else {
-        this.webgl2ExtMLTVIEW = this.nC(config, WebGLExtension.OvrMultiview2);
+        this.webgl2ExtMLTVIEW = this.SC(config, WebGLExtension.OvrMultiview2);
         if (this.webgl2ExtMLTVIEW) {
           this.webgl2ExtMLTVIEW.is_multisample = false;
         } else {
           if (config.cgApiDebugConsoleOutput) {
             Logger.default.info("OCULUS_multiview and OVR_multiview2 extensions are not supported");
           }
-          this.AC = false;
+          this.dD = false;
         }
       }
-      this.webgl2ExtClipCtrl = this.nC(config, WebGLExtension.ClipControl);
-      this.webgl2ExtMD = this.nC(config, WebGLExtension.MultiDraw);
+      this.webgl2ExtClipCtrl = this.SC(config, WebGLExtension.ClipControl);
+      this.webgl2ExtMD = this.SC(config, WebGLExtension.MultiDraw);
       if (config.cgApiDebugConsoleOutput) {
-        this.webgl2ExtGmanWM = this.nC(config, WebGLExtension.GMAN_WEBGL_MEMORY);
+        this.webgl2ExtGmanWM = this.SC(config, WebGLExtension.GMAN_WEBGL_MEMORY);
       }
     }
-    this.QC();
-    this.RC();
-    this.SC();
+    this.tD();
+    this.uD();
+    this.vD();
   }
   /**
    * Gets the raw WebGL rendering context.
    * @returns The underlying WebGL context (WebGL1 or WebGL2)
    */
   getRawContext() {
-    return this.mC;
+    return this.RC;
   }
   /**
    * Gets the raw WebGL context cast as WebGL1.
    * @returns The underlying WebGL context as WebGL1 type
    */
   getRawContextAsWebGL1() {
-    return this.mC;
+    return this.RC;
   }
   /**
    * Gets the raw WebGL context cast as WebGL2.
    * @returns The underlying WebGL context as WebGL2 type
    */
   getRawContextAsWebGL2() {
-    return this.mC;
+    return this.RC;
   }
   /**
    * Gets the current viewport settings.
@@ -115,10 +115,10 @@ var WebGLContextWrapper = class {
    */
   get viewport() {
     return Vector4.fromCopyArray([
-      this.xC,
-      this.yC,
-      this.rC,
-      this.sC
+      this.aD,
+      this.bD,
+      this.WC,
+      this.XC
     ]);
   }
   /**
@@ -127,10 +127,10 @@ var WebGLContextWrapper = class {
    */
   get defaultViewport() {
     return Vector4.fromCopyArray([
-      this.LC,
-      this.MC,
-      this.EC,
-      this.FC
+      this.oD,
+      this.pD,
+      this.hD,
+      this.iD
     ]);
   }
   /**
@@ -139,7 +139,7 @@ var WebGLContextWrapper = class {
    * @returns True if the extension is supported, false otherwise
    */
   isSupportWebGL1Extension(config, webGLExtension) {
-    if (this.nC(config, webGLExtension)) {
+    if (this.SC(config, webGLExtension)) {
       return true;
     }
     return false;
@@ -165,7 +165,7 @@ var WebGLContextWrapper = class {
    * @returns True if WebGL2, false if WebGL1
    */
   get isWebGL2() {
-    if (this.BC === 2) {
+    if (this.eD === 2) {
       return true;
     }
     return false;
@@ -175,21 +175,21 @@ var WebGLContextWrapper = class {
    * @returns A new WebGL vertex array object
    */
   createVertexArray() {
-    return this.mC.createVertexArray();
+    return this.RC.createVertexArray();
   }
   /**
    * Deletes a vertex array object.
    * @param vertexArray - The vertex array object to delete
    */
   deleteVertexArray(vertexArray) {
-    this.mC.deleteVertexArray(vertexArray);
+    this.RC.deleteVertexArray(vertexArray);
   }
   /**
    * Binds a vertex array object.
    * @param vao - The vertex array object to bind, or null to unbind
    */
   bindVertexArray(vao) {
-    this.mC.bindVertexArray(vao);
+    this.RC.bindVertexArray(vao);
   }
   /**
    * Sets the divisor for instanced rendering for a vertex attribute.
@@ -197,7 +197,7 @@ var WebGLContextWrapper = class {
    * @param divisor - The divisor value (0 for per-vertex, 1+ for per-instance)
    */
   vertexAttribDivisor(index, divisor) {
-    this.mC.vertexAttribDivisor(index, divisor);
+    this.RC.vertexAttribDivisor(index, divisor);
   }
   /**
    * Draws elements with instancing support.
@@ -208,7 +208,7 @@ var WebGLContextWrapper = class {
    * @param instanceCount - The number of instances to draw
    */
   drawElementsInstanced(primitiveMode, indexCount, type, offset, instanceCount) {
-    this.mC.drawElementsInstanced(primitiveMode, indexCount, type, offset, instanceCount);
+    this.RC.drawElementsInstanced(primitiveMode, indexCount, type, offset, instanceCount);
   }
   /**
    * Draws arrays with instancing support.
@@ -218,7 +218,7 @@ var WebGLContextWrapper = class {
    * @param instanceCount - The number of instances to draw
    */
   drawArraysInstanced(primitiveMode, first, count, instanceCount) {
-    this.mC.drawArraysInstanced(primitiveMode, first, count, instanceCount);
+    this.RC.drawArraysInstanced(primitiveMode, first, count, instanceCount);
   }
   /**
    * Issues multiple instanced indexed draws with one call when WEBGL_multi_draw is available.
@@ -242,7 +242,7 @@ var WebGLContextWrapper = class {
       return;
     }
     for (let i = 0; i < drawcount; i++) {
-      this.mC.drawElementsInstanced(
+      this.RC.drawElementsInstanced(
         primitiveMode,
         counts[countsOffset + i],
         type,
@@ -271,7 +271,7 @@ var WebGLContextWrapper = class {
       return;
     }
     for (let i = 0; i < drawcount; i++) {
-      this.mC.drawArraysInstanced(
+      this.RC.drawArraysInstanced(
         primitiveMode,
         firsts[firstsOffset + i],
         counts[countsOffset + i],
@@ -292,7 +292,7 @@ var WebGLContextWrapper = class {
    * @param buffers - Array of render buffer targets to draw to
    */
   drawBuffers(buffers) {
-    const gl = this.mC;
+    const gl = this.RC;
     if (buffers.length === 0) {
       gl.drawBuffers([gl.NONE]);
       return;
@@ -314,12 +314,12 @@ var WebGLContextWrapper = class {
    * Optimized to avoid redundant state changes.
    * @param activeTextureIndex - The texture unit index to activate
    */
-  pC(activeTextureIndex) {
-    if (this.CC === activeTextureIndex) {
+  UC(activeTextureIndex) {
+    if (this.fD === activeTextureIndex) {
       return;
     }
-    this.mC.activeTexture(this.mC.TEXTURE0 + activeTextureIndex);
-    this.CC = activeTextureIndex;
+    this.RC.activeTexture(this.RC.TEXTURE0 + activeTextureIndex);
+    this.fD = activeTextureIndex;
   }
   /**
    * Binds a 2D texture to a specific texture unit.
@@ -328,13 +328,13 @@ var WebGLContextWrapper = class {
    * @param texture - The 2D texture to bind
    */
   bindTexture2D(activeTextureIndex, texture) {
-    const tex = this.oC.get(activeTextureIndex);
+    const tex = this.TC.get(activeTextureIndex);
     if (tex !== texture) {
-      this.pC(activeTextureIndex);
-      this.mC.bindTexture(this.mC.TEXTURE_2D, texture);
-      this.oC.set(activeTextureIndex, texture);
+      this.UC(activeTextureIndex);
+      this.RC.bindTexture(this.RC.TEXTURE_2D, texture);
+      this.TC.set(activeTextureIndex, texture);
     }
-    this.uC[activeTextureIndex] = texture;
+    this.ZC[activeTextureIndex] = texture;
   }
   /**
    * Binds a 2D array texture to a specific texture unit.
@@ -343,13 +343,13 @@ var WebGLContextWrapper = class {
    * @param texture - The 2D array texture to bind
    */
   bindTexture2DArray(activeTextureIndex, texture) {
-    const tex = this.oC.get(activeTextureIndex);
+    const tex = this.TC.get(activeTextureIndex);
     if (tex !== texture) {
-      this.pC(activeTextureIndex);
-      this.mC.bindTexture(this.mC.TEXTURE_2D_ARRAY, texture);
-      this.oC.set(activeTextureIndex, texture);
+      this.UC(activeTextureIndex);
+      this.RC.bindTexture(this.RC.TEXTURE_2D_ARRAY, texture);
+      this.TC.set(activeTextureIndex, texture);
     }
-    this.vC[activeTextureIndex] = texture;
+    this._C[activeTextureIndex] = texture;
   }
   /**
    * Binds a sampler object to a specific texture unit.
@@ -358,10 +358,10 @@ var WebGLContextWrapper = class {
    * @param sampler - The sampler object to bind
    */
   bindTextureSampler(activeTextureIndex, sampler) {
-    const samp = this.DC.get(activeTextureIndex);
+    const samp = this.gD.get(activeTextureIndex);
     if (samp !== sampler) {
-      this.mC.bindSampler(activeTextureIndex, sampler);
-      this.DC.set(activeTextureIndex, sampler);
+      this.RC.bindSampler(activeTextureIndex, sampler);
+      this.gD.set(activeTextureIndex, sampler);
     }
   }
   /**
@@ -371,72 +371,72 @@ var WebGLContextWrapper = class {
    * @param texture - The cube map texture to bind
    */
   bindTextureCube(activeTextureIndex, texture) {
-    const tex = this.oC.get(activeTextureIndex);
+    const tex = this.TC.get(activeTextureIndex);
     if (tex !== texture) {
-      this.pC(activeTextureIndex);
-      this.mC.bindTexture(this.mC.TEXTURE_CUBE_MAP, texture);
-      this.oC.set(activeTextureIndex, texture);
+      this.UC(activeTextureIndex);
+      this.RC.bindTexture(this.RC.TEXTURE_CUBE_MAP, texture);
+      this.TC.set(activeTextureIndex, texture);
     }
-    this.wC[activeTextureIndex] = texture;
+    this.$C[activeTextureIndex] = texture;
   }
   /**
    * Unbinds a 2D texture from a specific texture unit.
    * @param activeTextureIndex - The texture unit index
    */
   unbindTexture2D(activeTextureIndex) {
-    this.pC(activeTextureIndex);
-    this.mC.bindTexture(this.mC.TEXTURE_2D, null);
-    this.oC.delete(activeTextureIndex);
-    delete this.uC[activeTextureIndex];
+    this.UC(activeTextureIndex);
+    this.RC.bindTexture(this.RC.TEXTURE_2D, null);
+    this.TC.delete(activeTextureIndex);
+    delete this.ZC[activeTextureIndex];
   }
   /**
    * Unbinds a 2D array texture from a specific texture unit.
    * @param activeTextureIndex - The texture unit index
    */
   unbindTexture2DArray(activeTextureIndex) {
-    this.pC(activeTextureIndex);
-    this.mC.bindTexture(this.mC.TEXTURE_2D_ARRAY, null);
-    this.oC.delete(activeTextureIndex);
-    delete this.vC[activeTextureIndex];
+    this.UC(activeTextureIndex);
+    this.RC.bindTexture(this.RC.TEXTURE_2D_ARRAY, null);
+    this.TC.delete(activeTextureIndex);
+    delete this._C[activeTextureIndex];
   }
   /**
    * Unbinds a cube map texture from a specific texture unit.
    * @param activeTextureIndex - The texture unit index
    */
   unbindTextureCube(activeTextureIndex) {
-    this.pC(activeTextureIndex);
-    this.mC.bindTexture(this.mC.TEXTURE_CUBE_MAP, null);
-    this.oC.delete(activeTextureIndex);
-    delete this.wC[activeTextureIndex];
+    this.UC(activeTextureIndex);
+    this.RC.bindTexture(this.RC.TEXTURE_CUBE_MAP, null);
+    this.TC.delete(activeTextureIndex);
+    delete this.$C[activeTextureIndex];
   }
   /**
    * Unbinds all currently bound textures from all texture units.
    * This is useful for cleanup operations.
    */
   unbindTextures() {
-    for (let i = 0; i < this.uC.length; i++) {
-      if (this.uC[i] == null) {
+    for (let i = 0; i < this.ZC.length; i++) {
+      if (this.ZC[i] == null) {
         continue;
       }
-      this.pC(15);
-      this.mC.bindTexture(this.mC.TEXTURE_2D, null);
-      delete this.uC[i];
+      this.UC(15);
+      this.RC.bindTexture(this.RC.TEXTURE_2D, null);
+      delete this.ZC[i];
     }
-    for (let i = 0; i < this.vC.length; i++) {
-      if (this.vC[i] == null) {
+    for (let i = 0; i < this._C.length; i++) {
+      if (this._C[i] == null) {
         continue;
       }
-      this.pC(15);
-      this.mC.bindTexture(this.mC.TEXTURE_2D_ARRAY, null);
-      delete this.vC[i];
+      this.UC(15);
+      this.RC.bindTexture(this.RC.TEXTURE_2D_ARRAY, null);
+      delete this._C[i];
     }
-    for (let i = 0; i < this.wC.length; i++) {
-      if (this.wC[i] == null) {
+    for (let i = 0; i < this.$C.length; i++) {
+      if (this.$C[i] == null) {
         continue;
       }
-      this.pC(15);
-      this.mC.bindTexture(this.mC.TEXTURE_CUBE_MAP, null);
-      delete this.wC[i];
+      this.UC(15);
+      this.RC.bindTexture(this.RC.TEXTURE_CUBE_MAP, null);
+      delete this.$C[i];
     }
   }
   /**
@@ -445,39 +445,39 @@ var WebGLContextWrapper = class {
    * @param extension - The extension to retrieve
    * @returns The extension object or null if not available
    */
-  nC(config, extension) {
-    const gl = this.mC;
-    if (!this.tC.has(extension)) {
+  SC(config, extension) {
+    const gl = this.RC;
+    if (!this.YC.has(extension)) {
       const extObj = gl.getExtension(extension.toString());
       if (extObj == null && config.cgApiDebugConsoleOutput) {
         const text = `${extension.toString()} Not Available in this environment`;
         Logger.default.info(text);
       }
-      this.tC.set(extension, extObj);
+      this.YC.set(extension, extObj);
       return extObj;
     }
-    return this.tC.get(extension);
+    return this.YC.get(extension);
   }
   /**
    * Gets a compressed texture extension with vendor prefix support.
    * @param extension - The compressed texture extension to retrieve
    * @returns The extension object or null if not available
    */
-  qC(config, extension) {
+  VC(config, extension) {
     var _a, _b;
-    const gl = this.mC;
-    if (!this.tC.has(extension)) {
+    const gl = this.RC;
+    if (!this.YC.has(extension)) {
       const extensionName = extension.toString();
       const extObj = (_b = (_a = gl.getExtension(extensionName)) != null ? _a : gl.getExtension(`MOZ_${extensionName}`)) != null ? _b : gl.getExtension(`WEBKIT_${extensionName}`);
       if (extObj == null && config.cgApiDebugConsoleOutput) {
         const text = `${extension.toString()} Not Available in this environment`;
         Logger.default.info(text);
       } else {
-        this.tC.set(extension, extObj);
+        this.YC.set(extension, extObj);
       }
       return extObj;
     }
-    return this.tC.get(extension);
+    return this.YC.get(extension);
   }
   /**
    * Sets the viewport with optimization to avoid redundant state changes.
@@ -487,13 +487,13 @@ var WebGLContextWrapper = class {
    * @param height - Height of the viewport
    */
   setViewport(left, top, width, height) {
-    const gl = this.mC;
-    if (this.rC !== width || this.sC !== height || this.xC !== left || this.yC !== top) {
+    const gl = this.RC;
+    if (this.WC !== width || this.XC !== height || this.aD !== left || this.bD !== top) {
       gl.viewport(left, top, width, height);
-      this.xC = left;
-      this.yC = top;
-      this.rC = width;
-      this.sC = height;
+      this.aD = left;
+      this.bD = top;
+      this.WC = width;
+      this.XC = height;
     }
   }
   /**
@@ -501,82 +501,82 @@ var WebGLContextWrapper = class {
    * @param viewport - Vector4 containing left, top, width, and height
    */
   setViewportAsVector4(viewport) {
-    const gl = this.mC;
-    if (this.rC !== viewport.z || this.sC !== viewport.w || this.xC !== viewport.x || this.yC !== viewport.y) {
+    const gl = this.RC;
+    if (this.WC !== viewport.z || this.XC !== viewport.w || this.aD !== viewport.x || this.bD !== viewport.y) {
       gl.viewport(viewport.x, viewport.y, viewport.z, viewport.w);
-      this.xC = viewport.x;
-      this.yC = viewport.y;
-      this.rC = viewport.z;
-      this.sC = viewport.w;
+      this.aD = viewport.x;
+      this.bD = viewport.y;
+      this.WC = viewport.z;
+      this.XC = viewport.w;
     }
   }
   /**
    * Retrieves and caches uniform buffer information for WebGL2.
    * This includes alignment requirements and size limits.
    */
-  QC() {
+  tD() {
     if (!this.isWebGL2) {
       return;
     }
-    const gl = this.mC;
+    const gl = this.RC;
     const offsetAlignment = gl.getParameter(gl.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
     const maxBlockSize = gl.getParameter(gl.MAX_UNIFORM_BLOCK_SIZE);
-    this.HC = gl.getParameter(gl.MAX_VERTEX_UNIFORM_BLOCKS);
-    this.IC = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_BLOCKS);
-    this.JC = Math.min(this.HC, this.IC);
-    this.GC = maxBlockSize - maxBlockSize % offsetAlignment;
-    this.NC = offsetAlignment;
-    this.OC = maxBlockSize;
+    this.kD = gl.getParameter(gl.MAX_VERTEX_UNIFORM_BLOCKS);
+    this.lD = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_BLOCKS);
+    this.mD = Math.min(this.kD, this.lD);
+    this.jD = maxBlockSize - maxBlockSize % offsetAlignment;
+    this.qD = offsetAlignment;
+    this.rD = maxBlockSize;
   }
   /**
    * Retrieves and caches the maximum number of uniform vectors for vertex and fragment shaders.
    */
-  RC() {
+  uD() {
     const gl = this.getRawContext();
-    this.zC = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
-    this.zC = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
+    this.cD = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
+    this.cD = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
   }
   /**
    * Retrieves and caches the maximum texture size.
    */
-  SC() {
+  vD() {
     const gl = this.getRawContext();
-    this.KC = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+    this.nD = gl.getParameter(gl.MAX_TEXTURE_SIZE);
   }
   /**
    * Gets the maximum texture size.
    * @returns The maximum texture size
    */
   getMaxTextureSize() {
-    return this.KC;
+    return this.nD;
   }
   /**
    * Gets the maximum number of uniform blocks that can be used in both vertex and fragment shaders.
    * @returns The minimum of vertex and fragment shader uniform block limits
    */
   getMaxConventionUniformBlocks() {
-    return this.JC;
+    return this.mD;
   }
   /**
    * Gets the maximum uniform block size aligned to the required offset alignment.
    * @returns The aligned maximum uniform block size in bytes
    */
   getAlignedMaxUniformBlockSize() {
-    return this.GC;
+    return this.jD;
   }
   /**
    * Gets the maximum number of uniform vectors available in vertex shaders.
    * @returns The maximum vertex uniform vectors
    */
   getMaxVertexUniformVectors() {
-    return this.zC;
+    return this.cD;
   }
   /**
    * Gets the maximum number of uniform vectors available in fragment shaders.
    * @returns The maximum fragment uniform vectors
    */
   getMaxFragmentUniformVectors() {
-    return this.PC;
+    return this.sD;
   }
   /**
    * Gets WebGL memory usage information if the GMAN_WEBGL_MEMORY extension is available.
@@ -594,7 +594,7 @@ var WebGLContextWrapper = class {
    * @returns True if multiview is available and enabled for WebVR
    */
   isMultiview(config) {
-    return this.AC && config.multiViewForWebVR;
+    return this.dD && config.multiViewForWebVR;
   }
 };
 export {

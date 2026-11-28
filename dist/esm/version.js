@@ -1,1 +1,1 @@
-var r={version:"v0.25.0-6-g90c6b948d-dirty",branch:"fix/remove-unused-classic-depthbiaspv"};var s=r;export{s as VERSION};
+var r={version:"v0.26.0-0-gcc29f1c34-dirty",branch:"main"};var n=r;export{n as VERSION};

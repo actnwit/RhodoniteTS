@@ -19,11 +19,11 @@ var OpSubtractionShaderNode = class extends AbstractShaderNode {
       codeWGSL: OpSubtractionShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.zr.push(new Socket("base", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
-    this.zr.push(
+    this.Hr.push(new Socket("base", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
+    this.Hr.push(
       new Socket("subtractor", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
-    this.Cr.push(
+    this.Kr.push(
       new Socket("outValue", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
   }
@@ -35,7 +35,7 @@ var OpSubtractionShaderNode = class extends AbstractShaderNode {
    * @returns The base shape input socket
    */
   getSocketInputBase() {
-    return this.zr[0];
+    return this.Hr[0];
   }
   /**
    * Gets the subtractor shape input socket.
@@ -45,7 +45,7 @@ var OpSubtractionShaderNode = class extends AbstractShaderNode {
    * @returns The subtractor shape input socket
    */
   getSocketInputSubtractor() {
-    return this.zr[1];
+    return this.Hr[1];
   }
   /**
    * Gets the output socket that contains the result of the subtraction operation.
@@ -53,7 +53,7 @@ var OpSubtractionShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the subtraction result
    */
   getSocketOutput() {
-    return this.Cr[0];
+    return this.Kr[0];
   }
 };
 export {

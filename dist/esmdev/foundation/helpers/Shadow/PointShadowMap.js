@@ -11,10 +11,10 @@ var PointShadowMap = class {
    * The framebuffer uses RGBA16F format for storing depth moments and a 32-bit depth buffer.
    */
   constructor(engine) {
-    this.jo = [];
-    this.ko = [];
+    this.ro = [];
+    this.so = [];
     this.c = engine;
-    this.io = RenderableHelper.createFrameBuffer(engine, {
+    this.qo = RenderableHelper.createFrameBuffer(engine, {
       width: 1024,
       height: 1024,
       textureNum: 1,
@@ -25,11 +25,11 @@ var PointShadowMap = class {
     for (let i = 0; i < engine.config.maxLightNumber; i++) {
       const shadowMomentFrontMaterial = createParaboloidDepthMomentEncodeMaterial(engine);
       shadowMomentFrontMaterial.colorWriteMask = [true, true, false, false];
-      this.jo.push(shadowMomentFrontMaterial);
+      this.ro.push(shadowMomentFrontMaterial);
       const shadowMomentBackMaterial = createParaboloidDepthMomentEncodeMaterial(engine);
       shadowMomentBackMaterial.colorWriteMask = [false, false, true, true];
       shadowMomentBackMaterial.setParameter("frontHemisphere", false);
-      this.ko.push(shadowMomentBackMaterial);
+      this.so.push(shadowMomentBackMaterial);
     }
   }
   /**
@@ -41,8 +41,8 @@ var PointShadowMap = class {
    */
   setFarPlane(shadowSlot, farPlane) {
     var _a, _b;
-    (_a = this.jo[shadowSlot]) == null ? void 0 : _a.setParameter("farPlane", farPlane);
-    (_b = this.ko[shadowSlot]) == null ? void 0 : _b.setParameter("farPlane", farPlane);
+    (_a = this.ro[shadowSlot]) == null ? void 0 : _a.setParameter("farPlane", farPlane);
+    (_b = this.so[shadowSlot]) == null ? void 0 : _b.setParameter("farPlane", farPlane);
   }
   /**
    * Generates render passes for creating shadow maps from a point light source.
@@ -61,8 +61,8 @@ var PointShadowMap = class {
     const lightComponent = lightEntity.getLight();
     const lightComponentSid = lightComponent.componentSID;
     const materialIndex = shadowSlot != null ? shadowSlot : lightComponent._shadowSlot;
-    const frontMaterial = this.jo[materialIndex];
-    const backMaterial = this.ko[materialIndex];
+    const frontMaterial = this.ro[materialIndex];
+    const backMaterial = this.so[materialIndex];
     if (frontMaterial == null || backMaterial == null) {
       throw new Error(`PointShadowMap: The shadow slot ${materialIndex} is out of range of Config.maxLightNumber.`);
     }
@@ -71,7 +71,7 @@ var PointShadowMap = class {
     shadowMomentFrontRenderPass.toClearColorBuffer = true;
     shadowMomentFrontRenderPass.toClearDepthBuffer = true;
     shadowMomentFrontRenderPass.addEntities(entities);
-    shadowMomentFrontRenderPass.setFramebuffer(this.io);
+    shadowMomentFrontRenderPass.setFramebuffer(this.qo);
     shadowMomentFrontRenderPass.setMaterial(frontMaterial);
     frontMaterial.setParameter("lightIndex", lightComponentSid);
     frontMaterial.setParameter("farPlane", farPlane);
@@ -79,7 +79,7 @@ var PointShadowMap = class {
     shadowMomentBackRenderPass.toClearColorBuffer = false;
     shadowMomentBackRenderPass.toClearDepthBuffer = true;
     shadowMomentBackRenderPass.addEntities(entities);
-    shadowMomentBackRenderPass.setFramebuffer(this.io);
+    shadowMomentBackRenderPass.setFramebuffer(this.qo);
     shadowMomentBackRenderPass.setMaterial(backMaterial);
     backMaterial.setParameter("lightIndex", lightComponentSid);
     backMaterial.setParameter("farPlane", farPlane);
@@ -92,7 +92,7 @@ var PointShadowMap = class {
    * @returns The shadow moment framebuffer containing RGBA16F texture for depth moments
    */
   getShadowMomentFramebuffer() {
-    return this.io;
+    return this.qo;
   }
 };
 export {

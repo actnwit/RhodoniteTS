@@ -2,7 +2,7 @@
 var GetComponentFromEntities = /* @__PURE__ */ Symbol();
 var getComponentFromEntitiesStr = "getComponentFromEntities";
 function getComponentFromEntities(ComponentClass) {
-  const that = this.Ej;
+  const that = this.Lj;
   const components = [];
   that.forEach((entity) => {
     const component = entity.getComponentByComponentTID(ComponentClass.componentTID);
@@ -14,7 +14,7 @@ function getComponentFromEntities(ComponentClass) {
 }
 var EnhancedArrayMethods = class {
   constructor(__raw) {
-    this.Ej = __raw;
+    this.Lj = __raw;
   }
 };
 var enhanceInner = () => {

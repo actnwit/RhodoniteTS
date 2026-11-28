@@ -745,9 +745,9 @@ var Gltf2Importer = class {
           rnm2Buffer.buffer = new Uint8Array(arrayBuffer);
           resolve(arrayBuffer);
         });
-      } else if (files && this.Ep(files, filename)) {
+      } else if (files && this.Mp(files, filename)) {
         rnpArrayBuffer = new RnPromise((resolve) => {
-          const fullPath = this.Fp(files, filename);
+          const fullPath = this.Np(files, filename);
           const arrayBuffer = files[fullPath];
           rnm2Buffer.buffer = new Uint8Array(arrayBuffer);
           resolve(arrayBuffer);
@@ -779,7 +779,7 @@ var Gltf2Importer = class {
             uint8ArrayOfGlb
           );
           const imageUri = DataUtil.createBlobImageUriFromUint8Array(imageUint8Array, rnm2Image.mimeType);
-          promisesToLoadResources.push(this.Gp(imageUri, rnm2Image, files));
+          promisesToLoadResources.push(this.Op(imageUri, rnm2Image, files));
         } else {
           const rnm2BufferView = gltfJson.bufferViews[rnm2Image.bufferView];
           const bufferInfo = rnm2BufferView.bufferObject;
@@ -796,7 +796,7 @@ var Gltf2Importer = class {
                 arraybuffer
               );
               const imageUri = DataUtil.createBlobImageUriFromUint8Array(imageUint8Array, rnm2Image.mimeType);
-              this.Gp(imageUri, rnm2Image, files).then(() => {
+              this.Op(imageUri, rnm2Image, files).then(() => {
                 resolve(arraybuffer);
               });
             });
@@ -810,8 +810,8 @@ var Gltf2Importer = class {
         const splitUri = imageFileStr.split("/");
         const filename = splitUri[splitUri.length - 1];
         let imageUri;
-        if (files && this.Ep(files, filename)) {
-          const fullPath = this.Fp(files, filename);
+        if (files && this.Mp(files, filename)) {
+          const fullPath = this.Np(files, filename);
           const arrayBuffer = files[fullPath];
           imageUri = DataUtil.createBlobImageUriFromUint8Array(new Uint8Array(arrayBuffer), rnm2Image.mimeType);
         } else if (imageFileStr.match(/^data:/)) {
@@ -819,10 +819,10 @@ var Gltf2Importer = class {
         } else {
           imageUri = basePath + imageFileStr;
         }
-        promisesToLoadResources.push(this.Gp(imageUri, rnm2Image, files));
+        promisesToLoadResources.push(this.Op(imageUri, rnm2Image, files));
       }
     }
-    const rmnPromises = this.Hp(gltfJson, files, basePath);
+    const rmnPromises = this.Pp(gltfJson, files, basePath);
     for (const promise of rmnPromises) {
       promisesToLoadResources.push(promise);
     }
@@ -841,7 +841,7 @@ var Gltf2Importer = class {
    * @private
    * @internal
    */
-  static Hp(gltfJson, files, basePath) {
+  static Pp(gltfJson, files, basePath) {
     var _a, _b, _c;
     const promises = [];
     const EXTENSION_NAME = "RHODONITE_materials_node";
@@ -863,9 +863,9 @@ var Gltf2Importer = class {
           extension.shaderNodeJson = JSON.parse(jsonStr);
           resolve(extension.shaderNodeJson);
         });
-      } else if (files && this.Ep(files, filename)) {
+      } else if (files && this.Mp(files, filename)) {
         loadPromise = new RnPromise((resolve) => {
-          const fullPath = this.Fp(files, filename);
+          const fullPath = this.Np(files, filename);
           const arrayBuffer = files[fullPath];
           const jsonStr = DataUtil.arrayBufferToString(arrayBuffer);
           extension.shaderNodeJson = JSON.parse(jsonStr);
@@ -903,7 +903,7 @@ var Gltf2Importer = class {
    * @private
    * @internal
    */
-  static Ep(optionsFiles, filename) {
+  static Mp(optionsFiles, filename) {
     for (const key in optionsFiles) {
       const split = key.split("/");
       const last = split[split.length - 1];
@@ -924,7 +924,7 @@ var Gltf2Importer = class {
    * @private
    * @internal
    */
-  static Fp(optionsFiles, filename) {
+  static Np(optionsFiles, filename) {
     for (const key in optionsFiles) {
       const split = key.split("/");
       const last = split[split.length - 1];
@@ -947,7 +947,7 @@ var Gltf2Importer = class {
    * @private
    * @internal
    */
-  static Gp(imageUri, imageJson, files) {
+  static Op(imageUri, imageJson, files) {
     var _a, _b;
     let loadImagePromise;
     if (imageUri.match(/basis$/)) {

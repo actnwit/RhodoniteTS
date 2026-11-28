@@ -31,9 +31,11 @@ export declare class WebGpuStrategyBasic implements CGAPIStrategy {
     private __storageBlendShapeBufferUid;
     private __uniformMorphOffsetsTypedArray?;
     private __uniformMorphWeightsTypedArray?;
+    private __isPreviousMorphWeightsSettled;
     private __lastMaterialsUpdateCount;
     private __lastLightClusterDataVersion;
     private __lastLightComponentsUpdateCount;
+    private __lastGpuInstanceDataVersion;
     private __lightClusterBuilder?;
     private __lastLightClusterBuildDataVersion;
     private __lastTransformComponentsUpdateCount;
@@ -202,6 +204,12 @@ export declare class WebGpuStrategyBasic implements CGAPIStrategy {
      * Copies weight values from blend shape components to GPU-accessible uniform buffers.
      */
     private __updateMorphWeightsUniformBuffer;
+    private __uploadMorphWeights;
+    /**
+     * Makes the weights of the previous frame in the morph weights uniform buffer equal to the current weights once
+     * the weights stopped changing (temporal anti-aliasing only).
+     */
+    private __settlePreviousMorphWeights;
     /**
      * Determines the appropriate camera component SID for the current rendering context.
      * Handles both VR and non-VR rendering scenarios, including multi-view stereo rendering.

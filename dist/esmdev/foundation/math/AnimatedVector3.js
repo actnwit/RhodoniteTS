@@ -16,16 +16,16 @@ var AnimatedVector3 = class extends Vector3 {
   constructor(animationSamplers, activeAnimationTrackName) {
     super(new Float32Array(3));
     this.pc = 0;
-    this.mt = new AnimatedValueEvaluationState();
+    this.ut = new AnimatedValueEvaluationState();
     this.isLoop = true;
-    this.nt = animationSamplers;
-    this.qt = activeAnimationTrackName;
-    this.rt = activeAnimationTrackName;
-    const animationSampler = this.nt.get(this.qt);
+    this.vt = animationSamplers;
+    this.yt = activeAnimationTrackName;
+    this.zt = activeAnimationTrackName;
+    const animationSampler = this.vt.get(this.yt);
     if (animationSampler === void 0) {
       throw new Error("Animation channel not found");
     }
-    this.pt = animationSampler;
+    this.xt = animationSampler;
   }
   /**
    * Returns the vector components as a regular JavaScript array.
@@ -45,20 +45,20 @@ var AnimatedVector3 = class extends Vector3 {
       return;
     }
     this._v = array;
-    this.mt.invalidate();
+    this.ut.invalidate();
     this.update();
   }
   /**
    * Drops the memoized interpolation result. Call this after mutating sampler data directly.
    */
   invalidateAnimationCache() {
-    this.mt.invalidate();
+    this.ut.invalidate();
   }
   /**
    * Number of actual interpolations performed. Intended for tests and benchmarks.
    */
   getEvaluationCount() {
-    return this.mt.evaluationCount;
+    return this.ut.evaluationCount;
   }
   /**
    * Gets the internal value array without allocating a copy. Do not mutate the returned array.
@@ -70,7 +70,7 @@ var AnimatedVector3 = class extends Vector3 {
    * Sets the time and blending ratio and evaluates the value at most once.
    */
   setTimeAndBlendingRatio(time, blendingRatio) {
-    this.ut = time;
+    this.Ct = time;
     this.pc = blendingRatio;
     this.update();
   }
@@ -83,7 +83,7 @@ var AnimatedVector3 = class extends Vector3 {
    * @param time - The time value in seconds
    */
   setTime(time) {
-    this.ut = time;
+    this.Ct = time;
     this.update();
   }
   /**
@@ -91,7 +91,7 @@ var AnimatedVector3 = class extends Vector3 {
    * When used with AnimationComponent, the time will be set via setTime() during animation processing.
    */
   useGlobalTime() {
-    this.ut = void 0;
+    this.Ct = void 0;
     this.update();
   }
   /**
@@ -158,49 +158,49 @@ var AnimatedVector3 = class extends Vector3 {
    */
   update() {
     var _a;
-    let time = (_a = this.ut) != null ? _a : 0;
+    let time = (_a = this.Ct) != null ? _a : 0;
     if (this.isLoop) {
-      let duration = this.pt.input[this.pt.input.length - 1];
-      if (this.ot !== void 0) {
+      let duration = this.xt.input[this.xt.input.length - 1];
+      if (this.wt !== void 0) {
         duration = Math.min(
           duration,
-          this.ot.input[this.ot.input.length - 1]
+          this.wt.input[this.wt.input.length - 1]
         );
       }
       time = time % duration;
     }
-    const hasSecondSampler = this.ot !== void 0;
-    if (!this.mt.shouldEvaluate(time, this.pc, hasSecondSampler)) {
+    const hasSecondSampler = this.wt !== void 0;
+    if (!this.ut.shouldEvaluate(time, this.pc, hasSecondSampler)) {
       return;
     }
-    if (this.ot === void 0) {
+    if (this.wt === void 0) {
       __interpolateTo(
-        this.pt,
+        this.xt,
         time,
         AnimationAttribute.Vector3.index,
         this._v,
-        this.mt.firstCursor
+        this.ut.firstCursor
       );
     } else {
-      const evaluation = this.mt;
+      const evaluation = this.ut;
       evaluation.ensureScratch(
         Math.max(
           this._v.length,
-          this.pt.outputComponentN,
-          this.ot.outputComponentN
+          this.xt.outputComponentN,
+          this.wt.outputComponentN
         )
       );
       const firstValue = evaluation.scratchFirst;
       const secondValue = evaluation.scratchSecond;
       __interpolateTo(
-        this.pt,
+        this.xt,
         time,
         AnimationAttribute.Vector3.index,
         firstValue,
         evaluation.firstCursor
       );
       __interpolateTo(
-        this.ot,
+        this.wt,
         time,
         AnimationAttribute.Vector3.index,
         secondValue,
@@ -210,7 +210,7 @@ var AnimatedVector3 = class extends Vector3 {
       this._v[1] = firstValue[1] * (1 - this.blendingRatio) + secondValue[1] * this.blendingRatio;
       this._v[2] = firstValue[2] * (1 - this.blendingRatio) + secondValue[2] * this.blendingRatio;
     }
-    this.mt.markEvaluated(time, this.pc);
+    this.ut.markEvaluated(time, this.pc);
   }
   /**
    * Sets the first (primary) active animation track.
@@ -219,14 +219,14 @@ var AnimatedVector3 = class extends Vector3 {
    */
   setFirstActiveAnimationTrackName(animationTrackName) {
     AnimationStateRepository.markAnimationBindingChanged();
-    this.mt.invalidate();
-    this.qt = animationTrackName;
-    const animationSampler = this.nt.get(this.qt);
+    this.ut.invalidate();
+    this.yt = animationTrackName;
+    const animationSampler = this.vt.get(this.yt);
     if (animationSampler === void 0) {
       Logger.default.info("Animation channel not found");
     } else {
-      this.pt = animationSampler;
-      this.rt = animationTrackName;
+      this.xt = animationSampler;
+      this.zt = animationTrackName;
     }
   }
   /**
@@ -236,14 +236,14 @@ var AnimatedVector3 = class extends Vector3 {
    */
   setSecondActiveAnimationTrackName(animationTrackName) {
     AnimationStateRepository.markAnimationBindingChanged();
-    this.mt.invalidate();
-    this.st = animationTrackName;
-    const animationSampler = this.nt.get(this.st);
+    this.ut.invalidate();
+    this.At = animationTrackName;
+    const animationSampler = this.vt.get(this.At);
     if (animationSampler === void 0) {
       Logger.default.info("Animation channel not found");
     } else {
-      this.ot = animationSampler;
-      this.tt = animationTrackName;
+      this.wt = animationSampler;
+      this.Bt = animationTrackName;
     }
   }
   /**
@@ -252,10 +252,10 @@ var AnimatedVector3 = class extends Vector3 {
    * @returns The name of the first active animation track
    */
   getFirstActiveAnimationTrackName() {
-    return this.qt;
+    return this.yt;
   }
   getFirstActiveAnimationSamplerTrackName() {
-    return this.rt;
+    return this.zt;
   }
   /**
    * Gets the name of the second (secondary) active animation track.
@@ -263,10 +263,10 @@ var AnimatedVector3 = class extends Vector3 {
    * @returns The name of the second active animation track, or undefined if not set
    */
   getSecondActiveAnimationTrackName() {
-    return this.st;
+    return this.At;
   }
   getSecondActiveAnimationSamplerTrackName() {
-    return this.tt;
+    return this.Bt;
   }
   /**
    * Gets the minimum start time from the input data of the specified animation track.
@@ -276,7 +276,7 @@ var AnimatedVector3 = class extends Vector3 {
    * @throws {Error} When the specified animation track is not found
    */
   getMinStartInputTime(trackName) {
-    const animationSampler = this.nt.get(trackName);
+    const animationSampler = this.vt.get(trackName);
     if (animationSampler === void 0) {
       throw new Error("Animation channel not found");
     }
@@ -290,7 +290,7 @@ var AnimatedVector3 = class extends Vector3 {
    * @throws {Error} When the specified animation track is not found
    */
   getMaxEndInputTime(trackName) {
-    const animationSampler = this.nt.get(trackName);
+    const animationSampler = this.vt.get(trackName);
     if (animationSampler === void 0) {
       throw new Error("Animation channel not found");
     }
@@ -302,7 +302,7 @@ var AnimatedVector3 = class extends Vector3 {
    * @returns An array containing all animation track names
    */
   getAllTrackNames() {
-    return Array.from(this.nt.keys());
+    return Array.from(this.vt.keys());
   }
   /**
    * Gets the animation sampler for the specified track.
@@ -312,7 +312,7 @@ var AnimatedVector3 = class extends Vector3 {
    * @throws {Error} When the specified animation track is not found
    */
   getAnimationSampler(trackName) {
-    const animationSampler = this.nt.get(trackName);
+    const animationSampler = this.vt.get(trackName);
     if (animationSampler === void 0) {
       throw new Error("Animation channel not found");
     }
@@ -325,8 +325,8 @@ var AnimatedVector3 = class extends Vector3 {
    */
   deleteAnimationSampler(trackName) {
     AnimationStateRepository.markAnimationBindingChanged();
-    this.mt.invalidate();
-    this.nt.delete(trackName);
+    this.ut.invalidate();
+    this.vt.delete(trackName);
   }
   /**
    * Sets or updates an animation sampler for the specified track.
@@ -336,16 +336,16 @@ var AnimatedVector3 = class extends Vector3 {
    */
   setAnimationSampler(animationTrackName, animationSampler) {
     AnimationStateRepository.markAnimationBindingChanged();
-    this.nt.set(animationTrackName, animationSampler);
-    if (animationTrackName === this.rt || animationTrackName === this.qt) {
-      this.pt = animationSampler;
-      this.rt = animationTrackName;
+    this.vt.set(animationTrackName, animationSampler);
+    if (animationTrackName === this.zt || animationTrackName === this.yt) {
+      this.xt = animationSampler;
+      this.zt = animationTrackName;
     }
-    if (animationTrackName === this.tt || animationTrackName === this.st) {
-      this.ot = animationSampler;
-      this.tt = animationTrackName;
+    if (animationTrackName === this.Bt || animationTrackName === this.At) {
+      this.wt = animationSampler;
+      this.Bt = animationTrackName;
     }
-    this.mt.invalidate();
+    this.ut.invalidate();
   }
 };
 export {

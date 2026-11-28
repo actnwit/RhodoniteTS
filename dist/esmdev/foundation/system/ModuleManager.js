@@ -1,7 +1,7 @@
 // src/foundation/system/ModuleManager.ts
 var ModuleManager = class _ModuleManager {
   constructor() {
-    this.iB = /* @__PURE__ */ new Map();
+    this.NB = /* @__PURE__ */ new Map();
   }
   /* eslint-disable prettier/prettier */
   /**
@@ -71,7 +71,7 @@ var ModuleManager = class _ModuleManager {
         "../../xr/main.js"
       )).default;
     }
-    this.iB.set(moduleName, module);
+    this.NB.set(moduleName, module);
     return module;
   }
   /**
@@ -90,7 +90,7 @@ var ModuleManager = class _ModuleManager {
    * ```
    */
   getModule(moduleName) {
-    return this.iB.get(moduleName);
+    return this.NB.get(moduleName);
   }
   /**
    * Gets the singleton instance of ModuleManager.
@@ -104,10 +104,10 @@ var ModuleManager = class _ModuleManager {
    * ```
    */
   static getInstance() {
-    if (!this.Yi) {
-      this.Yi = new _ModuleManager();
+    if (!this.dj) {
+      this.dj = new _ModuleManager();
     }
-    return this.Yi;
+    return this.dj;
   }
 };
 export {

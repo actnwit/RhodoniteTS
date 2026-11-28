@@ -4,17 +4,17 @@ import { MutableVector3 } from "./MutableVector3.js";
 import { Vector3 } from "./Vector3.js";
 var _AABB = class _AABB {
   constructor() {
-    this.ft = MutableVector3.fromCopyArray([Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE]);
-    this.gt = MutableVector3.fromCopyArray([
+    this.nt = MutableVector3.fromCopyArray([Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE]);
+    this.ot = MutableVector3.fromCopyArray([
       -Number.MAX_VALUE,
       -Number.MAX_VALUE,
       -Number.MAX_VALUE
     ]);
-    this.kt = MutableVector3.zero();
-    this.lt = 0;
-    this.ht = false;
-    this.it = false;
-    this.jt = true;
+    this.st = MutableVector3.zero();
+    this.tt = 0;
+    this.pt = false;
+    this.qt = false;
+    this.rt = true;
   }
   /**
    * Creates a deep copy of this AABB instance.
@@ -33,13 +33,13 @@ var _AABB = class _AABB {
    */
   clone() {
     const instance = new _AABB();
-    instance.gt = this.gt.clone();
-    instance.ft = this.ft.clone();
-    instance.kt = this.kt.clone();
-    instance.lt = this.lt;
-    instance.ht = this.ht;
-    instance.it = this.it;
-    instance.jt = this.jt;
+    instance.ot = this.ot.clone();
+    instance.nt = this.nt.clone();
+    instance.st = this.st.clone();
+    instance.tt = this.tt;
+    instance.pt = this.pt;
+    instance.qt = this.qt;
+    instance.rt = this.rt;
     return instance;
   }
   /**
@@ -59,13 +59,13 @@ var _AABB = class _AABB {
    * ```
    */
   copyComponents(aabb) {
-    this.gt.copyComponents(aabb.gt);
-    this.ft.copyComponents(aabb.ft);
-    this.kt.copyComponents(aabb.kt);
-    this.lt = aabb.lt;
-    this.ht = aabb.ht;
-    this.it = aabb.it;
-    this.jt = false;
+    this.ot.copyComponents(aabb.ot);
+    this.nt.copyComponents(aabb.nt);
+    this.st.copyComponents(aabb.st);
+    this.tt = aabb.tt;
+    this.pt = aabb.pt;
+    this.qt = aabb.qt;
+    this.rt = false;
     return this;
   }
   /**
@@ -83,13 +83,13 @@ var _AABB = class _AABB {
    * ```
    */
   initialize() {
-    this.ft.setComponents(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
-    this.gt.setComponents(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
-    this.kt.zero();
-    this.lt = 0;
-    this.ht = false;
-    this.it = false;
-    this.jt = true;
+    this.nt.setComponents(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+    this.ot.setComponents(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+    this.st.zero();
+    this.tt = 0;
+    this.pt = false;
+    this.qt = false;
+    this.rt = true;
   }
   /**
    * Sets the minimum point of the bounding box.
@@ -100,10 +100,10 @@ var _AABB = class _AABB {
    * @param val - The new minimum point vector
    */
   set minPoint(val) {
-    this.ft.copyComponents(val);
-    this.ht = true;
-    this.it = true;
-    this.jt = false;
+    this.nt.copyComponents(val);
+    this.pt = true;
+    this.qt = true;
+    this.rt = false;
   }
   /**
    * Gets the minimum point of the bounding box.
@@ -111,7 +111,7 @@ var _AABB = class _AABB {
    * @returns The minimum point as a read-only Vector3
    */
   get minPoint() {
-    return this.ft;
+    return this.nt;
   }
   /**
    * Sets the maximum point of the bounding box.
@@ -122,10 +122,10 @@ var _AABB = class _AABB {
    * @param val - The new maximum point vector
    */
   set maxPoint(val) {
-    this.gt.copyComponents(val);
-    this.ht = true;
-    this.it = true;
-    this.jt = false;
+    this.ot.copyComponents(val);
+    this.pt = true;
+    this.qt = true;
+    this.rt = false;
   }
   /**
    * Gets the maximum point of the bounding box.
@@ -133,7 +133,7 @@ var _AABB = class _AABB {
    * @returns The maximum point as a read-only Vector3
    */
   get maxPoint() {
-    return this.gt;
+    return this.ot;
   }
   /**
    * Checks whether this AABB is in vanilla (uninitialized) state.
@@ -152,7 +152,7 @@ var _AABB = class _AABB {
    * ```
    */
   isVanilla() {
-    return this.jt;
+    return this.rt;
   }
   /**
    * Expands the AABB to include the given position.
@@ -173,15 +173,15 @@ var _AABB = class _AABB {
    * ```
    */
   addPosition(positionVector) {
-    this.ft.x = Math.min(positionVector.x, this.ft.x);
-    this.ft.y = Math.min(positionVector.y, this.ft.y);
-    this.ft.z = Math.min(positionVector.z, this.ft.z);
-    this.gt.x = Math.max(this.gt.x, positionVector.x);
-    this.gt.y = Math.max(this.gt.y, positionVector.y);
-    this.gt.z = Math.max(this.gt.z, positionVector.z);
-    this.ht = true;
-    this.it = true;
-    this.jt = false;
+    this.nt.x = Math.min(positionVector.x, this.nt.x);
+    this.nt.y = Math.min(positionVector.y, this.nt.y);
+    this.nt.z = Math.min(positionVector.z, this.nt.z);
+    this.ot.x = Math.max(this.ot.x, positionVector.x);
+    this.ot.y = Math.max(this.ot.y, positionVector.y);
+    this.ot.z = Math.max(this.ot.z, positionVector.z);
+    this.pt = true;
+    this.qt = true;
+    this.rt = false;
     return positionVector;
   }
   /**
@@ -203,15 +203,15 @@ var _AABB = class _AABB {
    * ```
    */
   addPositionWithArray(array, index) {
-    this.ft.x = Math.min(array[index + 0], this.ft.x);
-    this.ft.y = Math.min(array[index + 1], this.ft.y);
-    this.ft.z = Math.min(array[index + 2], this.ft.z);
-    this.gt.x = Math.max(this.gt.x, array[index + 0]);
-    this.gt.y = Math.max(this.gt.y, array[index + 1]);
-    this.gt.z = Math.max(this.gt.z, array[index + 2]);
-    this.ht = true;
-    this.it = true;
-    this.jt = false;
+    this.nt.x = Math.min(array[index + 0], this.nt.x);
+    this.nt.y = Math.min(array[index + 1], this.nt.y);
+    this.nt.z = Math.min(array[index + 2], this.nt.z);
+    this.ot.x = Math.max(this.ot.x, array[index + 0]);
+    this.ot.y = Math.max(this.ot.y, array[index + 1]);
+    this.ot.z = Math.max(this.ot.z, array[index + 2]);
+    this.pt = true;
+    this.qt = true;
+    this.rt = false;
     return array;
   }
   /**
@@ -236,31 +236,31 @@ var _AABB = class _AABB {
     if (aabb.isVanilla()) {
       return false;
     }
-    this.ht = true;
-    this.it = true;
+    this.pt = true;
+    this.qt = true;
     if (this.isVanilla()) {
-      this.ft.copyComponents(aabb.minPoint);
-      this.gt.copyComponents(aabb.maxPoint);
-      this.jt = false;
+      this.nt.copyComponents(aabb.minPoint);
+      this.ot.copyComponents(aabb.maxPoint);
+      this.rt = false;
       return true;
     }
-    if (aabb.minPoint.x < this.ft.x) {
-      this.ft.x = aabb.minPoint.x;
+    if (aabb.minPoint.x < this.nt.x) {
+      this.nt.x = aabb.minPoint.x;
     }
-    if (aabb.minPoint.y < this.ft.y) {
-      this.ft.y = aabb.minPoint.y;
+    if (aabb.minPoint.y < this.nt.y) {
+      this.nt.y = aabb.minPoint.y;
     }
-    if (aabb.minPoint.z < this.ft.z) {
-      this.ft.z = aabb.minPoint.z;
+    if (aabb.minPoint.z < this.nt.z) {
+      this.nt.z = aabb.minPoint.z;
     }
-    if (this.gt.x < aabb.maxPoint.x) {
-      this.gt.x = aabb.maxPoint.x;
+    if (this.ot.x < aabb.maxPoint.x) {
+      this.ot.x = aabb.maxPoint.x;
     }
-    if (this.gt.y < aabb.maxPoint.y) {
-      this.gt.y = aabb.maxPoint.y;
+    if (this.ot.y < aabb.maxPoint.y) {
+      this.ot.y = aabb.maxPoint.y;
     }
-    if (this.gt.z < aabb.maxPoint.z) {
-      this.gt.z = aabb.maxPoint.z;
+    if (this.ot.z < aabb.maxPoint.z) {
+      this.ot.z = aabb.maxPoint.z;
     }
     return true;
   }
@@ -281,11 +281,11 @@ var _AABB = class _AABB {
    * ```
    */
   get centerPoint() {
-    if (this.ht) {
-      MutableVector3.addTo(this.ft, this.gt, this.kt).divide(2);
-      this.ht = false;
+    if (this.pt) {
+      MutableVector3.addTo(this.nt, this.ot, this.st).divide(2);
+      this.pt = false;
     }
-    return this.kt;
+    return this.st;
   }
   /**
    * Gets the distance from the center point to any corner of the bounding box.
@@ -304,11 +304,11 @@ var _AABB = class _AABB {
    * ```
    */
   get lengthCenterToCorner() {
-    if (this.it) {
-      this.lt = Vector3.lengthBtw(this.centerPoint, this.maxPoint);
-      this.it = false;
+    if (this.qt) {
+      this.tt = Vector3.lengthBtw(this.centerPoint, this.maxPoint);
+      this.qt = false;
     }
-    return this.lt;
+    return this.tt;
   }
   /**
    * Gets the width of the bounding box along the X-axis.
@@ -324,7 +324,7 @@ var _AABB = class _AABB {
    * ```
    */
   get sizeX() {
-    return this.gt.x - this.ft.x;
+    return this.ot.x - this.nt.x;
   }
   /**
    * Gets the height of the bounding box along the Y-axis.
@@ -340,7 +340,7 @@ var _AABB = class _AABB {
    * ```
    */
   get sizeY() {
-    return this.gt.y - this.ft.y;
+    return this.ot.y - this.nt.y;
   }
   /**
    * Gets the depth of the bounding box along the Z-axis.
@@ -356,7 +356,7 @@ var _AABB = class _AABB {
    * ```
    */
   get sizeZ() {
-    return this.gt.z - this.ft.z;
+    return this.ot.z - this.nt.z;
   }
   /**
    * Transforms an AABB by a matrix and stores the result in an output AABB.
@@ -385,46 +385,46 @@ var _AABB = class _AABB {
       return outAabb.copyComponents(aabb);
     }
     outAabb.initialize();
-    _AABB.et.x = aabb.ft.x;
-    _AABB.et.y = aabb.ft.y;
-    _AABB.et.z = aabb.ft.z;
-    matrix.multiplyVector3To(_AABB.et, _AABB.et);
-    outAabb.addPosition(_AABB.et);
-    _AABB.et.x = aabb.gt.x;
-    _AABB.et.y = aabb.ft.y;
-    _AABB.et.z = aabb.ft.z;
-    matrix.multiplyVector3To(_AABB.et, _AABB.et);
-    outAabb.addPosition(_AABB.et);
-    _AABB.et.x = aabb.ft.x;
-    _AABB.et.y = aabb.gt.y;
-    _AABB.et.z = aabb.ft.z;
-    matrix.multiplyVector3To(_AABB.et, _AABB.et);
-    outAabb.addPosition(_AABB.et);
-    _AABB.et.x = aabb.ft.x;
-    _AABB.et.y = aabb.ft.y;
-    _AABB.et.z = aabb.gt.z;
-    matrix.multiplyVector3To(_AABB.et, _AABB.et);
-    outAabb.addPosition(_AABB.et);
-    _AABB.et.x = aabb.ft.x;
-    _AABB.et.y = aabb.gt.y;
-    _AABB.et.z = aabb.gt.z;
-    matrix.multiplyVector3To(_AABB.et, _AABB.et);
-    outAabb.addPosition(_AABB.et);
-    _AABB.et.x = aabb.gt.x;
-    _AABB.et.y = aabb.ft.y;
-    _AABB.et.z = aabb.gt.z;
-    matrix.multiplyVector3To(_AABB.et, _AABB.et);
-    outAabb.addPosition(_AABB.et);
-    _AABB.et.x = aabb.gt.x;
-    _AABB.et.y = aabb.gt.y;
-    _AABB.et.z = aabb.ft.z;
-    matrix.multiplyVector3To(_AABB.et, _AABB.et);
-    outAabb.addPosition(_AABB.et);
-    _AABB.et.x = aabb.gt.x;
-    _AABB.et.y = aabb.gt.y;
-    _AABB.et.z = aabb.gt.z;
-    matrix.multiplyVector3To(_AABB.et, _AABB.et);
-    outAabb.addPosition(_AABB.et);
+    _AABB.mt.x = aabb.nt.x;
+    _AABB.mt.y = aabb.nt.y;
+    _AABB.mt.z = aabb.nt.z;
+    matrix.multiplyVector3To(_AABB.mt, _AABB.mt);
+    outAabb.addPosition(_AABB.mt);
+    _AABB.mt.x = aabb.ot.x;
+    _AABB.mt.y = aabb.nt.y;
+    _AABB.mt.z = aabb.nt.z;
+    matrix.multiplyVector3To(_AABB.mt, _AABB.mt);
+    outAabb.addPosition(_AABB.mt);
+    _AABB.mt.x = aabb.nt.x;
+    _AABB.mt.y = aabb.ot.y;
+    _AABB.mt.z = aabb.nt.z;
+    matrix.multiplyVector3To(_AABB.mt, _AABB.mt);
+    outAabb.addPosition(_AABB.mt);
+    _AABB.mt.x = aabb.nt.x;
+    _AABB.mt.y = aabb.nt.y;
+    _AABB.mt.z = aabb.ot.z;
+    matrix.multiplyVector3To(_AABB.mt, _AABB.mt);
+    outAabb.addPosition(_AABB.mt);
+    _AABB.mt.x = aabb.nt.x;
+    _AABB.mt.y = aabb.ot.y;
+    _AABB.mt.z = aabb.ot.z;
+    matrix.multiplyVector3To(_AABB.mt, _AABB.mt);
+    outAabb.addPosition(_AABB.mt);
+    _AABB.mt.x = aabb.ot.x;
+    _AABB.mt.y = aabb.nt.y;
+    _AABB.mt.z = aabb.ot.z;
+    matrix.multiplyVector3To(_AABB.mt, _AABB.mt);
+    outAabb.addPosition(_AABB.mt);
+    _AABB.mt.x = aabb.ot.x;
+    _AABB.mt.y = aabb.ot.y;
+    _AABB.mt.z = aabb.nt.z;
+    matrix.multiplyVector3To(_AABB.mt, _AABB.mt);
+    outAabb.addPosition(_AABB.mt);
+    _AABB.mt.x = aabb.ot.x;
+    _AABB.mt.y = aabb.ot.y;
+    _AABB.mt.z = aabb.ot.z;
+    matrix.multiplyVector3To(_AABB.mt, _AABB.mt);
+    outAabb.addPosition(_AABB.mt);
     return outAabb;
   }
   /**
@@ -443,10 +443,10 @@ var _AABB = class _AABB {
    * ```
    */
   toString() {
-    return `AABB_min: ${this.ft}
-AABB_max: ${this.gt}
-centerPoint: ${this.kt}
-lengthCenterToCorner: ${this.lt}`;
+    return `AABB_min: ${this.nt}
+AABB_max: ${this.ot}
+centerPoint: ${this.st}
+lengthCenterToCorner: ${this.tt}`;
   }
   /**
    * Returns a string representation of the AABB with rounded numbers for readability.
@@ -465,13 +465,13 @@ lengthCenterToCorner: ${this.lt}`;
    * ```
    */
   toStringApproximately() {
-    return `AABB_max: ${this.gt.toStringApproximately()}
-AABB_min: ${this.ft.toStringApproximately()}
+    return `AABB_max: ${this.ot.toStringApproximately()}
+AABB_min: ${this.nt.toStringApproximately()}
 centerPoint: ${this.centerPoint.toStringApproximately()}
 lengthCenterToCorner: ${MathUtil.financial(this.lengthCenterToCorner)}`;
   }
 };
-_AABB.et = MutableVector3.zero();
+_AABB.mt = MutableVector3.zero();
 var AABB = _AABB;
 export {
   AABB

@@ -9,19 +9,19 @@ var ComponentTypeClass = class extends EnumClass {
     webgpu
   }) {
     super({ index, str });
-    this.nj = sizeInBytes;
-    this.lj = webgpu;
-    this.mj = wgsl;
-    this.oj = str;
+    this.uj = sizeInBytes;
+    this.sj = webgpu;
+    this.tj = wgsl;
+    this.vj = str;
   }
   get wgsl() {
-    return this.mj;
+    return this.tj;
   }
   get webgpu() {
-    return this.lj;
+    return this.sj;
   }
   getSizeInBytes() {
-    return this.nj;
+    return this.uj;
   }
   isFloatingPoint() {
     if (this.index === 5126 || // Float

@@ -14,56 +14,56 @@ import { _setPhysicsBackend } from "../PhysicsBackend.js";
 import { resolveScaledBox, resolveScaledCapsule, resolveScaledCylinder } from "../ShapeTransformResolver.js";
 var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
   constructor() {
-    this.Fv = [];
-    this.Jv = Vector3.one();
-    this.Pv = Vector3.zero();
-    this.Zv = Quaternion.identity();
-    this.Ev = Vector3.one();
-    this.Kv = Vector3.one();
-    this.Tv = false;
-    this.ov = false;
-    this.Uv = false;
+    this.Nv = [];
+    this.Rv = Vector3.one();
+    this.Xv = Vector3.zero();
+    this.fw = Quaternion.identity();
+    this.Mv = Vector3.one();
+    this.Sv = Vector3.one();
+    this.$v = false;
+    this.wv = false;
+    this.aw = false;
     /** Reusable quaternion for world-rotation lookups (avoids per-frame allocations) */
-    this.sv = MutableQuaternion.identity();
+    this.Av = MutableQuaternion.identity();
     /** Reusable Euler angles for rotation conversions (avoids per-frame allocations) */
-    this.jw = MutableVector3.zero();
+    this.rw = MutableVector3.zero();
     /** Reusable Euler angles stored in the cached physics property */
-    this.kw = MutableVector3.zero();
+    this.sw = MutableVector3.zero();
     /** Reusable vectors for converting motion velocities */
-    this.lw = MutableVector3.zero();
-    this.mw = MutableVector3.zero();
+    this.tw = MutableVector3.zero();
+    this.uw = MutableVector3.zero();
     /** Reusable temporaries for the per-frame physics sync */
-    this.nw = MutableVector3.zero();
-    this.ow = MutableQuaternion.identity();
-    _RapierPhysicsStrategy.Wv();
+    this.vw = MutableVector3.zero();
+    this.ww = MutableQuaternion.identity();
+    _RapierPhysicsStrategy.cw();
   }
   /**
    * Injects Rapier.js bindings. Physics worlds are created lazily per Engine.
    * @param rapierModule - Rapier module or compat module default export
    * @param worldProperty - Optional world settings
    */
-  static async initialize(rapierModule, worldProperty = _RapierPhysicsStrategy.Lv) {
+  static async initialize(rapierModule, worldProperty = _RapierPhysicsStrategy.Tv) {
     var _a;
     const rapier = (_a = rapierModule.default) != null ? _a : rapierModule;
     if (rapier.init != null) {
       await rapier.init();
     }
-    _RapierPhysicsStrategy.Vv(_RapierPhysicsStrategy.Mv);
-    for (const state of _RapierPhysicsStrategy.Dv.values()) {
-      _RapierPhysicsStrategy.Vv(state);
+    _RapierPhysicsStrategy.bw(_RapierPhysicsStrategy.Uv);
+    for (const state of _RapierPhysicsStrategy.Lv.values()) {
+      _RapierPhysicsStrategy.bw(state);
     }
-    _RapierPhysicsStrategy.Ov = rapier;
-    _RapierPhysicsStrategy.Lv = worldProperty;
-    _RapierPhysicsStrategy.Mv = void 0;
-    _RapierPhysicsStrategy.Dv.clear();
-    _RapierPhysicsStrategy.Iv.clear();
-    _setPhysicsBackend(_RapierPhysicsStrategy.pw);
+    _RapierPhysicsStrategy.Wv = rapier;
+    _RapierPhysicsStrategy.Tv = worldProperty;
+    _RapierPhysicsStrategy.Uv = void 0;
+    _RapierPhysicsStrategy.Lv.clear();
+    _RapierPhysicsStrategy.Qv.clear();
+    _setPhysicsBackend(_RapierPhysicsStrategy.xw);
   }
   /**
    * Returns true when Rapier bindings have already been injected.
    */
   static get isInitialized() {
-    return _RapierPhysicsStrategy.Ov != null;
+    return _RapierPhysicsStrategy.Wv != null;
   }
   /**
    * Sets up a Rapier rigid body and collider for the given entity.
@@ -71,14 +71,14 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
    * @param entity - Scene graph entity associated with the physics body
    */
   setShape(prop, entity, worldScale = Vector3.one()) {
-    const preservedState = this.Xv();
-    this.Qv(true);
-    this.te = void 0;
-    this.ue = void 0;
-    this.Pv = Vector3.zero();
-    this.Zv = Quaternion.identity();
-    this.Kv = Vector3.one();
-    this._v(prop, entity, worldScale, preservedState);
+    const preservedState = this.dw();
+    this.Yv(true);
+    this.xe = void 0;
+    this.ye = void 0;
+    this.Xv = Vector3.zero();
+    this.fw = Quaternion.identity();
+    this.Sv = Vector3.one();
+    this.gw(prop, entity, worldScale, preservedState);
   }
   setShapeInstance(shape, body, collider, entity, worldScale = Vector3.one(), motion) {
     this.setShapeInstances([{ shape, body, collider }], entity, worldScale, motion);
@@ -113,36 +113,36 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
         `Rapier ignores mass properties, initial velocity, and gravityFactor on ${isKinematic ? "kinematic" : "fixed"} bodies.`
       );
     }
-    if (isKinematic && _RapierPhysicsStrategy.Gv().RigidBodyDesc.kinematicPositionBased == null) {
+    if (isKinematic && _RapierPhysicsStrategy.Ov().RigidBodyDesc.kinematicPositionBased == null) {
       throw new Error("The injected Rapier module does not support position-based kinematic bodies.");
     }
     const scale = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
     for (const binding of bindings) {
-      _RapierPhysicsStrategy.qw(binding.shape, scale);
+      _RapierPhysicsStrategy.yw(binding.shape, scale);
     }
-    const preservedState = this.Xv();
-    this.te = bindings.map((binding) => ({
+    const preservedState = this.dw();
+    this.xe = bindings.map((binding) => ({
       bindingId: binding.bindingId,
       shape: binding.shape,
       body: { ...binding.body },
       collider: { ...binding.collider }
     }));
-    this.ue = _RapierPhysicsStrategy.xe(resolvedMotion);
-    this.Ev = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
-    this.Kv = Vector3.fromCopy3(worldScale.x, worldScale.y, worldScale.z);
-    this.Tv = false;
-    this.ov = false;
-    this.Uv = false;
+    this.ye = _RapierPhysicsStrategy.Be(resolvedMotion);
+    this.Mv = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
+    this.Sv = Vector3.fromCopy3(worldScale.x, worldScale.y, worldScale.z);
+    this.$v = false;
+    this.wv = false;
+    this.aw = false;
     const first = bindings[0];
     const size = first.shape.shape.type === "box" ? first.shape.shape.size : Vector3.one();
     const willRebuild = scale.x > 0 && scale.y > 0 && scale.z > 0;
-    this.Qv(willRebuild);
-    this._v(
+    this.Yv(willRebuild);
+    this.gw(
       {
         type: first.shape.shape.type === "box" ? PhysicsShape.Box : PhysicsShape.Sphere,
         size,
         position: entity.getSceneGraph().position,
-        rotation: entity.getSceneGraph().getQuaternionRecursivelyTo(this.sv).toEulerAnglesTo(this.jw),
+        rotation: entity.getSceneGraph().getQuaternionRecursivelyTo(this.Av).toEulerAnglesTo(this.rw),
         move: resolvedMotion.move,
         density: first.body.density,
         friction: first.collider.friction,
@@ -154,15 +154,15 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
     );
   }
   clearShapeInstances() {
-    this.Qv();
-    this.te = void 0;
-    this.ue = void 0;
-    this.Cv = void 0;
+    this.Yv();
+    this.xe = void 0;
+    this.ye = void 0;
+    this.Kv = void 0;
   }
-  _v(prop, entity, worldScale, preservedState) {
-    this.Wu = entity;
-    this.Jv = Vector3.fromCopy3(prop.size.x, prop.size.y, prop.size.z);
-    this.Cv = {
+  gw(prop, entity, worldScale, preservedState) {
+    this.cv = entity;
+    this.Rv = Vector3.fromCopy3(prop.size.x, prop.size.y, prop.size.z);
+    this.Kv = {
       type: prop.type,
       size: Vector3.fromCopy3(prop.size.x, prop.size.y, prop.size.z),
       position: Vector3.fromCopy3(prop.position.x, prop.position.y, prop.position.z),
@@ -172,16 +172,16 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
       friction: prop.friction,
       restitution: prop.restitution
     };
-    if (this.te != null && (this.Ev.x === 0 || this.Ev.y === 0 || this.Ev.z === 0)) {
+    if (this.xe != null && (this.Mv.x === 0 || this.Mv.y === 0 || this.Mv.z === 0)) {
       return;
     }
-    const scaledSize = this.$v(worldScale);
-    if (this.aw(this.Cv, scaledSize)) {
-      this.bw(
-        this.Cv,
+    const scaledSize = this.hw(worldScale);
+    if (this.iw(this.Kv, scaledSize)) {
+      this.jw(
+        this.Kv,
         scaledSize,
-        this.Cv.position,
-        _RapierPhysicsStrategy.Rv(this.Cv.rotation),
+        this.Kv.position,
+        _RapierPhysicsStrategy.Zv(this.Kv.rotation),
         preservedState
       );
     }
@@ -190,61 +190,61 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
    * Updates the associated entity transform from the Rapier body state.
    */
   update(_config) {
-    if (this.Wu == null || this.Vu == null) {
+    if (this.cv == null || this.bv == null) {
       return;
     }
-    const pos = this.Vu.translation();
-    const rot = this.Vu.rotation();
-    this.Wu.getSceneGraph().setPositionWithoutPhysics(this.nw.setComponents(pos.x, pos.y, pos.z));
-    this.Wu.getSceneGraph().setRotationWithoutPhysics(this.ow.setComponents(rot.x, rot.y, rot.z, rot.w));
+    const pos = this.bv.translation();
+    const rot = this.bv.rotation();
+    this.cv.getSceneGraph().setPositionWithoutPhysics(this.vw.setComponents(pos.x, pos.y, pos.z));
+    this.cv.getSceneGraph().setRotationWithoutPhysics(this.ww.setComponents(rot.x, rot.y, rot.z, rot.w));
   }
   /**
    * Sets the Rapier body world position.
    * @param worldPosition - New world position
    */
   setPosition(worldPosition) {
-    if (this.Cv != null) {
-      this.Cv.position = Vector3.fromCopy3(worldPosition.x, worldPosition.y, worldPosition.z);
+    if (this.Kv != null) {
+      this.Kv.position = Vector3.fromCopy3(worldPosition.x, worldPosition.y, worldPosition.z);
     }
-    if (this.Vu == null) {
+    if (this.bv == null) {
       return;
     }
-    if (this.Nv()) {
-      if (this.Vu.setNextKinematicTranslation == null) {
+    if (this.Vv()) {
+      if (this.bv.setNextKinematicTranslation == null) {
         throw new Error("The injected Rapier rigid body does not support next kinematic translation.");
       }
-      this.Vu.setNextKinematicTranslation({ x: worldPosition.x, y: worldPosition.y, z: worldPosition.z });
+      this.bv.setNextKinematicTranslation({ x: worldPosition.x, y: worldPosition.y, z: worldPosition.z });
       return;
     }
-    this.Vu.setTranslation({ x: worldPosition.x, y: worldPosition.y, z: worldPosition.z }, true);
+    this.bv.setTranslation({ x: worldPosition.x, y: worldPosition.y, z: worldPosition.z }, true);
   }
   /**
    * Sets the Rapier body world rotation.
    * @param worldRotation - New world rotation
    */
   setRotation(worldRotation) {
-    if (this.Cv != null) {
-      this.Cv.rotation = worldRotation.toEulerAnglesTo(this.kw);
+    if (this.Kv != null) {
+      this.Kv.rotation = worldRotation.toEulerAnglesTo(this.sw);
     }
-    if (this.Vu == null) {
+    if (this.bv == null) {
       return;
     }
-    const rotation = _RapierPhysicsStrategy.Sv(worldRotation);
-    if (this.Nv()) {
-      if (this.Vu.setNextKinematicRotation == null) {
+    const rotation = _RapierPhysicsStrategy._v(worldRotation);
+    if (this.Vv()) {
+      if (this.bv.setNextKinematicRotation == null) {
         throw new Error("The injected Rapier rigid body does not support next kinematic rotation.");
       }
-      this.Vu.setNextKinematicRotation(rotation);
+      this.bv.setNextKinematicRotation(rotation);
       return;
     }
-    this.Vu.setRotation(rotation, true);
+    this.bv.setRotation(rotation, true);
   }
   /**
    * Sets the Rapier body world rotation from Euler angles.
    * @param eulerAngles - Euler angles in radians
    */
   setEulerAngle(eulerAngles) {
-    this.setRotation(_RapierPhysicsStrategy.Rv(eulerAngles));
+    this.setRotation(_RapierPhysicsStrategy.Zv(eulerAngles));
   }
   /**
    * Recreates the Rapier body with a scaled collider shape.
@@ -252,25 +252,25 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
    */
   setScale(worldScale) {
     var _a, _b, _c, _d;
-    if (this.Cv == null) {
+    if (this.Kv == null) {
       return;
     }
-    const isKinematic = this.Nv();
-    const position = (_b = (_a = this.Vu) == null ? void 0 : _a.translation()) != null ? _b : this.Cv.position;
-    const rotation = (_d = (_c = this.Vu) == null ? void 0 : _c.rotation()) != null ? _d : _RapierPhysicsStrategy.Rv(this.Cv.rotation);
-    const nextKinematicPosition = isKinematic ? Vector3.fromCopy3(this.Cv.position.x, this.Cv.position.y, this.Cv.position.z) : void 0;
-    const nextKinematicRotation = isKinematic ? _RapierPhysicsStrategy.Rv(this.Cv.rotation) : void 0;
-    const preservedState = this.Xv();
-    this.Ev = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
-    this.Kv = Vector3.fromCopy3(worldScale.x, worldScale.y, worldScale.z);
-    const scaledSize = this.$v(worldScale);
-    const willRebuild = this.te != null ? this.Ev.x > 0 && this.Ev.y > 0 && this.Ev.z > 0 : this.aw(this.Cv, scaledSize);
-    this.Qv(willRebuild);
+    const isKinematic = this.Vv();
+    const position = (_b = (_a = this.bv) == null ? void 0 : _a.translation()) != null ? _b : this.Kv.position;
+    const rotation = (_d = (_c = this.bv) == null ? void 0 : _c.rotation()) != null ? _d : _RapierPhysicsStrategy.Zv(this.Kv.rotation);
+    const nextKinematicPosition = isKinematic ? Vector3.fromCopy3(this.Kv.position.x, this.Kv.position.y, this.Kv.position.z) : void 0;
+    const nextKinematicRotation = isKinematic ? _RapierPhysicsStrategy.Zv(this.Kv.rotation) : void 0;
+    const preservedState = this.dw();
+    this.Mv = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
+    this.Sv = Vector3.fromCopy3(worldScale.x, worldScale.y, worldScale.z);
+    const scaledSize = this.hw(worldScale);
+    const willRebuild = this.xe != null ? this.Mv.x > 0 && this.Mv.y > 0 && this.Mv.z > 0 : this.iw(this.Kv, scaledSize);
+    this.Yv(willRebuild);
     if (!willRebuild) {
       return;
     }
-    this.bw(
-      this.Cv,
+    this.jw(
+      this.Kv,
       scaledSize,
       Vector3.fromCopy3(position.x, position.y, position.z),
       Quaternion.fromCopy4(rotation.x, rotation.y, rotation.z, rotation.w),
@@ -281,14 +281,14 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
       this.setRotation(nextKinematicRotation);
     }
   }
-  $v(worldScale) {
+  hw(worldScale) {
     return Vector3.fromCopy3(
-      this.Jv.x * Math.abs(worldScale.x),
-      this.Jv.y * Math.abs(worldScale.y),
-      this.Jv.z * Math.abs(worldScale.z)
+      this.Rv.x * Math.abs(worldScale.x),
+      this.Rv.y * Math.abs(worldScale.y),
+      this.Rv.z * Math.abs(worldScale.z)
     );
   }
-  aw(prop, size) {
+  iw(prop, size) {
     if (prop.type === PhysicsShape.Sphere) {
       return Number.isFinite(size.x) && size.x > 0;
     }
@@ -299,25 +299,25 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
     if (!_RapierPhysicsStrategy.isInitialized) {
       return;
     }
-    const states = engine != null ? [_RapierPhysicsStrategy.Hv(engine)] : _RapierPhysicsStrategy.Dv.size > 0 ? [..._RapierPhysicsStrategy.Dv.values()] : [_RapierPhysicsStrategy.Hv()];
-    const safeDeltaTime = Number.isFinite(deltaTime) ? Math.max(deltaTime, 0) : _RapierPhysicsStrategy.hw;
-    const timestep = Math.min(safeDeltaTime, _RapierPhysicsStrategy.iw);
+    const states = engine != null ? [_RapierPhysicsStrategy.Pv(engine)] : _RapierPhysicsStrategy.Lv.size > 0 ? [..._RapierPhysicsStrategy.Lv.values()] : [_RapierPhysicsStrategy.Pv()];
+    const safeDeltaTime = Number.isFinite(deltaTime) ? Math.max(deltaTime, 0) : _RapierPhysicsStrategy.pw;
+    const timestep = Math.min(safeDeltaTime, _RapierPhysicsStrategy.qw);
     for (const state of states) {
       if (frameId != null && state.lastFrameId === frameId) {
         continue;
       }
       state.lastFrameId = frameId;
       state.world.timestep = timestep;
-      for (const [participant, participantEngine] of _RapierPhysicsStrategy.Iv) {
+      for (const [participant, participantEngine] of _RapierPhysicsStrategy.Qv) {
         if (participantEngine === state.engine) {
           participant.preStep(timestep);
         }
       }
       TriggerComponent._beginPhysicsStep(state.engine);
       state.world.step(state.eventQueue);
-      _RapierPhysicsStrategy.rw(state);
+      _RapierPhysicsStrategy.zw(state);
       TriggerComponent._finalizeRebuiltOverlaps(state.engine);
-      for (const [participant, participantEngine] of _RapierPhysicsStrategy.Iv) {
+      for (const [participant, participantEngine] of _RapierPhysicsStrategy.Qv) {
         if (participantEngine === state.engine) {
           participant.postStep();
         }
@@ -328,16 +328,16 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
   /** @internal Registers colliders created outside PhysicsComponent, such as a character controller. */
   static _registerExternalCollider(collider, entity) {
     if (collider.handle != null) {
-      this.Hv(entity.engine).colliderMetadata.set(collider.handle, { entity, isSensor: false });
+      this.Pv(entity.engine).colliderMetadata.set(collider.handle, { entity, isSensor: false });
     }
   }
   /** @internal */
   static _unregisterExternalCollider(collider, engine, isRebuilding = false) {
     if ((collider == null ? void 0 : collider.handle) != null) {
-      this.cw(this.Hv(engine), collider.handle, isRebuilding);
+      this.kw(this.Pv(engine), collider.handle, isRebuilding);
     }
   }
-  static cw(state, handle, isRebuilding = false) {
+  static kw(state, handle, isRebuilding = false) {
     const metadata = state.colliderMetadata.get(handle);
     if (metadata == null) {
       return;
@@ -359,7 +359,7 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
     }
     state.colliderMetadata.delete(handle);
   }
-  static rw(state) {
+  static zw(state) {
     var _a;
     (_a = state.eventQueue) == null ? void 0 : _a.drainCollisionEvents((handle1, handle2, started) => {
       const first = state.colliderMetadata.get(handle1);
@@ -393,51 +393,51 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
   }
   /** @internal */
   static _registerStepParticipant(participant, engine) {
-    _RapierPhysicsStrategy.Iv.set(participant, engine);
+    _RapierPhysicsStrategy.Qv.set(participant, engine);
   }
   /** @internal */
   static _unregisterStepParticipant(participant) {
-    _RapierPhysicsStrategy.Iv.delete(participant);
+    _RapierPhysicsStrategy.Qv.delete(participant);
   }
   /** @internal Releases the Rapier world owned by a destroyed Engine. */
   static _cleanupForEngine(engine) {
-    _RapierPhysicsStrategy.Vv(_RapierPhysicsStrategy.Dv.get(engine));
-    _RapierPhysicsStrategy.Dv.delete(engine);
-    for (const [participant, participantEngine] of _RapierPhysicsStrategy.Iv) {
+    _RapierPhysicsStrategy.bw(_RapierPhysicsStrategy.Lv.get(engine));
+    _RapierPhysicsStrategy.Lv.delete(engine);
+    for (const [participant, participantEngine] of _RapierPhysicsStrategy.Qv) {
       if (participantEngine === engine) {
-        _RapierPhysicsStrategy.Iv.delete(participant);
+        _RapierPhysicsStrategy.Qv.delete(participant);
       }
     }
   }
   /** @internal */
   static _getRapier() {
-    return _RapierPhysicsStrategy.Gv();
+    return _RapierPhysicsStrategy.Ov();
   }
   /** @internal */
   static _getWorld(engine) {
-    return _RapierPhysicsStrategy.sw(engine);
+    return _RapierPhysicsStrategy.Aw(engine);
   }
   /** @internal */
   static _getColliderMetadata(collider, engine) {
-    return collider.handle == null ? void 0 : _RapierPhysicsStrategy.Hv(engine).colliderMetadata.get(collider.handle);
+    return collider.handle == null ? void 0 : _RapierPhysicsStrategy.Pv(engine).colliderMetadata.get(collider.handle);
   }
   /** @internal */
   static _packCollisionGroups(group, mask) {
-    return _RapierPhysicsStrategy.dw(group, mask);
+    return _RapierPhysicsStrategy.lw(group, mask);
   }
-  bw(prop, size, position, rotation, preservedState) {
+  jw(prop, size, position, rotation, preservedState) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i;
-    const rapier = _RapierPhysicsStrategy.Gv();
-    const state = _RapierPhysicsStrategy.Hv((_a = this.Wu) == null ? void 0 : _a.engine);
+    const rapier = _RapierPhysicsStrategy.Ov();
+    const state = _RapierPhysicsStrategy.Pv((_a = this.cv) == null ? void 0 : _a.engine);
     const world = state.world;
-    const motion = this.ue;
-    const isKinematic = this.Nv();
+    const motion = this.ye;
+    const isKinematic = this.Vv();
     const rigidBodyDesc = isKinematic ? rapier.RigidBodyDesc.kinematicPositionBased() : prop.move ? rapier.RigidBodyDesc.dynamic() : rapier.RigidBodyDesc.fixed();
-    rigidBodyDesc.setTranslation(position.x, position.y, position.z).setRotation(_RapierPhysicsStrategy.Sv(rotation));
+    rigidBodyDesc.setTranslation(position.x, position.y, position.z).setRotation(_RapierPhysicsStrategy._v(rotation));
     if (prop.move && !isKinematic) {
-      const velocityRotation = (_c = (_b = this.Wu) == null ? void 0 : _b.getSceneGraph().getQuaternionRecursivelyTo(this.sv)) != null ? _c : rotation;
-      const linearVelocity = (_d = preservedState == null ? void 0 : preservedState.linearVelocity) != null ? _d : (motion == null ? void 0 : motion.linearVelocity) == null ? void 0 : velocityRotation.transformVector3To(motion.linearVelocity, this.lw);
-      const angularVelocity = (_e = preservedState == null ? void 0 : preservedState.angularVelocity) != null ? _e : (motion == null ? void 0 : motion.angularVelocity) == null ? void 0 : velocityRotation.transformVector3To(motion.angularVelocity, this.mw);
+      const velocityRotation = (_c = (_b = this.cv) == null ? void 0 : _b.getSceneGraph().getQuaternionRecursivelyTo(this.Av)) != null ? _c : rotation;
+      const linearVelocity = (_d = preservedState == null ? void 0 : preservedState.linearVelocity) != null ? _d : (motion == null ? void 0 : motion.linearVelocity) == null ? void 0 : velocityRotation.transformVector3To(motion.linearVelocity, this.tw);
+      const angularVelocity = (_e = preservedState == null ? void 0 : preservedState.angularVelocity) != null ? _e : (motion == null ? void 0 : motion.angularVelocity) == null ? void 0 : velocityRotation.transformVector3To(motion.angularVelocity, this.uw);
       if (linearVelocity != null) {
         (_f = rigidBodyDesc.setLinvel) == null ? void 0 : _f.call(rigidBodyDesc, linearVelocity.x, linearVelocity.y, linearVelocity.z);
       }
@@ -448,43 +448,43 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
         (_h = rigidBodyDesc.setGravityScale) == null ? void 0 : _h.call(rigidBodyDesc, motion.gravityFactor);
       }
     }
-    this.Vu = world.createRigidBody(rigidBodyDesc);
-    if (this.te != null) {
-      for (const binding of this.te) {
-        const colliderDesc = this.tw(binding, state.eventQueue != null);
-        const collider = world.createCollider(colliderDesc, this.Vu);
-        this.Fv.push(collider);
-        if (collider.handle != null && this.Wu != null) {
+    this.bv = world.createRigidBody(rigidBodyDesc);
+    if (this.xe != null) {
+      for (const binding of this.xe) {
+        const colliderDesc = this.Bw(binding, state.eventQueue != null);
+        const collider = world.createCollider(colliderDesc, this.bv);
+        this.Nv.push(collider);
+        if (collider.handle != null && this.cv != null) {
           state.colliderMetadata.set(collider.handle, {
-            entity: this.Wu,
+            entity: this.cv,
             bindingId: binding.bindingId,
             isSensor: (_i = binding.collider.isSensor) != null ? _i : false
           });
         }
       }
-      this.uw(prop.move, isKinematic);
+      this.Cw(prop.move, isKinematic);
     } else {
-      const collider = world.createCollider(this.vw(prop, size), this.Vu);
-      this.Fv.push(collider);
-      if (collider.handle != null && this.Wu != null) {
+      const collider = world.createCollider(this.Dw(prop, size), this.bv);
+      this.Nv.push(collider);
+      if (collider.handle != null && this.cv != null) {
         state.colliderMetadata.set(collider.handle, {
-          entity: this.Wu,
+          entity: this.cv,
           isSensor: false
         });
       }
     }
   }
-  Nv() {
+  Vv() {
     var _a, _b, _c, _d, _e;
-    return (_e = (_d = (_a = this.ue) == null ? void 0 : _a.isKinematic) != null ? _d : (_c = (_b = this.te) == null ? void 0 : _b[0]) == null ? void 0 : _c.body.isKinematic) != null ? _e : false;
+    return (_e = (_d = (_a = this.ye) == null ? void 0 : _a.isKinematic) != null ? _d : (_c = (_b = this.xe) == null ? void 0 : _b[0]) == null ? void 0 : _c.body.isKinematic) != null ? _e : false;
   }
-  Xv() {
+  dw() {
     var _a, _b, _c, _d, _e;
-    if (this.Vu == null || !((_a = this.Cv) == null ? void 0 : _a.move) || this.Nv()) {
+    if (this.bv == null || !((_a = this.Kv) == null ? void 0 : _a.move) || this.Vv()) {
       return void 0;
     }
-    const linearVelocity = (_c = (_b = this.Vu).linvel) == null ? void 0 : _c.call(_b);
-    const angularVelocity = (_e = (_d = this.Vu).angvel) == null ? void 0 : _e.call(_d);
+    const linearVelocity = (_c = (_b = this.bv).linvel) == null ? void 0 : _c.call(_b);
+    const angularVelocity = (_e = (_d = this.bv).angvel) == null ? void 0 : _e.call(_d);
     if (linearVelocity == null || angularVelocity == null) {
       return void 0;
     }
@@ -493,25 +493,25 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
       angularVelocity: { x: angularVelocity.x, y: angularVelocity.y, z: angularVelocity.z }
     };
   }
-  uw(move, isKinematic) {
+  Cw(move, isKinematic) {
     var _a, _b, _c, _d, _e;
-    const motion = this.ue;
-    const rigidBody = this.Vu;
+    const motion = this.ye;
+    const rigidBody = this.bv;
     if (motion == null || rigidBody == null || !move || isKinematic) {
       return;
     }
-    const hasOnlySensorColliders = ((_a = this.te) == null ? void 0 : _a.every((binding) => binding.collider.isSensor === true)) === true;
+    const hasOnlySensorColliders = ((_a = this.xe) == null ? void 0 : _a.every((binding) => binding.collider.isSensor === true)) === true;
     const derivesSensorOnlyMass = hasOnlySensorColliders && motion.mass == null;
     const needsCompleteMassProperties = derivesSensorOnlyMass || motion.mass === 0 || hasOnlySensorColliders && motion.mass != null && motion.mass > 0 || motion.centerOfMass != null || motion.inertiaDiagonal != null || motion.inertiaOrientation != null;
     if (!needsCompleteMassProperties) {
       return;
     }
-    if (rigidBody.mass == null || rigidBody.localCom == null || rigidBody.principalInertia == null || rigidBody.principalInertiaLocalFrame == null || rigidBody.recomputeMassPropertiesFromColliders == null || rigidBody.setAdditionalMassProperties == null || this.Fv.some((collider) => collider.setDensity == null)) {
+    if (rigidBody.mass == null || rigidBody.localCom == null || rigidBody.principalInertia == null || rigidBody.principalInertiaLocalFrame == null || rigidBody.recomputeMassPropertiesFromColliders == null || rigidBody.setAdditionalMassProperties == null || this.Nv.some((collider) => collider.setDensity == null)) {
       throw new Error("The injected Rapier module does not support complete rigid-body mass properties.");
     }
     if (derivesSensorOnlyMass) {
-      for (let i = 0; i < this.Fv.length; i++) {
-        this.Fv[i].setDensity(this.te[i].body.density);
+      for (let i = 0; i < this.Nv.length; i++) {
+        this.Nv[i].setDensity(this.xe[i].body.density);
       }
     }
     rigidBody.recomputeMassPropertiesFromColliders();
@@ -519,7 +519,7 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
     const automaticCenterOfMass = rigidBody.localCom();
     const automaticInertia = rigidBody.principalInertia();
     const automaticInertiaOrientation = rigidBody.principalInertiaLocalFrame();
-    for (const collider of this.Fv) {
+    for (const collider of this.Nv) {
       collider.setDensity(0);
     }
     rigidBody.recomputeMassPropertiesFromColliders();
@@ -539,9 +539,9 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
       false
     );
   }
-  vw(prop, size) {
+  Dw(prop, size) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
-    const rapier = _RapierPhysicsStrategy.Gv();
+    const rapier = _RapierPhysicsStrategy.Ov();
     let colliderDesc;
     if (prop.type === PhysicsShape.Box) {
       colliderDesc = rapier.ColliderDesc.cuboid(size.x * 0.5, size.y * 0.5, size.z * 0.5);
@@ -555,24 +555,24 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
     colliderDesc = (_f = (_e = colliderDesc.setRestitution) == null ? void 0 : _e.call(colliderDesc, prop.restitution)) != null ? _f : colliderDesc;
     colliderDesc = (_h = (_g = colliderDesc.setTranslation) == null ? void 0 : _g.call(
       colliderDesc,
-      this.Pv.x * Math.abs(size.x / this.Jv.x),
-      this.Pv.y * Math.abs(size.y / this.Jv.y),
-      this.Pv.z * Math.abs(size.z / this.Jv.z)
+      this.Xv.x * Math.abs(size.x / this.Rv.x),
+      this.Xv.y * Math.abs(size.y / this.Rv.y),
+      this.Xv.z * Math.abs(size.z / this.Rv.z)
     )) != null ? _h : colliderDesc;
-    colliderDesc = (_j = (_i = colliderDesc.setRotation) == null ? void 0 : _i.call(colliderDesc, _RapierPhysicsStrategy.Sv(this.Zv))) != null ? _j : colliderDesc;
+    colliderDesc = (_j = (_i = colliderDesc.setRotation) == null ? void 0 : _i.call(colliderDesc, _RapierPhysicsStrategy._v(this.fw))) != null ? _j : colliderDesc;
     return colliderDesc;
   }
-  tw(binding, hasEventQueue) {
+  Bw(binding, hasEventQueue) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q;
-    const rapier = _RapierPhysicsStrategy.Gv();
+    const rapier = _RapierPhysicsStrategy.Ov();
     const shapeInstance = binding.shape;
     const shape = shapeInstance.shape;
-    const scale = this.Kv;
-    const absoluteScale = this.Ev;
+    const scale = this.Sv;
+    const absoluteScale = this.Mv;
     let colliderDesc;
     let colliderRotation = shapeInstance.localRotation;
     if (shape.type === "box") {
-      const resolvedBox = this.ew(shapeInstance);
+      const resolvedBox = this.mw(shapeInstance);
       colliderDesc = rapier.ColliderDesc.cuboid(
         resolvedBox.halfExtents.x,
         resolvedBox.halfExtents.y,
@@ -581,16 +581,16 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
       colliderRotation = resolvedBox.rotation;
     } else if (shape.type === "sphere") {
       const radialScale = Math.max(absoluteScale.x, absoluteScale.y, absoluteScale.z);
-      this.Yv(shape.type, absoluteScale);
+      this.ew(shape.type, absoluteScale);
       colliderDesc = rapier.ColliderDesc.ball(shape.radius * radialScale);
     } else if (shape.type === "cylinder") {
       if (rapier.ColliderDesc.cylinder == null) {
         throw new Error("The injected Rapier module does not support cylinder colliders.");
       }
-      const radius = this.fw(shape.radiusBottom, shape.radiusTop, shape.type);
+      const radius = this.nw(shape.radiusBottom, shape.radiusTop, shape.type);
       const resolvedCylinder = resolveScaledCylinder(shape.height, radius, shapeInstance.localRotation, scale);
       if (resolvedCylinder.approximated) {
-        this.Yv(shape.type, absoluteScale);
+        this.ew(shape.type, absoluteScale);
       }
       colliderDesc = rapier.ColliderDesc.cylinder(resolvedCylinder.halfHeight, resolvedCylinder.radius);
       colliderRotation = resolvedCylinder.rotation;
@@ -598,17 +598,17 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
       if (rapier.ColliderDesc.capsule == null) {
         throw new Error("The injected Rapier module does not support capsule colliders.");
       }
-      const radius = this.fw(shape.radiusBottom, shape.radiusTop, shape.type);
+      const radius = this.nw(shape.radiusBottom, shape.radiusTop, shape.type);
       const resolvedCapsule = resolveScaledCapsule(shape.height, radius, shapeInstance.localRotation, scale);
       if (resolvedCapsule.approximated) {
-        this.Yv(shape.type, absoluteScale);
+        this.ew(shape.type, absoluteScale);
       }
       colliderDesc = rapier.ColliderDesc.capsule(resolvedCapsule.halfHeight, resolvedCapsule.radius);
       colliderRotation = resolvedCapsule.rotation;
     }
-    const explicitMass = ((_a = this.ue) == null ? void 0 : _a.move) && !this.ue.isKinematic ? this.ue.mass : void 0;
-    const density = binding.collider.isSensor ? 0 : explicitMass != null && explicitMass > 0 ? explicitMass / this.te.reduce(
-      (sum, item) => item.collider.isSensor ? sum : sum + this.ww(item),
+    const explicitMass = ((_a = this.ye) == null ? void 0 : _a.move) && !this.ye.isKinematic ? this.ye.mass : void 0;
+    const density = binding.collider.isSensor ? 0 : explicitMass != null && explicitMass > 0 ? explicitMass / this.xe.reduce(
+      (sum, item) => item.collider.isSensor ? sum : sum + this.Ew(item),
       0
     ) : binding.body.density;
     colliderDesc = (_c = (_b = colliderDesc.setDensity) == null ? void 0 : _b.call(colliderDesc, density)) != null ? _c : colliderDesc;
@@ -616,14 +616,14 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
     colliderDesc = (_g = (_f = colliderDesc.setRestitution) == null ? void 0 : _f.call(colliderDesc, binding.collider.restitution)) != null ? _g : colliderDesc;
     colliderDesc = (_k = (_j = colliderDesc.setCollisionGroups) == null ? void 0 : _j.call(
       colliderDesc,
-      _RapierPhysicsStrategy.dw(
+      _RapierPhysicsStrategy.lw(
         (_h = binding.collider.collisionGroup) != null ? _h : 65535,
         (_i = binding.collider.collisionMask) != null ? _i : 65535
       )
     )) != null ? _k : colliderDesc;
     if (binding.collider.isSensor) {
-      const activeEvents = (_l = _RapierPhysicsStrategy.Gv().ActiveEvents) == null ? void 0 : _l.COLLISION_EVENTS;
-      const activeCollisionTypes = (_m = _RapierPhysicsStrategy.Gv().ActiveCollisionTypes) == null ? void 0 : _m.ALL;
+      const activeEvents = (_l = _RapierPhysicsStrategy.Ov().ActiveEvents) == null ? void 0 : _l.COLLISION_EVENTS;
+      const activeCollisionTypes = (_m = _RapierPhysicsStrategy.Ov().ActiveCollisionTypes) == null ? void 0 : _m.ALL;
       if (colliderDesc.setSensor == null || colliderDesc.setActiveEvents == null || activeEvents == null || colliderDesc.setActiveCollisionTypes == null || activeCollisionTypes == null || !hasEventQueue) {
         throw new Error("The injected Rapier module does not support sensor collision events.");
       }
@@ -637,10 +637,10 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
       shapeInstance.localPosition.y * scale.y,
       shapeInstance.localPosition.z * scale.z
     )) != null ? _o : colliderDesc;
-    colliderDesc = (_q = (_p = colliderDesc.setRotation) == null ? void 0 : _p.call(colliderDesc, _RapierPhysicsStrategy.Sv(colliderRotation))) != null ? _q : colliderDesc;
+    colliderDesc = (_q = (_p = colliderDesc.setRotation) == null ? void 0 : _p.call(colliderDesc, _RapierPhysicsStrategy._v(colliderRotation))) != null ? _q : colliderDesc;
     return colliderDesc;
   }
-  static dw(group, mask) {
+  static lw(group, mask) {
     if (!Number.isInteger(group) || group < 0 || group > 65535) {
       throw new Error(`Rapier collisionGroup must be a 16-bit unsigned integer: ${group}`);
     }
@@ -649,12 +649,12 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
     }
     return (group << 16 | mask) >>> 0;
   }
-  ww(binding) {
+  Ew(binding) {
     const shape = binding.shape.shape;
-    const scale = this.Kv;
-    const absoluteScale = this.Ev;
+    const scale = this.Sv;
+    const absoluteScale = this.Mv;
     if (shape.type === "box") {
-      const halfExtents = this.ew(binding.shape).halfExtents;
+      const halfExtents = this.mw(binding.shape).halfExtents;
       return 8 * halfExtents.x * halfExtents.y * halfExtents.z;
     }
     if (shape.type === "sphere") {
@@ -678,24 +678,24 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
     );
     return Math.PI * resolved.radius ** 2 * resolved.halfHeight * 2 + 4 / 3 * Math.PI * resolved.radius ** 3;
   }
-  ew(shapeInstance) {
+  mw(shapeInstance) {
     if (shapeInstance.shape.type !== "box") {
       throw new Error("A box ShapeInstance is required.");
     }
     const resolved = resolveScaledBox(
       shapeInstance.shape.size,
       shapeInstance.localRotation,
-      this.Kv
+      this.Sv
     );
-    if (resolved.approximated && !this.Uv) {
+    if (resolved.approximated && !this.aw) {
       Logger.default.warn(
         "Rapier conservatively approximates a locally rotated box under non-uniform scale with an axis-aligned box."
       );
-      this.Uv = true;
+      this.aw = true;
     }
     return resolved;
   }
-  static xe(motion) {
+  static Be(motion) {
     return {
       ...motion,
       linearVelocity: motion.linearVelocity == null ? void 0 : Vector3.fromCopy3(motion.linearVelocity.x, motion.linearVelocity.y, motion.linearVelocity.z),
@@ -705,46 +705,46 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
       inertiaOrientation: motion.inertiaOrientation == null ? void 0 : Quaternion.fromCopyQuaternion(motion.inertiaOrientation)
     };
   }
-  fw(radiusBottom, radiusTop, shapeType) {
-    if (radiusBottom !== radiusTop && !this.Tv) {
+  nw(radiusBottom, radiusTop, shapeType) {
+    if (radiusBottom !== radiusTop && !this.$v) {
       Logger.default.warn(
         `Rapier approximates asymmetric ${shapeType} radii (${radiusBottom}, ${radiusTop}) with the maximum radius.`
       );
-      this.Tv = true;
+      this.$v = true;
     }
     return Math.max(radiusBottom, radiusTop);
   }
-  Yv(shapeType, scale) {
-    if (!this.ov && (Math.abs(scale.x - scale.y) > 1e-6 || Math.abs(scale.y - scale.z) > 1e-6)) {
+  ew(shapeType, scale) {
+    if (!this.wv && (Math.abs(scale.x - scale.y) > 1e-6 || Math.abs(scale.y - scale.z) > 1e-6)) {
       Logger.default.warn(`Rapier conservatively approximates non-uniform scale for ${shapeType} shapes.`);
-      this.ov = true;
+      this.wv = true;
     }
   }
-  Qv(isRebuilding = false) {
+  Yv(isRebuilding = false) {
     var _a;
-    if (this.Vu == null) {
+    if (this.bv == null) {
       return;
     }
-    const state = _RapierPhysicsStrategy.Hv((_a = this.Wu) == null ? void 0 : _a.engine);
+    const state = _RapierPhysicsStrategy.Pv((_a = this.cv) == null ? void 0 : _a.engine);
     const world = state.world;
     if (world.removeRigidBody == null) {
       throw new Error("The injected Rapier world does not support removeRigidBody.");
     }
-    for (const collider of this.Fv) {
+    for (const collider of this.Nv) {
       if (collider.handle != null) {
-        _RapierPhysicsStrategy.cw(state, collider.handle, isRebuilding);
+        _RapierPhysicsStrategy.kw(state, collider.handle, isRebuilding);
       }
     }
-    world.removeRigidBody(this.Vu);
-    this.Vu = void 0;
-    this.Fv.length = 0;
+    world.removeRigidBody(this.bv);
+    this.bv = void 0;
+    this.Nv.length = 0;
   }
-  static qw(shapeInstance, scale) {
+  static yw(shapeInstance, scale) {
     if (scale.x === 0 || scale.y === 0 || scale.z === 0) {
       return;
     }
     const shape = shapeInstance.shape;
-    const rapier = _RapierPhysicsStrategy.Gv();
+    const rapier = _RapierPhysicsStrategy.Ov();
     if (shape.type === "cylinder" && rapier.ColliderDesc.cylinder == null) {
       throw new Error("The injected Rapier module does not support cylinder colliders.");
     }
@@ -752,61 +752,61 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
       throw new Error("The injected Rapier module does not support capsule colliders.");
     }
   }
-  static Wv() {
+  static cw() {
     if (!_RapierPhysicsStrategy.isInitialized) {
       throw new Error("RapierPhysicsStrategy.initialize(RAPIER) must be called before use.");
     }
   }
-  static Gv() {
-    _RapierPhysicsStrategy.Wv();
-    return _RapierPhysicsStrategy.Ov;
+  static Ov() {
+    _RapierPhysicsStrategy.cw();
+    return _RapierPhysicsStrategy.Wv;
   }
-  static sw(engine) {
-    return _RapierPhysicsStrategy.Hv(engine).world;
+  static Aw(engine) {
+    return _RapierPhysicsStrategy.Pv(engine).world;
   }
-  static Hv(engine) {
-    _RapierPhysicsStrategy.Wv();
+  static Pv(engine) {
+    _RapierPhysicsStrategy.cw();
     if (engine != null) {
-      let state = _RapierPhysicsStrategy.Dv.get(engine);
+      let state = _RapierPhysicsStrategy.Lv.get(engine);
       if (state == null) {
-        state = _RapierPhysicsStrategy.gw(engine);
-        _RapierPhysicsStrategy.Dv.set(engine, state);
+        state = _RapierPhysicsStrategy.ow(engine);
+        _RapierPhysicsStrategy.Lv.set(engine, state);
       }
       return state;
     }
-    if (_RapierPhysicsStrategy.Dv.size === 1) {
-      return _RapierPhysicsStrategy.Dv.values().next().value;
+    if (_RapierPhysicsStrategy.Lv.size === 1) {
+      return _RapierPhysicsStrategy.Lv.values().next().value;
     }
-    if (_RapierPhysicsStrategy.Dv.size > 1) {
+    if (_RapierPhysicsStrategy.Lv.size > 1) {
       throw new Error("An Engine must be specified when more than one Rapier physics world exists.");
     }
-    if (_RapierPhysicsStrategy.Mv == null) {
-      _RapierPhysicsStrategy.Mv = _RapierPhysicsStrategy.gw();
+    if (_RapierPhysicsStrategy.Uv == null) {
+      _RapierPhysicsStrategy.Uv = _RapierPhysicsStrategy.ow();
     }
-    return _RapierPhysicsStrategy.Mv;
+    return _RapierPhysicsStrategy.Uv;
   }
-  static gw(engine) {
-    const rapier = _RapierPhysicsStrategy.Ov;
+  static ow(engine) {
+    const rapier = _RapierPhysicsStrategy.Wv;
     return {
       engine,
       world: new rapier.World({
-        x: _RapierPhysicsStrategy.Lv.gravity.x,
-        y: _RapierPhysicsStrategy.Lv.gravity.y,
-        z: _RapierPhysicsStrategy.Lv.gravity.z
+        x: _RapierPhysicsStrategy.Tv.gravity.x,
+        y: _RapierPhysicsStrategy.Tv.gravity.y,
+        z: _RapierPhysicsStrategy.Tv.gravity.z
       }),
       eventQueue: rapier.EventQueue == null ? void 0 : new rapier.EventQueue(true),
       colliderMetadata: /* @__PURE__ */ new Map()
     };
   }
-  static Vv(state) {
+  static bw(state) {
     var _a, _b, _c, _d;
     (_b = (_a = state == null ? void 0 : state.eventQueue) == null ? void 0 : _a.free) == null ? void 0 : _b.call(_a);
     (_d = state == null ? void 0 : (_c = state.world).free) == null ? void 0 : _d.call(_c);
   }
-  static Rv(eulerAngles) {
+  static Zv(eulerAngles) {
     return Quaternion.fromMatrix(Matrix44.rotateXYZ(eulerAngles.x, eulerAngles.y, eulerAngles.z));
   }
-  static Sv(quaternion) {
+  static _v(quaternion) {
     return {
       x: quaternion.x,
       y: quaternion.y,
@@ -815,19 +815,19 @@ var _RapierPhysicsStrategy = class _RapierPhysicsStrategy {
     };
   }
 };
-_RapierPhysicsStrategy.hw = 1 / 60;
-_RapierPhysicsStrategy.iw = 1 / 15;
-_RapierPhysicsStrategy.Lv = {
+_RapierPhysicsStrategy.pw = 1 / 60;
+_RapierPhysicsStrategy.qw = 1 / 15;
+_RapierPhysicsStrategy.Tv = {
   gravity: Vector3.fromCopy3(0, -9.8, 0),
   random: true
 };
-_RapierPhysicsStrategy.Dv = /* @__PURE__ */ new Map();
-_RapierPhysicsStrategy.Iv = /* @__PURE__ */ new Map();
+_RapierPhysicsStrategy.Lv = /* @__PURE__ */ new Map();
+_RapierPhysicsStrategy.Qv = /* @__PURE__ */ new Map();
 /**
  * The backend through which engine-side code reaches Rapier once it is initialized
  * (see {@link PhysicsBackend}).
  */
-_RapierPhysicsStrategy.pw = {
+_RapierPhysicsStrategy.xw = {
   update: (frameId, deltaTime, engine) => _RapierPhysicsStrategy.update(frameId, deltaTime, engine),
   cleanupForEngine: (engine) => _RapierPhysicsStrategy._cleanupForEngine(engine),
   bindShapePhysics: (entity, shapeComponent, options) => {

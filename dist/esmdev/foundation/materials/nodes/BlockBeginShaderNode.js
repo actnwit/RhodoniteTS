@@ -12,12 +12,12 @@ var BlockBeginShaderNode = class extends AbstractShaderNode {
   constructor() {
     super("blockBegin", {});
     /** Array of input sockets for value data (excluding the blockStart boolean input) */
-    this.Ws = [];
+    this.ct = [];
     /** Array of output sockets corresponding to the value inputs */
-    this.Xs = [];
-    this.Br += `_${this.Fr}`;
-    this.Ar = new BlockBeginShader(this.Br, this.Ws, this.Xs);
-    this.zr.push({
+    this.dt = [];
+    this.Jr += `_${this.Nr}`;
+    this.Ir = new BlockBeginShader(this.Jr, this.ct, this.dt);
+    this.Hr.push({
       compositionType: CompositionType.Scalar,
       componentType: ComponentType.Bool,
       name: "blockStart"
@@ -49,17 +49,17 @@ var BlockBeginShaderNode = class extends AbstractShaderNode {
     const input = {
       compositionType,
       componentType,
-      name: `value_${this.Ws.length}`
+      name: `value_${this.ct.length}`
     };
     const output = {
       compositionType,
       componentType,
-      name: `outValue_${this.Xs.length}`
+      name: `outValue_${this.dt.length}`
     };
-    this.zr.push(input);
-    this.Cr.push(output);
-    this.Ws.push(input);
-    this.Xs.push(output);
+    this.Hr.push(input);
+    this.Kr.push(output);
+    this.ct.push(input);
+    this.dt.push(output);
   }
 };
 export {

@@ -12,7 +12,7 @@ var ShadowMap = class {
    */
   constructor(engine) {
     this.c = engine;
-    this.io = RenderableHelper.createFrameBuffer(engine, {
+    this.qo = RenderableHelper.createFrameBuffer(engine, {
       width: 1024,
       height: 1024,
       textureNum: 1,
@@ -20,7 +20,7 @@ var ShadowMap = class {
       createDepthBuffer: true,
       depthTextureFormat: TextureFormat.Depth32F
     });
-    this.lo = createDepthMomentEncodeMaterial(engine);
+    this.to = createDepthMomentEncodeMaterial(engine);
   }
   /**
    * Creates and returns render passes for shadow mapping from the perspective of a light source.
@@ -39,8 +39,8 @@ var ShadowMap = class {
     shadowMomentRenderPass.toClearDepthBuffer = true;
     shadowMomentRenderPass.cameraComponent = lightEntity.getCamera();
     shadowMomentRenderPass.addEntities(entities);
-    shadowMomentRenderPass.setFramebuffer(this.io);
-    shadowMomentRenderPass.setMaterial(this.lo);
+    shadowMomentRenderPass.setFramebuffer(this.qo);
+    shadowMomentRenderPass.setMaterial(this.to);
     return [shadowMomentRenderPass];
   }
   /**
@@ -51,7 +51,7 @@ var ShadowMap = class {
    * @returns The shadow moment framebuffer containing depth moment texture data
    */
   getShadowMomentFramebuffer() {
-    return this.io;
+    return this.qo;
   }
 };
 export {

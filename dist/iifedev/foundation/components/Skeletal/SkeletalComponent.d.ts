@@ -47,6 +47,22 @@ export declare class SkeletalComponent extends Component {
      * w = bone data type index (used by shaders to select the decoding path).
      */
     private _boneDataInfo;
+    /**
+     * The bone data of the previous frame, for the motion vectors of temporal anti-aliasing (same layout as
+     * `_boneData`). It holds a single vec4 until `_enablePreviousBoneData` is called, so that applications without
+     * temporal anti-aliasing do not pay for it.
+     */
+    private _previousBoneData;
+    /**
+     * The location of `_previousBoneData` in the GPU data (written by the memory allocation of Component).
+     */
+    private _previousBoneDataLocation;
+    /**
+     * The bone data info of the previous frame. w is -1 while `_previousBoneData` has not received the bone data
+     * of a frame yet (the shaders then use the current bone data).
+     */
+    private _previousBoneDataInfo;
+    private __isPreviousBoneDataEnabled;
     private __boneDataUint32?;
     private __boneDataType;
     /** Whether __boneDataType was chosen automatically (an automatic Vec4x1 may be switched to Vec4x2) */
@@ -98,6 +114,14 @@ export declare class SkeletalComponent extends Component {
      * Clears any existing data to prevent contamination from previous models.
      */
     private __resetBoneDataBuffers;
+    /**
+     * Releases the view of the previous bone data so that it is re-allocated with the current length.
+     */
+    private __resetPreviousBoneData;
+    /**
+     * Marks the previous bone data as not received yet (the shaders use the current bone data instead).
+     */
+    private __invalidatePreviousBoneData;
     /**
      * Gets the static component type identifier for SkeletalComponent.
      *
@@ -204,6 +228,30 @@ export declare class SkeletalComponent extends Component {
      * @returns The bone data info vector
      */
     get boneDataInfo(): MutableVector4;
+    /**
+     * Allocates the bone data of the previous frame (used by the motion vectors of temporal anti-aliasing).
+     * Until the first `_updatePreviousBoneData`, the shaders use the current bone data.
+     *
+     * @internal
+     */
+    _enablePreviousBoneData(): void;
+    /**
+     * Copies the bone data into the previous bone data if they differ.
+     *
+     * @remarks
+     * Called once per frame before the logic stage, when the bone data still holds the previous frame. A skeleton
+     * that stopped is copied once more in the frame after it stopped and then not any more.
+     *
+     * @returns Whether the previous bone data was written (the GPU instance data has to be uploaded)
+     * @internal
+     */
+    _updatePreviousBoneData(): boolean;
+    /**
+     * The bone data of the previous frame (allocated by `_enablePreviousBoneData`).
+     *
+     * @internal
+     */
+    get _previousBoneDataArray(): Float32Array;
     /**
      * Gets a copy of the world matrix.
      *

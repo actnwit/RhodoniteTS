@@ -5,14 +5,14 @@ var AbsoluteAnimation = class {
    * @param srcEntity - The source entity whose transform values will be used for retargeting
    */
   constructor(srcEntity) {
-    this.Sg = srcEntity;
+    this.Wg = srcEntity;
   }
   /**
    * Gets the source entity associated with this animation retarget.
    * @returns The source scene graph entity
    */
   getEntity() {
-    return this.Sg;
+    return this.Wg;
   }
   /**
    * Retargets rotation by returning the source entity's local rotation quaternion.
@@ -20,7 +20,7 @@ var AbsoluteAnimation = class {
    * @returns The source entity's local rotation quaternion
    */
   retargetQuaternion(_dstEntity) {
-    const srcEntity = this.Sg;
+    const srcEntity = this.Wg;
     return srcEntity.getTransform().localRotationInner;
   }
   /**
@@ -29,7 +29,7 @@ var AbsoluteAnimation = class {
    * @returns The source entity's local position vector
    */
   retargetTranslate(_dstEntity) {
-    const srcEntity = this.Sg;
+    const srcEntity = this.Wg;
     return srcEntity.getTransform().localPositionInner;
   }
   /**
@@ -38,7 +38,7 @@ var AbsoluteAnimation = class {
    * @returns The source entity's local scale vector
    */
   retargetScale(_dstEntity) {
-    const srcEntity = this.Sg;
+    const srcEntity = this.Wg;
     return srcEntity.getTransform().localScaleInner;
   }
 };

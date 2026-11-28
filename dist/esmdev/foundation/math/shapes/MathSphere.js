@@ -8,12 +8,12 @@ var MathSphere_ = class {
    * @param radius - The radius of the sphere (must be positive)
    */
   constructor(position, radius) {
-    this.Ht = position;
-    this.St = radius;
-    if (this.Ht.bytesPerComponent === 4) {
-      this.Cc = Float32Array;
+    this.Pt = position;
+    this._t = radius;
+    if (this.Pt.bytesPerComponent === 4) {
+      this.Gc = Float32Array;
     } else {
-      this.Cc = Float64Array;
+      this.Gc = Float64Array;
     }
   }
   /**
@@ -22,7 +22,7 @@ var MathSphere_ = class {
    * @returns The mutable 3D vector representing the sphere's center position
    */
   get position() {
-    return this.Ht;
+    return this.Pt;
   }
   /**
    * Gets the radius of the sphere.
@@ -30,7 +30,7 @@ var MathSphere_ = class {
    * @returns The radius value of the sphere
    */
   get radius() {
-    return this.St;
+    return this._t;
   }
   /**
    * Calculates whether a ray intersects with this sphere using ray-sphere intersection algorithm.
@@ -41,9 +41,9 @@ var MathSphere_ = class {
    * @returns True if the ray intersects with the sphere, false otherwise
    */
   calcCollision(rayPos, rayDir) {
-    const m = Vector3_._subtract(rayPos, this.Ht, this.Cc);
+    const m = Vector3_._subtract(rayPos, this.Pt, this.Gc);
     const b = Vector3_.dot(m, rayDir);
-    const c = Vector3_.dot(m, m) - this.St * this.St;
+    const c = Vector3_.dot(m, m) - this._t * this._t;
     if (c > 0 && b > 0) {
       return false;
     }

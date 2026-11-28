@@ -23,39 +23,39 @@ var _Mesh = class _Mesh {
    * Constructor
    */
   constructor(engine) {
-    this.Bk = [];
-    this.Tk = [];
-    this.Uk = [];
-    this.Vk = [];
-    this.Wk = [];
-    this.jl = [];
-    this.Qk = new AABB();
-    this.Ck = [];
+    this.Ik = [];
+    this._k = [];
+    this.$k = [];
+    this.al = [];
+    this.bl = [];
+    this.ql = [];
+    this.Xk = new AABB();
+    this.Jk = [];
     /** Indices of __vaoUids that refer to a MultiDrawRepository-owned group VAO. */
-    this.Lk = /* @__PURE__ */ new Set();
-    this.Ek = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    this.Sk = /* @__PURE__ */ new Set();
+    this.Lk = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     /** Whether the mesh has instances (see `_isGpuCullable`). */
-    this._k = false;
+    this.fl = false;
     /** Whether an instance has a skeletal component (see `_needsComputeDeformation`). */
-    this.Ok = false;
+    this.Vk = false;
     /** Whether an instance has a blend shape component (see `_needsComputeDeformation`). */
-    this.$k = false;
+    this.gl = false;
     /** Cache of `_isComputeDeformable`, valid for the primitive count, position update count and skeletal flag below. */
-    this.Xk = false;
-    this.al = -1;
-    this.bl = -1;
     this.cl = false;
+    this.hl = -1;
+    this.il = -1;
+    this.jl = false;
     /** Number of the instances packed at the front of the variation VBO. */
-    this.Ik = 0;
-    this.Kk = -1;
-    /** Stable slot range in the engine-wide instance SID table (WebGL multi-draw). */
-    this.Fk = -1;
     this.Pk = 0;
+    this.Rk = -1;
+    /** Stable slot range in the engine-wide instance SID table (WebGL multi-draw). */
+    this.Mk = -1;
+    this.Wk = 0;
     /** Id of the last culling pass that visited this mesh in the per-pass instance prepass. */
-    this.dl = -1;
-    this.el = 0;
-    this.fl = 0;
-    this.Dk = [];
+    this.kl = -1;
+    this.ll = 0;
+    this.ml = 0;
+    this.Kk = [];
     /**
      * Specification of when calculate the tangent of a vertex to apply Normal texture (for pbr/MToon shader)
      * 0: Not calculate tangent (not apply normal texture)
@@ -65,10 +65,10 @@ var _Mesh = class _Mesh {
      * 4: Precalculate all tangent in the javascript
      */
     this.tangentCalculationMode = 1;
-    this.gl = false;
-    this.Gk = 0;
+    this.nl = false;
+    this.Nk = 0;
     this.c = engine;
-    this.Zk = ++_Mesh.il;
+    this.el = ++_Mesh.pl;
   }
   /**
    * A version incremented whenever the primitive positions of any mesh are updated (see
@@ -76,7 +76,7 @@ var _Mesh = class _Mesh {
    * @internal
    */
   static get _primitivePositionUpdateVersion() {
-    return _Mesh.hl;
+    return _Mesh.ol;
   }
   ///
   ///
@@ -89,7 +89,7 @@ var _Mesh = class _Mesh {
    * @returns The VAO resource handle
    */
   getVaoUids(index) {
-    return this.Ck[index];
+    return this.Jk[index];
   }
   /**
    * Gets the VAO (Vertex Array Object) UID for the specified primitive UID.
@@ -97,15 +97,15 @@ var _Mesh = class _Mesh {
    * @returns The VAO resource handle
    */
   getVaoUidsByPrimitiveUid(primitiveUid) {
-    const index = this.Bk.findIndex((primitive) => primitive.primitiveUid === primitiveUid);
-    return this.Ck[index];
+    const index = this.Ik.findIndex((primitive) => primitive.primitiveUid === primitiveUid);
+    return this.Jk[index];
   }
   /**
    * Gets the inner mesh entities that belong to this mesh.
    * @returns Array of mesh entities
    */
   get meshEntitiesInner() {
-    return this.Dk;
+    return this.Kk;
   }
   /**
    * Registers this mesh as belonging to a mesh component.
@@ -113,8 +113,8 @@ var _Mesh = class _Mesh {
    * @internal
    */
   _belongToMeshComponent(meshComponent) {
-    this.Dk.push(meshComponent.entity);
-    if (this.Hk()) {
+    this.Kk.push(meshComponent.entity);
+    if (this.Ok()) {
       this.c.webglResourceRepository.getMultiDrawRepository(this.c).markDirtyForMesh(this);
     }
   }
@@ -125,8 +125,8 @@ var _Mesh = class _Mesh {
    */
   _removeMeshComponent(meshComponent) {
     const entity = meshComponent.entity;
-    this.Dk = this.Dk.filter((belongToEntity) => belongToEntity !== entity);
-    if (this.Hk()) {
+    this.Kk = this.Kk.filter((belongToEntity) => belongToEntity !== entity);
+    if (this.Ok()) {
       this.c.webglResourceRepository.getMultiDrawRepository(this.c).markDirtyForMesh(this);
     }
   }
@@ -136,20 +136,20 @@ var _Mesh = class _Mesh {
    */
   addPrimitive(primitive) {
     primitive._belongToMesh(this);
-    if (this.Hk()) {
+    if (this.Ok()) {
       this.c.webglResourceRepository.getMultiDrawRepository(this.c).markDirtyForMesh(this);
     }
     if (isOpaque(primitive)) {
-      this.Tk.push(primitive);
+      this._k.push(primitive);
     } else if (isTranslucent(primitive)) {
-      this.Uk.push(primitive);
+      this.$k.push(primitive);
     } else if (isBlendWithZWrite(primitive)) {
-      this.Vk.push(primitive);
+      this.al.push(primitive);
     } else if (isBlendWithoutZWrite(primitive)) {
-      this.Wk.push(primitive);
+      this.bl.push(primitive);
     }
-    this.wl(
-      this.Tk.concat(this.Uk).concat(this.Vk).concat(this.Wk)
+    this.Dl(
+      this._k.concat(this.$k).concat(this.al).concat(this.bl)
     );
   }
   /**
@@ -157,36 +157,36 @@ var _Mesh = class _Mesh {
    * @param primitives - Array of primitives to set
    * @private
    */
-  wl(primitives) {
-    this.Bk = primitives;
+  Dl(primitives) {
+    this.Ik = primitives;
   }
   /**
    * Checks if this mesh has opaque primitives.
    * @returns True if opaque primitives exist, false otherwise
    */
   isExistOpaque() {
-    return this.Tk.length > 0;
+    return this._k.length > 0;
   }
   /**
    * Checks if this mesh has translucent primitives.
    * @returns True if translucent primitives exist, false otherwise
    */
   isExistTranslucent() {
-    return this.Uk.length > 0;
+    return this.$k.length > 0;
   }
   /**
    * Checks if this mesh has blend-with-z-write primitives.
    * @returns True if blend-with-z-write primitives exist, false otherwise
    */
   isExistBlendWithZWrite() {
-    return this.Vk.length > 0;
+    return this.al.length > 0;
   }
   /**
    * Checks if this mesh has blend-without-z-write primitives.
    * @returns True if blend-without-z-write primitives exist, false otherwise
    */
   isExistBlendWithoutZWrite() {
-    return this.Wk.length > 0;
+    return this.bl.length > 0;
   }
   /**
    * Gets the primitive at the specified index.
@@ -194,19 +194,19 @@ var _Mesh = class _Mesh {
    * @returns The primitive at the specified index
    */
   getPrimitiveAt(i) {
-    return this.Bk[i];
+    return this.Ik[i];
   }
   /**
    * Gets the total number of primitives in this mesh.
    * @returns The number of primitives
    */
   getPrimitiveNumber() {
-    return this.Bk.length;
+    return this.Ik.length;
   }
   /**
    * Whether the WebGL instance SID texture path (multi-draw) is active for this mesh.
    */
-  Hk() {
+  Ok() {
     if (!this.c.config.isMultiDrawEnabled) {
       return false;
     }
@@ -224,21 +224,21 @@ var _Mesh = class _Mesh {
    * @internal
    */
   _ensureInstanceSidBase() {
-    const count = this.Dk.length;
+    const count = this.Kk.length;
     const table = this.c.webglResourceRepository.instanceSidTable;
-    let base = this.Fk;
-    if (base < 0 || this.Pk !== count) {
+    let base = this.Mk;
+    if (base < 0 || this.Wk !== count) {
       if (base >= 0) {
-        table.free(base, this.Pk);
+        table.free(base, this.Wk);
       }
       base = table.allocate(count);
-      this.Fk = base;
-      this.Pk = count;
+      this.Mk = base;
+      this.Wk = count;
       table.writeIdentityRemap(base, count);
     }
     const INVALID_ID = 4294967295;
     for (let i = 0; i < count; i++) {
-      const entity = this.Dk[i];
+      const entity = this.Kk[i];
       const componentSID = entity.getSceneGraph().componentSID;
       const skeletal = entity.tryToGetSkeletal();
       const blendShape = entity.tryToGetBlendShape();
@@ -256,17 +256,17 @@ var _Mesh = class _Mesh {
    * @internal
    */
   get _instanceSidBase() {
-    return this.Fk;
+    return this.Mk;
   }
   /**
    * Visit stamp of the per-pass instance prepass (WebGL multi-draw).
    * @internal
    */
   get _remapPrepassId() {
-    return this.dl;
+    return this.kl;
   }
   set _remapPrepassId(id) {
-    this.dl = id;
+    this.kl = id;
   }
   /**
    * Updates the variation VBO (Vertex Buffer Object) for instancing.
@@ -275,25 +275,25 @@ var _Mesh = class _Mesh {
    */
   updateVariationVBO() {
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
-    if (this.Ek !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      cgApiResourceRepository.deleteVertexBuffer(this.Ek);
+    if (this.Lk !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      cgApiResourceRepository.deleteVertexBuffer(this.Lk);
     }
     const INVALID_ID = 4294967295;
-    const instanceNum = this.Dk.length;
+    const instanceNum = this.Kk.length;
     const entityInfo = new Uint32Array(instanceNum * 4);
     const entityUIDs = new Int32Array(instanceNum);
     let hasSkeletalInstance = false;
     let hasBlendShapeInstance = false;
     for (let i = 0; i < instanceNum; i++) {
-      entityUIDs[i] = this.Dk[i].entityUID;
-      entityInfo[4 * i + 0] = this.Dk[i].getSceneGraph().componentSID;
-      const skeletal = this.Dk[i].tryToGetSkeletal();
+      entityUIDs[i] = this.Kk[i].entityUID;
+      entityInfo[4 * i + 0] = this.Kk[i].getSceneGraph().componentSID;
+      const skeletal = this.Kk[i].tryToGetSkeletal();
       if (skeletal != null) {
         entityInfo[4 * i + 1] = skeletal.componentSID;
       } else {
         entityInfo[4 * i + 1] = INVALID_ID;
       }
-      const blendShape = this.Dk[i].tryToGetBlendShape();
+      const blendShape = this.Kk[i].tryToGetBlendShape();
       if (blendShape != null) {
         entityInfo[4 * i + 2] = blendShape.componentSID;
       } else {
@@ -302,29 +302,29 @@ var _Mesh = class _Mesh {
       hasSkeletalInstance || (hasSkeletalInstance = skeletal != null);
       hasBlendShapeInstance || (hasBlendShapeInstance = blendShape != null);
     }
-    this._k = instanceNum > 0;
-    this.Ok = hasSkeletalInstance;
-    this.$k = hasBlendShapeInstance;
-    if (this.Hk()) {
-      this.Ek = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-      this.Mk = entityInfo;
-      this.Nk = entityUIDs;
-      this.Rk = void 0;
-      this.Sk = void 0;
-      this.Ik = instanceNum;
-      this.Jk = void 0;
-      this.Kk = -1;
+    this.fl = instanceNum > 0;
+    this.Vk = hasSkeletalInstance;
+    this.gl = hasBlendShapeInstance;
+    if (this.Ok()) {
+      this.Lk = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      this.Tk = entityInfo;
+      this.Uk = entityUIDs;
+      this.Yk = void 0;
+      this.Zk = void 0;
+      this.Pk = instanceNum;
+      this.Qk = void 0;
+      this.Rk = -1;
       this._ensureInstanceSidBase();
       return true;
     }
-    this.Ek = cgApiResourceRepository.createVertexBufferFromTypedArray(entityInfo);
-    this.Mk = entityInfo;
-    this.Nk = entityUIDs;
-    this.Rk = entityInfo.slice();
-    this.Sk = new Uint32Array(entityInfo.length);
-    this.Ik = instanceNum;
-    this.Jk = void 0;
-    this.Kk = -1;
+    this.Lk = cgApiResourceRepository.createVertexBufferFromTypedArray(entityInfo);
+    this.Tk = entityInfo;
+    this.Uk = entityUIDs;
+    this.Yk = entityInfo.slice();
+    this.Zk = new Uint32Array(entityInfo.length);
+    this.Pk = instanceNum;
+    this.Qk = void 0;
+    this.Rk = -1;
     return true;
   }
   /**
@@ -341,21 +341,21 @@ var _Mesh = class _Mesh {
    * @internal
    */
   _packVisibleInstancesToVariationVBO(culledEntityStamp, cullTick) {
-    if (this.Hk()) {
+    if (this.Ok()) {
       return this._packVisibleInstancesToInstanceRemap(culledEntityStamp, cullTick);
     }
-    const entityInfo = this.Mk;
-    const entityUIDs = this.Nk;
-    const vboContent = this.Rk;
-    const packed = this.Sk;
-    if (entityInfo === void 0 || entityUIDs === void 0 || vboContent === void 0 || packed === void 0 || this.Ek === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      return this.Dk.length;
+    const entityInfo = this.Tk;
+    const entityUIDs = this.Uk;
+    const vboContent = this.Yk;
+    const packed = this.Zk;
+    if (entityInfo === void 0 || entityUIDs === void 0 || vboContent === void 0 || packed === void 0 || this.Lk === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      return this.Kk.length;
     }
-    if (culledEntityStamp === this.Jk && cullTick === this.Kk) {
-      return this.Ik;
+    if (culledEntityStamp === this.Qk && cullTick === this.Rk) {
+      return this.Pk;
     }
-    this.Jk = culledEntityStamp;
-    this.Kk = cullTick;
+    this.Qk = culledEntityStamp;
+    this.Rk = cullTick;
     const instanceNum = entityUIDs.length;
     let count = 0;
     for (let i = 0; i < instanceNum; i++) {
@@ -383,10 +383,10 @@ var _Mesh = class _Mesh {
     }
     if (changed) {
       const packedData = packed.subarray(0, packedLength);
-      this.c.webglResourceRepository.updateVertexBufferWithTypedArray(this.Ek, packedData);
+      this.c.webglResourceRepository.updateVertexBufferWithTypedArray(this.Lk, packedData);
       vboContent.set(packedData);
     }
-    this.Ik = count;
+    this.Pk = count;
     return count;
   }
   /**
@@ -399,20 +399,20 @@ var _Mesh = class _Mesh {
    * @internal
    */
   _packVisibleInstancesToInstanceRemap(culledEntityStamp, cullTick) {
-    const entityUIDs = this.Nk;
+    const entityUIDs = this.Uk;
     if (entityUIDs === void 0) {
-      return this.Dk.length;
+      return this.Kk.length;
     }
-    if (this.Fk < 0) {
+    if (this.Mk < 0) {
       this._ensureInstanceSidBase();
     }
-    if (culledEntityStamp === this.Jk && cullTick === this.Kk) {
-      return this.Ik;
+    if (culledEntityStamp === this.Qk && cullTick === this.Rk) {
+      return this.Pk;
     }
-    this.Jk = culledEntityStamp;
-    this.Kk = cullTick;
+    this.Qk = culledEntityStamp;
+    this.Rk = cullTick;
     const table = this.c.webglResourceRepository.instanceSidTable;
-    const base = this.Fk;
+    const base = this.Mk;
     const instanceNum = entityUIDs.length;
     let count = 0;
     for (let i = 0; i < instanceNum; i++) {
@@ -425,7 +425,7 @@ var _Mesh = class _Mesh {
       table.setRemap(base + count, i);
       count++;
     }
-    this.Ik = count;
+    this.Pk = count;
     return count;
   }
   ///
@@ -438,13 +438,13 @@ var _Mesh = class _Mesh {
    */
   deleteVariationVBO() {
     const webglResourceRepository = this.c.webglResourceRepository;
-    if (this.Ek !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      webglResourceRepository.deleteVertexBuffer(this.Ek);
-      this.Ek = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-      this.Mk = void 0;
-      this.Nk = void 0;
-      this.Rk = void 0;
-      this.Sk = void 0;
+    if (this.Lk !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      webglResourceRepository.deleteVertexBuffer(this.Lk);
+      this.Lk = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      this.Tk = void 0;
+      this.Uk = void 0;
+      this.Yk = void 0;
+      this.Zk = void 0;
       return true;
     }
     return false;
@@ -457,12 +457,12 @@ var _Mesh = class _Mesh {
     if (webglResourceRepository == null) {
       return;
     }
-    for (let i = 0; i < this.Bk.length; i++) {
-      const primitive = this.Bk[i];
+    for (let i = 0; i < this.Ik.length; i++) {
+      const primitive = this.Ik[i];
       const multiDrawGroup = primitive._multiDrawGroup;
       if ((multiDrawGroup == null ? void 0 : multiDrawGroup.vertexHandles) != null) {
-        this.Ck[i] = multiDrawGroup.vertexHandles.vaoHandle;
-        this.Lk.add(i);
+        this.Jk[i] = multiDrawGroup.vertexHandles.vaoHandle;
+        this.Sk.add(i);
         continue;
       }
       const vertexHandles = primitive.vertexHandles;
@@ -470,23 +470,23 @@ var _Mesh = class _Mesh {
         Logger.default.warn("Need to create 3DAPIVertexData before update VAO");
         continue;
       }
-      if (Number.isNaN(this.Ck[i]) || this.Ck[i] === CGAPIResourceRepository.InvalidCGAPIResourceUid || vertexHandles.vaoHandle === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-        this.Ck[i] = webglResourceRepository.createVertexArray();
-        vertexHandles.vaoHandle = this.Ck[i];
+      if (Number.isNaN(this.Jk[i]) || this.Jk[i] === CGAPIResourceRepository.InvalidCGAPIResourceUid || vertexHandles.vaoHandle === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        this.Jk[i] = webglResourceRepository.createVertexArray();
+        vertexHandles.vaoHandle = this.Jk[i];
       }
-      webglResourceRepository.setVertexDataToPipeline(vertexHandles, primitive, this.Ek);
+      webglResourceRepository.setVertexDataToPipeline(vertexHandles, primitive, this.Lk);
     }
     const multiDrawRepository = webglResourceRepository.getMultiDrawRepository(this.c);
     const removedHandles = /* @__PURE__ */ new Set();
-    for (let i = this.Bk.length; i < this.Ck.length; i++) {
-      const vaoUid = this.Ck[i];
+    for (let i = this.Ik.length; i < this.Jk.length; i++) {
+      const vaoUid = this.Jk[i];
       if (vaoUid && !multiDrawRepository.hasVaoHandle(vaoUid)) {
         if (!removedHandles.has(vaoUid)) {
           removedHandles.add(vaoUid);
           webglResourceRepository.deleteVertexArray(vaoUid);
         }
       }
-      this.Ck[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      this.Jk[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
   }
   /**
@@ -496,21 +496,21 @@ var _Mesh = class _Mesh {
   deleteVAO() {
     const webglResourceRepository = this.c.webglResourceRepository;
     if (webglResourceRepository == null) {
-      this.Ck.length = 0;
-      this.Lk.clear();
+      this.Jk.length = 0;
+      this.Sk.clear();
       return;
     }
     const multiDrawRepository = webglResourceRepository.getMultiDrawRepository(this.c);
     const deletedHandles = /* @__PURE__ */ new Set();
-    for (let i = 0; i < this.Ck.length; i++) {
-      const vaoUid = this.Ck[i];
+    for (let i = 0; i < this.Jk.length; i++) {
+      const vaoUid = this.Jk[i];
       if (vaoUid && !deletedHandles.has(vaoUid) && !multiDrawRepository.hasVaoHandle(vaoUid)) {
         deletedHandles.add(vaoUid);
         webglResourceRepository.deleteVertexArray(vaoUid);
       }
-      this.Ck[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      this.Jk[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
-    this.Lk.clear();
+    this.Sk.clear();
   }
   /**
    * Clears the VAO entries that point at multi-draw group VAOs. The groups own those
@@ -518,12 +518,12 @@ var _Mesh = class _Mesh {
    * @internal
    */
   _clearMultiDrawVaoUids() {
-    for (const index of this.Lk) {
-      if (index < this.Ck.length) {
-        this.Ck[index] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    for (const index of this.Sk) {
+      if (index < this.Jk.length) {
+        this.Jk[index] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
       }
     }
-    this.Lk.clear();
+    this.Sk.clear();
   }
   /**
    * Performs ray casting against this mesh to find intersection points.
@@ -538,14 +538,14 @@ var _Mesh = class _Mesh {
     let finalShortestT = Number.MAX_VALUE;
     let u = 0;
     let v = 0;
-    for (const primitive of this.Bk) {
+    for (const primitive of this.Ik) {
       const result = primitive.castRay(
         srcPointInLocal,
         directionInLocal,
         true,
         true,
         dotThreshold,
-        this.gl
+        this.nl
       );
       if (Is.defined(result.data) && ((_a = result.data) == null ? void 0 : _a.t) < finalShortestT) {
         finalShortestT = result.data.t;
@@ -579,14 +579,14 @@ var _Mesh = class _Mesh {
    * @returns Array of primitives
    */
   get primitives() {
-    return this.Bk;
+    return this.Ik;
   }
   /**
    * Gets the unique identifier for this mesh.
    * @returns The mesh UID
    */
   get meshUID() {
-    return this.Zk;
+    return this.el;
   }
   /**
    * Gets the variation VBO UID for internal use.
@@ -594,7 +594,7 @@ var _Mesh = class _Mesh {
    * @internal
    */
   get _variationVBOUid() {
-    return this.Ek;
+    return this.Lk;
   }
   /**
    * The instance variation data of the instances, as written to the variation VBO by `updateVariationVBO`:
@@ -602,7 +602,7 @@ var _Mesh = class _Mesh {
    * @internal
    */
   get _variationEntityInfo() {
-    return this.Mk;
+    return this.Tk;
   }
   /**
    * Whether the instances of this mesh can be culled on the GPU (WebGPU GPU culling).
@@ -613,7 +613,7 @@ var _Mesh = class _Mesh {
    * @internal
    */
   get _isGpuCullable() {
-    if (!this._k) {
+    if (!this.fl) {
       return false;
     }
     if (!this._needsComputeDeformation) {
@@ -627,14 +627,14 @@ var _Mesh = class _Mesh {
    * @internal
    */
   get _needsComputeDeformation() {
-    if (this.Ok) {
+    if (this.Vk) {
       return true;
     }
-    if (!this.$k) {
+    if (!this.gl) {
       return false;
     }
-    for (let i = 0; i < this.Bk.length; i++) {
-      if (this.Bk[i].targets.length > 0) {
+    for (let i = 0; i < this.Ik.length; i++) {
+      if (this.Ik[i].targets.length > 0) {
         return true;
       }
     }
@@ -647,26 +647,26 @@ var _Mesh = class _Mesh {
    * @internal
    */
   get _isComputeDeformable() {
-    if (this.al === this.Bk.length && this.bl === this.Gk && this.cl === this.Ok) {
-      return this.Xk;
+    if (this.hl === this.Ik.length && this.il === this.Nk && this.jl === this.Vk) {
+      return this.cl;
     }
-    this.al = this.Bk.length;
-    this.bl = this.Gk;
-    this.cl = this.Ok;
-    this.Xk = this.xl();
-    return this.Xk;
+    this.hl = this.Ik.length;
+    this.il = this.Nk;
+    this.jl = this.Vk;
+    this.cl = this.El();
+    return this.cl;
   }
-  xl() {
-    if (this.Bk.length === 0) {
+  El() {
+    if (this.Ik.length === 0) {
       return false;
     }
     const hasAttribute = (semantics, name) => semantics.some((s) => s.split(".")[0] === name);
-    for (const primitive of this.Bk) {
+    for (const primitive of this.Ik) {
       const semantics = primitive.attributeSemantics;
       if (!hasAttribute(semantics, "POSITION")) {
         return false;
       }
-      if (this.Ok && (!hasAttribute(semantics, "JOINTS_0") || !hasAttribute(semantics, "WEIGHTS_0"))) {
+      if (this.Vk && (!hasAttribute(semantics, "JOINTS_0") || !hasAttribute(semantics, "WEIGHTS_0"))) {
         return false;
       }
       for (const target of primitive.targets) {
@@ -689,9 +689,9 @@ var _Mesh = class _Mesh {
    * @internal
    */
   _onPrimitivePositionUpdated() {
-    this.Gk++;
-    _Mesh.hl++;
-    for (const entity of this.Dk) {
+    this.Nk++;
+    _Mesh.ol++;
+    for (const entity of this.Kk) {
       entity.getMeshRenderer().moveStageTo(ProcessStage.Load);
     }
   }
@@ -700,22 +700,22 @@ var _Mesh = class _Mesh {
    * @returns The number of times primitive positions have been updated
    */
   get primitivePositionUpdateCount() {
-    return this.Gk;
+    return this.Nk;
   }
   /**
    * Gets AABB in local space.
    */
   get AABB() {
-    if (this.Gk !== this.el) {
-      this.Qk.initialize();
-      this.el = this.Gk;
+    if (this.Nk !== this.ll) {
+      this.Xk.initialize();
+      this.ll = this.Nk;
     }
-    if (this.Qk.isVanilla()) {
-      for (const primitive of this.Bk) {
-        this.Qk.mergeAABB(primitive.AABB);
+    if (this.Xk.isVanilla()) {
+      for (const primitive of this.Ik) {
+        this.Xk.mergeAABB(primitive.AABB);
       }
     }
-    return this.Qk;
+    return this.Xk;
   }
   ///
   ///
@@ -731,10 +731,10 @@ var _Mesh = class _Mesh {
    * Calculates morph target primitives by blending vertex attributes.
    * @private
    */
-  Bl() {
-    for (let i = 0; i < this.Bk.length; i++) {
-      const morphPrimitive = this.jl[i];
-      const primitive = this.Bk[i];
+  Il() {
+    for (let i = 0; i < this.Ik.length; i++) {
+      const morphPrimitive = this.ql[i];
+      const primitive = this.Ik[i];
       const target0Attributes = primitive.targets[0];
       target0Attributes.forEach((_accessor, semantic) => {
         const morphAccessor = morphPrimitive.getAttribute(semantic);
@@ -749,10 +749,10 @@ var _Mesh = class _Mesh {
    * @internal
    */
   _calcTangents() {
-    if (!this.yl()) {
+    if (!this.Fl()) {
       return;
     }
-    for (const primitive of this.Bk) {
+    for (const primitive of this.Ik) {
       const tangentIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Tangent.XYZ);
       if (tangentIdx !== -1 && this.tangentCalculationMode === 2) {
         continue;
@@ -793,7 +793,7 @@ var _Mesh = class _Mesh {
           const uv1 = texcoordAccessor.getVec2(i + 1, { indicesAccessor });
           const uv2 = texcoordAccessor.getVec2(i + 2, { indicesAccessor });
           const norm0 = normalAccessor.getVec3(i, { indicesAccessor });
-          this.zl(i, pos0, pos1, pos2, uv0, uv1, uv2, norm0, tangentAccessor, indicesAccessor);
+          this.Gl(i, pos0, pos1, pos2, uv0, uv1, uv2, norm0, tangentAccessor, indicesAccessor);
         }
         primitive.setVertexAttribute(tangentAccessor, VertexAttribute.Tangent.XYZ);
       }
@@ -814,10 +814,10 @@ var _Mesh = class _Mesh {
    * @private
    * @internal
    */
-  zl(i, pos0, pos1, pos2, uv0, uv1, uv2, norm0, tangentAccessor, indicesAccessor) {
-    const tan0Vec3 = this.Yk(pos0, pos1, pos2, uv0, uv1, uv2, norm0, _Mesh.tl);
-    const tan1Vec3 = this.Yk(pos1, pos2, pos0, uv1, uv2, uv0, norm0, _Mesh.ul);
-    const tan2Vec3 = this.Yk(pos2, pos0, pos1, uv2, uv0, uv1, norm0, _Mesh.vl);
+  Gl(i, pos0, pos1, pos2, uv0, uv1, uv2, norm0, tangentAccessor, indicesAccessor) {
+    const tan0Vec3 = this.dl(pos0, pos1, pos2, uv0, uv1, uv2, norm0, _Mesh.Al);
+    const tan1Vec3 = this.dl(pos1, pos2, pos0, uv1, uv2, uv0, norm0, _Mesh.Bl);
+    const tan2Vec3 = this.dl(pos2, pos0, pos1, uv2, uv0, uv1, norm0, _Mesh.Cl);
     tangentAccessor.setVec4(i, tan0Vec3.x, tan0Vec3.y, tan0Vec3.z, 1, {
       indicesAccessor
     });
@@ -841,28 +841,28 @@ var _Mesh = class _Mesh {
    * @returns The calculated tangent vector
    * @private
    */
-  Yk(pos0Vec3, pos1Vec3, pos2Vec3, uv0Vec2, uv1Vec2, uv2Vec2, norm0Vec3, returnVec3) {
+  dl(pos0Vec3, pos1Vec3, pos2Vec3, uv0Vec2, uv1Vec2, uv2Vec2, norm0Vec3, returnVec3) {
     const cp0 = [
       _Mesh.ta.setComponents(pos0Vec3.x, uv0Vec2.x, uv0Vec2.y),
       _Mesh.ua.setComponents(pos0Vec3.y, uv0Vec2.x, uv0Vec2.y),
       _Mesh.pb.setComponents(pos0Vec3.z, uv0Vec2.x, uv0Vec2.y)
     ];
     const cp1 = [
-      _Mesh.kl.setComponents(pos1Vec3.x, uv1Vec2.x, uv1Vec2.y),
-      _Mesh.ll.setComponents(pos1Vec3.y, uv1Vec2.x, uv1Vec2.y),
-      _Mesh.ml.setComponents(pos1Vec3.z, uv1Vec2.x, uv1Vec2.y)
+      _Mesh.rl.setComponents(pos1Vec3.x, uv1Vec2.x, uv1Vec2.y),
+      _Mesh.sl.setComponents(pos1Vec3.y, uv1Vec2.x, uv1Vec2.y),
+      _Mesh.tl.setComponents(pos1Vec3.z, uv1Vec2.x, uv1Vec2.y)
     ];
     const cp2 = [
-      _Mesh.nl.setComponents(pos2Vec3.x, uv2Vec2.x, uv2Vec2.y),
-      _Mesh.ol.setComponents(pos2Vec3.y, uv2Vec2.x, uv2Vec2.y),
-      _Mesh.pl.setComponents(pos2Vec3.z, uv2Vec2.x, uv2Vec2.y)
+      _Mesh.ul.setComponents(pos2Vec3.x, uv2Vec2.x, uv2Vec2.y),
+      _Mesh.vl.setComponents(pos2Vec3.y, uv2Vec2.x, uv2Vec2.y),
+      _Mesh.wl.setComponents(pos2Vec3.z, uv2Vec2.x, uv2Vec2.y)
     ];
     const u = [];
     const v = [];
     for (let i = 0; i < 3; i++) {
-      const v1 = MutableVector3.subtractTo(cp1[i], cp0[i], _Mesh.ql);
-      const v2 = MutableVector3.subtractTo(cp2[i], cp1[i], _Mesh.rl);
-      const abc = MutableVector3.crossTo(v1, v2, _Mesh.sl);
+      const v1 = MutableVector3.subtractTo(cp1[i], cp0[i], _Mesh.xl);
+      const v2 = MutableVector3.subtractTo(cp2[i], cp1[i], _Mesh.yl);
+      const abc = MutableVector3.crossTo(v1, v2, _Mesh.zl);
       const validate = Math.abs(abc.x) < Number.EPSILON;
       if (validate) {
         Logger.default.assert(validate, "Polygons or polygons on UV are degenerate!");
@@ -882,7 +882,7 @@ var _Mesh = class _Mesh {
    * @returns True if tangent vectors should be pre-calculated, false otherwise
    * @private
    */
-  yl() {
+  Fl() {
     if (this.tangentCalculationMode === 0 || this.tangentCalculationMode === 1 || this.tangentCalculationMode === 3) {
       return false;
     }
@@ -893,7 +893,7 @@ var _Mesh = class _Mesh {
    * @internal
    */
   _calcBaryCentricCoord() {
-    for (const primitive of this.Bk) {
+    for (const primitive of this.Ik) {
       const baryCentricCoordAccessor = primitive.getAttribute(VertexAttribute.BaryCentricCoord.XYZ);
       if (baryCentricCoordAccessor != null) {
         const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position.XYZ);
@@ -956,12 +956,12 @@ var _Mesh = class _Mesh {
    * @internal
    */
   _calcFaceNormalsIfNonNormal() {
-    for (const primitive of this.Bk) {
+    for (const primitive of this.Ik) {
       const normalIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Normal.XYZ);
       if (normalIdx !== -1) {
         return;
       }
-      this.gl = true;
+      this.nl = true;
       const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position.XYZ);
       const positionAccessor = primitive.attributeAccessors[positionIdx];
       const indicesAccessor = primitive.indicesAccessor;
@@ -985,7 +985,7 @@ var _Mesh = class _Mesh {
         const pos0 = positionAccessor.getVec3(i, { indicesAccessor });
         const pos1 = positionAccessor.getVec3(i + 1, { indicesAccessor });
         const pos2 = positionAccessor.getVec3(i + 2, { indicesAccessor });
-        this.Al(i, pos0, pos1, pos2, normalAccessor, indicesAccessor);
+        this.Hl(i, pos0, pos1, pos2, normalAccessor, indicesAccessor);
       }
       primitive.setVertexAttribute(normalAccessor, VertexAttribute.Normal.XYZ);
     }
@@ -1000,7 +1000,7 @@ var _Mesh = class _Mesh {
    * @param indicesAccessor - Optional indices accessor
    * @private
    */
-  Al(i, pos0, pos1, pos2, normalAccessor, indicesAccessor) {
+  Hl(i, pos0, pos1, pos2, normalAccessor, indicesAccessor) {
     const ax = pos1.x - pos0.x;
     const ay = pos1.y - pos0.y;
     const az = pos1.z - pos0.z;
@@ -1083,8 +1083,8 @@ var _Mesh = class _Mesh {
     if (!vertexHandlesReady) {
       return false;
     }
-    if (this.fl !== this.Gk) {
-      this.fl = this.Gk;
+    if (this.ml !== this.Nk) {
+      this.ml = this.Nk;
       return false;
     }
     return true;
@@ -1099,12 +1099,12 @@ var _Mesh = class _Mesh {
    * @internal
    */
   _invalidateMultiDrawStructure() {
-    if (this.Hk()) {
+    if (this.Ok()) {
       this.c.webglResourceRepository.getMultiDrawRepository(this.c).markDirtyForMesh(this);
     }
   }
   _updateVBOAndVAO() {
-    if (this.Hk()) {
+    if (this.Ok()) {
       this.c.webglResourceRepository.getMultiDrawRepository(this.c).markDirtyForMesh(this);
       return;
     }
@@ -1126,13 +1126,13 @@ var _Mesh = class _Mesh {
    * Deletes all 3D API vertex data for this mesh.
    */
   delete3DAPIVertexData() {
-    for (const primitive of this.Bk) {
+    for (const primitive of this.Ik) {
       primitive.delete3DAPIVertexData();
     }
-    if (this.Fk >= 0 && this.Dk.length === 0) {
-      this.c.webglResourceRepository.instanceSidTable.free(this.Fk, this.Pk);
-      this.Fk = -1;
-      this.Pk = 0;
+    if (this.Mk >= 0 && this.Kk.length === 0) {
+      this.c.webglResourceRepository.instanceSidTable.free(this.Mk, this.Wk);
+      this.Mk = -1;
+      this.Wk = 0;
     }
   }
   // makeVerticesSeparated() {
@@ -1188,24 +1188,24 @@ var _Mesh = class _Mesh {
   // }
 };
 _Mesh.invalidateMeshUID = -1;
-_Mesh.il = _Mesh.invalidateMeshUID;
+_Mesh.pl = _Mesh.invalidateMeshUID;
 _Mesh.ta = MutableVector3.zero();
 _Mesh.ua = MutableVector3.zero();
 _Mesh.pb = MutableVector3.zero();
-_Mesh.kl = MutableVector3.zero();
-_Mesh.ll = MutableVector3.zero();
-_Mesh.ml = MutableVector3.zero();
-_Mesh.nl = MutableVector3.zero();
-_Mesh.ol = MutableVector3.zero();
-_Mesh.pl = MutableVector3.zero();
-_Mesh.ql = MutableVector3.zero();
 _Mesh.rl = MutableVector3.zero();
 _Mesh.sl = MutableVector3.zero();
 _Mesh.tl = MutableVector3.zero();
 _Mesh.ul = MutableVector3.zero();
 _Mesh.vl = MutableVector3.zero();
+_Mesh.wl = MutableVector3.zero();
+_Mesh.xl = MutableVector3.zero();
+_Mesh.yl = MutableVector3.zero();
+_Mesh.zl = MutableVector3.zero();
+_Mesh.Al = MutableVector3.zero();
+_Mesh.Bl = MutableVector3.zero();
+_Mesh.Cl = MutableVector3.zero();
 /** Incremented when the primitive positions of any mesh are updated. */
-_Mesh.hl = 0;
+_Mesh.ol = 0;
 var Mesh = _Mesh;
 export {
   Mesh

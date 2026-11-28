@@ -29,17 +29,17 @@ var initialSelection = {
 };
 var CharacterAnimationController = class {
   constructor(__characterController, __animationRoot, mapping = {}, options = {}) {
-    this.Xc = __characterController;
-    this.dd = __animationRoot;
-    this.Tc = initialSelection;
-    this.Rc = 0;
-    this.Vc = false;
-    this.Wc = false;
+    this.$c = __characterController;
+    this.hd = __animationRoot;
+    this.Xc = initialSelection;
+    this.Vc = 0;
+    this.Zc = false;
+    this._c = false;
     var _a, _b, _c, _d, _e, _f, _g, _h;
-    this.Oc = { ...defaultOptions, ...options };
-    this.ad(this.Oc);
+    this.Sc = { ...defaultOptions, ...options };
+    this.ed(this.Sc);
     const walkMapping = (_a = mapping.walk) != null ? _a : defaultMapping.walk;
-    this.Uc = {
+    this.Yc = {
       idle: (_b = mapping.idle) != null ? _b : defaultMapping.idle,
       walk: walkMapping,
       run: (_c = mapping.run) != null ? _c : [...defaultMapping.run.slice(0, 2), ...walkMapping],
@@ -48,17 +48,17 @@ var CharacterAnimationController = class {
       landing: (_f = mapping.landing) != null ? _f : defaultMapping.landing,
       slide: (_g = mapping.slide) != null ? _g : defaultMapping.slide
     };
-    this.Sc = this.bd(__animationRoot);
-    if (this.Sc.length > 0) {
-      this.Pc = (_h = __animationRoot.tryToGetAnimationState()) != null ? _h : __animationRoot.engine.entityRepository.addComponentToEntity(AnimationStateComponent, __animationRoot).getAnimationState();
-      this.Pc.setUseGlobalTime(false);
+    this.Wc = this.fd(__animationRoot);
+    if (this.Wc.length > 0) {
+      this.Tc = (_h = __animationRoot.tryToGetAnimationState()) != null ? _h : __animationRoot.engine.entityRepository.addComponentToEntity(AnimationStateComponent, __animationRoot).getAnimationState();
+      this.Tc.setUseGlobalTime(false);
     }
   }
   get selection() {
-    return this.Tc;
+    return this.Xc;
   }
   get availableTracks() {
-    return this.Sc;
+    return this.Wc;
   }
   /**
    * Applies an initial track immediately, without blending from the rest pose.
@@ -66,73 +66,73 @@ var CharacterAnimationController = class {
    * appear in a known pose from its first rendered frame.
    */
   initialize(semantic = "idle") {
-    if (this.Wc) {
+    if (this._c) {
       return;
     }
-    const resolved = this.Yc(semantic);
-    const playbackSpeed = this.Zc(semantic);
-    this._c(semantic, resolved, false);
-    this.Tc = {
+    const resolved = this.ad(semantic);
+    const playbackSpeed = this.bd(semantic);
+    this.cd(semantic, resolved, false);
+    this.Xc = {
       semantic,
-      requestedTrack: this.Uc[semantic][0],
+      requestedTrack: this.Yc[semantic][0],
       activeTrack: resolved.activeTrack,
       playbackSpeed,
       isFallback: resolved.isFallback,
       hasTrack: resolved.activeTrack != null,
-      isOneShotPlaying: this.Qc != null
+      isOneShotPlaying: this.Uc != null
     };
   }
   update(deltaTime) {
     var _a, _b, _c;
-    if (this.Wc) {
+    if (this._c) {
       return;
     }
     if (!Number.isFinite(deltaTime) || deltaTime < 0) {
       throw new Error("Character animation deltaTime must be a finite non-negative number.");
     }
-    if (this.Qc != null) {
-      this.Rc += deltaTime;
-      if (this.Rc < this.Qc) {
-        (_a = this.Pc) == null ? void 0 : _a.setTime(this.Rc);
-        this.Tc = { ...this.Tc, isOneShotPlaying: true };
+    if (this.Uc != null) {
+      this.Vc += deltaTime;
+      if (this.Vc < this.Uc) {
+        (_a = this.Tc) == null ? void 0 : _a.setTime(this.Vc);
+        this.Xc = { ...this.Xc, isOneShotPlaying: true };
         return;
       }
-      this.Qc = void 0;
+      this.Uc = void 0;
     }
-    const semantic = this.cd();
-    const resolved = this.Yc(semantic);
-    const playbackSpeed = this.Zc(semantic);
-    const trackChanged = resolved.activeTrack !== this.Tc.activeTrack;
-    if (resolved.activeTrack != null && (trackChanged || !this.Vc)) {
-      this._c(semantic, resolved, this.Vc);
-    } else if (this.Qc == null) {
-      (_b = this.Pc) == null ? void 0 : _b.setIsLoop(true);
+    const semantic = this.gd();
+    const resolved = this.ad(semantic);
+    const playbackSpeed = this.bd(semantic);
+    const trackChanged = resolved.activeTrack !== this.Xc.activeTrack;
+    if (resolved.activeTrack != null && (trackChanged || !this.Zc)) {
+      this.cd(semantic, resolved, this.Zc);
+    } else if (this.Uc == null) {
+      (_b = this.Tc) == null ? void 0 : _b.setIsLoop(true);
     }
-    this.Rc += deltaTime * playbackSpeed;
-    (_c = this.Pc) == null ? void 0 : _c.setTime(this.Rc);
-    this.Tc = {
+    this.Vc += deltaTime * playbackSpeed;
+    (_c = this.Tc) == null ? void 0 : _c.setTime(this.Vc);
+    this.Xc = {
       semantic,
-      requestedTrack: this.Uc[semantic][0],
+      requestedTrack: this.Yc[semantic][0],
       activeTrack: resolved.activeTrack,
       playbackSpeed,
       isFallback: resolved.isFallback,
       hasTrack: resolved.activeTrack != null,
-      isOneShotPlaying: this.Qc != null
+      isOneShotPlaying: this.Uc != null
     };
   }
   destroy() {
-    this.Wc = true;
-    this.Qc = void 0;
+    this._c = true;
+    this.Uc = void 0;
   }
-  cd() {
-    const motion = this.Xc.motionState;
+  gd() {
+    const motion = this.$c.motionState;
     switch (motion.state) {
       case "grounded": {
-        const locomotionSpeed = this.$c();
-        if (locomotionSpeed < this.Oc.walkSpeedThreshold) {
+        const locomotionSpeed = this.dd();
+        if (locomotionSpeed < this.Sc.walkSpeedThreshold) {
           return "idle";
         }
-        return locomotionSpeed >= this.Oc.runSpeedThreshold ? "run" : "walk";
+        return locomotionSpeed >= this.Sc.runSpeedThreshold ? "run" : "walk";
       }
       case "rising":
         return "jump";
@@ -145,56 +145,56 @@ var CharacterAnimationController = class {
         return "fall";
     }
   }
-  Yc(semantic) {
-    const availableByLowerName = new Map(this.Sc.map((track) => [track.toLowerCase(), track]));
-    for (const candidate of this.Uc[semantic]) {
+  ad(semantic) {
+    const availableByLowerName = new Map(this.Wc.map((track) => [track.toLowerCase(), track]));
+    for (const candidate of this.Yc[semantic]) {
       const track = availableByLowerName.get(candidate.toLowerCase());
       if (track != null) {
         return { activeTrack: track, isFallback: false };
       }
     }
-    for (const candidate of this.Uc.idle) {
+    for (const candidate of this.Yc.idle) {
       const track = availableByLowerName.get(candidate.toLowerCase());
       if (track != null) {
         return { activeTrack: track, isFallback: true };
       }
     }
-    return { activeTrack: this.Sc[0], isFallback: this.Sc.length > 0 };
+    return { activeTrack: this.Wc[0], isFallback: this.Wc.length > 0 };
   }
-  _c(semantic, resolved, blend) {
+  cd(semantic, resolved, blend) {
     var _a, _b, _c, _d, _e;
     const activeTrack = resolved.activeTrack;
     if (activeTrack == null) {
       return;
     }
-    const info = AnimationComponent.getAnimationInfo(this.dd.engine).get(activeTrack);
-    this.Rc = (_a = info == null ? void 0 : info.minStartInputTime) != null ? _a : 0;
-    (_b = this.Pc) == null ? void 0 : _b.setIsLoop(semantic !== "landing" || resolved.isFallback);
-    (_c = this.Pc) == null ? void 0 : _c.setTime(this.Rc);
+    const info = AnimationComponent.getAnimationInfo(this.hd.engine).get(activeTrack);
+    this.Vc = (_a = info == null ? void 0 : info.minStartInputTime) != null ? _a : 0;
+    (_b = this.Tc) == null ? void 0 : _b.setIsLoop(semantic !== "landing" || resolved.isFallback);
+    (_c = this.Tc) == null ? void 0 : _c.setTime(this.Vc);
     if (blend) {
-      (_d = this.Pc) == null ? void 0 : _d.forceTransitionTo(activeTrack, this.Oc.crossFadeDuration);
+      (_d = this.Tc) == null ? void 0 : _d.forceTransitionTo(activeTrack, this.Sc.crossFadeDuration);
     } else {
-      (_e = this.Pc) == null ? void 0 : _e.setFirstActiveAnimationTrack(activeTrack);
+      (_e = this.Tc) == null ? void 0 : _e.setFirstActiveAnimationTrack(activeTrack);
     }
-    this.Vc = true;
-    this.Qc = semantic === "landing" && !resolved.isFallback && info != null ? info.maxEndInputTime : void 0;
+    this.Zc = true;
+    this.Uc = semantic === "landing" && !resolved.isFallback && info != null ? info.maxEndInputTime : void 0;
   }
-  Zc(semantic) {
+  bd(semantic) {
     if (semantic !== "walk" && semantic !== "run") {
       return 1;
     }
-    const referenceSpeed = semantic === "walk" ? this.Oc.referenceWalkSpeed : this.Oc.referenceRunSpeed;
-    const ratio = this.$c() / referenceSpeed;
-    return Math.min(this.Oc.maxPlaybackSpeed, Math.max(this.Oc.minPlaybackSpeed, ratio));
+    const referenceSpeed = semantic === "walk" ? this.Sc.referenceWalkSpeed : this.Sc.referenceRunSpeed;
+    const ratio = this.dd() / referenceSpeed;
+    return Math.min(this.Sc.maxPlaybackSpeed, Math.max(this.Sc.minPlaybackSpeed, ratio));
   }
-  $c() {
-    const desiredHorizontalSpeed = this.Xc.desiredHorizontalSpeed;
+  dd() {
+    const desiredHorizontalSpeed = this.$c.desiredHorizontalSpeed;
     if (desiredHorizontalSpeed != null && Number.isFinite(desiredHorizontalSpeed)) {
       return desiredHorizontalSpeed;
     }
-    return this.Xc.motionState.horizontalSpeed;
+    return this.$c.motionState.horizontalSpeed;
   }
-  bd(root) {
+  fd(root) {
     const tracks = /* @__PURE__ */ new Set();
     const visit = (entity) => {
       var _a, _b;
@@ -208,7 +208,7 @@ var CharacterAnimationController = class {
     visit(root);
     return [...tracks];
   }
-  ad(options) {
+  ed(options) {
     const positive = [
       options.walkSpeedThreshold,
       options.referenceWalkSpeed,

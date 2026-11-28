@@ -7,12 +7,12 @@ var SdApplyWorldMatrixShader = class extends RaymarchingShaderPart {
    */
   constructor(shaderFunctionName) {
     super();
-    this.eF = "";
-    this.Br = "";
-    this.Br = shaderFunctionName;
+    this.NF = "";
+    this.Jr = "";
+    this.Jr = shaderFunctionName;
   }
   setVariableName(name) {
-    this.eF = name;
+    this.NF = name;
   }
   /**
    * Gets the vertex shader function definitions.
@@ -44,8 +44,8 @@ var SdApplyWorldMatrixShader = class extends RaymarchingShaderPart {
   getPixelShaderDefinitions(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-fn ${this.Br}(position: vec3f, outTransformedPosition: ptr<function, vec3f>) {
-  let transform = get_${this.eF}(uniformDrawParameters.materialSid, 0u);
+fn ${this.Jr}(position: vec3f, outTransformedPosition: ptr<function, vec3f>) {
+  let transform = get_${this.NF}(uniformDrawParameters.materialSid, 0u);
   let inv = inverseMat4(transform);
   let tp = (inv * vec4f(position, 1.0)).xyz;
   *outTransformedPosition = tp;
@@ -53,9 +53,9 @@ fn ${this.Br}(position: vec3f, outTransformedPosition: ptr<function, vec3f>) {
       `;
     }
     return `
-void ${this.Br}(in vec3 position, out vec3 outTransformedPosition) {
+void ${this.Jr}(in vec3 position, out vec3 outTransformedPosition) {
   ${this.getMaterialSIDForWebGL()}
-  mat4 transform = get_${this.eF}(materialSID, 0u);
+  mat4 transform = get_${this.NF}(materialSID, 0u);
   mat4 inv = inverse(transform);
   vec3 tp = (inv * vec4(position, 1.0)).xyz;
   outTransformedPosition = tp;

@@ -25,7 +25,7 @@ var CameraControllerComponent = class extends Component {
    */
   constructor(engine, entityUid, componentSid, entityRepository, isReUse) {
     super(engine, entityUid, componentSid, entityRepository, isReUse);
-    this.Nc = new OrbitCameraController(this, engine.config);
+    this.Rc = new OrbitCameraController(this, engine.config);
   }
   /**
    * Sets the camera controller type and switches to the appropriate controller implementation.
@@ -34,11 +34,11 @@ var CameraControllerComponent = class extends Component {
    * @param type - The camera controller type to switch to
    */
   set type(type) {
-    this.Nc.unregisterEventListeners();
+    this.Rc.unregisterEventListeners();
     if (type === CameraControllerType.Orbit) {
-      this.Nc = new OrbitCameraController(this, this.c.config);
+      this.Rc = new OrbitCameraController(this, this.c.config);
     } else if (type === CameraControllerType.WalkThrough) {
-      this.Nc = new WalkThroughCameraController(this);
+      this.Rc = new WalkThroughCameraController(this);
     } else {
       Logger.default.warn("Not support type!");
     }
@@ -49,7 +49,7 @@ var CameraControllerComponent = class extends Component {
    * @returns The current camera controller type
    */
   get type() {
-    if (this.Nc instanceof OrbitCameraController) {
+    if (this.Rc instanceof OrbitCameraController) {
       return CameraControllerType.Orbit;
     }
     return CameraControllerType.WalkThrough;
@@ -60,7 +60,7 @@ var CameraControllerComponent = class extends Component {
    * @returns The active camera controller instance
    */
   get controller() {
-    return this.Nc;
+    return this.Rc;
   }
   /**
    * Gets the component type identifier for CameraControllerComponent.
@@ -89,8 +89,8 @@ var CameraControllerComponent = class extends Component {
    * Updates the camera based on the current controller's implementation.
    */
   $logic() {
-    if (this.Nc) {
-      this.Nc.logic(this.entity.tryToGetCamera());
+    if (this.Rc) {
+      this.Rc.logic(this.entity.tryToGetCamera());
     }
   }
   /**

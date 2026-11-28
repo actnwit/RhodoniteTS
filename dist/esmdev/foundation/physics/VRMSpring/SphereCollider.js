@@ -6,24 +6,24 @@ import { Is } from "../../misc/Is.js";
 var _SphereCollider = class _SphereCollider {
   constructor(engine, position, radius, baseSceneGraph) {
     /** The local position of the sphere collider relative to its base scene graph node */
-    this.Ht = Vector3.zero();
+    this.Pt = Vector3.zero();
     /** The radius of the sphere collider */
-    this.St = 0;
-    this.Ew = MutableVector3.zero();
+    this._t = 0;
+    this.Mw = MutableVector3.zero();
     this.c = engine;
-    this.Ht = position;
-    this.St = radius;
-    this.Bw = baseSceneGraph;
+    this.Pt = position;
+    this._t = radius;
+    this.Jw = baseSceneGraph;
   }
   /**
    * Updates the cached world position of the collider.
    * Should be called once per frame before collision checks.
    */
   updateWorldState() {
-    const baseMatrix = this.Bw.matrixInner;
-    baseMatrix.multiplyVector3To(this.Ht, this.Ew);
-    if (Is.exist(this.yw) && this.yw.isVisible) {
-      this.yw._update();
+    const baseMatrix = this.Jw.matrixInner;
+    baseMatrix.multiplyVector3To(this.Pt, this.Mw);
+    if (Is.exist(this.Gw) && this.Gw.isVisible) {
+      this.Gw._update();
     }
   }
   /**
@@ -36,9 +36,9 @@ var _SphereCollider = class _SphereCollider {
    *   - distance: The penetration distance (negative if penetrating, positive if separated)
    */
   collision(bonePosition, boneRadius) {
-    const delta = Vector3.subtractTo(bonePosition, this.Ew, _SphereCollider.Gg);
+    const delta = Vector3.subtractTo(bonePosition, this.Mw, _SphereCollider.Kg);
     const length = delta.length();
-    const radius = this.St + boneRadius;
+    const radius = this._t + boneRadius;
     const distance = length - radius;
     return { distance, delta, length };
   }
@@ -47,42 +47,42 @@ var _SphereCollider = class _SphereCollider {
    * @returns The local position vector
    */
   get position() {
-    return this.Ht;
+    return this.Pt;
   }
   /**
    * Gets the world position of the collider.
    * @returns The world position vector
    */
   get worldPosition() {
-    return this.Ew;
+    return this.Mw;
   }
   /**
    * Gets the radius of the collider.
    * @returns The radius value
    */
   get radius() {
-    return this.St;
+    return this._t;
   }
   /**
    * Gets the base scene graph component.
    * @returns The base scene graph component
    */
   get baseSceneGraph() {
-    return this.Bw;
+    return this.Jw;
   }
   /**
    * Gets the gizmo used to visualize this collider.
    * @returns The gizmo instance, or undefined if not set
    */
   get gizmo() {
-    return this.yw;
+    return this.Gw;
   }
   /**
    * Sets the gizmo used to visualize this collider.
    * @param gizmo - The gizmo instance to set
    */
   set gizmo(gizmo) {
-    this.yw = gizmo;
+    this.Gw = gizmo;
   }
   /**
    * Sets the visibility of the collider's gizmo.
@@ -90,11 +90,11 @@ var _SphereCollider = class _SphereCollider {
    * @param visible - Whether the gizmo should be visible
    */
   setGizmoVisible(visible) {
-    if (this.yw == null) {
-      this.yw = new (_getGizmoClass("sphereCollider"))(this.c, this);
-      this.yw._setup();
+    if (this.Gw == null) {
+      this.Gw = new (_getGizmoClass("sphereCollider"))(this.c, this);
+      this.Gw._setup();
     }
-    this.yw.isVisible = visible;
+    this.Gw.isVisible = visible;
   }
   /**
    * Gets whether the gizmo is currently visible.
@@ -102,19 +102,19 @@ var _SphereCollider = class _SphereCollider {
    */
   get isGizmoVisible() {
     var _a, _b;
-    return (_b = (_a = this.yw) == null ? void 0 : _a.isVisible) != null ? _b : false;
+    return (_b = (_a = this.Gw) == null ? void 0 : _a.isVisible) != null ? _b : false;
   }
   /**
    * Destroys the gizmo if it exists.
    */
   destroyGizmo() {
-    if (this.yw != null) {
-      this.yw._destroy();
-      this.yw = void 0;
+    if (this.Gw != null) {
+      this.Gw._destroy();
+      this.Gw = void 0;
     }
   }
 };
-_SphereCollider.Gg = MutableVector3.zero();
+_SphereCollider.Kg = MutableVector3.zero();
 var SphereCollider = _SphereCollider;
 export {
   SphereCollider

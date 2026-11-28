@@ -10,9 +10,9 @@ var BlockBeginShader = class extends StandardShaderPart {
    */
   constructor(__functionName, __valueInputs, __valueOutputs) {
     super();
-    this.bF = __functionName;
-    this.Ws = __valueInputs;
-    this.Xs = __valueOutputs;
+    this.KF = __functionName;
+    this.ct = __valueInputs;
+    this.dt = __valueOutputs;
   }
   /**
    * Generates the vertex shader function definition.
@@ -22,23 +22,23 @@ var BlockBeginShader = class extends StandardShaderPart {
    * @returns The GLSL function definition string for vertex shader
    */
   getVertexShaderDefinitions(_engine) {
-    let funcStr = `void ${this.bF}(
+    let funcStr = `void ${this.KF}(
 in bool context,
       `;
-    for (let i = 0; i < this.Ws.length; i++) {
-      const input = this.Ws[i];
+    for (let i = 0; i < this.ct.length; i++) {
+      const input = this.ct[i];
       const type = input.compositionType.getGlslStr(input.componentType);
       funcStr += `
         in ${type} value${i},`;
     }
-    for (let i = 0; i < this.Xs.length; i++) {
-      const output = this.Xs[i];
+    for (let i = 0; i < this.dt.length; i++) {
+      const output = this.dt[i];
       const type = output.compositionType.getGlslStr(output.componentType);
       funcStr += `
-        out ${type} outValue${i}${i === this.Xs.length - 1 ? "" : ","}`;
+        out ${type} outValue${i}${i === this.dt.length - 1 ? "" : ","}`;
     }
     funcStr += ") {\n";
-    for (let i = 0; i < this.Xs.length; i++) {
+    for (let i = 0; i < this.dt.length; i++) {
       funcStr += `
       outValue${i} = value${i};
 `;

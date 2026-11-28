@@ -1,14 +1,14 @@
 // src/webgl/InstanceSidTable.ts
 var InstanceSidTable = class _InstanceSidTable {
   constructor(glw) {
-    this.bC = 0;
-    this.$B = [];
-    this.aC = true;
-    this._B = true;
-    this.dC = _InstanceSidTable.isSupported(glw);
-    this.Nx = 16;
-    this.YB = new Uint32Array(this.Nx * 4);
-    this.ZB = new Uint32Array(this.Nx);
+    this.GC = 0;
+    this.EC = [];
+    this.FC = true;
+    this.DC = true;
+    this.IC = _InstanceSidTable.isSupported(glw);
+    this.ly = 16;
+    this.BC = new Uint32Array(this.ly * 4);
+    this.CC = new Uint32Array(this.ly);
   }
   /**
    * Whether the instance tables are usable in this context. The tables live in the
@@ -18,17 +18,17 @@ var InstanceSidTable = class _InstanceSidTable {
     return glw.isWebGL2;
   }
   get isSupported() {
-    return this.dC;
+    return this.IC;
   }
   /** The number of stable slots that have been handed out. */
   get usedEnd() {
-    return this.bC;
+    return this.GC;
   }
   get sidDirty() {
-    return this.aC;
+    return this.FC;
   }
   get remapDirty() {
-    return this._B;
+    return this.DC;
   }
   /**
    * Allocates a contiguous range of stable instance slots.
@@ -38,25 +38,25 @@ var InstanceSidTable = class _InstanceSidTable {
     if (count <= 0) {
       return 0;
     }
-    for (let i = 0; i < this.$B.length; i++) {
-      const range = this.$B[i];
+    for (let i = 0; i < this.EC.length; i++) {
+      const range = this.EC[i];
       if (range.count >= count) {
         const base2 = range.start;
         range.start += count;
         range.count -= count;
         if (range.count === 0) {
-          this.$B.splice(i, 1);
+          this.EC.splice(i, 1);
         }
-        this.aC = true;
-        this._B = true;
+        this.FC = true;
+        this.DC = true;
         return base2;
       }
     }
-    this.eC(this.bC + count);
-    const base = this.bC;
-    this.bC += count;
-    this.aC = true;
-    this._B = true;
+    this.JC(this.GC + count);
+    const base = this.GC;
+    this.GC += count;
+    this.FC = true;
+    this.DC = true;
     return base;
   }
   /** Releases a range so that it can be reused by a later allocation. */
@@ -64,10 +64,10 @@ var InstanceSidTable = class _InstanceSidTable {
     if (count <= 0) {
       return;
     }
-    this.$B.push({ start: base, count });
-    this.$B.sort((a, b) => a.start - b.start);
+    this.EC.push({ start: base, count });
+    this.EC.sort((a, b) => a.start - b.start);
     const merged = [];
-    for (const range of this.$B) {
+    for (const range of this.EC) {
       const last = merged[merged.length - 1];
       if (last != null && last.start + last.count === range.start) {
         last.count += range.count;
@@ -75,60 +75,60 @@ var InstanceSidTable = class _InstanceSidTable {
         merged.push({ start: range.start, count: range.count });
       }
     }
-    this.$B = merged;
+    this.EC = merged;
   }
   /** Writes one instance identity record. */
   setRecord(index, componentSID, skeletalSID, blendShapeSID) {
     const offset = index * 4;
-    if (this.YB[offset] !== componentSID || this.YB[offset + 1] !== skeletalSID || this.YB[offset + 2] !== blendShapeSID) {
-      this.YB[offset] = componentSID;
-      this.YB[offset + 1] = skeletalSID;
-      this.YB[offset + 2] = blendShapeSID;
-      this.YB[offset + 3] = 0;
-      this.aC = true;
+    if (this.BC[offset] !== componentSID || this.BC[offset + 1] !== skeletalSID || this.BC[offset + 2] !== blendShapeSID) {
+      this.BC[offset] = componentSID;
+      this.BC[offset + 1] = skeletalSID;
+      this.BC[offset + 2] = blendShapeSID;
+      this.BC[offset + 3] = 0;
+      this.FC = true;
     }
   }
   /** Resets the remap entries of a range to the identity mapping. */
   writeIdentityRemap(base, count) {
     let changed = false;
     for (let i = 0; i < count; i++) {
-      if (this.ZB[base + i] !== i) {
-        this.ZB[base + i] = i;
+      if (this.CC[base + i] !== i) {
+        this.CC[base + i] = i;
         changed = true;
       }
     }
     if (changed) {
-      this._B = true;
+      this.DC = true;
     }
   }
   /** Gets the SID components of a stable slot (for tests and debugging). */
   getRecord(index) {
     const offset = index * 4;
-    return [this.YB[offset], this.YB[offset + 1], this.YB[offset + 2]];
+    return [this.BC[offset], this.BC[offset + 1], this.BC[offset + 2]];
   }
   /** Gets a remap entry (for tests and debugging). */
   getRemapValue(index) {
-    return this.ZB[index];
+    return this.CC[index];
   }
   /** Sets a remap entry: packed index -> local stable index. */
   setRemap(packedIndex, localIndex) {
-    if (this.ZB[packedIndex] !== localIndex) {
-      this.ZB[packedIndex] = localIndex;
-      this._B = true;
+    if (this.CC[packedIndex] !== localIndex) {
+      this.CC[packedIndex] = localIndex;
+      this.DC = true;
     }
   }
   /** Marks both tables as changed without touching individual entries. */
   markAllDirty() {
-    this.aC = true;
-    this._B = true;
+    this.FC = true;
+    this.DC = true;
   }
   /** Clears the dirty flag of the SID region after it has been uploaded. */
   clearSidDirty() {
-    this.aC = false;
+    this.FC = false;
   }
   /** Clears the dirty flag of the remap region after it has been uploaded. */
   clearRemapDirty() {
-    this._B = false;
+    this.DC = false;
   }
   /**
    * Writes `count` SID texels starting at `texelOffset` into a data-texture upload
@@ -140,13 +140,13 @@ var InstanceSidTable = class _InstanceSidTable {
     for (let i = 0; i < count; i++) {
       const src = (texelOffset + i) * 4;
       const d = i * 4;
-      dst[d] = this.cC(this.YB[src]);
-      dst[d + 1] = this.cC(this.YB[src + 1]);
-      dst[d + 2] = this.cC(this.YB[src + 2]);
+      dst[d] = this.HC(this.BC[src]);
+      dst[d + 1] = this.HC(this.BC[src + 1]);
+      dst[d + 2] = this.HC(this.BC[src + 2]);
       dst[d + 3] = 0;
     }
   }
-  cC(value) {
+  HC(value) {
     return value === 4294967295 ? -1 : value;
   }
   /**
@@ -157,29 +157,29 @@ var InstanceSidTable = class _InstanceSidTable {
     for (let i = 0; i < count; i++) {
       const src = (texelOffset + i) * 4;
       const d = i * 4;
-      dst[d] = this.ZB[src];
-      dst[d + 1] = this.ZB[src + 1];
-      dst[d + 2] = this.ZB[src + 2];
-      dst[d + 3] = this.ZB[src + 3];
+      dst[d] = this.CC[src];
+      dst[d + 1] = this.CC[src + 1];
+      dst[d + 2] = this.CC[src + 2];
+      dst[d + 3] = this.CC[src + 3];
     }
   }
-  eC(required) {
-    if (required <= this.Nx) {
+  JC(required) {
+    if (required <= this.ly) {
       return;
     }
-    let newCapacity = this.Nx;
+    let newCapacity = this.ly;
     while (newCapacity < required) {
       newCapacity *= 2;
     }
     const newRecords = new Uint32Array(newCapacity * 4);
-    newRecords.set(this.YB);
+    newRecords.set(this.BC);
     const newRemap = new Uint32Array(newCapacity);
-    newRemap.set(this.ZB);
-    this.YB = newRecords;
-    this.ZB = newRemap;
-    this.Nx = newCapacity;
-    this.aC = true;
-    this._B = true;
+    newRemap.set(this.CC);
+    this.BC = newRecords;
+    this.CC = newRemap;
+    this.ly = newCapacity;
+    this.FC = true;
+    this.DC = true;
   }
 };
 export {

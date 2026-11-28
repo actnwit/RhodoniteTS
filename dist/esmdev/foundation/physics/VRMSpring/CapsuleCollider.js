@@ -7,33 +7,33 @@ import { Is } from "../../misc/Is.js";
 var _CapsuleCollider = class _CapsuleCollider {
   constructor(engine, position, radius, tail, baseSceneGraph) {
     /** The position of the capsule's head in local space */
-    this.Ht = Vector3.zero();
+    this.Pt = Vector3.zero();
     /** The radius of the capsule */
-    this.St = 0;
+    this._t = 0;
     /** The position of the capsule's tail in local space */
-    this.Aw = Vector3.zero();
-    this.ef = MutableMatrix44.dummy();
-    this.Cw = MutableVector3.zero();
-    this.zw = MutableVector3.zero();
-    this.Dw = 0;
+    this.Iw = Vector3.zero();
+    this.jf = MutableMatrix44.dummy();
+    this.Kw = MutableVector3.zero();
+    this.Hw = MutableVector3.zero();
+    this.Lw = 0;
     this.c = engine;
-    this.Ht = position;
-    this.St = radius;
-    this.Aw = tail;
-    this.Bw = baseSceneGraph;
+    this.Pt = position;
+    this._t = radius;
+    this.Iw = tail;
+    this.Jw = baseSceneGraph;
   }
   /**
    * Updates cached world positions for the capsule.
    * Should be called once per frame before collision checks.
    */
   updateWorldState() {
-    this.ef = this.Bw.matrixInner;
-    this.ef.multiplyVector3To(this.Ht, this.Cw);
-    this.ef.multiplyVector3To(this.Aw, this.zw);
-    Vector3.subtractTo(this.zw, this.Cw, this.zw);
-    this.Dw = this.zw.lengthSquared();
-    if (Is.exist(this.yw) && this.yw.isVisible) {
-      this.yw._update();
+    this.jf = this.Jw.matrixInner;
+    this.jf.multiplyVector3To(this.Pt, this.Kw);
+    this.jf.multiplyVector3To(this.Iw, this.Hw);
+    Vector3.subtractTo(this.Hw, this.Kw, this.Hw);
+    this.Lw = this.Hw.lengthSquared();
+    if (Is.exist(this.Gw) && this.Gw.isVisible) {
+      this.Gw._update();
     }
   }
   /**
@@ -46,18 +46,18 @@ var _CapsuleCollider = class _CapsuleCollider {
    *          The direction points from the capsule surface towards the bone center.
    */
   collision(bonePosition, boneRadius) {
-    const spherePosWorld = this.Cw;
-    const tailPosWorld = this.zw;
-    let direction = Vector3.subtractTo(bonePosition, spherePosWorld, _CapsuleCollider.Fg);
+    const spherePosWorld = this.Kw;
+    const tailPosWorld = this.Hw;
+    let direction = Vector3.subtractTo(bonePosition, spherePosWorld, _CapsuleCollider.Jg);
     const dot = tailPosWorld.dot(direction);
     if (dot <= 0) {
-    } else if (this.Dw <= dot) {
-      direction = Vector3.subtractTo(direction, tailPosWorld, _CapsuleCollider.Fg);
+    } else if (this.Lw <= dot) {
+      direction = Vector3.subtractTo(direction, tailPosWorld, _CapsuleCollider.Jg);
     } else {
-      Vector3.multiplyTo(tailPosWorld, dot / this.Dw, _CapsuleCollider.Gg);
-      direction = Vector3.subtractTo(direction, _CapsuleCollider.Gg, _CapsuleCollider.Fg);
+      Vector3.multiplyTo(tailPosWorld, dot / this.Lw, _CapsuleCollider.Kg);
+      direction = Vector3.subtractTo(direction, _CapsuleCollider.Kg, _CapsuleCollider.Jg);
     }
-    const radius = this.St + boneRadius;
+    const radius = this._t + boneRadius;
     const distance = direction.length() - radius;
     direction = Vector3.normalizeTo(direction, direction);
     return { direction, distance };
@@ -67,42 +67,42 @@ var _CapsuleCollider = class _CapsuleCollider {
    * @returns The local position vector
    */
   get position() {
-    return this.Ht;
+    return this.Pt;
   }
   /**
    * Gets the local position of the capsule's tail.
    * @returns The local tail position vector
    */
   get tail() {
-    return this.Aw;
+    return this.Iw;
   }
   /**
    * Gets the radius of the capsule.
    * @returns The radius value
    */
   get radius() {
-    return this.St;
+    return this._t;
   }
   /**
    * Gets the base scene graph component.
    * @returns The base scene graph component
    */
   get baseSceneGraph() {
-    return this.Bw;
+    return this.Jw;
   }
   /**
    * Gets the gizmo used to visualize this collider.
    * @returns The gizmo instance, or undefined if not set
    */
   get gizmo() {
-    return this.yw;
+    return this.Gw;
   }
   /**
    * Sets the gizmo used to visualize this collider.
    * @param gizmo - The gizmo instance to set
    */
   set gizmo(gizmo) {
-    this.yw = gizmo;
+    this.Gw = gizmo;
   }
   /**
    * Sets the visibility of the collider's gizmo.
@@ -110,11 +110,11 @@ var _CapsuleCollider = class _CapsuleCollider {
    * @param visible - Whether the gizmo should be visible
    */
   setGizmoVisible(visible) {
-    if (this.yw == null) {
-      this.yw = new (_getGizmoClass("capsuleCollider"))(this.c, this);
-      this.yw._setup();
+    if (this.Gw == null) {
+      this.Gw = new (_getGizmoClass("capsuleCollider"))(this.c, this);
+      this.Gw._setup();
     }
-    this.yw.isVisible = visible;
+    this.Gw.isVisible = visible;
   }
   /**
    * Gets whether the gizmo is currently visible.
@@ -122,20 +122,20 @@ var _CapsuleCollider = class _CapsuleCollider {
    */
   get isGizmoVisible() {
     var _a, _b;
-    return (_b = (_a = this.yw) == null ? void 0 : _a.isVisible) != null ? _b : false;
+    return (_b = (_a = this.Gw) == null ? void 0 : _a.isVisible) != null ? _b : false;
   }
   /**
    * Destroys the gizmo if it exists.
    */
   destroyGizmo() {
-    if (this.yw != null) {
-      this.yw._destroy();
-      this.yw = void 0;
+    if (this.Gw != null) {
+      this.Gw._destroy();
+      this.Gw = void 0;
     }
   }
 };
-_CapsuleCollider.Fg = MutableVector3.zero();
-_CapsuleCollider.Gg = MutableVector3.zero();
+_CapsuleCollider.Jg = MutableVector3.zero();
+_CapsuleCollider.Kg = MutableVector3.zero();
 var CapsuleCollider = _CapsuleCollider;
 export {
   CapsuleCollider

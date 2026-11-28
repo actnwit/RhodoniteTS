@@ -26,9 +26,9 @@ var MinShaderNode = class extends AbstractShaderNode {
       codeGLSL: MinShaderityObjectGLSL.code,
       codeWGSL: MinShaderityObjectWGSL.code
     });
-    this.zr.push(new Socket("lhs", compositionType, componentType, this.getDefaultValue(compositionType)));
-    this.zr.push(new Socket("rhs", compositionType, componentType, this.getDefaultValue(compositionType)));
-    this.Cr.push(new Socket("outValue", compositionType, componentType));
+    this.Hr.push(new Socket("lhs", compositionType, componentType, this.getDefaultValue(compositionType)));
+    this.Hr.push(new Socket("rhs", compositionType, componentType, this.getDefaultValue(compositionType)));
+    this.Kr.push(new Socket("outValue", compositionType, componentType));
   }
   /**
    * Returns the default value for a given composition type.
@@ -61,7 +61,7 @@ var MinShaderNode = class extends AbstractShaderNode {
    * @returns The left-hand side input socket
    */
   getSocketInputLhs() {
-    return this.zr[0];
+    return this.Hr[0];
   }
   /**
    * Gets the right-hand side input socket.
@@ -70,7 +70,7 @@ var MinShaderNode = class extends AbstractShaderNode {
    * @returns The right-hand side input socket
    */
   getSocketInputRhs() {
-    return this.zr[1];
+    return this.Hr[1];
   }
   /**
    * Gets the output socket that contains the result of the minimum operation.
@@ -78,7 +78,7 @@ var MinShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the minimum result
    */
   getSocketOutput() {
-    return this.Cr[0];
+    return this.Kr[0];
   }
   /**
    * Generates the appropriate shader function name derivative based on the current
@@ -94,27 +94,27 @@ var MinShaderNode = class extends AbstractShaderNode {
    */
   getShaderFunctionNameDerivative(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      if (this.zr[0].compositionType === CompositionType.Scalar && this.zr[1].compositionType === CompositionType.Scalar) {
-        if (this.zr[0].componentType === ComponentType.Float && this.zr[1].componentType === ComponentType.Float) {
-          return `${this.Br}F32F32`;
+      if (this.Hr[0].compositionType === CompositionType.Scalar && this.Hr[1].compositionType === CompositionType.Scalar) {
+        if (this.Hr[0].componentType === ComponentType.Float && this.Hr[1].componentType === ComponentType.Float) {
+          return `${this.Jr}F32F32`;
         }
-        if (this.zr[0].componentType === ComponentType.Int && this.zr[1].componentType === ComponentType.Int) {
-          return `${this.Br}I32I32`;
+        if (this.Hr[0].componentType === ComponentType.Int && this.Hr[1].componentType === ComponentType.Int) {
+          return `${this.Jr}I32I32`;
         }
         throw new Error("Not implemented");
       }
-      if (this.zr[0].compositionType === CompositionType.Vec2 && this.zr[1].compositionType === CompositionType.Vec2) {
-        return `${this.Br}Vec2fVec2f`;
+      if (this.Hr[0].compositionType === CompositionType.Vec2 && this.Hr[1].compositionType === CompositionType.Vec2) {
+        return `${this.Jr}Vec2fVec2f`;
       }
-      if (this.zr[0].compositionType === CompositionType.Vec3 && this.zr[1].compositionType === CompositionType.Vec3) {
-        return `${this.Br}Vec3fVec3f`;
+      if (this.Hr[0].compositionType === CompositionType.Vec3 && this.Hr[1].compositionType === CompositionType.Vec3) {
+        return `${this.Jr}Vec3fVec3f`;
       }
-      if (this.zr[0].compositionType === CompositionType.Vec4 && this.zr[1].compositionType === CompositionType.Vec4) {
-        return `${this.Br}Vec4fVec4f`;
+      if (this.Hr[0].compositionType === CompositionType.Vec4 && this.Hr[1].compositionType === CompositionType.Vec4) {
+        return `${this.Jr}Vec4fVec4f`;
       }
       throw new Error("Not implemented");
     }
-    return this.Br;
+    return this.Jr;
   }
 };
 export {

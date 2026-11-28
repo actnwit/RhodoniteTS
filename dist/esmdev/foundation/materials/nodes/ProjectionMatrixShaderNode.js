@@ -19,7 +19,7 @@ var ProjectionMatrixShaderNode = class extends AbstractShaderNode {
       codeWGSL: ProjectionMatrixShaderityObjectWGSL.code
     });
     this.setShaderStage("Vertex");
-    this.Cr.push({
+    this.Kr.push({
       compositionType: CompositionType.Mat4,
       componentType: ComponentType.Float,
       name: "outValue"

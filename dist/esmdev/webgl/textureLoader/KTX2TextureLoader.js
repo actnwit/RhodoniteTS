@@ -61,7 +61,7 @@ var KTX2TextureLoader = class _KTX2TextureLoader {
     if (typeof MSC_TRANSCODER === "undefined") {
       Logger.default.error("Failed to call MSC_TRANSCODER() function. Please check to import msc_basis_transcoder.js.");
     }
-    this.jF = this.mF();
+    this.SF = this.VF();
   }
   /**
    * Gets the singleton instance of KTX2TextureLoader.
@@ -69,10 +69,10 @@ var KTX2TextureLoader = class _KTX2TextureLoader {
    * @returns The singleton KTX2TextureLoader instance
    */
   static getInstance() {
-    if (!this.Yi) {
-      this.Yi = new _KTX2TextureLoader();
+    if (!this.dj) {
+      this.dj = new _KTX2TextureLoader();
     }
-    return this.Yi;
+    return this.dj;
   }
   /**
    * Transcodes a KTX2 texture from the provided byte array.
@@ -91,7 +91,7 @@ var KTX2TextureLoader = class _KTX2TextureLoader {
    * ```
    */
   transcode(engine, uint8Array) {
-    const ktx2Container = this.nF(uint8Array);
+    const ktx2Container = this.WF(uint8Array);
     if (ktx2Container.pixelDepth > 0) {
       throw new Error("Only 2D textures are currently supported");
     }
@@ -102,17 +102,17 @@ var KTX2TextureLoader = class _KTX2TextureLoader {
       throw new Error("Cube textures are not currently supported");
     }
     if (ktx2Container.supercompressionScheme === KHR_SUPERCOMPRESSION_ZSTD) {
-      if (_KTX2TextureLoader.hF == null) {
-        _KTX2TextureLoader.hF = new ZSTDDecoder();
+      if (_KTX2TextureLoader.QF == null) {
+        _KTX2TextureLoader.QF = new ZSTDDecoder();
       }
-      return _KTX2TextureLoader.hF.init().then(() => {
-        return this.jF.then(() => {
-          return this.lF(engine, ktx2Container);
+      return _KTX2TextureLoader.QF.init().then(() => {
+        return this.SF.then(() => {
+          return this.UF(engine, ktx2Container);
         });
       });
     }
-    return this.jF.then(() => {
-      return this.lF(engine, ktx2Container);
+    return this.SF.then(() => {
+      return this.UF(engine, ktx2Container);
     });
   }
   /**
@@ -124,14 +124,14 @@ var KTX2TextureLoader = class _KTX2TextureLoader {
    * @returns A promise that resolves when the transcoder is ready
    * @private
    */
-  mF() {
+  VF() {
     return new Promise((resolve) => {
-      if (_KTX2TextureLoader.iF) {
+      if (_KTX2TextureLoader.RF) {
         resolve();
       }
       MSC_TRANSCODER().then((transcoderModule) => {
         transcoderModule.initTranscoders();
-        _KTX2TextureLoader.iF = transcoderModule;
+        _KTX2TextureLoader.RF = transcoderModule;
         resolve();
       });
     });
@@ -147,7 +147,7 @@ var KTX2TextureLoader = class _KTX2TextureLoader {
    * @returns An object containing the transcoding target string and compression type
    * @private
    */
-  oF(engine, hasAlpha) {
+  XF(engine, hasAlpha) {
     const webGLResourceRepository = engine.webglResourceRepository;
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     const astc = glw.webgl2ExtCTAstc || glw.webgl1ExtCTAstc;
@@ -208,7 +208,7 @@ var KTX2TextureLoader = class _KTX2TextureLoader {
    * @returns An object containing the transcoding target string and compression type
    * @private
    */
-  pF(engine, hasAlpha) {
+  YF(engine, hasAlpha) {
     const webGpuResourceRepository = engine.webGpuResourceRepository;
     const adapter = webGpuResourceRepository.getWebGpuDeviceWrapper().gpuAdapter;
     const astc = adapter.features.has("texture-compression-astc");
@@ -252,7 +252,7 @@ var KTX2TextureLoader = class _KTX2TextureLoader {
    * @returns The parsed KTX2 container with all metadata and texture data
    * @private
    */
-  nF(uint8Array) {
+  WF(uint8Array) {
     return read(uint8Array);
   }
   /**
@@ -269,7 +269,7 @@ var KTX2TextureLoader = class _KTX2TextureLoader {
    * @returns The transcoded texture data with all mipmap levels
    * @private
    */
-  lF(engine, ktx2Container) {
+  UF(engine, ktx2Container) {
     var _a;
     const width = ktx2Container.pixelWidth;
     const height = ktx2Container.pixelHeight;
@@ -277,12 +277,12 @@ var KTX2TextureLoader = class _KTX2TextureLoader {
     const imageDescs = (_a = ktx2Container.globalData) == null ? void 0 : _a.imageDescs;
     const dfd = ktx2Container.dataFormatDescriptor[0];
     const compressedTextureFormat = dfd.colorModel === KHR_DF_MODEL_UASTC ? CompressedTextureFormat.UASTC4x4 : CompressedTextureFormat.ETC1S;
-    const hasAlpha = this.qF(dfd, compressedTextureFormat);
+    const hasAlpha = this.ZF(dfd, compressedTextureFormat);
     const isVideo = false;
-    const transcoderModule = _KTX2TextureLoader.iF;
+    const transcoderModule = _KTX2TextureLoader.RF;
     const transcoder = compressedTextureFormat === CompressedTextureFormat.UASTC4x4 ? new transcoderModule.UastcImageTranscoder() : new transcoderModule.BasisLzEtc1sImageTranscoder();
     const textureFormat = compressedTextureFormat === CompressedTextureFormat.UASTC4x4 ? transcoderModule.TextureFormat.UASTC4x4 : transcoderModule.TextureFormat.ETC1S;
-    const { transcodeTargetStr, compressionTextureType } = engine.engineState.currentProcessApproach === ProcessApproach.WebGPU ? this.pF(engine, hasAlpha) : this.oF(engine, hasAlpha);
+    const { transcodeTargetStr, compressionTextureType } = engine.engineState.currentProcessApproach === ProcessApproach.WebGPU ? this.YF(engine, hasAlpha) : this.XF(engine, hasAlpha);
     const transcodeTarget = transcoderModule.TranscodeTarget[transcodeTargetStr];
     const mipmapData = [];
     const transcodedData = {
@@ -301,7 +301,7 @@ var KTX2TextureLoader = class _KTX2TextureLoader {
       const levelBufferByteLength = imageInfo.numBlocksX * imageInfo.numBlocksY * dfd.bytesPlane[0];
       if (ktx2Container.supercompressionScheme === KHR_SUPERCOMPRESSION_ZSTD) {
         levelBuffer = new Uint8Array(
-          _KTX2TextureLoader.hF.decode(
+          _KTX2TextureLoader.QF.decode(
             new Uint8Array(levelBuffer.buffer, levelBuffer.byteOffset, levelBuffer.byteLength),
             levelUncompressedByteLength
           )
@@ -380,11 +380,11 @@ var KTX2TextureLoader = class _KTX2TextureLoader {
    * @returns True if the texture has alpha channel data, false otherwise
    * @private
    */
-  qF(dfd, compressedTextureFormat) {
+  ZF(dfd, compressedTextureFormat) {
     if (compressedTextureFormat === CompressedTextureFormat.UASTC4x4) {
-      return _KTX2TextureLoader.kF(dfd.samples[0]) === KTX2ChannelUASTC.RGBA;
+      return _KTX2TextureLoader.TF(dfd.samples[0]) === KTX2ChannelUASTC.RGBA;
     }
-    return dfd.samples.length === 2 && (_KTX2TextureLoader.kF(dfd.samples[0]) === KTX2ChannelETC1S.AAA || _KTX2TextureLoader.kF(dfd.samples[1]) === KTX2ChannelETC1S.AAA);
+    return dfd.samples.length === 2 && (_KTX2TextureLoader.TF(dfd.samples[0]) === KTX2ChannelETC1S.AAA || _KTX2TextureLoader.TF(dfd.samples[1]) === KTX2ChannelETC1S.AAA);
   }
   /**
    * Returns the KHR_DF channel ID of a DFD sample.
@@ -397,7 +397,7 @@ var KTX2TextureLoader = class _KTX2TextureLoader {
    * @returns The numeric KHR_DF channel ID
    * @private
    */
-  static kF(sample) {
+  static TF(sample) {
     var _a, _b;
     const versionTolerantSample = sample;
     return (_b = (_a = versionTolerantSample.channelType) != null ? _a : versionTolerantSample.channelID) != null ? _b : 0;

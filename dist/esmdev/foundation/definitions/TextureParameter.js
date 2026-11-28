@@ -3,13 +3,13 @@ import { _from, EnumClass } from "../misc/EnumIO.js";
 var TextureParameterClass = class extends EnumClass {
   constructor({ index, str, webgpu }) {
     super({ index, str });
-    this.lj = webgpu;
+    this.sj = webgpu;
   }
   get webgpu() {
-    if (this.lj === void 0) {
+    if (this.sj === void 0) {
       throw new Error(`does not support ${this.str}`);
     }
-    return this.lj;
+    return this.sj;
   }
 };
 var Nearest = new TextureParameterClass({

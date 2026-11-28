@@ -20,28 +20,28 @@ var PbrNormalPropsShaderNode = class extends AbstractShaderNode {
       codeGLSL: PbrNormalPropsShaderityObjectGLSL.code,
       codeWGSL: PbrNormalPropsShaderityObjectWGSL.code
     });
-    this.zr.push(
+    this.Hr.push(
       new Socket("positionInWorld", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(0, 0, 0, 1))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("normalInWorld", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 1))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("tangentInWorld", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(1, 0, 0))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("bitangentInWorld", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 1, 0))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("normalTexture", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(0.5, 0.5, 1, 1))
     );
-    this.zr.push(new Socket("normalTexUv", CompositionType.Vec2, ComponentType.Float, Vector2.fromCopy2(0, 0)));
-    this.zr.push(
+    this.Hr.push(new Socket("normalTexUv", CompositionType.Vec2, ComponentType.Float, Vector2.fromCopy2(0, 0)));
+    this.Hr.push(
       new Socket("normalScale", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1))
     );
-    this.Cr.push(new Socket("outNormalInWorld", CompositionType.Vec3, ComponentType.Float));
-    this.Cr.push(new Socket("outGeomNormalInWorld", CompositionType.Vec3, ComponentType.Float));
-    this.Cr.push(new Socket("outTBN", CompositionType.Mat3, ComponentType.Float));
+    this.Kr.push(new Socket("outNormalInWorld", CompositionType.Vec3, ComponentType.Float));
+    this.Kr.push(new Socket("outGeomNormalInWorld", CompositionType.Vec3, ComponentType.Float));
+    this.Kr.push(new Socket("outTBN", CompositionType.Mat3, ComponentType.Float));
   }
   /**
    * Gets the output socket that contains the result of the PBR normal properties operation.
@@ -49,7 +49,7 @@ var PbrNormalPropsShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the PBR normal properties result
    */
   getSocketOutput() {
-    return this.Cr[0];
+    return this.Kr[0];
   }
 };
 export {

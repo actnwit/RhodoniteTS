@@ -40,31 +40,31 @@ var initialMotionState = {
 };
 var RapierCharacterControllerStrategy = class {
   constructor() {
-    this.Oc = { ...defaultOptions };
-    this.pv = MutableVector3.zero();
-    this.cv = MutableVector3.zero();
-    this.Zu = 0;
-    this.Yu = false;
-    this.iv = false;
-    this.jv = true;
-    this.kv = Vector3.zero();
-    this.av = 0;
-    this.bv = false;
-    this.ev = initialMotionState;
-    this.lv = 0;
-    this.fv = false;
-    this.gv = false;
-    this.hv = 0;
-    this.mv = 0;
-    this.dv = Vector3.one();
+    this.Sc = { ...defaultOptions };
+    this.xv = MutableVector3.zero();
+    this.kv = MutableVector3.zero();
+    this.fv = 0;
+    this.ev = false;
+    this.qv = false;
     this.rv = true;
+    this.sv = Vector3.zero();
+    this.iv = 0;
+    this.jv = false;
+    this.mv = initialMotionState;
+    this.tv = 0;
+    this.nv = false;
     this.ov = false;
+    this.pv = 0;
+    this.uv = 0;
+    this.lv = Vector3.one();
+    this.zv = true;
+    this.wv = false;
     /** Reusable quaternion for world-rotation lookups (avoids per-frame allocations) */
-    this.sv = MutableQuaternion.identity();
+    this.Av = MutableQuaternion.identity();
   }
   setup(entity, shapeInstance, options = {}) {
     var _a, _b, _c, _d, _e, _f;
-    if (this.Vu != null) {
+    if (this.bv != null) {
       throw new Error("RapierCharacterControllerStrategy has already been set up.");
     }
     const { shapeIndex: _shapeIndex, radius: _radius, height: _height, ...movementOptions } = options;
@@ -74,7 +74,7 @@ var RapierCharacterControllerStrategy = class {
       groundProbeDistance: (_b = options.groundProbeDistance) != null ? _b : Math.max((_a = options.snapToGroundDistance) != null ? _a : defaultOptions.snapToGroundDistance, 0.3),
       groundProbeStartOffset: (_d = (_c = options.groundProbeStartOffset) != null ? _c : options.contactOffset) != null ? _d : defaultOptions.contactOffset
     };
-    this.ad(resolvedOptions);
+    this.ed(resolvedOptions);
     const rapier = RapierPhysicsStrategy._getRapier();
     const world = RapierPhysicsStrategy._getWorld(entity.engine);
     if (rapier.RigidBodyDesc.kinematicPositionBased == null || rapier.ColliderDesc.capsule == null) {
@@ -100,7 +100,7 @@ var RapierCharacterControllerStrategy = class {
         `Rapier approximates asymmetric character capsule radii (${capsule.radiusBottom}, ${capsule.radiusTop}) with the maximum radius.`
       );
     }
-    const resolvedCapsule = this.tv(shapeInstance, scale);
+    const resolvedCapsule = this.Bv(shapeInstance, scale);
     const radius = resolvedCapsule.radius;
     resolvedOptions.groundProbeRadius = (_e = options.groundProbeRadius) != null ? _e : radius * 0.8;
     if (!Number.isFinite(resolvedOptions.groundProbeRadius) || resolvedOptions.groundProbeRadius <= 0 || resolvedOptions.groundProbeRadius > radius) {
@@ -108,9 +108,9 @@ var RapierCharacterControllerStrategy = class {
         "Character controller groundProbeRadius must be positive and no greater than the capsule radius."
       );
     }
-    const colliderDesc = this.uv(resolvedCapsule);
+    const colliderDesc = this.Cv(resolvedCapsule);
     const initialPosition = entity.getSceneGraph().position;
-    const initialRotation = entity.getSceneGraph().getQuaternionRecursivelyTo(this.sv);
+    const initialRotation = entity.getSceneGraph().getQuaternionRecursivelyTo(this.Av);
     const rigidBodyDesc = rapier.RigidBodyDesc.kinematicPositionBased().setTranslation(initialPosition.x, initialPosition.y, initialPosition.z).setRotation({
       x: initialRotation.x,
       y: initialRotation.y,
@@ -147,188 +147,188 @@ var RapierCharacterControllerStrategy = class {
           }
         }
       }
-      this.ov = false;
+      this.wv = false;
       throw error;
     }
-    this.Wu = entity;
-    this.qv = new PhysicsWorldQuery(new RapierPhysicsWorldQueryStrategy(entity.engine));
-    this.Oc = resolvedOptions;
-    this.kv = resolvedCapsule.bottomOffset;
-    this.Vu = rigidBody;
-    this.$u = collider;
-    this.Xu = controller;
-    this.nv = shapeInstance;
-    this.dv = Vector3.fromCopy3(scale.x, scale.y, scale.z);
-    this.rv = options.groundProbeRadius == null;
+    this.cv = entity;
+    this.yv = new PhysicsWorldQuery(new RapierPhysicsWorldQueryStrategy(entity.engine));
+    this.Sc = resolvedOptions;
+    this.sv = resolvedCapsule.bottomOffset;
+    this.bv = rigidBody;
+    this.hv = collider;
+    this.dv = controller;
+    this.vv = shapeInstance;
+    this.lv = Vector3.fromCopy3(scale.x, scale.y, scale.z);
+    this.zv = options.groundProbeRadius == null;
   }
   setDesiredHorizontalVelocity(velocity) {
-    this.pv.setComponents(velocity.x, 0, velocity.z);
+    this.xv.setComponents(velocity.x, 0, velocity.z);
   }
   requestJump() {
-    this.iv = true;
+    this.qv = true;
   }
   teleport(position) {
     var _a, _b, _c;
-    if (this.Vu == null) {
+    if (this.bv == null) {
       throw new Error("RapierCharacterControllerStrategy.setup() must be called before teleport().");
     }
     const translation = { x: position.x, y: position.y, z: position.z };
-    this.Vu.setTranslation(translation, true);
-    (_b = (_a = this.Vu).setNextKinematicTranslation) == null ? void 0 : _b.call(_a, translation);
-    (_c = this.Wu) == null ? void 0 : _c.getSceneGraph().setPositionWithoutPhysics(Vector3.fromCopy3(position.x, position.y, position.z));
-    this.Zu = 0;
-    this.Yu = false;
-    this.iv = false;
-    this.cv.setComponents(0, 0, 0);
-    this._u = void 0;
-    this.av = 0;
-    this.bv = false;
-    this.ev = initialMotionState;
-    this.lv = 0;
-    this.fv = false;
-    this.gv = false;
-    this.hv = 0;
-    this.mv = 0;
+    this.bv.setTranslation(translation, true);
+    (_b = (_a = this.bv).setNextKinematicTranslation) == null ? void 0 : _b.call(_a, translation);
+    (_c = this.cv) == null ? void 0 : _c.getSceneGraph().setPositionWithoutPhysics(Vector3.fromCopy3(position.x, position.y, position.z));
+    this.fv = 0;
+    this.ev = false;
+    this.qv = false;
+    this.kv.setComponents(0, 0, 0);
+    this.gv = void 0;
+    this.iv = 0;
+    this.jv = false;
+    this.mv = initialMotionState;
+    this.tv = 0;
+    this.nv = false;
+    this.ov = false;
+    this.pv = 0;
+    this.uv = 0;
   }
   preStep(deltaTime) {
     var _a, _b;
-    if (!this.jv || this.Wu == null || this.Vu == null || this.$u == null || this.Xu == null) {
+    if (!this.rv || this.cv == null || this.bv == null || this.hv == null || this.dv == null) {
       return;
     }
-    this.vv();
-    const current = this.wv();
-    if (this.Vu.setNextKinematicRotation == null) {
+    this.Dv();
+    const current = this.Ev();
+    if (this.bv.setNextKinematicRotation == null) {
       throw new Error("The injected Rapier rigid body does not support kinematic rotation.");
     }
-    const worldRotation = this.Wu.getSceneGraph().getQuaternionRecursivelyTo(this.sv);
-    this.Vu.setNextKinematicRotation({
+    const worldRotation = this.cv.getSceneGraph().getQuaternionRecursivelyTo(this.Av);
+    this.bv.setNextKinematicRotation({
       x: worldRotation.x,
       y: worldRotation.y,
       z: worldRotation.z,
       w: worldRotation.w
     });
-    this.bv = false;
-    const dt = Math.min(Math.max(deltaTime, 0), this.Oc.maxDeltaTime);
-    this.lv = dt;
-    if (this.iv && this.Yu) {
-      this.Zu = this.Oc.jumpSpeed;
-      this.Yu = false;
+    this.jv = false;
+    const dt = Math.min(Math.max(deltaTime, 0), this.Sc.maxDeltaTime);
+    this.tv = dt;
+    if (this.qv && this.ev) {
+      this.fv = this.Sc.jumpSpeed;
+      this.ev = false;
     } else {
-      this.Zu -= this.Oc.gravity * dt;
+      this.fv -= this.Sc.gravity * dt;
     }
-    this.iv = false;
+    this.qv = false;
     const desiredMovement = {
-      x: this.pv.x * dt,
-      y: this.Zu * dt,
-      z: this.pv.z * dt
+      x: this.xv.x * dt,
+      y: this.fv * dt,
+      z: this.xv.z * dt
     };
     const filterFlags = (_b = (_a = RapierPhysicsStrategy._getRapier().QueryFilterFlags) == null ? void 0 : _a.EXCLUDE_SENSORS) != null ? _b : 8;
-    this.Xu.computeColliderMovement(this.$u, desiredMovement, filterFlags);
-    let movement = this.Xu.computedMovement();
-    const collisionNormals = this.xv();
-    if (this.Zu > 0 && collisionNormals.some((normal) => normal.y < -0.5)) {
-      this.Zu = 0;
+    this.dv.computeColliderMovement(this.hv, desiredMovement, filterFlags);
+    let movement = this.dv.computedMovement();
+    const collisionNormals = this.Fv();
+    if (this.fv > 0 && collisionNormals.some((normal) => normal.y < -0.5)) {
+      this.fv = 0;
     }
-    this.Yu = this.Xu.computedGrounded();
-    const isDownwardMovementBlocked = this.Oc.stuckRecoveryEnabled && !this.Yu && this.Zu < 0 && desiredMovement.y < -1e-6 && movement.y > -1e-6;
-    this.av = isDownwardMovementBlocked ? this.av + 1 : 0;
-    if (this.av >= this.Oc.stuckRecoveryFrameCount) {
-      this.Xu.computeColliderMovement(this.$u, { x: 0, y: desiredMovement.y, z: 0 }, filterFlags);
-      const verticalMovement = this.Xu.computedMovement();
+    this.ev = this.dv.computedGrounded();
+    const isDownwardMovementBlocked = this.Sc.stuckRecoveryEnabled && !this.ev && this.fv < 0 && desiredMovement.y < -1e-6 && movement.y > -1e-6;
+    this.iv = isDownwardMovementBlocked ? this.iv + 1 : 0;
+    if (this.iv >= this.Sc.stuckRecoveryFrameCount) {
+      this.dv.computeColliderMovement(this.hv, { x: 0, y: desiredMovement.y, z: 0 }, filterFlags);
+      const verticalMovement = this.dv.computedMovement();
       if (verticalMovement.y < -1e-6) {
         movement = verticalMovement;
       } else {
-        movement = this.yv(movement, collisionNormals);
+        movement = this.Gv(movement, collisionNormals);
       }
-      this.Yu = this.Xu.computedGrounded();
-      this.bv = true;
-      this.av = 0;
+      this.ev = this.dv.computedGrounded();
+      this.jv = true;
+      this.iv = 0;
     }
-    this.cv.setComponents(movement.x, movement.y, movement.z);
-    this.hv = this.Zu;
-    if (this.Yu && this.Zu < 0) {
-      if (!this.fv && this.gv) {
-        this.mv = -this.Zu;
+    this.kv.setComponents(movement.x, movement.y, movement.z);
+    this.pv = this.fv;
+    if (this.ev && this.fv < 0) {
+      if (!this.nv && this.ov) {
+        this.uv = -this.fv;
       }
-      this.Zu = 0;
+      this.fv = 0;
     }
     const next = {
       x: current.x + movement.x,
       y: current.y + movement.y,
       z: current.z + movement.z
     };
-    if (this.Vu.setNextKinematicTranslation == null) {
+    if (this.bv.setNextKinematicTranslation == null) {
       throw new Error("The injected Rapier rigid body does not support kinematic translation.");
     }
-    this.Vu.setNextKinematicTranslation(next);
+    this.bv.setNextKinematicTranslation(next);
   }
   postStep() {
-    if (!this.jv || this.Wu == null || this.Vu == null) {
+    if (!this.rv || this.cv == null || this.bv == null) {
       return;
     }
-    const position = this.Vu.translation();
-    this.Wu.getSceneGraph().setPositionWithoutPhysics(Vector3.fromCopy3(position.x, position.y, position.z));
-    this.zv(position);
-    this.Av();
+    const position = this.bv.translation();
+    this.cv.getSceneGraph().setPositionWithoutPhysics(Vector3.fromCopy3(position.x, position.y, position.z));
+    this.Hv(position);
+    this.Iv();
   }
   get isGrounded() {
-    return this.Yu;
-  }
-  get computedMovement() {
-    return this.cv;
-  }
-  get groundContact() {
-    return this._u;
-  }
-  get isRecovering() {
-    return this.bv;
-  }
-  get motionState() {
     return this.ev;
   }
+  get computedMovement() {
+    return this.kv;
+  }
+  get groundContact() {
+    return this.gv;
+  }
+  get isRecovering() {
+    return this.jv;
+  }
+  get motionState() {
+    return this.mv;
+  }
   set enabled(value) {
-    this.jv = value;
+    this.rv = value;
     if (!value) {
-      this._u = void 0;
-      this.av = 0;
-      this.bv = false;
+      this.gv = void 0;
+      this.iv = 0;
+      this.jv = false;
     }
   }
   get enabled() {
-    return this.jv;
+    return this.rv;
   }
   destroy() {
     var _a, _b, _c;
     RapierPhysicsStrategy._unregisterStepParticipant(this);
-    const engine = (_a = this.Wu) == null ? void 0 : _a.engine;
-    RapierPhysicsStrategy._unregisterExternalCollider(this.$u, engine);
+    const engine = (_a = this.cv) == null ? void 0 : _a.engine;
+    RapierPhysicsStrategy._unregisterExternalCollider(this.hv, engine);
     const world = RapierPhysicsStrategy._getWorld(engine);
-    if (this.Xu != null) {
-      (_b = world.removeCharacterController) == null ? void 0 : _b.call(world, this.Xu);
+    if (this.dv != null) {
+      (_b = world.removeCharacterController) == null ? void 0 : _b.call(world, this.dv);
     }
-    if (this.Vu != null) {
-      (_c = world.removeRigidBody) == null ? void 0 : _c.call(world, this.Vu);
+    if (this.bv != null) {
+      (_c = world.removeRigidBody) == null ? void 0 : _c.call(world, this.bv);
     }
-    this.Xu = void 0;
-    this.$u = void 0;
-    this.Vu = void 0;
-    this.Wu = void 0;
-    this.qv = void 0;
-    this._u = void 0;
-    this.av = 0;
-    this.bv = false;
-    this.ev = initialMotionState;
-    this.lv = 0;
-    this.fv = false;
-    this.gv = false;
-    this.hv = 0;
-    this.mv = 0;
-    this.nv = void 0;
-    this.dv = Vector3.one();
-    this.rv = true;
+    this.dv = void 0;
+    this.hv = void 0;
+    this.bv = void 0;
+    this.cv = void 0;
+    this.yv = void 0;
+    this.gv = void 0;
+    this.iv = 0;
+    this.jv = false;
+    this.mv = initialMotionState;
+    this.tv = 0;
+    this.nv = false;
     this.ov = false;
+    this.pv = 0;
+    this.uv = 0;
+    this.vv = void 0;
+    this.lv = Vector3.one();
+    this.zv = true;
+    this.wv = false;
   }
-  tv(shapeInstance, worldScale) {
+  Bv(shapeInstance, worldScale) {
     if (shapeInstance.shape.type !== "capsule") {
       throw new Error("RapierCharacterControllerStrategy requires a capsule ShapeInstance.");
     }
@@ -339,9 +339,9 @@ var RapierCharacterControllerStrategy = class {
       shapeInstance.localRotation,
       worldScale
     );
-    if (resolved.approximated && !this.ov) {
+    if (resolved.approximated && !this.wv) {
       Logger.default.warn("Rapier conservatively approximates non-uniform scale for the character capsule.");
-      this.ov = true;
+      this.wv = true;
     }
     const localPosition = Vector3.fromCopy3(
       shapeInstance.localPosition.x * worldScale.x,
@@ -357,7 +357,7 @@ var RapierCharacterControllerStrategy = class {
       bottomOffset: Vector3.add(localPosition, downwardExtent)
     };
   }
-  uv(resolved) {
+  Cv(resolved) {
     var _a, _b, _c, _d;
     const rapier = RapierPhysicsStrategy._getRapier();
     let colliderDesc = rapier.ColliderDesc.capsule(resolved.halfHeight, resolved.radius);
@@ -370,36 +370,36 @@ var RapierCharacterControllerStrategy = class {
     })) != null ? _d : colliderDesc;
     return colliderDesc;
   }
-  vv() {
-    if (this.Wu == null || this.Vu == null || this.$u == null || this.nv == null) {
+  Dv() {
+    if (this.cv == null || this.bv == null || this.hv == null || this.vv == null) {
       return;
     }
-    const scale = this.Wu.getSceneGraph()._getPhysicsWorldScale();
+    const scale = this.cv.getSceneGraph()._getPhysicsWorldScale();
     const absoluteScale = Vector3.fromCopy3(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z));
-    const hasChanged = Math.abs(scale.x - this.dv.x) > 1e-6 || Math.abs(scale.y - this.dv.y) > 1e-6 || Math.abs(scale.z - this.dv.z) > 1e-6;
+    const hasChanged = Math.abs(scale.x - this.lv.x) > 1e-6 || Math.abs(scale.y - this.lv.y) > 1e-6 || Math.abs(scale.z - this.lv.z) > 1e-6;
     if (!hasChanged) {
       return;
     }
     if (![absoluteScale.x, absoluteScale.y, absoluteScale.z].every(Number.isFinite) || absoluteScale.x <= 0 || absoluteScale.y <= 0 || absoluteScale.z <= 0) {
       throw new Error("Character controller scale components must remain finite and non-zero after setup.");
     }
-    const world = RapierPhysicsStrategy._getWorld(this.Wu.engine);
+    const world = RapierPhysicsStrategy._getWorld(this.cv.engine);
     if (world.removeRigidBody == null) {
       throw new Error("The injected Rapier world does not support rebuilding a scaled character body.");
     }
-    const resolved = this.tv(this.nv, scale);
-    const groundProbeRadius = this.rv ? resolved.radius * 0.8 : this.Oc.groundProbeRadius;
+    const resolved = this.Bv(this.vv, scale);
+    const groundProbeRadius = this.zv ? resolved.radius * 0.8 : this.Sc.groundProbeRadius;
     if (!Number.isFinite(groundProbeRadius) || groundProbeRadius <= 0 || groundProbeRadius > resolved.radius) {
       throw new Error(
         "Character controller groundProbeRadius must be positive and no greater than the scaled capsule radius."
       );
     }
-    const colliderDesc = this.uv(resolved);
-    const position = this.Vu.translation();
-    const rotation = this.Vu.rotation();
+    const colliderDesc = this.Cv(resolved);
+    const position = this.bv.translation();
+    const rotation = this.bv.rotation();
     const rigidBodyDesc = RapierPhysicsStrategy._getRapier().RigidBodyDesc.kinematicPositionBased().setTranslation(position.x, position.y, position.z).setRotation({ x: rotation.x, y: rotation.y, z: rotation.z, w: rotation.w });
-    const previousRigidBody = this.Vu;
-    const previousCollider = this.$u;
+    const previousRigidBody = this.bv;
+    const previousCollider = this.hv;
     const rigidBody = world.createRigidBody(rigidBodyDesc);
     let collider;
     try {
@@ -408,19 +408,19 @@ var RapierCharacterControllerStrategy = class {
       world.removeRigidBody(rigidBody);
       throw error;
     }
-    RapierPhysicsStrategy._registerExternalCollider(collider, this.Wu);
-    RapierPhysicsStrategy._unregisterExternalCollider(previousCollider, this.Wu.engine, true);
+    RapierPhysicsStrategy._registerExternalCollider(collider, this.cv);
+    RapierPhysicsStrategy._unregisterExternalCollider(previousCollider, this.cv.engine, true);
     world.removeRigidBody(previousRigidBody);
-    this.Vu = rigidBody;
-    this.$u = collider;
-    this.kv = resolved.bottomOffset;
-    this.Oc.groundProbeRadius = groundProbeRadius;
-    this.dv = Vector3.fromCopy3(scale.x, scale.y, scale.z);
+    this.bv = rigidBody;
+    this.hv = collider;
+    this.sv = resolved.bottomOffset;
+    this.Sc.groundProbeRadius = groundProbeRadius;
+    this.lv = Vector3.fromCopy3(scale.x, scale.y, scale.z);
   }
-  wv() {
-    const rigidBody = this.Vu;
+  Ev() {
+    const rigidBody = this.bv;
     const current = rigidBody.translation();
-    const sceneGraphPosition = this.Wu.getSceneGraph().position;
+    const sceneGraphPosition = this.cv.getSceneGraph().position;
     const hasChanged = Math.abs(sceneGraphPosition.x - current.x) > 1e-6 || Math.abs(sceneGraphPosition.y - current.y) > 1e-6 || Math.abs(sceneGraphPosition.z - current.z) > 1e-6;
     if (!hasChanged) {
       return current;
@@ -433,17 +433,17 @@ var RapierCharacterControllerStrategy = class {
     rigidBody.setTranslation(synchronized, true);
     return synchronized;
   }
-  Av() {
-    const dt = this.lv;
+  Iv() {
+    const dt = this.tv;
     const velocity = dt > 0 ? Vector3.fromCopy3(
-      this.cv.x / dt,
-      this.cv.y / dt,
-      this.cv.z / dt
+      this.kv.x / dt,
+      this.kv.y / dt,
+      this.kv.z / dt
     ) : Vector3.zero();
-    const state = this.Bv();
-    const previous = this.ev;
-    const isGroundedNow = this.Yu;
-    this.ev = {
+    const state = this.Jv();
+    const previous = this.mv;
+    const isGroundedNow = this.ev;
+    this.mv = {
       state,
       velocity,
       horizontalSpeed: Math.hypot(velocity.x, velocity.z),
@@ -451,45 +451,45 @@ var RapierCharacterControllerStrategy = class {
       groundedDuration: isGroundedNow ? previous.groundedDuration + dt : 0,
       airborneDuration: isGroundedNow ? 0 : previous.airborneDuration + dt,
       stateElapsedTime: state === previous.state ? previous.stateElapsedTime + dt : dt,
-      landingImpactSpeed: this.mv,
-      groundContact: this._u
+      landingImpactSpeed: this.uv,
+      groundContact: this.gv
     };
-    this.fv = isGroundedNow;
+    this.nv = isGroundedNow;
     if (isGroundedNow) {
-      this.gv = true;
+      this.ov = true;
     }
   }
-  Bv() {
-    if (this.bv) {
+  Jv() {
+    if (this.jv) {
       return "recovering";
     }
-    if (!this.gv && this.Yu) {
+    if (!this.ov && this.ev) {
       return "grounded";
     }
-    if (!this.fv && this.Yu) {
+    if (!this.nv && this.ev) {
       return "landing";
     }
-    if (this.Yu) {
+    if (this.ev) {
       return "grounded";
     }
-    if (this._u != null && !this._u.isWalkable && this.hv <= 0) {
+    if (this.gv != null && !this.gv.isWalkable && this.pv <= 0) {
       return "sliding";
     }
-    return this.hv > 1e-6 ? "rising" : "falling";
+    return this.pv > 1e-6 ? "rising" : "falling";
   }
-  xv() {
+  Fv() {
     var _a, _b, _c, _d, _e;
-    const count = (_c = (_b = (_a = this.Xu) == null ? void 0 : _a.numComputedCollisions) == null ? void 0 : _b.call(_a)) != null ? _c : 0;
+    const count = (_c = (_b = (_a = this.dv) == null ? void 0 : _a.numComputedCollisions) == null ? void 0 : _b.call(_a)) != null ? _c : 0;
     const normals = [];
     for (let i = 0; i < count; i++) {
-      const collision = (_e = (_d = this.Xu) == null ? void 0 : _d.computedCollision) == null ? void 0 : _e.call(_d, i);
+      const collision = (_e = (_d = this.dv) == null ? void 0 : _d.computedCollision) == null ? void 0 : _e.call(_d, i);
       if (collision != null) {
         normals.push(collision.normal1);
       }
     }
     return normals;
   }
-  yv(movement, normals) {
+  Gv(movement, normals) {
     let x = 0;
     let z = 0;
     for (const normal of normals) {
@@ -500,53 +500,53 @@ var RapierCharacterControllerStrategy = class {
     if (length <= 1e-6) {
       return movement;
     }
-    const scale = this.Oc.stuckRecoveryDistance / length;
+    const scale = this.Sc.stuckRecoveryDistance / length;
     return { x: x * scale, y: Math.min(movement.y, 0), z: z * scale };
   }
-  zv(position) {
+  Hv(position) {
     var _a, _b;
-    if (this.Wu == null) {
-      this._u = void 0;
+    if (this.cv == null) {
+      this.gv = void 0;
       return;
     }
-    const bodyRotation = (_a = this.Vu) == null ? void 0 : _a.rotation();
-    const capsuleBottomOffset = bodyRotation == null ? this.kv : Quaternion.fromCopy4(bodyRotation.x, bodyRotation.y, bodyRotation.z, bodyRotation.w).transformVector3(
-      this.kv
+    const bodyRotation = (_a = this.bv) == null ? void 0 : _a.rotation();
+    const capsuleBottomOffset = bodyRotation == null ? this.sv : Quaternion.fromCopy4(bodyRotation.x, bodyRotation.y, bodyRotation.z, bodyRotation.w).transformVector3(
+      this.sv
     );
     const capsuleBottom = Vector3.add(Vector3.fromCopy3(position.x, position.y, position.z), capsuleBottomOffset);
     const start = Vector3.add(
       capsuleBottom,
-      Vector3.fromCopy3(0, this.Oc.groundProbeRadius + this.Oc.groundProbeStartOffset, 0)
+      Vector3.fromCopy3(0, this.Sc.groundProbeRadius + this.Sc.groundProbeStartOffset, 0)
     );
-    const hit = (_b = this.qv) == null ? void 0 : _b.castSphere(
+    const hit = (_b = this.yv) == null ? void 0 : _b.castSphere(
       start,
-      this.Oc.groundProbeRadius,
+      this.Sc.groundProbeRadius,
       Vector3.fromCopy3(0, -1, 0),
-      this.Oc.groundProbeDistance,
+      this.Sc.groundProbeDistance,
       {
         includeSensors: false,
-        collisionGroup: this.Oc.groundCollisionGroup,
-        collisionMask: this.Oc.groundCollisionMask,
-        excludeEntities: [this.Wu]
+        collisionGroup: this.Sc.groundCollisionGroup,
+        collisionMask: this.Sc.groundCollisionMask,
+        excludeEntities: [this.cv]
       }
     );
     if (hit == null || hit.normal.y <= 0) {
-      this._u = void 0;
+      this.gv = void 0;
       return;
     }
     const normal = Vector3.normalize(hit.normal);
     const slopeAngle = Math.acos(Math.min(1, Math.max(-1, normal.y)));
-    this._u = {
+    this.gv = {
       entity: hit.entity,
       bindingId: hit.bindingId,
       position: hit.position,
       normal,
       distance: hit.distance,
       slopeAngle,
-      isWalkable: slopeAngle <= this.Oc.maxSlopeClimbAngle
+      isWalkable: slopeAngle <= this.Sc.maxSlopeClimbAngle
     };
   }
-  ad(options) {
+  ed(options) {
     const positiveValues = [
       options.contactOffset,
       options.maxStepHeight,

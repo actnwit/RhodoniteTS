@@ -21,12 +21,12 @@ var AlphaTestShaderNode = class extends AbstractShaderNode {
       codeWGSL: AlphaTestShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.zr.push(new Socket("color", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1)));
-    this.zr.push(
+    this.Hr.push(new Socket("color", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1)));
+    this.Hr.push(
       new Socket("alphaCutoff", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.01))
     );
-    this.zr.push(new Socket("forceCutoff", CompositionType.Scalar, ComponentType.Bool));
-    this.Cr.push(new Socket("outColor", CompositionType.Vec4, ComponentType.Float));
+    this.Hr.push(new Socket("forceCutoff", CompositionType.Scalar, ComponentType.Bool));
+    this.Kr.push(new Socket("outColor", CompositionType.Vec4, ComponentType.Float));
   }
   /**
    * Gets the input socket for connecting the alpha value.
@@ -35,7 +35,7 @@ var AlphaTestShaderNode = class extends AbstractShaderNode {
    * @returns The input socket that accepts a vec4 value
    */
   getSocketInput() {
-    return this.zr[0];
+    return this.Hr[0];
   }
 };
 export {

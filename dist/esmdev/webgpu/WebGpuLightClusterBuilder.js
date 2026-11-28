@@ -159,12 +159,12 @@ var ParamsByteLength = 32;
 var BuildWorkgroupSize = 64;
 var WebGpuLightClusterBuilder = class {
   constructor(device) {
-    this.fH = 0;
-    this.LG = new Uint32Array(ParamsByteLength / 4);
-    this.iH = 0;
-    this.QF = device;
-    this.dH = Math.max(device.limits.minUniformBufferOffsetAlignment, ParamsByteLength);
-    this.eH = device.createBindGroupLayout({
+    this.OH = 0;
+    this.sH = new Uint32Array(ParamsByteLength / 4);
+    this.RH = 0;
+    this.xG = device;
+    this.MH = Math.max(device.limits.minUniformBufferOffsetAlignment, ParamsByteLength);
+    this.NH = device.createBindGroupLayout({
       label: "LightClusterBuild",
       entries: [
         { binding: 0, visibility: GPUShaderStage.COMPUTE, buffer: { type: "storage" } },
@@ -176,9 +176,9 @@ var WebGpuLightClusterBuilder = class {
         { binding: 2, visibility: GPUShaderStage.COMPUTE, buffer: { type: "read-only-storage" } }
       ]
     });
-    const layout = device.createPipelineLayout({ bindGroupLayouts: [this.eH] });
+    const layout = device.createPipelineLayout({ bindGroupLayouts: [this.NH] });
     const module = device.createShaderModule({ label: "LightClusterBuild", code: lightClusterBuildWgsl });
-    this.hH = device.createComputePipeline({
+    this.QH = device.createComputePipeline({
       label: "LightClusterBuild.buildClusters",
       layout,
       compute: { module, entryPoint: "buildClusters" }
@@ -199,52 +199,52 @@ var WebGpuLightClusterBuilder = class {
     if (viewCount === 0) {
       return;
     }
-    const device = this.QF;
-    if (this.YF == null || this.fH < viewCount) {
-      (_a = this.YF) == null ? void 0 : _a.destroy();
-      this.fH = Math.max(viewCount, 4);
-      this.YF = device.createBuffer({
+    const device = this.xG;
+    if (this.FG == null || this.OH < viewCount) {
+      (_a = this.FG) == null ? void 0 : _a.destroy();
+      this.OH = Math.max(viewCount, 4);
+      this.FG = device.createBuffer({
         label: "LightClusterBuild.params",
-        size: this.dH * this.fH,
+        size: this.MH * this.OH,
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
       });
-      this.cH = void 0;
+      this.LH = void 0;
     }
     let dataLength = 0;
     for (const view of params.views) {
       dataLength = Math.max(dataLength, view.dataOffset + params.dataStride);
     }
-    if (this.bH == null || this.iH < dataLength) {
-      (_b = this.bH) == null ? void 0 : _b.destroy();
+    if (this.KH == null || this.RH < dataLength) {
+      (_b = this.KH) == null ? void 0 : _b.destroy();
       let capacity2 = 1;
       while (capacity2 < dataLength) {
         capacity2 *= 2;
       }
-      this.iH = capacity2;
-      this.bH = device.createBuffer({
+      this.RH = capacity2;
+      this.KH = device.createBuffer({
         label: "LightClusterBuild.buildData",
         size: capacity2 * 4,
         usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
       });
-      this.cH = void 0;
+      this.LH = void 0;
     }
-    device.queue.writeBuffer(this.bH, 0, params.data.subarray(0, dataLength));
-    if (this.cH == null || this.gH !== storageBuffer) {
-      this.cH = device.createBindGroup({
+    device.queue.writeBuffer(this.KH, 0, params.data.subarray(0, dataLength));
+    if (this.LH == null || this.PH !== storageBuffer) {
+      this.LH = device.createBindGroup({
         label: "LightClusterBuild",
-        layout: this.eH,
+        layout: this.NH,
         entries: [
           { binding: 0, resource: { buffer: storageBuffer } },
-          { binding: 1, resource: { buffer: this.YF, size: ParamsByteLength } },
-          { binding: 2, resource: { buffer: this.bH } }
+          { binding: 1, resource: { buffer: this.FG, size: ParamsByteLength } },
+          { binding: 2, resource: { buffer: this.KH } }
         ]
       });
-      this.gH = storageBuffer;
+      this.PH = storageBuffer;
     }
     const layout = params.layout;
     const capacity = layout.clusterLightCapacity;
     const entriesPerCluster = Math.ceil(capacity / 4);
-    const p = this.LG;
+    const p = this.sH;
     for (let i = 0; i < viewCount; i++) {
       const view = params.views[i];
       p[0] = view.viewVec4Base;
@@ -255,7 +255,7 @@ var WebGpuLightClusterBuilder = class {
       p[5] = layout.clusterCount;
       p[6] = entriesPerCluster;
       p[7] = capacity;
-      device.queue.writeBuffer(this.YF, i * this.dH, p);
+      device.queue.writeBuffer(this.FG, i * this.MH, p);
     }
     const encoder = device.createCommandEncoder({ label: "LightClusterBuild" });
     const passDescriptor = { label: "LightClusterBuild" };
@@ -266,8 +266,8 @@ var WebGpuLightClusterBuilder = class {
     const pass = encoder.beginComputePass(passDescriptor);
     const workgroupCount = Math.ceil(layout.clusterCount / BuildWorkgroupSize);
     for (let i = 0; i < viewCount; i++) {
-      pass.setBindGroup(0, this.cH, [i * this.dH]);
-      pass.setPipeline(this.hH);
+      pass.setBindGroup(0, this.LH, [i * this.MH]);
+      pass.setPipeline(this.QH);
       pass.dispatchWorkgroups(workgroupCount);
     }
     pass.end();
@@ -284,12 +284,12 @@ var WebGpuLightClusterBuilder = class {
    */
   destroy() {
     var _a, _b;
-    (_a = this.YF) == null ? void 0 : _a.destroy();
-    this.YF = void 0;
-    (_b = this.bH) == null ? void 0 : _b.destroy();
-    this.bH = void 0;
-    this.cH = void 0;
-    this.gH = void 0;
+    (_a = this.FG) == null ? void 0 : _a.destroy();
+    this.FG = void 0;
+    (_b = this.KH) == null ? void 0 : _b.destroy();
+    this.KH = void 0;
+    this.LH = void 0;
+    this.PH = void 0;
   }
 };
 export {

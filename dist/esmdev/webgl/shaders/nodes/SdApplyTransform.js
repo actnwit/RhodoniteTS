@@ -8,12 +8,12 @@ var SdApplyTransformShader = class extends RaymarchingShaderPart {
    */
   constructor(shaderFunctionName, scaleGlobalName) {
     super();
-    this.Br = shaderFunctionName;
-    this.dt = scaleGlobalName;
+    this.Jr = shaderFunctionName;
+    this.lt = scaleGlobalName;
   }
   /** Name of the global that holds this node's smallest axis scale. */
   get scaleGlobalName() {
-    return this.dt;
+    return this.lt;
   }
   getVertexShaderDefinitions(_engine) {
     return "";
@@ -24,9 +24,9 @@ var SdApplyTransformShader = class extends RaymarchingShaderPart {
   getPixelShaderDefinitions(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-var<private> ${this.dt}: f32 = 1.0;
-fn ${this.Br}(position: vec3f, translation: vec3f, xyzEulerAngles: vec3f, scale: vec3f, outTransformedPosition: ptr<function, vec3f>) {
-  ${this.dt} = clamp(min(abs(scale.x), min(abs(scale.y), abs(scale.z))), 0.0001, 1.0);
+var<private> ${this.lt}: f32 = 1.0;
+fn ${this.Jr}(position: vec3f, translation: vec3f, xyzEulerAngles: vec3f, scale: vec3f, outTransformedPosition: ptr<function, vec3f>) {
+  ${this.lt} = clamp(min(abs(scale.x), min(abs(scale.y), abs(scale.z))), 0.0001, 1.0);
   let transform = createTransformMatrix(translation, xyzEulerAngles, scale);
   let inv = inverseTransform(transform);
   *outTransformedPosition = (inv * vec4f(position, 1.0)).xyz;
@@ -34,9 +34,9 @@ fn ${this.Br}(position: vec3f, translation: vec3f, xyzEulerAngles: vec3f, scale:
 `;
     }
     return `
-float ${this.dt} = 1.0;
-void ${this.Br}(in vec3 position, in vec3 translation, in vec3 xyzEulerAngles, in vec3 scale, out vec3 outTransformedPosition) {
-  ${this.dt} = clamp(min(abs(scale.x), min(abs(scale.y), abs(scale.z))), 0.0001, 1.0);
+float ${this.lt} = 1.0;
+void ${this.Jr}(in vec3 position, in vec3 translation, in vec3 xyzEulerAngles, in vec3 scale, out vec3 outTransformedPosition) {
+  ${this.lt} = clamp(min(abs(scale.x), min(abs(scale.y), abs(scale.z))), 0.0001, 1.0);
   mat4 transform = createTransformMatrix(translation, xyzEulerAngles, scale);
   mat4 inv = inverseTransform(transform);
   outTransformedPosition = (inv * vec4(position, 1.0)).xyz;

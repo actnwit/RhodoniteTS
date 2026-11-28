@@ -10,9 +10,9 @@ var MemoryManager = class _MemoryManager {
    * @param maxGPUDataStorageSize - The maximum GPU data storage size in bytes
    */
   constructor(engine, maxGPUDataStorageSize) {
-    this.Zi = /* @__PURE__ */ new Map();
-    this._i = /* @__PURE__ */ new Map();
-    this.$i = 0;
+    this.ej = /* @__PURE__ */ new Map();
+    this.fj = /* @__PURE__ */ new Map();
+    this.gj = 0;
     // private __bufferSizeDivisionRatiosForGPUInstanceDataUsage = [
     //   1 / 8192,
     //   1 / 4096,
@@ -27,10 +27,10 @@ var MemoryManager = class _MemoryManager {
     //   3 / 16,
     //   8 / 16,
     // ];
-    this.cj = [8 / 32];
+    this.jj = [8 / 32];
     this.c = engine;
-    this.aj = engine.config.bufferSizeDivisionRatiosForGPUInstanceDataUsage;
-    this.$i = maxGPUDataStorageSize;
+    this.hj = engine.config.bufferSizeDivisionRatiosForGPUInstanceDataUsage;
+    this.gj = maxGPUDataStorageSize;
   }
   /**
    * Creates a MemoryManager instance if it doesn't exist, or returns the existing instance.
@@ -46,7 +46,7 @@ var MemoryManager = class _MemoryManager {
    * @param memorySize - The original memory size in bytes
    * @returns The adjusted memory size that is a multiple of 4 bytes
    */
-  dj(memorySize) {
+  kj(memorySize) {
     return memorySize + (memorySize % 4 === 0 ? 0 : 4 - memorySize % 4);
   }
   /**
@@ -55,13 +55,13 @@ var MemoryManager = class _MemoryManager {
    * @param bufferUse - The type of buffer to create
    * @returns The newly created Buffer instance
    */
-  bj(bufferUse) {
+  ij(bufferUse) {
     const count = this.getLayerCountOfTheBufferUsage(bufferUse);
-    let rawMemorySize = this.$i * 1 / 16;
+    let rawMemorySize = this.gj * 1 / 16;
     if (bufferUse === BufferUse.GPUInstanceData) {
-      rawMemorySize = this.$i * this.aj[count];
+      rawMemorySize = this.gj * this.hj[count];
     } else if (bufferUse === BufferUse.GPUVertexData) {
-      rawMemorySize = this.$i * this.cj[count];
+      rawMemorySize = this.gj * this.jj[count];
     }
     const memorySize = Math.floor(rawMemorySize / 16) * 16;
     const arrayBuffer = new ArrayBuffer(memorySize);
@@ -77,10 +77,10 @@ var MemoryManager = class _MemoryManager {
       bufferUsage: bufferUse,
       indexOfTheBufferUsage: count
     });
-    let bufferMap = this.Zi.get(bufferUse);
+    let bufferMap = this.ej.get(bufferUse);
     if (bufferMap == null) {
       bufferMap = /* @__PURE__ */ new Map();
-      this.Zi.set(bufferUse, bufferMap);
+      this.ej.set(bufferUse, bufferMap);
     }
     bufferMap.set(count, buffer);
     this.incrementCountOfTheBufferUsage(bufferUse);
@@ -92,7 +92,7 @@ var MemoryManager = class _MemoryManager {
    * @returns The Buffer instance if it exists, undefined otherwise
    */
   getBuffer(bufferUse, indexOfTheBufferLayer) {
-    const bufferMap = this.Zi.get(bufferUse);
+    const bufferMap = this.ej.get(bufferUse);
     if (bufferMap == null) {
       return void 0;
     }
@@ -108,10 +108,10 @@ var MemoryManager = class _MemoryManager {
   createOrGetBuffer(bufferUse, requireIndexOfTheBufferLayer = 0) {
     const currentBufferLayerCount = this.getLayerCountOfTheBufferUsage(bufferUse);
     if (requireIndexOfTheBufferLayer >= currentBufferLayerCount) {
-      return this.bj(bufferUse);
+      return this.ij(bufferUse);
     }
     let buffer = this.getBuffer(bufferUse, Math.min(requireIndexOfTheBufferLayer, currentBufferLayerCount - 1));
-    return buffer != null ? buffer : this.bj(bufferUse);
+    return buffer != null ? buffer : this.ij(bufferUse);
   }
   /**
    * Creates a buffer on-demand with custom size and alignment for a specific object.
@@ -132,10 +132,10 @@ var MemoryManager = class _MemoryManager {
       bufferUsage: bufferUse,
       indexOfTheBufferUsage: count
     });
-    let bufferMap = this.Zi.get(bufferUse);
+    let bufferMap = this.ej.get(bufferUse);
     if (bufferMap == null) {
       bufferMap = /* @__PURE__ */ new Map();
-      this.Zi.set(bufferUse, bufferMap);
+      this.ej.set(bufferUse, bufferMap);
     }
     bufferMap.set(count, buffer);
     this.incrementCountOfTheBufferUsage(bufferUse);
@@ -155,11 +155,11 @@ var MemoryManager = class _MemoryManager {
    * @returns The count of the buffer layers
    */
   getLayerCountOfTheBufferUsage(bufferUse) {
-    const count = this._i.get(bufferUse);
+    const count = this.fj.get(bufferUse);
     if (count != null) {
       return count;
     }
-    this._i.set(bufferUse, 0);
+    this.fj.set(bufferUse, 0);
     return 0;
   }
   /**
@@ -167,12 +167,12 @@ var MemoryManager = class _MemoryManager {
    * @param bufferUse - The type of buffer to increment the count of layers of
    */
   incrementCountOfTheBufferUsage(bufferUse) {
-    const count = this._i.get(bufferUse);
+    const count = this.fj.get(bufferUse);
     if (count == null) {
-      this._i.set(bufferUse, 1);
+      this.fj.set(bufferUse, 1);
       return;
     }
-    this._i.set(bufferUse, count + 1);
+    this.fj.set(bufferUse, count + 1);
   }
   /**
    * Gets the sizes of the buffers for the specified buffer use type.
@@ -297,8 +297,8 @@ var MemoryManager = class _MemoryManager {
    * After calling this method, the MemoryManager should not be used.
    */
   destroy() {
-    this.Zi.clear();
-    this._i.clear();
+    this.ej.clear();
+    this.fj.clear();
   }
 };
 export {

@@ -5,26 +5,26 @@ var RangeAllocator = class {
    */
   constructor(capacity) {
     /** Sorted, non-overlapping, non-adjacent free ranges. */
-    this.MF = [];
-    this.NF = [];
-    this.OF = 0;
-    this.Nx = capacity;
+    this.tG = [];
+    this.uG = [];
+    this.vG = 0;
+    this.ly = capacity;
     if (capacity > 0) {
-      this.MF.push(0);
-      this.NF.push(capacity);
+      this.tG.push(0);
+      this.uG.push(capacity);
     }
   }
   /** The size of the region in bytes. */
   get capacity() {
-    return this.Nx;
+    return this.ly;
   }
   /** The total size of the allocated ranges in bytes. */
   get usedSize() {
-    return this.OF;
+    return this.vG;
   }
   /** Whether no range is allocated. */
   get isEmpty() {
-    return this.OF === 0;
+    return this.vG === 0;
   }
   /**
    * Allocates a range.
@@ -33,8 +33,8 @@ var RangeAllocator = class {
    * @returns The offset of the range, or -1 if no free range is large enough
    */
   allocate(size, alignment) {
-    const offsets = this.MF;
-    const sizes = this.NF;
+    const offsets = this.tG;
+    const sizes = this.uG;
     for (let i = 0; i < offsets.length; i++) {
       const freeOffset = offsets[i];
       const freeSize = sizes[i];
@@ -57,7 +57,7 @@ var RangeAllocator = class {
       }
       offsets.splice(i, 1, ...replacementOffsets);
       sizes.splice(i, 1, ...replacementSizes);
-      this.OF += size;
+      this.vG += size;
       return alignedOffset;
     }
     return -1;
@@ -68,8 +68,8 @@ var RangeAllocator = class {
    * @param size - The size of the range in bytes
    */
   release(offset, size) {
-    const offsets = this.MF;
-    const sizes = this.NF;
+    const offsets = this.tG;
+    const sizes = this.uG;
     let low = 0;
     let high = offsets.length;
     while (low < high) {
@@ -97,11 +97,11 @@ var RangeAllocator = class {
       offsets.splice(next, 0, offset);
       sizes.splice(next, 0, size);
     }
-    this.OF -= size;
+    this.vG -= size;
   }
   /** The free ranges as [offset, size] pairs, for tests and debugging. */
   getFreeRanges() {
-    return this.MF.map((offset, i) => [offset, this.NF[i]]);
+    return this.tG.map((offset, i) => [offset, this.uG[i]]);
   }
 };
 export {

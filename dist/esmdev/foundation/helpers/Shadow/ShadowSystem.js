@@ -25,29 +25,29 @@ var _ShadowSystem = class _ShadowSystem {
    * @param shadowMapSize - The resolution (width and height) of shadow maps in pixels
    */
   constructor(engine, shadowMapSize) {
-    this.po = [];
-    this.to = [];
-    this.uo = [];
-    this.vo = [];
-    this.Fo = false;
-    /** Incremented whenever the content of the depth bias matrices changes. */
-    this.wo = 0;
-    /** `__depthBiasPVVersion` last written to each material, indexed by material UID. */
-    this.To = [];
-    this.xo = -1;
-    this.Jo = -1;
-    this.Ko = -1;
-    this.yo = -1;
-    this.zo = new AABB();
-    this.Ao = false;
-    /** Last shadow state, so a material assigned later (e.g. the raymarching material) can receive it. */
+    this.xo = [];
     this.Bo = [];
+    this.Co = [];
+    this.Do = [];
+    this.No = false;
+    /** Incremented whenever the content of the depth bias matrices changes. */
+    this.Eo = 0;
+    /** `__depthBiasPVVersion` last written to each material, indexed by material UID. */
+    this.$o = [];
+    this.Fo = -1;
+    this.Ro = -1;
+    this.So = -1;
+    this.Go = -1;
+    this.Ho = new AABB();
+    this.Io = false;
+    /** Last shadow state, so a material assigned later (e.g. the raymarching material) can receive it. */
+    this.Jo = [];
     /** Far plane of the paraboloid shadow map of each shadow slot (indexed by slot). */
-    this.no = [];
+    this.vo = [];
     this.c = engine;
-    this.oo = new ShadowMap(engine);
-    this.mo = new PointShadowMap(engine);
-    this.so = new GaussianBlur(engine);
+    this.wo = new ShadowMap(engine);
+    this.uo = new PointShadowMap(engine);
+    this.Ao = new GaussianBlur(engine);
     const [shadowMapArrayFramebuffer, _shadowMapArrayRenderTargetTexture] = RenderableHelper.createFrameBufferTextureArray(engine, {
       width: shadowMapSize,
       height: shadowMapSize,
@@ -57,7 +57,7 @@ var _ShadowSystem = class _ShadowSystem {
       format: PixelFormat.RG,
       type: ComponentType.Float
     });
-    this.Do = shadowMapArrayFramebuffer;
+    this.Lo = shadowMapArrayFramebuffer;
     const [pointShadowMapArrayFramebuffer, _pointShadowMapArrayRenderTargetTexture] = RenderableHelper.createFrameBufferTextureArray(engine, {
       width: shadowMapSize,
       height: shadowMapSize,
@@ -67,7 +67,7 @@ var _ShadowSystem = class _ShadowSystem {
       format: PixelFormat.RGBA,
       type: ComponentType.Float
     });
-    this.Eo = pointShadowMapArrayFramebuffer;
+    this.Mo = pointShadowMapArrayFramebuffer;
   }
   /**
    * Generates rendering expressions for shadow mapping based on the provided entities and active lights.
@@ -77,24 +77,24 @@ var _ShadowSystem = class _ShadowSystem {
    */
   getExpressions(entities, additionalMaterials = [], raymarchingShadowPassProvider) {
     var _a, _b, _c, _d;
-    this.Lo = raymarchingShadowPassProvider;
+    this.To = raymarchingShadowPassProvider;
     if (this.c.config.maxLightNumber <= 0) {
       return [];
     }
-    this.No(entities);
-    this.Oo(entities);
-    const shadowCasters = entities.filter(_ShadowSystem.Co);
+    this.Vo(entities);
+    this.Wo(entities);
+    const shadowCasters = entities.filter(_ShadowSystem.Ko);
     const expressions = [];
     const depthTextureIndexList = new Array(this.c.config.maxLightNumber).fill(-1);
     const pointLightFarPlaneList = new Array(this.c.config.maxLightNumber).fill(1e3);
     let depthTextureCount = 0;
     let pointDepthTextureCount = 0;
     const lightComponents = this.c.componentRepository.getComponentsWithType(LightComponent);
-    this.po.length = lightComponents.length;
-    this.to.length = lightComponents.length;
-    this.uo.length = lightComponents.length;
-    this.vo.length = lightComponents.length;
-    this.Uo(
+    this.xo.length = lightComponents.length;
+    this.Bo.length = lightComponents.length;
+    this.Co.length = lightComponents.length;
+    this.Do.length = lightComponents.length;
+    this.ap(
       lightComponents,
       shadowCasters.length > 0 || ((_a = raymarchingShadowPassProvider == null ? void 0 : raymarchingShadowPassProvider.hasCaster()) != null ? _a : false)
     );
@@ -105,18 +105,18 @@ var _ShadowSystem = class _ShadowSystem {
     }
     for (let i = 0; i < lightComponents.length; i++) {
       const lightComponent = lightComponents[i];
-      this.po[i] = lightComponent.type;
-      this.to[i] = lightComponent.enable;
-      this.uo[i] = lightComponent.castShadow;
-      this.vo[i] = lightComponent.componentSID;
+      this.xo[i] = lightComponent.type;
+      this.Bo[i] = lightComponent.enable;
+      this.Co[i] = lightComponent.castShadow;
+      this.Do[i] = lightComponent.componentSID;
       const shadowSlot = lightComponent._shadowSlot;
       if (shadowSlot < 0) {
         continue;
       }
       if (lightComponent.type === LightType.Point) {
-        const farPlane = this.Po(lightComponent, entities);
+        const farPlane = this.Xo(lightComponent, entities);
         const shadowMapExpression = new Expression();
-        const pointShadowMapRenderPasses = this.mo.getRenderPasses(
+        const pointShadowMapRenderPasses = this.uo.getRenderPasses(
           shadowCasters,
           lightComponent.entity,
           shadowSlot,
@@ -125,7 +125,7 @@ var _ShadowSystem = class _ShadowSystem {
         const frontCasterPasses = (_b = raymarchingShadowPassProvider == null ? void 0 : raymarchingShadowPassProvider.createPasses({
           lightComponent,
           lightEntity: lightComponent.entity,
-          framebuffer: this.mo.getShadowMomentFramebuffer(),
+          framebuffer: this.uo.getShadowMomentFramebuffer(),
           kind: "paraboloidFront",
           shadowSlot,
           farPlane
@@ -133,7 +133,7 @@ var _ShadowSystem = class _ShadowSystem {
         const backCasterPasses = (_c = raymarchingShadowPassProvider == null ? void 0 : raymarchingShadowPassProvider.createPasses({
           lightComponent,
           lightEntity: lightComponent.entity,
-          framebuffer: this.mo.getShadowMomentFramebuffer(),
+          framebuffer: this.uo.getShadowMomentFramebuffer(),
           kind: "paraboloidBack",
           shadowSlot,
           farPlane
@@ -149,8 +149,8 @@ var _ShadowSystem = class _ShadowSystem {
           blurExpression: blurExpressionPointLight,
           blurredRenderTarget: blurredRenderTargetPointLight,
           renderPassesBlurred: _renderPassesBlurredPointLight
-        } = this.so.createGaussianBlurExpression({
-          textureToBlur: this.mo.getShadowMomentFramebuffer().getColorAttachedRenderTargetTexture(0),
+        } = this.Ao.createGaussianBlurExpression({
+          textureToBlur: this.uo.getShadowMomentFramebuffer().getColorAttachedRenderTargetTexture(0),
           parameters: {
             blurPassLevel: 3,
             gaussianKernelSize: 5,
@@ -158,25 +158,25 @@ var _ShadowSystem = class _ShadowSystem {
             synthesizeCoefficient: [1 / 4, 1 / 4, 1 / 4, 1 / 4, 1 / 4, 1 / 4],
             isReduceBuffer: true,
             textureFormat: TextureFormat.RGBA16F,
-            outputFrameBuffer: this.Eo,
+            outputFrameBuffer: this.Mo,
             outputFrameBufferLayerIndex: pointDepthTextureCount
           }
         });
-        this.Vo(blurredRenderTargetPointLight, entities, additionalMaterials);
+        this.bp(blurredRenderTargetPointLight, entities, additionalMaterials);
         expressions.push(blurExpressionPointLight);
         depthTextureIndexList[shadowSlot] = pointDepthTextureCount;
         pointLightFarPlaneList[shadowSlot] = farPlane;
         pointDepthTextureCount++;
       } else if (lightComponent.type === LightType.Spot || lightComponent.type === LightType.Directional) {
         const shadowMapExpression = new Expression();
-        const shadowMapRenderPasses = this.oo.getRenderPasses(
+        const shadowMapRenderPasses = this.wo.getRenderPasses(
           shadowCasters,
           lightComponent.entity
         );
         const casterPasses = (_d = raymarchingShadowPassProvider == null ? void 0 : raymarchingShadowPassProvider.createPasses({
           lightComponent,
           lightEntity: lightComponent.entity,
-          framebuffer: this.oo.getShadowMomentFramebuffer(),
+          framebuffer: this.wo.getShadowMomentFramebuffer(),
           kind: "regular",
           shadowSlot
         })) != null ? _d : [];
@@ -186,8 +186,8 @@ var _ShadowSystem = class _ShadowSystem {
           blurExpression: blurExpressionSpotLight,
           blurredRenderTarget: blurredRenderTargetSpotLight,
           renderPassesBlurred: _renderPassesBlurredSpotLight
-        } = this.so.createGaussianBlurExpression({
-          textureToBlur: this.oo.getShadowMomentFramebuffer().getColorAttachedRenderTargetTexture(0),
+        } = this.Ao.createGaussianBlurExpression({
+          textureToBlur: this.wo.getShadowMomentFramebuffer().getColorAttachedRenderTargetTexture(0),
           parameters: {
             blurPassLevel: 3,
             gaussianKernelSize: 5,
@@ -195,20 +195,20 @@ var _ShadowSystem = class _ShadowSystem {
             synthesizeCoefficient: [1 / 4, 1 / 4, 1 / 4, 1 / 4, 1 / 4, 1 / 4],
             isReduceBuffer: true,
             textureFormat: TextureFormat.RG16F,
-            outputFrameBuffer: this.Do,
+            outputFrameBuffer: this.Lo,
             outputFrameBufferLayerIndex: depthTextureCount
           }
         });
-        this.Wo(blurredRenderTargetSpotLight, entities, additionalMaterials);
+        this.cp(blurredRenderTargetSpotLight, entities, additionalMaterials);
         expressions.push(blurExpressionSpotLight);
         depthTextureIndexList[shadowSlot] = depthTextureCount;
         depthTextureCount++;
       }
     }
-    this.Bo = depthTextureIndexList;
-    this.Xo(entities, depthTextureIndexList, additionalMaterials);
-    this.no = pointLightFarPlaneList;
-    this.Qo(entities, pointLightFarPlaneList, additionalMaterials);
+    this.Jo = depthTextureIndexList;
+    this.dp(entities, depthTextureIndexList, additionalMaterials);
+    this.vo = pointLightFarPlaneList;
+    this.Yo(entities, pointLightFarPlaneList, additionalMaterials);
     return expressions;
   }
   /**
@@ -221,7 +221,7 @@ var _ShadowSystem = class _ShadowSystem {
    * @param lightComponents - The live light components
    * @param hasShadowCasters - Whether any entity is rendered to the shadow maps
    */
-  Uo(lightComponents, hasShadowCasters) {
+  ap(lightComponents, hasShadowCasters) {
     const maxLightNumber = this.c.config.maxLightNumber;
     const isSlotUsed = new Array(maxLightNumber).fill(false);
     const castsShadow = (lightComponent) => (
@@ -244,11 +244,11 @@ var _ShadowSystem = class _ShadowSystem {
       }
       const freeSlot = isSlotUsed.indexOf(false);
       if (freeSlot < 0) {
-        if (!this.Fo) {
+        if (!this.No) {
           Logger.default.warn(
             `ShadowSystem: More than Config.maxLightNumber (${maxLightNumber}) lights cast shadows. The other lights do not cast shadows.`
           );
-          this.Fo = true;
+          this.No = true;
         }
         continue;
       }
@@ -263,7 +263,7 @@ var _ShadowSystem = class _ShadowSystem {
    * @param entities - Array of scene graph entities to apply the shadow map to
    * @private
    */
-  Wo(blurredRenderTarget, entities, additionalMaterials = []) {
+  cp(blurredRenderTarget, entities, additionalMaterials = []) {
     const sampler = new Sampler(this.c, {
       minFilter: TextureParameter.Linear,
       magFilter: TextureParameter.Linear,
@@ -283,7 +283,7 @@ var _ShadowSystem = class _ShadowSystem {
     for (const material of additionalMaterials) {
       material.setTextureParameter("depthTexture", blurredRenderTarget, sampler);
     }
-    this.qo = { texture: blurredRenderTarget, sampler };
+    this.yo = { texture: blurredRenderTarget, sampler };
   }
   /**
    * Sets the blurred paraboloid shadow map texture for point lights on all entity materials.
@@ -293,7 +293,7 @@ var _ShadowSystem = class _ShadowSystem {
    * @param entities - Array of scene graph entities to apply the shadow map to
    * @private
    */
-  Vo(blurredRenderTarget, entities, additionalMaterials = []) {
+  bp(blurredRenderTarget, entities, additionalMaterials = []) {
     const sampler = new Sampler(this.c, {
       minFilter: TextureParameter.Linear,
       magFilter: TextureParameter.Linear,
@@ -315,7 +315,7 @@ var _ShadowSystem = class _ShadowSystem {
       material.setTextureParameter("paraboloidDepthTexture", blurredRenderTarget, sampler);
       material.setParameter("pointLightShadowMapUvScale", 0.93);
     }
-    this.ro = { texture: blurredRenderTarget, sampler };
+    this.zo = { texture: blurredRenderTarget, sampler };
   }
   /**
    * Sets the depth texture index list parameter on all entity materials.
@@ -324,7 +324,7 @@ var _ShadowSystem = class _ShadowSystem {
    * @param depthTextureIndexList - Array of indices mapping lights to shadow map textures (-1 for no shadow)
    * @private
    */
-  Xo(entities, depthTextureIndexList, additionalMaterials = []) {
+  dp(entities, depthTextureIndexList, additionalMaterials = []) {
     const indexList = new VectorN(new Int32Array(depthTextureIndexList));
     for (const entity of entities) {
       const meshComponent = entity.tryToGetMesh();
@@ -351,7 +351,7 @@ var _ShadowSystem = class _ShadowSystem {
    * @param lightComponent - The point light component
    * @param entities - The entities in the scene (used for the automatic far plane)
    */
-  Po(lightComponent, entities) {
+  Xo(lightComponent, entities) {
     const explicitFarPlane = lightComponent.pointLightShadowFarPlane;
     if (explicitFarPlane > 0) {
       return explicitFarPlane;
@@ -359,7 +359,7 @@ var _ShadowSystem = class _ShadowSystem {
     if (lightComponent.range > 0) {
       return lightComponent.range;
     }
-    const sceneFarPlane = this.Yo(lightComponent, entities);
+    const sceneFarPlane = this.ep(lightComponent, entities);
     const effectiveRange = lightComponent._lightPropertyForGpu._v[1];
     if (effectiveRange > 0) {
       return Math.min(sceneFarPlane, effectiveRange);
@@ -377,7 +377,7 @@ var _ShadowSystem = class _ShadowSystem {
    * @param entities - The entities in the scene
    * @private
    */
-  Yo(lightComponent, entities) {
+  ep(lightComponent, entities) {
     const lightPositionArray = lightComponent._lightPositionForGpu._v;
     const lightPosition = {
       x: lightPositionArray[0],
@@ -386,7 +386,7 @@ var _ShadowSystem = class _ShadowSystem {
     };
     let farthestDistanceSquared = 0;
     const receivers = entities.filter(
-      (entity) => _ShadowSystem.Co(entity) && !_ShadowSystem.Ro(entity)
+      (entity) => _ShadowSystem.Ko(entity) && !_ShadowSystem.Zo(entity)
     );
     for (const entity of receivers) {
       const sceneGraph = entity.getSceneGraph();
@@ -457,12 +457,12 @@ var _ShadowSystem = class _ShadowSystem {
     const maxLightNumber = this.c.config.maxLightNumber;
     const newList = new Array(maxLightNumber).fill(1e3);
     for (const lightComponent of pointLights) {
-      newList[lightComponent._shadowSlot] = this.Po(lightComponent, entities);
+      newList[lightComponent._shadowSlot] = this.Xo(lightComponent, entities);
     }
-    let changed = this.no.length !== maxLightNumber;
+    let changed = this.vo.length !== maxLightNumber;
     if (!changed) {
       for (let i = 0; i < maxLightNumber; i++) {
-        if (Math.abs(newList[i] - this.no[i]) > 1e-4) {
+        if (Math.abs(newList[i] - this.vo[i]) > 1e-4) {
           changed = true;
           break;
         }
@@ -473,11 +473,11 @@ var _ShadowSystem = class _ShadowSystem {
     }
     for (const lightComponent of pointLights) {
       const shadowSlot = lightComponent._shadowSlot;
-      this.mo.setFarPlane(shadowSlot, newList[shadowSlot]);
-      (_b = (_a = this.Lo) == null ? void 0 : _a.updatePointLightFarPlane) == null ? void 0 : _b.call(_a, shadowSlot, newList[shadowSlot]);
+      this.uo.setFarPlane(shadowSlot, newList[shadowSlot]);
+      (_b = (_a = this.To) == null ? void 0 : _a.updatePointLightFarPlane) == null ? void 0 : _b.call(_a, shadowSlot, newList[shadowSlot]);
     }
-    this.no = newList;
-    this.Qo(entities, newList, additionalMaterials);
+    this.vo = newList;
+    this.Yo(entities, newList, additionalMaterials);
   }
   /**
    * Sets the per-shadow-slot far planes of the paraboloid shadow maps on all entity materials.
@@ -485,7 +485,7 @@ var _ShadowSystem = class _ShadowSystem {
    * @param pointLightFarPlaneList - Far plane of each shadow slot (1000 for slots without a point light)
    * @private
    */
-  Qo(entities, pointLightFarPlaneList, additionalMaterials = []) {
+  Yo(entities, pointLightFarPlaneList, additionalMaterials = []) {
     const farPlaneList = new VectorN(new Float32Array(pointLightFarPlaneList));
     for (const entity of entities) {
       const meshComponent = entity.tryToGetMesh();
@@ -511,7 +511,7 @@ var _ShadowSystem = class _ShadowSystem {
    * @param entities - The entities in the scene
    * @private
    */
-  Oo(entities) {
+  Wo(entities) {
     const lightComponents = this.c.componentRepository.getComponentsWithType(LightComponent);
     const spotLights = lightComponents.filter(
       (lightComponent) => lightComponent.type === LightType.Spot && lightComponent.enable && lightComponent.castShadow
@@ -520,7 +520,7 @@ var _ShadowSystem = class _ShadowSystem {
       return;
     }
     const shadowCasters = entities.filter(
-      (entity) => _ShadowSystem.Co(entity) && !_ShadowSystem.Ro(entity)
+      (entity) => _ShadowSystem.Ko(entity) && !_ShadowSystem.Zo(entity)
     );
     for (const lightComponent of spotLights) {
       const lightPositionArray = lightComponent._lightPositionForGpu._v;
@@ -591,7 +591,7 @@ var _ShadowSystem = class _ShadowSystem {
       lightComponent._setShadowZNearForSpotLightAuto(zNear);
     }
   }
-  static Ro(entity) {
+  static Zo(entity) {
     try {
       const getLight = entity.getLight;
       return typeof getLight === "function" && getLight.call(entity) != null;
@@ -608,21 +608,21 @@ var _ShadowSystem = class _ShadowSystem {
     if (this.c.config.maxLightNumber <= 0) {
       return;
     }
-    this.No(entities);
-    this.Oo(entities);
+    this.Vo(entities);
+    this.Wo(entities);
     this.updatePointLightFarPlanes(entities, additionalMaterials);
     const arrayLength = this.c.config.maxLightNumber * 16;
-    let float32Array = this.Go;
-    let depthBiasPV = this.Ho;
-    let scratch = this.Io;
+    let float32Array = this.Oo;
+    let depthBiasPV = this.Po;
+    let scratch = this.Qo;
     if (float32Array == null || depthBiasPV == null || scratch == null || float32Array.length !== arrayLength) {
       float32Array = new Float32Array(arrayLength);
       depthBiasPV = new VectorN(float32Array);
       scratch = new Float32Array(arrayLength);
-      this.Go = float32Array;
-      this.Ho = depthBiasPV;
-      this.Io = scratch;
-      this.wo++;
+      this.Oo = float32Array;
+      this.Po = depthBiasPV;
+      this.Qo = scratch;
+      this.Eo++;
     } else {
       scratch.fill(0);
     }
@@ -651,12 +651,12 @@ var _ShadowSystem = class _ShadowSystem {
     for (let i = 0; i < arrayLength; i++) {
       if (scratch[i] !== float32Array[i]) {
         float32Array.set(scratch);
-        this.wo++;
+        this.Eo++;
         break;
       }
     }
-    const version = this.wo;
-    const versionOfMaterials = this.To;
+    const version = this.Eo;
+    const versionOfMaterials = this.$o;
     for (let i = 0; i < entities.length; i++) {
       const meshComponent = entities[i].tryToGetMesh();
       const mesh = meshComponent == null ? void 0 : meshComponent.mesh;
@@ -697,29 +697,29 @@ var _ShadowSystem = class _ShadowSystem {
     }
     const indexList = new VectorN(
       new Int32Array(
-        this.Bo.length > 0 ? this.Bo : new Array(this.c.config.maxLightNumber).fill(-1)
+        this.Jo.length > 0 ? this.Jo : new Array(this.c.config.maxLightNumber).fill(-1)
       )
     );
     const farPlaneList = new VectorN(
       new Float32Array(
-        this.no.length > 0 ? this.no : new Array(this.c.config.maxLightNumber).fill(1e3)
+        this.vo.length > 0 ? this.vo : new Array(this.c.config.maxLightNumber).fill(1e3)
       )
     );
     for (const material of materials) {
       material.setParameter("depthTextureIndexList", indexList);
       material.setParameter("pointLightFarPlane", farPlaneList);
-      if (this.qo != null) {
+      if (this.yo != null) {
         material.setTextureParameter(
           "depthTexture",
-          this.qo.texture,
-          this.qo.sampler
+          this.yo.texture,
+          this.yo.sampler
         );
       }
-      if (this.ro != null) {
+      if (this.zo != null) {
         material.setTextureParameter(
           "paraboloidDepthTexture",
-          this.ro.texture,
-          this.ro.sampler
+          this.zo.texture,
+          this.zo.sampler
         );
         material.setParameter("pointLightShadowMapUvScale", 0.93);
       }
@@ -729,15 +729,15 @@ var _ShadowSystem = class _ShadowSystem {
    * Background assets (tagged `type: background-assets`, e.g. the environment cube and the grid
    * in RhodoniteEditor2) do not cast shadows. The shadow volume auto-fit excludes them as well.
    */
-  static Co(entity) {
+  static Ko(entity) {
     return entity.getTagValue("type") !== "background-assets";
   }
-  No(entities) {
+  Vo(entities) {
     const transformUpdateCount = TransformComponent.getUpdateCount(this.c);
-    const raymarchingComponentCount = this.Zo();
+    const raymarchingComponentCount = this.fp();
     const raymarchingAABBVersion = RaymarchingComponent.getAABBVersion(this.c);
-    if (transformUpdateCount === this.xo && entities.length === this.Jo && raymarchingComponentCount === this.Ko && raymarchingAABBVersion === this.yo) {
-      this.So(this.zo);
+    if (transformUpdateCount === this.Fo && entities.length === this.Ro && raymarchingComponentCount === this.So && raymarchingAABBVersion === this.Go) {
+      this._o(this.Ho);
       return;
     }
     const candidates = entities.filter((entity) => {
@@ -762,26 +762,26 @@ var _ShadowSystem = class _ShadowSystem {
       const aabb = entity.getSceneGraph().worldMergedAABBWithSkeletal;
       merged.mergeAABB(aabb);
     }
-    this._o(merged);
+    this.gp(merged);
     if (merged.isVanilla()) {
       return;
     }
-    this.xo = transformUpdateCount;
-    this.Jo = entities.length;
-    this.Ko = raymarchingComponentCount;
-    this.yo = raymarchingAABBVersion;
-    this.zo.copyComponents(merged);
-    this.So(this.zo);
+    this.Fo = transformUpdateCount;
+    this.Ro = entities.length;
+    this.So = raymarchingComponentCount;
+    this.Go = raymarchingAABBVersion;
+    this.Ho.copyComponents(merged);
+    this._o(this.Ho);
   }
   /**
    * Resets the directional/spot shadow volume fitting cache, so the next frame recomputes
    * the volume (including the SDF bounds).
    */
   invalidateShadowVolumeFitting() {
-    this.xo = -1;
-    this.yo = -1;
+    this.Fo = -1;
+    this.Go = -1;
   }
-  Zo() {
+  fp() {
     const components = this.c.componentRepository.getComponentsWithType(
       RaymarchingComponent
     );
@@ -792,7 +792,7 @@ var _ShadowSystem = class _ShadowSystem {
    * The scene graph AABB of an SDF entity already contains the SDF bounds, so the cached
    * merged AABB is used instead of evaluating the graph again.
    */
-  _o(merged) {
+  gp(merged) {
     const components = this.c.componentRepository.getComponentsWithType(
       RaymarchingComponent
     );
@@ -818,7 +818,7 @@ var _ShadowSystem = class _ShadowSystem {
    * keeps the shadow map's world-per-texel small enough for the VSM blur not to wash out
    * the cast shadows, while still covering every caster and receiver.
    */
-  So(bounds) {
+  _o(bounds) {
     const areaMargin = 1.15;
     const nearFarMargin = 1.25;
     const lightComponents = this.c.componentRepository._getComponents(LightComponent);
@@ -833,8 +833,8 @@ var _ShadowSystem = class _ShadowSystem {
       const lightEntity = lightComponent.entity;
       const lightWorldMatrix = lightEntity.getSceneGraph().matrixInner;
       const inverseLightMatrix = Matrix44.invert(lightWorldMatrix);
-      AABB.multiplyMatrixTo(inverseLightMatrix, bounds, _ShadowSystem.Mo);
-      const lightSpaceBounds = _ShadowSystem.Mo;
+      AABB.multiplyMatrixTo(inverseLightMatrix, bounds, _ShadowSystem.Uo);
+      const lightSpaceBounds = _ShadowSystem.Uo;
       const min = lightSpaceBounds.minPoint;
       const max = lightSpaceBounds.maxPoint;
       const depthNear = Math.max(-max.z, 0);
@@ -855,17 +855,17 @@ var _ShadowSystem = class _ShadowSystem {
    * @returns True if any light has changed its type, enable state, or shadow casting state; false otherwise
    */
   isLightChanged() {
-    if (this.Ao) {
-      this.Ao = false;
+    if (this.Io) {
+      this.Io = false;
       return true;
     }
     const lightComponents = this.c.componentRepository.getComponentsWithType(LightComponent);
-    if (this.po.length !== lightComponents.length) {
+    if (this.xo.length !== lightComponents.length) {
       return true;
     }
     for (let i = 0; i < lightComponents.length; i++) {
       const lightComponent = lightComponents[i];
-      if (this.po[i] !== lightComponent.type || this.to[i] !== lightComponent.enable || this.uo[i] !== lightComponent.castShadow || this.vo[i] !== lightComponent.componentSID) {
+      if (this.xo[i] !== lightComponent.type || this.Bo[i] !== lightComponent.enable || this.Co[i] !== lightComponent.castShadow || this.Do[i] !== lightComponent.componentSID) {
         return true;
       }
     }
@@ -876,10 +876,10 @@ var _ShadowSystem = class _ShadowSystem {
    * This is useful when materials with shadow support have been changed or added.
    */
   setNeedsRefresh() {
-    this.Ao = true;
+    this.Io = true;
   }
 };
-_ShadowSystem.Mo = new AABB();
+_ShadowSystem.Uo = new AABB();
 var ShadowSystem = _ShadowSystem;
 export {
   ShadowSystem

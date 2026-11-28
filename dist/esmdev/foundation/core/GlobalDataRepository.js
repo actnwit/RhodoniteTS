@@ -12,7 +12,7 @@ import { VectorN } from "../math/VectorN.js";
 import { getLightClusterGlobalPropertyLength } from "../renderer/lightCluster/LightClusterLayout.js";
 var GlobalDataRepository = class _GlobalDataRepository {
   constructor(engine) {
-    this.Wi = /* @__PURE__ */ new Map();
+    this.bj = /* @__PURE__ */ new Map();
     this.c = engine;
   }
   /**
@@ -36,7 +36,7 @@ var GlobalDataRepository = class _GlobalDataRepository {
       needUniformInDataTextureMode: true,
       initialValue: new VectorN(new Float32Array(WellKnownComponentTIDs.maxWellKnownTidNumber))
     };
-    this.Xi(currentComponentSIDsInfo, 1);
+    this.cj(currentComponentSIDsInfo, 1);
     this.takeOne("currentComponentSIDs");
     const skeletalComponentSIDInfo = {
       semantic: "skinningMode",
@@ -48,7 +48,7 @@ var GlobalDataRepository = class _GlobalDataRepository {
       isInternalSetting: true,
       initialValue: Scalar.fromCopyNumber(-1)
     };
-    this.Xi(skeletalComponentSIDInfo, 1);
+    this.cj(skeletalComponentSIDInfo, 1);
     this.takeOne("skinningMode");
     const lightNumberInfo = {
       semantic: "lightNumber",
@@ -60,7 +60,7 @@ var GlobalDataRepository = class _GlobalDataRepository {
       isInternalSetting: true,
       initialValue: Scalar.fromCopyNumber(0)
     };
-    this.Xi(lightNumberInfo, 1);
+    this.cj(lightNumberInfo, 1);
     this.takeOne("lightNumber");
     const clusteredLightDataLength = getLightClusterGlobalPropertyLength(this.c.config.maxLightListLength);
     const clusteredLightDataInfo = {
@@ -74,7 +74,7 @@ var GlobalDataRepository = class _GlobalDataRepository {
       isInternalSetting: true,
       initialValue: new VectorN(new Float32Array(clusteredLightDataLength * 4))
     };
-    this.Xi(clusteredLightDataInfo, 1);
+    this.cj(clusteredLightDataInfo, 1);
     this.takeOne("clusteredLightData");
     const backBufferTextureSize = {
       semantic: "backBufferTextureSize",
@@ -87,7 +87,7 @@ var GlobalDataRepository = class _GlobalDataRepository {
       needUniformInDataTextureMode: true,
       initialValue: Vector2.fromCopy2(0, 0)
     };
-    this.Xi(backBufferTextureSize, 1);
+    this.cj(backBufferTextureSize, 1);
     this.takeOne("backBufferTextureSize");
     const vrState = {
       semantic: "vrState",
@@ -102,7 +102,7 @@ var GlobalDataRepository = class _GlobalDataRepository {
       // x: 0: not vr, 1: vr
       // y: 0: left eye, 1: right eye
     };
-    this.Xi(vrState, 1);
+    this.cj(vrState, 1);
     this.takeOne("vrState");
     const timeInfo = {
       semantic: "time",
@@ -114,7 +114,7 @@ var GlobalDataRepository = class _GlobalDataRepository {
       isInternalSetting: true,
       initialValue: Scalar.fromCopyNumber(0)
     };
-    this.Xi(timeInfo, 1);
+    this.cj(timeInfo, 1);
     this.takeOne("time");
   }
   /**
@@ -134,7 +134,7 @@ var GlobalDataRepository = class _GlobalDataRepository {
    * @param maxCount - The maximum number of instances this property can have
    * @private
    */
-  Xi(semanticInfo, maxCount) {
+  cj(semanticInfo, maxCount) {
     const alignedByteLength = calcAlignedByteLength(semanticInfo);
     let bufferViewResult;
     let requireBufferLayerIndex = 0;
@@ -165,7 +165,7 @@ var GlobalDataRepository = class _GlobalDataRepository {
       maxCount,
       accessor
     };
-    this.Wi.set(semanticInfo.semantic, globalPropertyStruct);
+    this.bj.set(semanticInfo.semantic, globalPropertyStruct);
   }
   /**
    * Allocates and returns a new instance of the specified global property.
@@ -175,7 +175,7 @@ var GlobalDataRepository = class _GlobalDataRepository {
    * @returns The newly allocated property value object, or undefined if the property doesn't exist
    */
   takeOne(shaderSemantic) {
-    const globalPropertyStruct = this.Wi.get(shaderSemantic);
+    const globalPropertyStruct = this.bj.get(shaderSemantic);
     if (globalPropertyStruct) {
       const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
       const typedArray = globalPropertyStruct.accessor.takeOne();
@@ -195,7 +195,7 @@ var GlobalDataRepository = class _GlobalDataRepository {
    * @param value - The new value to set for this property instance
    */
   setValue(shaderSemantic, countIndex, value) {
-    const globalPropertyStruct = this.Wi.get(shaderSemantic);
+    const globalPropertyStruct = this.bj.get(shaderSemantic);
     if (globalPropertyStruct) {
       const valueObj = globalPropertyStruct.values[countIndex];
       MathClassUtil._setForce(valueObj, value);
@@ -209,7 +209,7 @@ var GlobalDataRepository = class _GlobalDataRepository {
    * @returns The value object for the specified property instance, or undefined if not found
    */
   getValue(shaderSemantic, countIndex) {
-    const globalPropertyStruct = this.Wi.get(shaderSemantic);
+    const globalPropertyStruct = this.bj.get(shaderSemantic);
     if (globalPropertyStruct) {
       const valueObj = globalPropertyStruct.values[countIndex];
       return valueObj;
@@ -222,7 +222,7 @@ var GlobalDataRepository = class _GlobalDataRepository {
    */
   getPropertyTable() {
     const table = [];
-    this.Wi.forEach((globalPropertyStruct, semantic) => {
+    this.bj.forEach((globalPropertyStruct, semantic) => {
       table.push({
         semantic,
         info: globalPropertyStruct.shaderSemanticsInfo,
@@ -243,7 +243,7 @@ var GlobalDataRepository = class _GlobalDataRepository {
   _setUniformLocationsForWebGL2ModeOnly(shaderProgramUid) {
     const webglResourceRepository = this.c.webglResourceRepository;
     const semanticsInfoArray = [];
-    this.Wi.forEach((globalPropertyStruct) => {
+    this.bj.forEach((globalPropertyStruct) => {
       const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
       if (semanticInfo.needUniformInDataTextureMode) {
         semanticsInfoArray.push(semanticInfo);
@@ -267,7 +267,7 @@ var GlobalDataRepository = class _GlobalDataRepository {
    * @returns The offset in 16-byte units, or -1 if the property is not found
    */
   getLocationOffsetOfProperty(propertyName) {
-    const globalPropertyStruct = this.Wi.get(propertyName);
+    const globalPropertyStruct = this.bj.get(propertyName);
     if (globalPropertyStruct) {
       const accessor = globalPropertyStruct.accessor;
       const byteOffsetOfExistingBuffers = this.c.memoryManager.getByteOffsetOfExistingBuffers(
@@ -292,7 +292,7 @@ var GlobalDataRepository = class _GlobalDataRepository {
    * @internal
    */
   _addPropertiesStr(vertexPropertiesStr, pixelPropertiesStr, propertySetter) {
-    this.Wi.forEach((globalPropertyStruct) => {
+    this.bj.forEach((globalPropertyStruct) => {
       const info = globalPropertyStruct.shaderSemanticsInfo;
       if (info.stage === ShaderType.VertexShader || info.stage === ShaderType.VertexAndPixelShader) {
         vertexPropertiesStr += propertySetter(this.c, info);

@@ -6,15 +6,15 @@ var SimpleVertexAttribute = class {
    * @param accessor - The accessor that provides access to the underlying vertex data
    */
   constructor(semanticAttribute, accessor) {
-    this.tk = semanticAttribute;
-    this.Zl = accessor;
+    this.Ak = semanticAttribute;
+    this.em = accessor;
   }
   /**
    * Gets the semantic type of this vertex attribute.
    * @returns The vertex attribute semantic enum value
    */
   get semantic() {
-    return this.tk;
+    return this.Ak;
   }
   /**
    * Retrieves a scalar value at the specified index as a single-element array.
@@ -23,7 +23,7 @@ var SimpleVertexAttribute = class {
    * @returns A single-element array containing the scalar value
    */
   getScalarAsArray(i, option) {
-    return [this.Zl.getScalar(i, option)];
+    return [this.em.getScalar(i, option)];
   }
   /**
    * Retrieves a 2-component vector value at the specified index as an array.
@@ -32,7 +32,7 @@ var SimpleVertexAttribute = class {
    * @returns A 2-element array containing the vector components [x, y]
    */
   getVec2AsArray(i, option) {
-    return this.Zl.getVec2AsArray(i, option);
+    return this.em.getVec2AsArray(i, option);
   }
   /**
    * Retrieves a 3-component vector value at the specified index as an array.
@@ -41,7 +41,7 @@ var SimpleVertexAttribute = class {
    * @returns A 3-element array containing the vector components [x, y, z]
    */
   getVec3AsArray(i, option) {
-    return this.Zl.getVec3AsArray(i, option);
+    return this.em.getVec3AsArray(i, option);
   }
   /**
    * Retrieves a 4-component vector value at the specified index as an array.
@@ -50,7 +50,7 @@ var SimpleVertexAttribute = class {
    * @returns A 4-element array containing the vector components [x, y, z, w]
    */
   getVec4AsArray(i, option) {
-    return this.Zl.getVec4AsArray(i, option);
+    return this.em.getVec4AsArray(i, option);
   }
 };
 export {

@@ -7,8 +7,8 @@ import { ComponentRepository } from "./ComponentRepository.js";
 import { Entity } from "./Entity.js";
 var _EntityRepository = class _EntityRepository {
   constructor(engine) {
-    this.Vi = Entity.invalidEntityUID;
-    this.Si = [];
+    this.aj = Entity.invalidEntityUID;
+    this.Zi = [];
     this._components = [];
     this.c = engine;
   }
@@ -29,19 +29,19 @@ var _EntityRepository = class _EntityRepository {
    */
   createEntity() {
     let deadUid = -1;
-    for (let i = 0; i < this.Si.length; i++) {
-      if (this.Si[i] == null) {
+    for (let i = 0; i < this.Zi.length; i++) {
+      if (this.Zi[i] == null) {
         deadUid = i;
       }
     }
     let entityUid = -1;
     if (deadUid === -1) {
-      entityUid = ++this.Vi;
+      entityUid = ++this.aj;
     } else {
       entityUid = deadUid;
     }
     const entity = new Entity(this.c, entityUid, true);
-    this.Si[entityUid] = entity;
+    this.Zi[entityUid] = entity;
     _EntityRepository.ia++;
     return entity;
   }
@@ -75,8 +75,8 @@ var _EntityRepository = class _EntityRepository {
       }
       this.c.componentRepository.deleteComponent(component);
     }
-    (_a = this.Si[entityUid]) == null ? void 0 : _a._destroy();
-    delete this.Si[entityUid];
+    (_a = this.Zi[entityUid]) == null ? void 0 : _a._destroy();
+    delete this.Zi[entityUid];
     delete this._components[entityUid];
     _EntityRepository.ia++;
   }
@@ -135,8 +135,8 @@ var _EntityRepository = class _EntityRepository {
    */
   shallowCopyEntity(entity) {
     const newEntity = this._shallowCopyEntityInner(entity);
-    this.Ti(entity);
-    this.Ui(newEntity);
+    this._i(entity);
+    this.$i(newEntity);
     return newEntity;
   }
   /**
@@ -150,7 +150,7 @@ var _EntityRepository = class _EntityRepository {
    * @internal
    * @param entity - The original entity whose joints need to be set up in the copy
    */
-  Ti(entity) {
+  _i(entity) {
     const newEntity = this.getEntity(entity._myLatestCopyEntityUID);
     if (Is.not.exist(newEntity)) {
       return;
@@ -188,7 +188,7 @@ var _EntityRepository = class _EntityRepository {
     const sceneGraph = entity.tryToGetSceneGraph();
     if (Is.exist(sceneGraph)) {
       sceneGraph.children.forEach((child) => {
-        this.Ti(child.entity);
+        this._i(child.entity);
       });
     }
   }
@@ -230,7 +230,7 @@ var _EntityRepository = class _EntityRepository {
    * @internal
    * @param newEntity - The newly copied entity whose tag data needs processing
    */
-  Ui(newEntity) {
+  $i(newEntity) {
     const tags = newEntity._tags;
     if (Is.exist(tags)) {
       const tagKeys = Object.keys(tags);
@@ -261,7 +261,7 @@ var _EntityRepository = class _EntityRepository {
     const sceneGraph = newEntity.tryToGetSceneGraph();
     if (Is.exist(sceneGraph)) {
       sceneGraph.children.forEach((child) => {
-        this.Ui(child.entity);
+        this.$i(child.entity);
       });
     }
   }
@@ -406,7 +406,7 @@ var _EntityRepository = class _EntityRepository {
    * @throws Will throw if the entity with the given UID does not exist
    */
   getEntity(entityUid) {
-    return this.Si[entityUid];
+    return this.Zi[entityUid];
   }
   /**
    * Retrieves a specific component from an entity.
@@ -462,7 +462,7 @@ var _EntityRepository = class _EntityRepository {
    */
   searchByTags(tags) {
     const matchEntities = [];
-    for (const entity of this.Si) {
+    for (const entity of this.Zi) {
       if (entity == null ? void 0 : entity.matchTags(tags)) {
         matchEntities.push(entity);
       }
@@ -488,7 +488,7 @@ var _EntityRepository = class _EntityRepository {
    * ```
    */
   getEntityByUniqueName(uniqueName) {
-    for (const entity of this.Si) {
+    for (const entity of this.Zi) {
       if (entity != null && entity.uniqueName === uniqueName) {
         return entity;
       }
@@ -507,7 +507,7 @@ var _EntityRepository = class _EntityRepository {
    * @returns Array of all alive entities
    */
   _getEntities() {
-    return this.Si.filter((entity) => entity != null && entity._isAlive);
+    return this.Zi.filter((entity) => entity != null && entity._isAlive);
   }
   /**
    * Gets the total count of currently alive entities.
@@ -524,7 +524,7 @@ var _EntityRepository = class _EntityRepository {
    * ```
    */
   getEntitiesNumber() {
-    const entities = this.Si.filter((entity) => entity != null && entity._isAlive);
+    const entities = this.Zi.filter((entity) => entity != null && entity._isAlive);
     return entities.length;
   }
   /**

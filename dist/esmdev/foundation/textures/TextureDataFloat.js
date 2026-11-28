@@ -7,10 +7,10 @@ var TextureDataFloat = class _TextureDataFloat {
    * @param channels - The number of channels per pixel (e.g., 3 for RGB, 4 for RGBA)
    */
   constructor(width, height, channels) {
-    this.UB = channels;
-    this.dm = width;
-    this.Dy = height;
-    this.VB = new Float32Array(width * height * channels);
+    this.xC = channels;
+    this.km = width;
+    this.iy = height;
+    this.yC = new Float32Array(width * height * channels);
   }
   /**
    * Resizes the texture data to new dimensions and channel count.
@@ -20,10 +20,10 @@ var TextureDataFloat = class _TextureDataFloat {
    * @param channels - The new number of channels per pixel
    */
   resize(width, height, channels) {
-    this.dm = width;
-    this.Dy = height;
-    this.UB = channels;
-    this.VB = new Float32Array(_TextureDataFloat.transfer(this.VB.buffer, width * height * channels * 4));
+    this.km = width;
+    this.iy = height;
+    this.xC = channels;
+    this.yC = new Float32Array(_TextureDataFloat.transfer(this.yC.buffer, width * height * channels * 4));
   }
   /**
    * Sets the value of a specific channel at the given pixel coordinates.
@@ -33,28 +33,28 @@ var TextureDataFloat = class _TextureDataFloat {
    * @param value - The floating-point value to set for the channel
    */
   setPixelAtChannel(x, y, channelIdx, value) {
-    this.VB[y * this.dm * this.UB + x * this.UB + channelIdx] = value;
+    this.yC[y * this.km * this.xC + x * this.xC + channelIdx] = value;
   }
   /**
    * Gets the width of the texture in pixels.
    * @returns The width of the texture
    */
   get width() {
-    return this.dm;
+    return this.km;
   }
   /**
    * Gets the height of the texture in pixels.
    * @returns The height of the texture
    */
   get height() {
-    return this.Dy;
+    return this.iy;
   }
   /**
    * Gets the underlying Float32Array containing the texture data.
    * @returns The raw texture data as Float32Array
    */
   get data() {
-    return this.VB;
+    return this.yC;
   }
   /**
    * Gets the value of a specific channel at the given pixel coordinates.
@@ -64,7 +64,7 @@ var TextureDataFloat = class _TextureDataFloat {
    * @returns The floating-point value of the specified channel
    */
   getPixel(x, y, channelIdx) {
-    return this.VB[y * this.dm * this.UB + x * this.UB + channelIdx];
+    return this.yC[y * this.km * this.xC + x * this.xC + channelIdx];
   }
   /**
    * Gets pixel data as a color object (ColorRgb or ColorRgba) at the specified coordinates.
@@ -78,19 +78,19 @@ var TextureDataFloat = class _TextureDataFloat {
     if (channels === 3) {
       return new typeClass(
         new Float32Array([
-          this.VB[y * this.dm * this.UB + x * this.UB + 0],
-          this.VB[y * this.dm * this.UB + x * this.UB + 1],
-          this.VB[y * this.dm * this.UB + x * this.UB + 2]
+          this.yC[y * this.km * this.xC + x * this.xC + 0],
+          this.yC[y * this.km * this.xC + x * this.xC + 1],
+          this.yC[y * this.km * this.xC + x * this.xC + 2]
         ])
       );
     }
     if (channels === 4) {
       return new typeClass(
         new Float32Array([
-          this.VB[y * this.dm * this.UB + x * this.UB + 0],
-          this.VB[y * this.dm * this.UB + x * this.UB + 1],
-          this.VB[y * this.dm * this.UB + x * this.UB + 2],
-          this.VB[y * this.dm * this.UB + x * this.UB + 3]
+          this.yC[y * this.km * this.xC + x * this.xC + 0],
+          this.yC[y * this.km * this.xC + x * this.xC + 1],
+          this.yC[y * this.km * this.xC + x * this.xC + 2],
+          this.yC[y * this.km * this.xC + x * this.xC + 3]
         ])
       );
     }
@@ -103,8 +103,8 @@ var TextureDataFloat = class _TextureDataFloat {
    */
   getPixelAsArray(x, y) {
     const array = [];
-    for (let i = 0; i < this.UB; i++) {
-      array.push(this.VB[y * this.dm * this.UB + x * this.UB + i]);
+    for (let i = 0; i < this.xC; i++) {
+      array.push(this.yC[y * this.km * this.xC + x * this.xC + i]);
     }
     return array;
   }
@@ -116,10 +116,10 @@ var TextureDataFloat = class _TextureDataFloat {
    * @param channels - The number of channels per pixel
    */
   initialize(width, height, channels) {
-    this.dm = width;
-    this.Dy = height;
-    this.UB = channels;
-    this.VB = new Float32Array(width * height * channels);
+    this.km = width;
+    this.iy = height;
+    this.xC = channels;
+    this.yC = new Float32Array(width * height * channels);
   }
   /**
    * Transfers data from a source ArrayBuffer to a new ArrayBuffer with the specified length.

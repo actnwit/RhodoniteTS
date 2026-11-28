@@ -7,12 +7,12 @@ var _Joint = class _Joint extends IShape {
   constructor() {
     super(...arguments);
     /** The world position of this joint (the starting point of the arrow) */
-    this.$l = Vector3.fromCopyArray3([0, 0, 1]);
+    this.gm = Vector3.fromCopyArray3([0, 0, 1]);
     /** The world position of the parent joint (the ending point of the arrow) */
-    this.am = Vector3.fromCopyArray3([0, 0, 0]);
+    this.hm = Vector3.fromCopyArray3([0, 0, 0]);
     /** The width of the arrow shape */
-    this.dm = 1;
-    this.gm = new Float32Array(_Joint.fm * 2 * _Joint.bm);
+    this.km = 1;
+    this.nm = new Float32Array(_Joint.mm * 2 * _Joint.im);
   }
   /**
    * Generates a 3D joint visualization as an arrow-like shape connecting two points.
@@ -29,14 +29,14 @@ var _Joint = class _Joint extends IShape {
    * All rendered as line segments for wireframe visualization
    */
   generate(desc) {
-    const positions = this.em();
+    const positions = this.lm();
     this.copyVertexData({
       attributes: [positions],
       attributeSemantics: [VertexAttribute.Position.XYZ],
       primitiveMode: PrimitiveMode.Lines,
       material: desc == null ? void 0 : desc.material
     });
-    this.cm = this.getAttribute(VertexAttribute.Position.XYZ);
+    this.jm = this.getAttribute(VertexAttribute.Position.XYZ);
   }
   /**
    * Updates the joint geometry to connect the specified world positions.
@@ -45,38 +45,38 @@ var _Joint = class _Joint extends IShape {
    * @param width - optional width override for the joint visualization
    */
   setWorldPositions(worldPositionOfThisJoint, worldPositionOfParentJoint, width) {
-    this.$l = Vector3.fromCopyVector3(worldPositionOfThisJoint);
-    this.am = Vector3.fromCopyVector3(worldPositionOfParentJoint);
+    this.gm = Vector3.fromCopyVector3(worldPositionOfThisJoint);
+    this.hm = Vector3.fromCopyVector3(worldPositionOfParentJoint);
     if (width !== void 0) {
-      this.dm = width;
+      this.km = width;
     }
-    this.hm();
+    this.om();
   }
-  hm() {
-    if (this.cm == null) {
+  om() {
+    if (this.jm == null) {
       return;
     }
-    const positions = this.em();
-    const vertexCount = positions.length / _Joint.bm;
+    const positions = this.lm();
+    const vertexCount = positions.length / _Joint.im;
     for (let i = 0; i < vertexCount; i++) {
-      const baseIndex = i * _Joint.bm;
-      this.cm.setVec3(i, positions[baseIndex], positions[baseIndex + 1], positions[baseIndex + 2], {});
+      const baseIndex = i * _Joint.im;
+      this.jm.setVec3(i, positions[baseIndex], positions[baseIndex + 1], positions[baseIndex + 2], {});
     }
   }
-  em() {
-    const length = Vector3.lengthBtw(this.$l, this.am);
-    const arrowWidth = this.dm;
+  lm() {
+    const length = Vector3.lengthBtw(this.gm, this.hm);
+    const arrowWidth = this.km;
     const arrowheadLength = length / 7.5;
     const arrowStickLength = length - arrowheadLength;
-    const deltaVec = Vector3.subtract(this.am, this.$l);
+    const deltaVec = Vector3.subtract(this.hm, this.gm);
     let directionToParent = Vector3.fromCopyArray3([0, 1, 0]);
     if (!deltaVec.isEqual(Vector3.zero())) {
       directionToParent = Vector3.normalize(
-        Vector3.subtract(this.am, this.$l)
+        Vector3.subtract(this.hm, this.gm)
       );
     }
     const arrowStickPosition = Vector3.add(
-      this.$l,
+      this.gm,
       Vector3.multiply(directionToParent, arrowStickLength)
     );
     let dummyVector = Vector3.fromCopyArray3([0, 1, 0]);
@@ -103,7 +103,7 @@ var _Joint = class _Joint extends IShape {
     const crossPosition2 = Vector3.add(arrowStickPosition, crossVector2);
     const crossPosition3 = Vector3.add(arrowStickPosition, crossVector3);
     const crossPosition4 = Vector3.add(arrowStickPosition, crossVector4);
-    const buffer = this.gm;
+    const buffer = this.nm;
     let offset = 0;
     const writeVector = (vec) => {
       buffer[offset++] = vec.x;
@@ -114,23 +114,23 @@ var _Joint = class _Joint extends IShape {
       writeVector(start);
       writeVector(end);
     };
-    writeLine(this.$l, crossPosition);
-    writeLine(this.$l, crossPosition2);
-    writeLine(this.$l, crossPosition3);
-    writeLine(this.$l, crossPosition4);
+    writeLine(this.gm, crossPosition);
+    writeLine(this.gm, crossPosition2);
+    writeLine(this.gm, crossPosition3);
+    writeLine(this.gm, crossPosition4);
     writeLine(crossPosition, crossPosition2);
     writeLine(crossPosition2, crossPosition3);
     writeLine(crossPosition3, crossPosition4);
     writeLine(crossPosition4, crossPosition);
-    writeLine(this.am, crossPosition);
-    writeLine(this.am, crossPosition2);
-    writeLine(this.am, crossPosition3);
-    writeLine(this.am, crossPosition4);
+    writeLine(this.hm, crossPosition);
+    writeLine(this.hm, crossPosition2);
+    writeLine(this.hm, crossPosition3);
+    writeLine(this.hm, crossPosition4);
     return buffer;
   }
 };
-_Joint.fm = 12;
-_Joint.bm = 3;
+_Joint.mm = 12;
+_Joint.im = 3;
 var Joint = _Joint;
 export {
   Joint

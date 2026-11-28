@@ -2,12 +2,12 @@
 import { Vector3 } from "../math/index.js";
 var PhysicsWorldQuery = class _PhysicsWorldQuery {
   constructor(__strategy) {
-    this.ed = __strategy;
+    this.id = __strategy;
   }
   castRay(origin, direction, maxDistance, options = {}) {
     var _a, _b, _c, _d, _e, _f;
-    _PhysicsWorldQuery.Tu(origin, "origin");
-    _PhysicsWorldQuery.Tu(direction, "direction");
+    _PhysicsWorldQuery.$u(origin, "origin");
+    _PhysicsWorldQuery.$u(direction, "direction");
     if (!Number.isFinite(maxDistance) || maxDistance <= 0) {
       throw new Error(`Physics ray maxDistance must be a finite positive number: ${maxDistance}`);
     }
@@ -15,7 +15,7 @@ var PhysicsWorldQuery = class _PhysicsWorldQuery {
     if (!Number.isFinite(directionLength) || directionLength === 0) {
       throw new Error("Physics ray direction must be non-zero.");
     }
-    return this.ed.castRay(origin, Vector3.normalize(direction), maxDistance, {
+    return this.id.castRay(origin, Vector3.normalize(direction), maxDistance, {
       includeSensors: (_a = options.includeSensors) != null ? _a : false,
       solid: (_b = options.solid) != null ? _b : true,
       collisionGroup: (_c = options.collisionGroup) != null ? _c : 65535,
@@ -26,17 +26,17 @@ var PhysicsWorldQuery = class _PhysicsWorldQuery {
     });
   }
   castRaySegment(start, end, options = {}) {
-    _PhysicsWorldQuery.Tu(start, "start");
-    _PhysicsWorldQuery.Tu(end, "end");
+    _PhysicsWorldQuery.$u(start, "start");
+    _PhysicsWorldQuery.$u(end, "end");
     const direction = Vector3.subtract(end, start);
     return this.castRay(start, direction, direction.length(), options);
   }
   castSphere(origin, radius, direction, maxDistance, options = {}) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
-    _PhysicsWorldQuery.Tu(origin, "origin");
-    _PhysicsWorldQuery.Tu(direction, "direction");
-    _PhysicsWorldQuery.Uu(radius, "sphere radius");
-    _PhysicsWorldQuery.Uu(maxDistance, "maxDistance");
+    _PhysicsWorldQuery.$u(origin, "origin");
+    _PhysicsWorldQuery.$u(direction, "direction");
+    _PhysicsWorldQuery.av(radius, "sphere radius");
+    _PhysicsWorldQuery.av(maxDistance, "maxDistance");
     if (!Number.isFinite((_a = options.targetDistance) != null ? _a : 0) || ((_b = options.targetDistance) != null ? _b : 0) < 0) {
       throw new Error("Physics shape cast targetDistance must be a finite non-negative number.");
     }
@@ -44,7 +44,7 @@ var PhysicsWorldQuery = class _PhysicsWorldQuery {
     if (!Number.isFinite(directionLength) || directionLength === 0) {
       throw new Error("Physics sphere cast direction must be non-zero.");
     }
-    return this.ed.castSphere(origin, radius, Vector3.normalize(direction), maxDistance, {
+    return this.id.castSphere(origin, radius, Vector3.normalize(direction), maxDistance, {
       includeSensors: (_c = options.includeSensors) != null ? _c : false,
       solid: (_d = options.solid) != null ? _d : true,
       collisionGroup: (_e = options.collisionGroup) != null ? _e : 65535,
@@ -56,12 +56,12 @@ var PhysicsWorldQuery = class _PhysicsWorldQuery {
       stopAtPenetration: (_j = options.stopAtPenetration) != null ? _j : true
     });
   }
-  static Tu(vector, label) {
+  static $u(vector, label) {
     if (!Number.isFinite(vector.x) || !Number.isFinite(vector.y) || !Number.isFinite(vector.z)) {
       throw new Error(`Physics ray ${label} must contain only finite values.`);
     }
   }
-  static Uu(value, label) {
+  static av(value, label) {
     if (!Number.isFinite(value) || value <= 0) {
       throw new Error(`Physics ${label} must be a finite positive number: ${value}`);
     }

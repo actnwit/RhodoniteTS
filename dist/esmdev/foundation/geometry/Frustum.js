@@ -12,12 +12,12 @@ var Frustum = class {
     this.zNear = MutableVector4.zero();
     this.zFar = MutableVector4.zero();
     this.R = false;
-    this.uk = MutableMatrix44.zero();
-    this.xk = MutableMatrix44.zero();
-    this.yk = MutableMatrix44.zero();
-    this.vk = MutableVector4.zero();
-    this.wk = MutableVector4.zero();
-    this.zk = [
+    this.Bk = MutableMatrix44.zero();
+    this.Ek = MutableMatrix44.zero();
+    this.Fk = MutableMatrix44.zero();
+    this.Ck = MutableVector4.zero();
+    this.Dk = MutableVector4.zero();
+    this.Gk = [
       MutableVector4.zero(),
       MutableVector4.zero(),
       MutableVector4.zero(),
@@ -27,7 +27,7 @@ var Frustum = class {
       MutableVector4.zero(),
       MutableVector4.zero()
     ];
-    this.Ak = [
+    this.Hk = [
       // near
       Vector4.fromCopy4(-1, 1, 1, 1),
       Vector4.fromCopy4(1, 1, 1, 1),
@@ -55,41 +55,41 @@ var Frustum = class {
    * The planes are stored as Vector4 where (x,y,z) is the normal and w is the distance from origin.
    */
   update(viewMatrix, projectionMatrix) {
-    Matrix44.multiplyTo(projectionMatrix, viewMatrix, this.uk);
-    this.zNear.x = this.uk.m20 + this.uk.m30;
-    this.zNear.y = this.uk.m21 + this.uk.m31;
-    this.zNear.z = this.uk.m22 + this.uk.m32;
-    this.zNear.w = this.uk.m23 + this.uk.m33;
-    this.zFar.x = -this.uk.m20 + this.uk.m30;
-    this.zFar.y = -this.uk.m21 + this.uk.m31;
-    this.zFar.z = -this.uk.m22 + this.uk.m32;
-    this.zFar.w = -this.uk.m23 + this.uk.m33;
-    this.bottom.x = this.uk.m10 + this.uk.m30;
-    this.bottom.y = this.uk.m11 + this.uk.m31;
-    this.bottom.z = this.uk.m12 + this.uk.m32;
-    this.bottom.w = this.uk.m13 + this.uk.m33;
-    this.top.x = -this.uk.m10 + this.uk.m30;
-    this.top.y = -this.uk.m11 + this.uk.m31;
-    this.top.z = -this.uk.m12 + this.uk.m32;
-    this.top.w = -this.uk.m13 + this.uk.m33;
-    this.left.x = this.uk.m00 + this.uk.m30;
-    this.left.y = this.uk.m01 + this.uk.m31;
-    this.left.z = this.uk.m02 + this.uk.m32;
-    this.left.w = this.uk.m03 + this.uk.m33;
-    this.right.x = -this.uk.m00 + this.uk.m30;
-    this.right.y = -this.uk.m01 + this.uk.m31;
-    this.right.z = -this.uk.m02 + this.uk.m32;
-    this.right.w = -this.uk.m03 + this.uk.m33;
-    Matrix44.invertTo(projectionMatrix, this.xk);
-    Matrix44.invertTo(viewMatrix, this.yk);
+    Matrix44.multiplyTo(projectionMatrix, viewMatrix, this.Bk);
+    this.zNear.x = this.Bk.m20 + this.Bk.m30;
+    this.zNear.y = this.Bk.m21 + this.Bk.m31;
+    this.zNear.z = this.Bk.m22 + this.Bk.m32;
+    this.zNear.w = this.Bk.m23 + this.Bk.m33;
+    this.zFar.x = -this.Bk.m20 + this.Bk.m30;
+    this.zFar.y = -this.Bk.m21 + this.Bk.m31;
+    this.zFar.z = -this.Bk.m22 + this.Bk.m32;
+    this.zFar.w = -this.Bk.m23 + this.Bk.m33;
+    this.bottom.x = this.Bk.m10 + this.Bk.m30;
+    this.bottom.y = this.Bk.m11 + this.Bk.m31;
+    this.bottom.z = this.Bk.m12 + this.Bk.m32;
+    this.bottom.w = this.Bk.m13 + this.Bk.m33;
+    this.top.x = -this.Bk.m10 + this.Bk.m30;
+    this.top.y = -this.Bk.m11 + this.Bk.m31;
+    this.top.z = -this.Bk.m12 + this.Bk.m32;
+    this.top.w = -this.Bk.m13 + this.Bk.m33;
+    this.left.x = this.Bk.m00 + this.Bk.m30;
+    this.left.y = this.Bk.m01 + this.Bk.m31;
+    this.left.z = this.Bk.m02 + this.Bk.m32;
+    this.left.w = this.Bk.m03 + this.Bk.m33;
+    this.right.x = -this.Bk.m00 + this.Bk.m30;
+    this.right.y = -this.Bk.m01 + this.Bk.m31;
+    this.right.z = -this.Bk.m02 + this.Bk.m32;
+    this.right.w = -this.Bk.m03 + this.Bk.m33;
+    Matrix44.invertTo(projectionMatrix, this.Ek);
+    Matrix44.invertTo(viewMatrix, this.Fk);
     for (let i = 0; i < 8; i++) {
-      this.xk.multiplyVectorTo(this.Ak[i], this.vk);
-      this.wk.x = this.vk.x / this.vk.w;
-      this.wk.y = this.vk.y / this.vk.w;
-      this.wk.z = this.vk.z / this.vk.w;
-      this.wk.w = 1;
-      this.yk.multiplyVectorTo(this.wk, this.zk[i]);
-      this.corners[i] = this.zk[i];
+      this.Ek.multiplyVectorTo(this.Hk[i], this.Ck);
+      this.Dk.x = this.Ck.x / this.Ck.w;
+      this.Dk.y = this.Ck.y / this.Ck.w;
+      this.Dk.z = this.Ck.z / this.Ck.w;
+      this.Dk.w = 1;
+      this.Fk.multiplyVectorTo(this.Dk, this.Gk[i]);
+      this.corners[i] = this.Gk[i];
     }
   }
   /**

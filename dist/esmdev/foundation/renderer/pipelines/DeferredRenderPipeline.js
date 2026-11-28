@@ -3,16 +3,16 @@ import { RnObject } from "../../core/RnObject.js";
 var DeferredRenderPipeline = class extends RnObject {
   constructor() {
     super(...arguments);
-    this.dm = 0;
-    this.Dy = 0;
-    this.gi = [];
+    this.km = 0;
+    this.iy = 0;
+    this.ni = [];
   }
   async setup(canvasWidth, canvasHeight) {
-    this.dm = canvasWidth;
-    this.Dy = canvasHeight;
+    this.km = canvasWidth;
+    this.iy = canvasHeight;
   }
   setExpressions(expressions) {
-    this.gi = expressions;
+    this.ni = expressions;
   }
 };
 export {

@@ -35,34 +35,34 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
    * @param uniformValueProvider - Optional resolver for Uniform node values
    */
   constructor(nodeJson, worldMatrix, uniformValueProvider) {
-    this.df = /* @__PURE__ */ new Map();
-    this.cf = /* @__PURE__ */ new Map();
-    this.af = [];
-    this.jf = /* @__PURE__ */ new Map();
-    this.kf = /* @__PURE__ */ new Map();
-    this.lf = /* @__PURE__ */ new Map();
-    this.mf = /* @__PURE__ */ new Map();
+    this.hf = /* @__PURE__ */ new Map();
+    this.gf = /* @__PURE__ */ new Map();
+    this.ef = [];
     this.nf = /* @__PURE__ */ new Map();
     this.of = /* @__PURE__ */ new Map();
-    this.ff = /* @__PURE__ */ new Map();
-    this.pf = 1;
-    this.qf = false;
-    this.ef = Matrix44.fromCopyMatrix44(worldMatrix);
-    this.hf = Matrix44.invert(this.ef);
-    this.Ee = uniformValueProvider;
+    this.pf = /* @__PURE__ */ new Map();
+    this.qf = /* @__PURE__ */ new Map();
+    this.rf = /* @__PURE__ */ new Map();
+    this.sf = /* @__PURE__ */ new Map();
+    this.kf = /* @__PURE__ */ new Map();
+    this.tf = 1;
+    this.uf = false;
+    this.jf = Matrix44.fromCopyMatrix44(worldMatrix);
+    this.mf = Matrix44.invert(this.jf);
+    this.Ie = uniformValueProvider;
     for (const node of nodeJson.nodes) {
-      this.df.set(node.id, node);
+      this.hf.set(node.id, node);
     }
     for (const connection of nodeJson.connections) {
-      let links = this.cf.get(connection.to.id);
+      let links = this.gf.get(connection.to.id);
       if (links == null) {
         links = /* @__PURE__ */ new Map();
-        this.cf.set(connection.to.id, links);
+        this.gf.set(connection.to.id, links);
       }
       links.set(connection.to.portName, connection.from.id);
     }
-    this.af = nodeJson.nodes.filter((node) => node.name === "OutUnion" || node.name === "OutDistance");
-    const world = this.ef;
+    this.ef = nodeJson.nodes.filter((node) => node.name === "OutUnion" || node.name === "OutDistance");
+    const world = this.jf;
     const axisX = [world.m00, world.m10, world.m20];
     const axisY = [world.m01, world.m11, world.m21];
     const axisZ = [world.m02, world.m12, world.m22];
@@ -75,12 +75,12 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
     if (orthoError <= orthoTolerance) {
       localToWorldScale = Math.min(lenX, lenY, lenZ);
     } else {
-      const inverse = this.hf;
+      const inverse = this.mf;
       const frobeniusSq = inverse.m00 ** 2 + inverse.m10 ** 2 + inverse.m20 ** 2 + inverse.m01 ** 2 + inverse.m11 ** 2 + inverse.m21 ** 2 + inverse.m02 ** 2 + inverse.m12 ** 2 + inverse.m22 ** 2;
       localToWorldScale = 1 / Math.sqrt(Math.max(frobeniusSq, 1e-8));
     }
-    this.pf = Math.max(Math.min(1, localToWorldScale), 1e-4);
-    this.qf = this.af.some((node) => this.rf(node, /* @__PURE__ */ new Set()));
+    this.tf = Math.max(Math.min(1, localToWorldScale), 1e-4);
+    this.uf = this.ef.some((node) => this.vf(node, /* @__PURE__ */ new Set()));
   }
   /**
    * Returns true when the distance subtree of a node contains SdApplyWorldMatrix.
@@ -89,7 +89,7 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
    * @param node - Root of the distance subtree
    * @param visited - Node ids already visited
    */
-  rf(node, visited) {
+  vf(node, visited) {
     if (node.name === "SdApplyWorldMatrix") {
       return true;
     }
@@ -97,13 +97,13 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
       return false;
     }
     visited.add(node.id);
-    const links = this.cf.get(node.id);
+    const links = this.gf.get(node.id);
     if (links == null) {
       return false;
     }
     for (const fromId of links.values()) {
-      const inputNode = this.df.get(fromId);
-      if (inputNode != null && this.rf(inputNode, visited)) {
+      const inputNode = this.hf.get(fromId);
+      if (inputNode != null && this.vf(inputNode, visited)) {
         return true;
       }
     }
@@ -115,12 +115,12 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
    * contains a node the evaluator does not understand.
    */
   calcBounds() {
-    if (this.af.length === 0) {
+    if (this.ef.length === 0) {
       return null;
     }
     const merged = new AABB();
-    for (const output of this.af) {
-      const bounds = this.Ye(output);
+    for (const output of this.ef) {
+      const bounds = this.af(output);
       if (bounds == null || bounds.isVanilla()) {
         return null;
       }
@@ -141,26 +141,26 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
    */
   calcSphere() {
     var _a;
-    if (this.af.length !== 1) {
+    if (this.ef.length !== 1) {
       return null;
     }
-    const output = this.af[0];
-    const inputNode = (_a = this.Te(output.id, "in1")) != null ? _a : this.Te(output.id, "value");
+    const output = this.ef[0];
+    const inputNode = (_a = this.Xe(output.id, "in1")) != null ? _a : this.Xe(output.id, "value");
     if (inputNode == null || inputNode.name !== "SdSphere") {
       return null;
     }
-    const radius = this.Ue(inputNode, "radius", 1);
+    const radius = this.Ye(inputNode, "radius", 1);
     if (radius == null) {
       return null;
     }
-    const positionNode = this.Te(inputNode.id, "position");
+    const positionNode = this.Xe(inputNode.id, "position");
     if (positionNode == null) {
       return null;
     }
-    if (this.sf(positionNode)) {
+    if (this.wf(positionNode)) {
       return null;
     }
-    const chain = this.bf(positionNode);
+    const chain = this.ff(positionNode);
     if (chain == null) {
       return null;
     }
@@ -179,7 +179,7 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
     return {
       center,
       radius: sphereRadius,
-      usesWorldMatrix: this.xf(positionNode)
+      usesWorldMatrix: this.Bf(positionNode)
     };
   }
   /**
@@ -196,16 +196,16 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
    * @returns The signed distance, or null when the graph is unsupported
    */
   evalDistanceAt(pointInWorld) {
-    if (this.af.length === 0) {
+    if (this.ef.length === 0) {
       return null;
     }
     let distance = Number.POSITIVE_INFINITY;
-    for (const output of this.af) {
-      const value = this.Ze(output, pointInWorld);
+    for (const output of this.ef) {
+      const value = this.bf(output, pointInWorld);
       if (value == null) {
         return null;
       }
-      const transformScale = this.yf(output);
+      const transformScale = this.Cf(output);
       if (transformScale == null) {
         return null;
       }
@@ -214,7 +214,7 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
     if (!Number.isFinite(distance)) {
       return null;
     }
-    return this.qf ? distance * this.pf : distance;
+    return this.uf ? distance * this.tf : distance;
   }
   /**
    * Returns the conservative local-to-world scale of the `SdApplyTransform` nodes
@@ -227,20 +227,20 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
    * @param terminal - The OutUnion / OutDistance node
    * @returns The scale, or null when a transform scale cannot be evaluated
    */
-  yf(terminal) {
-    if (this.ff.has(terminal.id)) {
-      return this.ff.get(terminal.id);
+  Cf(terminal) {
+    if (this.kf.has(terminal.id)) {
+      return this.kf.get(terminal.id);
     }
     let scale = 1;
     const visited = /* @__PURE__ */ new Set();
     const stack = [];
     const pushSpatialInputs = (nodeId) => {
-      const links = this.cf.get(nodeId);
+      const links = this.gf.get(nodeId);
       if (links == null) {
         return;
       }
       for (const [portName, fromId] of links) {
-        if (_RaymarchingSdfEvaluator.zf.has(portName)) {
+        if (_RaymarchingSdfEvaluator.Df.has(portName)) {
           stack.push(fromId);
         }
       }
@@ -252,14 +252,14 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         continue;
       }
       visited.add(nodeId);
-      const node = this.df.get(nodeId);
+      const node = this.hf.get(nodeId);
       if (node == null) {
         continue;
       }
       if (node.name === "SdApplyTransform") {
-        const transformScale = this.We(node, "scale", ONE);
+        const transformScale = this._e(node, "scale", ONE);
         if (transformScale == null) {
-          this.ff.set(terminal.id, null);
+          this.kf.set(terminal.id, null);
           return null;
         }
         const axisScale = Math.min(Math.abs(transformScale.x), Math.abs(transformScale.y), Math.abs(transformScale.z));
@@ -267,7 +267,7 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
       }
       pushSpatialInputs(nodeId);
     }
-    this.ff.set(terminal.id, scale);
+    this.kf.set(terminal.id, scale);
     return scale;
   }
   /**
@@ -321,16 +321,16 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
     }
     return null;
   }
-  Te(nodeId, portName) {
+  Xe(nodeId, portName) {
     var _a;
-    const fromId = (_a = this.cf.get(nodeId)) == null ? void 0 : _a.get(portName);
-    return fromId == null ? void 0 : this.df.get(fromId);
+    const fromId = (_a = this.gf.get(nodeId)) == null ? void 0 : _a.get(portName);
+    return fromId == null ? void 0 : this.hf.get(fromId);
   }
-  $e(node, key) {
+  df(node, key) {
     var _a, _b;
     return (_b = (_a = node.controls) == null ? void 0 : _a[key]) == null ? void 0 : _b.value;
   }
-  _e(value) {
+  cf(value) {
     if (typeof value === "number" && Number.isFinite(value)) {
       return value;
     }
@@ -342,7 +342,7 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
     }
     return null;
   }
-  Af(value) {
+  Ef(value) {
     if (Array.isArray(value) && value.length >= 3) {
       const x = value[0];
       const y = value[1];
@@ -360,50 +360,50 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
     }
     return null;
   }
-  tf(name) {
-    if (this.Ee == null) {
+  xf(name) {
+    if (this.Ie == null) {
       return void 0;
     }
     try {
-      return this.Ee(name);
+      return this.Ie(name);
     } catch {
       return void 0;
     }
   }
-  uf(node) {
+  yf(node) {
     var _a, _b;
     switch (node.name) {
       case "ConstantScalarFloat":
       case "ConstantScalarUint":
-        return this._e(this.$e(node, "in1"));
+        return this.cf(this.df(node, "in1"));
       case "ConstantScalarBool": {
-        const value = this.$e(node, "in1");
+        const value = this.df(node, "in1");
         if (typeof value === "boolean") {
           return value ? 1 : 0;
         }
-        return this._e(value);
+        return this.cf(value);
       }
       case "UniformScalarFloat": {
         const name = (_b = (_a = node.controls) == null ? void 0 : _a.name) == null ? void 0 : _b.value;
         if (typeof name === "string") {
-          const value = this._e(this.tf(name));
+          const value = this.cf(this.xf(name));
           if (value != null) {
             return value;
           }
         }
-        return this._e(this.$e(node, "initialValue"));
+        return this.cf(this.df(node, "initialValue"));
       }
       default:
         return null;
     }
   }
-  Bf(node) {
+  Ff(node) {
     var _a, _b;
     switch (node.name) {
       case "ConstantVector3Float": {
-        const x = this._e(this.$e(node, "in1"));
-        const y = this._e(this.$e(node, "in2"));
-        const z = this._e(this.$e(node, "in3"));
+        const x = this.cf(this.df(node, "in1"));
+        const y = this.cf(this.df(node, "in2"));
+        const z = this.cf(this.df(node, "in3"));
         if (x == null || y == null || z == null) {
           return null;
         }
@@ -412,14 +412,14 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
       case "UniformVector3Float": {
         const name = (_b = (_a = node.controls) == null ? void 0 : _a.name) == null ? void 0 : _b.value;
         if (typeof name === "string") {
-          const value = this.Af(this.tf(name));
+          const value = this.Ef(this.xf(name));
           if (value != null) {
             return value;
           }
         }
-        const x = this._e(this.$e(node, "initialX"));
-        const y = this._e(this.$e(node, "initialY"));
-        const z = this._e(this.$e(node, "initialZ"));
+        const x = this.cf(this.df(node, "initialX"));
+        const y = this.cf(this.df(node, "initialY"));
+        const z = this.cf(this.df(node, "initialZ"));
         if (x == null || y == null || z == null) {
           return null;
         }
@@ -429,33 +429,33 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         return null;
     }
   }
-  Ue(node, portName, fallback) {
+  Ye(node, portName, fallback) {
     const cacheKey = `${node.id}:${portName}`;
-    if (this.jf.has(cacheKey)) {
-      return this.jf.get(cacheKey);
+    if (this.nf.has(cacheKey)) {
+      return this.nf.get(cacheKey);
     }
-    const source = this.Te(node.id, portName);
-    const value = source == null ? fallback : this.uf(source);
-    this.jf.set(cacheKey, value);
+    const source = this.Xe(node.id, portName);
+    const value = source == null ? fallback : this.yf(source);
+    this.nf.set(cacheKey, value);
     return value;
   }
-  We(node, portName, fallback) {
+  _e(node, portName, fallback) {
     const cacheKey = `${node.id}:${portName}`;
-    if (this.kf.has(cacheKey)) {
-      return this.kf.get(cacheKey);
+    if (this.of.has(cacheKey)) {
+      return this.of.get(cacheKey);
     }
-    const source = this.Te(node.id, portName);
-    const value = source == null ? fallback : this.Bf(source);
-    this.kf.set(cacheKey, value);
+    const source = this.Xe(node.id, portName);
+    const value = source == null ? fallback : this.Ff(source);
+    this.of.set(cacheKey, value);
     return value;
   }
-  vf(node) {
-    if (this.lf.has(node.id)) {
-      return this.lf.get(node.id);
+  zf(node) {
+    if (this.pf.has(node.id)) {
+      return this.pf.get(node.id);
     }
-    const translation = this.We(node, "translation", ZERO);
-    const euler = this.We(node, "xyzEulerAngles", ZERO);
-    const scale = this.We(node, "scale", ONE);
+    const translation = this._e(node, "translation", ZERO);
+    const euler = this._e(node, "xyzEulerAngles", ZERO);
+    const scale = this._e(node, "scale", ONE);
     let transform = null;
     if (translation != null && euler != null && scale != null) {
       const rotation = Matrix44.multiply(
@@ -467,45 +467,45 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         Matrix44.multiply(rotation, Matrix44.scale(scale))
       );
     }
-    this.lf.set(node.id, transform);
+    this.pf.set(node.id, transform);
     return transform;
   }
-  Cf(node) {
-    if (this.mf.has(node.id)) {
-      return this.mf.get(node.id);
+  Gf(node) {
+    if (this.qf.has(node.id)) {
+      return this.qf.get(node.id);
     }
-    const transform = this.vf(node);
+    const transform = this.zf(node);
     const inverse = transform == null ? null : Matrix44.invert(transform);
-    this.mf.set(node.id, inverse);
+    this.qf.set(node.id, inverse);
     return inverse;
   }
-  Xe(node, pointInWorld) {
-    const positionNode = this.Te(node.id, "position");
+  $e(node, pointInWorld) {
+    const positionNode = this.Xe(node.id, "position");
     if (positionNode == null) {
       return ZERO;
     }
-    return this.Ve(positionNode, pointInWorld);
+    return this.Ze(positionNode, pointInWorld);
   }
-  Ve(node, pointInWorld) {
+  Ze(node, pointInWorld) {
     switch (node.name) {
       case "InitialPosition":
         return pointInWorld;
       case "SdApplyTransform": {
-        const parent = this.Te(node.id, "position");
-        const input = parent == null ? ZERO : this.Ve(parent, pointInWorld);
+        const parent = this.Xe(node.id, "position");
+        const input = parent == null ? ZERO : this.Ze(parent, pointInWorld);
         if (input == null) {
           return null;
         }
-        const inverse = this.Cf(node);
+        const inverse = this.Gf(node);
         return inverse == null ? null : inverse.multiplyVector3(input);
       }
       case "SdApplyWorldMatrix": {
-        const parent = this.Te(node.id, "position");
-        const input = parent == null ? ZERO : this.Ve(parent, pointInWorld);
+        const parent = this.Xe(node.id, "position");
+        const input = parent == null ? ZERO : this.Ze(parent, pointInWorld);
         if (input == null) {
           return null;
         }
-        return this.hf.multiplyVector3(input);
+        return this.mf.multiplyVector3(input);
       }
       case "SdRepeat":
       case "SdRepeatX":
@@ -514,12 +514,12 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
       case "SdRepeatXY":
       case "SdRepeatYZ":
       case "SdRepeatZX": {
-        const parent = this.Te(node.id, "position");
-        const input = parent == null ? ZERO : this.Ve(parent, pointInWorld);
+        const parent = this.Xe(node.id, "position");
+        const input = parent == null ? ZERO : this.Ze(parent, pointInWorld);
         if (input == null) {
           return null;
         }
-        const interval = this.Ue(node, "interval", 1);
+        const interval = this.Ye(node, "interval", 1);
         if (interval == null || interval === 0) {
           return null;
         }
@@ -534,12 +534,12 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         return Vector3.fromCopy3(wrap(input.x, axes.x), wrap(input.y, axes.y), wrap(input.z, axes.z));
       }
       case "TwistX": {
-        const parent = this.Te(node.id, "position");
-        const input = parent == null ? ZERO : this.Ve(parent, pointInWorld);
+        const parent = this.Xe(node.id, "position");
+        const input = parent == null ? ZERO : this.Ze(parent, pointInWorld);
         if (input == null) {
           return null;
         }
-        const strength = this.Ue(node, "strength", 0.5);
+        const strength = this.Ye(node, "strength", 0.5);
         if (strength == null) {
           return null;
         }
@@ -549,12 +549,12 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         return Vector3.fromCopy3(input.x, c * input.y - s * input.z, s * input.y + c * input.z);
       }
       case "TwistY": {
-        const parent = this.Te(node.id, "position");
-        const input = parent == null ? ZERO : this.Ve(parent, pointInWorld);
+        const parent = this.Xe(node.id, "position");
+        const input = parent == null ? ZERO : this.Ze(parent, pointInWorld);
         if (input == null) {
           return null;
         }
-        const strength = this.Ue(node, "strength", 0.5);
+        const strength = this.Ye(node, "strength", 0.5);
         if (strength == null) {
           return null;
         }
@@ -564,12 +564,12 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         return Vector3.fromCopy3(c * input.x - s * input.z, input.y, s * input.x + c * input.z);
       }
       case "TwistZ": {
-        const parent = this.Te(node.id, "position");
-        const input = parent == null ? ZERO : this.Ve(parent, pointInWorld);
+        const parent = this.Xe(node.id, "position");
+        const input = parent == null ? ZERO : this.Ze(parent, pointInWorld);
         if (input == null) {
           return null;
         }
-        const strength = this.Ue(node, "strength", 0.5);
+        const strength = this.Ye(node, "strength", 0.5);
         if (strength == null) {
           return null;
         }
@@ -579,12 +579,12 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         return Vector3.fromCopy3(c * input.x - s * input.y, s * input.x + c * input.y, input.z);
       }
       case "BendXY": {
-        const parent = this.Te(node.id, "position");
-        const input = parent == null ? ZERO : this.Ve(parent, pointInWorld);
+        const parent = this.Xe(node.id, "position");
+        const input = parent == null ? ZERO : this.Ze(parent, pointInWorld);
         if (input == null) {
           return null;
         }
-        const strength = this.Ue(node, "strength", 0.5);
+        const strength = this.Ye(node, "strength", 0.5);
         if (strength == null) {
           return null;
         }
@@ -594,12 +594,12 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         return Vector3.fromCopy3(c * input.x - s * input.y, s * input.x + c * input.y, input.z);
       }
       case "BendXZ": {
-        const parent = this.Te(node.id, "position");
-        const input = parent == null ? ZERO : this.Ve(parent, pointInWorld);
+        const parent = this.Xe(node.id, "position");
+        const input = parent == null ? ZERO : this.Ze(parent, pointInWorld);
         if (input == null) {
           return null;
         }
-        const strength = this.Ue(node, "strength", 0.5);
+        const strength = this.Ye(node, "strength", 0.5);
         if (strength == null) {
           return null;
         }
@@ -609,12 +609,12 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         return Vector3.fromCopy3(c * input.x - s * input.z, input.y, s * input.x + c * input.z);
       }
       case "BendYZ": {
-        const parent = this.Te(node.id, "position");
-        const input = parent == null ? ZERO : this.Ve(parent, pointInWorld);
+        const parent = this.Xe(node.id, "position");
+        const input = parent == null ? ZERO : this.Ze(parent, pointInWorld);
         if (input == null) {
           return null;
         }
-        const strength = this.Ue(node, "strength", 0.5);
+        const strength = this.Ye(node, "strength", 0.5);
         if (strength == null) {
           return null;
         }
@@ -624,12 +624,12 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         return Vector3.fromCopy3(input.x, c * input.y - s * input.z, s * input.y + c * input.z);
       }
       case "BendYX": {
-        const parent = this.Te(node.id, "position");
-        const input = parent == null ? ZERO : this.Ve(parent, pointInWorld);
+        const parent = this.Xe(node.id, "position");
+        const input = parent == null ? ZERO : this.Ze(parent, pointInWorld);
         if (input == null) {
           return null;
         }
-        const strength = this.Ue(node, "strength", 0.5);
+        const strength = this.Ye(node, "strength", 0.5);
         if (strength == null) {
           return null;
         }
@@ -639,12 +639,12 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         return Vector3.fromCopy3(s * input.y + c * input.x, c * input.y - s * input.x, input.z);
       }
       case "BendZX": {
-        const parent = this.Te(node.id, "position");
-        const input = parent == null ? ZERO : this.Ve(parent, pointInWorld);
+        const parent = this.Xe(node.id, "position");
+        const input = parent == null ? ZERO : this.Ze(parent, pointInWorld);
         if (input == null) {
           return null;
         }
-        const strength = this.Ue(node, "strength", 0.5);
+        const strength = this.Ye(node, "strength", 0.5);
         if (strength == null) {
           return null;
         }
@@ -654,12 +654,12 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         return Vector3.fromCopy3(s * input.z + c * input.x, input.y, c * input.z - s * input.x);
       }
       case "BendZY": {
-        const parent = this.Te(node.id, "position");
-        const input = parent == null ? ZERO : this.Ve(parent, pointInWorld);
+        const parent = this.Xe(node.id, "position");
+        const input = parent == null ? ZERO : this.Ze(parent, pointInWorld);
         if (input == null) {
           return null;
         }
-        const strength = this.Ue(node, "strength", 0.5);
+        const strength = this.Ye(node, "strength", 0.5);
         if (strength == null) {
           return null;
         }
@@ -672,20 +672,20 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         return null;
     }
   }
-  Ze(node, pointInWorld) {
+  bf(node, pointInWorld) {
     var _a;
     switch (node.name) {
       case "SdSphere": {
-        const position = this.Xe(node, pointInWorld);
-        const radius = this.Ue(node, "radius", 1);
+        const position = this.$e(node, pointInWorld);
+        const radius = this.Ye(node, "radius", 1);
         if (position == null || radius == null) {
           return null;
         }
         return position.length() - radius;
       }
       case "SdBox": {
-        const position = this.Xe(node, pointInWorld);
-        const size = this.We(node, "size", ONE);
+        const position = this.$e(node, pointInWorld);
+        const size = this._e(node, "size", ONE);
         if (position == null || size == null) {
           return null;
         }
@@ -695,19 +695,19 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         return Math.hypot(Math.max(qx, 0), Math.max(qy, 0), Math.max(qz, 0)) + Math.min(Math.max(qx, Math.max(qy, qz)), 0);
       }
       case "SdTorus": {
-        const position = this.Xe(node, pointInWorld);
-        const radius = this.Ue(node, "radius", 1);
-        const tubeRadius = this.Ue(node, "tubeRadius", 0.25);
+        const position = this.$e(node, pointInWorld);
+        const radius = this.Ye(node, "radius", 1);
+        const tubeRadius = this.Ye(node, "tubeRadius", 0.25);
         if (position == null || radius == null || tubeRadius == null) {
           return null;
         }
         return Math.hypot(Math.hypot(position.x, position.z) - radius, position.y) - tubeRadius;
       }
       case "SdCapsule": {
-        const position = this.Xe(node, pointInWorld);
-        const pointA = this.We(node, "pointA", DEFAULT_CAPSULE_POINT_A);
-        const pointB = this.We(node, "pointB", DEFAULT_CAPSULE_POINT_B);
-        const radius = this.Ue(node, "radius", 0.5);
+        const position = this.$e(node, pointInWorld);
+        const pointA = this._e(node, "pointA", DEFAULT_CAPSULE_POINT_A);
+        const pointB = this._e(node, "pointB", DEFAULT_CAPSULE_POINT_B);
+        const radius = this.Ye(node, "radius", 0.5);
         if (position == null || pointA == null || pointB == null || radius == null) {
           return null;
         }
@@ -725,9 +725,9 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         return Math.hypot(paX - baX * h, paY - baY * h, paZ - baZ * h) - radius;
       }
       case "SdRoundBox": {
-        const position = this.Xe(node, pointInWorld);
-        const size = this.We(node, "size", ONE);
-        const radius = this.Ue(node, "radius", 0.25);
+        const position = this.$e(node, pointInWorld);
+        const size = this._e(node, "size", ONE);
+        const radius = this.Ye(node, "radius", 0.25);
         if (position == null || size == null || radius == null) {
           return null;
         }
@@ -737,74 +737,74 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         return Math.hypot(Math.max(qx, 0), Math.max(qy, 0), Math.max(qz, 0)) - radius;
       }
       case "SdBarX": {
-        const position = this.Xe(node, pointInWorld);
-        const width = this.Ue(node, "width", 1);
+        const position = this.$e(node, pointInWorld);
+        const width = this.Ye(node, "width", 1);
         if (position == null || width == null) {
           return null;
         }
         return Math.hypot(Math.max(Math.abs(position.y) - width, 0), Math.max(Math.abs(position.z) - width, 0));
       }
       case "SdBarY": {
-        const position = this.Xe(node, pointInWorld);
-        const width = this.Ue(node, "width", 1);
+        const position = this.$e(node, pointInWorld);
+        const width = this.Ye(node, "width", 1);
         if (position == null || width == null) {
           return null;
         }
         return Math.hypot(Math.max(Math.abs(position.x) - width, 0), Math.max(Math.abs(position.z) - width, 0));
       }
       case "SdBarZ": {
-        const position = this.Xe(node, pointInWorld);
-        const width = this.Ue(node, "width", 1);
+        const position = this.$e(node, pointInWorld);
+        const width = this.Ye(node, "width", 1);
         if (position == null || width == null) {
           return null;
         }
         return Math.hypot(Math.max(Math.abs(position.x) - width, 0), Math.max(Math.abs(position.y) - width, 0));
       }
       case "SdTubeX": {
-        const position = this.Xe(node, pointInWorld);
-        const width = this.Ue(node, "width", 1);
+        const position = this.$e(node, pointInWorld);
+        const width = this.Ye(node, "width", 1);
         if (position == null || width == null) {
           return null;
         }
         return Math.hypot(position.y, position.z) - width;
       }
       case "SdTubeY": {
-        const position = this.Xe(node, pointInWorld);
-        const width = this.Ue(node, "width", 1);
+        const position = this.$e(node, pointInWorld);
+        const width = this.Ye(node, "width", 1);
         if (position == null || width == null) {
           return null;
         }
         return Math.hypot(position.x, position.z) - width;
       }
       case "SdTubeZ": {
-        const position = this.Xe(node, pointInWorld);
-        const width = this.Ue(node, "width", 1);
+        const position = this.$e(node, pointInWorld);
+        const width = this.Ye(node, "width", 1);
         if (position == null || width == null) {
           return null;
         }
         return Math.hypot(position.x, position.y) - width;
       }
       case "OpUnion": {
-        const lhsNode = this.Te(node.id, "lhs");
-        const rhsNode = this.Te(node.id, "rhs");
+        const lhsNode = this.Xe(node.id, "lhs");
+        const rhsNode = this.Xe(node.id, "rhs");
         if (lhsNode == null || rhsNode == null) {
           return null;
         }
-        const lhs = this.Ze(lhsNode, pointInWorld);
-        const rhs = this.Ze(rhsNode, pointInWorld);
+        const lhs = this.bf(lhsNode, pointInWorld);
+        const rhs = this.bf(rhsNode, pointInWorld);
         if (lhs == null || rhs == null) {
           return null;
         }
         return Math.min(lhs, rhs);
       }
       case "OpSubtraction": {
-        const baseNode = this.Te(node.id, "base");
-        const subtractorNode = this.Te(node.id, "subtractor");
+        const baseNode = this.Xe(node.id, "base");
+        const subtractorNode = this.Xe(node.id, "subtractor");
         if (baseNode == null || subtractorNode == null) {
           return null;
         }
-        const base = this.Ze(baseNode, pointInWorld);
-        const subtractor = this.Ze(subtractorNode, pointInWorld);
+        const base = this.bf(baseNode, pointInWorld);
+        const subtractor = this.bf(subtractorNode, pointInWorld);
         if (base == null || subtractor == null) {
           return null;
         }
@@ -812,17 +812,17 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
       }
       case "OpSmoothUnion":
       case "OpSmoothIntersection": {
-        const lhsNode = this.Te(node.id, "lhs");
-        const rhsNode = this.Te(node.id, "rhs");
+        const lhsNode = this.Xe(node.id, "lhs");
+        const rhsNode = this.Xe(node.id, "rhs");
         if (lhsNode == null || rhsNode == null) {
           return null;
         }
-        const lhs = this.Ze(lhsNode, pointInWorld);
-        const rhs = this.Ze(rhsNode, pointInWorld);
+        const lhs = this.bf(lhsNode, pointInWorld);
+        const rhs = this.bf(rhsNode, pointInWorld);
         if (lhs == null || rhs == null) {
           return null;
         }
-        const smoothness = this.Ue(node, "smoothness", 0.1);
+        const smoothness = this.Ye(node, "smoothness", 0.1);
         if (smoothness == null) {
           return null;
         }
@@ -835,17 +835,17 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         return rhs + (lhs - rhs) * h + k * h * (1 - h);
       }
       case "OpSmoothSubtraction": {
-        const baseNode = this.Te(node.id, "base");
-        const subtractorNode = this.Te(node.id, "subtractor");
+        const baseNode = this.Xe(node.id, "base");
+        const subtractorNode = this.Xe(node.id, "subtractor");
         if (baseNode == null || subtractorNode == null) {
           return null;
         }
-        const base = this.Ze(baseNode, pointInWorld);
-        const subtractor = this.Ze(subtractorNode, pointInWorld);
+        const base = this.bf(baseNode, pointInWorld);
+        const subtractor = this.bf(subtractorNode, pointInWorld);
         if (base == null || subtractor == null) {
           return null;
         }
-        const smoothness = this.Ue(node, "smoothness", 0.1);
+        const smoothness = this.Ye(node, "smoothness", 0.1);
         if (smoothness == null) {
           return null;
         }
@@ -855,30 +855,30 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
       }
       case "OutUnion":
       case "OutDistance": {
-        const inputNode = (_a = this.Te(node.id, "in1")) != null ? _a : this.Te(node.id, "value");
-        return inputNode == null ? null : this.Ze(inputNode, pointInWorld);
+        const inputNode = (_a = this.Xe(node.id, "in1")) != null ? _a : this.Xe(node.id, "value");
+        return inputNode == null ? null : this.bf(inputNode, pointInWorld);
       }
       default:
-        return this.uf(node);
+        return this.yf(node);
     }
   }
-  Ye(node) {
+  af(node) {
     var _a;
-    if (this.nf.has(node.id)) {
-      const cached = this.nf.get(node.id);
+    if (this.rf.has(node.id)) {
+      const cached = this.rf.get(node.id);
       return cached == null ? null : cached.clone();
     }
     let bounds = null;
     switch (node.name) {
       case "SdSphere": {
-        const radius = this.Ue(node, "radius", 1);
-        bounds = radius == null ? null : this.Df(node, Math.abs(radius));
+        const radius = this.Ye(node, "radius", 1);
+        bounds = radius == null ? null : this.Hf(node, Math.abs(radius));
         break;
       }
       case "SdBox": {
-        const size = this.We(node, "size", ONE);
+        const size = this._e(node, "size", ONE);
         if (size != null) {
-          bounds = this.gf(
+          bounds = this.lf(
             node,
             Vector3.fromCopy3(Math.abs(size.x), Math.abs(size.y), Math.abs(size.z))
           );
@@ -886,22 +886,22 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         break;
       }
       case "SdTorus": {
-        const radius = this.Ue(node, "radius", 1);
-        const tubeRadius = this.Ue(node, "tubeRadius", 0.25);
+        const radius = this.Ye(node, "radius", 1);
+        const tubeRadius = this.Ye(node, "tubeRadius", 0.25);
         if (radius != null && tubeRadius != null) {
           const outer = Math.abs(radius) + Math.abs(tubeRadius);
           const inner = Math.abs(tubeRadius);
-          bounds = this.gf(node, Vector3.fromCopy3(outer, inner, outer));
+          bounds = this.lf(node, Vector3.fromCopy3(outer, inner, outer));
         }
         break;
       }
       case "SdCapsule": {
-        const pointA = this.We(node, "pointA", DEFAULT_CAPSULE_POINT_A);
-        const pointB = this.We(node, "pointB", DEFAULT_CAPSULE_POINT_B);
-        const radius = this.Ue(node, "radius", 0.5);
+        const pointA = this._e(node, "pointA", DEFAULT_CAPSULE_POINT_A);
+        const pointB = this._e(node, "pointB", DEFAULT_CAPSULE_POINT_B);
+        const radius = this.Ye(node, "radius", 0.5);
         if (pointA != null && pointB != null && radius != null) {
           const r = Math.abs(radius);
-          bounds = this.gf(
+          bounds = this.lf(
             node,
             Vector3.fromCopy3(
               Math.max(Math.abs(pointA.x), Math.abs(pointB.x)) + r,
@@ -913,11 +913,11 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         break;
       }
       case "SdRoundBox": {
-        const size = this.We(node, "size", ONE);
-        const radius = this.Ue(node, "radius", 0.25);
+        const size = this._e(node, "size", ONE);
+        const radius = this.Ye(node, "radius", 0.25);
         if (size != null && radius != null) {
           const r = Math.abs(radius);
-          bounds = this.gf(
+          bounds = this.lf(
             node,
             Vector3.fromCopy3(Math.abs(size.x) + r, Math.abs(size.y) + r, Math.abs(size.z) + r)
           );
@@ -933,11 +933,11 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         bounds = null;
         break;
       case "OpUnion": {
-        const lhsNode = this.Te(node.id, "lhs");
-        const rhsNode = this.Te(node.id, "rhs");
+        const lhsNode = this.Xe(node.id, "lhs");
+        const rhsNode = this.Xe(node.id, "rhs");
         if (lhsNode != null && rhsNode != null) {
-          const lhs = this.Ye(lhsNode);
-          const rhs = this.Ye(rhsNode);
+          const lhs = this.af(lhsNode);
+          const rhs = this.af(rhsNode);
           if (lhs != null && rhs != null) {
             bounds = lhs;
             bounds.mergeAABB(rhs);
@@ -946,17 +946,17 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         break;
       }
       case "OpSubtraction": {
-        const baseNode = this.Te(node.id, "base");
-        bounds = baseNode == null ? null : this.Ye(baseNode);
+        const baseNode = this.Xe(node.id, "base");
+        bounds = baseNode == null ? null : this.af(baseNode);
         break;
       }
       case "OpSmoothUnion": {
-        const lhsNode = this.Te(node.id, "lhs");
-        const rhsNode = this.Te(node.id, "rhs");
-        const smoothness = this.Ue(node, "smoothness", 0.1);
+        const lhsNode = this.Xe(node.id, "lhs");
+        const rhsNode = this.Xe(node.id, "rhs");
+        const smoothness = this.Ye(node, "smoothness", 0.1);
         if (lhsNode != null && rhsNode != null && smoothness != null) {
-          const lhs = this.Ye(lhsNode);
-          const rhs = this.Ye(rhsNode);
+          const lhs = this.af(lhsNode);
+          const rhs = this.af(rhsNode);
           if (lhs != null && rhs != null) {
             const merged = lhs.clone();
             merged.mergeAABB(rhs);
@@ -974,16 +974,16 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         break;
       }
       case "OpSmoothSubtraction": {
-        const baseNode = this.Te(node.id, "base");
-        bounds = baseNode == null ? null : this.Ye(baseNode);
+        const baseNode = this.Xe(node.id, "base");
+        bounds = baseNode == null ? null : this.af(baseNode);
         break;
       }
       case "OpSmoothIntersection": {
-        const lhsNode = this.Te(node.id, "lhs");
-        const rhsNode = this.Te(node.id, "rhs");
+        const lhsNode = this.Xe(node.id, "lhs");
+        const rhsNode = this.Xe(node.id, "rhs");
         if (lhsNode != null && rhsNode != null) {
-          const lhs = this.Ye(lhsNode);
-          const rhs = this.Ye(rhsNode);
+          const lhs = this.af(lhsNode);
+          const rhs = this.af(rhsNode);
           if (lhs != null && rhs != null) {
             const minX = Math.max(lhs.minPoint.x, rhs.minPoint.x);
             const minY = Math.max(lhs.minPoint.y, rhs.minPoint.y);
@@ -1003,14 +1003,14 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
       }
       case "OutUnion":
       case "OutDistance": {
-        const inputNode = (_a = this.Te(node.id, "in1")) != null ? _a : this.Te(node.id, "value");
-        bounds = inputNode == null ? null : this.Ye(inputNode);
+        const inputNode = (_a = this.Xe(node.id, "in1")) != null ? _a : this.Xe(node.id, "value");
+        bounds = inputNode == null ? null : this.af(inputNode);
         break;
       }
       default:
         bounds = null;
     }
-    this.nf.set(node.id, bounds == null ? null : bounds.clone());
+    this.rf.set(node.id, bounds == null ? null : bounds.clone());
     return bounds;
   }
   /**
@@ -1018,12 +1018,12 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
    * The transformed shape is an ellipsoid, whose extent along each world axis
    * is the radius times the length of the corresponding row of the linear part.
    */
-  Df(node, radius) {
-    const positionNode = this.Te(node.id, "position");
+  Hf(node, radius) {
+    const positionNode = this.Xe(node.id, "position");
     if (positionNode == null) {
       return null;
     }
-    const chain = this.bf(positionNode);
+    const chain = this.ff(positionNode);
     if (chain == null) {
       return null;
     }
@@ -1037,14 +1037,14 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
     const bounds = new AABB();
     bounds.addPosition(Vector3.fromCopy3(center.x - extentX, center.y - extentY, center.z - extentZ));
     bounds.addPosition(Vector3.fromCopy3(center.x + extentX, center.y + extentY, center.z + extentZ));
-    return this.wf(node, bounds);
+    return this.Af(node, bounds);
   }
-  gf(node, halfExtents) {
-    const positionNode = this.Te(node.id, "position");
+  lf(node, halfExtents) {
+    const positionNode = this.Xe(node.id, "position");
     if (positionNode == null) {
       return null;
     }
-    const chain = this.bf(positionNode);
+    const chain = this.ff(positionNode);
     if (chain == null) {
       return null;
     }
@@ -1056,13 +1056,13 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
     if (worldBounds.isVanilla()) {
       return null;
     }
-    return this.wf(node, worldBounds);
+    return this.Af(node, worldBounds);
   }
   /**
    * Returns true when a position chain contains a non-linear domain node
    * (TwistX/Y/Z or BendXY/XZ/YZ/YX/ZX/ZY), which cannot be represented by a matrix.
    */
-  sf(node) {
+  wf(node) {
     const visited = /* @__PURE__ */ new Set();
     const stack = [node];
     while (stack.length > 0) {
@@ -1074,7 +1074,7 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
       if (current.name in NON_LINEAR_ROTATED_AXES) {
         return true;
       }
-      const parent = this.Te(current.id, "position");
+      const parent = this.Xe(current.id, "position");
       if (parent != null) {
         stack.push(parent);
       }
@@ -1087,9 +1087,9 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
    * are widened to the radius around the rotation axis (a conservative bound for
    * any angle).
    */
-  wf(node, bounds) {
-    const positionNode = this.Te(node.id, "position");
-    if (positionNode == null || !this.sf(positionNode)) {
+  Af(node, bounds) {
+    const positionNode = this.Xe(node.id, "position");
+    if (positionNode == null || !this.wf(positionNode)) {
       return bounds;
     }
     const rotatedAxes = /* @__PURE__ */ new Set();
@@ -1105,7 +1105,7 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
       if (axes != null) {
         rotatedAxes.add(axes);
       }
-      const parent = this.Te(current.id, "position");
+      const parent = this.Xe(current.id, "position");
       if (parent != null) {
         stack.push(parent);
       }
@@ -1149,7 +1149,7 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
    * A graph without this node is authored in world space and does not follow
    * the component entity transform.
    */
-  xf(node) {
+  Bf(node) {
     const visited = /* @__PURE__ */ new Set();
     let current = node;
     while (current != null && !visited.has(current.id)) {
@@ -1157,7 +1157,7 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         return true;
       }
       visited.add(current.id);
-      current = this.Te(current.id, "position");
+      current = this.Xe(current.id, "position");
     }
     return false;
   }
@@ -1166,9 +1166,9 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
    * `SdApplyTransform` and `SdApplyWorldMatrix` store the inverse transform in the
    * position chain, so the forward transform is the composition `parent * transform`.
    */
-  bf(node) {
-    if (this.of.has(node.id)) {
-      return this.of.get(node.id);
+  ff(node) {
+    if (this.sf.has(node.id)) {
+      return this.sf.get(node.id);
     }
     let chain = null;
     switch (node.name) {
@@ -1176,19 +1176,19 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
         chain = Matrix44.fromCopyMatrix44(IDENTITY_MATRIX);
         break;
       case "SdApplyTransform": {
-        const parent = this.Te(node.id, "position");
-        const parentChain = parent == null ? null : this.bf(parent);
-        const transform = this.vf(node);
+        const parent = this.Xe(node.id, "position");
+        const parentChain = parent == null ? null : this.ff(parent);
+        const transform = this.zf(node);
         if (parentChain != null && transform != null) {
           chain = Matrix44.multiply(parentChain, transform);
         }
         break;
       }
       case "SdApplyWorldMatrix": {
-        const parent = this.Te(node.id, "position");
-        const parentChain = parent == null ? null : this.bf(parent);
+        const parent = this.Xe(node.id, "position");
+        const parentChain = parent == null ? null : this.ff(parent);
         if (parentChain != null) {
-          chain = Matrix44.multiply(parentChain, this.ef);
+          chain = Matrix44.multiply(parentChain, this.jf);
         }
         break;
       }
@@ -1201,14 +1201,14 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
       case "BendYX":
       case "BendZX":
       case "BendZY": {
-        const parent = this.Te(node.id, "position");
-        chain = parent == null ? Matrix44.fromCopyMatrix44(IDENTITY_MATRIX) : this.bf(parent);
+        const parent = this.Xe(node.id, "position");
+        chain = parent == null ? Matrix44.fromCopyMatrix44(IDENTITY_MATRIX) : this.ff(parent);
         break;
       }
       default:
         chain = null;
     }
-    this.of.set(node.id, chain);
+    this.sf.set(node.id, chain);
     return chain;
   }
   /**
@@ -1253,7 +1253,7 @@ var _RaymarchingSdfEvaluator = class _RaymarchingSdfEvaluator {
  * set is followed by the shared shader when it links `SdApplyTransform` scale
  * globals to a terminal.
  */
-_RaymarchingSdfEvaluator.zf = /* @__PURE__ */ new Set([
+_RaymarchingSdfEvaluator.Df = /* @__PURE__ */ new Set([
   "position",
   "lhs",
   "rhs",

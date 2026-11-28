@@ -23,7 +23,7 @@ var Config = class {
      * textures are created. The shader arrays themselves cannot have a length of 0, so they use
      * {@link Config.maxLightNumberOrOne} instead. Negative and NaN values are treated as 0.
      */
-    this.Pi = 6;
+    this.Wi = 6;
     /**
      * Whether Clustered Forward rendering is enabled.
      * When enabled, each fragment evaluates only the lights whose range reaches the cluster (froxel) of the fragment.
@@ -150,7 +150,7 @@ var Config = class {
      * not modified: only the values uploaded to the GPU (and read by the light clusters and the shaders) are scaled,
      * so all rendering paths see the same light.
      */
-    this.Qi = 1;
+    this.Xi = 1;
     /**
      * Number of instances of each material type to be placed consecutively in memory.
      * This is on the memory layout, and the number of material instances that can be generated is not limited by this setting.
@@ -329,16 +329,16 @@ var Config = class {
   }
   /** See {@link Config.maxLightNumber}. */
   get maxLightNumber() {
-    return this.Pi;
+    return this.Wi;
   }
   /** See {@link Config.maxLightNumber}. */
   set maxLightNumber(value) {
     if (!(value >= 0)) {
       Logger.default.warn(`Config.maxLightNumber (${value}) is invalid. Values below 0 are treated as 0.`);
-      this.Pi = 0;
+      this.Wi = 0;
       return;
     }
-    this.Pi = value;
+    this.Wi = value;
   }
   /**
    * The length-safe value of {@link Config.maxLightNumber}: `maxLightNumber`, or 1 when it is 0.
@@ -349,20 +349,20 @@ var Config = class {
    * {@link Config.maxLightNumber}: when it is 0, the shadow code is compiled out and no shadow slots are assigned.
    */
   get maxLightNumberOrOne() {
-    return this.Pi > 0 ? this.Pi : 1;
+    return this.Wi > 0 ? this.Wi : 1;
   }
   /** See {@link Config.lightRangeScale}. */
   get lightRangeScale() {
-    return this.Qi;
+    return this.Xi;
   }
   /** See {@link Config.lightRangeScale}. */
   set lightRangeScale(value) {
     if (!(value > 0) || value > 1) {
       Logger.default.warn(`Config.lightRangeScale (${value}) is invalid. Use a value in (0, 1].`);
-      this.Qi = 1;
+      this.Xi = 1;
       return;
     }
-    this.Qi = value;
+    this.Xi = value;
   }
 };
 export {

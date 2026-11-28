@@ -242,13 +242,13 @@ var MathClassUtil = class {
    * @returns The unprojected 3D world position
    */
   static unProjectTo(windowPosX, windowPosY, windowPosZ, inversePVMat44, viewportVec4, out) {
-    const input = this.gn.setComponents(
+    const input = this.pn.setComponents(
       (windowPosX - viewportVec4.x) / viewportVec4.z * 2 - 1,
       (windowPosY - viewportVec4.y) / viewportVec4.w * 2 - 1,
       2 * windowPosZ - 1,
       1
     );
-    const outNonNormalized = inversePVMat44.multiplyVectorTo(input, this.hn);
+    const outNonNormalized = inversePVMat44.multiplyVectorTo(input, this.qn);
     if (outNonNormalized.w === 0) {
       Logger.default.error("0 division occurred! The result is left unchanged.");
       return out;
@@ -669,8 +669,8 @@ var MathClassUtil = class {
     return true;
   }
 };
-MathClassUtil.gn = MutableVector4.zero();
-MathClassUtil.hn = MutableVector4.zero();
+MathClassUtil.pn = MutableVector4.zero();
+MathClassUtil.qn = MutableVector4.zero();
 export {
   MathClassUtil
 };

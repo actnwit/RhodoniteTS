@@ -15,19 +15,19 @@ var OpSmoothSubtractionShaderNode = class extends AbstractShaderNode {
       codeWGSL: OpSmoothSubtractionShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.zr.push(new Socket("base", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
-    this.zr.push(
+    this.Hr.push(new Socket("base", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
+    this.Hr.push(
       new Socket("subtractor", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("smoothness", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.1))
     );
-    this.Cr.push(
+    this.Kr.push(
       new Socket("outValue", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
   }
   getSocketOutput() {
-    return this.Cr[0];
+    return this.Kr[0];
   }
 };
 export {

@@ -8,10 +8,10 @@ var _TriggerComponent = class _TriggerComponent extends Component {
   constructor(engine, entityUid, componentSid, entityRepository, isReUse) {
     super(engine, entityUid, componentSid, entityRepository, isReUse);
     this.Kb = new EventPubSub();
-    this.ai = /* @__PURE__ */ new Set();
-    this.Xh = /* @__PURE__ */ new Map();
+    this.hi = /* @__PURE__ */ new Set();
+    this.ci = /* @__PURE__ */ new Map();
     this.moveStageTo(ProcessStage.Logic);
-    _TriggerComponent.Zh.add(this);
+    _TriggerComponent.ei.add(this);
   }
   static get componentTID() {
     return WellKnownComponentTIDs.TriggerComponentTID;
@@ -26,27 +26,27 @@ var _TriggerComponent = class _TriggerComponent extends Component {
     this.Kb.unsubscribe(type, index);
   }
   get activeOverlapCount() {
-    return this.Xh.size;
+    return this.ci.size;
   }
   /** @internal Associates a PhysicsComponent binding with this logical trigger. */
   _registerSensorBinding(physicsEntityUid, bindingId) {
-    const key = _TriggerComponent._h(physicsEntityUid, bindingId);
-    let owners = _TriggerComponent.Yh.get(this.c);
+    const key = _TriggerComponent.fi(physicsEntityUid, bindingId);
+    let owners = _TriggerComponent.di.get(this.c);
     if (owners == null) {
       owners = /* @__PURE__ */ new Map();
-      _TriggerComponent.Yh.set(this.c, owners);
+      _TriggerComponent.di.set(this.c, owners);
     }
     const existing = owners.get(key);
     if (existing != null && existing !== this) {
       throw new Error(`Physics sensor binding ${key} is already owned by another TriggerComponent.`);
     }
     owners.set(key, this);
-    this.ai.add(key);
+    this.hi.add(key);
   }
   /** @internal Removes ownership when a sensor binding is permanently deleted. */
   static _unregisterSensorBinding(engine, physicsEntityUid, sensorBindingId) {
-    const key = this._h(physicsEntityUid, sensorBindingId);
-    const owners = this.Yh.get(engine);
+    const key = this.fi(physicsEntityUid, sensorBindingId);
+    const owners = this.di.get(engine);
     if (owners == null) {
       return;
     }
@@ -57,81 +57,81 @@ var _TriggerComponent = class _TriggerComponent extends Component {
     this._deactivateSensorBinding(engine, physicsEntityUid, sensorBindingId);
     owners.delete(key);
     if (owners.size === 0) {
-      this.Yh.delete(engine);
+      this.di.delete(engine);
     }
-    trigger.ai.delete(key);
+    trigger.hi.delete(key);
   }
   /** @internal Called by the Rapier event bridge. */
   static _processOverlap(engine, sensorEntityUid, sensorBindingId, otherEntity, otherBindingId, started, otherColliderHandle) {
-    const owners = this.Yh.get(engine);
-    const trigger = owners == null ? void 0 : owners.get(this._h(sensorEntityUid, sensorBindingId));
-    if (trigger == null || otherEntity === trigger.entity || otherBindingId != null && otherEntity.engine === engine && (owners == null ? void 0 : owners.get(this._h(otherEntity.entityUID, otherBindingId))) === trigger) {
+    const owners = this.di.get(engine);
+    const trigger = owners == null ? void 0 : owners.get(this.fi(sensorEntityUid, sensorBindingId));
+    if (trigger == null || otherEntity === trigger.entity || otherBindingId != null && otherEntity.engine === engine && (owners == null ? void 0 : owners.get(this.fi(otherEntity.entityUID, otherBindingId))) === trigger) {
       return;
     }
     const otherKey = otherColliderHandle == null ? `binding:${otherBindingId != null ? otherBindingId : "external"}` : `collider:${otherColliderHandle}`;
     const pairKey = `${sensorEntityUid}:${sensorBindingId}:${otherKey}`;
-    let overlap = trigger.Xh.get(otherEntity);
+    let overlap = trigger.ci.get(otherEntity);
     if (started) {
       if (overlap == null) {
         overlap = { otherEntity, pairs: /* @__PURE__ */ new Map(), rebuildingPairs: /* @__PURE__ */ new Map(), enteredThisStep: true };
-        trigger.Xh.set(otherEntity, overlap);
+        trigger.ci.set(otherEntity, overlap);
       }
       const wasEmpty = overlap.pairs.size === 0 && overlap.rebuildingPairs.size === 0;
       overlap.pairs.set(pairKey, { sensorEntityUid, sensorBindingId, otherBindingId, otherColliderHandle });
       overlap.rebuildingPairs.clear();
       if (wasEmpty) {
-        trigger.$h("enter", overlap.otherEntity, sensorBindingId, otherBindingId);
+        trigger.gi("enter", overlap.otherEntity, sensorBindingId, otherBindingId);
       }
     } else if (overlap != null) {
       overlap.pairs.delete(pairKey);
       if (overlap.pairs.size === 0 && overlap.rebuildingPairs.size === 0) {
-        trigger.Xh.delete(otherEntity);
-        trigger.$h("exit", overlap.otherEntity, sensorBindingId, otherBindingId);
+        trigger.ci.delete(otherEntity);
+        trigger.gi("exit", overlap.otherEntity, sensorBindingId, otherBindingId);
       }
     }
   }
   /** @internal Starts reconciliation of collider pairs suspended before this physics step. */
   static _beginPhysicsStep(engine) {
     if (engine == null) {
-      this.di++;
+      this.ki++;
       return;
     }
-    this.ci.set(engine, this.bi(engine) + 1);
+    this.ji.set(engine, this.ii(engine) + 1);
   }
   /** @internal Ends suspended overlaps that were not restored by the current physics step. */
   static _finalizeRebuiltOverlaps(engine) {
-    const physicsStep = this.bi(engine);
-    for (const trigger of this.Zh) {
+    const physicsStep = this.ii(engine);
+    for (const trigger of this.ei) {
       if (engine != null && trigger.entity.engine !== engine) {
         continue;
       }
-      for (const [otherEntity, overlap] of [...trigger.Xh]) {
+      for (const [otherEntity, overlap] of [...trigger.ci]) {
         const expired = [...overlap.rebuildingPairs.entries()].filter(([, pair]) => pair.suspendedAtStep < physicsStep);
         for (const [pairKey] of expired) {
           overlap.rebuildingPairs.delete(pairKey);
         }
         if (expired.length > 0 && overlap.pairs.size === 0 && overlap.rebuildingPairs.size === 0) {
-          trigger.Xh.delete(otherEntity);
+          trigger.ci.delete(otherEntity);
           const pair = expired[0][1];
-          trigger.$h("exit", overlap.otherEntity, pair.sensorBindingId, pair.otherBindingId);
+          trigger.gi("exit", overlap.otherEntity, pair.sensorBindingId, pair.otherBindingId);
         }
       }
     }
   }
   /** @internal Emits one Stay event per active logical overlap after each physics step. */
   static _publishStayEvents(engine) {
-    for (const trigger of this.Zh) {
+    for (const trigger of this.ei) {
       if (engine != null && trigger.entity.engine !== engine) {
         continue;
       }
-      for (const overlap of trigger.Xh.values()) {
+      for (const overlap of trigger.ci.values()) {
         if (overlap.enteredThisStep) {
           overlap.enteredThisStep = false;
           continue;
         }
         const pair = overlap.pairs.values().next().value;
         if (pair != null) {
-          trigger.$h("stay", overlap.otherEntity, pair.sensorBindingId, pair.otherBindingId);
+          trigger.gi("stay", overlap.otherEntity, pair.sensorBindingId, pair.otherBindingId);
         }
       }
     }
@@ -139,33 +139,33 @@ var _TriggerComponent = class _TriggerComponent extends Component {
   /** @internal Temporarily suspends overlaps owned by a sensor collider that is being rebuilt. */
   static _suspendSensorBinding(engine, physicsEntityUid, sensorBindingId) {
     var _a;
-    const trigger = (_a = this.Yh.get(engine)) == null ? void 0 : _a.get(this._h(physicsEntityUid, sensorBindingId));
+    const trigger = (_a = this.di.get(engine)) == null ? void 0 : _a.get(this.fi(physicsEntityUid, sensorBindingId));
     if (trigger == null) return;
-    for (const overlap of trigger.Xh.values()) {
+    for (const overlap of trigger.ci.values()) {
       const suspended = [...overlap.pairs.entries()].filter(
         ([, pair]) => pair.sensorEntityUid === physicsEntityUid && pair.sensorBindingId === sensorBindingId
       );
       for (const [pairKey, pair] of suspended) {
         overlap.pairs.delete(pairKey);
-        overlap.rebuildingPairs.set(pairKey, { ...pair, suspendedAtStep: this.bi(engine) });
+        overlap.rebuildingPairs.set(pairKey, { ...pair, suspendedAtStep: this.ii(engine) });
       }
     }
   }
   /** @internal Temporarily suspends overlaps in which a collider being rebuilt is the non-owning side. */
   static _suspendOtherBinding(otherEntity, otherBindingId, otherColliderHandle) {
-    for (const trigger of this.Zh) {
-      const overlap = trigger.Xh.get(otherEntity);
+    for (const trigger of this.ei) {
+      const overlap = trigger.ci.get(otherEntity);
       if (overlap == null) {
         continue;
       }
       const suspended = [...overlap.pairs.entries()].filter(
-        ([, pair]) => this.ei(pair, otherBindingId, otherColliderHandle)
+        ([, pair]) => this.li(pair, otherBindingId, otherColliderHandle)
       );
       for (const [pairKey, pair] of suspended) {
         overlap.pairs.delete(pairKey);
         overlap.rebuildingPairs.set(pairKey, {
           ...pair,
-          suspendedAtStep: this.bi(otherEntity.engine)
+          suspendedAtStep: this.ii(otherEntity.engine)
         });
       }
     }
@@ -173,30 +173,30 @@ var _TriggerComponent = class _TriggerComponent extends Component {
   /** @internal Ends overlaps owned by a sensor collider that is being permanently removed. */
   static _deactivateSensorBinding(engine, physicsEntityUid, sensorBindingId) {
     var _a, _b;
-    const trigger = (_a = this.Yh.get(engine)) == null ? void 0 : _a.get(this._h(physicsEntityUid, sensorBindingId));
+    const trigger = (_a = this.di.get(engine)) == null ? void 0 : _a.get(this.fi(physicsEntityUid, sensorBindingId));
     if (trigger == null) return;
-    for (const [otherEntity, overlap] of [...trigger.Xh]) {
+    for (const [otherEntity, overlap] of [...trigger.ci]) {
       const matches = ([, pair]) => pair.sensorEntityUid === physicsEntityUid && pair.sensorBindingId === sensorBindingId;
       const removed = [...overlap.pairs.entries()].filter(matches);
       const removedRebuilding = [...overlap.rebuildingPairs.entries()].filter(matches);
       for (const [pairKey] of removed) overlap.pairs.delete(pairKey);
       for (const [pairKey] of removedRebuilding) overlap.rebuildingPairs.delete(pairKey);
       if (removed.length + removedRebuilding.length > 0 && overlap.pairs.size === 0 && overlap.rebuildingPairs.size === 0) {
-        trigger.Xh.delete(otherEntity);
+        trigger.ci.delete(otherEntity);
         const pair = ((_b = removed[0]) != null ? _b : removedRebuilding[0])[1];
-        trigger.$h("exit", overlap.otherEntity, pair.sensorBindingId, pair.otherBindingId);
+        trigger.gi("exit", overlap.otherEntity, pair.sensorBindingId, pair.otherBindingId);
       }
     }
   }
   /** @internal Ends overlaps in which a collider being removed is the non-owning side. */
   static _deactivateOtherBinding(otherEntity, otherBindingId, otherColliderHandle) {
     var _a;
-    for (const trigger of this.Zh) {
-      const overlap = trigger.Xh.get(otherEntity);
+    for (const trigger of this.ei) {
+      const overlap = trigger.ci.get(otherEntity);
       if (overlap == null) {
         continue;
       }
-      const matches = ([, pair]) => this.ei(pair, otherBindingId, otherColliderHandle);
+      const matches = ([, pair]) => this.li(pair, otherBindingId, otherColliderHandle);
       const removed = [...overlap.pairs.entries()].filter(matches);
       const removedRebuilding = [...overlap.rebuildingPairs.entries()].filter(matches);
       for (const [pairKey] of removed) {
@@ -206,13 +206,13 @@ var _TriggerComponent = class _TriggerComponent extends Component {
         overlap.rebuildingPairs.delete(pairKey);
       }
       if (removed.length + removedRebuilding.length > 0 && overlap.pairs.size === 0 && overlap.rebuildingPairs.size === 0) {
-        trigger.Xh.delete(otherEntity);
+        trigger.ci.delete(otherEntity);
         const pair = ((_a = removed[0]) != null ? _a : removedRebuilding[0])[1];
-        trigger.$h("exit", overlap.otherEntity, pair.sensorBindingId, pair.otherBindingId);
+        trigger.gi("exit", overlap.otherEntity, pair.sensorBindingId, pair.otherBindingId);
       }
     }
   }
-  $h(type, otherEntity, sensorBindingId, otherBindingId) {
+  gi(type, otherEntity, sensorBindingId, otherBindingId) {
     this.Kb.publishSync(type, {
       type,
       triggerComponent: this,
@@ -222,30 +222,30 @@ var _TriggerComponent = class _TriggerComponent extends Component {
       otherBindingId
     });
   }
-  static _h(entityUid, bindingId) {
+  static fi(entityUid, bindingId) {
     return `${entityUid}:${bindingId}`;
   }
-  static bi(engine) {
+  static ii(engine) {
     var _a;
-    return engine == null ? this.di : (_a = this.ci.get(engine)) != null ? _a : 0;
+    return engine == null ? this.ki : (_a = this.ji.get(engine)) != null ? _a : 0;
   }
-  static ei(pair, otherBindingId, otherColliderHandle) {
+  static li(pair, otherBindingId, otherColliderHandle) {
     if (otherBindingId != null) {
       return pair.otherBindingId === otherBindingId;
     }
     return otherColliderHandle == null ? pair.otherBindingId == null : pair.otherColliderHandle === otherColliderHandle;
   }
   _destroy() {
-    const owners = _TriggerComponent.Yh.get(this.c);
-    for (const key of this.ai) {
+    const owners = _TriggerComponent.di.get(this.c);
+    for (const key of this.hi) {
       owners == null ? void 0 : owners.delete(key);
     }
     if ((owners == null ? void 0 : owners.size) === 0) {
-      _TriggerComponent.Yh.delete(this.c);
+      _TriggerComponent.di.delete(this.c);
     }
-    this.ai.clear();
-    this.Xh.clear();
-    _TriggerComponent.Zh.delete(this);
+    this.hi.clear();
+    this.ci.clear();
+    _TriggerComponent.ei.delete(this);
     super._destroy();
   }
   addThisComponentToEntity(base, _componentClass) {
@@ -258,10 +258,10 @@ var _TriggerComponent = class _TriggerComponent extends Component {
     return base;
   }
 };
-_TriggerComponent.Yh = /* @__PURE__ */ new WeakMap();
-_TriggerComponent.Zh = /* @__PURE__ */ new Set();
-_TriggerComponent.ci = /* @__PURE__ */ new WeakMap();
-_TriggerComponent.di = 0;
+_TriggerComponent.di = /* @__PURE__ */ new WeakMap();
+_TriggerComponent.ei = /* @__PURE__ */ new Set();
+_TriggerComponent.ji = /* @__PURE__ */ new WeakMap();
+_TriggerComponent.ki = 0;
 var TriggerComponent = _TriggerComponent;
 export {
   TriggerComponent

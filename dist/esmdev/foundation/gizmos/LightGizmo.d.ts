@@ -22,7 +22,6 @@ export declare class LightGizmo extends Gizmo {
     _update(): void;
     /**
      * Destroys the gizmo and cleans up its resources.
-     * Removes the top entity and all associated components from the scene.
      * @internal
      */
     _destroy(): void;

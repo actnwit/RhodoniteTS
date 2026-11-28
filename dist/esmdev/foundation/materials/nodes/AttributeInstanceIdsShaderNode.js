@@ -20,7 +20,7 @@ var AttributeInstanceIdsShaderNode = class extends AbstractShaderNode {
       codeWGSL: AttributeInstanceIdsShaderityObjectWGSL.code
     });
     this.setShaderStage("Vertex");
-    this.Cr.push({
+    this.Kr.push({
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.UnsignedInt,
       name: "outValue"

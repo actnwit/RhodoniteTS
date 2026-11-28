@@ -53,8 +53,8 @@ var AnimationAssigner = class {
    * @returns The root entity with assigned animations
    */
   assignAnimation(rootEntity, gltfModel, vrmModel, isSameSkeleton, retargetMode) {
-    this.$o(rootEntity);
-    this.gp(rootEntity, gltfModel, vrmModel, isSameSkeleton, retargetMode);
+    this.hp(rootEntity);
+    this.op(rootEntity, gltfModel, vrmModel, isSameSkeleton, retargetMode);
     return rootEntity;
   }
   /**
@@ -76,9 +76,9 @@ var AnimationAssigner = class {
     if (rootVrm._version !== "0.x" && rootVrm._version !== "1.0") {
       throw new Error(`Unsupported VRM version '${rootVrm._version}' for VRMA animation assignment.`);
     }
-    const firstActiveAnimationTrackName = postfixToTrackName != null ? this.cp(rootEntity) : void 0;
-    const secondActiveAnimationTrackName = postfixToTrackName != null ? this.dp(rootEntity) : void 0;
-    const activeSamplerBindings = postfixToTrackName != null ? this.hp(rootEntity, postfixToTrackName) : [];
+    const firstActiveAnimationTrackName = postfixToTrackName != null ? this.kp(rootEntity) : void 0;
+    const secondActiveAnimationTrackName = postfixToTrackName != null ? this.lp(rootEntity) : void 0;
+    const activeSamplerBindings = postfixToTrackName != null ? this.pp(rootEntity, postfixToTrackName) : [];
     const entityVrma = ModelConverter.convertToRhodoniteObjectSimple(this.c, vrmaModel);
     const rootMotion = (_a = options.rootMotion) != null ? _a : "preserve";
     const trackNames = /* @__PURE__ */ new Set();
@@ -100,11 +100,11 @@ var AnimationAssigner = class {
           if (nodeIndex == null) {
             continue;
           }
-          const humanBones = this.ap(vrma);
+          const humanBones = this.ip(vrma);
           const humanoidBoneName = humanBones == null ? void 0 : humanBones.get(nodeIndex);
-          const expressionNames = (_c = this.ip(vrma)) == null ? void 0 : _c.get(nodeIndex);
+          const expressionNames = (_c = this.qp(vrma)) == null ? void 0 : _c.get(nodeIndex);
           if (channel.target.path === "translation" && expressionNames != null) {
-            this.jp(
+            this.rp(
               rootEntity,
               animation,
               channel,
@@ -116,7 +116,7 @@ var AnimationAssigner = class {
           if (rootMotion === "ignoreHipsTranslation" && humanoidBoneName === "hips" && ((_d = channel.target) == null ? void 0 : _d.path) === "translation") {
             continue;
           }
-          const rnEntity = this.kp(rootEntity, vrma, nodeIndex);
+          const rnEntity = this.sp(rootEntity, vrma, nodeIndex);
           if (rnEntity) {
             const newRnEntity = this.c.entityRepository.addComponentToEntity(AnimationComponent, rnEntity);
             const animationComponent = newRnEntity.getAnimation();
@@ -141,24 +141,24 @@ var AnimationAssigner = class {
       }
     };
     try {
-      this.$o(rootEntity, postfixToTrackName);
+      this.hp(rootEntity, postfixToTrackName);
       setRetarget(vrmaModel);
       const firstActiveAnimationTrackWasReset = firstActiveAnimationTrackName != null && postfixToTrackName != null && firstActiveAnimationTrackName.endsWith(postfixToTrackName);
-      const firstActiveAnimationTrackStillExists = firstActiveAnimationTrackName != null && this.bp(rootEntity, firstActiveAnimationTrackName);
+      const firstActiveAnimationTrackStillExists = firstActiveAnimationTrackName != null && this.jp(rootEntity, firstActiveAnimationTrackName);
       const requiresFirstActiveAnimationTrackRebind = firstActiveAnimationTrackName != null && (firstActiveAnimationTrackWasReset || !firstActiveAnimationTrackStillExists);
       const secondActiveAnimationTrackWasReset = secondActiveAnimationTrackName != null && postfixToTrackName != null && secondActiveAnimationTrackName.endsWith(postfixToTrackName);
-      const secondActiveAnimationTrackStillExists = secondActiveAnimationTrackName != null && this.bp(rootEntity, secondActiveAnimationTrackName);
+      const secondActiveAnimationTrackStillExists = secondActiveAnimationTrackName != null && this.jp(rootEntity, secondActiveAnimationTrackName);
       const requiresSecondActiveAnimationTrackRebind = secondActiveAnimationTrackName != null && (secondActiveAnimationTrackWasReset || !secondActiveAnimationTrackStillExists);
-      const fallbackAnimationTrackName = (_b = trackNames.values().next().value) != null ? _b : this.ep(rootEntity);
+      const fallbackAnimationTrackName = (_b = trackNames.values().next().value) != null ? _b : this.mp(rootEntity);
       const expressionFirstActiveAnimationTrackName = firstActiveAnimationTrackName != null && firstActiveAnimationTrackStillExists ? firstActiveAnimationTrackName : fallbackAnimationTrackName;
       const replacementSecondActiveAnimationTrackName = secondActiveAnimationTrackName != null && secondActiveAnimationTrackStillExists ? secondActiveAnimationTrackName : fallbackAnimationTrackName;
-      this.lp(
+      this.tp(
         rootEntity,
         expressionFirstActiveAnimationTrackName,
         secondActiveAnimationTrackName != null ? replacementSecondActiveAnimationTrackName : void 0
       );
       if (postfixToTrackName != null) {
-        this.mp(activeSamplerBindings, trackNames, postfixToTrackName);
+        this.up(activeSamplerBindings, trackNames, postfixToTrackName);
       }
       const animationState = rootEntity.tryToGetAnimationState();
       if (requiresFirstActiveAnimationTrackRebind && firstActiveAnimationTrackName != null && expressionFirstActiveAnimationTrackName != null) {
@@ -197,7 +197,7 @@ var AnimationAssigner = class {
     if (suppliedSemantics.length === 0) {
       throw new Error("Character VRMA animation assignment requires at least one semantic VRMA animation.");
     }
-    this.np(rootEntity, vrmaAnimations, suppliedSemantics, rootMotion);
+    this.vp(rootEntity, vrmaAnimations, suppliedSemantics, rootMotion);
     const mapping = {};
     const trackNames = {};
     const assignedPostfixes = [];
@@ -216,7 +216,7 @@ var AnimationAssigner = class {
       }
     } catch (error) {
       for (const postfix of assignedPostfixes) {
-        this.$o(rootEntity, postfix);
+        this.hp(rootEntity, postfix);
       }
       throw error;
     }
@@ -229,7 +229,7 @@ var AnimationAssigner = class {
    * @param rootEntity - The root entity to reset
    * @param postfixToTrackName - Optional postfix to identify specific animation tracks to reset
    */
-  $o(rootEntity, postfixToTrackName) {
+  hp(rootEntity, postfixToTrackName) {
     const vrmComponent = rootEntity.tryToGetVrm();
     const animationComponent = rootEntity.tryToGetAnimation();
     if (vrmComponent != null && animationComponent != null) {
@@ -278,7 +278,7 @@ var AnimationAssigner = class {
    * @param isSameSkeleton - Whether the source and target skeletons are identical
    * @returns The corresponding entity in the target skeleton, or undefined if not found
    */
-  op(rootEntity, gltfModel, vrmModel, nodeIndex, nodeName, isSameSkeleton) {
+  wp(rootEntity, gltfModel, vrmModel, nodeIndex, nodeName, isSameSkeleton) {
     if (isSameSkeleton) {
       const rnEntities = rootEntity.getTagValue("rnEntitiesByNames");
       const node = gltfModel.nodes[nodeIndex];
@@ -340,8 +340,8 @@ var AnimationAssigner = class {
    * @param nodeIndex - The index of the node in the VRMA model
    * @returns The corresponding entity in the target skeleton, or undefined if not found
    */
-  kp(rootEntity, gltfModel, nodeIndex) {
-    const humanBones = this.ap(gltfModel);
+  sp(rootEntity, gltfModel, nodeIndex) {
+    const humanBones = this.ip(gltfModel);
     const humanoidBoneName = humanBones == null ? void 0 : humanBones.get(nodeIndex);
     if (humanoidBoneName == null) {
       return void 0;
@@ -360,7 +360,7 @@ var AnimationAssigner = class {
     Logger.default.info(`humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}`);
     return void 0;
   }
-  ap(vrmaModel) {
+  ip(vrmaModel) {
     var _a, _b;
     const vrmaExtension = (_a = vrmaModel.extensions) == null ? void 0 : _a.VRMC_vrm_animation;
     if (vrmaExtension == null) {
@@ -381,7 +381,7 @@ var AnimationAssigner = class {
     vrmaExtension.humanoidBoneNameMap = humanoidBoneNameMap;
     return humanoidBoneNameMap;
   }
-  ip(vrmaModel) {
+  qp(vrmaModel) {
     var _a;
     const vrmaExtension = (_a = vrmaModel.extensions) == null ? void 0 : _a.VRMC_vrm_animation;
     if (vrmaExtension == null) {
@@ -392,7 +392,7 @@ var AnimationAssigner = class {
     }
     return vrmaExtension.expressionNamesMap;
   }
-  jp(rootEntity, animation, channel, expressionNames, postfixToTrackName, trackNames) {
+  rp(rootEntity, animation, channel, expressionNames, postfixToTrackName, trackNames) {
     var _a, _b, _c, _d, _e, _f;
     const samplerObject = channel.samplerObject;
     const input = (_b = (_a = samplerObject == null ? void 0 : samplerObject.inputObject) == null ? void 0 : _a.extras) == null ? void 0 : _b.typedDataArray;
@@ -407,7 +407,7 @@ var AnimationAssigner = class {
     const rootVrm = rootEntity.tryToGetVrm();
     const trackName = `${(_e = animation.name) != null ? _e : "Untitled_Animation"}${postfixToTrackName != null ? postfixToTrackName : ""}`;
     let animationComponent = rootEntity.tryToGetAnimation();
-    const playbackStateSource = animationComponent == null ? this.fp(rootEntity) : void 0;
+    const playbackStateSource = animationComponent == null ? this.np(rootEntity) : void 0;
     for (const { name: expressionName, isPreset } of expressionNames) {
       const targetExpressionName = rootVrm._version === "0.x" && isPreset && Object.hasOwn(vrmaPresetNameToVrm0xPresetName, expressionName) ? vrmaPresetNameToVrm0xPresetName[expressionName] : expressionName;
       if (rootVrm.getExpressionWeight(targetExpressionName) == null) {
@@ -448,7 +448,7 @@ var AnimationAssigner = class {
    * newly active track, AnimatedScalar keeps its previous sampler and the previous clip's expression
    * can remain active.
    */
-  lp(rootEntity, firstActiveAnimationTrackName, secondActiveAnimationTrackName) {
+  tp(rootEntity, firstActiveAnimationTrackName, secondActiveAnimationTrackName) {
     var _a, _b;
     const trackTimeRanges = /* @__PURE__ */ new Map();
     const collectSamplers = (entity) => {
@@ -561,7 +561,7 @@ var AnimationAssigner = class {
       }
     }
   }
-  hp(rootEntity, postfixToTrackName) {
+  pp(rootEntity, postfixToTrackName) {
     const bindings = [];
     const collectBindings = (entity) => {
       const animationComponent = entity.tryToGetAnimation();
@@ -590,7 +590,7 @@ var AnimationAssigner = class {
     collectBindings(rootEntity);
     return bindings;
   }
-  mp(bindings, assignedTrackNames, postfixToTrackName) {
+  up(bindings, assignedTrackNames, postfixToTrackName) {
     for (const binding of bindings) {
       const animatedValue = binding.animationComponent.getAnimation(binding.pathName);
       if (animatedValue == null) {
@@ -617,7 +617,7 @@ var AnimationAssigner = class {
       restoreBinding(binding.second, (trackName) => animatedValue.setSecondActiveAnimationTrackName(trackName));
     }
   }
-  cp(rootEntity) {
+  kp(rootEntity) {
     const animationComponent = rootEntity.tryToGetAnimation();
     if (animationComponent != null) {
       for (const [, channel] of animationComponent.getAnimationChannelsOfTrack()) {
@@ -625,27 +625,27 @@ var AnimationAssigner = class {
       }
     }
     for (const child of rootEntity.children) {
-      const firstActiveAnimationTrackName = this.cp(child.entity);
+      const firstActiveAnimationTrackName = this.kp(child.entity);
       if (firstActiveAnimationTrackName != null) {
         return firstActiveAnimationTrackName;
       }
     }
     return void 0;
   }
-  fp(rootEntity) {
+  np(rootEntity) {
     const animationComponent = rootEntity.tryToGetAnimation();
     if (animationComponent != null) {
       return animationComponent;
     }
     for (const child of rootEntity.children) {
-      const childAnimationComponent = this.fp(child.entity);
+      const childAnimationComponent = this.np(child.entity);
       if (childAnimationComponent != null) {
         return childAnimationComponent;
       }
     }
     return void 0;
   }
-  dp(rootEntity) {
+  lp(rootEntity) {
     const animationComponent = rootEntity.tryToGetAnimation();
     if (animationComponent != null) {
       for (const [, channel] of animationComponent.getAnimationChannelsOfTrack()) {
@@ -656,14 +656,14 @@ var AnimationAssigner = class {
       }
     }
     for (const child of rootEntity.children) {
-      const secondActiveAnimationTrackName = this.dp(child.entity);
+      const secondActiveAnimationTrackName = this.lp(child.entity);
       if (secondActiveAnimationTrackName != null) {
         return secondActiveAnimationTrackName;
       }
     }
     return void 0;
   }
-  ep(rootEntity) {
+  mp(rootEntity) {
     const animationComponent = rootEntity.tryToGetAnimation();
     if (animationComponent != null) {
       for (const [, channel] of animationComponent.getAnimationChannelsOfTrack()) {
@@ -674,14 +674,14 @@ var AnimationAssigner = class {
       }
     }
     for (const child of rootEntity.children) {
-      const animationTrackName = this.ep(child.entity);
+      const animationTrackName = this.mp(child.entity);
       if (animationTrackName != null) {
         return animationTrackName;
       }
     }
     return void 0;
   }
-  bp(rootEntity, trackName) {
+  jp(rootEntity, trackName) {
     const animationComponent = rootEntity.tryToGetAnimation();
     if (animationComponent != null) {
       for (const [, channel] of animationComponent.getAnimationChannelsOfTrack()) {
@@ -691,13 +691,13 @@ var AnimationAssigner = class {
       }
     }
     for (const child of rootEntity.children) {
-      if (this.bp(child.entity, trackName)) {
+      if (this.jp(child.entity, trackName)) {
         return true;
       }
     }
     return false;
   }
-  np(rootEntity, vrmaAnimations, suppliedSemantics, rootMotion) {
+  vp(rootEntity, vrmaAnimations, suppliedSemantics, rootMotion) {
     const rootVrm = rootEntity.tryToGetVrm();
     if (rootVrm == null) {
       throw new Error("Character VRMA animation assignment requires a VRM root entity.");
@@ -718,7 +718,7 @@ var AnimationAssigner = class {
       if (vrmaModel.animations == null || vrmaModel.animations.length === 0) {
         throw new Error(`Character VRMA animation '${semantic}' does not contain any animations.`);
       }
-      const humanoidBoneMap = this.ap(vrmaModel);
+      const humanoidBoneMap = this.ip(vrmaModel);
       if (humanoidBoneMap == null) {
         throw new Error(`Character VRMA animation '${semantic}' does not define VRMC_vrm_animation humanoid bones.`);
       }
@@ -757,7 +757,7 @@ var AnimationAssigner = class {
    * @param nodeIndex - The index of the node to check
    * @returns True if the node represents the hips bone, false otherwise
    */
-  pp(_rootEntity, vrmModel, nodeIndex) {
+  xp(_rootEntity, vrmModel, nodeIndex) {
     const srcMapNodeIdName = /* @__PURE__ */ new Map();
     if (Is.exist(vrmModel.extensions.VRM)) {
       const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
@@ -787,7 +787,7 @@ var AnimationAssigner = class {
    * @param isSameSkeleton - Whether the source and target skeletons are identical
    * @param retargetMode - The retargeting mode to apply
    */
-  gp(rootEntity, gltfModel, vrmModel, isSameSkeleton, retargetMode) {
+  op(rootEntity, gltfModel, vrmModel, isSameSkeleton, retargetMode) {
     var _a, _b, _c, _d;
     if (gltfModel.animations == null || gltfModel.animations.length === 0) {
       return;
@@ -805,7 +805,7 @@ var AnimationAssigner = class {
         const animOutputArray = (_d = (_c = channel.samplerObject) == null ? void 0 : _c.outputObject) == null ? void 0 : _d.extras.typedDataArray;
         const interpolation = channel.samplerObject.interpolation != null ? channel.samplerObject.interpolation : "LINEAR";
         const node = gltfModel.nodes[channel.target.node];
-        const rnEntity = this.op(
+        const rnEntity = this.wp(
           rootEntity,
           gltfModel,
           vrmModel,
@@ -837,7 +837,7 @@ var AnimationAssigner = class {
               });
               const newAnimatedValue = new AnimatedQuaternion(animationSamplers, trackName);
               animationComponent.setAnimation(animationAttributeType, newAnimatedValue);
-            } else if (animationAttributeType === "translate" && this.pp(rootEntity, vrmModel, channel.target.node)) {
+            } else if (animationAttributeType === "translate" && this.xp(rootEntity, vrmModel, channel.target.node)) {
               const animationSamplers = /* @__PURE__ */ new Map();
               const trackName = Is.exist(animation.name) ? animation.name : "Untitled";
               animationSamplers.set(trackName, {

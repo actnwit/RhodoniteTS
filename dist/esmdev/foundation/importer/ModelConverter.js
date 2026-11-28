@@ -66,7 +66,7 @@ var ModelConverter = class _ModelConverter {
    * @param gltfModel - The glTF model data
    * @returns A scene graph entity configured as a group
    */
-  static Xp(engine, gltfModel) {
+  static dq(engine, gltfModel) {
     const entity = createGroupEntity(engine);
     this.addTags(entity, gltfModel);
     return entity;
@@ -92,7 +92,7 @@ var ModelConverter = class _ModelConverter {
    * @param gltfModel - The glTF model data
    * @returns A mesh entity with appropriate tags
    */
-  static iq(engine, gltfModel) {
+  static qq(engine, gltfModel) {
     const entity = createMeshEntity(engine);
     this.addTags(entity, gltfModel);
     return entity;
@@ -103,7 +103,7 @@ var ModelConverter = class _ModelConverter {
    * @param gltfModel - The glTF model data
    * @returns A camera entity with appropriate tags
    */
-  static jq(engine, gltfModel) {
+  static rq(engine, gltfModel) {
     const entity = createCameraEntity(engine, true);
     this.addTags(entity, gltfModel);
     return entity;
@@ -114,7 +114,7 @@ var ModelConverter = class _ModelConverter {
    * @param gltfModel - The glTF model data
    * @returns A light entity with appropriate tags
    */
-  static kq(engine, gltfModel) {
+  static sq(engine, gltfModel) {
     const entity = createLightEntity(engine);
     this.addTags(entity, gltfModel);
     return entity;
@@ -126,11 +126,11 @@ var ModelConverter = class _ModelConverter {
    * @param rnSamplers - Array of Rhodonite samplers
    * @returns Array of configured Rhodonite materials
    */
-  static $p(engine, gltfModel, rnTextures, rnSamplers) {
+  static hq(engine, gltfModel, rnTextures, rnSamplers) {
     const rnMaterials = [];
     if (gltfModel.materials != null) {
       for (const material of gltfModel.materials) {
-        const rnMaterial = this.pk(engine, gltfModel, rnTextures, rnSamplers, material);
+        const rnMaterial = this.wk(engine, gltfModel, rnTextures, rnSamplers, material);
         rnMaterials.push(rnMaterial);
       }
     }
@@ -143,7 +143,7 @@ var ModelConverter = class _ModelConverter {
    * @param gltfModel - The glTF model data to inspect
    * @internal
    */
-  static async lq(gltfModel) {
+  static async tq(gltfModel) {
     var _a;
     const materials = (_a = gltfModel.materials) != null ? _a : [];
     const needsMToon1 = materials.some((material) => {
@@ -204,7 +204,7 @@ var ModelConverter = class _ModelConverter {
    * @param gltfModel - The glTF model data to inspect
    * @internal
    */
-  static async mq(engine, gltfModel) {
+  static async uq(engine, gltfModel) {
     var _a;
     const materials = (_a = gltfModel.materials) != null ? _a : [];
     const usesSheen = materials.some((material) => {
@@ -225,7 +225,7 @@ var ModelConverter = class _ModelConverter {
    * @param gltfModel - The glTF model data
    * @returns Promise resolving to array of Rhodonite textures
    */
-  static async nq(engine, gltfModel) {
+  static async vq(engine, gltfModel) {
     const rnTextures = [];
     if (gltfModel.images != null) {
       for (const image of gltfModel.images) {
@@ -241,7 +241,7 @@ var ModelConverter = class _ModelConverter {
    * @param gltfModel - The glTF model data
    * @returns Array of Rhodonite samplers
    */
-  static oq(engine, gltfModel) {
+  static wq(engine, gltfModel) {
     const rnSamplers = [];
     if (gltfModel.samplers != null) {
       for (const sampler of gltfModel.samplers) {
@@ -258,12 +258,12 @@ var ModelConverter = class _ModelConverter {
    */
   static convertToRhodoniteObjectSimple(engine, gltfModel) {
     gltfModel.asset.extras.rnMeshesAtGltMeshIdx = [];
-    const rnBuffers = this.aq(gltfModel);
+    const rnBuffers = this.iq(gltfModel);
     gltfModel.asset.extras.rnMaterials = {};
     const rnTextures = [];
     const rnSamplers = [];
-    const rnMaterials = this.$p(engine, gltfModel, rnTextures, rnSamplers);
-    const { rnEntities, rnEntitiesByNames } = this.bq(
+    const rnMaterials = this.hq(engine, gltfModel, rnTextures, rnSamplers);
+    const { rnEntities, rnEntitiesByNames } = this.jq(
       engine,
       gltfModel,
       rnBuffers,
@@ -273,12 +273,12 @@ var ModelConverter = class _ModelConverter {
     );
     gltfModel.asset.extras.rnEntities = rnEntities;
     this._setupTransform(gltfModel, rnEntities);
-    const rootGroup = this.Xp(engine, gltfModel);
+    const rootGroup = this.dq(engine, gltfModel);
     this._setupAnimation(engine, gltfModel, rnEntities, rnBuffers, rootGroup, rnMaterials);
     this._setupSkeleton(engine, gltfModel, rnEntities, rnBuffers);
     this._setupHierarchy(gltfModel, rnEntities);
     setupKhrStaticColliders(gltfModel, rnEntities);
-    this.cq(gltfModel, rnEntities);
+    this.kq(gltfModel, rnEntities);
     if (gltfModel.scenes[0].nodes) {
       for (const nodesIndex of gltfModel.scenes[0].nodes) {
         const sg = rnEntities[nodesIndex].getSceneGraph();
@@ -300,16 +300,16 @@ var ModelConverter = class _ModelConverter {
   static async convertToRhodoniteObject(engine, gltfModel) {
     var _a, _b;
     gltfModel.asset.extras.rnMeshesAtGltMeshIdx = [];
-    const rnBuffers = this.aq(gltfModel);
+    const rnBuffers = this.iq(gltfModel);
     gltfModel.asset.extras.rnMaterials = {};
-    const rnTextures = await this.nq(engine, gltfModel);
-    const rnSamplers = this.oq(engine, gltfModel);
-    await this.lq(gltfModel);
+    const rnTextures = await this.vq(engine, gltfModel);
+    const rnSamplers = this.wq(engine, gltfModel);
+    await this.tq(gltfModel);
     await RhodoniteImportExtension.preloadNodeBasedMaterialSupport(gltfModel);
     await this.preloadRaymarchingSupport(gltfModel);
-    await this.mq(engine, gltfModel);
-    const rnMaterials = this.$p(engine, gltfModel, rnTextures, rnSamplers);
-    const { rnEntities, rnEntitiesByNames } = this.bq(
+    await this.uq(engine, gltfModel);
+    const rnMaterials = this.hq(engine, gltfModel, rnTextures, rnSamplers);
+    const { rnEntities, rnEntitiesByNames } = this.jq(
       engine,
       gltfModel,
       rnBuffers,
@@ -319,13 +319,13 @@ var ModelConverter = class _ModelConverter {
     );
     gltfModel.asset.extras.rnEntities = rnEntities;
     this._setupTransform(gltfModel, rnEntities);
-    const rootGroup = this.Xp(engine, gltfModel);
+    const rootGroup = this.dq(engine, gltfModel);
     this._setupAnimation(engine, gltfModel, rnEntities, rnBuffers, rootGroup, rnMaterials);
     this._setupSkeleton(engine, gltfModel, rnEntities, rnBuffers);
     this._setupHierarchy(gltfModel, rnEntities);
     await preloadKhrPhysicsSupport(gltfModel);
     setupKhrStaticColliders(gltfModel, rnEntities);
-    this.cq(gltfModel, rnEntities);
+    this.kq(gltfModel, rnEntities);
     rootGroup.tryToSetUniqueName("FileRoot", true);
     rootGroup.tryToSetTag({ tag: "ObjectType", value: "top" });
     if (gltfModel.scenes[0].nodes) {
@@ -367,7 +367,7 @@ var ModelConverter = class _ModelConverter {
    * @param gltfModel - The glTF model containing buffer data
    * @returns Array of Rhodonite Buffer objects
    */
-  static aq(gltfModel) {
+  static iq(gltfModel) {
     var _a;
     const rnBuffers = [];
     for (const buffer of (_a = gltfModel.buffers) != null ? _a : []) {
@@ -437,21 +437,21 @@ var ModelConverter = class _ModelConverter {
       }
     }
   }
-  static cq(gltfModel, rnEntities) {
+  static kq(gltfModel, rnEntities) {
     var _a, _b, _c;
     const visitedNodeIndices = /* @__PURE__ */ new Set();
     const sceneRootNodeIndices = (_c = (_b = (_a = gltfModel.scenes) == null ? void 0 : _a[0]) == null ? void 0 : _b.nodes) != null ? _c : [];
     for (const nodeIndex of sceneRootNodeIndices) {
-      this.Yp(gltfModel, rnEntities, nodeIndex, true, visitedNodeIndices);
+      this.eq(gltfModel, rnEntities, nodeIndex, true, visitedNodeIndices);
     }
     for (const nodeIndexString in gltfModel.nodes) {
       const nodeIndex = Number.parseInt(nodeIndexString, 10);
       if (!visitedNodeIndices.has(nodeIndex)) {
-        this.Yp(gltfModel, rnEntities, nodeIndex, true, visitedNodeIndices);
+        this.eq(gltfModel, rnEntities, nodeIndex, true, visitedNodeIndices);
       }
     }
   }
-  static Yp(gltfModel, rnEntities, nodeIndex, parentVisible, visitedNodeIndices) {
+  static eq(gltfModel, rnEntities, nodeIndex, parentVisible, visitedNodeIndices) {
     var _a, _b;
     if (visitedNodeIndices.has(nodeIndex)) {
       return;
@@ -462,14 +462,14 @@ var ModelConverter = class _ModelConverter {
     if (Is.not.exist(node) || Is.not.exist(entity)) {
       return;
     }
-    const localVisible = this.pq(node);
+    const localVisible = this.xq(node);
     entity.tryToSetTag({ tag: TagKhrNodeVisibilityVisible, value: localVisible });
     if (Is.exist((_a = node.extensions) == null ? void 0 : _a.KHR_node_visibility)) {
       entity.tryToSetTag({ tag: TagKhrNodeVisibilityEnabled, value: true });
     }
     entity.getSceneGraph().isVisible = parentVisible && localVisible;
     for (const childNodeIndex of (_b = node.children) != null ? _b : []) {
-      this.Yp(
+      this.eq(
         gltfModel,
         rnEntities,
         childNodeIndex,
@@ -478,7 +478,7 @@ var ModelConverter = class _ModelConverter {
       );
     }
   }
-  static pq(node) {
+  static xq(node) {
     var _a, _b;
     const extension = (_a = node.extensions) == null ? void 0 : _a.KHR_node_visibility;
     return (_b = extension == null ? void 0 : extension.visible) != null ? _b : true;
@@ -522,7 +522,7 @@ var ModelConverter = class _ModelConverter {
             animationAttributeType = channel.target.path;
           }
           if (channel.target.path === "pointer") {
-            _ModelConverter.qq(
+            _ModelConverter.yq(
               rnEntities,
               channel,
               samplerObject,
@@ -535,7 +535,7 @@ var ModelConverter = class _ModelConverter {
               gltfModel
             );
           } else {
-            _ModelConverter.rq(
+            _ModelConverter.zq(
               rnEntities,
               channel,
               samplerObject,
@@ -563,14 +563,14 @@ var ModelConverter = class _ModelConverter {
    * @param rnMaterials - Array of Rhodonite materials
    * @param gltfModel - The glTF model data
    */
-  static qq(rnEntities, channel, samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType, rnMaterials, gltfModel) {
+  static yq(rnEntities, channel, samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType, rnMaterials, gltfModel) {
     const pointer = channel.target.extensions.KHR_animation_pointer.pointer;
     const matchNodes = pointer.match(/^\/nodes\/([0-9]+)\//);
     const matchMaterials = pointer.match(/^\/materials\/([0-9]+)\//);
     const matchLights = pointer.match(/^\/extensions\/KHR_lights_punctual\/lights\/([0-9]+)\//);
     const matchCameras = pointer.match(/^\/cameras\/([0-9]+)\//);
     if (matchMaterials) {
-      _ModelConverter.sq(
+      _ModelConverter.Aq(
         matchMaterials,
         rnMaterials,
         pointer,
@@ -582,7 +582,7 @@ var ModelConverter = class _ModelConverter {
         animationAttributeType
       );
     } else if (matchNodes) {
-      _ModelConverter.tq(
+      _ModelConverter.Bq(
         matchNodes,
         rnEntities,
         pointer,
@@ -594,7 +594,7 @@ var ModelConverter = class _ModelConverter {
         animationAttributeType
       );
     } else if (matchLights) {
-      _ModelConverter.uq(
+      _ModelConverter.Cq(
         matchLights,
         rnEntities,
         pointer,
@@ -607,7 +607,7 @@ var ModelConverter = class _ModelConverter {
         gltfModel
       );
     } else if (matchCameras) {
-      _ModelConverter.vq(
+      _ModelConverter.Dq(
         matchCameras,
         rnEntities,
         pointer,
@@ -636,7 +636,7 @@ var ModelConverter = class _ModelConverter {
    * @param animationAttributeType - Type of animation attribute
    * @param gltfModel - The glTF model data
    */
-  static vq(match, rnEntities, pointer, samplerObject, animation, animInputArray, animOutputArray, interpolation, _animationAttributeType, gltfModel) {
+  static Dq(match, rnEntities, pointer, samplerObject, animation, animInputArray, animOutputArray, interpolation, _animationAttributeType, gltfModel) {
     const cameraIndex = Number.parseInt(match[1], 10);
     const nodes = gltfModel.nodes;
     for (let i = 0; i < nodes.length; i++) {
@@ -701,7 +701,7 @@ var ModelConverter = class _ModelConverter {
    * @param animationAttributeType - Type of animation attribute
    * @param gltfModel - The glTF model data
    */
-  static uq(match, rnEntities, pointer, samplerObject, animation, animInputArray, animOutputArray, interpolation, _animationAttributeType, gltfModel) {
+  static Cq(match, rnEntities, pointer, samplerObject, animation, animInputArray, animOutputArray, interpolation, _animationAttributeType, gltfModel) {
     var _a;
     const lightIndex = Number.parseInt(match[1], 10);
     const nodes = gltfModel.nodes;
@@ -769,7 +769,7 @@ var ModelConverter = class _ModelConverter {
    * @param interpolation - Interpolation method
    * @param animationAttributeType - Type of animation attribute
    */
-  static tq(match, rnEntities, pointer, samplerObject, animation, animInputArray, animOutputArray, interpolation, _animationAttributeType) {
+  static Bq(match, rnEntities, pointer, samplerObject, animation, animInputArray, animOutputArray, interpolation, _animationAttributeType) {
     const nodeIndex = Number.parseInt(match[1], 10);
     const rnEntity = rnEntities[nodeIndex];
     if (Is.not.exist(rnEntity)) {
@@ -837,7 +837,7 @@ var ModelConverter = class _ModelConverter {
    * @param interpolation - Interpolation method
    * @param animationAttributeType - Type of animation attribute
    */
-  static sq(match, rnMaterials, pointer, samplerObject, animation, animInputArray, animOutputArray, interpolation, _animationAttributeType) {
+  static Aq(match, rnMaterials, pointer, samplerObject, animation, animInputArray, animOutputArray, interpolation, _animationAttributeType) {
     const materialIndex = Number.parseInt(match[1], 10);
     const material = rnMaterials[materialIndex];
     if (Is.not.exist(material)) {
@@ -907,7 +907,7 @@ var ModelConverter = class _ModelConverter {
    * @param interpolation - Interpolation method
    * @param animationAttributeType - Type of animation attribute
    */
-  static rq(rnEntities, channel, samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType) {
+  static zq(rnEntities, channel, samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType) {
     const rnEntity = rnEntities[channel.target.node];
     if (Is.exist(rnEntity)) {
       let animationComponent = rnEntity.tryToGetAnimation();
@@ -963,7 +963,7 @@ var ModelConverter = class _ModelConverter {
         const newRnEntity = engine.entityRepository.addComponentToEntity(SkeletalComponent, rnEntity);
         skeletalComponent = newRnEntity.getSkeletal();
         const inverseBindMatAccessor = node.skinObject.inverseBindMatricesObject;
-        const rnAccessorOfInverseBindMat = Is.exist(inverseBindMatAccessor) ? this.Up(engine, inverseBindMatAccessor, rnBuffers) : void 0;
+        const rnAccessorOfInverseBindMat = Is.exist(inverseBindMatAccessor) ? this.aq(engine, inverseBindMatAccessor, rnBuffers) : void 0;
         if (forcedBoneDataType != null) {
           skeletalComponent.setBoneDataType(forcedBoneDataType);
         } else {
@@ -987,7 +987,7 @@ var ModelConverter = class _ModelConverter {
         }
         const joints = node.skinObject.joints.map((i) => rnEntities[i].getSceneGraph());
         skeletalComponent.setJoints(joints);
-        const skeletonRoot = Is.exist(node.skinObject.skeleton) ? rnEntities[node.skinObject.skeleton].getSceneGraph() : this.wq(joints);
+        const skeletonRoot = Is.exist(node.skinObject.skeleton) ? rnEntities[node.skinObject.skeleton].getSceneGraph() : this.Eq(joints);
         skeletalComponent.topOfJointsHierarchy = skeletonRoot != null ? skeletonRoot : joints[0];
         if (skeletonRoot != null) {
           skeletonRoot.isRootJoint = true;
@@ -1003,7 +1003,7 @@ var ModelConverter = class _ModelConverter {
    * glTF's `skin.skeleton` is optional; when it is omitted, the common root of the
    * joints is the root of the skin's joint hierarchy.
    */
-  static wq(joints) {
+  static Eq(joints) {
     if (joints.length === 0) {
       return void 0;
     }
@@ -1039,7 +1039,7 @@ var ModelConverter = class _ModelConverter {
    * glTF requires implementations to calculate normals when they are absent; without
    * them lit materials receive a zero normal and shade incorrectly (black or NaN).
    */
-  static xq(engine, primitive, indicesAccessor) {
+  static Fq(engine, primitive, indicesAccessor) {
     if (Is.exist(primitive.getAttribute(VertexAttribute.Normal.XYZ))) {
       return;
     }
@@ -1129,7 +1129,7 @@ var ModelConverter = class _ModelConverter {
    * @param rnSamplers - Array of Rhodonite samplers
    * @returns Object containing arrays of entities and entities by name
    */
-  static bq(engine, gltfModel, rnBuffers, rnMaterials, rnTextures, rnSamplers) {
+  static jq(engine, gltfModel, rnBuffers, rnMaterials, rnTextures, rnSamplers) {
     var _a, _b, _c, _d, _e, _f, _g;
     const rnEntities = [];
     const rnEntitiesByNames = /* @__PURE__ */ new Map();
@@ -1138,7 +1138,7 @@ var ModelConverter = class _ModelConverter {
       let entity;
       if (node.mesh != null) {
         const meshIdx = node.mesh;
-        const meshEntity = this.yq(
+        const meshEntity = this.Gq(
           engine,
           node.meshObject,
           meshIdx,
@@ -1157,14 +1157,14 @@ var ModelConverter = class _ModelConverter {
         }
         entity = meshEntity;
       } else if (node.cameraObject != null) {
-        const cameraEntity = this.zq(engine, node.cameraObject, gltfModel);
+        const cameraEntity = this.Hq(engine, node.cameraObject, gltfModel);
         let entityWithOptionalLight = cameraEntity;
         if (((_b = node.extensions) == null ? void 0 : _b.KHR_lights_punctual) != null) {
           const lightEntity = engine.entityRepository.addComponentToEntity(
             LightComponent,
             cameraEntity
           );
-          this.dq(lightEntity.getLight(), node.extensions.KHR_lights_punctual.light);
+          this.lq(lightEntity.getLight(), node.extensions.KHR_lights_punctual.light);
           lightEntity.getCamera().isSyncToLight = true;
           entityWithOptionalLight = lightEntity;
         }
@@ -1173,10 +1173,10 @@ var ModelConverter = class _ModelConverter {
         }
         entity = entityWithOptionalLight;
       } else if ((_c = node.extensions) == null ? void 0 : _c.KHR_lights_punctual) {
-        const lightEntity = this.Aq(engine, node.extensions.KHR_lights_punctual.light, gltfModel);
+        const lightEntity = this.Iq(engine, node.extensions.KHR_lights_punctual.light, gltfModel);
         entity = lightEntity;
       } else {
-        const group = this.Xp(engine, gltfModel);
+        const group = this.dq(engine, gltfModel);
         if (node.name) {
           group.tryToSetUniqueName(node.name, true);
         }
@@ -1209,7 +1209,7 @@ var ModelConverter = class _ModelConverter {
           entity = raymarchingEntity;
         }
       }
-      if (this.Bq(node, gltfModel)) {
+      if (this.Jq(node, gltfModel)) {
         let weights = [];
         if (node.weights) {
           weights = node.weights;
@@ -1245,7 +1245,7 @@ var ModelConverter = class _ModelConverter {
    * @param gltfModel - The glTF model data
    * @returns True if the node supports morphing
    */
-  static Bq(node, gltfModel) {
+  static Jq(node, gltfModel) {
     var _a, _b, _c;
     const argument = (_b = (_a = gltfModel.asset.extras) == null ? void 0 : _a.rnLoaderOptions) == null ? void 0 : _b.defaultMaterialHelperArgumentArray[0];
     if ((argument == null ? void 0 : argument.isMorphing) === false) {
@@ -1259,10 +1259,10 @@ var ModelConverter = class _ModelConverter {
    * @param gltfModel - The glTF model data
    * @returns Configured light entity
    */
-  static Aq(engine, light, gltfModel) {
-    const lightEntity = this.kq(engine, gltfModel);
+  static Iq(engine, light, gltfModel) {
+    const lightEntity = this.sq(engine, gltfModel);
     const lightComponent = lightEntity.getComponent(LightComponent);
-    this.dq(lightComponent, light);
+    this.lq(lightComponent, light);
     if (lightComponent.castShadow) {
       attachLightShadowCamera(engine, lightEntity);
     }
@@ -1274,7 +1274,7 @@ var ModelConverter = class _ModelConverter {
    * @param lightComponent - The component to configure
    * @param light - The glTF light data
    */
-  static dq(lightComponent, light) {
+  static lq(lightComponent, light) {
     var _a, _b, _c;
     if (light.name != null) {
       lightComponent.tryToSetUniqueName(light.name, true);
@@ -1320,8 +1320,8 @@ var ModelConverter = class _ModelConverter {
    * @param gltfModel - The glTF model data
    * @returns Configured camera entity
    */
-  static zq(engine, camera, gltfModel) {
-    const cameraEntity = this.jq(engine, gltfModel);
+  static Hq(engine, camera, gltfModel) {
+    const cameraEntity = this.rq(engine, gltfModel);
     const cameraComponent = cameraEntity.getCamera();
     cameraComponent.direction = Vector3.fromCopyArray([0, 0, -1]);
     if (gltfModel.asset && gltfModel.asset.LastSaved_ApplicationVendor) {
@@ -1371,9 +1371,9 @@ var ModelConverter = class _ModelConverter {
    * @param rnSamplers - Array of Rhodonite samplers
    * @returns Configured mesh entity
    */
-  static yq(engine, mesh, meshIndex, rnBuffers, gltfModel, rnMaterials, rnTextures, rnSamplers) {
+  static Gq(engine, mesh, meshIndex, rnBuffers, gltfModel, rnMaterials, rnTextures, rnSamplers) {
     var _a, _b, _c, _d, _e;
-    const meshEntity = this.iq(engine, gltfModel);
+    const meshEntity = this.qq(engine, gltfModel);
     const existingRnMesh = (_a = gltfModel.asset.extras.rnMeshesAtGltMeshIdx[meshIndex]) == null ? void 0 : _a.deref();
     let rnPrimitiveMode = PrimitiveMode.Triangles;
     const meshComponent = meshEntity.getMesh();
@@ -1403,7 +1403,7 @@ var ModelConverter = class _ModelConverter {
           rnPrimitiveMode = PrimitiveMode.from(primitive.mode);
         }
         const rnPrimitive = new Primitive(engine);
-        const rnMaterial = primitive.material != null ? rnMaterials[primitive.material] : this.pk(engine, gltfModel, rnTextures, rnSamplers);
+        const rnMaterial = primitive.material != null ? rnMaterials[primitive.material] : this.wk(engine, gltfModel, rnTextures, rnSamplers);
         setupMaterialVariants(rnPrimitive, primitive);
         if (rnMaterial.materialTypeName.indexOf("MToon") !== -1) {
           const VRMProperties = gltfModel.extensions.VRM;
@@ -1420,13 +1420,13 @@ var ModelConverter = class _ModelConverter {
         let indicesRnAccessor;
         const map = /* @__PURE__ */ new Map();
         if ((_e = primitive.extensions) == null ? void 0 : _e.KHR_draco_mesh_compression) {
-          indicesRnAccessor = this.qp(engine, primitive, rnBuffers, gltfModel, map);
+          indicesRnAccessor = this.yp(engine, primitive, rnBuffers, gltfModel, map);
           if (Is.not.exist(indicesRnAccessor)) {
             break;
           }
         } else {
           if (Is.exist(primitive.indices)) {
-            indicesRnAccessor = this.Up(engine, primitive.indicesObject, rnBuffers);
+            indicesRnAccessor = this.aq(engine, primitive.indicesObject, rnBuffers);
           }
           const rnBufferViewMap = /* @__PURE__ */ new Map();
           for (const attributeName in primitive.attributesObjects) {
@@ -1436,7 +1436,7 @@ var ModelConverter = class _ModelConverter {
             if (Is.exist(rnm2attribute.bufferView)) {
               rnBufferView = rnBufferViewMap.get(rnm2attribute.bufferView);
               if (Is.not.exist(rnBufferView)) {
-                rnBufferView = this.Vp(rnm2attribute.bufferViewObject, rnBuffer);
+                rnBufferView = this.bq(rnm2attribute.bufferViewObject, rnBuffer);
                 rnBufferViewMap.set(rnm2attribute.bufferView, rnBufferView);
               }
             } else {
@@ -1445,7 +1445,7 @@ var ModelConverter = class _ModelConverter {
                 byteStride: 0
               }).unwrapForce();
             }
-            const attributeRnAccessor = this.Wp(engine, rnm2attribute, rnBufferView);
+            const attributeRnAccessor = this.cq(engine, rnm2attribute, rnBufferView);
             const joinedString = VertexAttribute.toVertexAttributeSemanticJoinedStringAsGltfStyle(
               VertexAttribute.fromString(attributeName)
             );
@@ -1453,7 +1453,7 @@ var ModelConverter = class _ModelConverter {
           }
         }
         rnPrimitive.setData(map, rnPrimitiveMode, rnMaterial, indicesRnAccessor);
-        this.xq(engine, rnPrimitive, indicesRnAccessor);
+        this.Fq(engine, rnPrimitive, indicesRnAccessor);
         if (primitive.targets != null) {
           const targets = [];
           for (let i2 = 0; i2 < primitive.targetsObjects.length; i2++) {
@@ -1461,8 +1461,8 @@ var ModelConverter = class _ModelConverter {
             const targetMap = /* @__PURE__ */ new Map();
             for (const attributeName in target) {
               const attributeAccessor = target[attributeName];
-              const attributeRnAccessor = this.Up(engine, attributeAccessor, rnBuffers);
-              const attributeRnAccessorInGPUVertexData = this.Cq(
+              const attributeRnAccessor = this.aq(engine, attributeAccessor, rnBuffers);
+              const attributeRnAccessorInGPUVertexData = this.Kq(
                 engine,
                 attributeRnAccessor
               );
@@ -1535,7 +1535,7 @@ var ModelConverter = class _ModelConverter {
    * @param rnLoaderOptions - Loader options
    * @returns Configured material or undefined if not VRM 1.0
    */
-  static Dq(engine, gltfModel, materialJson, rnLoaderOptions) {
+  static Lq(engine, gltfModel, materialJson, rnLoaderOptions) {
     var _a;
     const VRMProperties = gltfModel.extensions.VRM;
     const VRMC_materials_mtoon = (_a = materialJson.extensions) == null ? void 0 : _a.VRMC_materials_mtoon;
@@ -1551,13 +1551,13 @@ var ModelConverter = class _ModelConverter {
       const additionalName = defaultMaterialHelperArgument.additionalName;
       const isMorphing = true;
       const isSkinning = true;
-      const isLighting = this.Zp(gltfModel, materialJson);
+      const isLighting = this.fq(gltfModel, materialJson);
       const useTangentAttribute = true;
       const textures = defaultMaterialHelperArgument.textures;
       const samplers = defaultMaterialHelperArgument.samplers;
       const debugMode = defaultMaterialHelperArgument.debugMode;
       const maxInstancesNumber = defaultMaterialHelperArgument.maxInstancesNumber;
-      const makeOutputSrgb = this._p(gltfModel);
+      const makeOutputSrgb = this.gq(gltfModel);
       let renderPassOutline;
       if (Is.exist(VRMProperties == null ? void 0 : VRMProperties.rnExtension)) {
         const rnExtension = VRMProperties.rnExtension;
@@ -1703,7 +1703,7 @@ var ModelConverter = class _ModelConverter {
    * @param rnLoaderOptions - Loader options
    * @returns Configured material or undefined if not VRM 0.x
    */
-  static Eq(engine, gltfModel, materialJson, rnLoaderOptions) {
+  static Mq(engine, gltfModel, materialJson, rnLoaderOptions) {
     const VRMProperties = gltfModel.extensions.VRM;
     const materialProperties = materialJson.extras.vrm0xMaterialProperty;
     const shaderName = materialProperties.shader;
@@ -1719,13 +1719,13 @@ var ModelConverter = class _ModelConverter {
       const additionalName = defaultMaterialHelperArgument.additionalName;
       const isMorphing = true;
       const isSkinning = true;
-      const isLighting = this.Zp(gltfModel, materialJson);
+      const isLighting = this.fq(gltfModel, materialJson);
       const useTangentAttribute = true;
       const textures = defaultMaterialHelperArgument.textures;
       const samplers = defaultMaterialHelperArgument.samplers;
       const debugMode = defaultMaterialHelperArgument.debugMode;
       const maxInstancesNumber = defaultMaterialHelperArgument.maxInstancesNumber;
-      const makeOutputSrgb = this._p(gltfModel);
+      const makeOutputSrgb = this.gq(gltfModel);
       let renderPassOutline;
       if (Is.exist(VRMProperties == null ? void 0 : VRMProperties.rnExtension)) {
         const rnExtension = VRMProperties.rnExtension;
@@ -1784,7 +1784,7 @@ var ModelConverter = class _ModelConverter {
    * @param materialJson - The material JSON data (optional)
    * @returns Generated material
    */
-  static Fq(engine, gltfModel, rnTextures, rnSamplers, materialJson) {
+  static Nq(engine, gltfModel, rnTextures, rnSamplers, materialJson) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u;
     const isTranslucent = Is.exist((_a = materialJson == null ? void 0 : materialJson.extensions) == null ? void 0 : _a.KHR_materials_transmission);
     if (((_b = gltfModel.asset.extras) == null ? void 0 : _b.rnLoaderOptions) != null) {
@@ -1795,8 +1795,8 @@ var ModelConverter = class _ModelConverter {
           return loaderExtension.generateMaterial(materialJson);
         }
       }
-      if (rnLoaderOptions2.Ip) {
-        const material2 = this.Eq(engine, gltfModel, materialJson, rnLoaderOptions2);
+      if (rnLoaderOptions2.Qp) {
+        const material2 = this.Mq(engine, gltfModel, materialJson, rnLoaderOptions2);
         if (Is.exist(material2)) {
           material2.isTranslucent = isTranslucent;
           return material2;
@@ -1814,7 +1814,7 @@ var ModelConverter = class _ModelConverter {
     }
     const isMorphing = true;
     const isSkinning = true;
-    const isLighting = this.Zp(gltfModel, materialJson);
+    const isLighting = this.fq(gltfModel, materialJson);
     const additionalName = "";
     const rnLoaderOptions = (_i = (_h = gltfModel.asset.extras) == null ? void 0 : _h.rnLoaderOptions) != null ? _i : {};
     const useNormalTexture = (materialJson == null ? void 0 : materialJson.normalTexture) != null;
@@ -1843,7 +1843,7 @@ var ModelConverter = class _ModelConverter {
     if (Is.exist(materialJson)) {
       if (((_t = materialJson.extensions) == null ? void 0 : _t.VRMC_materials_mtoon) != null) {
         const rnLoaderOptions2 = gltfModel.asset.extras.rnLoaderOptions;
-        const material2 = this.Dq(engine, gltfModel, materialJson, rnLoaderOptions2);
+        const material2 = this.Lq(engine, gltfModel, materialJson, rnLoaderOptions2);
         if (Is.exist(material2)) {
           material2.isTranslucent = isTranslucent;
           return material2;
@@ -1869,7 +1869,7 @@ var ModelConverter = class _ModelConverter {
     }
     if (Number.parseFloat((_u = gltfModel.asset) == null ? void 0 : _u.version) >= 2) {
       const material2 = createPbrUberMaterial(engine, pbrUberMaterialOptions);
-      const makeOutputSrgb = this._p(gltfModel);
+      const makeOutputSrgb = this.gq(gltfModel);
       if (Is.exist(makeOutputSrgb)) {
         material2.setParameter("makeOutputSrgb", makeOutputSrgb);
       }
@@ -1891,7 +1891,7 @@ var ModelConverter = class _ModelConverter {
    * @param materialJson - The material JSON data (optional)
    * @returns True if lighting should be enabled
    */
-  static Zp(gltfModel, materialJson) {
+  static fq(gltfModel, materialJson) {
     var _a, _b, _c, _d;
     const argument = (_c = (_b = (_a = gltfModel == null ? void 0 : gltfModel.asset) == null ? void 0 : _a.extras) == null ? void 0 : _b.rnLoaderOptions) == null ? void 0 : _c.defaultMaterialHelperArgumentArray[0];
     if ((argument == null ? void 0 : argument.isLighting) != null) {
@@ -1905,7 +1905,7 @@ var ModelConverter = class _ModelConverter {
    * @param primitive - The glTF primitive data
    * @returns True if tangent attributes should be used
    */
-  static Iq(gltfModel, primitive) {
+  static Qq(gltfModel, primitive) {
     var _a, _b, _c;
     const tangentCalculationMode = (_c = (_b = (_a = gltfModel == null ? void 0 : gltfModel.asset) == null ? void 0 : _a.extras) == null ? void 0 : _b.rnLoaderOptions) == null ? void 0 : _c.tangentCalculationMode;
     switch (tangentCalculationMode) {
@@ -1928,7 +1928,7 @@ var ModelConverter = class _ModelConverter {
     }
     return false;
   }
-  static Jq(gltfModel) {
+  static Rq(gltfModel) {
     var _a, _b, _c, _d, _e, _f;
     const argument = (_c = (_b = (_a = gltfModel == null ? void 0 : gltfModel.asset) == null ? void 0 : _a.extras) == null ? void 0 : _b.rnLoaderOptions) == null ? void 0 : _c.defaultMaterialHelperArgumentArray[0];
     if ((argument == null ? void 0 : argument.useNormalTexture) === false) {
@@ -1936,14 +1936,14 @@ var ModelConverter = class _ModelConverter {
     }
     return ((_f = (_e = (_d = gltfModel == null ? void 0 : gltfModel.asset) == null ? void 0 : _d.extras) == null ? void 0 : _e.rnLoaderOptions) == null ? void 0 : _f.tangentCalculationMode) !== 0;
   }
-  static _p(gltfModel) {
+  static gq(gltfModel) {
     var _a, _b, _c;
     const argument = (_c = (_b = (_a = gltfModel == null ? void 0 : gltfModel.asset) == null ? void 0 : _a.extras) == null ? void 0 : _b.rnLoaderOptions) == null ? void 0 : _c.defaultMaterialHelperArgumentArray[0];
     return argument == null ? void 0 : argument.makeOutputSrgb;
   }
-  static pk(engine, gltfModel, rnTextures, rnSamplers, materialJson) {
+  static wk(engine, gltfModel, rnTextures, rnSamplers, materialJson) {
     var _a;
-    const material = this.Fq(
+    const material = this.Nq(
       engine,
       gltfModel,
       rnTextures,
@@ -2025,7 +2025,7 @@ var ModelConverter = class _ModelConverter {
     }
     if (alphaMode != null) {
       material.alphaMode = AlphaMode.fromGlTFString(alphaMode);
-      if (material.alphaMode === AlphaMode.Mask && !((_e = (_d = gltfModel.asset.extras) == null ? void 0 : _d.rnLoaderOptions) == null ? void 0 : _e.Ip)) {
+      if (material.alphaMode === AlphaMode.Mask && !((_e = (_d = gltfModel.asset.extras) == null ? void 0 : _d.rnLoaderOptions) == null ? void 0 : _e.Qp)) {
         material.setParameter("alphaCutoff", Scalar.fromCopyNumber((_f = materialJson.alphaCutoff) != null ? _f : 0.5));
       }
     }
@@ -2112,7 +2112,7 @@ var ModelConverter = class _ModelConverter {
   static getRaymarchingMaterialTextureAssignments(gltfModel) {
     var _a;
     const extension = (_a = gltfModel.extensions) == null ? void 0 : _a.RHODONITE_raymarching_materials;
-    return this.eq(gltfModel, extension == null ? void 0 : extension.textures);
+    return this.mq(gltfModel, extension == null ? void 0 : extension.textures);
   }
   /**
    * Parses the per-component texture assignments stored in the `RHODONITE_raymarching` node
@@ -2131,7 +2131,7 @@ var ModelConverter = class _ModelConverter {
     const nodes = (_a = gltfModel.nodes) != null ? _a : [];
     for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {
       const extension = (_b = nodes[nodeIndex].extensions) == null ? void 0 : _b.RHODONITE_raymarching;
-      for (const assignment of this.eq(gltfModel, extension == null ? void 0 : extension.textures)) {
+      for (const assignment of this.mq(gltfModel, extension == null ? void 0 : extension.textures)) {
         result.push({ nodeIndex, ...assignment });
       }
     }
@@ -2143,7 +2143,7 @@ var ModelConverter = class _ModelConverter {
    * @param gltfModel - The imported glTF model
    * @param textures - The extension's texture map
    */
-  static eq(gltfModel, textures) {
+  static mq(gltfModel, textures) {
     var _a, _b, _c;
     if (textures == null || typeof textures !== "object") {
       return [];
@@ -2182,7 +2182,7 @@ var ModelConverter = class _ModelConverter {
     const result = /* @__PURE__ */ new Map();
     const assignments = this.getRaymarchingMaterialTextureAssignments(gltfModel);
     for (const { semantic, textureIndex, samplerIndex } of assignments) {
-      const created = await this.fq(engine, gltfModel, textureIndex, samplerIndex);
+      const created = await this.nq(engine, gltfModel, textureIndex, samplerIndex);
       if (created != null) {
         result.set(semantic, created);
       }
@@ -2205,7 +2205,7 @@ var ModelConverter = class _ModelConverter {
     const result = /* @__PURE__ */ new Map();
     const assignments = this.getRaymarchingComponentTextureAssignments(gltfModel);
     for (const { nodeIndex, semantic, textureIndex, samplerIndex } of assignments) {
-      const created = await this.fq(engine, gltfModel, textureIndex, samplerIndex);
+      const created = await this.nq(engine, gltfModel, textureIndex, samplerIndex);
       if (created == null) {
         continue;
       }
@@ -2227,7 +2227,7 @@ var ModelConverter = class _ModelConverter {
    * @param samplerIndex - The glTF sampler index of the texture
    * @returns The created texture and sampler, or null when creation fails
    */
-  static async fq(engine, gltfModel, textureIndex, samplerIndex) {
+  static async nq(engine, gltfModel, textureIndex, samplerIndex) {
     var _a;
     try {
       const gltfTexture = gltfModel.textures[textureIndex];
@@ -2245,13 +2245,13 @@ var ModelConverter = class _ModelConverter {
       return null;
     }
   }
-  static Kq(textureOption) {
+  static Sq(textureOption) {
     if (textureOption.wrapS !== TextureParameter.ClampToEdge || textureOption.wrapT !== TextureParameter.ClampToEdge || textureOption.minFilter !== TextureParameter.Linear && textureOption.minFilter !== TextureParameter.Nearest) {
       return true;
     }
     return false;
   }
-  static Lq(image) {
+  static Tq(image) {
     const width = image.width;
     const height = image.height;
     if ((width & width - 1) === 0 && (height & height - 1) === 0) {
@@ -2259,7 +2259,7 @@ var ModelConverter = class _ModelConverter {
     }
     return false;
   }
-  static Mq(materialJson, _materialTypeName) {
+  static Uq(materialJson, _materialTypeName) {
     if (materialJson == null) return false;
     return true;
   }
@@ -2270,7 +2270,7 @@ var ModelConverter = class _ModelConverter {
     }
     return false;
   }
-  static Tp(typedArrayClass, uint8Array, byteOffset, length) {
+  static $p(typedArrayClass, uint8Array, byteOffset, length) {
     return new typedArrayClass(uint8Array.buffer, byteOffset + uint8Array.byteOffset, length);
   }
   static _checkBytesPerComponent(accessor) {
@@ -2378,8 +2378,8 @@ var ModelConverter = class _ModelConverter {
     const byteLength = componentBytes * componentN * accessor.count;
     if (Is.exist(rnBuffers)) {
       const rnBuffer = rnBuffers[accessor.bufferViewObject.buffer];
-      const rnBufferView = this.Vp(bufferView, rnBuffer);
-      const rnAccessor = this.Wp(engine, accessor, rnBufferView);
+      const rnBufferView = this.bq(bufferView, rnBuffer);
+      const rnAccessor = this.cq(engine, accessor, rnBufferView);
       uint8Array = rnAccessor.getUint8Array();
       byteOffsetFromBuffer = 0;
     }
@@ -2388,7 +2388,7 @@ var ModelConverter = class _ModelConverter {
     if (_ModelConverter._isSystemLittleEndian()) {
       let typedDataArray = new Float32Array();
       if (dataViewMethod === "getFloat32") {
-        typedDataArray = this.Tp(
+        typedDataArray = this.$p(
           Float32Array,
           uint8Array,
           byteOffsetFromBuffer,
@@ -2407,35 +2407,35 @@ var ModelConverter = class _ModelConverter {
           byteLength / componentBytes
         );
       } else if (dataViewMethod === "getInt16") {
-        typedDataArray = this.Tp(
+        typedDataArray = this.$p(
           Int16Array,
           uint8Array,
           byteOffsetFromBuffer,
           byteLength / componentBytes
         );
       } else if (dataViewMethod === "getUint16") {
-        typedDataArray = this.Tp(
+        typedDataArray = this.$p(
           Uint16Array,
           uint8Array,
           byteOffsetFromBuffer,
           byteLength / componentBytes
         );
       } else if (dataViewMethod === "getInt32") {
-        typedDataArray = this.Tp(
+        typedDataArray = this.$p(
           Int32Array,
           uint8Array,
           byteOffsetFromBuffer,
           byteLength / componentBytes
         );
       } else if (dataViewMethod === "getUint32") {
-        typedDataArray = this.Tp(
+        typedDataArray = this.$p(
           Uint32Array,
           uint8Array,
           byteOffsetFromBuffer,
           byteLength / componentBytes
         );
       }
-      float32Array = this.gq(dataViewMethod, typedDataArray);
+      float32Array = this.oq(dataViewMethod, typedDataArray);
     } else {
       const dataView = new DataView(uint8Array.buffer, byteOffsetFromBuffer + uint8Array.byteOffset, byteLength);
       const byteDelta = componentBytes * componentN;
@@ -2466,7 +2466,7 @@ var ModelConverter = class _ModelConverter {
             break;
         }
       }
-      float32Array = this.gq(dataViewMethod, numberArray);
+      float32Array = this.oq(dataViewMethod, numberArray);
     }
     accessor.extras.typedDataArray = float32Array;
     return float32Array;
@@ -2478,7 +2478,7 @@ var ModelConverter = class _ModelConverter {
    * @param numberArray
    * @returns
    */
-  static gq(dataViewMethod, numberArray) {
+  static oq(dataViewMethod, numberArray) {
     if (dataViewMethod === "getInt8") {
       return DataUtil.normalizedInt8ArrayToFloat32Array(numberArray);
     }
@@ -2505,7 +2505,7 @@ var ModelConverter = class _ModelConverter {
     Logger.default.error("Not considered");
     return new Float32Array();
   }
-  static Nq(meshComponent) {
+  static Vq(meshComponent) {
     const primitiveNumber = meshComponent.mesh.getPrimitiveNumber();
     let offsetSum = 0;
     for (let i = 0; i < primitiveNumber; i++) {
@@ -2528,7 +2528,7 @@ var ModelConverter = class _ModelConverter {
    * @param rnBuffer
    * @returns
    */
-  static Wp(engine, accessor, rnBufferView) {
+  static cq(engine, accessor, rnBufferView) {
     var _a;
     let rnAccessor;
     if (rnBufferView != null) {
@@ -2572,17 +2572,17 @@ var ModelConverter = class _ModelConverter {
    * @param rnBuffer
    * @returns
    */
-  static Up(engine, accessor, rnBuffers) {
+  static aq(engine, accessor, rnBuffers) {
     const gltfBufferView = accessor.bufferViewObject;
     let rnBufferView;
     if (gltfBufferView != null) {
       const rnBuffer = rnBuffers[gltfBufferView.buffer];
-      rnBufferView = this.Vp(gltfBufferView, rnBuffer);
+      rnBufferView = this.bq(gltfBufferView, rnBuffer);
     }
-    const rnAccessor = this.Wp(engine, accessor, rnBufferView);
+    const rnAccessor = this.cq(engine, accessor, rnBufferView);
     return rnAccessor;
   }
-  static Cq(engine, srcRnAccessor) {
+  static Kq(engine, srcRnAccessor) {
     const byteSize = srcRnAccessor.elementCount * 3 * 4;
     const dstRnBuffer = engine.memoryManager.createBufferOnDemand(BufferUse.GPUVertexData, byteSize, 16);
     const dstRnBufferView = dstRnBuffer.takeBufferView({
@@ -2600,15 +2600,15 @@ var ModelConverter = class _ModelConverter {
     dstRnAccessor.copyBuffer(srcRnAccessor);
     return dstRnAccessor;
   }
-  static hq(engine, accessor, compositionNum, rnBuffer) {
+  static pq(engine, accessor, compositionNum, rnBuffer) {
     const rnBufferView = rnBuffer.takeBufferView({
       byteLengthToNeed: accessor.count * compositionNum * 4,
       byteStride: 0
     }).unwrapForce();
-    const rnAccessor = this.Wp(engine, accessor, rnBufferView);
+    const rnAccessor = this.cq(engine, accessor, rnBufferView);
     return rnAccessor;
   }
-  static Vp(rnm2bufferView, rnBuffer) {
+  static bq(rnm2bufferView, rnBuffer) {
     var _a, _b;
     const rnBufferView = rnBuffer.takeBufferViewWithByteOffset({
       byteLengthToNeed: rnm2bufferView.byteLength,
@@ -2617,7 +2617,7 @@ var ModelConverter = class _ModelConverter {
     }).unwrapForce();
     return rnBufferView;
   }
-  static rp(draco, decoder, arrayBuffer) {
+  static zp(draco, decoder, arrayBuffer) {
     const buffer = new draco.DecoderBuffer();
     buffer.Init(new Int8Array(arrayBuffer), arrayBuffer.byteLength);
     const geometryType = decoder.GetEncodedGeometryType(buffer);
@@ -2645,7 +2645,7 @@ var ModelConverter = class _ModelConverter {
     draco.destroy(buffer);
     return dracoGeometry;
   }
-  static Gq(draco, decoder, dracoGeometry, triangleStripDrawMode) {
+  static Oq(draco, decoder, dracoGeometry, triangleStripDrawMode) {
     const geometryType = dracoGeometry.geometryType;
     if (geometryType !== draco.TRIANGULAR_MESH) {
       return void 0;
@@ -2675,28 +2675,28 @@ var ModelConverter = class _ModelConverter {
     }
     return indices;
   }
-  static qp(engine, primitive, rnBuffers, gltfModel, map) {
+  static yp(engine, primitive, rnBuffers, gltfModel, map) {
     var _a, _b;
     const bufferView = gltfModel.bufferViews[(_a = primitive.extensions) == null ? void 0 : _a.KHR_draco_mesh_compression.bufferView];
-    const rnBufferView = this.Vp(bufferView, rnBuffers[bufferView.buffer]);
+    const rnBufferView = this.bq(bufferView, rnBuffers[bufferView.buffer]);
     const arraybufferOfBufferView = new Uint8Array(rnBufferView.getUint8Array()).buffer;
     const draco = new DracoDecoderModule();
     const decoder = new draco.Decoder();
-    const dracoGeometry = this.rp(draco, decoder, arraybufferOfBufferView);
+    const dracoGeometry = this.zp(draco, decoder, arraybufferOfBufferView);
     if (dracoGeometry == null) {
       draco.destroy(dracoGeometry);
       draco.destroy(decoder);
       return void 0;
     }
     const numPoints = dracoGeometry.num_points();
-    const rnBufferForDraco = this.Hq(primitive, numPoints);
+    const rnBufferForDraco = this.Pq(primitive, numPoints);
     const primitiveMode = PrimitiveMode.from(primitive.mode);
     let isTriangleStrip = false;
     if (primitiveMode === PrimitiveMode.TriangleStrip) {
       isTriangleStrip = true;
     }
-    const indices = this.Gq(draco, decoder, dracoGeometry, isTriangleStrip);
-    const indicesRnAccessor = this.hq(
+    const indices = this.Oq(draco, decoder, dracoGeometry, isTriangleStrip);
+    const indicesRnAccessor = this.pq(
       engine,
       primitive.indicesObject,
       1,
@@ -2710,10 +2710,10 @@ var ModelConverter = class _ModelConverter {
       const attributeGltf2Accessor = primitive.attributesObjects[attributeName];
       let attributeRnAccessor;
       if (Is.not.exist(dracoAttributeId)) {
-        attributeRnAccessor = this.Up(engine, attributeGltf2Accessor, rnBuffers);
+        attributeRnAccessor = this.aq(engine, attributeGltf2Accessor, rnBuffers);
       } else {
         const compositionNum = CompositionType.fromString(attributeGltf2Accessor.type).getNumberOfComponents();
-        attributeRnAccessor = this.hq(
+        attributeRnAccessor = this.pq(
           engine,
           attributeGltf2Accessor,
           compositionNum,
@@ -2788,7 +2788,7 @@ var ModelConverter = class _ModelConverter {
       rnMaterial.setParameter(textureTransformRotationShaderSemantic, rotation);
     }
   }
-  static Hq(primitive, numPoints) {
+  static Pq(primitive, numPoints) {
     var _a;
     let byteLengthOfBufferForDraco = 0;
     if (Is.exist(primitive.indices)) {

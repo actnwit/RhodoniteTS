@@ -18,17 +18,17 @@ var PbrMetallicRoughnessPropsShaderNode = class extends AbstractShaderNode {
       codeGLSL: PbrMetallicRoughnessPropsShaderityObjectGLSL.code,
       codeWGSL: PbrMetallicRoughnessPropsShaderityObjectWGSL.code
     });
-    this.zr.push(
+    this.Hr.push(
       new Socket("metallicFactor", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("roughnessFactor", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("metallicRoughnessTexture", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.Cr.push(new Socket("outMetallic", CompositionType.Scalar, ComponentType.Float));
-    this.Cr.push(new Socket("outRoughness", CompositionType.Scalar, ComponentType.Float));
+    this.Kr.push(new Socket("outMetallic", CompositionType.Scalar, ComponentType.Float));
+    this.Kr.push(new Socket("outRoughness", CompositionType.Scalar, ComponentType.Float));
   }
   /**
    * Gets the output socket that contains the result of the PBR shading operation.
@@ -36,7 +36,7 @@ var PbrMetallicRoughnessPropsShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the PBR shading result
    */
   getSocketOutput() {
-    return this.Cr[0];
+    return this.Kr[0];
   }
 };
 export {

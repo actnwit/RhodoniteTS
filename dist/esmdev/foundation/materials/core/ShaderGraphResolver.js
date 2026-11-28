@@ -146,19 +146,19 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
    */
   static createVertexShaderCode(engine, vertexNodes, varyingNodes, commonShaderPart) {
     const shaderNodes = vertexNodes.concat();
-    const sortedShaderNodes = this.xs(shaderNodes);
+    const sortedShaderNodes = this.Fs(shaderNodes);
     let vertexShaderPrerequisites = "";
     const nodes = sortedShaderNodes.concat(varyingNodes);
     vertexShaderPrerequisites += commonShaderPart.getVertexPrerequisites(engine, nodes);
     let shaderBody = "";
-    shaderBody += _ShaderGraphResolver.ys(
+    shaderBody += _ShaderGraphResolver.Gs(
       engine,
       // sortedShaderNodes,
       sortedShaderNodes.concat(varyingNodes.filter((node) => node.getShaderStage() !== "Fragment")),
       ShaderType.VertexShader
     );
     try {
-      shaderBody += _ShaderGraphResolver.zs(engine, nodes, true, commonShaderPart);
+      shaderBody += _ShaderGraphResolver.Hs(engine, nodes, true, commonShaderPart);
     } catch (e) {
       Logger.default.error(e);
       return void 0;
@@ -179,10 +179,10 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
    */
   static createPixelShaderCode(engine, pixelNodes, commonShaderPart, shadingGroups) {
     const shaderNodes = pixelNodes.concat();
-    const sortedShaderNodes = this.xs(shaderNodes);
+    const sortedShaderNodes = this.Fs(shaderNodes);
     let pixelShaderPrerequisites = commonShaderPart.getPixelPrerequisites(engine, sortedShaderNodes);
     let shaderBody = "";
-    shaderBody += _ShaderGraphResolver.ys(
+    shaderBody += _ShaderGraphResolver.Gs(
       engine,
       sortedShaderNodes.filter((node) => node.getShaderStage() !== "Vertex"),
       ShaderType.PixelShader,
@@ -195,19 +195,19 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
       const sortedObjectIds = Array.from(shadingGroups.keys()).sort((a, b) => a - b);
       for (const objectId of sortedObjectIds) {
         const shadingNodes = shadingGroups.get(objectId);
-        const sortedShadingNodes = this.xs(shadingNodes);
-        const { varInputNames, varOutputNames, collectedShaderBody } = this.As(
+        const sortedShadingNodes = this.Fs(shadingNodes);
+        const { varInputNames, varOutputNames, collectedShaderBody } = this.Is(
           engine,
           sortedShadingNodes,
           false,
           commonShaderPart
         );
-        const body = collectedShaderBody + this.Bs(engine, sortedShadingNodes, varInputNames, varOutputNames, false);
+        const body = collectedShaderBody + this.Js(engine, sortedShadingNodes, varInputNames, varOutputNames, false);
         shadingSections.push({ objectId, functionName: `${functionPrefix}_${objectId}`, body });
       }
     }
     try {
-      shaderBody += _ShaderGraphResolver.zs(
+      shaderBody += _ShaderGraphResolver.Hs(
         engine,
         sortedShaderNodes,
         false,
@@ -229,7 +229,7 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
    * Graphs without that prefix (e.g. a single component built directly) are grouped
    * under object id 0.
    */
-  static Cs(json, nodeInstances) {
+  static Ks(json, nodeInstances) {
     var _a, _b;
     const groups = /* @__PURE__ */ new Map();
     const incoming = /* @__PURE__ */ new Map();
@@ -278,7 +278,7 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
    * @returns True if all nodes are valid, false if any node has missing required connections
    * @private
    */
-  static Ms(shaderNodes) {
+  static Us(shaderNodes) {
     const _shaderNodeUids = [];
     for (let i = 0; i < shaderNodes.length; i++) {
       const shaderNode = shaderNodes[i];
@@ -301,7 +301,7 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
    * @throws Error if the graph contains cycles
    * @private
    */
-  static xs(shaderNodes) {
+  static Fs(shaderNodes) {
     const sortedNodeArray = [];
     const inputNumArray = [];
     const queue = [];
@@ -367,7 +367,7 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
    * @returns String containing all function definitions
    * @private
    */
-  static ys(engine, shaderNodes, shaderType, embeddedShaderFunctionNames) {
+  static Gs(engine, shaderNodes, shaderType, embeddedShaderFunctionNames) {
     let shaderText = "";
     const existVertexFunctions = [];
     for (let i = 0; i < shaderNodes.length; i++) {
@@ -387,7 +387,7 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
    * Defines varying variables for vertex-to-fragment communication.
    * @private
    */
-  static Ds(engine, shaderNodes, isVertexStage) {
+  static Ls(engine, shaderNodes, isVertexStage) {
     let shaderBody = "";
     const definedVaryings = /* @__PURE__ */ new Set();
     if (engine.engineState.currentProcessApproach !== ProcessApproach.WebGPU) {
@@ -421,7 +421,7 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
    * Collects input and output variable names for shader nodes.
    * @private
    */
-  static As(engine, shaderNodes, isVertexStage, commonShaderPart) {
+  static Is(engine, shaderNodes, isVertexStage, commonShaderPart) {
     const varInputNames = [];
     const varOutputNames = [];
     let collectedShaderBody = "";
@@ -433,10 +433,10 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
       varOutputNames[i] = [];
     }
     for (let i = 0; i < shaderNodes.length; i++) {
-      this.Es(i, shaderNodes, varOutputNames, existingOutputs, existingOutputsVarName);
+      this.Ms(i, shaderNodes, varOutputNames, existingOutputs, existingOutputsVarName);
     }
     for (let i = 0; i < shaderNodes.length; i++) {
-      collectedShaderBody += this.Fs(
+      collectedShaderBody += this.Ns(
         engine,
         i,
         shaderNodes,
@@ -454,7 +454,7 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
    * Collects input variables for a specific node.
    * @private
    */
-  static Fs(engine, nodeIndex, shaderNodes, varInputNames, varOutputNames, existingInputs, existingOutputsVarName, isVertexStage, commonShaderPart) {
+  static Ns(engine, nodeIndex, shaderNodes, varInputNames, varOutputNames, existingInputs, existingOutputsVarName, isVertexStage, commonShaderPart) {
     const shaderNode = shaderNodes[nodeIndex];
     if (varInputNames[nodeIndex] == null) {
       varInputNames[nodeIndex] = [];
@@ -467,13 +467,13 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
     for (let j = 0; j < shaderNode.getInputs().length; j++) {
       const inputConnection = inputConnections[j];
       if (inputConnection == null) {
-        const defaultValue = this.Gs(engine, shaderNode, j);
+        const defaultValue = this.Os(engine, shaderNode, j);
         if (defaultValue) {
           varInputNames[nodeIndex].push(defaultValue);
         }
         continue;
       }
-      const { varName, rowStr } = this.Hs(
+      const { varName, rowStr } = this.Ps(
         engine,
         inputConnection,
         shaderNode,
@@ -497,7 +497,7 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
    * Checks if the defaultValue is a struct type (Record<string, ValueTypes>) rather than a primitive ValueTypes.
    * @private
    */
-  static Is(defaultValue) {
+  static Qs(defaultValue) {
     if (typeof defaultValue !== "object" || defaultValue === null) {
       return false;
     }
@@ -511,7 +511,7 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
    * If the glslStr starts with 'struct ', extracts and returns the struct name.
    * @private
    */
-  static Js(compositionType) {
+  static Rs(compositionType) {
     const glslStr = compositionType.getGlslStr(ComponentType.Unknown);
     if (glslStr.startsWith("struct ")) {
       return glslStr.replace("struct ", "");
@@ -522,9 +522,9 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
    * Generates a shader initialization string for a struct type default value.
    * @private
    */
-  static Ks(compositionType, defaultValue, isWebGPU) {
+  static Ss(compositionType, defaultValue, isWebGPU) {
     var _a;
-    const structName = (_a = this.Js(compositionType)) != null ? _a : "";
+    const structName = (_a = this.Rs(compositionType)) != null ? _a : "";
     const memberValues = [];
     for (const [_key, value] of Object.entries(defaultValue)) {
       if (isWebGPU) {
@@ -541,14 +541,14 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
    * Otherwise, a zero value based on the socket's compositionType and componentType will be generated.
    * @private
    */
-  static Gs(engine, shaderNode, inputIndex) {
+  static Os(engine, shaderNode, inputIndex) {
     const inputSocket = shaderNode.getInputs()[inputIndex];
     const isWebGPU = engine.engineState.currentProcessApproach === ProcessApproach.WebGPU;
     const isBool = inputSocket.componentType === ComponentType.Bool;
     const isInt = inputSocket.componentType === ComponentType.Int || inputSocket.componentType === ComponentType.UnsignedInt;
     if (inputSocket.defaultValue != null) {
-      if (this.Is(inputSocket.defaultValue)) {
-        return this.Ks(inputSocket.compositionType, inputSocket.defaultValue, isWebGPU);
+      if (this.Qs(inputSocket.defaultValue)) {
+        return this.Ss(inputSocket.compositionType, inputSocket.defaultValue, isWebGPU);
       }
       const primitiveValue = inputSocket.defaultValue;
       if (isBool) {
@@ -568,7 +568,7 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
    * Processes an input connection and returns variable name and shader statement.
    * @private
    */
-  static Hs(engine, inputConnection, shaderNode, isVertexStage, existingInputs, commonShaderPart) {
+  static Ps(engine, inputConnection, shaderNode, isVertexStage, existingInputs, commonShaderPart) {
     const inputNode = AbstractShaderNode._shaderNodes[inputConnection.shaderNodeUid];
     const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
     const inputSocketOfThis = shaderNode.getInput(inputConnection.inputNameOfThis);
@@ -596,7 +596,7 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
    * Collects output variables for a specific node.
    * @private
    */
-  static Es(nodeIndex, shaderNodes, varOutputNames, existingOutputs, existingOutputsVarName) {
+  static Ms(nodeIndex, shaderNodes, varOutputNames, existingOutputs, existingOutputsVarName) {
     const prevShaderNode = shaderNodes[nodeIndex - 1];
     if (!prevShaderNode) return;
     for (let j = 0; j < shaderNodes.length; j++) {
@@ -625,7 +625,7 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
    * Generates shader code for the nodes.
    * @private
    */
-  static Bs(engine, shaderNodes, varInputNames, varOutputNames, isVertexStage) {
+  static Js(engine, shaderNodes, varInputNames, varOutputNames, isVertexStage) {
     let shaderBody = "";
     let dummyVarCounter = 0;
     for (let i = 0; i < shaderNodes.length; i++) {
@@ -681,7 +681,7 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
    * Handles vertex-to-fragment data passing in vertex stage.
    * @private
    */
-  static Ls(engine, shaderNodes, _varInputNames, varOutputNames) {
+  static Ts(engine, shaderNodes, _varInputNames, varOutputNames) {
     let shaderBody = "";
     const assignedVaryings = /* @__PURE__ */ new Set();
     for (let i = 0; i < shaderNodes.length; i++) {
@@ -740,20 +740,20 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
    * @throws Error if shader construction fails
    * @private
    */
-  static zs(engine, shaderNodes, isVertexStage, commonShaderPart, shadingSections) {
+  static Hs(engine, shaderNodes, isVertexStage, commonShaderPart, shadingSections) {
     let shaderBody = "";
-    shaderBody += this.Ds(engine, shaderNodes, isVertexStage);
+    shaderBody += this.Ls(engine, shaderNodes, isVertexStage);
     shaderBody += commonShaderPart.getMainBegin(engine, isVertexStage);
-    const { varInputNames, varOutputNames, collectedShaderBody } = this.As(
+    const { varInputNames, varOutputNames, collectedShaderBody } = this.Is(
       engine,
       shaderNodes,
       isVertexStage,
       commonShaderPart
     );
     shaderBody += collectedShaderBody;
-    shaderBody += this.Bs(engine, shaderNodes, varInputNames, varOutputNames, isVertexStage);
+    shaderBody += this.Js(engine, shaderNodes, varInputNames, varOutputNames, isVertexStage);
     if (isVertexStage) {
-      shaderBody += this.Ls(engine, shaderNodes, varInputNames, varOutputNames);
+      shaderBody += this.Ts(engine, shaderNodes, varInputNames, varOutputNames);
     }
     shaderBody += commonShaderPart.getMainEnd(engine, isVertexStage, shadingSections);
     return shaderBody;
@@ -781,7 +781,7 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
   static generateShaderCodeFromJson(engine, json, commonShaderPart, pixelEndNodeNames = ["outColor", "conditionalDiscard", "outDistance", "outUnion", "outShadingColor"]) {
     const { nodeInstances, textureInfos } = constructNodes(json);
     const constructedNodes = Object.values(nodeInstances);
-    const nodes = this.xs(constructedNodes);
+    const nodes = this.Fs(constructedNodes);
     resolveShaderStage(nodes);
     const varyingNodes = filterNodesForVarying(nodes, "outColor");
     const varyingNodesForDiscard = filterNodesForVarying(nodes, "conditionalDiscard");
@@ -794,7 +794,7 @@ var ShaderGraphResolver = class _ShaderGraphResolver {
       allVaryingNodes,
       commonShaderPart
     );
-    const shadingGroups = this.Cs(json, nodeInstances);
+    const shadingGroups = this.Ks(json, nodeInstances);
     const pixelRet = _ShaderGraphResolver.createPixelShaderCode(engine, pixelNodes, commonShaderPart, shadingGroups);
     if (vertexRet == null || pixelRet == null) {
       return;

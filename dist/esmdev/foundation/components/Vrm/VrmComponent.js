@@ -16,22 +16,22 @@ var VrmComponent = class extends Component {
    */
   constructor(engine, entityUid, componentSid, entityComponent, isReUse) {
     super(engine, entityUid, componentSid, entityComponent, isReUse);
-    this.gi = /* @__PURE__ */ new Map();
+    this.ni = /* @__PURE__ */ new Map();
     this.rc = /* @__PURE__ */ new Map();
     /** morph target key -> expressions that contribute to it (rebuilt when expressions change). */
-    this.hi = /* @__PURE__ */ new Map();
+    this.oi = /* @__PURE__ */ new Map();
     /** expression name -> morph target keys it affects (rebuilt when expressions change). */
-    this.ji = /* @__PURE__ */ new Map();
+    this.qi = /* @__PURE__ */ new Map();
     /** Reused scratch set of morph target keys affected by the current update. */
-    this.li = /* @__PURE__ */ new Set();
+    this.si = /* @__PURE__ */ new Set();
     /** True until all morph targets have been written once after the expression set changed. */
-    this.fi = true;
+    this.mi = true;
     /**
      * BlendShapeComponent.updateCount observed after the last morph target application.
      * If the counter moved without this component writing, another writer (a weights animation
      * channel, an editor slider, ...) changed morph weights and they must be recomputed.
      */
-    this.ii = -1;
+    this.pi = -1;
     this._version = "";
     this.moveStageTo(ProcessStage.Logic);
   }
@@ -56,32 +56,32 @@ var VrmComponent = class extends Component {
    */
   setVrmExpressions(expressions) {
     for (const exp of expressions) {
-      this.gi.set(exp.name, exp);
+      this.ni.set(exp.name, exp);
       this.rc.set(exp.name, 0);
     }
-    this.mi();
-    this.fi = true;
+    this.ti();
+    this.mi = true;
   }
   /**
    * Builds the reverse index used for differential morph target updates.
    * Called only when the expression set changes, never per frame.
    */
-  mi() {
-    this.hi.clear();
-    this.ji.clear();
-    for (const [expressionName, expression] of this.gi) {
+  ti() {
+    this.oi.clear();
+    this.qi.clear();
+    for (const [expressionName, expression] of this.ni) {
       const keys = [];
       for (const bind of expression.binds) {
         const key = `${bind.entityIdx}:${bind.blendShapeIdx}`;
-        let target = this.hi.get(key);
+        let target = this.oi.get(key);
         if (target === void 0) {
           target = { entityIdx: bind.entityIdx, blendShapeIdx: bind.blendShapeIdx, contributions: [] };
-          this.hi.set(key, target);
+          this.oi.set(key, target);
         }
         target.contributions.push({ expressionName, weight: bind.weight });
         keys.push(key);
       }
-      this.ji.set(expressionName, keys);
+      this.qi.set(expressionName, keys);
     }
   }
   /**
@@ -92,21 +92,21 @@ var VrmComponent = class extends Component {
    * @param weight - The weight value to apply (typically between 0 and 1)
    */
   setExpressionWeight(expressionName, weight) {
-    const changedKeys = this.li;
+    const changedKeys = this.si;
     changedKeys.clear();
-    const isFullUpdate = this.fi || this.ii !== BlendShapeComponent.updateCount;
+    const isFullUpdate = this.mi || this.pi !== BlendShapeComponent.updateCount;
     if (isFullUpdate) {
-      for (const key of this.hi.keys()) {
+      for (const key of this.oi.keys()) {
         changedKeys.add(key);
       }
     }
-    this.ni(expressionName, weight, changedKeys);
+    this.ui(expressionName, weight, changedKeys);
     if (changedKeys.size > 0) {
-      this.oi(changedKeys);
+      this.vi(changedKeys);
     }
-    this.ii = BlendShapeComponent.updateCount;
-    if (this.fi) {
-      this.fi = false;
+    this.pi = BlendShapeComponent.updateCount;
+    if (this.mi) {
+      this.mi = false;
     }
     changedKeys.clear();
   }
@@ -116,23 +116,23 @@ var VrmComponent = class extends Component {
    * @param expressionWeights - Expression names and their evaluated weights
    */
   setExpressionWeights(expressionWeights) {
-    const changedKeys = this.li;
+    const changedKeys = this.si;
     changedKeys.clear();
-    const isFullUpdate = this.fi || this.ii !== BlendShapeComponent.updateCount;
+    const isFullUpdate = this.mi || this.pi !== BlendShapeComponent.updateCount;
     if (isFullUpdate) {
-      for (const key of this.hi.keys()) {
+      for (const key of this.oi.keys()) {
         changedKeys.add(key);
       }
     }
     for (const [expressionName, weight] of expressionWeights) {
-      this.ni(expressionName, weight, changedKeys);
+      this.ui(expressionName, weight, changedKeys);
     }
     if (changedKeys.size > 0) {
-      this.oi(changedKeys);
+      this.vi(changedKeys);
     }
-    this.ii = BlendShapeComponent.updateCount;
-    if (this.fi) {
-      this.fi = false;
+    this.pi = BlendShapeComponent.updateCount;
+    if (this.mi) {
+      this.mi = false;
     }
     changedKeys.clear();
   }
@@ -143,8 +143,8 @@ var VrmComponent = class extends Component {
    * @param changedKeys - Receives the morph target keys affected by a change
    * @returns True when the applied weight actually changed
    */
-  ni(expressionName, weight, changedKeys) {
-    const expression = this.gi.get(expressionName);
+  ui(expressionName, weight, changedKeys) {
+    const expression = this.ni.get(expressionName);
     if (Is.not.exist(expression)) {
       return false;
     }
@@ -154,7 +154,7 @@ var VrmComponent = class extends Component {
       return false;
     }
     this.rc.set(expressionName, appliedWeight);
-    const affectedKeys = this.ji.get(expressionName);
+    const affectedKeys = this.qi.get(expressionName);
     if (affectedKeys !== void 0) {
       for (let i = 0; i < affectedKeys.length; i++) {
         changedKeys.add(affectedKeys[i]);
@@ -172,10 +172,10 @@ var VrmComponent = class extends Component {
    *
    * @param morphTargetKeys - Keys of the morph targets to recompute
    */
-  oi(morphTargetKeys) {
+  vi(morphTargetKeys) {
     var _a;
     for (const key of morphTargetKeys) {
-      const target = this.hi.get(key);
+      const target = this.oi.get(key);
       if (target === void 0) {
         continue;
       }
@@ -205,7 +205,7 @@ var VrmComponent = class extends Component {
    * @returns An array of all expression names
    */
   getExpressionNames() {
-    return Array.from(this.gi.keys());
+    return Array.from(this.ni.keys());
   }
   /**
    * Creates a shallow copy of this component from another VrmComponent.
@@ -215,11 +215,11 @@ var VrmComponent = class extends Component {
    */
   _shallowCopyFrom(component) {
     const vrmComponent = component;
-    this.gi = new Map(vrmComponent.gi);
+    this.ni = new Map(vrmComponent.ni);
     this.rc = new Map(vrmComponent.rc);
     this._version = vrmComponent._version;
-    this.mi();
-    this.fi = true;
+    this.ti();
+    this.mi = true;
   }
   /**
    * Destroys this component and cleans up resources.
@@ -244,10 +244,10 @@ var VrmComponent = class extends Component {
        * @returns The VrmComponent instance
        */
       getVrm() {
-        if (this.ki === void 0) {
-          this.ki = this.getComponentByComponentTID(WellKnownComponentTIDs.VrmComponentTID);
+        if (this.ri === void 0) {
+          this.ri = this.getComponentByComponentTID(WellKnownComponentTIDs.VrmComponentTID);
         }
-        return this.ki;
+        return this.ri;
       }
     }
     applyMixins(base, VrmEntity);

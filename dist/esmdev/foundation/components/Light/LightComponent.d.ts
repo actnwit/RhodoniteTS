@@ -354,7 +354,9 @@ export declare class LightComponent extends Component {
     private __getEffectiveRange;
     /**
      * Cleans up the light component when it's being destroyed.
-     * Resets the light intensity values in the global data arrays.
+     * Destroys the light gizmo so that it does not stay in the scene after the light
+     * entity (or only its LightComponent) is removed, and resets the light intensity
+     * values in the global data arrays.
      *
      * @override
      */

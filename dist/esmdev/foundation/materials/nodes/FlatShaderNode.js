@@ -17,16 +17,16 @@ var FlatShaderNode = class extends AbstractShaderNode {
       codeGLSL: FlatShaderityObjectGLSL.code,
       codeWGSL: FlatShaderityObjectWGSL.code
     });
-    this.zr.push(
+    this.Hr.push(
       new Socket("vertexColor", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("diffuseColorFactor", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("diffuseColorTexture", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.Cr.push(new Socket("outColor", CompositionType.Vec4, ComponentType.Float));
+    this.Kr.push(new Socket("outColor", CompositionType.Vec4, ComponentType.Float));
   }
   /**
    * Gets the output socket that contains the result of the addition operation.
@@ -34,7 +34,7 @@ var FlatShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the addition result
    */
   getSocketOutput() {
-    return this.Cr[0];
+    return this.Kr[0];
   }
 };
 export {

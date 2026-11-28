@@ -23,8 +23,8 @@ var PhysicsComponent = class _PhysicsComponent extends Component {
    */
   constructor(engine, entityUid, componentSid, entityComponent, isReUse) {
     super(engine, entityUid, componentSid, entityComponent, isReUse);
-    this.te = /* @__PURE__ */ new Map();
-    this.ze = 0;
+    this.xe = /* @__PURE__ */ new Map();
+    this.De = 0;
     this.moveStageTo(ProcessStage.Logic);
   }
   /**
@@ -47,46 +47,46 @@ var PhysicsComponent = class _PhysicsComponent extends Component {
    * @param strategy - The physics strategy to use for this component
    */
   setStrategy(strategy) {
-    this.ed = strategy;
+    this.id = strategy;
   }
   /**
    * Gets the current physics strategy used by this component.
    * @returns The physics strategy instance, or undefined if none is set
    */
   get strategy() {
-    return this.ed;
+    return this.id;
   }
   /** Sets properties shared by the complete rigid body and rebuilds its colliders. */
   setMotionProperty(motion) {
     if (!motion.move && motion.isKinematic) {
       throw new Error("A kinematic physics body must have motion.move enabled.");
     }
-    const previous = this.ue;
-    this.ue = _PhysicsComponent.xe(motion);
+    const previous = this.ye;
+    this.ye = _PhysicsComponent.Be(motion);
     try {
-      if (this.te.size > 0) {
-        this.ve(this.te, () => {
-          this.ue = previous;
-          this.ve(this.te);
+      if (this.xe.size > 0) {
+        this.ze(this.xe, () => {
+          this.ye = previous;
+          this.ze(this.xe);
         });
       }
     } catch (error) {
-      this.ue = previous;
+      this.ye = previous;
       throw error;
     }
   }
   get motionProperty() {
-    return this.ue == null ? void 0 : _PhysicsComponent.xe(this.ue);
+    return this.ye == null ? void 0 : _PhysicsComponent.Be(this.ye);
   }
   /**
    * Whether the rigid body is allowed to move. False means a fixed body.
    * When no motion property is set, the first shape binding's body is used.
    */
   get bodyMove() {
-    if (this.ue != null) {
-      return this.ue.move;
+    if (this.ye != null) {
+      return this.ye.move;
     }
-    for (const binding of this.te.values()) {
+    for (const binding of this.xe.values()) {
       return binding.body.move;
     }
     return false;
@@ -103,57 +103,57 @@ var PhysicsComponent = class _PhysicsComponent extends Component {
    */
   setBodyMove(move) {
     var _a, _b, _c;
-    const nextIsKinematic = move ? (_b = (_a = this.ue) == null ? void 0 : _a.isKinematic) != null ? _b : false : false;
+    const nextIsKinematic = move ? (_b = (_a = this.ye) == null ? void 0 : _a.isKinematic) != null ? _b : false : false;
     const nextMotion = {
-      ...(_c = this.ue) != null ? _c : {},
+      ...(_c = this.ye) != null ? _c : {},
       move,
       isKinematic: nextIsKinematic
     };
-    const previousMotion = this.ue;
-    const previousBindings = this.te;
+    const previousMotion = this.ye;
+    const previousBindings = this.xe;
     const nextBindings = /* @__PURE__ */ new Map();
-    for (const [bindingId, binding] of this.te) {
+    for (const [bindingId, binding] of this.xe) {
       nextBindings.set(bindingId, {
         ...binding,
         body: { ...binding.body, move, isKinematic: nextIsKinematic }
       });
     }
-    this.ue = _PhysicsComponent.xe(nextMotion);
-    this.te = nextBindings;
+    this.ye = _PhysicsComponent.Be(nextMotion);
+    this.xe = nextBindings;
     if (nextBindings.size === 0) {
       return;
     }
     try {
-      this.ve(nextBindings, () => {
-        this.ue = previousMotion;
-        this.te = previousBindings;
-        this.ve(previousBindings);
+      this.ze(nextBindings, () => {
+        this.ye = previousMotion;
+        this.xe = previousBindings;
+        this.ze(previousBindings);
       });
     } catch (error) {
-      this.ue = previousMotion;
-      this.te = previousBindings;
+      this.ye = previousMotion;
+      this.xe = previousBindings;
       throw error;
     }
   }
   /** Adds one generic ShapeComponent instance to this physical body. */
   bindShape(binding) {
-    const id = this.ze;
-    const next = new Map(this.te);
-    next.set(id, _PhysicsComponent.Ae(binding));
-    this.we(next);
-    this.te = next;
-    this.ze++;
+    const id = this.De;
+    const next = new Map(this.xe);
+    next.set(id, _PhysicsComponent.Ee(binding));
+    this.Ae(next);
+    this.xe = next;
+    this.De++;
     return id;
   }
   updateShapeBinding(bindingId, binding) {
-    const previous = this.te.get(bindingId);
+    const previous = this.xe.get(bindingId);
     if (previous == null) {
       throw new Error(`Physics shape binding ${bindingId} does not exist.`);
     }
-    const next = new Map(this.te);
-    next.set(bindingId, _PhysicsComponent.Ae(binding));
-    this.we(next);
-    this.te = next;
+    const next = new Map(this.xe);
+    next.set(bindingId, _PhysicsComponent.Ee(binding));
+    this.Ae(next);
+    this.xe = next;
     if (previous.collider.isSensor && !binding.collider.isSensor) {
       TriggerComponent._unregisterSensorBinding(this.c, this.entity.entityUID, bindingId);
     }
@@ -169,7 +169,7 @@ var PhysicsComponent = class _PhysicsComponent extends Component {
     const next = /* @__PURE__ */ new Map();
     const sensorBindingIds = [];
     let removed = 0;
-    for (const [bindingId, binding] of this.te) {
+    for (const [bindingId, binding] of this.xe) {
       if (binding.shapeComponent === shapeComponent && ((_a = binding.shapeIndex) != null ? _a : 0) === shapeIndex) {
         removed++;
         if (binding.collider.isSensor) {
@@ -182,47 +182,47 @@ var PhysicsComponent = class _PhysicsComponent extends Component {
     if (removed === 0) {
       return 0;
     }
-    this.we(next);
-    this.te = next;
+    this.Ae(next);
+    this.xe = next;
     for (const bindingId of sensorBindingIds) {
       TriggerComponent._unregisterSensorBinding(this.c, this.entity.entityUID, bindingId);
     }
     return removed;
   }
   removeShapeBinding(bindingId) {
-    const removed = this.te.get(bindingId);
+    const removed = this.xe.get(bindingId);
     if (removed == null) {
       return false;
     }
-    const next = new Map(this.te);
+    const next = new Map(this.xe);
     next.delete(bindingId);
-    this.we(next);
-    this.te = next;
+    this.Ae(next);
+    this.xe = next;
     if (removed.collider.isSensor) {
       TriggerComponent._unregisterSensorBinding(this.c, this.entity.entityUID, bindingId);
     }
     return true;
   }
   clearShapeBindings() {
-    if (this.te.size === 0) {
+    if (this.xe.size === 0) {
       return;
     }
-    this.we(/* @__PURE__ */ new Map());
-    this.Be(this.te);
-    this.te.clear();
+    this.Ae(/* @__PURE__ */ new Map());
+    this.Fe(this.xe);
+    this.xe.clear();
   }
   rebuildShapeBindings() {
-    this.ve(this.te);
+    this.ze(this.xe);
   }
   get shapeBindingCount() {
-    return this.te.size;
+    return this.xe.size;
   }
-  we(bindings) {
-    this.ve(bindings, () => this.ve(this.te));
+  Ae(bindings) {
+    this.ze(bindings, () => this.ze(this.xe));
   }
-  ve(bindings, rollback) {
+  ze(bindings, rollback) {
     var _a, _b, _c, _d;
-    const strategy = this.ed;
+    const strategy = this.id;
     if (strategy == null) {
       throw new Error("A physics strategy must be set before binding shapes.");
     }
@@ -249,27 +249,27 @@ var PhysicsComponent = class _PhysicsComponent extends Component {
       isKinematic = bindingIsKinematic;
       resolved.push({ bindingId, shape, body: { ...binding.body }, collider: { ...binding.collider } });
     }
-    if (this.ue != null && move != null && this.ue.move !== move) {
+    if (this.ye != null && move != null && this.ye.move !== move) {
       throw new Error("Physics motion.move must match body.move on every shape binding.");
     }
-    if (this.ue != null && isKinematic != null && ((_c = this.ue.isKinematic) != null ? _c : false) !== isKinematic) {
+    if (this.ye != null && isKinematic != null && ((_c = this.ye.isKinematic) != null ? _c : false) !== isKinematic) {
       throw new Error("Physics motion.isKinematic must match body.isKinematic on every shape binding.");
     }
     const entity = this.entity;
-    const motion = (_d = this.ue) != null ? _d : move == null ? void 0 : { move, isKinematic };
+    const motion = (_d = this.ye) != null ? _d : move == null ? void 0 : { move, isKinematic };
     if (resolved.length === 0) {
       if (strategy.clearShapeInstances == null) {
         throw new Error("The current physics strategy cannot clear ShapeComponent bindings.");
       }
-      this.ye(() => strategy.clearShapeInstances(), rollback);
+      this.Ce(() => strategy.clearShapeInstances(), rollback);
     } else if (strategy.setShapeInstances != null) {
-      this.ye(
+      this.Ce(
         () => strategy.setShapeInstances(resolved, entity, entity.getSceneGraph()._getPhysicsWorldScale(), motion),
         rollback
       );
     } else if (resolved.length === 1 && strategy.setShapeInstance != null) {
       const binding = resolved[0];
-      this.ye(
+      this.Ce(
         () => strategy.setShapeInstance(
           binding.shape,
           binding.body,
@@ -284,7 +284,7 @@ var PhysicsComponent = class _PhysicsComponent extends Component {
       throw new Error("The current physics strategy does not support multiple ShapeComponent bindings.");
     }
   }
-  ye(update, rollback) {
+  Ce(update, rollback) {
     try {
       update();
     } catch (error) {
@@ -303,7 +303,7 @@ var PhysicsComponent = class _PhysicsComponent extends Component {
       throw error;
     }
   }
-  static Ae(binding) {
+  static Ee(binding) {
     return {
       shapeComponent: binding.shapeComponent,
       shapeIndex: binding.shapeIndex,
@@ -311,14 +311,14 @@ var PhysicsComponent = class _PhysicsComponent extends Component {
       collider: { ...binding.collider }
     };
   }
-  Be(bindings) {
+  Fe(bindings) {
     for (const [bindingId, binding] of bindings) {
       if (binding.collider.isSensor) {
         TriggerComponent._unregisterSensorBinding(this.c, this.entity.entityUID, bindingId);
       }
     }
   }
-  static xe(motion) {
+  static Be(motion) {
     return {
       ...motion,
       linearVelocity: motion.linearVelocity == null ? void 0 : Vector3.fromCopy3(motion.linearVelocity.x, motion.linearVelocity.y, motion.linearVelocity.z),
@@ -329,7 +329,7 @@ var PhysicsComponent = class _PhysicsComponent extends Component {
     };
   }
   getVrmSpring() {
-    const strategy = this.ed;
+    const strategy = this.id;
     if (Is.not.exist(strategy) || !(strategy instanceof VRMSpringBonePhysicsStrategy)) {
       return void 0;
     }
@@ -360,7 +360,7 @@ var PhysicsComponent = class _PhysicsComponent extends Component {
     if (!AnimationComponent.getIsAnimating(this.c)) {
       return;
     }
-    (_a = this.ed) == null ? void 0 : _a.update(this.c.config);
+    (_a = this.id) == null ? void 0 : _a.update(this.c.config);
   }
   /**
    * Sets the visibility of all colliders managed by this physics component.
@@ -372,7 +372,7 @@ var PhysicsComponent = class _PhysicsComponent extends Component {
    */
   setCollidersVisible(visible) {
     var _a, _b;
-    (_b = (_a = this.ed) == null ? void 0 : _a.setCollidersVisible) == null ? void 0 : _b.call(_a, visible);
+    (_b = (_a = this.id) == null ? void 0 : _a.setCollidersVisible) == null ? void 0 : _b.call(_a, visible);
   }
   /**
    * Destroys this physics component and cleans up resources.
@@ -381,11 +381,11 @@ var PhysicsComponent = class _PhysicsComponent extends Component {
    */
   _destroy() {
     var _a, _b;
-    (_b = (_a = this.ed) == null ? void 0 : _a.clearShapeInstances) == null ? void 0 : _b.call(_a);
-    this.Be(this.te);
+    (_b = (_a = this.id) == null ? void 0 : _a.clearShapeInstances) == null ? void 0 : _b.call(_a);
+    this.Fe(this.xe);
     super._destroy();
-    this.ed = void 0;
-    this.te.clear();
+    this.id = void 0;
+    this.xe.clear();
   }
   /**
    * Adds physics functionality to an entity by mixing in physics-specific methods.

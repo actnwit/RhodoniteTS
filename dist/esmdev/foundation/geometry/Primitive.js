@@ -30,30 +30,30 @@ var _Primitive = class _Primitive extends RnObject {
    */
   constructor(engine) {
     super();
-    this.Gl = PrimitiveMode.Unknown;
+    this.Nl = PrimitiveMode.Unknown;
+    this.Ql = /* @__PURE__ */ new Map();
+    this.cm = "";
     this.Jl = /* @__PURE__ */ new Map();
-    this.Xl = "";
-    this.Cl = /* @__PURE__ */ new Map();
-    this.El = new None();
-    this.Kl = -1;
+    this.Ll = new None();
+    this.Rl = -1;
     // start ID from zero
-    this.Ml = new AABB();
-    this.Ol = [];
-    this.Nl = -1;
+    this.Tl = new AABB();
+    this.Vl = [];
+    this.Ul = -1;
     this._sortkey = 0;
     this._viewDepth = 0;
-    this.Ul = 0;
-    this.Vl = 0;
-    this.Xd = "";
+    this.$l = 0;
+    this.am = 0;
+    this.$d = "";
     this.c = engine;
-    if (_Primitive.Ll == null) {
-      _Primitive.Ll = createClassicUberMaterial(this.c, {
+    if (_Primitive.Sl == null) {
+      _Primitive.Sl = createClassicUberMaterial(this.c, {
         isSkinning: true,
         isLighting: true
       });
     }
-    this.Hl = _Primitive.Ll;
-    this._prevMaterial = new WeakRef(_Primitive.Ll);
+    this.Ol = _Primitive.Sl;
+    this._prevMaterial = new WeakRef(_Primitive.Sl);
   }
   /**
    * Calculates a unique fingerprint string for the primitive based on its properties.
@@ -62,35 +62,35 @@ var _Primitive = class _Primitive extends RnObject {
    */
   calcFingerPrint() {
     let str = "";
-    str += this.Gl.index;
-    if (this.El.has()) {
+    str += this.Nl.index;
+    if (this.Ll.has()) {
       str += this.getRenderIndexBitSize();
     }
     str += this.targets.length;
-    str += _Primitive.getPrimitiveIdxHasMorph(this.Kl);
-    for (const [semantic, accessor] of this.Cl) {
+    str += _Primitive.getPrimitiveIdxHasMorph(this.Rl);
+    for (const [semantic, accessor] of this.Jl) {
       str += semantic;
       str += accessor.componentType.webgpu + accessor.compositionType.webgpu;
       str += accessor.actualByteStride;
     }
-    this.Xd = str;
+    this.$d = str;
   }
   /**
    * Gets the cached fingerprint string of the primitive.
    * @returns The fingerprint string used for primitive identification
    */
   _getFingerPrint() {
-    return this.Xd;
+    return this.$d;
   }
   /**
    * Gets the index bit size used for rendering. Primitives merged into a multi-draw
    * group use the shared uint32 index buffer regardless of their source accessor type.
    */
   getRenderIndexBitSize() {
-    if (!this.El.has()) {
+    if (!this.Ll.has()) {
       return "uint16";
     }
-    if (this.Fl != null) {
+    if (this.Ml != null) {
       return "uint32";
     }
     return this.getIndexBitSize();
@@ -101,14 +101,14 @@ var _Primitive = class _Primitive extends RnObject {
   }
   /** The multi-draw group this primitive belongs to, if any. */
   get _multiDrawGroup() {
-    return this.Fl;
+    return this.Ml;
   }
   /** The entry of this primitive inside its multi-draw group. */
   get _multiDrawEntry() {
-    if (this.Fl == null || this.Nl < 0) {
+    if (this.Ml == null || this.Ul < 0) {
       return void 0;
     }
-    return this.Fl.entries[this.Nl];
+    return this.Ml.entries[this.Ul];
   }
   /**
    * Associates this primitive with a multi-draw group entry and shares the group's
@@ -116,9 +116,9 @@ var _Primitive = class _Primitive extends RnObject {
    * @internal
    */
   _setMultiDrawGroup(group, entryIndex) {
-    this.Fl = group;
-    this.Nl = entryIndex;
-    this.Dl = group.vertexHandles;
+    this.Ml = group;
+    this.Ul = entryIndex;
+    this.Kl = group.vertexHandles;
     this.calcFingerPrint();
   }
   /**
@@ -126,9 +126,9 @@ var _Primitive = class _Primitive extends RnObject {
    * @internal
    */
   _clearMultiDrawGroup() {
-    this.Fl = void 0;
-    this.Nl = -1;
-    this.Dl = void 0;
+    this.Ml = void 0;
+    this.Ul = -1;
+    this.Kl = void 0;
     this.calcFingerPrint();
   }
   /**
@@ -137,7 +137,7 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns The index if the primitive has morph targets, otherwise undefined
    */
   static getPrimitiveIdxHasMorph(primitiveUid) {
-    return this.Sl.get(primitiveUid);
+    return this.Zl.get(primitiveUid);
   }
   /**
    * Gets a primitive with morph targets by its index.
@@ -145,7 +145,7 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns The primitive if found and still exists, otherwise undefined
    */
   static getPrimitiveHasMorph(primitiveIdx) {
-    return this.Tl.get(primitiveIdx);
+    return this._l.get(primitiveIdx);
   }
   /**
    * Determines the bit size required for indices based on the index accessor type.
@@ -153,7 +153,7 @@ var _Primitive = class _Primitive extends RnObject {
    * @throws Error if no index accessor exists or the component type is unsupported
    */
   getIndexBitSize() {
-    const indexAccessor = this.El.unwrapOrUndefined();
+    const indexAccessor = this.Ll.unwrapOrUndefined();
     if (indexAccessor == null) {
       throw new Error("indexAccessor is null");
     }
@@ -173,7 +173,7 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns The vertex handles if they exist, otherwise undefined
    */
   get _vertexHandles() {
-    return this.Dl;
+    return this.Kl;
   }
   /**
    * Gets the current count of material variant updates across all primitives.
@@ -181,7 +181,7 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns The number of material variant updates since application start
    */
   static get variantUpdateCount() {
-    return this.Ql;
+    return this.Xl;
   }
   /**
    * Registers a material variant for this primitive with a specific name.
@@ -190,8 +190,8 @@ var _Primitive = class _Primitive extends RnObject {
    * @param material - The material to associate with the variant name
    */
   setMaterialVariant(variantName, material) {
-    this.Jl.set(variantName, material);
-    _Primitive.Ql++;
+    this.Ql.set(variantName, material);
+    _Primitive.Xl++;
   }
   /**
    * Applies a previously registered material variant by its name.
@@ -199,11 +199,11 @@ var _Primitive = class _Primitive extends RnObject {
    * @param variantName - The name of the variant to apply
    */
   applyMaterialVariant(variantName) {
-    const variant = this.Jl.get(variantName);
+    const variant = this.Ql.get(variantName);
     if (variant) {
       this.material = variant;
-      this.Xl = variantName;
-      _Primitive.Ql++;
+      this.cm = variantName;
+      _Primitive.Xl++;
     }
   }
   /**
@@ -211,8 +211,8 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns The name of the active variant, or an empty string if no variant is active
    */
   getCurrentVariantName() {
-    for (const [name, material] of this.Jl) {
-      if (material === this.Hl) {
+    for (const [name, material] of this.Ql) {
+      if (material === this.Ol) {
         return name;
       }
     }
@@ -223,7 +223,7 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns An array containing all variant names
    */
   getVariantNames() {
-    return Array.from(this.Jl.keys());
+    return Array.from(this.Ql.keys());
   }
   /**
    * Gets the material associated with a specific variant name.
@@ -231,7 +231,7 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns The material for the variant, or undefined if the variant doesn't exist
    */
   getVariantMaterial(variantName) {
-    return this.Jl.get(variantName);
+    return this.Ql.get(variantName);
   }
   /**
    * Sets the material for this primitive and updates rendering sort keys.
@@ -239,7 +239,7 @@ var _Primitive = class _Primitive extends RnObject {
    * @param mat - The material to assign to this primitive
    */
   set material(mat) {
-    this.Hl = mat;
+    this.Ol = mat;
     this.setSortKey(PrimitiveSortKey_BitOffset_Material, PrimitiveSortKey_BitLength_Material, mat.materialUID);
     let translucencyType = 0;
     if (mat.isTranslucentOpaque()) {
@@ -257,14 +257,14 @@ var _Primitive = class _Primitive extends RnObject {
       translucencyType
     );
     mat._addBelongPrimitive(this);
-    this.Il();
+    this.Pl();
   }
   /**
    * Gets the current material assigned to this primitive.
    * @returns The material currently in use
    */
   get material() {
-    return this.Hl;
+    return this.Ol;
   }
   /**
    * Updates the sort key by setting a specific bit range with a value.
@@ -298,14 +298,14 @@ var _Primitive = class _Primitive extends RnObject {
    * @internal
    */
   _belongToMesh(mesh) {
-    this.Nd = mesh;
+    this.Rd = mesh;
   }
   /**
    * Gets the mesh that this primitive belongs to.
    * @returns The parent mesh if it exists, otherwise undefined
    */
   get mesh() {
-    return this.Nd;
+    return this.Rd;
   }
   /**
    * Creates a backup of the current material for later restoration.
@@ -313,7 +313,7 @@ var _Primitive = class _Primitive extends RnObject {
    * @internal
    */
   _backupMaterial() {
-    this._prevMaterial = new WeakRef(this.Hl);
+    this._prevMaterial = new WeakRef(this.Ol);
   }
   /**
    * Restores the previously backed-up material if it still exists.
@@ -323,7 +323,7 @@ var _Primitive = class _Primitive extends RnObject {
   _restoreMaterial() {
     const material = this._prevMaterial.deref();
     if (material != null) {
-      this.Hl = material;
+      this.Ol = material;
     }
   }
   /**
@@ -333,7 +333,7 @@ var _Primitive = class _Primitive extends RnObject {
    */
   static getPrimitive(primitiveUid) {
     var _a;
-    return (_a = this.Bk[primitiveUid]) == null ? void 0 : _a.deref();
+    return (_a = this.Ik[primitiveUid]) == null ? void 0 : _a.deref();
   }
   /**
    * Iterates over all live primitives created in this application.
@@ -341,8 +341,8 @@ var _Primitive = class _Primitive extends RnObject {
    */
   static forEachPrimitive(callback) {
     var _a;
-    for (let i = 0; i < this.Bk.length; i++) {
-      const primitive = (_a = this.Bk[i]) == null ? void 0 : _a.deref();
+    for (let i = 0; i < this.Ik.length; i++) {
+      const primitive = (_a = this.Ik[i]) == null ? void 0 : _a.deref();
       if (primitive != null) {
         callback(primitive);
       }
@@ -353,7 +353,7 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns The total count of primitives
    */
   static getPrimitiveCount() {
-    return this.Rl;
+    return this.Yl;
   }
   /**
    * Notifies the primitive that its position accessor has been updated.
@@ -361,9 +361,9 @@ var _Primitive = class _Primitive extends RnObject {
    * @param accessorVersion - The new version number of the updated accessor
    */
   onAccessorUpdated(accessorVersion) {
-    this.Vl = accessorVersion;
-    if (this.Nd != null) {
-      this.Nd._onPrimitivePositionUpdated();
+    this.am = accessorVersion;
+    if (this.Rd != null) {
+      this.Rd._onPrimitivePositionUpdated();
     }
   }
   /**
@@ -376,12 +376,12 @@ var _Primitive = class _Primitive extends RnObject {
    */
   setData(attributes, mode, material, indicesAccessor) {
     if (indicesAccessor != null) {
-      this.El = new Some(indicesAccessor);
+      this.Ll = new Some(indicesAccessor);
     } else {
-      this.El = new None();
+      this.Ll = new None();
     }
-    this.Cl = attributes;
-    const positionAccessor = this.Cl.get(VertexAttribute.Position.XYZ);
+    this.Jl = attributes;
+    const positionAccessor = this.Jl.get(VertexAttribute.Position.XYZ);
     positionAccessor._primitive = new WeakRef(this);
     if (material != null) {
       this.material = material;
@@ -391,12 +391,12 @@ var _Primitive = class _Primitive extends RnObject {
         isLighting: true
       });
     }
-    this.Gl = mode;
+    this.Nl = mode;
     this.setSortKey(PrimitiveSortKey_BitOffset_PrimitiveType, PrimitiveSortKey_BitLength_PrimitiveType, mode.index);
-    this.Kl = _Primitive.Rl++;
-    _Primitive.Bk[this.Kl] = new WeakRef(this);
+    this.Rl = _Primitive.Yl++;
+    _Primitive.Ik[this.Rl] = new WeakRef(this);
     this.calcFingerPrint();
-    this.Il();
+    this.Pl();
   }
   /**
    * Copies vertex data from a descriptor into this primitive.
@@ -478,7 +478,7 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns The index accessor if indices are used, otherwise undefined
    */
   get indicesAccessor() {
-    return this.El.unwrapOrUndefined();
+    return this.Ll.unwrapOrUndefined();
   }
   /**
    * Gets the vertex count for indexed primitives.
@@ -496,7 +496,7 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns The number of vertices in the vertex buffers
    */
   getVertexCountAsVerticesBased() {
-    for (const accessor of this.Cl.values()) {
+    for (const accessor of this.Jl.values()) {
       return accessor.elementCount;
     }
     return 0;
@@ -508,7 +508,7 @@ var _Primitive = class _Primitive extends RnObject {
    */
   getTriangleCountAsIndicesBased() {
     if (this.indicesAccessor) {
-      switch (this.Gl) {
+      switch (this.Nl) {
         case PrimitiveMode.Triangles:
           return this.indicesAccessor.elementCount / 3;
         case PrimitiveMode.TriangleStrip:
@@ -527,8 +527,8 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns The number of triangles that will be rendered from vertices
    */
   getTriangleCountAsVerticesBased() {
-    for (const accessor of this.Cl.values()) {
-      switch (this.Gl) {
+    for (const accessor of this.Jl.values()) {
+      switch (this.Nl) {
         case PrimitiveMode.Triangles:
           return accessor.elementCount / 3;
         case PrimitiveMode.TriangleStrip:
@@ -546,7 +546,7 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns True if the primitive has an index buffer, false otherwise
    */
   hasIndices() {
-    return this.El.has();
+    return this.Ll.has();
   }
   /**
    * Gets all vertex attribute accessors for this primitive.
@@ -554,7 +554,7 @@ var _Primitive = class _Primitive extends RnObject {
    */
   get attributeAccessors() {
     const accessors = [];
-    this.Cl.forEach((accessor) => {
+    this.Jl.forEach((accessor) => {
       accessors.push(accessor);
     });
     return accessors;
@@ -565,7 +565,7 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns The accessor for the attribute, or undefined if not found
    */
   getAttribute(semantic) {
-    return this.Cl.get(semantic);
+    return this.Jl.get(semantic);
   }
   /**
    * Gets all vertex attribute semantic identifiers.
@@ -573,7 +573,7 @@ var _Primitive = class _Primitive extends RnObject {
    */
   get attributeSemantics() {
     const semantics = [];
-    this.Cl.forEach((_accessor, semantic) => {
+    this.Jl.forEach((_accessor, semantic) => {
       semantics.push(semantic);
     });
     return semantics;
@@ -583,7 +583,7 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns An iterator over attribute map entries
    */
   get attributeEntries() {
-    return this.Cl.entries();
+    return this.Jl.entries();
   }
   /**
    * Gets the composition types of all vertex attributes.
@@ -591,7 +591,7 @@ var _Primitive = class _Primitive extends RnObject {
    */
   get attributeCompositionTypes() {
     const types = [];
-    this.Cl.forEach((accessor) => {
+    this.Jl.forEach((accessor) => {
       types.push(accessor.compositionType);
     });
     return types;
@@ -602,7 +602,7 @@ var _Primitive = class _Primitive extends RnObject {
    */
   get attributeComponentTypes() {
     const types = [];
-    this.Cl.forEach((accessor) => {
+    this.Jl.forEach((accessor) => {
       types.push(accessor.componentType);
     });
     return types;
@@ -612,14 +612,14 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns The primitive mode enum (Triangles, TriangleStrip, etc.)
    */
   get primitiveMode() {
-    return this.Gl;
+    return this.Nl;
   }
   /**
    * Gets the unique identifier for this primitive.
    * @returns The primitive's UID
    */
   get primitiveUid() {
-    return this.Kl;
+    return this.Rl;
   }
   /**
    * Gets the version number of the position accessor.
@@ -627,7 +627,7 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns The current position accessor version
    */
   get positionAccessorVersion() {
-    return this.Vl;
+    return this.am;
   }
   /**
    * Gets the axis-aligned bounding box for this primitive.
@@ -635,48 +635,48 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns The bounding box containing all vertices
    */
   get AABB() {
-    if (this.Ml.isVanilla() || this.positionAccessorVersion !== this.Ul) {
-      const positionAccessor = this.Cl.get(VertexAttribute.Position.XYZ);
+    if (this.Tl.isVanilla() || this.positionAccessorVersion !== this.$l) {
+      const positionAccessor = this.Jl.get(VertexAttribute.Position.XYZ);
       const min = positionAccessor.min;
-      this.Ml.minPoint = _Primitive.ta.setComponents(min[0], min[1], min[2]);
+      this.Tl.minPoint = _Primitive.ta.setComponents(min[0], min[1], min[2]);
       const max = positionAccessor.max;
-      this.Ml.maxPoint = _Primitive.ta.setComponents(max[0], max[1], max[2]);
-      this.Ul = positionAccessor.version;
+      this.Tl.maxPoint = _Primitive.ta.setComponents(max[0], max[1], max[2]);
+      this.$l = positionAccessor.version;
     }
-    return this.Ml;
+    return this.Tl;
   }
   /**
    * Sets or updates a vertex attribute for this primitive.
    * @param accessor - The accessor containing the attribute data
    * @param vertexSemantic - The semantic meaning of the attribute
    */
-  Il() {
-    const mesh = this.Nd;
+  Pl() {
+    const mesh = this.Rd;
     if (mesh != null) {
       mesh._invalidateMultiDrawStructure();
     }
   }
   setVertexAttribute(accessor, vertexSemantic) {
-    this.Cl.set(vertexSemantic, accessor);
+    this.Jl.set(vertexSemantic, accessor);
     this.calcFingerPrint();
-    this.Il();
+    this.Pl();
   }
   /**
    * Removes the index buffer from this primitive, converting it to non-indexed rendering.
    */
   removeIndices() {
-    this.El = new None();
+    this.Ll = new None();
     this.calcFingerPrint();
-    this.Il();
+    this.Pl();
   }
   /**
    * Sets the index buffer for this primitive, enabling indexed rendering.
    * @param accessor - The accessor containing index data
    */
   setIndices(accessor) {
-    this.El = new Some(accessor);
+    this.Ll = new Some(accessor);
     this.calcFingerPrint();
-    this.Il();
+    this.Pl();
   }
   /**
    * Sets blend shape (morph) targets for this primitive.
@@ -684,11 +684,11 @@ var _Primitive = class _Primitive extends RnObject {
    * @param targets - Array of attribute maps representing morph targets
    */
   setBlendShapeTargets(targets) {
-    _Primitive.Tl.set(_Primitive.Pl, this);
-    _Primitive.Sl.set(this.Kl, _Primitive.Pl++);
-    this.Ol = targets;
+    _Primitive._l.set(_Primitive.Wl, this);
+    _Primitive.Zl.set(this.Rl, _Primitive.Wl++);
+    this.Vl = targets;
     this.calcFingerPrint();
-    this.Il();
+    this.Pl();
   }
   static getMorphUniformDataTargetNumbers() {
     const targetNumbers = [];
@@ -710,21 +710,21 @@ var _Primitive = class _Primitive extends RnObject {
     return offsets;
   }
   static getPrimitiveCountHasMorph() {
-    return this.Pl;
+    return this.Wl;
   }
   /**
    * Gets a copy of the blend shape targets for this primitive.
    * @returns A copy of the morph target array
    */
   getBlendShapeTargets() {
-    return this.Ol.concat();
+    return this.Vl.concat();
   }
   /**
    * Gets the blend shape targets array.
    * @returns The array of morph target attributes
    */
   get targets() {
-    return this.Ol;
+    return this.Vl;
   }
   /**
    * Checks if this primitive uses blending (transparency) for rendering.
@@ -749,14 +749,14 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns True if buffers were created, false if they already exist
    */
   create3DAPIVertexData() {
-    if (this.Fl != null) {
+    if (this.Ml != null) {
       return false;
     }
-    if (this.Dl != null) {
+    if (this.Kl != null) {
       return false;
     }
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
-    this.Dl = cgApiResourceRepository.createVertexBufferAndIndexBuffer(this);
+    this.Kl = cgApiResourceRepository.createVertexBufferAndIndexBuffer(this);
     return true;
   }
   /**
@@ -765,11 +765,11 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns True if buffers were updated, false if no buffers exist
    */
   update3DAPIVertexData() {
-    if (this.Fl != null) {
+    if (this.Ml != null) {
       return true;
     }
-    const vertexHandles = this.Dl;
-    if (Is.not.exist(this.Dl)) {
+    const vertexHandles = this.Kl;
+    if (Is.not.exist(this.Kl)) {
       return false;
     }
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
@@ -782,15 +782,15 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns True if buffers were deleted, false if no buffers exist
    */
   delete3DAPIVertexData() {
-    if (this.Fl != null) {
+    if (this.Ml != null) {
       return false;
     }
-    if (this.Dl == null) {
+    if (this.Kl == null) {
       return false;
     }
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
-    cgApiResourceRepository.deleteVertexDataResources(this.Dl);
-    this.Dl = void 0;
+    cgApiResourceRepository.deleteVertexDataResources(this.Kl);
+    this.Kl = void 0;
     return true;
   }
   /**
@@ -798,7 +798,7 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns The vertex handles for GPU resources, or undefined if not created
    */
   get vertexHandles() {
-    return this.Dl;
+    return this.Kl;
   }
   /**
    * Converts this indexed primitive to non-indexed geometry.
@@ -837,7 +837,7 @@ var _Primitive = class _Primitive extends RnObject {
       byteLengthToNeed: bufferSize,
       byteStride: 0
     }).unwrapForce();
-    for (const [semantic, accessorOld] of this.Cl) {
+    for (const [semantic, accessorOld] of this.Jl) {
       const compositionType = accessorOld.compositionType;
       const accessorNew = bufferView.takeAccessor({
         compositionType,
@@ -878,9 +878,9 @@ var _Primitive = class _Primitive extends RnObject {
   castRay(origVec3, dirVec3, isFrontFacePickable, isBackFacePickable, dotThreshold, hasFaceNormal) {
     let currentShortestT = Number.MAX_VALUE;
     let incrementNum = 3;
-    if (this.Gl === PrimitiveMode.TriangleStrip) {
+    if (this.Nl === PrimitiveMode.TriangleStrip) {
       incrementNum = 1;
-    } else if (this.Gl === PrimitiveMode.Points) {
+    } else if (this.Nl === PrimitiveMode.Points) {
       return {
         result: false
       };
@@ -891,7 +891,7 @@ var _Primitive = class _Primitive extends RnObject {
     let u = 0;
     let v = 0;
     if (this.hasIndices()) {
-      const indices = this.El.unwrapForce();
+      const indices = this.Ll.unwrapForce();
       for (let i = 0; i < indices.elementCount - 2; i++) {
         const j = i * incrementNum;
         if (j + 2 > indices.elementCount - 1) {
@@ -900,7 +900,7 @@ var _Primitive = class _Primitive extends RnObject {
         const pos0IndexBase = indices.getScalar(j, {});
         const pos1IndexBase = indices.getScalar(j + 1, {});
         const pos2IndexBase = indices.getScalar(j + 2, {});
-        const result = this.Wl(
+        const result = this.bm(
           origVec3,
           dirVec3,
           i,
@@ -926,7 +926,7 @@ var _Primitive = class _Primitive extends RnObject {
       }
     } else {
       let elementCount = 0;
-      for (const accessor of this.Cl.values()) {
+      for (const accessor of this.Jl.values()) {
         elementCount = accessor.elementCount;
         break;
       }
@@ -934,7 +934,7 @@ var _Primitive = class _Primitive extends RnObject {
         const pos0IndexBase = i;
         const pos1IndexBase = i + 1;
         const pos2IndexBase = i + 2;
-        const result = this.Wl(
+        const result = this.bm(
           origVec3,
           dirVec3,
           i,
@@ -994,9 +994,9 @@ var _Primitive = class _Primitive extends RnObject {
    * @returns Intersection result with barycentric coordinates
    * @private
    */
-  Wl(origVec3, dirVec3, i, pos0IndexBase, pos1IndexBase, pos2IndexBase, isFrontFacePickable, isBackFacePickable, dotThreshold, hasFaceNormal) {
+  bm(origVec3, dirVec3, i, pos0IndexBase, pos1IndexBase, pos2IndexBase, isFrontFacePickable, isBackFacePickable, dotThreshold, hasFaceNormal) {
     if (hasFaceNormal) {
-      const normalAccessor = this.Cl.get(VertexAttribute.Normal.XYZ);
+      const normalAccessor = this.Jl.get(VertexAttribute.Normal.XYZ);
       if (normalAccessor) {
         const normal = normalAccessor.getVec3(i, {});
         if (normal.dot(dirVec3) < dotThreshold && !isFrontFacePickable) {
@@ -1011,7 +1011,7 @@ var _Primitive = class _Primitive extends RnObject {
         }
       }
     }
-    const positionAccessor = this.Cl.get(VertexAttribute.Position.XYZ);
+    const positionAccessor = this.Jl.get(VertexAttribute.Position.XYZ);
     const pos0Vec3 = positionAccessor.getVec3(pos0IndexBase, {});
     const pos1Vec3 = positionAccessor.getVec3(pos1IndexBase, {});
     const pos2Vec3 = positionAccessor.getVec3(pos2IndexBase, {});
@@ -1084,9 +1084,9 @@ var _Primitive = class _Primitive extends RnObject {
    * @param v V coordinate
    * @returns The calculated normal vector
    */
-  Yl(pos0IndexBase, pos1IndexBase, pos2IndexBase, u, v) {
+  dm(pos0IndexBase, pos1IndexBase, pos2IndexBase, u, v) {
     const fDat = 1 - u - v;
-    const positionAccessor = this.Cl.get(VertexAttribute.Position.XYZ);
+    const positionAccessor = this.Jl.get(VertexAttribute.Position.XYZ);
     const pos0Vec3 = positionAccessor.getVec3(pos0IndexBase, {});
     const pos1Vec3 = positionAccessor.getVec3(pos1IndexBase, {});
     const pos2Vec3 = positionAccessor.getVec3(pos2IndexBase, {});
@@ -1097,13 +1097,13 @@ var _Primitive = class _Primitive extends RnObject {
     return intersectedPosVec3;
   }
 };
-_Primitive.Rl = 0;
-_Primitive.Bk = [];
-_Primitive.Sl = /* @__PURE__ */ new Map();
-_Primitive.Tl = /* @__PURE__ */ new Map();
-_Primitive.Pl = 0;
+_Primitive.Yl = 0;
+_Primitive.Ik = [];
+_Primitive.Zl = /* @__PURE__ */ new Map();
+_Primitive._l = /* @__PURE__ */ new Map();
+_Primitive.Wl = 0;
 _Primitive.ta = MutableVector3.zero();
-_Primitive.Ql = 0;
+_Primitive.Xl = 0;
 var Primitive = _Primitive;
 export {
   Primitive

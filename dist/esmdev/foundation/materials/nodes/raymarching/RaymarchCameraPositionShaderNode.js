@@ -15,12 +15,12 @@ var RaymarchCameraPositionShaderNode = class extends AbstractShaderNode {
       codeWGSL: RaymarchCameraPositionShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.Cr.push(
+    this.Kr.push(
       new Socket("outValue", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 0))
     );
   }
   getSocketOutput() {
-    return this.Cr[0];
+    return this.Kr[0];
   }
 };
 export {

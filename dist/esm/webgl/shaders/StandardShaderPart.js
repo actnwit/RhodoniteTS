@@ -30,7 +30,7 @@ void main() {
 }
 `}getMaterialSIDForWebGL(){return`
   uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
-`}getVertexPrerequisites(r,t){if(r.engineState.currentProcessApproach===p.WebGPU){let n=this.d_(t),i="";return i+=`
+`}getVertexPrerequisites(r,t){if(r.engineState.currentProcessApproach===p.WebGPU){let n=this.q_(t),i="";return i+=`
 /* shaderity: @{definitions} */
 #define RN_IS_NODE_SHADER
 
@@ -82,8 +82,8 @@ in vec4 a_weight;
 in vec4 a_baryCentricCoord;
 in vec4 a_tangent;
 flat out uvec4 v_instanceIds;
-`,e+="/* shaderity: @{getters} */",e+="/* shaderity: @{matricesGetters} */",e+="/* shaderity: @{opticalDefinition} */",e+="/* shaderity: @{shadowDefinition} */",e+="/* shaderity: @{pbrDefinition} */",e+="/* shaderity: @{iblDefinition} */",e}d_(r){let t=[],e=new Set;for(let i=0;i<r.length;i++){let o=r[i];for(let a=0;a<o.inputConnections.length;a++){let d=o.inputConnections[a];if(d==null)continue;let s=o.getInputs()[a],c=y.getShaderNodeByUid(d.shaderNodeUid);if(c.getShaderStage()==="Vertex"&&o.getShaderStage()==="Fragment"){let m=s.compositionType.toWGSLType(s.componentType),u=`${c.shaderFunctionName}_${c.shaderNodeUid}_${d.outputNameOfPrev}`;if(e.has(u))continue;e.add(u);let f=s.componentType.isInteger()||s.componentType.isUnsignedInteger()||s.componentType===h.Bool;t.push({type:m,name:u,needsFlat:f})}}}t.sort((i,o)=>i.name<o.name?-1:1);let n="";for(let i=0;i<t.length;i++){let o=t[i].needsFlat?" @interpolate(flat)":"";n+=`@location(${i})${o} ${t[i].name}: ${t[i].type},
-`}return n+=`@location(${t.length}) @interpolate(flat) instanceIds: vec4<u32>,`,n}getPixelPrerequisites(r,t){if(r.engineState.currentProcessApproach===p.WebGPU){let n=this.d_(t),i="";return i+=`
+`,e+="/* shaderity: @{getters} */",e+="/* shaderity: @{matricesGetters} */",e+="/* shaderity: @{opticalDefinition} */",e+="/* shaderity: @{shadowDefinition} */",e+="/* shaderity: @{pbrDefinition} */",e+="/* shaderity: @{iblDefinition} */",e}q_(r){let t=[],e=new Set;for(let i=0;i<r.length;i++){let o=r[i];for(let a=0;a<o.inputConnections.length;a++){let d=o.inputConnections[a];if(d==null)continue;let s=o.getInputs()[a],c=y.getShaderNodeByUid(d.shaderNodeUid);if(c.getShaderStage()==="Vertex"&&o.getShaderStage()==="Fragment"){let m=s.compositionType.toWGSLType(s.componentType),u=`${c.shaderFunctionName}_${c.shaderNodeUid}_${d.outputNameOfPrev}`;if(e.has(u))continue;e.add(u);let f=s.componentType.isInteger()||s.componentType.isUnsignedInteger()||s.componentType===h.Bool;t.push({type:m,name:u,needsFlat:f})}}}t.sort((i,o)=>i.name<o.name?-1:1);let n="";for(let i=0;i<t.length;i++){let o=t[i].needsFlat?" @interpolate(flat)":"";n+=`@location(${i})${o} ${t[i].name}: ${t[i].type},
+`}return n+=`@location(${t.length}) @interpolate(flat) instanceIds: vec4<u32>,`,n}getPixelPrerequisites(r,t){if(r.engineState.currentProcessApproach===p.WebGPU){let n=this.q_(t),i="";return i+=`
 /* shaderity: @{definitions} */
 #define RN_IS_NODE_SHADER
 

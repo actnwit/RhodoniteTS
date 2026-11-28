@@ -9,8 +9,8 @@ var BlockEndShaderNode = class extends AbstractShaderNode {
    */
   constructor() {
     super("blockEnd", {});
-    this.Br += `_${this.Fr}`;
-    this.Ar = new BlockEndShader(this.Br, this.zr, this.Cr);
+    this.Jr += `_${this.Nr}`;
+    this.Ir = new BlockEndShader(this.Jr, this.Hr, this.Kr);
   }
   /**
    * Adds a new input-output pair to the shader node with matching composition and component types.
@@ -24,15 +24,15 @@ var BlockEndShaderNode = class extends AbstractShaderNode {
     const input = {
       compositionType,
       componentType,
-      name: `value_${this.zr.length}`
+      name: `value_${this.Hr.length}`
     };
     const output = {
       compositionType,
       componentType,
-      name: `outValue_${this.Cr.length}`
+      name: `outValue_${this.Kr.length}`
     };
-    this.zr.push(input);
-    this.Cr.push(output);
+    this.Hr.push(input);
+    this.Kr.push(output);
   }
 };
 export {

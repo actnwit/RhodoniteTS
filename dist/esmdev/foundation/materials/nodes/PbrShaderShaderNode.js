@@ -21,49 +21,49 @@ var PbrShaderShaderNode = class extends AbstractShaderNode {
       codeGLSL: PbrShaderityObjectGLSL.code,
       codeWGSL: PbrShaderityObjectWGSL.code
     });
-    this.zr.push(
+    this.Hr.push(
       new Socket("positionInWorld", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(0, 0, 0, 1))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("normalInWorld", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 1))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("geomNormalInWorld", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 1))
     );
-    this.zr.push(new Socket("TBN", CompositionType.Mat3, ComponentType.Float, Matrix33.identity()));
-    this.zr.push(
+    this.Hr.push(new Socket("TBN", CompositionType.Mat3, ComponentType.Float, Matrix33.identity()));
+    this.Hr.push(
       new Socket("baseColor", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.zr.push(new Socket("metallic", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
-    this.zr.push(
+    this.Hr.push(new Socket("metallic", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
+    this.Hr.push(
       new Socket("roughness", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.5))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("occlusionProps", CompositionType.OcclusionProps, ComponentType.Unknown, {
         // Note: Property order must match GLSL/WGSL struct field order
         occlusionTexture: Vector4.fromCopy4(1, 1, 1, 1),
         occlusionStrength: Scalar.fromCopyNumber(1)
       })
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("emissiveProps", CompositionType.EmissiveProps, ComponentType.Unknown, {
         // Note: Property order must match GLSL/WGSL struct field order
         emissive: Vector3.fromCopy3(0, 0, 0),
         emissiveStrength: Scalar.fromCopyNumber(1)
       })
     );
-    this.zr.push(new Socket("ior", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1.5)));
-    this.zr.push(
+    this.Hr.push(new Socket("ior", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1.5)));
+    this.Hr.push(
       new Socket("transmission", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("specularProps", CompositionType.SpecularProps, ComponentType.Unknown, {
         // Note: Property order must match GLSL/WGSL struct field order
         specularWeight: Scalar.fromCopyNumber(1),
         specularColor: Vector3.fromCopy3(1, 1, 1)
       })
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("volumeProps", CompositionType.VolumeProps, ComponentType.Unknown, {
         // Note: Property order must match GLSL/WGSL struct field order
         thickness: Scalar.fromCopyNumber(0),
@@ -71,7 +71,7 @@ var PbrShaderShaderNode = class extends AbstractShaderNode {
         attenuationDistance: Scalar.fromCopyNumber(1e20)
       })
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("clearcoatProps", CompositionType.ClearcoatProps, ComponentType.Unknown, {
         // Note: Property order must match GLSL/WGSL struct field order
         clearcoat: Scalar.fromCopyNumber(0),
@@ -84,7 +84,7 @@ var PbrShaderShaderNode = class extends AbstractShaderNode {
         VdotNc: Scalar.fromCopyNumber(0)
       })
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("anisotropyProps", CompositionType.AnisotropyProps, ComponentType.Unknown, {
         // Note: Property order must match GLSL/WGSL struct field order
         anisotropy: Scalar.fromCopyNumber(0),
@@ -95,7 +95,7 @@ var PbrShaderShaderNode = class extends AbstractShaderNode {
         direction: Vector2.fromCopy2(0, 0)
       })
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("sheenProps", CompositionType.SheenProps, ComponentType.Unknown, {
         // Note: Property order must match GLSL/WGSL struct field order
         sheenColor: Vector3.fromCopy3(0, 0, 0),
@@ -103,7 +103,7 @@ var PbrShaderShaderNode = class extends AbstractShaderNode {
         albedoSheenScalingNdotV: Scalar.fromCopyNumber(1)
       })
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("iridescenceProps", CompositionType.IridescenceProps, ComponentType.Unknown, {
         // Note: Property order must match GLSL/WGSL struct field order
         iridescence: Scalar.fromCopyNumber(0),
@@ -113,7 +113,7 @@ var PbrShaderShaderNode = class extends AbstractShaderNode {
         fresnelMetal: Vector3.fromCopy3(0, 0, 0)
       })
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("diffuseTransmissionProps", CompositionType.DiffuseTransmissionProps, ComponentType.Unknown, {
         // Note: Property order must match GLSL/WGSL struct field order
         diffuseTransmission: Scalar.fromCopyNumber(0),
@@ -121,10 +121,10 @@ var PbrShaderShaderNode = class extends AbstractShaderNode {
         diffuseTransmissionThickness: Scalar.fromCopyNumber(0)
       })
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("dispersion", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
-    this.Cr.push(new Socket("outColor", CompositionType.Vec4, ComponentType.Float));
+    this.Kr.push(new Socket("outColor", CompositionType.Vec4, ComponentType.Float));
   }
   /**
    * Gets the output socket that contains the result of the PBR shading operation.
@@ -132,7 +132,7 @@ var PbrShaderShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the PBR shading result
    */
   getSocketOutput() {
-    return this.Cr[0];
+    return this.Kr[0];
   }
 };
 export {

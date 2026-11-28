@@ -4,55 +4,55 @@ import { StandardShaderPart } from "../StandardShaderPart.js";
 var UniformDataShader = class extends StandardShaderPart {
   constructor(__functionName, __compositionType, __componentType) {
     super();
-    this.bF = __functionName;
-    this.Ys = __compositionType;
-    this._s = __componentType;
-    this.eF = "";
-    this.gF = "";
+    this.KF = __functionName;
+    this.et = __compositionType;
+    this.gt = __componentType;
+    this.NF = "";
+    this.PF = "";
   }
   setVariableName(name) {
-    this.eF = name;
+    this.NF = name;
   }
   setDefaultValue(value) {
-    this.gF = value.toString();
+    this.PF = value.toString();
   }
   getVertexShaderDefinitions(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-// #param ${this.eF}: ${this.Ys.toWGSLType(
-        this._s
-      )}; // initialValue=${this.gF}
-fn ${this.bF}(outValue: ptr<function, ${this.Ys.toWGSLType(this._s)}>) {
-  *outValue = get_${this.eF}(uniformDrawParameters.materialSid, 0u);
+// #param ${this.NF}: ${this.et.toWGSLType(
+        this.gt
+      )}; // initialValue=${this.PF}
+fn ${this.KF}(outValue: ptr<function, ${this.et.toWGSLType(this.gt)}>) {
+  *outValue = get_${this.NF}(uniformDrawParameters.materialSid, 0u);
 }
 `;
     }
     return `
-uniform ${this.Ys.getGlslStr(this._s)} u_${this.eF}; // initialValue=${this.gF}
-void ${this.bF}(out ${this.Ys.getGlslStr(this._s)} outValue) {
+uniform ${this.et.getGlslStr(this.gt)} u_${this.NF}; // initialValue=${this.PF}
+void ${this.KF}(out ${this.et.getGlslStr(this.gt)} outValue) {
   ${this.getMaterialSIDForWebGL()}
 
-  outValue = get_${this.eF}(materialSID, 0u);
+  outValue = get_${this.NF}(materialSID, 0u);
 }
 `;
   }
   getPixelShaderDefinitions(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-// #param ${this.eF}: ${this.Ys.toWGSLType(
-        this._s
-      )}; // initialValue=${this.gF}
-fn ${this.bF}(outValue: ptr<function, ${this.Ys.toWGSLType(this._s)}>) {
-  *outValue = get_${this.eF}(uniformDrawParameters.materialSid, 0u);
+// #param ${this.NF}: ${this.et.toWGSLType(
+        this.gt
+      )}; // initialValue=${this.PF}
+fn ${this.KF}(outValue: ptr<function, ${this.et.toWGSLType(this.gt)}>) {
+  *outValue = get_${this.NF}(uniformDrawParameters.materialSid, 0u);
 }
 `;
     }
     return `
-uniform ${this.Ys.getGlslStr(this._s)} u_${this.eF}; // initialValue=${this.gF}
-void ${this.bF}(out ${this.Ys.getGlslStr(this._s)} outValue) {
+uniform ${this.et.getGlslStr(this.gt)} u_${this.NF}; // initialValue=${this.PF}
+void ${this.KF}(out ${this.et.getGlslStr(this.gt)} outValue) {
   ${this.getMaterialSIDForWebGL()}
 
-outValue = get_${this.eF}(materialSID, 0u);
+outValue = get_${this.NF}(materialSID, 0u);
     }
     `;
   }

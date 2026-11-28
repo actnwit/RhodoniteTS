@@ -19,19 +19,19 @@ var PbrSpecularPropsShaderNode = class extends AbstractShaderNode {
       codeGLSL: PbrSpecularPropsShaderityObjectGLSL.code,
       codeWGSL: PbrSpecularPropsShaderityObjectWGSL.code
     });
-    this.zr.push(
+    this.Hr.push(
       new Socket("specularFactor", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("specularTexture", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("specularColorFactor", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(1, 1, 1))
     );
-    this.zr.push(
+    this.Hr.push(
       new Socket("specularColorTexture", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.Cr.push(new Socket("outSpecularProps", CompositionType.SpecularProps, ComponentType.Unknown));
+    this.Kr.push(new Socket("outSpecularProps", CompositionType.SpecularProps, ComponentType.Unknown));
   }
   /**
    * Gets the output socket that contains the result of the specular properties operation.
@@ -39,7 +39,7 @@ var PbrSpecularPropsShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the specular properties result
    */
   getSocketOutput() {
-    return this.Cr[0];
+    return this.Kr[0];
   }
 };
 export {

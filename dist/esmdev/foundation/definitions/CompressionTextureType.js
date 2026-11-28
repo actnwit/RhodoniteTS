@@ -8,20 +8,20 @@ var CompressionTextureTypeClass = class extends EnumClass {
     blockInfo
   }) {
     super({ index, str });
-    this.lj = webgpu;
-    this.wj = blockInfo;
+    this.sj = webgpu;
+    this.Dj = blockInfo;
   }
   get webgpu() {
-    if (this.lj === void 0) {
+    if (this.sj === void 0) {
       throw new Error(`does not support ${this.str}`);
     }
-    return this.lj;
+    return this.sj;
   }
   get blockInfo() {
-    if (this.wj === void 0) {
+    if (this.Dj === void 0) {
       throw new Error(`does not support ${this.str}`);
     }
-    return this.wj;
+    return this.Dj;
   }
 };
 var ASTC_RGBA_4x4 = new CompressionTextureTypeClass({

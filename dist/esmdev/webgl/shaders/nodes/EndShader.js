@@ -16,10 +16,10 @@ var _EndShader = class _EndShader extends StandardShaderPart {
    * @returns The singleton EndShader instance
    */
   static getInstance() {
-    if (!this.Yi) {
-      this.Yi = new _EndShader();
+    if (!this.dj) {
+      this.dj = new _EndShader();
     }
-    return this.Yi;
+    return this.dj;
   }
   /**
    * Gets the vertex shader function definitions for position output.

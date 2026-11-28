@@ -9,10 +9,10 @@ var VrmRotationConstraint = class {
    * @param dstEntity - The destination entity that will be rotated to match the source
    */
   constructor(srcEntity, weight, dstEntity) {
-    this.Sg = srcEntity;
-    this.ri = weight;
-    this.pi = dstEntity;
-    this.pi.getTransform()._backupTransformAsRest();
+    this.Wg = srcEntity;
+    this.yi = weight;
+    this.wi = dstEntity;
+    this.wi.getTransform()._backupTransformAsRest();
   }
   /**
    * Updates the constraint by applying the rotation from the source entity to the destination entity.
@@ -23,15 +23,15 @@ var VrmRotationConstraint = class {
    */
   update() {
     const srcDeltaQuat = Quaternion.multiply(
-      Quaternion.invert(this.Sg.localRotationRestInner),
-      this.Sg.localRotationInner
+      Quaternion.invert(this.Wg.localRotationRestInner),
+      this.Wg.localRotationInner
     );
     const targetQuat = Quaternion.lerp(
-      this.pi.localRotationRestInner,
-      Quaternion.multiply(this.pi.localRotationRestInner, srcDeltaQuat),
-      this.ri
+      this.wi.localRotationRestInner,
+      Quaternion.multiply(this.wi.localRotationRestInner, srcDeltaQuat),
+      this.yi
     );
-    this.pi.localRotation = targetQuat;
+    this.wi.localRotation = targetQuat;
   }
 };
 export {

@@ -15,7 +15,7 @@ var OutShadingColorShaderNode = class extends AbstractShaderNode {
       codeWGSL: OutShadingColorShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.zr.push(
+    this.Hr.push(
       new Socket("value", CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(0, 0, 0, 1))
     );
   }
@@ -23,7 +23,7 @@ var OutShadingColorShaderNode = class extends AbstractShaderNode {
    * Gets the input socket that accepts the shading color (linear space).
    */
   getSocketInput() {
-    return this.zr[0];
+    return this.Hr[0];
   }
 };
 export {

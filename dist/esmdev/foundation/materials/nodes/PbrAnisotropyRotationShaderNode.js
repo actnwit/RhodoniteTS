@@ -18,10 +18,10 @@ var PbrAnisotropyRotationShaderNode = class extends AbstractShaderNode {
       codeGLSL: PbrAnisotropyRotationShaderityObjectGLSL.code,
       codeWGSL: PbrAnisotropyRotationShaderityObjectWGSL.code
     });
-    this.zr.push(
+    this.Hr.push(
       new Socket("anisotropyRotation", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
-    this.Cr.push(
+    this.Kr.push(
       new Socket("outAnisotropyRotation", CompositionType.Vec2, ComponentType.Float, Vector2.fromCopy2(1, 0))
     );
   }
@@ -31,7 +31,7 @@ var PbrAnisotropyRotationShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the anisotropy rotation result
    */
   getSocketOutput() {
-    return this.Cr[0];
+    return this.Kr[0];
   }
 };
 export {

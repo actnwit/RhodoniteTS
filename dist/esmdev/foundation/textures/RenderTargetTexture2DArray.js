@@ -9,7 +9,7 @@ import { AbstractTexture } from "./AbstractTexture.js";
 var RenderTargetTexture2DArray = class extends AbstractTexture {
   constructor() {
     super(...arguments);
-    this.au = 0;
+    this.iu = 0;
   }
   /**
    * Creates and initializes the 2D texture array with the specified parameters.
@@ -31,57 +31,57 @@ var RenderTargetTexture2DArray = class extends AbstractTexture {
     type = ComponentType.UnsignedByte,
     arrayLength
   }) {
-    this.dm = width;
-    this.Dy = height;
-    this.tB = level;
-    this.vB = internalFormat;
-    this.wB = format;
-    this.Cc = type;
-    this.au = arrayLength;
-    this.EB();
+    this.km = width;
+    this.iy = height;
+    this.YB = level;
+    this._B = internalFormat;
+    this.$B = format;
+    this.Gc = type;
+    this.iu = arrayLength;
+    this.hC();
   }
   /**
    * Sets the framebuffer object associated with this render target.
    * @param fbo - The framebuffer object to associate with this texture
    */
   set _fbo(fbo) {
-    this.BB = fbo;
+    this.eC = fbo;
   }
   /**
    * Gets the framebuffer object associated with this render target.
    * @returns The associated framebuffer object, or undefined if not set
    */
   get fbo() {
-    return this.BB;
+    return this.eC;
   }
   /**
    * Gets the number of layers in the texture array.
    * @returns The array length (number of layers)
    */
   get arrayLength() {
-    return this.au;
+    return this.iu;
   }
   /**
    * Creates the underlying graphics API resources for the render target texture array.
    * This method handles both WebGL and WebGPU resource creation.
    * @private
    */
-  EB() {
+  hC() {
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
     const texture = cgApiResourceRepository.createRenderTargetTextureArray({
-      width: this.dm,
-      height: this.Dy,
-      level: this.tB,
-      internalFormat: this.vB,
-      format: this.wB,
-      type: this.Cc,
-      arrayLength: this.au
+      width: this.km,
+      height: this.iy,
+      level: this.YB,
+      internalFormat: this._B,
+      format: this.$B,
+      type: this.Gc,
+      arrayLength: this.iu
     });
     this._textureResourceUid = texture;
     if (this.c.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = cgApiResourceRepository.createTextureView2dArray(
         this._textureResourceUid,
-        this.au
+        this.iu
       );
       this._textureViewAsRenderTargetResourceUid = cgApiResourceRepository.createTextureView2dArrayAsRenderTarget(this._textureResourceUid, 0, 0);
     }
@@ -105,9 +105,9 @@ var RenderTargetTexture2DArray = class extends AbstractTexture {
    */
   resize(width, height) {
     this.destroy3DAPIResources();
-    this.dm = width;
-    this.Dy = height;
-    this.EB();
+    this.km = width;
+    this.iy = height;
+    this.hC();
   }
   /**
    * Destroys all graphics API resources associated with this texture.
@@ -129,10 +129,10 @@ var RenderTargetTexture2DArray = class extends AbstractTexture {
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
     const data = cgApiResourceRepository.getTexturePixelData(
       this._textureResourceUid,
-      this.dm,
-      this.Dy,
-      this.BB.framebufferUID,
-      this.BB.whichColorAttachment(this)
+      this.km,
+      this.iy,
+      this.eC.framebufferUID,
+      this.eC.whichColorAttachment(this)
     );
     return data;
   }
@@ -144,8 +144,8 @@ var RenderTargetTexture2DArray = class extends AbstractTexture {
   async downloadTexturePixelData() {
     const data = await this.getTexturePixelData();
     const canvas = document.createElement("canvas");
-    canvas.width = this.dm;
-    canvas.height = this.Dy;
+    canvas.width = this.km;
+    canvas.height = this.iy;
     const ctx = canvas.getContext("2d");
     if (!(data.buffer instanceof ArrayBuffer)) {
       throw new Error("SharedArrayBuffer is not supported when downloading texture pixel data.");
@@ -155,8 +155,8 @@ var RenderTargetTexture2DArray = class extends AbstractTexture {
       data.byteOffset,
       data.byteLength / Uint8ClampedArray.BYTES_PER_ELEMENT
     );
-    const imageData = new ImageData(pixelData, this.dm, this.Dy);
-    ctx.putImageData(imageData, this.dm, this.Dy);
+    const imageData = new ImageData(pixelData, this.km, this.iy);
+    ctx.putImageData(imageData, this.km, this.iy);
     const dataUri = canvas.toDataURL("image/png");
     const a = document.createElement("a");
     const e = document.createEvent("MouseEvent");
@@ -201,13 +201,13 @@ var RenderTargetTexture2DArray = class extends AbstractTexture {
    * @param targetTexture2D - The target 2D texture to copy data to
    */
   blitToTexture2dFromTexture2dArray(targetTexture2D) {
-    if (this.au === 0) {
+    if (this.iu === 0) {
       return;
     }
     const webglResourceRepository = this.c.webglResourceRepository;
     webglResourceRepository.blitToTexture2dFromTexture2dArray(
       this._textureResourceUid,
-      targetTexture2D.BB.cgApiResourceUid,
+      targetTexture2D.eC.cgApiResourceUid,
       targetTexture2D.width,
       targetTexture2D.height
     );
@@ -218,13 +218,13 @@ var RenderTargetTexture2DArray = class extends AbstractTexture {
    * @param targetTexture2D - The target 2D texture to copy data to
    */
   blitToTexture2dFromTexture2dArrayFake(targetTexture2D) {
-    if (this.au === 0) {
+    if (this.iu === 0) {
       return;
     }
     const webglResourceRepository = this.c.webglResourceRepository;
     webglResourceRepository.blitToTexture2dFromTexture2dArrayFake(
       this._textureResourceUid,
-      targetTexture2D.BB.cgApiResourceUid,
+      targetTexture2D.eC.cgApiResourceUid,
       targetTexture2D.width,
       targetTexture2D.height
     );
@@ -235,7 +235,7 @@ var RenderTargetTexture2DArray = class extends AbstractTexture {
    * @param targetTexture2D - The target 2D texture to copy data to
    */
   blitToTexture2dFromTexture2dArray2(targetTexture2D) {
-    if (this.au === 0) {
+    if (this.iu === 0) {
       return;
     }
     const webglResourceRepository = this.c.webglResourceRepository;

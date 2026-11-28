@@ -4,14 +4,14 @@ import { CompositionType } from "./CompositionType.js";
 var _ShaderSemanticsClass = class _ShaderSemanticsClass extends EnumClass {
   constructor({ str }) {
     super({
-      index: ++_ShaderSemanticsClass.xj * _ShaderSemanticsClass._scale,
+      index: ++_ShaderSemanticsClass.Ej * _ShaderSemanticsClass._scale,
       str,
       noCheckStrUnique: true
     });
-    _ShaderSemanticsClass.yj[this.index] = this;
+    _ShaderSemanticsClass.Fj[this.index] = this;
   }
   static getShaderSemanticByIndex(index) {
-    return this.yj[Math.abs(index) - Math.abs(index) % this._scale];
+    return this.Fj[Math.abs(index) - Math.abs(index) % this._scale];
   }
   static isNonArrayShaderSemanticIndex(index) {
     if (index >= this._scale) {
@@ -32,12 +32,12 @@ var _ShaderSemanticsClass = class _ShaderSemanticsClass extends EnumClass {
     return false;
   }
   static getIndexCount() {
-    return _ShaderSemanticsClass.xj;
+    return _ShaderSemanticsClass.Ej;
   }
 };
-_ShaderSemanticsClass.xj = -1;
+_ShaderSemanticsClass.Ej = -1;
 _ShaderSemanticsClass._scale = 1e4;
-_ShaderSemanticsClass.yj = [];
+_ShaderSemanticsClass.Fj = [];
 var ShaderSemanticsClass = _ShaderSemanticsClass;
 var WorldMatrix = new ShaderSemanticsClass({
   str: "worldMatrix"

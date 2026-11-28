@@ -20,14 +20,14 @@ var RenderTargetTexture = class extends AbstractTexture {
     mipLevelCount,
     format: internalFormat
   }) {
-    this.dm = width;
-    this.Dy = height;
-    this.uB = mipLevelCount != null ? mipLevelCount : Math.floor(Math.log2(Math.max(width, height))) + 1;
+    this.km = width;
+    this.iy = height;
+    this.ZB = mipLevelCount != null ? mipLevelCount : Math.floor(Math.log2(Math.max(width, height))) + 1;
     const { format, type } = TextureFormat.getPixelFormatAndComponentTypeFromTextureFormat(internalFormat);
-    this.vB = internalFormat;
-    this.wB = format;
-    this.Cc = type;
-    this.DB();
+    this._B = internalFormat;
+    this.$B = format;
+    this.Gc = type;
+    this.gC();
   }
   /**
    * Sets the framebuffer object associated with this render target texture.
@@ -35,7 +35,7 @@ var RenderTargetTexture = class extends AbstractTexture {
    * @param fbo - The FrameBuffer object to associate with this texture
    */
   set _fbo(fbo) {
-    this.BB = fbo;
+    this.eC = fbo;
   }
   /**
    * Gets the framebuffer object associated with this render target texture.
@@ -43,7 +43,7 @@ var RenderTargetTexture = class extends AbstractTexture {
    * @returns The associated FrameBuffer object, or undefined if not set
    */
   get fbo() {
-    return this.BB;
+    return this.eC;
   }
   /**
    * Creates the underlying 3D API resources for the render target texture.
@@ -51,13 +51,13 @@ var RenderTargetTexture = class extends AbstractTexture {
    *
    * @private
    */
-  DB() {
+  gC() {
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
     const texture = cgApiResourceRepository.createRenderTargetTexture({
-      width: this.dm,
-      height: this.Dy,
-      mipLevelCount: this.uB,
-      format: this.vB
+      width: this.km,
+      height: this.iy,
+      mipLevelCount: this.ZB,
+      format: this._B
     });
     this._textureResourceUid = texture;
     if (this.c.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
@@ -76,9 +76,9 @@ var RenderTargetTexture = class extends AbstractTexture {
    */
   resize(width, height) {
     this.destroy3DAPIResources();
-    this.dm = width;
-    this.Dy = height;
-    this.DB();
+    this.km = width;
+    this.iy = height;
+    this.gC();
   }
   /**
    * Destroys all 3D API resources associated with this render target texture.
@@ -102,10 +102,10 @@ var RenderTargetTexture = class extends AbstractTexture {
     const cgApiResourceRepository = this.c.cgApiResourceRepository;
     const data = cgApiResourceRepository.getTexturePixelData(
       this._textureResourceUid,
-      this.dm,
-      this.Dy,
-      this.BB.framebufferUID,
-      this.BB.whichColorAttachment(this)
+      this.km,
+      this.iy,
+      this.eC.framebufferUID,
+      this.eC.whichColorAttachment(this)
     );
     return data;
   }
@@ -117,8 +117,8 @@ var RenderTargetTexture = class extends AbstractTexture {
   async downloadTexturePixelData() {
     const data = await this.getTexturePixelData();
     const canvas = document.createElement("canvas");
-    canvas.width = this.dm;
-    canvas.height = this.Dy;
+    canvas.width = this.km;
+    canvas.height = this.iy;
     const ctx = canvas.getContext("2d");
     if (!(data.buffer instanceof ArrayBuffer)) {
       throw new Error("SharedArrayBuffer is not supported when downloading texture pixel data.");
@@ -128,8 +128,8 @@ var RenderTargetTexture = class extends AbstractTexture {
       data.byteOffset,
       data.byteLength / Uint8ClampedArray.BYTES_PER_ELEMENT
     );
-    const imageData = new ImageData(pixelData, this.dm, this.Dy);
-    ctx.putImageData(imageData, this.dm, this.Dy);
+    const imageData = new ImageData(pixelData, this.km, this.iy);
+    ctx.putImageData(imageData, this.km, this.iy);
     const dataUri = canvas.toDataURL("image/png");
     const a = document.createElement("a");
     const e = document.createEvent("MouseEvent");

@@ -16,7 +16,7 @@ var Log = class {
 };
 var _Logger = class _Logger {
   constructor() {
-    this.Cu = [];
+    this.Ku = [];
     /** The minimum log level that will be output. Messages below this level are ignored. */
     this.logLevel = 2 /* Warn */;
     /** Whether to format log messages with timestamps and log level prefixes. */
@@ -32,7 +32,7 @@ var _Logger = class _Logger {
    * @returns The formatted log message
    * @private
    */
-  Bu(message, logLevel) {
+  Ju(message, logLevel) {
     if (!this.isAccumulateLog && !this.isRichLog) {
       return message;
     }
@@ -41,15 +41,15 @@ var _Logger = class _Logger {
     log.timestamp = Date.now();
     log.logLevel = logLevel;
     if (this.isAccumulateLog) {
-      this.Cu.push(log);
+      this.Ku.push(log);
     }
-    return this.Du(log);
+    return this.Lu(log);
   }
   /**
    * Clears all accumulated log messages from memory.
    */
   clearAccumulatedLog() {
-    this.Cu = [];
+    this.Ku = [];
   }
   /**
    * Formats a log entry with timestamp and log level information if rich logging is enabled.
@@ -58,7 +58,7 @@ var _Logger = class _Logger {
    * @returns The formatted log message string
    * @private
    */
-  Du(log) {
+  Lu(log) {
     if (!this.isRichLog) {
       return log.message;
     }
@@ -71,7 +71,7 @@ var _Logger = class _Logger {
       second: "2-digit"
     });
     const dateTime = yyyymmdd.format(log.timestamp);
-    const finalMessage = `Rn[${this.Eu(log.logLevel)}][${dateTime}]: ${log.message}`;
+    const finalMessage = `Rn[${this.Mu(log.logLevel)}][${dateTime}]: ${log.message}`;
     return finalMessage;
   }
   /**
@@ -81,7 +81,7 @@ var _Logger = class _Logger {
    * @returns The string name of the log level
    * @private
    */
-  Eu(logLevel) {
+  Mu(logLevel) {
     return LogLevel[logLevel];
   }
   /**
@@ -98,7 +98,7 @@ var _Logger = class _Logger {
    */
   error(message) {
     if (this.logLevel <= 3 /* Error */) {
-      const formattedMessage = this.Bu(message, 3 /* Error */);
+      const formattedMessage = this.Ju(message, 3 /* Error */);
       console.error(formattedMessage);
       return formattedMessage;
     }
@@ -118,7 +118,7 @@ var _Logger = class _Logger {
    */
   warn(message) {
     if (this.logLevel <= 2 /* Warn */) {
-      const formattedMessage = this.Bu(message, 2 /* Warn */);
+      const formattedMessage = this.Ju(message, 2 /* Warn */);
       console.warn(formattedMessage);
       return formattedMessage;
     }
@@ -138,7 +138,7 @@ var _Logger = class _Logger {
    */
   info(message) {
     if (this.logLevel <= 1 /* Info */) {
-      const formattedMessage = this.Bu(message, 1 /* Info */);
+      const formattedMessage = this.Ju(message, 1 /* Info */);
       console.info(formattedMessage);
       return formattedMessage;
     }
@@ -158,7 +158,7 @@ var _Logger = class _Logger {
    */
   debug(message) {
     if (this.logLevel <= 0 /* Debug */) {
-      const formattedMessage = this.Bu(message, 0 /* Debug */);
+      const formattedMessage = this.Ju(message, 0 /* Debug */);
       console.debug(formattedMessage);
       return formattedMessage;
     }
@@ -179,7 +179,7 @@ var _Logger = class _Logger {
    */
   assert(condition, message) {
     if (this.logLevel <= 4 /* Assert */) {
-      const formattedMessage = this.Bu(message, 4 /* Assert */);
+      const formattedMessage = this.Ju(message, 4 /* Assert */);
       console.assert(condition, formattedMessage);
       return formattedMessage;
     }
@@ -202,7 +202,7 @@ var _Logger = class _Logger {
    * ```
    */
   getAccumulatedLog() {
-    return this.Cu.map((log) => this.Du(log));
+    return this.Ku.map((log) => this.Lu(log));
   }
 };
 /** The default global Logger instance for code that doesn't have access to an Engine. */

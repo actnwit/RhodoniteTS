@@ -9,26 +9,26 @@ import { Logger } from "../../misc/Logger.js";
 import { Material } from "./Material.js";
 var _MaterialRepository = class _MaterialRepository {
   constructor() {
-    this.is = /* @__PURE__ */ new Map();
-    this.ks = /* @__PURE__ */ new Map();
-    this.ps = /* @__PURE__ */ new Map();
-    this.ns = /* @__PURE__ */ new Map();
-    this.os = /* @__PURE__ */ new Map();
-    this.js = /* @__PURE__ */ new Map();
-    this.ls = /* @__PURE__ */ new Map();
-    this.Gi = /* @__PURE__ */ new Map();
+    this.qs = /* @__PURE__ */ new Map();
+    this.ss = /* @__PURE__ */ new Map();
+    this.xs = /* @__PURE__ */ new Map();
+    this.vs = /* @__PURE__ */ new Map();
+    this.ws = /* @__PURE__ */ new Map();
+    this.rs = /* @__PURE__ */ new Map();
+    this.ts = /* @__PURE__ */ new Map();
+    this.Ni = /* @__PURE__ */ new Map();
     /** Tracks version incremented when a new buffer view is allocated for a material type. */
-    this.ms = /* @__PURE__ */ new Map();
+    this.us = /* @__PURE__ */ new Map();
     /** Solo datum fields for each material type (engine-specific, not shared across engines) */
     this._soloDatumFields = /* @__PURE__ */ new Map();
     /** State version counter for tracking material changes (engine-specific) */
-    this.Fi = 0;
+    this.Mi = 0;
     /**
      * State version counter for changes that invalidate WebGPU bind groups and
      * render bundles (texture bindings, pipelines). Uniform-only updates do not
      * bump this, so render bundles stay reusable across frames.
      */
-    this.qs = 0;
+    this.ys = 0;
   }
   /**
    * Registers a new material type with the repository.
@@ -41,8 +41,8 @@ var _MaterialRepository = class _MaterialRepository {
    * @returns True if the material type was successfully registered, false if it was already registered
    */
   registerMaterial(engine, materialTypeName, materialNode, materialCountPerBufferView = engine.config.materialCountPerBufferView) {
-    if (!this.os.has(materialTypeName)) {
-      this.rs(materialTypeName, materialNode, materialCountPerBufferView);
+    if (!this.ws.has(materialTypeName)) {
+      this.zs(materialTypeName, materialNode, materialCountPerBufferView);
       return true;
     }
     return false;
@@ -58,7 +58,7 @@ var _MaterialRepository = class _MaterialRepository {
    * @returns Always returns true as the registration is forced
    */
   forceRegisterMaterial(engine, materialTypeName, materialNode, materialCountPerBufferView = engine.config.materialCountPerBufferView) {
-    this.rs(materialTypeName, materialNode, materialCountPerBufferView);
+    this.zs(materialTypeName, materialNode, materialCountPerBufferView);
     return true;
   }
   /**
@@ -68,7 +68,7 @@ var _MaterialRepository = class _MaterialRepository {
    * @returns True if the material type is registered, false otherwise
    */
   isRegisteredMaterialType(materialTypeName) {
-    return this.os.has(materialTypeName);
+    return this.ws.has(materialTypeName);
   }
   /**
    * Retrieves a material instance by its unique identifier.
@@ -79,7 +79,7 @@ var _MaterialRepository = class _MaterialRepository {
    */
   getMaterialByMaterialUid(materialUid) {
     var _a;
-    return (_a = this.is.get(materialUid)) == null ? void 0 : _a.deref();
+    return (_a = this.qs.get(materialUid)) == null ? void 0 : _a.deref();
   }
   /**
    * Gets all currently active material instances from the repository.
@@ -89,7 +89,7 @@ var _MaterialRepository = class _MaterialRepository {
    * @returns Array of WeakRef objects pointing to all registered materials
    */
   getAllMaterials() {
-    return Array.from(this.is.values());
+    return Array.from(this.qs.values());
   }
   /**
    * Creates a new material instance of the specified type.
@@ -102,25 +102,25 @@ var _MaterialRepository = class _MaterialRepository {
    * @throws Error if the material type is not registered or maximum instances exceeded
    */
   createMaterial(engine, materialTypeName, materialNode) {
-    let countOfThisType = this.ns.get(materialTypeName);
-    const materialCountPerBufferView = this.js.get(materialTypeName);
+    let countOfThisType = this.vs.get(materialTypeName);
+    const materialCountPerBufferView = this.rs.get(materialTypeName);
     const indexInTheBufferView = countOfThisType % materialCountPerBufferView;
     const indexOfBufferViews = Math.floor(countOfThisType / materialCountPerBufferView);
     let newlyAllocatedBufferView = false;
     if (indexInTheBufferView === 0) {
-      newlyAllocatedBufferView = this.us(engine, materialTypeName, materialNode, indexOfBufferViews);
+      newlyAllocatedBufferView = this.Cs(engine, materialTypeName, materialNode, indexOfBufferViews);
     }
     const material = new Material(
       engine,
-      this.ps.get(materialTypeName),
-      ++_MaterialRepository.ts,
+      this.xs.get(materialTypeName),
+      ++_MaterialRepository.Bs,
       countOfThisType++,
       materialTypeName,
       materialNode
     );
-    this.vs(material, countOfThisType, indexOfBufferViews, indexInTheBufferView);
+    this.Ds(material, countOfThisType, indexOfBufferViews, indexInTheBufferView);
     if (newlyAllocatedBufferView && indexOfBufferViews > 0) {
-      this.ws(materialTypeName);
+      this.Es(materialTypeName);
     }
     return material;
   }
@@ -135,7 +135,7 @@ var _MaterialRepository = class _MaterialRepository {
    */
   isMaterialCompatible(currentMaterial, newMaterialNode) {
     var _a;
-    const existingMaterial = (_a = this.is.get(currentMaterial.materialUID)) == null ? void 0 : _a.deref();
+    const existingMaterial = (_a = this.qs.get(currentMaterial.materialUID)) == null ? void 0 : _a.deref();
     if (Is.not.exist(existingMaterial)) {
       return false;
     }
@@ -157,20 +157,20 @@ var _MaterialRepository = class _MaterialRepository {
    * @param countOfThisType - The current count of instances for this material type
    * @private
    */
-  vs(material, countOfThisType, indexOfBufferViews, _indexInTheBufferView) {
+  Ds(material, countOfThisType, indexOfBufferViews, _indexInTheBufferView) {
     {
-      this.is.set(material.materialUID, new WeakRef(material));
-      let map = this.ks.get(material.Jr);
+      this.qs.set(material.materialUID, new WeakRef(material));
+      let map = this.ss.get(material.Rr);
       if (Is.not.exist(map)) {
         map = /* @__PURE__ */ new Map();
-        this.ks.set(material.materialTypeName, map);
+        this.ss.set(material.materialTypeName, map);
       }
       map.set(material.materialSID, new WeakRef(material));
-      this.ns.set(material.materialTypeName, countOfThisType);
+      this.vs.set(material.materialTypeName, countOfThisType);
     }
     if (Is.exist(material._materialContent)) {
       const semanticsInfoArray = material._materialContent._semanticsInfoArray;
-      const accessorMap = this.Gi.get(material.materialTypeName).get(indexOfBufferViews);
+      const accessorMap = this.Ni.get(material.materialTypeName).get(indexOfBufferViews);
       semanticsInfoArray.forEach((semanticsInfo) => {
         material._allFieldsInfo.set(semanticsInfo.semantic, semanticsInfo);
         if (!semanticsInfo.soloDatum) {
@@ -205,7 +205,7 @@ var _MaterialRepository = class _MaterialRepository {
    * @returns The byte offset divided by 16 (IndexOf16Bytes) for the property location
    */
   getLocationOffsetOfMemberOfMaterial(engine, materialTypeName, propertyName) {
-    const map = this.ks.get(materialTypeName);
+    const map = this.ss.get(materialTypeName);
     const materialRef = Array.from(map.values()).find((m) => m.deref() !== void 0);
     if (Is.not.exist(materialRef == null ? void 0 : materialRef.deref())) {
       Logger.default.warn(
@@ -219,7 +219,7 @@ var _MaterialRepository = class _MaterialRepository {
       const value = this._soloDatumFields.get(material.materialTypeName).get(propertyName);
       return [value.value._v.byteOffset / 4 / 4];
     }
-    const propertiesOfBufferViews = this.Gi.get(materialTypeName);
+    const propertiesOfBufferViews = this.Ni.get(materialTypeName);
     const locationOffsets = [];
     propertiesOfBufferViews == null ? void 0 : propertiesOfBufferViews.forEach((properties) => {
       const accessor = properties.get(propertyName);
@@ -242,13 +242,13 @@ var _MaterialRepository = class _MaterialRepository {
    * @param materialCountPerBufferView - The number of materials per buffer view
    * @private
    */
-  rs(materialTypeName, materialNode, materialCountPerBufferView) {
-    const materialTid = ++_MaterialRepository.ss;
-    this.os.set(materialTypeName, materialNode);
-    this.ps.set(materialTypeName, materialTid);
-    this.js.set(materialTypeName, materialCountPerBufferView);
-    this.ns.set(materialTypeName, 0);
-    this.ms.set(materialTypeName, 0);
+  zs(materialTypeName, materialNode, materialCountPerBufferView) {
+    const materialTid = ++_MaterialRepository.As;
+    this.ws.set(materialTypeName, materialNode);
+    this.xs.set(materialTypeName, materialTid);
+    this.rs.set(materialTypeName, materialCountPerBufferView);
+    this.vs.set(materialTypeName, 0);
+    this.us.set(materialTypeName, 0);
   }
   /**
    * Allocates GPU buffer memory for a material type based on its shader semantics.
@@ -260,7 +260,7 @@ var _MaterialRepository = class _MaterialRepository {
    * @returns Whether a new BufferView was allocated (true) or an existing one was reused (false)
    * @private
    */
-  us(engine, materialTypeName, materialNode, indexOfBufferViews) {
+  Cs(engine, materialTypeName, materialNode, indexOfBufferViews) {
     var _a;
     let newlyAllocated = false;
     let totalByteLength = 0;
@@ -269,7 +269,7 @@ var _MaterialRepository = class _MaterialRepository {
       const alignedByteLength = calcAlignedByteLength(semanticInfo);
       let dataCount = 1;
       if (!semanticInfo.soloDatum) {
-        dataCount = this.js.get(materialTypeName);
+        dataCount = this.rs.get(materialTypeName);
       }
       totalByteLength += alignedByteLength * dataCount;
       alignedByteLengthAndSemanticInfoArray.push({
@@ -277,15 +277,15 @@ var _MaterialRepository = class _MaterialRepository {
         semanticInfo
       });
     }
-    if (!this.Gi.has(materialTypeName)) {
-      this.Gi.set(materialTypeName, /* @__PURE__ */ new Map());
+    if (!this.Ni.has(materialTypeName)) {
+      this.Ni.set(materialTypeName, /* @__PURE__ */ new Map());
     }
     let bufferView;
-    if (this.ls.has(materialTypeName)) {
-      const map = this.ls.get(materialTypeName);
+    if (this.ts.has(materialTypeName)) {
+      const map = this.ts.get(materialTypeName);
       bufferView = map.get(indexOfBufferViews);
     } else {
-      this.ls.set(materialTypeName, /* @__PURE__ */ new Map());
+      this.ts.set(materialTypeName, /* @__PURE__ */ new Map());
     }
     if (bufferView == null) {
       let bufferViewResult;
@@ -301,17 +301,17 @@ var _MaterialRepository = class _MaterialRepository {
         }
       } while (bufferViewResult.isErr());
       bufferView = bufferViewResult.get();
-      this.ls.get(materialTypeName).set(indexOfBufferViews, bufferView);
+      this.ts.get(materialTypeName).set(indexOfBufferViews, bufferView);
       newlyAllocated = true;
-      const currentVersion = (_a = this.ms.get(materialTypeName)) != null ? _a : 0;
-      this.ms.set(materialTypeName, currentVersion + 1);
+      const currentVersion = (_a = this.us.get(materialTypeName)) != null ? _a : 0;
+      this.us.set(materialTypeName, currentVersion + 1);
     }
     for (let i = 0; i < alignedByteLengthAndSemanticInfoArray.length; i++) {
       const alignedByte = alignedByteLengthAndSemanticInfoArray[i].alignedByte;
       const semanticInfo = alignedByteLengthAndSemanticInfoArray[i].semanticInfo;
       let count = 1;
       if (!semanticInfo.soloDatum) {
-        count = this.js.get(materialTypeName);
+        count = this.rs.get(materialTypeName);
       }
       let maxArrayLength = semanticInfo.arrayLength;
       if (CompositionType.isArray(semanticInfo.compositionType) && maxArrayLength == null) {
@@ -336,10 +336,10 @@ var _MaterialRepository = class _MaterialRepository {
           value: MathClassUtil.initWithFloat32Array(semanticInfo.initialValue, typedArray)
         });
       } else {
-        let properties = this.Gi.get(materialTypeName).get(indexOfBufferViews);
+        let properties = this.Ni.get(materialTypeName).get(indexOfBufferViews);
         if (properties == null) {
           const map = /* @__PURE__ */ new Map();
-          this.Gi.get(materialTypeName).set(indexOfBufferViews, map);
+          this.Ni.get(materialTypeName).set(indexOfBufferViews, map);
           properties = map;
         }
         properties.set(semanticInfo.semantic, accessor);
@@ -348,7 +348,7 @@ var _MaterialRepository = class _MaterialRepository {
     return newlyAllocated;
   }
   _getMaterialCountPerBufferView(materialTypeName) {
-    return this.js.get(materialTypeName);
+    return this.rs.get(materialTypeName);
   }
   /**
    * Public accessor used by debugging tools. The material SID selects a buffer view
@@ -359,7 +359,7 @@ var _MaterialRepository = class _MaterialRepository {
   }
   _getBufferViewVersion(materialTypeName) {
     var _a;
-    return (_a = this.ms.get(materialTypeName)) != null ? _a : 0;
+    return (_a = this.us.get(materialTypeName)) != null ? _a : 0;
   }
   /**
    * Invalidates all shader programs for all registered materials.
@@ -370,7 +370,7 @@ var _MaterialRepository = class _MaterialRepository {
    */
   _makeShaderInvalidateToAllMaterials() {
     var _a;
-    for (const material of this.is.values()) {
+    for (const material of this.qs.values()) {
       (_a = material.deref()) == null ? void 0 : _a.makeShadersInvalidate();
     }
   }
@@ -382,7 +382,7 @@ var _MaterialRepository = class _MaterialRepository {
    * @internal
    */
   _makeShaderInvalidateToMorphMaterials() {
-    for (const materialRef of this.is.values()) {
+    for (const materialRef of this.qs.values()) {
       const material = materialRef.deref();
       if (material == null || material.isMorphing === false) {
         continue;
@@ -396,9 +396,9 @@ var _MaterialRepository = class _MaterialRepository {
       }
     }
   }
-  ws(materialTypeName) {
+  Es(materialTypeName) {
     var _a;
-    const materials = this.ks.get(materialTypeName);
+    const materials = this.ss.get(materialTypeName);
     if (materials == null) {
       return;
     }
@@ -412,14 +412,14 @@ var _MaterialRepository = class _MaterialRepository {
    * @returns The current state version number
    */
   get stateVersion() {
-    return this.Fi;
+    return this.Mi;
   }
   /**
    * Gets the state version that invalidates GPU bind groups and render bundles.
    * @returns The binding state version number
    */
   get bindingStateVersion() {
-    return this.qs;
+    return this.ys;
   }
   /**
    * Increments the state version counter.
@@ -427,7 +427,7 @@ var _MaterialRepository = class _MaterialRepository {
    * @internal
    */
   _incrementStateVersion() {
-    this.Fi++;
+    this.Mi++;
   }
   /**
    * Increments the state version that invalidates WebGPU bind groups and
@@ -435,11 +435,11 @@ var _MaterialRepository = class _MaterialRepository {
    * @internal
    */
   _incrementBindingStateVersion() {
-    this.qs++;
+    this.ys++;
   }
 };
-_MaterialRepository.ss = -1;
-_MaterialRepository.ts = -1;
+_MaterialRepository.As = -1;
+_MaterialRepository.Bs = -1;
 var MaterialRepository = _MaterialRepository;
 export {
   MaterialRepository

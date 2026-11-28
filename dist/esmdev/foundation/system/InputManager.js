@@ -88,9 +88,9 @@ var _InputManager = class _InputManager {
    * ```
    */
   static register(inputHandlingState, events) {
-    this.eB.set(inputHandlingState, events);
-    this.cB.set(inputHandlingState, true);
-    this.gB();
+    this.JB.set(inputHandlingState, events);
+    this.HB.set(inputHandlingState, true);
+    this.LB();
   }
   /**
    * Unregisters and deactivates input handlers for a specific input handling state.
@@ -107,10 +107,10 @@ var _InputManager = class _InputManager {
    * ```
    */
   static unregister(inputHandlingState) {
-    this.dB(inputHandlingState);
-    this.cB.set(inputHandlingState, false);
-    this.eB.delete(inputHandlingState);
-    this.gB();
+    this.IB(inputHandlingState);
+    this.HB.set(inputHandlingState, false);
+    this.JB.delete(inputHandlingState);
+    this.LB();
   }
   /**
    * Sets the active state of a specific input handling state.
@@ -135,18 +135,18 @@ var _InputManager = class _InputManager {
    * ```
    */
   static setActive(inputHandlingState, active) {
-    this.cB.set(inputHandlingState, active);
+    this.HB.set(inputHandlingState, active);
     if (inputHandlingState === INPUT_HANDLING_STATE_GIZMO_TRANSLATION && active) {
-      this.cB.set(INPUT_HANDLING_STATE_GIZMO_SCALE, false);
-      this.cB.set(INPUT_HANDLING_STATE_GIZMO_ROTATION, false);
+      this.HB.set(INPUT_HANDLING_STATE_GIZMO_SCALE, false);
+      this.HB.set(INPUT_HANDLING_STATE_GIZMO_ROTATION, false);
     } else if (inputHandlingState === INPUT_HANDLING_STATE_GIZMO_ROTATION && active) {
-      this.cB.set(INPUT_HANDLING_STATE_GIZMO_TRANSLATION, false);
-      this.cB.set(INPUT_HANDLING_STATE_GIZMO_SCALE, false);
+      this.HB.set(INPUT_HANDLING_STATE_GIZMO_TRANSLATION, false);
+      this.HB.set(INPUT_HANDLING_STATE_GIZMO_SCALE, false);
     } else if (inputHandlingState === INPUT_HANDLING_STATE_GIZMO_SCALE && active) {
-      this.cB.set(INPUT_HANDLING_STATE_GIZMO_TRANSLATION, false);
-      this.cB.set(INPUT_HANDLING_STATE_GIZMO_ROTATION, false);
+      this.HB.set(INPUT_HANDLING_STATE_GIZMO_TRANSLATION, false);
+      this.HB.set(INPUT_HANDLING_STATE_GIZMO_ROTATION, false);
     }
-    this.gB();
+    this.LB();
   }
   /**
    * Adds event listeners for a specific input handling state.
@@ -157,8 +157,8 @@ var _InputManager = class _InputManager {
    * @param inputHandlingState - The input handling state to add listeners for
    * @private
    */
-  static hB(inputHandlingState) {
-    const infos = _InputManager.eB.get(inputHandlingState);
+  static MB(inputHandlingState) {
+    const infos = _InputManager.JB.get(inputHandlingState);
     if (Is.exist(infos)) {
       for (const inputHandlerInfo of infos) {
         inputHandlerInfo.eventTargetDom.addEventListener(
@@ -178,8 +178,8 @@ var _InputManager = class _InputManager {
    * @param inputHandlingState - The input handling state to remove listeners for
    * @private
    */
-  static dB(inputHandlingState) {
-    const infos = _InputManager.eB.get(inputHandlingState);
+  static IB(inputHandlingState) {
+    const infos = _InputManager.JB.get(inputHandlingState);
     if (Is.exist(infos)) {
       for (const inputHandlerInfo of infos) {
         inputHandlerInfo.eventTargetDom.removeEventListener(
@@ -206,49 +206,49 @@ var _InputManager = class _InputManager {
    *
    * @private
    */
-  static gB() {
+  static LB() {
     var _a, _b, _c, _d;
-    const translationHandlers = _InputManager.eB.get(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
-    const rotationHandlers = _InputManager.eB.get(INPUT_HANDLING_STATE_GIZMO_ROTATION);
-    const scaleHandlers = _InputManager.eB.get(INPUT_HANDLING_STATE_GIZMO_SCALE);
-    const cameraHandlers = _InputManager.eB.get(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
-    const translationActive = ((_a = _InputManager.cB.get(INPUT_HANDLING_STATE_GIZMO_TRANSLATION)) != null ? _a : false) && Is.exist(translationHandlers);
-    const rotationActive = ((_b = _InputManager.cB.get(INPUT_HANDLING_STATE_GIZMO_ROTATION)) != null ? _b : false) && Is.exist(rotationHandlers);
-    const scaleActive = ((_c = _InputManager.cB.get(INPUT_HANDLING_STATE_GIZMO_SCALE)) != null ? _c : false) && Is.exist(scaleHandlers);
-    const cameraActive = ((_d = _InputManager.cB.get(INPUT_HANDLING_STATE_CAMERA_CONTROLLER)) != null ? _d : false) && Is.exist(cameraHandlers);
+    const translationHandlers = _InputManager.JB.get(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
+    const rotationHandlers = _InputManager.JB.get(INPUT_HANDLING_STATE_GIZMO_ROTATION);
+    const scaleHandlers = _InputManager.JB.get(INPUT_HANDLING_STATE_GIZMO_SCALE);
+    const cameraHandlers = _InputManager.JB.get(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
+    const translationActive = ((_a = _InputManager.HB.get(INPUT_HANDLING_STATE_GIZMO_TRANSLATION)) != null ? _a : false) && Is.exist(translationHandlers);
+    const rotationActive = ((_b = _InputManager.HB.get(INPUT_HANDLING_STATE_GIZMO_ROTATION)) != null ? _b : false) && Is.exist(rotationHandlers);
+    const scaleActive = ((_c = _InputManager.HB.get(INPUT_HANDLING_STATE_GIZMO_SCALE)) != null ? _c : false) && Is.exist(scaleHandlers);
+    const cameraActive = ((_d = _InputManager.HB.get(INPUT_HANDLING_STATE_CAMERA_CONTROLLER)) != null ? _d : false) && Is.exist(cameraHandlers);
     if (!translationActive && Is.exist(translationHandlers)) {
-      this.dB(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
+      this.IB(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
     }
     if (!rotationActive && Is.exist(rotationHandlers)) {
-      this.dB(INPUT_HANDLING_STATE_GIZMO_ROTATION);
+      this.IB(INPUT_HANDLING_STATE_GIZMO_ROTATION);
     }
     if (!scaleActive && Is.exist(scaleHandlers)) {
-      this.dB(INPUT_HANDLING_STATE_GIZMO_SCALE);
+      this.IB(INPUT_HANDLING_STATE_GIZMO_SCALE);
     }
     if (!cameraActive && Is.exist(cameraHandlers)) {
-      this.dB(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
+      this.IB(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
     }
     if (cameraActive) {
-      this.hB(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
-      this.fB = INPUT_HANDLING_STATE_CAMERA_CONTROLLER;
+      this.MB(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
+      this.KB = INPUT_HANDLING_STATE_CAMERA_CONTROLLER;
     }
     if (translationActive) {
-      this.hB(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
-      this.dB(INPUT_HANDLING_STATE_GIZMO_ROTATION);
-      this.dB(INPUT_HANDLING_STATE_GIZMO_SCALE);
-      this.fB = INPUT_HANDLING_STATE_GIZMO_TRANSLATION;
+      this.MB(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
+      this.IB(INPUT_HANDLING_STATE_GIZMO_ROTATION);
+      this.IB(INPUT_HANDLING_STATE_GIZMO_SCALE);
+      this.KB = INPUT_HANDLING_STATE_GIZMO_TRANSLATION;
     }
     if (rotationActive) {
-      this.hB(INPUT_HANDLING_STATE_GIZMO_ROTATION);
-      this.dB(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
-      this.dB(INPUT_HANDLING_STATE_GIZMO_SCALE);
-      this.fB = INPUT_HANDLING_STATE_GIZMO_ROTATION;
+      this.MB(INPUT_HANDLING_STATE_GIZMO_ROTATION);
+      this.IB(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
+      this.IB(INPUT_HANDLING_STATE_GIZMO_SCALE);
+      this.KB = INPUT_HANDLING_STATE_GIZMO_ROTATION;
     }
     if (scaleActive) {
-      this.hB(INPUT_HANDLING_STATE_GIZMO_SCALE);
-      this.dB(INPUT_HANDLING_STATE_GIZMO_ROTATION);
-      this.dB(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
-      this.fB = INPUT_HANDLING_STATE_GIZMO_SCALE;
+      this.MB(INPUT_HANDLING_STATE_GIZMO_SCALE);
+      this.IB(INPUT_HANDLING_STATE_GIZMO_ROTATION);
+      this.IB(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
+      this.KB = INPUT_HANDLING_STATE_GIZMO_SCALE;
     }
   }
   /**
@@ -264,9 +264,9 @@ var _InputManager = class _InputManager {
    * ```
    */
   static enableCameraController() {
-    this.hB(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
-    this.cB.set(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, true);
-    this.gB();
+    this.MB(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
+    this.HB.set(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, true);
+    this.LB();
   }
   /**
    * Disables the camera controller input handling.
@@ -281,9 +281,9 @@ var _InputManager = class _InputManager {
    * ```
    */
   static disableCameraController() {
-    this.dB(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
-    this.cB.set(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, false);
-    this.gB();
+    this.IB(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
+    this.HB.set(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, false);
+    this.LB();
   }
   /**
    * Gets the current active input handling state.
@@ -299,19 +299,19 @@ var _InputManager = class _InputManager {
    * ```
    */
   static getCurrentState() {
-    return this.fB;
+    return this.KB;
   }
 };
 /** Map storing input handler information for each input handling state */
-_InputManager.eB = /* @__PURE__ */ new Map();
+_InputManager.JB = /* @__PURE__ */ new Map();
 /**
  * This active information is set externally and does not change state internally.
  * Using this externally set active information, this class will add and remove event listeners as appropriate.
  * As a result, event handling for the entire Rhodonite works properly.
  */
-_InputManager.cB = /* @__PURE__ */ new Map();
+_InputManager.HB = /* @__PURE__ */ new Map();
 /** The currently active input handling state */
-_InputManager.fB = INPUT_HANDLING_STATE_NONE;
+_InputManager.KB = INPUT_HANDLING_STATE_NONE;
 var InputManager = _InputManager;
 export {
   EVENT_CLICK,

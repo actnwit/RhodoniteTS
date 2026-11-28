@@ -14,30 +14,30 @@ var CompositionTypeClass = class extends EnumClass {
     isArray: isArray2 = false
   }) {
     super({ index, str });
-    this.pj = numberOfComponents;
-    this.qj = glslStr;
-    this.uj = hlslStr;
-    this.tj = vec4SizeOfProperty;
-    this.vj = isArray2;
-    this.sj = webgpu;
-    this.rj = wgsl;
-    this.oj = str;
+    this.wj = numberOfComponents;
+    this.xj = glslStr;
+    this.Bj = hlslStr;
+    this.Aj = vec4SizeOfProperty;
+    this.Cj = isArray2;
+    this.zj = webgpu;
+    this.yj = wgsl;
+    this.vj = str;
   }
   get webgpu() {
-    return this.sj;
+    return this.zj;
   }
   get wgsl() {
-    return this.rj;
+    return this.yj;
   }
   getNumberOfComponents() {
-    return this.pj;
+    return this.wj;
   }
   getGlslStr(componentType) {
     if (componentType.index === 5126 || // FLOAT
     componentType.index === 5127 || // DOUBLE
     componentType.index === -1 || // UNKNOWN
     this === CompositionType.Texture2D || this === CompositionType.Texture2DShadow || this === CompositionType.Texture2DRect || this === CompositionType.TextureCube || this === CompositionType.Texture2DArray) {
-      return this.qj;
+      return this.xj;
     }
     if (componentType.index === 5120 || // BYTE
     componentType.index === 5122 || // SHORT
@@ -45,7 +45,7 @@ var CompositionTypeClass = class extends EnumClass {
       if (this === CompositionType.Scalar || this === CompositionType.ScalarArray) {
         return "int";
       }
-      return `i${this.qj}`;
+      return `i${this.xj}`;
     }
     if (componentType.index === 5121 || // UNSIGNED_BYTE
     componentType.index === 5123 || // UNSIGNED_SHORT
@@ -53,7 +53,7 @@ var CompositionTypeClass = class extends EnumClass {
       if (this === CompositionType.Scalar || this === CompositionType.ScalarArray) {
         return "uint";
       }
-      return `u${this.qj}`;
+      return `u${this.xj}`;
     }
     if (componentType.index === 35670) {
       return "bool";
@@ -67,19 +67,19 @@ var CompositionTypeClass = class extends EnumClass {
         return "0.0";
       }
       const glslType = this.getGlslStr(componentType);
-      if (this.pj === 2) {
+      if (this.wj === 2) {
         return `${glslType}(0.0, 0.0)`;
       }
-      if (this.pj === 3) {
+      if (this.wj === 3) {
         return `${glslType}(0.0, 0.0, 0.0)`;
       }
-      if (this.pj === 4) {
+      if (this.wj === 4) {
         return `${glslType}(0.0, 0.0, 0.0, 0.0)`;
       }
-      if (this.pj === 9) {
+      if (this.wj === 9) {
         return `${glslType}(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)`;
       }
-      if (this.pj === 16) {
+      if (this.wj === 16) {
         return `${glslType}(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)`;
       }
     } else if (componentType.index === 5120 || // BYTE
@@ -89,19 +89,19 @@ var CompositionTypeClass = class extends EnumClass {
         return "0";
       }
       const glslType = this.getGlslStr(componentType);
-      if (this.pj === 2) {
+      if (this.wj === 2) {
         return `${glslType}(0, 0)`;
       }
-      if (this.pj === 3) {
+      if (this.wj === 3) {
         return `${glslType}(0, 0, 0)`;
       }
-      if (this.pj === 4) {
+      if (this.wj === 4) {
         return `${glslType}(0, 0, 0, 0)`;
       }
-      if (this.pj === 9) {
+      if (this.wj === 9) {
         return `${glslType}(0, 0, 0, 0, 0, 0, 0, 0, 0)`;
       }
-      if (this.pj === 16) {
+      if (this.wj === 16) {
         return `${glslType}(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)`;
       }
     } else if (componentType.index === 5121 || // UNSIGNED_BYTE
@@ -111,33 +111,33 @@ var CompositionTypeClass = class extends EnumClass {
         return "0u";
       }
       const glslType = this.getGlslStr(componentType);
-      if (this.pj === 2) {
+      if (this.wj === 2) {
         return `${glslType}(0u, 0u)`;
       }
-      if (this.pj === 3) {
+      if (this.wj === 3) {
         return `${glslType}(0u, 0u, 0u)`;
       }
-      if (this.pj === 4) {
+      if (this.wj === 4) {
         return `${glslType}(0u, 0u, 0u, 0u)`;
       }
-      if (this.pj === 9) {
+      if (this.wj === 9) {
         return `${glslType}(0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u)`;
       }
-      if (this.pj === 16) {
+      if (this.wj === 16) {
         return `${glslType}(0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u)`;
       }
     } else if (componentType.index === 35670) {
       if (this === CompositionType.Scalar) {
         return "false";
       }
-      if (this.pj === 2) {
-        return `${this.qj}(false, false)`;
+      if (this.wj === 2) {
+        return `${this.xj}(false, false)`;
       }
-      if (this.pj === 3) {
-        return `${this.qj}(false, false, false)`;
+      if (this.wj === 3) {
+        return `${this.xj}(false, false, false)`;
       }
-      if (this.pj === 4) {
-        return `${this.qj}(false, false, false, false)`;
+      if (this.wj === 4) {
+        return `${this.xj}(false, false, false, false)`;
       }
     }
     return "unknown";
@@ -149,19 +149,19 @@ var CompositionTypeClass = class extends EnumClass {
       if (this === CompositionType.Scalar) {
         return "0.0";
       }
-      if (this.pj === 2) {
+      if (this.wj === 2) {
         return `${type}(0.0, 0.0)`;
       }
-      if (this.pj === 3) {
+      if (this.wj === 3) {
         return `${type}(0.0, 0.0, 0.0)`;
       }
-      if (this.pj === 4) {
+      if (this.wj === 4) {
         return `${type}(0.0, 0.0, 0.0, 0.0)`;
       }
-      if (this.pj === 9) {
+      if (this.wj === 9) {
         return `${type}(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)`;
       }
-      if (this.pj === 16) {
+      if (this.wj === 16) {
         return `${type}(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)`;
       }
     } else if (componentType.index === 5120 || // BYTE
@@ -173,46 +173,46 @@ var CompositionTypeClass = class extends EnumClass {
       if (this === CompositionType.Scalar) {
         return "0";
       }
-      if (this.pj === 2) {
+      if (this.wj === 2) {
         return `${type}(0, 0)`;
       }
-      if (this.pj === 3) {
+      if (this.wj === 3) {
         return `${type}(0, 0, 0)`;
       }
-      if (this.pj === 4) {
+      if (this.wj === 4) {
         return `${type}(0, 0, 0, 0)`;
       }
-      if (this.pj === 9) {
+      if (this.wj === 9) {
         return `${type}(0, 0, 0, 0, 0, 0, 0, 0, 0)`;
       }
-      if (this.pj === 16) {
+      if (this.wj === 16) {
         return `${type}(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)`;
       }
     } else if (componentType.index === 35670) {
       if (this === CompositionType.Scalar) {
         return "false";
       }
-      if (this.pj === 2) {
+      if (this.wj === 2) {
         return `${type}(false, false)`;
       }
-      if (this.pj === 3) {
+      if (this.wj === 3) {
         return `${type}(false, false, false)`;
       }
-      if (this.pj === 4) {
+      if (this.wj === 4) {
         return `${type}(false, false, false, false)`;
       }
     }
     return "unknown";
   }
   toWGSLType(componentType) {
-    let result = this.rj.replace("#", componentType.wgsl);
+    let result = this.yj.replace("#", componentType.wgsl);
     if (result.startsWith("struct ")) {
       result = result.replace("struct ", "");
     }
     return result;
   }
   getVec4SizeOfProperty() {
-    return this.tj;
+    return this.Aj;
   }
 };
 var Unknown = new CompositionTypeClass({

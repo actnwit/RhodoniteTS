@@ -80,7 +80,7 @@ var Vrm0xImporter = class _Vrm0xImporter {
    * @param gltfModel - The loaded GLTF model data with VRM extensions
    * @param renderPasses - Array of render passes to add the VRM entities to
    */
-  static async Sp(engine, gltfModel, renderPasses) {
+  static async _p(engine, gltfModel, renderPasses) {
     var _a, _b, _c, _d, _e, _f;
     const defaultMaterialHelperArgumentArray = (_b = (_a = gltfModel.asset.extras) == null ? void 0 : _a.rnLoaderOptions) == null ? void 0 : _b.defaultMaterialHelperArgumentArray;
     const textures = await this._createTextures(engine, gltfModel);
@@ -219,7 +219,7 @@ var Vrm0xImporter = class _Vrm0xImporter {
       for (const idxOfArray in boneGroup.bones) {
         const boneNodeIndex = boneGroup.bones[idxOfArray];
         const entity = gltfModel.asset.extras.rnEntities[boneNodeIndex];
-        this.Sq(vrmSpringBoneGroup, entity, boneGroup, addedEntities);
+        this._q(vrmSpringBoneGroup, entity, boneGroup, addedEntities);
       }
       if (boneGroup.center != null && boneGroup.center !== -1) {
         vrmSpringBoneGroup.center = gltfModel.asset.extras.rnEntities[boneGroup.center].getSceneGraph();
@@ -227,7 +227,7 @@ var Vrm0xImporter = class _Vrm0xImporter {
       boneGroups.push(vrmSpringBoneGroup);
     }
     for (const boneGroup of boneGroups) {
-      this.Tq(boneGroup, boneGroup.rootBone);
+      this.$q(boneGroup, boneGroup.rootBone);
     }
   }
   /**
@@ -240,7 +240,7 @@ var Vrm0xImporter = class _Vrm0xImporter {
    * @param boneGroup - The VRM bone group configuration data
    * @param addedEntities - Array to track already processed entities to avoid duplicates
    */
-  static Sq(vrmSpring, entity, boneGroup, addedEntities) {
+  static _q(vrmSpring, entity, boneGroup, addedEntities) {
     const sg = entity.getSceneGraph();
     const children = sg.children;
     if (!addedEntities.includes(entity)) {
@@ -258,7 +258,7 @@ var Vrm0xImporter = class _Vrm0xImporter {
       addedEntities.push(entity);
     }
     for (const child of children) {
-      this.Sq(vrmSpring, child.entity, boneGroup, addedEntities);
+      this._q(vrmSpring, child.entity, boneGroup, addedEntities);
     }
   }
   /**
@@ -269,7 +269,7 @@ var Vrm0xImporter = class _Vrm0xImporter {
    * @param boneGroup - The VRM spring bone group containing physics parameters
    * @param sg - The scene graph component to attach physics to
    */
-  static Tq(boneGroup, sg) {
+  static $q(boneGroup, sg) {
     const entity = sg.entity;
     const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
     const physicsComponent = newEntity.getPhysics();
@@ -361,7 +361,7 @@ var Vrm0xImporter = class _Vrm0xImporter {
     const materialProperties = gltfModel.extensions.VRM.materialProperties;
     for (const materialProperty of materialProperties) {
       if (materialProperty.shader === "VRM/MToon") {
-        this.Uq(gltfModel, texturesLength);
+        this.ar(gltfModel, texturesLength);
         break;
       }
     }
@@ -374,51 +374,51 @@ var Vrm0xImporter = class _Vrm0xImporter {
    * @param gltfModel - The GLTF model containing MToon materials
    * @param texturesLength - The total number of textures for dummy texture assignment
    */
-  static Uq(gltfModel, texturesLength) {
+  static ar(gltfModel, texturesLength) {
     const materialProperties = gltfModel.extensions.VRM.materialProperties;
     const dummyWhiteTextureNumber = texturesLength - 2;
     const dummyBlackTextureNumber = texturesLength - 1;
     for (let i = 0; i < materialProperties.length; i++) {
       const floatProperties = materialProperties[i].floatProperties;
-      this.Rq(floatProperties, "_BlendMode", 0);
-      this.Rq(floatProperties, "_BumpScale", 1);
-      this.Rq(floatProperties, "_CullMode", 2);
-      this.Rq(floatProperties, "_Cutoff", 0.5);
-      this.Rq(floatProperties, "_DebugMode", 0);
-      this.Rq(floatProperties, "_DstBlend", 0);
-      this.Rq(floatProperties, "_IndirectLightIntensity", 0.1);
-      this.Rq(floatProperties, "_LightColorAttenuation", 0);
-      this.Rq(floatProperties, "_OutlineColorMode", 0);
-      this.Rq(floatProperties, "_OutlineCullMode", 1);
-      this.Rq(floatProperties, "_OutlineLightingMix", 1);
-      this.Rq(floatProperties, "_OutlineScaledMaxDistance", 1);
-      this.Rq(floatProperties, "_OutlineWidth", 0.5);
-      this.Rq(floatProperties, "_OutlineWidthMode", 0);
-      this.Rq(floatProperties, "_ReceiveShadowRate", 1);
-      this.Rq(floatProperties, "_RimFresnelPower", 1);
-      this.Rq(floatProperties, "_RimLift", 0);
-      this.Rq(floatProperties, "_RimLightingMix", 0);
-      this.Rq(floatProperties, "_ShadeShift", 0);
-      this.Rq(floatProperties, "_ShadeToony", 0.9);
-      this.Rq(floatProperties, "_ShadingGradeRate", 1);
-      this.Rq(floatProperties, "_SrcBlend", 1);
-      this.Rq(floatProperties, "_ZWrite", 1);
+      this.Zq(floatProperties, "_BlendMode", 0);
+      this.Zq(floatProperties, "_BumpScale", 1);
+      this.Zq(floatProperties, "_CullMode", 2);
+      this.Zq(floatProperties, "_Cutoff", 0.5);
+      this.Zq(floatProperties, "_DebugMode", 0);
+      this.Zq(floatProperties, "_DstBlend", 0);
+      this.Zq(floatProperties, "_IndirectLightIntensity", 0.1);
+      this.Zq(floatProperties, "_LightColorAttenuation", 0);
+      this.Zq(floatProperties, "_OutlineColorMode", 0);
+      this.Zq(floatProperties, "_OutlineCullMode", 1);
+      this.Zq(floatProperties, "_OutlineLightingMix", 1);
+      this.Zq(floatProperties, "_OutlineScaledMaxDistance", 1);
+      this.Zq(floatProperties, "_OutlineWidth", 0.5);
+      this.Zq(floatProperties, "_OutlineWidthMode", 0);
+      this.Zq(floatProperties, "_ReceiveShadowRate", 1);
+      this.Zq(floatProperties, "_RimFresnelPower", 1);
+      this.Zq(floatProperties, "_RimLift", 0);
+      this.Zq(floatProperties, "_RimLightingMix", 0);
+      this.Zq(floatProperties, "_ShadeShift", 0);
+      this.Zq(floatProperties, "_ShadeToony", 0.9);
+      this.Zq(floatProperties, "_ShadingGradeRate", 1);
+      this.Zq(floatProperties, "_SrcBlend", 1);
+      this.Zq(floatProperties, "_ZWrite", 1);
       const vectorProperties = materialProperties[i].vectorProperties;
-      this.Rq(vectorProperties, "_Color", [1, 1, 1, 1]);
-      this.Rq(vectorProperties, "_EmissionColor", [0, 0, 0]);
-      this.Rq(vectorProperties, "_OutlineColor", [0, 0, 0, 1]);
-      this.Rq(vectorProperties, "_ShadeColor", [0.97, 0.81, 0.86, 1]);
-      this.Rq(vectorProperties, "_RimColor", [0, 0, 0]);
+      this.Zq(vectorProperties, "_Color", [1, 1, 1, 1]);
+      this.Zq(vectorProperties, "_EmissionColor", [0, 0, 0]);
+      this.Zq(vectorProperties, "_OutlineColor", [0, 0, 0, 1]);
+      this.Zq(vectorProperties, "_ShadeColor", [0.97, 0.81, 0.86, 1]);
+      this.Zq(vectorProperties, "_RimColor", [0, 0, 0]);
       const textureProperties = materialProperties[i].textureProperties;
-      this.Rq(textureProperties, "_BumpMap", dummyWhiteTextureNumber);
-      this.Rq(textureProperties, "_EmissionMap", dummyBlackTextureNumber);
-      this.Rq(textureProperties, "_MainTex", dummyWhiteTextureNumber);
-      this.Rq(textureProperties, "_OutlineWidthTexture", dummyWhiteTextureNumber);
-      this.Rq(textureProperties, "_ReceiveShadowTexture", dummyWhiteTextureNumber);
-      this.Rq(textureProperties, "_RimTexture", dummyBlackTextureNumber);
-      this.Rq(textureProperties, "_ShadeTexture", dummyWhiteTextureNumber);
-      this.Rq(textureProperties, "_ShadingGradeTexture", dummyWhiteTextureNumber);
-      this.Rq(textureProperties, "_SphereAdd", dummyBlackTextureNumber);
+      this.Zq(textureProperties, "_BumpMap", dummyWhiteTextureNumber);
+      this.Zq(textureProperties, "_EmissionMap", dummyBlackTextureNumber);
+      this.Zq(textureProperties, "_MainTex", dummyWhiteTextureNumber);
+      this.Zq(textureProperties, "_OutlineWidthTexture", dummyWhiteTextureNumber);
+      this.Zq(textureProperties, "_ReceiveShadowTexture", dummyWhiteTextureNumber);
+      this.Zq(textureProperties, "_RimTexture", dummyBlackTextureNumber);
+      this.Zq(textureProperties, "_ShadeTexture", dummyWhiteTextureNumber);
+      this.Zq(textureProperties, "_ShadingGradeTexture", dummyWhiteTextureNumber);
+      this.Zq(textureProperties, "_SphereAdd", dummyBlackTextureNumber);
     }
     for (let i = 0; i < gltfModel.materials.length; i++) {
       const material = gltfModel.materials[i];
@@ -437,7 +437,7 @@ var Vrm0xImporter = class _Vrm0xImporter {
    * @param propertyName - The name of the property to check
    * @param initialValue - The default value to set if the property is undefined
    */
-  static Rq(object, propertyName, initialValue) {
+  static Zq(object, propertyName, initialValue) {
     if (object[propertyName] == null) object[propertyName] = initialValue;
   }
   /**
@@ -458,7 +458,7 @@ var Vrm0xImporter = class _Vrm0xImporter {
           delete options.files[file];
         }
       }
-      options.Ip = true;
+      options.Qp = true;
       if (options.defaultMaterialHelperArgumentArray == null) {
         options.defaultMaterialHelperArgumentArray = [{}];
       }
@@ -483,7 +483,7 @@ var Vrm0xImporter = class _Vrm0xImporter {
             isTextureImageToLoadPreMultipliedAlpha: false
           }
         ],
-        Ip: true,
+        Qp: true,
         __importedType: "vrm0x"
       };
     }

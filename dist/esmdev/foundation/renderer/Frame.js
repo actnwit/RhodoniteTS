@@ -4,9 +4,9 @@ import { Is } from "../misc/Is.js";
 var _Frame = class _Frame extends RnObject {
   constructor() {
     super(...arguments);
-    this.gi = [];
-    this.nx = [];
-    this.ox = [];
+    this.ni = [];
+    this.vx = [];
+    this.wx = [];
   }
   /**
    * Adds a rendering expression to this frame with optional input dependencies and output configurations.
@@ -54,11 +54,11 @@ var _Frame = class _Frame extends RnObject {
         }
       }
     }
-    this.gi.push({
+    this.ni.push({
       expression,
       inputRenderPasses: Is.exist(inputRenderPasses) ? inputRenderPasses : []
     });
-    this.nx.push(expression);
+    this.vx.push(expression);
   }
   /**
    * Retrieves a color attachment render target texture from an input render pass of the specified expression.
@@ -99,7 +99,7 @@ var _Frame = class _Frame extends RnObject {
           return renderTargetTexture;
         }
         const generator = generatorFunc();
-        this.ox.push([
+        this.wx.push([
           inputFrom,
           renderPassArg.renderPass,
           renderPassArg.colorAttachmentIndex,
@@ -134,8 +134,8 @@ var _Frame = class _Frame extends RnObject {
    * ```
    */
   resolve() {
-    for (const [exp, renderPassArg, colorAttachmentIndex, generator, frameBufferType] of this.ox) {
-      for (const expData of this.gi) {
+    for (const [exp, renderPassArg, colorAttachmentIndex, generator, frameBufferType] of this.wx) {
+      for (const expData of this.ni) {
         if (exp === expData.expression) {
           let renderPassObj = renderPassArg.instance;
           if (Is.exist(renderPassArg.instance)) {
@@ -178,8 +178,8 @@ var _Frame = class _Frame extends RnObject {
    * ```
    */
   clearExpressions() {
-    this.gi.length = 0;
-    this.nx.length = 0;
+    this.ni.length = 0;
+    this.vx.length = 0;
   }
   /**
    * Gets a read-only array of all expressions currently registered in this frame.
@@ -193,7 +193,7 @@ var _Frame = class _Frame extends RnObject {
    * ```
    */
   get expressions() {
-    return this.nx;
+    return this.vx;
   }
   /**
    * Sets the viewport for all expressions in this frame.
@@ -209,7 +209,7 @@ var _Frame = class _Frame extends RnObject {
    * ```
    */
   setViewport(viewport) {
-    for (const exp of this.gi) {
+    for (const exp of this.ni) {
       exp.expression.setViewport(viewport);
     }
   }

@@ -5,23 +5,23 @@ import { Primitive } from "../foundation/geometry/Primitive.js";
 import { buildMultiDrawGroups } from "./MultiDraw.js";
 var MultiDrawRepository = class {
   constructor(engine) {
-    this.gC = /* @__PURE__ */ new Map();
-    this.hC = true;
-    this.eu = 0;
+    this.LC = /* @__PURE__ */ new Map();
+    this.MC = true;
+    this.mu = 0;
     /** Meshes whose vertex data must be refreshed during the next rebuild. */
-    this.iC = /* @__PURE__ */ new Set();
+    this.NC = /* @__PURE__ */ new Set();
     /** Set when the whole structure changed and every primitive must be refreshed. */
-    this.jC = true;
+    this.OC = true;
     this.c = engine;
   }
   /** Incremented on every rebuild; render sort caches can use it for invalidation. */
   get version() {
-    return this.eu;
+    return this.mu;
   }
   /** Whether the given VAO handle is owned by a current multi-draw group. */
   hasVaoHandle(vaoHandle) {
     var _a;
-    for (const group of this.gC.values()) {
+    for (const group of this.LC.values()) {
       if (((_a = group.vertexHandles) == null ? void 0 : _a.vaoHandle) === vaoHandle) {
         return true;
       }
@@ -29,36 +29,36 @@ var MultiDrawRepository = class {
     return false;
   }
   get groups() {
-    return this.gC;
+    return this.LC;
   }
   /** Marks all groups for a rebuild at the next frame start. */
   markDirty() {
-    this.jC = true;
-    this.hC = true;
+    this.OC = true;
+    this.MC = true;
   }
   /** Marks the groups that may contain primitives of the given mesh for a rebuild. */
   markDirtyForMesh(mesh) {
-    this.iC.add(mesh);
-    this.hC = true;
+    this.NC.add(mesh);
+    this.MC = true;
   }
   /**
    * Rebuilds the multi-draw groups if any structural change was recorded.
    * Called at the start of the WebGL render phase, before sort_$render().
    */
   rebuildDirtyGroups() {
-    if (!this.hC) {
+    if (!this.MC) {
       return;
     }
-    this.hC = false;
-    const forceFullRebuild = this.jC;
-    this.jC = false;
+    this.MC = false;
+    const forceFullRebuild = this.OC;
+    this.OC = false;
     const engine = this.c;
     const repository = engine.webglResourceRepository;
     const enabled = engine.config.isMultiDrawEnabled && ProcessApproach.isWebGL2Approach(engine.engineState.currentProcessApproach) && repository.isInstanceSidTextureCapable;
-    this.kC();
+    this.PC();
     if (!enabled) {
-      this.iC.clear();
-      this.eu++;
+      this.NC.clear();
+      this.mu++;
       return;
     }
     const primitives = [];
@@ -77,14 +77,14 @@ var MultiDrawRepository = class {
     const groupedPrimitives = /* @__PURE__ */ new Set();
     for (const merged of mergedGroups) {
       const group = merged.group;
-      this.lC(merged);
+      this.QC(merged);
       for (let i = 0; i < group.entries.length; i++) {
         const entry = group.entries[i];
         entry.primitive.delete3DAPIVertexData();
         entry.primitive._setMultiDrawGroup(group, i);
         groupedPrimitives.add(entry.primitive);
       }
-      this.gC.set(group.key, group);
+      this.LC.set(group.key, group);
     }
     for (const mesh of meshes) {
       mesh.updateVariationVBO();
@@ -97,7 +97,7 @@ var MultiDrawRepository = class {
         primitive.create3DAPIVertexData();
       } else {
         const mesh = primitive.mesh;
-        if (forceFullRebuild || mesh != null && this.iC.has(mesh)) {
+        if (forceFullRebuild || mesh != null && this.NC.has(mesh)) {
           primitive.update3DAPIVertexData();
         }
       }
@@ -105,17 +105,17 @@ var MultiDrawRepository = class {
     for (const mesh of meshes) {
       mesh.updateVAO();
     }
-    this.iC.clear();
-    this.eu++;
+    this.NC.clear();
+    this.mu++;
   }
   /** Releases every group and detaches its primitives. */
   invalidateAll() {
-    this.kC();
-    this.hC = true;
+    this.PC();
+    this.MC = true;
   }
-  kC() {
+  PC() {
     const repository = this.c.webglResourceRepository;
-    for (const group of this.gC.values()) {
+    for (const group of this.LC.values()) {
       for (const entry of group.entries) {
         entry.mesh._clearMultiDrawVaoUids();
         if (entry.primitive._multiDrawGroup === group) {
@@ -139,9 +139,9 @@ var MultiDrawRepository = class {
         group.materialSidVboHandle = void 0;
       }
     }
-    this.gC.clear();
+    this.LC.clear();
   }
-  lC(merged) {
+  QC(merged) {
     const repository = this.c.webglResourceRepository;
     const group = merged.group;
     const vboHandles = merged.attributeBytes.map((bytes) => repository.createVertexBufferFromTypedArray(bytes));

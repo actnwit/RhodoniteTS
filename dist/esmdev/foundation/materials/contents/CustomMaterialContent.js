@@ -35,8 +35,8 @@ var CustomMaterialContent = class _CustomMaterialContent extends AbstractMateria
     definitions = []
   }) {
     super(name, { isMorphing, isSkinning, isLighting }, void 0, void 0, engine);
-    this.Yq = -1;
-    this._q = new Float64Array(6);
+    this.er = -1;
+    this.gr = new Float64Array(6);
     const shaderSemanticsInfoArray = this.doShaderReflection(
       engine,
       vertexShader,
@@ -45,14 +45,14 @@ var CustomMaterialContent = class _CustomMaterialContent extends AbstractMateria
       pixelShaderWebGpu,
       definitions
     );
-    this.Wq = getSharedSampler(engine, {
+    this.cr = getSharedSampler(engine, {
       minFilter: TextureParameter.Linear,
       magFilter: TextureParameter.Linear,
       wrapS: TextureParameter.ClampToEdge,
       wrapT: TextureParameter.ClampToEdge,
       wrapR: TextureParameter.ClampToEdge
     });
-    this.Vq = getSharedSampler(engine, {
+    this.br = getSharedSampler(engine, {
       minFilter: TextureParameter.LinearMipmapLinear,
       magFilter: TextureParameter.Linear,
       wrapS: TextureParameter.ClampToEdge,
@@ -77,14 +77,14 @@ var CustomMaterialContent = class _CustomMaterialContent extends AbstractMateria
       specularHdriType,
       diffuseContribution,
       specularContribution
-    } = _CustomMaterialContent.Zq(args);
-    const tmp_vector4 = AbstractMaterialContent.$q;
+    } = _CustomMaterialContent.fr(args);
+    const tmp_vector4 = AbstractMaterialContent.hr;
     tmp_vector4.x = mipmapLevelNumber;
     tmp_vector4.y = diffuseContribution;
     tmp_vector4.z = specularContribution;
     tmp_vector4.w = meshRenderComponent.rotationOfCubeMap;
     material.setParameter("iblParameter", tmp_vector4);
-    const tmp_vector2 = AbstractMaterialContent.ar;
+    const tmp_vector2 = AbstractMaterialContent.ir;
     tmp_vector2.x = diffuseHdriType;
     tmp_vector2.y = specularHdriType;
     material.setParameter("hdriFormat", tmp_vector2);
@@ -104,20 +104,20 @@ var CustomMaterialContent = class _CustomMaterialContent extends AbstractMateria
     const diffuseCube = meshRendererComponent == null ? void 0 : meshRendererComponent.diffuseCubeMap;
     const specularCube = meshRendererComponent == null ? void 0 : meshRendererComponent.specularCubeMap;
     if (diffuseCube == null ? void 0 : diffuseCube.isTextureReady) {
-      material.setTextureParameter(ShaderSemantics.DiffuseEnvTexture.str, diffuseCube, this.Wq);
+      material.setTextureParameter(ShaderSemantics.DiffuseEnvTexture.str, diffuseCube, this.cr);
     }
     if (specularCube == null ? void 0 : specularCube.isTextureReady) {
       material.setTextureParameter(
         ShaderSemantics.SpecularEnvTexture.str,
         specularCube,
-        this.Vq
+        this.br
       );
     }
     const sheenCube = meshRendererComponent == null ? void 0 : meshRendererComponent.sheenCubeMap;
     if (sheenCube == null ? void 0 : sheenCube.isTextureReady) {
-      material.setTextureParameter(ShaderSemantics.SheenEnvTexture.str, sheenCube, this.Vq);
+      material.setTextureParameter(ShaderSemantics.SheenEnvTexture.str, sheenCube, this.br);
     } else if (specularCube == null ? void 0 : specularCube.isTextureReady) {
-      material.setTextureParameter(ShaderSemantics.SheenEnvTexture.str, specularCube, this.Vq);
+      material.setTextureParameter(ShaderSemantics.SheenEnvTexture.str, specularCube, this.br);
     }
   }
   /**
@@ -144,24 +144,24 @@ var CustomMaterialContent = class _CustomMaterialContent extends AbstractMateria
       specularHdriType,
       diffuseContribution,
       specularContribution
-    } = _CustomMaterialContent.Zq(args);
+    } = _CustomMaterialContent.fr(args);
     const rotationOfCubeMap = meshRenderComponent.rotationOfCubeMap;
-    const last = this._q;
-    if (this.Xq === material && this.Yq === material.stateVersion && last[0] === mipmapLevelNumber && last[1] === diffuseContribution && last[2] === specularContribution && last[3] === rotationOfCubeMap && last[4] === diffuseHdriType && last[5] === specularHdriType) {
+    const last = this.gr;
+    if (this.dr === material && this.er === material.stateVersion && last[0] === mipmapLevelNumber && last[1] === diffuseContribution && last[2] === specularContribution && last[3] === rotationOfCubeMap && last[4] === diffuseHdriType && last[5] === specularHdriType) {
       return;
     }
-    const tmp_vector4 = AbstractMaterialContent.$q;
+    const tmp_vector4 = AbstractMaterialContent.hr;
     tmp_vector4.x = mipmapLevelNumber;
     tmp_vector4.y = diffuseContribution;
     tmp_vector4.z = specularContribution;
     tmp_vector4.w = rotationOfCubeMap;
     material.setParameter("iblParameter", tmp_vector4);
-    const tmp_vector2 = AbstractMaterialContent.ar;
+    const tmp_vector2 = AbstractMaterialContent.ir;
     tmp_vector2.x = diffuseHdriType;
     tmp_vector2.y = specularHdriType;
     material.setParameter("hdriFormat", tmp_vector2);
-    this.Xq = material;
-    this.Yq = material.stateVersion;
+    this.dr = material;
+    this.er = material.stateVersion;
     last[0] = mipmapLevelNumber;
     last[1] = diffuseContribution;
     last[2] = specularContribution;
@@ -194,12 +194,12 @@ var CustomMaterialContent = class _CustomMaterialContent extends AbstractMateria
         webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
           diffuseEnvSlot,
           args.diffuseCube,
-          this.Wq
+          this.cr
         ]);
         material.setTextureParameter(
           ShaderSemantics.DiffuseEnvTexture.str,
           args.diffuseCube,
-          this.Wq
+          this.cr
         );
       } else {
         webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
@@ -215,12 +215,12 @@ var CustomMaterialContent = class _CustomMaterialContent extends AbstractMateria
         webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, [
           specularEnvSlot,
           args.specularCube,
-          this.Vq
+          this.br
         ]);
         material.setTextureParameter(
           ShaderSemantics.SpecularEnvTexture.str,
           args.specularCube,
-          this.Vq
+          this.br
         );
       } else {
         webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, [
@@ -236,23 +236,23 @@ var CustomMaterialContent = class _CustomMaterialContent extends AbstractMateria
         webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SheenEnvTexture.str, [
           sheenEnvSlot,
           args.sheenCube,
-          this.Vq
+          this.br
         ]);
         material.setTextureParameter(
           ShaderSemantics.SheenEnvTexture.str,
           args.sheenCube,
-          this.Vq
+          this.br
         );
       } else if ((_d = args.specularCube) == null ? void 0 : _d.isTextureReady) {
         webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SheenEnvTexture.str, [
           sheenEnvSlot,
           args.specularCube,
-          this.Vq
+          this.br
         ]);
         material.setTextureParameter(
           ShaderSemantics.SheenEnvTexture.str,
           args.specularCube,
-          this.Vq
+          this.br
         );
       } else {
         webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SheenEnvTexture.str, [
@@ -286,7 +286,7 @@ var CustomMaterialContent = class _CustomMaterialContent extends AbstractMateria
    * @returns Object containing mipmap level number, mesh render component, and HDRI format indices
    * @private
    */
-  static Zq(args) {
+  static fr(args) {
     let mipmapLevelNumber = 1;
     if (args.specularCube) {
       mipmapLevelNumber = args.specularCube.mipmapLevelNumber;

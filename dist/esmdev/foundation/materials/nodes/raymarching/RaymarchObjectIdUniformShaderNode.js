@@ -8,16 +8,16 @@ import { Socket } from "../../core/Socket.js";
 var RaymarchObjectIdUniformShaderNode = class extends AbstractShaderNode {
   constructor() {
     super("raymarchObjectIdUniform", {});
-    this.Br += `_${this.Fr}`;
-    this.Ar = new RaymarchObjectIdUniformShader(this.Br);
+    this.Jr += `_${this.Nr}`;
+    this.Ir = new RaymarchObjectIdUniformShader(this.Jr);
     this.setShaderStage("Fragment");
-    this.Cr.push(new Socket("outValue", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
+    this.Kr.push(new Socket("outValue", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
   }
   /**
    * Sets the shader semantic name of the per-component object id uniform.
    */
   setUniformDataName(value) {
-    this.Ar.setVariableName(value);
+    this.Ir.setVariableName(value);
   }
 };
 export {

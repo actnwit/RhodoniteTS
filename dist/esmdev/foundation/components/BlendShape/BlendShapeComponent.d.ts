@@ -91,6 +91,60 @@ export declare class BlendShapeComponent extends Component {
      */
     setWeightByIndex(index: Index, weight: number): void;
     static getOffsetsInUniform(engine: Engine): Offset[];
+    /**
+     * The number of vec4 of the blend shape weights in the morph weights uniform buffer of the shaders.
+     *
+     * @remarks
+     * With `Engine._isPreviousMorphWeightsEnabled` (temporal anti-aliasing), the buffer also holds the weights of the
+     * previous frame after the current ones (at `getPreviousMorphWeightsOffset`), which doubles it.
+     *
+     * @param engine - The engine instance
+     * @returns The array length (in vec4) of the morph weights uniform buffer
+     * @internal
+     */
+    static _getMorphWeightsVec4Count(engine: Engine): number;
+    /**
+     * The offset (in floats) of the weights of the previous frame in the morph weights uniform buffer.
+     * Only meaningful when `Engine._isPreviousMorphWeightsEnabled` is true.
+     *
+     * @param engine - The engine instance
+     * @returns The offset in floats
+     * @internal
+     */
+    static _getPreviousMorphWeightsOffset(engine: Engine): number;
+    /**
+     * The size (in floats) of the morph weights uniform buffer allocated by the rendering strategies.
+     *
+     * @param engine - The engine instance
+     * @returns The number of floats
+     * @internal
+     */
+    static _getMorphWeightsUniformBufferFloatCount(engine: Engine): number;
+    /**
+     * Writes the blend shape weights of all components into the data of the morph weights uniform buffer.
+     *
+     * @remarks
+     * With `Engine._isPreviousMorphWeightsEnabled`, the weights written by the previous call (the weights of the
+     * previous frame) are first moved to the previous weights section. For a new buffer (`isNewBuffer`), the previous
+     * weights are the current ones (no motion).
+     *
+     * @param engine - The engine instance
+     * @param array - The data of the morph weights uniform buffer
+     * @param isNewBuffer - Whether the buffer was just created
+     * @returns The number of floats to upload from the beginning of the array
+     * @internal
+     */
+    static _writeMorphWeightsUniformArray(engine: Engine, array: Float32Array, isNewBuffer: boolean): number;
+    /**
+     * Makes the previous weights section equal to the current weights, in the frame after the weights stopped
+     * changing (until then, it still holds the weights of two frames ago).
+     *
+     * @param engine - The engine instance
+     * @param array - The data of the morph weights uniform buffer
+     * @returns The number of floats to upload, or 0 if nothing changed
+     * @internal
+     */
+    static _settlePreviousMorphWeights(engine: Engine, array: Float32Array): number;
     static getCountOfBlendShapeComponents(engine: Engine): number;
     /**
      * Logic processing method called during the logic stage.

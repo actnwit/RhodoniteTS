@@ -3,7 +3,7 @@ import { Is } from "./Is.js";
 var errorStr = "The value does not exist!";
 var WeakOption = class {
   constructor() {
-    this.Ru = /* @__PURE__ */ new WeakMap();
+    this.Zu = /* @__PURE__ */ new WeakMap();
   }
   /**
    * Sets a value for the given base object.
@@ -12,7 +12,7 @@ var WeakOption = class {
    * @param val - The value to store
    */
   set(base, val) {
-    this.Ru.set(base, val);
+    this.Zu.set(base, val);
   }
   /**
    * Unwraps the value or returns a default value if it doesn't exist.
@@ -22,7 +22,7 @@ var WeakOption = class {
    * @returns The stored value or the alternative value
    */
   unwrapOrDefault(base, altValue) {
-    const value = this.Ru.get(base);
+    const value = this.Zu.get(base);
     return Is.exist(value) ? value : altValue;
   }
   /**
@@ -33,7 +33,7 @@ var WeakOption = class {
    * @returns The stored value or the result of the function
    */
   unwrapOrElse(base, f) {
-    const value = this.Ru.get(base);
+    const value = this.Zu.get(base);
     return Is.exist(value) ? value : f();
   }
   /**
@@ -44,7 +44,7 @@ var WeakOption = class {
    * @throws {ReferenceError} When the value doesn't exist
    */
   unwrapForce(base) {
-    const value = this.Ru.get(base);
+    const value = this.Zu.get(base);
     if (Is.exist(value)) {
       return value;
     }
@@ -57,7 +57,7 @@ var WeakOption = class {
    * @returns The stored value or undefined
    */
   unwrapOrUndefined(base) {
-    return this.Ru.get(base);
+    return this.Zu.get(base);
   }
   /**
    * Checks if a value exists for the given base object.
@@ -66,7 +66,7 @@ var WeakOption = class {
    * @returns True if the value exists, false otherwise
    */
   has(base) {
-    return this.Ru.has(base);
+    return this.Zu.has(base);
   }
 };
 var WeakSome = class {
@@ -77,8 +77,8 @@ var WeakSome = class {
    * @param value - The value to store (guaranteed to exist)
    */
   constructor(base, value) {
-    this.Ru = /* @__PURE__ */ new WeakMap();
-    this.Ru.set(base, value);
+    this.Zu = /* @__PURE__ */ new WeakMap();
+    this.Zu.set(base, value);
   }
   /**
    * Unwraps the value, ignoring the alternative value since this value always exists.
@@ -88,7 +88,7 @@ var WeakSome = class {
    * @returns The stored value
    */
   unwrapOrDefault(base, _altValue) {
-    return this.Ru.get(base);
+    return this.Zu.get(base);
   }
   /**
    * Unwraps the value, ignoring the function since this value always exists.
@@ -98,7 +98,7 @@ var WeakSome = class {
    * @returns The stored value
    */
   unwrapOrElse(base, _f) {
-    return this.Ru.get(base);
+    return this.Zu.get(base);
   }
   /**
    * Forcefully unwraps the value (always succeeds since the value exists).
@@ -107,7 +107,7 @@ var WeakSome = class {
    * @returns The stored value
    */
   unwrapForce(base) {
-    return this.Ru.get(base);
+    return this.Zu.get(base);
   }
   /**
    * Gets the value directly (convenience method).
@@ -116,7 +116,7 @@ var WeakSome = class {
    * @returns The stored value
    */
   get(base) {
-    return this.Ru.get(base);
+    return this.Zu.get(base);
   }
   /**
    * Unwraps the value or returns undefined (always returns the value).
@@ -125,7 +125,7 @@ var WeakSome = class {
    * @returns The stored value
    */
   unwrapOrUndefined(base) {
-    return this.Ru.get(base);
+    return this.Zu.get(base);
   }
   /**
    * Checks if a value exists (always returns true).

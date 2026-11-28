@@ -2,11 +2,11 @@
 import { WellKnownComponentTIDs } from "../components/WellKnownComponentTIDs.js";
 var _ComponentRepository = class _ComponentRepository {
   constructor(engine) {
-    this.Ki = /* @__PURE__ */ new Map();
-    this.Zh = /* @__PURE__ */ new Map();
-    this.Li = [];
-    this.Mi = [];
-    this.Ni = 0;
+    this.Ri = /* @__PURE__ */ new Map();
+    this.ei = /* @__PURE__ */ new Map();
+    this.Si = [];
+    this.Ti = [];
+    this.Ui = 0;
     this.c = engine;
   }
   /**
@@ -15,7 +15,7 @@ var _ComponentRepository = class _ComponentRepository {
    * @internal
    */
   get _componentCreationCount() {
-    return this.Ni;
+    return this.Ui;
   }
   /**
    * Registers a component class with the repository.
@@ -30,7 +30,7 @@ var _ComponentRepository = class _ComponentRepository {
    * ```
    */
   static registerComponentClass(componentClass) {
-    this.Ji.set(componentClass.componentTID, componentClass);
+    this.Qi.set(componentClass.componentTID, componentClass);
   }
   /**
    * Registers a component class only when no class is registered for its ComponentTID yet.
@@ -44,8 +44,8 @@ var _ComponentRepository = class _ComponentRepository {
    * @internal
    */
   static _ensureComponentClassRegistered(componentClass) {
-    if (!this.Ji.has(componentClass.componentTID)) {
-      this.Ji.set(componentClass.componentTID, componentClass);
+    if (!this.Qi.has(componentClass.componentTID)) {
+      this.Qi.set(componentClass.componentTID, componentClass);
     }
   }
   /**
@@ -60,7 +60,7 @@ var _ComponentRepository = class _ComponentRepository {
    * ```
    */
   static deregisterComponentClass(componentTID) {
-    this.Ji.delete(componentTID);
+    this.Qi.delete(componentTID);
   }
   /**
    * Retrieves the component class constructor associated with the specified ComponentTID.
@@ -77,7 +77,7 @@ var _ComponentRepository = class _ComponentRepository {
    * ```
    */
   static getComponentClass(componentTid) {
-    return this.Ji.get(componentTid);
+    return this.Qi.get(componentTid);
   }
   /**
    * Creates a new component instance for the specified entity.
@@ -99,14 +99,14 @@ var _ComponentRepository = class _ComponentRepository {
    * ```
    */
   createComponent(componentTid, entityUid, entityRepository) {
-    const componentClass = _ComponentRepository.Ji.get(componentTid);
+    const componentClass = _ComponentRepository.Qi.get(componentTid);
     if (componentClass !== void 0) {
-      let component_sid_count = this.Ki.get(componentTid);
+      let component_sid_count = this.Ri.get(componentTid);
       if (component_sid_count === void 0) {
-        this.Ki.set(componentTid, 0);
+        this.Ri.set(componentTid, 0);
         component_sid_count = _ComponentRepository.invalidComponentSID;
       }
-      const componentArray = this.Zh.get(componentTid);
+      const componentArray = this.ei.get(componentTid);
       let undefinedSid = -1;
       if (componentArray !== void 0) {
         for (let i = 0; i < componentArray.length; i++) {
@@ -119,13 +119,13 @@ var _ComponentRepository = class _ComponentRepository {
       let componentSid = -1;
       let isReUse = false;
       if (undefinedSid === -1) {
-        this.Ki.set(componentTid, ++component_sid_count);
+        this.Ri.set(componentTid, ++component_sid_count);
         componentSid = component_sid_count;
       } else {
         componentSid = undefinedSid;
         isReUse = true;
       }
-      this.Ni++;
+      this.Ui++;
       const component = new componentClass(
         this.c,
         entityUid,
@@ -133,11 +133,11 @@ var _ComponentRepository = class _ComponentRepository {
         entityRepository,
         isReUse
       );
-      if (!this.Zh.has(componentTid)) {
-        this.Zh.set(componentTid, []);
-        this.Oi();
+      if (!this.ei.has(componentTid)) {
+        this.ei.set(componentTid, []);
+        this.Vi();
       }
-      const array = this.Zh.get(componentTid);
+      const array = this.ei.get(componentTid);
       array[component.componentSID] = component;
       return component;
     }
@@ -157,7 +157,7 @@ var _ComponentRepository = class _ComponentRepository {
   deleteComponent(component) {
     const componentTid = component.componentTID;
     const componentSid = component.componentSID;
-    const array = this.Zh.get(componentTid);
+    const array = this.ei.get(componentTid);
     if (array != null) {
       delete array[componentSid];
     }
@@ -190,7 +190,7 @@ var _ComponentRepository = class _ComponentRepository {
    * ```
    */
   getComponentFromComponentTID(componentTid, componentSid) {
-    const map = this.Zh.get(componentTid);
+    const map = this.ei.get(componentTid);
     if (map != null) {
       const component = map[componentSid];
       if (component != null) {
@@ -209,7 +209,7 @@ var _ComponentRepository = class _ComponentRepository {
    * @returns True if at least one live component of the type exists
    */
   hasAnyComponent(componentTID) {
-    const components = this.Zh.get(componentTID);
+    const components = this.ei.get(componentTID);
     if (components == null) {
       return false;
     }
@@ -228,7 +228,7 @@ var _ComponentRepository = class _ComponentRepository {
    * @returns The number of live components of the type
    */
   getComponentCount(componentTID) {
-    const components = this.Zh.get(componentTID);
+    const components = this.ei.get(componentTID);
     if (components == null) {
       return 0;
     }
@@ -249,7 +249,7 @@ var _ComponentRepository = class _ComponentRepository {
    * @returns Array of component instances with potential undefined elements, or undefined if type not found
    */
   _getComponents(componentClass) {
-    const components = this.Zh.get(componentClass.componentTID);
+    const components = this.ei.get(componentClass.componentTID);
     return components;
   }
   /**
@@ -261,7 +261,7 @@ var _ComponentRepository = class _ComponentRepository {
    * @returns Array of component instances including dead components, or undefined if type not found
    */
   _getComponentsIncludingDead(componentClass) {
-    const components = this.Zh.get(componentClass.componentTID);
+    const components = this.ei.get(componentClass.componentTID);
     return components;
   }
   /**
@@ -293,7 +293,7 @@ var _ComponentRepository = class _ComponentRepository {
    * @returns Array of active component instances (never includes undefined elements)
    */
   getComponentsWithTID(componentTID) {
-    const components = this.Zh.get(componentTID);
+    const components = this.ei.get(componentTID);
     if (components == null) {
       return [];
     }
@@ -308,7 +308,7 @@ var _ComponentRepository = class _ComponentRepository {
    * @returns Array of component instances with potential undefined elements, or undefined if type not found
    */
   getComponentsWithTypeWithoutFiltering(componentType) {
-    const components = this.Zh.get(componentType.componentTID);
+    const components = this.ei.get(componentType.componentTID);
     if (components == null) {
       return [];
     }
@@ -324,16 +324,16 @@ var _ComponentRepository = class _ComponentRepository {
    *
    * @private
    */
-  Oi() {
-    const componentTids = Array.from(this.Zh.keys());
+  Vi() {
+    const componentTids = Array.from(this.ei.keys());
     componentTids.sort((a, b) => a - b);
-    this.Li = componentTids;
+    this.Si = componentTids;
     const renderingComponentTids = [];
     renderingComponentTids.push(WellKnownComponentTIDs.MeshRendererComponentTID);
-    if (this.Zh.has(WellKnownComponentTIDs.EffekseerComponentTID)) {
+    if (this.ei.has(WellKnownComponentTIDs.EffekseerComponentTID)) {
       renderingComponentTids.push(WellKnownComponentTIDs.EffekseerComponentTID);
     }
-    this.Mi = renderingComponentTids;
+    this.Ti = renderingComponentTids;
   }
   /**
    * Retrieves all registered component type IDs in sorted order.
@@ -348,7 +348,7 @@ var _ComponentRepository = class _ComponentRepository {
    * ```
    */
   getComponentTIDs() {
-    return this.Li;
+    return this.Si;
   }
   /**
    * Retrieves all rendering-related component type IDs.
@@ -363,11 +363,11 @@ var _ComponentRepository = class _ComponentRepository {
    * ```
    */
   getRenderingComponentTIDs() {
-    return this.Mi;
+    return this.Ti;
   }
 };
 // index of array Is ComponentSID
-_ComponentRepository.Ji = /* @__PURE__ */ new Map();
+_ComponentRepository.Qi = /* @__PURE__ */ new Map();
 _ComponentRepository.invalidComponentSID = -1;
 var ComponentRepository = _ComponentRepository;
 export {

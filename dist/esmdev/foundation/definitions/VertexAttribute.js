@@ -3,26 +3,26 @@ import { _from, _fromString, EnumClass } from "../misc/EnumIO.js";
 import { RnException } from "../misc/RnException.js";
 var _VertexAttributeClass = class _VertexAttributeClass extends EnumClass {
   constructor({ str, shaderStr, attributeSlot, gltfComponentN, isIntegerType }) {
-    super({ index: _VertexAttributeClass.xj++, str });
-    this.Cj = attributeSlot;
-    this.Bj = shaderStr;
-    this.Aj = gltfComponentN;
-    this.Dj = isIntegerType != null ? isIntegerType : false;
+    super({ index: _VertexAttributeClass.Ej++, str });
+    this.Jj = attributeSlot;
+    this.Ij = shaderStr;
+    this.Hj = gltfComponentN;
+    this.Kj = isIntegerType != null ? isIntegerType : false;
   }
   getAttributeSlot() {
-    return this.Cj;
+    return this.Jj;
   }
   get shaderStr() {
-    return this.Bj;
+    return this.Ij;
   }
   get isIntegerType() {
-    return this.Dj;
+    return this.Kj;
   }
   get attributeTypeName() {
     return this.str;
   }
   _setShaderStr(str) {
-    this.Bj = this.Bj + str;
+    this.Ij = this.Ij + str;
   }
   get X() {
     return `${this.attributeTypeName}.X`;
@@ -46,110 +46,110 @@ var _VertexAttributeClass = class _VertexAttributeClass extends EnumClass {
     return `${this.attributeTypeName}.X,${this.attributeTypeName}.Y,${this.attributeTypeName}.Z,${this.attributeTypeName}.W`;
   }
   getVertexAttributeComponentsAsGltf() {
-    if (this.Aj === 1) {
+    if (this.Hj === 1) {
       return this.X;
     }
-    if (this.Aj === 2) {
+    if (this.Hj === 2) {
       return this.XY;
     }
-    if (this.Aj === 3) {
+    if (this.Hj === 3) {
       return this.XYZ;
     }
-    if (this.Aj === 4) {
+    if (this.Hj === 4) {
       return this.XYZW;
     }
     throw new RnException({
       message: "Invalid gltf component number",
-      error: this.Aj
+      error: this.Hj
     });
   }
-  static zj(desc) {
+  static Gj(desc) {
     return new _VertexAttributeClass(desc);
   }
 };
-_VertexAttributeClass.xj = -1;
+_VertexAttributeClass.Ej = -1;
 var VertexAttributeClass = _VertexAttributeClass;
-var Unknown = VertexAttributeClass.zj({
+var Unknown = VertexAttributeClass.Gj({
   str: "UNKNOWN",
   shaderStr: "a_unknown",
   attributeSlot: -1,
   gltfComponentN: 0
 });
-var Position = VertexAttributeClass.zj({
+var Position = VertexAttributeClass.Gj({
   str: "POSITION",
   shaderStr: "a_position",
   attributeSlot: 0,
   gltfComponentN: 3
 });
-var Normal = VertexAttributeClass.zj({
+var Normal = VertexAttributeClass.Gj({
   str: "NORMAL",
   shaderStr: "a_normal",
   attributeSlot: 1,
   gltfComponentN: 3
 });
-var Tangent = VertexAttributeClass.zj({
+var Tangent = VertexAttributeClass.Gj({
   str: "TANGENT",
   shaderStr: "a_tangent",
   attributeSlot: 2,
   gltfComponentN: 4
 });
-var Texcoord0 = VertexAttributeClass.zj({
+var Texcoord0 = VertexAttributeClass.Gj({
   str: "TEXCOORD_0",
   shaderStr: "a_texcoord_0",
   attributeSlot: 3,
   gltfComponentN: 2
 });
-var Texcoord1 = VertexAttributeClass.zj({
+var Texcoord1 = VertexAttributeClass.Gj({
   str: "TEXCOORD_1",
   shaderStr: "a_texcoord_1",
   attributeSlot: 4,
   gltfComponentN: 2
 });
-var Color0 = VertexAttributeClass.zj({
+var Color0 = VertexAttributeClass.Gj({
   str: "COLOR_0",
   shaderStr: "a_color_0",
   attributeSlot: 5,
   gltfComponentN: 4
 });
-var Joints0 = VertexAttributeClass.zj({
+var Joints0 = VertexAttributeClass.Gj({
   str: "JOINTS_0",
   shaderStr: "a_joints_0",
   attributeSlot: 6,
   gltfComponentN: 4,
   isIntegerType: true
 });
-var Weights0 = VertexAttributeClass.zj({
+var Weights0 = VertexAttributeClass.Gj({
   str: "WEIGHTS_0",
   shaderStr: "a_weights_0",
   attributeSlot: 7,
   gltfComponentN: 4
 });
-var Instance = VertexAttributeClass.zj({
+var Instance = VertexAttributeClass.Gj({
   str: "INSTANCE",
   shaderStr: "a_instanceBase",
   attributeSlot: 8,
   gltfComponentN: 4,
   isIntegerType: true
 });
-var FaceNormal = VertexAttributeClass.zj({
+var FaceNormal = VertexAttributeClass.Gj({
   str: "FACE_NORMAL",
   shaderStr: "a_faceNormal",
   attributeSlot: 9,
   gltfComponentN: 3
 });
-var BaryCentricCoord = VertexAttributeClass.zj({
+var BaryCentricCoord = VertexAttributeClass.Gj({
   str: "BARY_CENTRIC_COORD",
   shaderStr: "a_baryCentricCoord",
   attributeSlot: 10,
   gltfComponentN: 4
 });
-var Texcoord2 = VertexAttributeClass.zj({
+var Texcoord2 = VertexAttributeClass.Gj({
   str: "TEXCOORD_2",
   shaderStr: "a_texcoord_2",
   attributeSlot: 11,
   gltfComponentN: 2
 });
-var MaterialSid = VertexAttributeClass.zj({
+var MaterialSid = VertexAttributeClass.Gj({
   str: "MATERIAL_SID",
   shaderStr: "a_materialSid",
   attributeSlot: 12,

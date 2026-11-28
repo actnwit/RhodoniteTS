@@ -40,37 +40,37 @@ var MToon1MaterialContent = class _MToon1MaterialContent extends AbstractMateria
       mToon1SingleShaderFragmentWebGpu,
       definitions
     );
-    this.Wq = new Sampler(engine, {
+    this.cr = new Sampler(engine, {
       minFilter: TextureParameter.Linear,
       magFilter: TextureParameter.Linear,
       wrapS: TextureParameter.ClampToEdge,
       wrapT: TextureParameter.ClampToEdge,
       wrapR: TextureParameter.ClampToEdge
     });
-    this.Vq = new Sampler(engine, {
+    this.br = new Sampler(engine, {
       minFilter: TextureParameter.LinearMipmapLinear,
       magFilter: TextureParameter.Linear,
       wrapS: TextureParameter.ClampToEdge,
       wrapT: TextureParameter.ClampToEdge,
       wrapR: TextureParameter.ClampToEdge
     });
-    if (!this.Wq.created) {
-      this.Wq.create();
+    if (!this.cr.created) {
+      this.cr.create();
     }
-    if (!this.Vq.created) {
-      this.Vq.create();
+    if (!this.br.created) {
+      this.br.create();
     }
     if (isLighting) {
-      this.fr += "#define RN_IS_LIGHTING\n";
+      this.nr += "#define RN_IS_LIGHTING\n";
     }
     if (isSkinning) {
-      this.fr += "#define RN_IS_SKINNING\n";
+      this.nr += "#define RN_IS_SKINNING\n";
     }
     if (isMorphing) {
-      this.fr += "#define RN_IS_MORPHING\n";
+      this.nr += "#define RN_IS_MORPHING\n";
     }
     if (isOutline) {
-      this.fr += "#define RN_MTOON_IS_OUTLINE\n";
+      this.nr += "#define RN_MTOON_IS_OUTLINE\n";
     }
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
@@ -95,7 +95,7 @@ var MToon1MaterialContent = class _MToon1MaterialContent extends AbstractMateria
       }
     }
     if (materialJson.alphaMode === "MASK") {
-      this.fr += "#define RN_ALPHATEST_ON\n";
+      this.nr += "#define RN_ALPHATEST_ON\n";
     }
   }
   /**
@@ -115,14 +115,14 @@ var MToon1MaterialContent = class _MToon1MaterialContent extends AbstractMateria
       specularHdriType,
       diffuseContribution,
       specularContribution
-    } = _MToon1MaterialContent.Zq(args);
-    const tmp_vector4 = AbstractMaterialContent.$q;
+    } = _MToon1MaterialContent.fr(args);
+    const tmp_vector4 = AbstractMaterialContent.hr;
     tmp_vector4.x = mipmapLevelNumber;
     tmp_vector4.y = diffuseContribution;
     tmp_vector4.z = specularContribution;
     tmp_vector4.w = meshRenderComponent.rotationOfCubeMap;
     material.setParameter("iblParameter", tmp_vector4);
-    const tmp_vector2 = AbstractMaterialContent.ar;
+    const tmp_vector2 = AbstractMaterialContent.ir;
     tmp_vector2.x = diffuseHdriType;
     tmp_vector2.y = specularHdriType;
     material.setParameter("hdriFormat", tmp_vector2);
@@ -164,7 +164,7 @@ var MToon1MaterialContent = class _MToon1MaterialContent extends AbstractMateria
         webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
           diffuseEnvSlot,
           args.diffuseCube,
-          this.Wq
+          this.cr
         ]);
       } else {
         webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
@@ -200,14 +200,14 @@ var MToon1MaterialContent = class _MToon1MaterialContent extends AbstractMateria
       specularHdriType,
       diffuseContribution,
       specularContribution
-    } = _MToon1MaterialContent.Zq(args);
-    const tmp_vector4 = AbstractMaterialContent.$q;
+    } = _MToon1MaterialContent.fr(args);
+    const tmp_vector4 = AbstractMaterialContent.hr;
     tmp_vector4.x = mipmapLevelNumber;
     tmp_vector4.y = diffuseContribution;
     tmp_vector4.z = specularContribution;
     tmp_vector4.w = meshRenderComponent.rotationOfCubeMap;
     material.setParameter("iblParameter", tmp_vector4);
-    const tmp_vector2 = AbstractMaterialContent.ar;
+    const tmp_vector2 = AbstractMaterialContent.ir;
     tmp_vector2.x = diffuseHdriType;
     tmp_vector2.y = specularHdriType;
     material.setParameter("hdriFormat", tmp_vector2);
@@ -225,7 +225,7 @@ var MToon1MaterialContent = class _MToon1MaterialContent extends AbstractMateria
    * @returns returns.diffuseHdriType - HDRI format index for diffuse cube map
    * @returns returns.specularHdriType - HDRI format index for specular cube map
    */
-  static Zq(args) {
+  static fr(args) {
     let mipmapLevelNumber = 1;
     if (args.specularCube) {
       mipmapLevelNumber = args.specularCube.mipmapLevelNumber;

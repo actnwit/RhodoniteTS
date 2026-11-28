@@ -22,17 +22,17 @@ var GreaterShaderNode = class extends AbstractShaderNode {
     super("greater", {
       codeGLSL: GreaterShaderityObject.code
     });
-    this.zr.push({
+    this.Hr.push({
       compositionType,
       componentType,
       name: "lhs"
     });
-    this.zr.push({
+    this.Hr.push({
       compositionType,
       componentType: ComponentType.Float,
       name: "rhs"
     });
-    this.Cr.push({
+    this.Kr.push({
       compositionType: CompositionType.Scalar,
       componentType: ComponentType.Bool,
       name: "outValue"

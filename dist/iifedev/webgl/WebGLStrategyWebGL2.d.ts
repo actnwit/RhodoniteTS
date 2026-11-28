@@ -53,11 +53,13 @@ export declare class WebGLStrategyWebGL2 implements CGAPIStrategy, WebGLStrategy
     private static __isDebugOperationToDataTextureBufferDone;
     private __uniformMorphOffsetsTypedArray?;
     private __uniformMorphWeightsTypedArray?;
+    private __isPreviousMorphWeightsSettled;
     private __lastBlendShapeComponentsUpdateCountForWeights;
     private __lastMorphMaxIndex;
     private __lastMaterialsUpdateCount;
     private __lastLightClusterDataVersion;
     private __lastLightComponentsUpdateCount;
+    private __lastGpuInstanceDataVersion;
     private __lastTotalSizeOfGPUShaderDataStorageExceptMorphData;
     private __lastTransformComponentsUpdateCount;
     private __lastSceneGraphComponentsUpdateCount;
@@ -273,6 +275,12 @@ export declare class WebGLStrategyWebGL2 implements CGAPIStrategy, WebGLStrategy
      * Copies weight values from blend shape components to GPU-accessible uniform buffers.
      */
     private __updateMorphWeightsUniformBuffer;
+    private __uploadMorphWeights;
+    /**
+     * Makes the weights of the previous frame in the morph weights uniform buffer equal to the current weights once
+     * the weights stopped changing (temporal anti-aliasing only).
+     */
+    private __settlePreviousMorphWeights;
     /**
      * Determines whether Uniform Buffer Objects (UBO) should be used for data storage.
      * UBOs are only used when both WebGL 2.0 is available and UBO usage is enabled in configuration.

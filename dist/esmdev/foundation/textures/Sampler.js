@@ -6,16 +6,16 @@ var Sampler = class {
    * @param desc - The sampler descriptor containing filtering and wrapping parameters
    */
   constructor(engine, desc) {
-    this.FB = -1;
+    this.iC = -1;
     var _a, _b, _c;
     this.c = engine;
-    this.GB = desc.minFilter;
-    this.HB = desc.magFilter;
-    this.IB = desc.wrapS;
-    this.JB = desc.wrapT;
-    this.KB = (_a = desc.wrapR) != null ? _a : TextureParameter.Repeat;
-    this.LB = (_b = desc.anisotropy) != null ? _b : true;
-    this.MB = (_c = desc.shadowCompareMode) != null ? _c : false;
+    this.jC = desc.minFilter;
+    this.kC = desc.magFilter;
+    this.lC = desc.wrapS;
+    this.mC = desc.wrapT;
+    this.nC = (_a = desc.wrapR) != null ? _a : TextureParameter.Repeat;
+    this.oC = (_b = desc.anisotropy) != null ? _b : true;
+    this.pC = (_c = desc.shadowCompareMode) != null ? _c : false;
   }
   /**
    * Creates the underlying graphics API sampler resource.
@@ -23,14 +23,14 @@ var Sampler = class {
    */
   create() {
     const webGLResourceRepository = this.c.cgApiResourceRepository;
-    this.FB = webGLResourceRepository == null ? void 0 : webGLResourceRepository.createTextureSampler({
-      minFilter: this.GB,
-      magFilter: this.HB,
-      wrapS: this.IB,
-      wrapT: this.JB,
-      wrapR: this.KB,
-      anisotropy: this.LB,
-      shadowCompareMode: this.MB
+    this.iC = webGLResourceRepository == null ? void 0 : webGLResourceRepository.createTextureSampler({
+      minFilter: this.jC,
+      magFilter: this.kC,
+      wrapS: this.lC,
+      wrapT: this.mC,
+      wrapR: this.nC,
+      anisotropy: this.oC,
+      shadowCompareMode: this.pC
     });
   }
   /**
@@ -38,42 +38,42 @@ var Sampler = class {
    * @returns True if the sampler has been created, false otherwise
    */
   get created() {
-    return this.FB !== -1;
+    return this.iC !== -1;
   }
   /**
    * Gets the minification filter mode used when the texture is scaled down.
    * @returns The minification filter parameter
    */
   get minFilter() {
-    return this.GB;
+    return this.jC;
   }
   /**
    * Gets the magnification filter mode used when the texture is scaled up.
    * @returns The magnification filter parameter
    */
   get magFilter() {
-    return this.HB;
+    return this.kC;
   }
   /**
    * Gets the texture wrapping mode for the S (horizontal) coordinate.
    * @returns The S-coordinate wrapping parameter
    */
   get wrapS() {
-    return this.IB;
+    return this.lC;
   }
   /**
    * Gets the texture wrapping mode for the T (vertical) coordinate.
    * @returns The T-coordinate wrapping parameter
    */
   get wrapT() {
-    return this.JB;
+    return this.mC;
   }
   /**
    * Gets the texture wrapping mode for the R (depth) coordinate.
    * @returns The R-coordinate wrapping parameter
    */
   get wrapR() {
-    return this.KB;
+    return this.nC;
   }
   /**
    * Gets the internal sampler resource handle used by the graphics API.
@@ -81,7 +81,7 @@ var Sampler = class {
    * @internal
    */
   get _samplerResourceUid() {
-    return this.FB;
+    return this.iC;
   }
   /**
    * Destroys the sampler resource and resets its internal state.
@@ -89,7 +89,7 @@ var Sampler = class {
    * @internal Called from Engine.destroy() or texture cleanup
    */
   destroy() {
-    this.FB = -1;
+    this.iC = -1;
   }
 };
 var __sharedSamplers = /* @__PURE__ */ new WeakMap();

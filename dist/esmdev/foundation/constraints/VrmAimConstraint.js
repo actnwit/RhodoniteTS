@@ -14,11 +14,11 @@ var VrmAimConstraint = class {
    * @param dstEntity - The entity that will be rotated to aim toward the source entity
    */
   constructor(srcEntity, aimAxis, weight, dstEntity) {
-    this.Sg = srcEntity;
-    this.qi = aimAxis;
-    this.ri = weight;
-    this.pi = dstEntity;
-    this.pi.getTransform()._backupTransformAsRest();
+    this.Wg = srcEntity;
+    this.xi = aimAxis;
+    this.yi = weight;
+    this.wi = dstEntity;
+    this.wi.getTransform()._backupTransformAsRest();
   }
   /**
    * Converts an aim axis string to its corresponding unit vector in local space.
@@ -68,11 +68,11 @@ var VrmAimConstraint = class {
    * The constraint respects the entity's rest pose and parent transformations.
    */
   update() {
-    const aimAxis = this.getAxisVector(this.qi);
-    const dstParentWorldQuat = Is.exist(this.pi.getSceneGraph().parent) ? this.pi.getSceneGraph().parent.rotation : Quaternion.identity();
-    const dstRestQuat = this.pi.localRotationRestInner;
+    const aimAxis = this.getAxisVector(this.xi);
+    const dstParentWorldQuat = Is.exist(this.wi.getSceneGraph().parent) ? this.wi.getSceneGraph().parent.rotation : Quaternion.identity();
+    const dstRestQuat = this.wi.localRotationRestInner;
     const fromVec = Quaternion.multiply(dstParentWorldQuat, dstRestQuat).transformVector3(aimAxis);
-    const toVec = Vector3.normalize(Vector3.subtract(this.Sg.position, this.pi.position));
+    const toVec = Vector3.normalize(Vector3.subtract(this.Wg.position, this.wi.position));
     const fromToQuat = Quaternion.fromToRotation(fromVec, toVec);
     const targetQuat = Quaternion.lerp(
       dstRestQuat,
@@ -80,9 +80,9 @@ var VrmAimConstraint = class {
         Quaternion.multiply(Quaternion.multiply(Quaternion.invert(dstParentWorldQuat), fromToQuat), dstParentWorldQuat),
         dstRestQuat
       ),
-      this.ri
+      this.yi
     );
-    this.pi.localRotation = targetQuat;
+    this.wi.localRotation = targetQuat;
   }
 };
 export {

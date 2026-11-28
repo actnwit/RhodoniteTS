@@ -26,9 +26,9 @@ var GreaterOrEqualShaderNode = class extends AbstractShaderNode {
       codeGLSL: GreaterOrEqualShaderityObjectGLSL.code,
       codeWGSL: GreaterOrEqualShaderityObjectWGSL.code
     });
-    this.zr.push(new Socket("lhs", CompositionType.Scalar, componentType));
-    this.zr.push(new Socket("rhs", CompositionType.Scalar, componentType));
-    this.Cr.push(new Socket("outValue", CompositionType.Scalar, ComponentType.Bool));
+    this.Hr.push(new Socket("lhs", CompositionType.Scalar, componentType));
+    this.Hr.push(new Socket("rhs", CompositionType.Scalar, componentType));
+    this.Kr.push(new Socket("outValue", CompositionType.Scalar, ComponentType.Bool));
   }
   /**
    * Gets the input socket for the left-hand side value.
@@ -36,7 +36,7 @@ var GreaterOrEqualShaderNode = class extends AbstractShaderNode {
    * @returns The input socket for the left operand
    */
   getSocketInputLhs() {
-    return this.zr[0];
+    return this.Hr[0];
   }
   /**
    * Gets the input socket for the right-hand side value.
@@ -44,7 +44,7 @@ var GreaterOrEqualShaderNode = class extends AbstractShaderNode {
    * @returns The input socket for the right operand
    */
   getSocketInputRhs() {
-    return this.zr[1];
+    return this.Hr[1];
   }
   /**
    * Gets the output socket that provides the comparison result.
@@ -52,7 +52,7 @@ var GreaterOrEqualShaderNode = class extends AbstractShaderNode {
    * @returns The output socket containing the boolean comparison result
    */
   getSocketOutput() {
-    return this.Cr[0];
+    return this.Kr[0];
   }
   /**
    * Gets the appropriate shader function name based on the current rendering approach and input type.
@@ -65,18 +65,18 @@ var GreaterOrEqualShaderNode = class extends AbstractShaderNode {
    */
   getShaderFunctionNameDerivative(engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      if (this.zr[0].componentType === ComponentType.Float) {
+      if (this.Hr[0].componentType === ComponentType.Float) {
         return "_greaterOrEqualF32";
       }
-      if (this.zr[0].componentType === ComponentType.Int) {
+      if (this.Hr[0].componentType === ComponentType.Int) {
         return "_greaterOrEqualI32";
       }
-      if (this.zr[0].componentType === ComponentType.UnsignedInt) {
+      if (this.Hr[0].componentType === ComponentType.UnsignedInt) {
         return "_greaterOrEqualU32";
       }
       throw new Error("Not supported component type.");
     }
-    return this.Br;
+    return this.Jr;
   }
 };
 export {

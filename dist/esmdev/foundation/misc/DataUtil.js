@@ -9,7 +9,7 @@ var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require
 import { Err, Ok } from "./Result.js";
 import { RnPromise } from "./RnPromise.js";
 var _DataUtil = class _DataUtil {
-  static yu(view, message) {
+  static Gu(view, message) {
     if (!(view.buffer instanceof ArrayBuffer)) {
       throw new Error(message);
     }
@@ -231,7 +231,7 @@ var _DataUtil = class _DataUtil {
    * @returns Blob URL string for the image
    */
   static createBlobImageUriFromUint8Array(uint8Array, mimeType) {
-    _DataUtil.yu(uint8Array, "SharedArrayBuffer is not supported when creating blob image URIs.");
+    _DataUtil.Gu(uint8Array, "SharedArrayBuffer is not supported when creating blob image URIs.");
     const blob = new Blob([uint8Array], { type: mimeType });
     const imageUrl = URL.createObjectURL(blob);
     return imageUrl;

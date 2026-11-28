@@ -11,8 +11,8 @@ import { WellKnownComponentTIDs } from "../WellKnownComponentTIDs.js";
 var _TransformComponent = class _TransformComponent extends Component {
   constructor() {
     super(...arguments);
-    this.Th = new Transform3D();
-    this.Vh = 0;
+    this._h = new Transform3D();
+    this.ai = 0;
   }
   /**
    * Gets the number of rendered properties for this component type.
@@ -40,10 +40,10 @@ var _TransformComponent = class _TransformComponent extends Component {
    * @returns The rest transform or current pose
    */
   get restOrPose() {
-    if (this.Uh !== void 0) {
-      return this.Uh;
+    if (this.$h !== void 0) {
+      return this.$h;
     }
-    return this.Th;
+    return this._h;
   }
   /**
    * Gets the update counter for transform components of the specified engine.
@@ -52,17 +52,17 @@ var _TransformComponent = class _TransformComponent extends Component {
    */
   static getUpdateCount(engine) {
     var _a;
-    return (_a = this.vd.get(engine)) != null ? _a : 0;
+    return (_a = this.zd.get(engine)) != null ? _a : 0;
   }
   /**
    * Increments the update counter for the specified engine.
    * @param engine - The engine instance to increment the update count for
    * @internal
    */
-  static Dd(engine) {
+  static Hd(engine) {
     var _a;
-    const currentCount = (_a = this.vd.get(engine)) != null ? _a : 0;
-    this.vd.set(engine, currentCount + 1);
+    const currentCount = (_a = this.zd.get(engine)) != null ? _a : 0;
+    this.zd.set(engine, currentCount + 1);
   }
   /**
    * Backs up the current transform as the rest pose.
@@ -70,8 +70,8 @@ var _TransformComponent = class _TransformComponent extends Component {
    * @internal
    */
   _backupTransformAsRest() {
-    if (this.Uh === void 0) {
-      this.Uh = this.Th.clone();
+    if (this.$h === void 0) {
+      this.$h = this._h.clone();
       const sceneGraphComponent = this.entity.tryToGetSceneGraph();
       sceneGraphComponent.setWorldMatrixRestDirty();
     }
@@ -81,13 +81,13 @@ var _TransformComponent = class _TransformComponent extends Component {
    * @internal
    */
   _restoreTransformFromRest() {
-    if (this.Uh === void 0) {
+    if (this.$h === void 0) {
       return;
     }
-    this.Th.setTransform(
-      this.Uh.positionInner,
-      this.Uh.scaleInner,
-      MutableQuaternion.fromCopyQuaternion(this.Uh.rotationInner)
+    this._h.setTransform(
+      this.$h.positionInner,
+      this.$h.scaleInner,
+      MutableQuaternion.fromCopyQuaternion(this.$h.rotationInner)
     );
   }
   /**
@@ -95,19 +95,19 @@ var _TransformComponent = class _TransformComponent extends Component {
    * @returns The current local transform
    */
   get localTransform() {
-    return this.Th;
+    return this._h;
   }
   /**
    * Sets the local transform of this entity.
    * @param transform - The new transform to apply
    */
   set localTransform(transform) {
-    this.Th.setTransform(
+    this._h.setTransform(
       transform.positionInner,
       transform.scaleInner,
       MutableQuaternion.fromCopyQuaternion(transform.rotationInner)
     );
-    _TransformComponent.Dd(this.c);
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Gets the local transform rest pose.
@@ -121,22 +121,22 @@ var _TransformComponent = class _TransformComponent extends Component {
    * @param transform - The transform to set as rest pose
    */
   set localTransformRest(transform) {
-    if (Is.undefined(this.Uh)) {
-      this.Uh = new Transform3D();
+    if (Is.undefined(this.$h)) {
+      this.$h = new Transform3D();
     }
-    this.Uh.setTransform(
+    this.$h.setTransform(
       transform.positionInner,
       transform.scaleInner,
       MutableQuaternion.fromCopyQuaternion(transform.rotationInner)
     );
-    _TransformComponent.Dd(this.c);
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Sets the local position of this entity and updates physics if applicable.
    * @param vec - The new position vector
    */
   set localPosition(vec) {
-    this.Th.position = vec;
+    this._h.position = vec;
     const sceneGraph = this.entity.tryToGetSceneGraph();
     if (sceneGraph == null ? void 0 : sceneGraph._hasPhysicsComponentInSubtree) {
       const parent = sceneGraph.parent;
@@ -146,48 +146,48 @@ var _TransformComponent = class _TransformComponent extends Component {
         sceneGraph.setPositionToPhysics(vec);
       }
     }
-    _TransformComponent.Dd(this.c);
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Sets the local position without updating physics simulation.
    * @param vec - The new position vector
    */
   set localPositionWithoutPhysics(vec) {
-    this.Th.position = vec;
-    _TransformComponent.Dd(this.c);
+    this._h.position = vec;
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Sets the local position using a 3-element array.
    * @param array - Array containing [x, y, z] position values
    */
   setLocalPositionAsArray3(array) {
-    this.Th.setPositionAsArray3(array);
-    _TransformComponent.Dd(this.c);
+    this._h.setPositionAsArray3(array);
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Gets a copy of the local position vector.
    * @returns A copy of the local position
    */
   get localPosition() {
-    return this.Th.position;
+    return this._h.position;
   }
   /**
    * Gets the internal mutable local position vector.
    * @returns The internal mutable position vector
    */
   get localPositionInner() {
-    return this.Th.positionInner;
+    return this._h.positionInner;
   }
   /**
    * Sets the local position as rest pose.
    * @param vec - The position vector to set as rest
    */
   set localPositionRest(vec) {
-    if (Is.undefined(this.Uh)) {
-      this.Uh = this.Th.clone();
+    if (Is.undefined(this.$h)) {
+      this.$h = this._h.clone();
     }
-    this.Uh.position = vec;
-    _TransformComponent.Dd(this.c);
+    this.$h.position = vec;
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Gets a copy of the local position rest vector.
@@ -208,7 +208,7 @@ var _TransformComponent = class _TransformComponent extends Component {
    * @param vec - The Euler angles vector (XYZ order)
    */
   set localEulerAngles(vec) {
-    this.Th.eulerAngles = vec;
+    this._h.eulerAngles = vec;
     const sceneGraph = this.entity.tryToGetSceneGraph();
     if (sceneGraph == null ? void 0 : sceneGraph._hasPhysicsComponentInSubtree) {
       const sx = Math.sin(vec._v[0] * 0.5);
@@ -230,40 +230,40 @@ var _TransformComponent = class _TransformComponent extends Component {
         sceneGraph.setRotationToPhysics(rotation);
       }
     }
-    _TransformComponent.Dd(this.c);
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Sets the local Euler angles without updating physics simulation.
    * @param vec - The Euler angles vector (XYZ order)
    */
   set localEulerAnglesWithoutPhysics(vec) {
-    this.Th.eulerAngles = vec;
-    _TransformComponent.Dd(this.c);
+    this._h.eulerAngles = vec;
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Gets a copy of the local Euler angles vector.
    * @returns A copy of the local rotation as Euler angles (XYZ order)
    */
   get localEulerAngles() {
-    return this.Th.eulerAngles;
+    return this._h.eulerAngles;
   }
   /**
    * Gets the internal mutable local Euler angles vector.
    * @returns The internal mutable Euler angles vector
    */
   get localEulerAnglesInner() {
-    return this.Th.eulerAnglesInner;
+    return this._h.eulerAnglesInner;
   }
   /**
    * Sets the local Euler angles as rest pose.
    * @param vec - The Euler angles vector to set as rest (XYZ order)
    */
   set localEulerAnglesRest(vec) {
-    if (Is.undefined(this.Uh)) {
-      this.Uh = this.Th.clone();
+    if (Is.undefined(this.$h)) {
+      this.$h = this._h.clone();
     }
-    this.Uh.eulerAngles = vec;
-    _TransformComponent.Dd(this.c);
+    this.$h.eulerAngles = vec;
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Gets a copy of the local Euler angles rest vector.
@@ -284,55 +284,55 @@ var _TransformComponent = class _TransformComponent extends Component {
    * @param vec - The new scale vector
    */
   set localScale(vec) {
-    this.Th.scale = vec;
+    this._h.scale = vec;
     const sceneGraph = this.entity.tryToGetSceneGraph();
     if (sceneGraph == null ? void 0 : sceneGraph._hasPhysicsComponentInSubtree) {
       const parent = sceneGraph.parent;
-      const worldMatrix = parent === void 0 ? this.Th.matrixInner : Matrix44.multiply(parent.matrixInner, this.Th.matrixInner);
+      const worldMatrix = parent === void 0 ? this._h.matrixInner : Matrix44.multiply(parent.matrixInner, this._h.matrixInner);
       sceneGraph.setScaleToPhysics(sceneGraph._getPhysicsWorldScale(worldMatrix));
     }
-    _TransformComponent.Dd(this.c);
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Sets the local scale without updating physics simulation.
    * @param vec - The new scale vector
    */
   set localScaleWithoutPhysics(vec) {
-    this.Th.scale = vec;
-    _TransformComponent.Dd(this.c);
+    this._h.scale = vec;
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Sets the local scale using a 3-element array.
    * @param array - Array containing [x, y, z] scale values
    */
   setLocalScaleAsArray3(array) {
-    this.Th.setScaleAsArray3(array);
-    _TransformComponent.Dd(this.c);
+    this._h.setScaleAsArray3(array);
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Gets a copy of the local scale vector.
    * @returns A copy of the local scale
    */
   get localScale() {
-    return this.Th.scale;
+    return this._h.scale;
   }
   /**
    * Gets the internal mutable local scale vector.
    * @returns The internal mutable scale vector
    */
   get localScaleInner() {
-    return this.Th.scaleInner;
+    return this._h.scaleInner;
   }
   /**
    * Sets the local scale as rest pose.
    * @param vec - The scale vector to set as rest
    */
   set localScaleRest(vec) {
-    if (Is.undefined(this.Uh)) {
-      this.Uh = this.Th.clone();
+    if (Is.undefined(this.$h)) {
+      this.$h = this._h.clone();
     }
-    this.Uh.scale = vec;
-    _TransformComponent.Dd(this.c);
+    this.$h.scale = vec;
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Gets a copy of the local scale rest vector.
@@ -353,7 +353,7 @@ var _TransformComponent = class _TransformComponent extends Component {
    * @param quat - The new rotation quaternion
    */
   set localRotation(quat) {
-    this.Th.rotation = quat;
+    this._h.rotation = quat;
     const sceneGraph = this.entity.tryToGetSceneGraph();
     if (sceneGraph == null ? void 0 : sceneGraph._hasPhysicsComponentInSubtree) {
       const parent = sceneGraph.parent;
@@ -363,48 +363,48 @@ var _TransformComponent = class _TransformComponent extends Component {
         sceneGraph.setRotationToPhysics(quat);
       }
     }
-    _TransformComponent.Dd(this.c);
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Sets the local rotation without updating physics simulation.
    * @param quat - The new rotation quaternion
    */
   set localRotationWithoutPhysics(quat) {
-    this.Th.rotation = quat;
-    _TransformComponent.Dd(this.c);
+    this._h.rotation = quat;
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Sets the local rotation using a 4-element array.
    * @param array - Array containing [x, y, z, w] quaternion values
    */
   setLocalRotationAsArray4(array) {
-    this.Th.setRotationAsArray4(array);
-    _TransformComponent.Dd(this.c);
+    this._h.setRotationAsArray4(array);
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Gets a copy of the local rotation quaternion.
    * @returns A copy of the local rotation quaternion
    */
   get localRotation() {
-    return this.Th.rotation;
+    return this._h.rotation;
   }
   /**
    * Gets the internal local rotation quaternion.
    * @returns The internal rotation quaternion
    */
   get localRotationInner() {
-    return this.Th.rotationInner;
+    return this._h.rotationInner;
   }
   /**
    * Sets the local rotation as rest pose.
    * @param quat - The rotation quaternion to set as rest
    */
   set localRotationRest(quat) {
-    if (Is.undefined(this.Uh)) {
-      this.Uh = this.Th.clone();
+    if (Is.undefined(this.$h)) {
+      this.$h = this._h.clone();
     }
-    this.Uh.rotation = quat;
-    _TransformComponent.Dd(this.c);
+    this.$h.rotation = quat;
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Gets a copy of the local rotation rest quaternion.
@@ -425,7 +425,7 @@ var _TransformComponent = class _TransformComponent extends Component {
    * @param mat - The new transformation matrix
    */
   set localMatrix(mat) {
-    this.Th.matrix = mat;
+    this._h.matrix = mat;
     const sceneGraph = this.entity.tryToGetSceneGraph();
     if (sceneGraph == null ? void 0 : sceneGraph._hasPhysicsComponentInSubtree) {
       const parent = sceneGraph.parent;
@@ -435,43 +435,43 @@ var _TransformComponent = class _TransformComponent extends Component {
         sceneGraph.setMatrixToPhysics(mat);
       }
     }
-    _TransformComponent.Dd(this.c);
+    _TransformComponent.Hd(this.c);
   }
   set localMatrixWithoutPhysics(mat) {
-    this.Th.matrix = mat;
-    _TransformComponent.Dd(this.c);
+    this._h.matrix = mat;
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Gets a copy of the local transformation matrix.
    * @returns A copy of the local transform matrix
    */
   get localMatrix() {
-    return this.Th.matrix;
+    return this._h.matrix;
   }
   /**
    * Gets the internal local transformation matrix.
    * @returns The internal local transform matrix
    */
   get localMatrixInner() {
-    return this.Th.matrixInner;
+    return this._h.matrixInner;
   }
   /**
    * Copies the local transformation matrix to the provided matrix object.
    * @param mat - The target matrix to copy the local matrix into
    */
   getLocalMatrixInnerTo(mat) {
-    this.Th.getMatrixInnerTo(mat);
+    this._h.getMatrixInnerTo(mat);
   }
   /**
    * Sets the local transformation matrix as rest pose.
    * @param mat - The transformation matrix to set as rest
    */
   set localMatrixRest(mat) {
-    if (Is.undefined(this.Uh)) {
-      this.Uh = this.Th.clone();
+    if (Is.undefined(this.$h)) {
+      this.$h = this._h.clone();
     }
-    this.Uh.matrix = mat;
-    _TransformComponent.Dd(this.c);
+    this.$h.matrix = mat;
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Gets a copy of the local transformation matrix rest pose.
@@ -500,9 +500,9 @@ var _TransformComponent = class _TransformComponent extends Component {
    * @internal
    */
   $logic() {
-    if (this.Vh !== this.Th.updateCount) {
+    if (this.ai !== this._h.updateCount) {
       this.entity.tryToGetSceneGraph().setWorldMatrixDirty();
-      this.Vh = this.Th.updateCount;
+      this.ai = this._h.updateCount;
     }
   }
   /**
@@ -512,12 +512,12 @@ var _TransformComponent = class _TransformComponent extends Component {
    */
   _shallowCopyFrom(component_) {
     const component = component_;
-    this.Th = component.Th.clone();
-    if (component.Uh != null) {
-      this.Uh = component.Uh.clone();
+    this._h = component._h.clone();
+    if (component.$h != null) {
+      this.$h = component.$h.clone();
     }
-    this.Vh = component.Vh;
-    _TransformComponent.Dd(this.c);
+    this.ai = component.ai;
+    _TransformComponent.Hd(this.c);
   }
   /**
    * Gets the entity that owns this component.
@@ -549,12 +549,12 @@ var _TransformComponent = class _TransformComponent extends Component {
        * @returns The transform component instance
        */
       getTransform() {
-        if (this.Wh === void 0) {
-          this.Wh = this.getComponentByComponentTID(
+        if (this.bi === void 0) {
+          this.bi = this.getComponentByComponentTID(
             WellKnownComponentTIDs.TransformComponentTID
           );
         }
-        return this.Wh;
+        return this.bi;
       }
       /**
        * Sets the local position of this entity.
@@ -798,11 +798,11 @@ var _TransformComponent = class _TransformComponent extends Component {
    * @internal
    */
   static _cleanupForEngine(engine) {
-    _TransformComponent.vd.delete(engine);
+    _TransformComponent.zd.delete(engine);
   }
 };
 /** Map to store update count per Engine instance for multi-engine support */
-_TransformComponent.vd = /* @__PURE__ */ new Map();
+_TransformComponent.zd = /* @__PURE__ */ new Map();
 var TransformComponent = _TransformComponent;
 export {
   TransformComponent

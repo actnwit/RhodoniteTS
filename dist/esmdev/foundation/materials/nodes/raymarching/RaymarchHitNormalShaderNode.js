@@ -15,7 +15,7 @@ var RaymarchHitNormalShaderNode = class extends AbstractShaderNode {
       codeWGSL: RaymarchHitNormalShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.Cr.push(
+    this.Kr.push(
       new Socket("outNormal", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 1))
     );
   }
@@ -23,7 +23,7 @@ var RaymarchHitNormalShaderNode = class extends AbstractShaderNode {
    * Gets the output socket that contains the hit normal in world space.
    */
   getSocketOutput() {
-    return this.Cr[0];
+    return this.Kr[0];
   }
 };
 export {

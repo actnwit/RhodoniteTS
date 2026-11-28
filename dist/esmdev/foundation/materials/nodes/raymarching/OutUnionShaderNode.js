@@ -13,13 +13,13 @@ var OutUnionShaderNode = class extends AbstractShaderNode {
    */
   constructor() {
     super("outUnion", {});
-    this.at = [];
-    this.bt = [];
-    this.Br += `_${this.Fr}`;
-    this.Ar = new OutUnionShader(this.Br);
+    this.it = [];
+    this.jt = [];
+    this.Jr += `_${this.Nr}`;
+    this.Ir = new OutUnionShader(this.Jr);
     this.setShaderStage("Fragment");
-    this.zr.push(new Socket("value", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
-    this.zr.push(new Socket("objectId", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
+    this.Hr.push(new Socket("value", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
+    this.Hr.push(new Socket("objectId", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
   }
   /**
    * Sets the per-component world matrix uniforms used to convert the local-space
@@ -27,8 +27,8 @@ var OutUnionShaderNode = class extends AbstractShaderNode {
    * @param uniformNames - Uniform names of the component's world matrices
    */
   setDistanceCorrectionUniformNames(uniformNames) {
-    this.at = [...uniformNames];
-    this.ct();
+    this.it = [...uniformNames];
+    this.kt();
   }
   /**
    * Sets the per-`SdApplyTransform` scale globals of the transform nodes in this
@@ -36,14 +36,14 @@ var OutUnionShaderNode = class extends AbstractShaderNode {
    * @param globalNames - Global names written by the reachable transform nodes
    */
   setDistanceScaleGlobalNames(globalNames) {
-    this.bt = [...globalNames];
-    this.ct();
+    this.jt = [...globalNames];
+    this.kt();
   }
-  ct() {
-    this.Ar = new OutUnionShader(
-      this.Br,
-      this.at,
-      this.bt
+  kt() {
+    this.Ir = new OutUnionShader(
+      this.Jr,
+      this.it,
+      this.jt
     );
   }
   /**
@@ -53,7 +53,7 @@ var OutUnionShaderNode = class extends AbstractShaderNode {
    * @returns The input socket that accepts Vec4 color values
    */
   getSocketInput() {
-    return this.zr[0];
+    return this.Hr[0];
   }
 };
 export {

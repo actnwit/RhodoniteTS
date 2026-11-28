@@ -16,11 +16,11 @@ import {
 var _RaymarchingComponent = class _RaymarchingComponent extends Component {
   constructor(engine, entityUid, componentSid, entityComponent, isReUse) {
     super(engine, entityUid, componentSid, entityComponent, isReUse);
-    this.Ce = {
+    this.Ge = {
       nodes: [],
       connections: []
     };
-    this.Ge = {
+    this.Ke = {
       id: "395df09a261a97eb",
       name: "SdSphere",
       outputs: {
@@ -54,7 +54,7 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
         y: -235.13699920478643
       }
     };
-    this.Le = {
+    this.Pe = {
       id: "395df09a261a97eb",
       name: "SdBox",
       outputs: {
@@ -88,7 +88,7 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
         y: -235.13699920478643
       }
     };
-    this.Me = {
+    this.Qe = {
       id: "395df09a261a97eb",
       name: "SdTorus",
       outputs: {
@@ -129,7 +129,7 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
         y: -235.13699920478643
       }
     };
-    this.Ne = {
+    this.Re = {
       id: "395df09a261a97eb",
       name: "SdCapsule",
       outputs: {
@@ -177,7 +177,7 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
         y: -235.13699920478643
       }
     };
-    this.Oe = {
+    this.Se = {
       id: "395df09a261a97eb",
       name: "SdRoundBox",
       outputs: {
@@ -218,7 +218,7 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
         y: -235.13699920478643
       }
     };
-    this.Pe = {
+    this.Te = {
       nodes: [
         {
           id: "9bb9fc374f4d0600",
@@ -239,7 +239,7 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
             y: -186.78308294802224
           }
         },
-        this.Ge,
+        this.Ke,
         {
           id: "823515b29e38a2b2",
           name: "OutUnion",
@@ -329,8 +329,8 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
         }
       ]
     };
-    this.Fe = SdfShapeType.Custom;
-    this.De = [];
+    this.Je = SdfShapeType.Custom;
+    this.He = [];
     /**
      * Whether this raymarching component participates in ray casting.
      */
@@ -365,8 +365,8 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
    * @param rrnJson - The RRN JSON data
    */
   set rrnJson(rrnJson) {
-    this.Ce = rrnJson;
-    this.Fe = SdfShapeType.Custom;
+    this.Ge = rrnJson;
+    this.Je = SdfShapeType.Custom;
     this.invalidateAABB();
   }
   /**
@@ -374,45 +374,45 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
    * @returns The RRN JSON data
    */
   get rrnJson() {
-    return this.Ce;
+    return this.Ge;
   }
   /**
    * Gets the SDF shape type for the RaymarchingComponent.
    * @returns The SDF shape type
    */
   get sdfShapeType() {
-    return this.Fe;
+    return this.Je;
   }
   /**
    * Sets the SDF shape type for the RaymarchingComponent.
    * @param sdfShapeType - The SDF shape type
    */
   set sdfShapeType(sdfShapeType) {
-    this.Fe = sdfShapeType;
+    this.Je = sdfShapeType;
     this.invalidateAABB();
-    const rrnJson = JSON.parse(JSON.stringify(this.Pe));
-    const presetNodeJson = this.Qe(sdfShapeType);
+    const rrnJson = JSON.parse(JSON.stringify(this.Te));
+    const presetNodeJson = this.Ue(sdfShapeType);
     if (presetNodeJson != null) {
       rrnJson.nodes[1] = JSON.parse(JSON.stringify(presetNodeJson));
     }
-    this.Ce = rrnJson;
+    this.Ge = rrnJson;
   }
   /**
    * Returns the preset SDF node JSON that replaces the template's placeholder node.
    * Custom (a graph authored in the node editor) has no preset node.
    */
-  Qe(sdfShapeType) {
+  Ue(sdfShapeType) {
     switch (sdfShapeType) {
       case SdfShapeType.Sphere:
-        return this.Ge;
+        return this.Ke;
       case SdfShapeType.Box:
-        return this.Le;
+        return this.Pe;
       case SdfShapeType.Torus:
-        return this.Me;
+        return this.Qe;
       case SdfShapeType.Capsule:
-        return this.Ne;
+        return this.Re;
       case SdfShapeType.RoundBox:
-        return this.Oe;
+        return this.Se;
       default:
         return void 0;
     }
@@ -422,10 +422,10 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
    * Set this when the raymarching material changes uniform values at runtime.
    */
   get uniformValueProvider() {
-    return this.Ee;
+    return this.Ie;
   }
   set uniformValueProvider(provider) {
-    this.Ee = provider;
+    this.Ie = provider;
     this.invalidateAABB();
   }
   /**
@@ -434,7 +434,7 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
   invalidateAABB() {
     var _a;
     (_a = this.entity.tryToGetSceneGraph()) == null ? void 0 : _a.setWorldAABBDirtyParentRecursively();
-    _RaymarchingComponent.He.set(this.c, _RaymarchingComponent.getAABBVersion(this.c) + 1);
+    _RaymarchingComponent.Le.set(this.c, _RaymarchingComponent.getAABBVersion(this.c) + 1);
   }
   /**
    * A version that changes whenever any raymarching component's AABB may have changed.
@@ -442,7 +442,7 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
    */
   static getAABBVersion(engine) {
     var _a;
-    return (_a = _RaymarchingComponent.He.get(engine)) != null ? _a : 0;
+    return (_a = _RaymarchingComponent.Le.get(engine)) != null ? _a : 0;
   }
   /**
    * Calculates a conservative world-space AABB of the SDF graph.
@@ -453,7 +453,7 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
     if (sceneGraph == null) {
       return null;
     }
-    const evaluator = new RaymarchingSdfEvaluator(this.Ce, sceneGraph.matrixInner, this.Ee);
+    const evaluator = new RaymarchingSdfEvaluator(this.Ge, sceneGraph.matrixInner, this.Ie);
     return evaluator.calcBounds();
   }
   /**
@@ -487,7 +487,7 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
     if (sceneGraph == null) {
       return void 0;
     }
-    const evaluator = new RaymarchingSdfEvaluator(this.Ce, sceneGraph.matrixInner, this.Ee);
+    const evaluator = new RaymarchingSdfEvaluator(this.Ge, sceneGraph.matrixInner, this.Ie);
     const hit = evaluator.marchRay(originInWorld, directionInWorld, options);
     if (hit != null) {
       return hit;
@@ -547,7 +547,7 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
    * transformed sphere
    */
   calcLocalSphereCollider() {
-    const evaluator = new RaymarchingSdfEvaluator(this.Ce, Matrix44.identity(), this.Ee);
+    const evaluator = new RaymarchingSdfEvaluator(this.Ge, Matrix44.identity(), this.Ie);
     const sphere = evaluator.calcSphere();
     if (sphere == null || !sphere.usesWorldMatrix) {
       return null;
@@ -564,11 +564,11 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
    * @returns The created shape information, or undefined when no finite shape exists
    */
   addColliderShape(options = {}) {
-    const descriptor = this.Ie(options.aabb);
+    const descriptor = this.Me(options.aabb);
     if (descriptor == null) {
       return void 0;
     }
-    const shapeComponent = this.Je(options.shapeComponent);
+    const shapeComponent = this.Ne(options.shapeComponent);
     if (shapeComponent == null) {
       return void 0;
     }
@@ -577,11 +577,11 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
         { type: "sphere", radius: descriptor.radius },
         { position: descriptor.center }
       );
-      this.Ke(shapeIndex2, shapeComponent);
+      this.Oe(shapeIndex2, shapeComponent);
       return { shapeIndex: shapeIndex2, shapeType: "sphere", center: descriptor.center, radius: descriptor.radius };
     }
     const shapeIndex = shapeComponent.addBoxFromAabb(descriptor.aabb, { origin: options.origin });
-    this.Ke(shapeIndex, shapeComponent);
+    this.Oe(shapeIndex, shapeComponent);
     return { shapeIndex, shapeType: "box", aabb: descriptor.aabb };
   }
   /**
@@ -595,20 +595,20 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
    * @returns The number of collider shapes that were updated or removed
    */
   updateColliderShapes() {
-    if (this.De.length === 0) {
+    if (this.He.length === 0) {
       return 0;
     }
     const shapeComponent = this.entity.tryToGetShape();
     if (shapeComponent == null) {
-      this.De = [];
+      this.He = [];
       return 0;
     }
-    const descriptor = this.Ie();
+    const descriptor = this.Me();
     const physicsComponent = this.entity.tryToGetPhysics();
     const keptIndices = [];
     let updated = 0;
     let removed = 0;
-    for (const shapeIndex of this.De) {
+    for (const shapeIndex of this.He) {
       const existing = shapeComponent.getShape(shapeIndex);
       if (existing == null) {
         continue;
@@ -619,7 +619,7 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
         removed++;
         continue;
       }
-      if (_RaymarchingComponent.Re(existing, descriptor)) {
+      if (_RaymarchingComponent.Ve(existing, descriptor)) {
         keptIndices.push(shapeIndex);
         continue;
       }
@@ -642,13 +642,13 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
       keptIndices.push(shapeIndex);
       updated++;
     }
-    this.De = keptIndices;
+    this.He = keptIndices;
     if (updated > 0 && physicsComponent != null && physicsComponent.shapeBindingCount > 0 && physicsComponent.strategy != null) {
       physicsComponent.rebuildShapeBindings();
     }
     return updated + removed;
   }
-  Ie(aabb) {
+  Me(aabb) {
     const sphere = this.calcLocalSphereCollider();
     if (sphere != null) {
       return { shapeType: "sphere", center: sphere.center, radius: sphere.radius };
@@ -662,15 +662,15 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
     }
     return { shapeType: "box", aabb: localAABB };
   }
-  Ke(shapeIndex, shapeComponent) {
+  Oe(shapeIndex, shapeComponent) {
     if (shapeComponent !== this.entity.tryToGetShape()) {
       return;
     }
-    if (!this.De.includes(shapeIndex)) {
-      this.De.push(shapeIndex);
+    if (!this.He.includes(shapeIndex)) {
+      this.He.push(shapeIndex);
     }
   }
-  static Re(instance, descriptor) {
+  static Ve(instance, descriptor) {
     const isNear = (a, b) => Math.abs(a - b) <= 1e-5 * Math.max(1, Math.abs(a), Math.abs(b));
     const isSamePosition = (position) => isNear(instance.localPosition.x, position.x) && isNear(instance.localPosition.y, position.y) && isNear(instance.localPosition.z, position.z);
     if (descriptor.shapeType === "sphere") {
@@ -693,16 +693,16 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
     if (localAABB.sizeX <= 0 || localAABB.sizeY <= 0 || localAABB.sizeZ <= 0) {
       return void 0;
     }
-    const shapeComponent = this.Je(options.shapeComponent);
+    const shapeComponent = this.Ne(options.shapeComponent);
     if (shapeComponent == null) {
       return void 0;
     }
     return shapeComponent.addBoxFromAabb(localAABB, { origin: options.origin });
   }
-  Je(shapeComponent) {
+  Ne(shapeComponent) {
     let component = shapeComponent != null ? shapeComponent : this.entity.tryToGetShape();
     if (component == null) {
-      this.Se.addComponentToEntity(ShapeComponent, this.entity);
+      this.We.addComponentToEntity(ShapeComponent, this.entity);
       component = this.entity.tryToGetShape();
     }
     return component;
@@ -715,10 +715,10 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
   _shallowCopyFrom(component) {
     super._shallowCopyFrom(component);
     const raymarchingComponent = component;
-    this.Ce = JSON.parse(JSON.stringify(raymarchingComponent.Ce));
-    this.Fe = raymarchingComponent.Fe;
-    this.Ee = raymarchingComponent.Ee;
-    this.De = [...raymarchingComponent.De];
+    this.Ge = JSON.parse(JSON.stringify(raymarchingComponent.Ge));
+    this.Je = raymarchingComponent.Je;
+    this.Ie = raymarchingComponent.Ie;
+    this.He = [...raymarchingComponent.He];
     this.isPickable = raymarchingComponent.isPickable;
     this.castShadow = raymarchingComponent.castShadow;
     this.invalidateAABB();
@@ -747,7 +747,7 @@ var _RaymarchingComponent = class _RaymarchingComponent extends Component {
     return base;
   }
 };
-_RaymarchingComponent.He = /* @__PURE__ */ new WeakMap();
+_RaymarchingComponent.Le = /* @__PURE__ */ new WeakMap();
 var RaymarchingComponent = _RaymarchingComponent;
 export {
   RaymarchingComponent

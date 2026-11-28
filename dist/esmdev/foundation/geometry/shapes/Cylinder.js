@@ -44,8 +44,8 @@ var Cylinder = class extends IShape {
       indices.push(bottom, top, nextBottom, nextBottom, top, nextTop);
     }
     if (includeCaps) {
-      this._l(-halfHeight, radiusBottom, -1, radialSegments, positions, normals, texcoords, indices);
-      this._l(halfHeight, radiusTop, 1, radialSegments, positions, normals, texcoords, indices);
+      this.fm(-halfHeight, radiusBottom, -1, radialSegments, positions, normals, texcoords, indices);
+      this.fm(halfHeight, radiusTop, 1, radialSegments, positions, normals, texcoords, indices);
     }
     const indexArray = positions.length / 3 > 65536 ? new Uint32Array(indices) : new Uint16Array(indices);
     this.copyVertexData({
@@ -56,7 +56,7 @@ var Cylinder = class extends IShape {
       material: _desc.material
     });
   }
-  _l(y, radius, normalY, radialSegments, positions, normals, texcoords, indices) {
+  fm(y, radius, normalY, radialSegments, positions, normals, texcoords, indices) {
     if (radius === 0) {
       return;
     }

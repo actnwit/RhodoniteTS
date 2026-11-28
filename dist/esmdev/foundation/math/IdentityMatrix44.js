@@ -9,7 +9,7 @@ var _IdentityMatrix44 = class _IdentityMatrix44 extends AbstractMatrix {
    */
   constructor() {
     super();
-    this._v = _IdentityMatrix44.Bt;
+    this._v = _IdentityMatrix44.Jt;
   }
   /**
    * Returns a string representation of the identity matrix in a readable format.
@@ -364,7 +364,7 @@ var _IdentityMatrix44 = class _IdentityMatrix44 extends AbstractMatrix {
  * Static array representing the identity matrix values in column-major order.
  * This is shared across all instances for memory efficiency.
  */
-_IdentityMatrix44.Bt = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+_IdentityMatrix44.Jt = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 var IdentityMatrix44 = _IdentityMatrix44;
 export {
   IdentityMatrix44

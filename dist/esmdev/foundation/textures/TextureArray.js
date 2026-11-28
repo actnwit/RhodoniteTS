@@ -15,7 +15,7 @@ var _TextureArray = class _TextureArray extends AbstractTexture {
    * @param uniqueName - A unique name for the texture used in logging and debugging
    * @private
    */
-  yB(textureResourceUid, uniqueName) {
+  bC(textureResourceUid, uniqueName) {
     this._textureResourceUid = textureResourceUid;
     _TextureArray.managedRegistry.register(this, { textureResourceUid, engine: this.c, uniqueName }, this);
   }
@@ -26,7 +26,7 @@ var _TextureArray = class _TextureArray extends AbstractTexture {
    * @param textureResourceUid - The unique identifier of the texture resource to delete
    * @private
    */
-  static zB(engine, textureResourceUid) {
+  static cC(engine, textureResourceUid) {
     const cgApiResourceRepository = engine.cgApiResourceRepository;
     cgApiResourceRepository.deleteTexture(textureResourceUid);
   }
@@ -67,14 +67,14 @@ var _TextureArray = class _TextureArray extends AbstractTexture {
       ComponentType.UnsignedByte,
       uint8Array
     );
-    this.yB(resourceUid, this.uniqueName);
+    this.bC(resourceUid, this.uniqueName);
     if (this.c.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = cgApiResourceRepository.createTextureView2dArray(
         this._textureResourceUid,
         this.c.config.maxLightNumberOrOne
       );
     }
-    this.oB = true;
+    this.TB = true;
   }
   /**
    * Destroys the 3D API resources associated with this texture array.
@@ -82,14 +82,14 @@ var _TextureArray = class _TextureArray extends AbstractTexture {
    * After calling this method, the texture cannot be used until reloaded.
    */
   destroy3DAPIResources() {
-    _TextureArray.zB(this.c, this._textureResourceUid);
+    _TextureArray.cC(this.c, this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this._samplerResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     if (this._recommendedTextureSampler) {
       this._recommendedTextureSampler.destroy();
     }
-    this.oB = false;
-    this.rB = false;
+    this.TB = false;
+    this.WB = false;
   }
   /**
    * Symbol.dispose implementation for automatic resource cleanup.
@@ -122,7 +122,7 @@ _TextureArray.managedRegistry = new FinalizationRegistry((texObj) => {
   Logger.default.info(
     `WebGL/WebGPU texture array "${texObj.uniqueName}" was automatically released along with GC. But explicit release is recommended.`
   );
-  _TextureArray.zB(texObj.engine, texObj.textureResourceUid);
+  _TextureArray.cC(texObj.engine, texObj.textureResourceUid);
 });
 var TextureArray = _TextureArray;
 export {

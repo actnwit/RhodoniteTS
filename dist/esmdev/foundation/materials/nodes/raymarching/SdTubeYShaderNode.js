@@ -19,11 +19,11 @@ var SdTubeYShaderNode = class extends AbstractShaderNode {
       codeWGSL: SdTubeYShaderityObjectWGSL.code
     });
     this.setShaderStage("Fragment");
-    this.zr.push(
+    this.Hr.push(
       new Socket("position", CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 0))
     );
-    this.zr.push(new Socket("width", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1)));
-    this.Cr.push(
+    this.Hr.push(new Socket("width", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1)));
+    this.Kr.push(
       new Socket("outDistance", CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0))
     );
   }
